@@ -6,9 +6,10 @@ from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.cli_util.cli_constants import SonicConstant
-from ngts.tests.nightly.dynamic_port_breakout.conftest import logger, get_ports_list_from_loopback_tuple_list, \
+from ngts.tests.nightly.conftest import save_configuration_and_reboot
+from ngts.tests.nightly.dynamic_port_breakout.conftest import get_ports_list_from_loopback_tuple_list, \
     set_ip_dependency, verify_no_breakout, set_dpb_conf, verify_port_speed_and_status, \
-    send_ping_and_verify_results
+    send_ping_and_verify_results, build_remove_dpb_conf
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
@@ -19,7 +20,7 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import logger, get_ports_
                                                'https://github.com/Azure/sonic-buildimage/issues/5947']})
 @allure.title('Dynamic Port Breakout with Dependencies')
 def test_dpb_configuration_interop(topology_obj, dut_engine, cli_object, ports_breakout_modes, tested_modes_lb_conf,
-                                   cleanup_list, dependency_list=['vlan', 'portchannel'], reboot_type=None):
+                                   cleanup_list, dependency_list=["vlan", "portchannel", "ip"], reboot_type='reboot'):
     """
     self.tested_modes_lb_conf = a dictionary of the tested configuration,
     i.e breakout mode and ports list which breakout mode will be applied on
@@ -65,11 +66,11 @@ def set_dependencies(topology_obj, dependency_list, ports_list, cleanup_list):
             }
     ports_dependencies = {port: {} for port in ports_list}
     for dependency in dependency_list:
-        conf[dependency](topology_obj, ports_list, ports_dependencies, cleanup_list)
+        conf[dependency](topology_obj, ports_list, ports_dependencies, cleanup_list, dependency_list)
     return ports_dependencies
 
 
-def set_vlan_dependency(topology_obj, ports_list, ports_dependencies, cleanup_list):
+def set_vlan_dependency(topology_obj, ports_list, ports_dependencies, cleanup_list, dependency_list):
     """
     configure vlan dependency on all the ports in ports_list and update the configuration
     in the dictionary ports_dependencies.
@@ -83,14 +84,17 @@ def set_vlan_dependency(topology_obj, ports_list, ports_dependencies, cleanup_li
     vlan_mode = random.choice(['access', 'trunk'])
     vlan_members = []
     for port in ports_list:
-        vlan_members.append({port: vlan_mode})
+        vlan_member = port
+        if 'portchannel' in dependency_list:
+            vlan_member = ports_dependencies[port]["portchannel"]
+        vlan_members.append({vlan_member: vlan_mode})
         ports_dependencies[port].update({'vlan': 'Vlan{}'.format(vlan_num)})
     vlan_config_dict = {'dut': [{'vlan_id': vlan_num, 'vlan_members': vlan_members}]}
     VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
     cleanup_list.append((VlanConfigTemplate.cleanup, (topology_obj, vlan_config_dict,)))
 
 
-def set_port_channel_dependency(topology_obj, ports_list, ports_dependencies, cleanup_list):
+def set_port_channel_dependency(topology_obj, ports_list, ports_dependencies, cleanup_list, dependency_list):
     """
     configure port-channel dependency on all the ports in ports_list and update the configuration
     in the dictionary ports_dependencies.
@@ -255,22 +259,9 @@ def reboot_and_check_functionality(topology_obj, dut_engine, cli_object, cleanup
     'Ethernet217': '25G',...}
     :return: raise assertion error in case validation failed after reboot
     """
-    save_configuration_and_reboot(dut_engine, cleanup_list, reboot_type)
-    verify_port_speed_and_status(cli_object, dut_engine, breakout_ports_conf)
-    send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, tested_modes_lb_conf)
-
-
-def save_configuration_and_reboot(dut_engine, cleanup_list, reboot_type):
-    """
-    save configuration and reboot
-    :param reboot_type: i.e reboot/warm-reboot/fast-reboot
-    :return: none
-    """
-    with allure.step('Save configuration and reboot with type: {}'.format(reboot_type)):
-        dut_engine.run_cmd('sudo config save -y')
-        cleanup_list.append((dut_engine.run_cmd, ('sudo config save -y',)))
-        logger.info("Reload switch with reboot type: {}".format(reboot_type))
-        dut_engine.reload(['sudo {}'.format(reboot_type)])
+    interfaces_list = list(breakout_ports_conf.keys())
+    save_configuration_and_reboot(dut_engine, cli_object, interfaces_list, cleanup_list, reboot_type)
+    send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, tested_modes_lb_conf.values())
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
@@ -282,7 +273,7 @@ def save_configuration_and_reboot(dut_engine, cleanup_list, reboot_type):
                                                'https://github.com/Azure/sonic-buildimage/issues/5947']})
 @allure.title('Dynamic Port remove breakout from breakout ports with dependencies')
 def test_remove_dpb_configuration_interop(topology_obj, dut_engine, cli_object, ports_breakout_modes,
-                                          cleanup_list, tested_modes_lb_conf, dependency_list=['vlan', 'portchannel']):
+                                          cleanup_list, tested_modes_lb_conf, dependency_list=["vlan", "portchannel", "ip"]):
     """
     This test case will set dependency configuration on a split port,
     then will try to unsplit the port with/without force,
@@ -350,8 +341,7 @@ def verify_remove_breakout_failed(dut_engine, cli_object, ports_breakout_modes, 
     :return: raise assertion error in case validation failed
     """
     breakout_ports = ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode]
-    with allure.step('Verify remove breakout without force failed and all breakout ports : {} are up'
-                             .format(breakout_ports)):
+    with allure.step('Verify remove breakout without force failed and all breakout ports : {} are up'.format(breakout_ports)):
         cli_object.interface.check_ports_status(dut_engine, breakout_ports, expected_status='up')
 
 
@@ -372,18 +362,7 @@ def verify_remove_breakout_with_force(topology_obj, dut_engine, cli_object,
         verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf=tested_modes_lb_conf)
     verify_port_speed_and_status(cli_object, dut_engine, breakout_ports_conf)
     verify_no_dependencies_on_ports(dut_engine, cli_object, dependency_list,  ports_dependencies)
-    send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, tested_modes_lb_conf)
+    send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, tested_modes_lb_conf.values())
     return breakout_ports_conf
 
 
-def build_remove_dpb_conf(tested_modes_lb_conf, ports_breakout_modes):
-    """
-    :return: a dictionary with the breakout mode to remove all the breakout configuration
-    i.e,
-    {'1x100G[50G,40G,25G,10G]': ('Ethernet212', 'Ethernet216'),
-    '1x100G[50G,40G,25G,10G]': ('Ethernet228', 'Ethernet232')}
-    """
-    remove_breakout_ports_conf = {}
-    for breakout_mode, lb in tested_modes_lb_conf.items():
-        remove_breakout_ports_conf[ports_breakout_modes[lb[0]]['default_breakout_mode']] = lb
-    return remove_breakout_ports_conf

@@ -1,8 +1,13 @@
 import allure
 import pytest
+import random
 import re
+from copy import deepcopy
+
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
-    is_splittable, set_dpb_conf, verify_port_speed
+    is_splittable, set_dpb_conf, verify_port_speed, set_ip_conf_for_ping, send_ping_and_validate_result
+
+from ngts.tests.nightly.dynamic_port_breakout.test_dpb_introp import verify_port_speed_and_status
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")

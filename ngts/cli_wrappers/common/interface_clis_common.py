@@ -7,3 +7,15 @@ class InterfaceCliCommon(InterfaceCliInterface):
     """
     def __init__(self):
         pass
+
+    @staticmethod
+    def config_advertised_speeds(engine, interface, speed_list):
+        pass
+
+    @staticmethod
+    def config_interface_type(engine, interface, interface_type):
+        pass
+
+    @staticmethod
+    def config_advertised_interface_types(engine, interface, interface_type_list):
+        pass

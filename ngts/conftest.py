@@ -238,6 +238,12 @@ def hb_dut_2_mac(engines, interfaces):
 
 
 @pytest.fixture(scope='session')
+def chip_type(topology_obj):
+    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
+    return chip_type
+
+
+@pytest.fixture(scope='session')
 def sonic_version(engines):
     """
     Pytest fixture which are returning current SONiC installed version
@@ -256,6 +262,15 @@ def engines(topology_obj):
     engines_data.ha = topology_obj.players['ha']['engine']
     engines_data.hb = topology_obj.players['hb']['engine']
     return engines_data
+
+
+@pytest.fixture(autouse=True, scope='session')
+def cli_objects(topology_obj):
+    cli_obj_data = DottedDict()
+    cli_obj_data.dut = topology_obj.players['dut']['cli']
+    cli_obj_data.ha = topology_obj.players['ha']['cli']
+    cli_obj_data.hb = topology_obj.players['hb']['cli']
+    return cli_obj_data
 
 
 @pytest.fixture(scope='session')

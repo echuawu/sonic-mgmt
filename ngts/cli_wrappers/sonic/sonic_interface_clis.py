@@ -3,6 +3,7 @@ import logging
 
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+from ngts.constants.constants import AutonegCommandConstants
 
 logger = logging.getLogger()
 
@@ -51,6 +52,16 @@ class SonicInterfaceCli(InterfaceCliCommon):
             speed = int(speed.split('G')[0]) * 1000
 
         return engine.run_cmd("sudo config interface speed {} {}".format(interface, speed))
+
+    def set_interfaces_speed(self, engine, interfaces_speed_dict):
+        """
+        Method which setting interface speed
+        :param engine: ssh engine object
+        :param interfaces_speed_dict:  i.e, {'Ethernet0': '50G'}
+        :return: command output
+        """
+        for interface, speed in interfaces_speed_dict.items():
+            self.set_interface_speed(engine, interface, speed)
 
     @staticmethod
     def set_interface_mtu(engine, interface, mtu):
@@ -204,3 +215,82 @@ class SonicInterfaceCli(InterfaceCliCommon):
             else:
                 raise AssertionError("Command: {} failed with error {} when was expected to pass".format(cmd, e))
 
+    @staticmethod
+    def config_auto_negotiation_mode(engine, interface, mode):
+        """
+        configure the auto negotiation mode on the interface
+        :param engine: ssh engine object
+        :param interface: i.e, Ethernet0
+        :param mode: the auto negotiation mode to be configured, i.e. 'enabled'/'disabled'
+        :return: the command output
+        """
+        return engine.run_cmd("sudo config interface autoneg {interface_name} {mode}"
+                              .format(interface_name=interface, mode=mode))
+
+    @staticmethod
+    def config_advertised_speeds(engine, interface, speed_list):
+        """
+        configure the advertised speeds on the interface
+        :param engine: ssh engine object
+        :param interface: i.e, Ethernet0
+        :param speed_list: a string of speed configuration, i.e, "10000,50000" or "all"
+        :return:  the command output
+        """
+        return engine.run_cmd("sudo config interface advertised-speeds {interface_name} {speed_list}"
+                              .format(interface_name=interface, speed_list=speed_list))
+
+    @staticmethod
+    def config_interface_type(engine, interface, interface_type):
+        """
+        configure the type on the interface
+        :param engine: ssh engine object
+        :param interface: i.e, Ethernet0
+        :param interface_type: a string of interface type , i.e. "CR"/"CR2"
+        :return: the command output
+        """
+        return engine.run_cmd("sudo config interface type {interface_name} {interface_type}"
+                              .format(interface_name=interface, interface_type=interface_type))
+
+    @staticmethod
+    def config_advertised_interface_types(engine, interface, interface_type_list):
+        """
+        configure the advertised types on the interface
+        :param engine: ssh engine object
+        :param interface: i.e, Ethernet0
+        :param interface_type_list:  a string of interfaces types to advertised , i.e. "CR,CR2" or "all"
+        :return: the command output
+        """
+        return engine.run_cmd("sudo config interface advertised-types {interface_name} {interface_type_list}"
+                              .format(interface_name=interface,
+                                      interface_type_list=interface_type_list))
+
+    @staticmethod
+    def show_interfaces_auto_negotiation_status(engine, interface=''):
+        """
+        show interfaces auto negotiation status for specific interface or all interfaces.
+        :param engine: ssh engine object
+        :param interface: i.e, Ethernet0 or empty string '' for all interfaces
+        :return: the command output
+        """
+        return engine.run_cmd("sudo show interfaces autoneg status {interface_name}".format(interface_name=interface))
+
+    @staticmethod
+    def parse_show_interfaces_auto_negotiation_status(engine, interface=''):
+        """
+        Method which getting parsed interfaces auto negotiation status
+        :param engine: ssh engine object
+        :return: a dictionary of parsed output of show command
+        {'Ethernet0':
+        {'Interface': 'Ethernet0',
+        'Auto-Neg Mode': 'disabled',
+        'Speed': '10G',
+        'Adv Speeds': 'all',
+        'Type': 'CR',
+        'Adv Types': 'all',
+        'Oper': 'up',
+        'Admin': 'up'}}
+        """
+        ifaces_auto_neg_status = SonicInterfaceCli.show_interfaces_auto_negotiation_status(engine, interface=interface)
+        return generic_sonic_output_parser(ifaces_auto_neg_status,
+                                           headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
+                                           data_ofset_from_end=None, column_ofset=2, output_key='Interface')
