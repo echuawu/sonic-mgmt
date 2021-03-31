@@ -140,3 +140,17 @@ class SonicAppExtensionCli:
         :Return specified version app changelog
         """
         return engine.run_cmd("sudo spm show package changelog {}={} ".format(app_name, version), validate=True)
+
+    @staticmethod
+    def verify_version_support_app_ext(dut_engine):
+        """
+        Verify if the version support app ext feature by finding the cmd of sonic-package-manager or not
+        :param dut_engine: ssh engine object
+        :return True if support app ext, else False
+        """
+        app_ext_cmd_prefix = 'sonic-package-manager'
+        output = dut_engine.run_cmd('which {}'.format(app_ext_cmd_prefix))
+        if app_ext_cmd_prefix in output:
+            return True
+        else:
+            return False
