@@ -3,6 +3,7 @@ import logging
 import random
 import time
 import pexpect
+import json
 import netmiko
 import traceback
 from retry import retry
@@ -423,3 +424,19 @@ class SonicGeneralCli(GeneralCliCommon):
         warm_reboot_status = SonicGeneralCli.get_warm_reboot_status(dut_engine)
         if expected_status not in warm_reboot_status:
             raise Exception('warm-reboot status "{}" not as expected "{}"'.format(warm_reboot_status, expected_status))
+    def get_config_db(dut_engine):
+        config_db_json = dut_engine.run_cmd('cat {}'.format(SonicConst.CONFIG_DB_JSON_PATH), print_output=False)
+        return json.loads(config_db_json)
+
+    @staticmethod
+    def is_spc1(cli_object, dut):
+        """
+        Function to check if the current DUT is SPC1
+        :param dut: the DUT
+        :param cli_object: cli_object
+        """
+        platform = cli_object.chassis.get_platform(dut)
+        # if msn2 in platform, it's spc1. e.g. x86_64-mlnx_msn2700-r0
+        if 'msn2' in platform:
+            return True
+        return False
