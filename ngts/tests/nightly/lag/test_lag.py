@@ -363,7 +363,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
 
         with allure.step('Check that all interfaces in Up state'.format()):
             ports_list = member_interfaces + [PORTCHANNEL_NAME]
-            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=20, delay=10,
+            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=20, delay=15,
                        logger=logger)
 
         with allure.step('Validate members status in PortChannel'):
@@ -379,7 +379,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                   PORTCHANNEL_NAME,
                                                   'Up',
                                                   expected_ports_status_list,
-                                                  tries=5)
+                                                  tries=10)
         with allure.step('Validate dockers status'):
             SonicGeneralCli.verify_dockers_are_up(engines.dut)
     except BaseException as err:
