@@ -3,7 +3,7 @@
     <global>
         <Test>
             <info> SFLOW test </info>
-            <name> sflow tests </name>
+            <name> sflow_tests </name>
             <owner> SONiC </owner>
         </Test>
         <Case>
@@ -15,7 +15,7 @@
 
     <case>
         <info> SFLOW tests</info>
-        <name> sflow tests </name>
+        <name> sflow_tests </name>
         <tout> 9600 </tout>
         <cmd>
             <params>
