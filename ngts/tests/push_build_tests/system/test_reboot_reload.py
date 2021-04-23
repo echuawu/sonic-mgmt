@@ -1,6 +1,7 @@
 import allure
 import logging
 import pytest
+import os
 
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 
