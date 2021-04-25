@@ -149,7 +149,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
-        cmd = "py.test {SCRIPTS} --inventory \"../ansible/inventory, ../ansible/veos\" --host-pattern {DUT_NAME}-{SONIC_TOPO} --module-path \
+        cmd = "py.test {SCRIPTS} --inventory \"../ansible/inventory, ../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
                --allow_recover \
                --junit-xml {REPORT_FILE} --assert plain {OPTIONS}"

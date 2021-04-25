@@ -33,9 +33,6 @@ MAX_WAIT_TIME_FOR_INTERFACES = 300
 MAX_WAIT_TIME_FOR_REBOOT_CAUSE = 120
 
 
-sku_supporting_reboot_cause_test = ['ACS-MSN2410', 'ACS-MSN2700', "LS-SN2700", 'Mellanox-SN2700', 'Mellanox-SN2700-D48C8', 'ACS-MSN3700', 'ACS-MSN3700C', 'ACS-MSN3800', 'Mellanox-SN3800-D112C8', 'ACS-MSN4700']
-sku_supporting_fast_reboot = ['ACS-MSN2410', 'ACS-MSN2700', "LS-SN2700", 'Mellanox-SN2700', 'Mellanox-SN2700-D48C8', 'ACS-MSN2100', 'ACS-MSN2010', 'ACS-MSN2740']
-
 @pytest.fixture(scope="module", autouse=True)
 def teardown_module(duthosts, rand_one_dut_hostname, conn_graph_facts, xcvr_skip_list):
     duthost = duthosts[rand_one_dut_hostname]
@@ -143,9 +140,6 @@ def test_fast_reboot(duthosts, rand_one_dut_hostname, localhost, conn_graph_fact
 
     duthost = duthosts[rand_one_dut_hostname]
 
-    if duthost.facts["hwsku"] not in sku_supporting_fast_reboot:
-        pytest.skip("Fast reboot skipped because %s doesn't support it" % duthost.facts["hwsku"])
-
     if duthost.is_multi_asic:
         pytest.skip("Multi-ASIC devices not supporting fast reboot")
 
@@ -192,7 +186,7 @@ def _power_off_reboot_helper(kwargs):
         pdu_ctrl.turn_on_outlet(outlet)
 
 
-def test_power_off_reboot(duthosts, rand_one_dut_hostname, localhost, conn_graph_facts, xcvr_skip_list, pdu_controller, power_off_delay):
+def test_power_off_reboot(duthosts, enum_rand_one_per_hwsku_hostname, localhost, conn_graph_facts, xcvr_skip_list, pdu_controller, power_off_delay):
     """
     @summary: This test case is to perform reboot via powercycle and check platform status
     @param duthost: Fixture for DUT AnsibleHost object
@@ -202,11 +196,7 @@ def test_power_off_reboot(duthosts, rand_one_dut_hostname, localhost, conn_graph
     @param pdu_controller: The python object of psu controller
     @param power_off_delay: Pytest parameter. The delay between turning off and on the PSU
     """
-    duthost = duthosts[rand_one_dut_hostname]
-
-    if duthost.facts["hwsku"] not in sku_supporting_reboot_cause_test:
-        pytest.skip("Reboot-cause check skipped because %s doesn't support it" % duthost.facts["hwsku"])
-
+    duthost = duthosts[enum_rand_one_per_hwsku_hostname]
     pdu_ctrl = pdu_controller
     if pdu_ctrl is None:
         pytest.skip("No PSU controller for %s, skip rest of the testing in this case" % duthost.hostname)
@@ -241,10 +231,6 @@ def test_watchdog_reboot(duthosts, rand_one_dut_hostname, localhost, conn_graph_
     @summary: This test case is to perform reboot via watchdog and check platform status
     """
     duthost = duthosts[rand_one_dut_hostname]
-
-    if duthost.facts["hwsku"] not in sku_supporting_reboot_cause_test:
-        pytest.skip("Reboot-cause check skipped because %s doesn't support it" % duthost.facts["hwsku"])
-
     test_watchdog_supported = "python -c \"import sonic_platform.platform as P; P.Platform().get_chassis().get_watchdog(); exit()\""
 
     watchdog_supported = duthost.command(test_watchdog_supported,module_ignore_errors=True)["stderr"]

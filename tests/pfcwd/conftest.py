@@ -52,22 +52,6 @@ def fake_storm(request, duthosts, rand_one_dut_hostname):
     duthost = duthosts[rand_one_dut_hostname]
     return request.config.getoption('--fake-storm') if not isMellanoxDevice(duthost) else False
 
-@pytest.fixture(scope="module")
-def fake_storm(request, duthosts, rand_one_dut_hostname):
-    """
-    Enable/disable fake storm based on platform and input parameters
-
-    Args:
-        request: pytest request object
-        duthosts: AnsibleHost instance for multi DUT
-        rand_one_dut_hostname: hostname of DUT
-
-    Returns:
-        fake_storm: False/True
-    """
-    duthost = duthosts[rand_one_dut_hostname]
-    return request.config.getoption('--fake-storm') if not isMellanoxDevice(duthost) else False
-
 
 def update_t1_test_ports(duthost, mg_facts, test_ports, asic_index):
     """
