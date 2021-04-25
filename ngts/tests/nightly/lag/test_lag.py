@@ -397,6 +397,13 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
     :return: raise assertion error on unexpected behavior
     """
     try:
+        # workaround for issue in teardown.
+        # removing of LAGs take time. But in show and ASIC_DB it is presented as already removed.
+        # the current indicate that LAG was removed is only logging:
+        #           "NOTICE teamd#teammgrd: :- removeLag: Stop port channel PortChannel128"
+        # TODO create logic for checking the logging.
+        cleanup_list.append((time.sleep, (120,)))
+
         dut_cli = topology_obj.players['dut']['cli']
 
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
@@ -431,7 +438,6 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
         raise AssertionError(err)
 
 
-@pytest.mark.ngts_skip({'rm_ticket_list': [2602350]})
 @allure.title('LAG port channels with member scale Test')
 def test_lags_with_member_scale(topology_obj, interfaces, engines, cleanup_list):
     """
