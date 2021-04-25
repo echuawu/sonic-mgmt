@@ -42,8 +42,8 @@ def _parse_args():
                         help="Docker registry URL. Default: use lib/constants.DOCKER_REGISTRY")
     parser.add_argument("--docker-name", nargs="?", default="sonic-mgmt", dest="docker_name",
                         help="Name of the sonic-mgmt docker. Default: 'sonic-mgmt'")
-    parser.add_argument("--docker-tag", nargs="?", default="latest", dest="docker_tag",
-                        help="Docker image tag. Default: 'latest'")
+    parser.add_argument("--docker-tag", nargs="?", dest="docker_tag",
+                        help="Docker image tag. Optional parameter.")
     parser.add_argument("--delete_container", nargs="?", dest="delete_container", default=False,
                         help="Force container removal and recreation, even if a docker container with the expected "
                              "image is already running.")
@@ -347,8 +347,12 @@ def main():
         registry_url = args.registry_url
         logger.info("Override default registry_url value, now registry_url=%s" % registry_url)
 
-    docker_tag = args.docker_tag
     docker_name = args.docker_name
+    if args.docker_tag:
+        docker_tag = args.docker_tag
+    else:
+        docker_tag = get_docker_default_tag(docker_name)
+
     if args.dut_name:
         container_name = '{}_{}'.format(args.dut_name, docker_name)
     else:
@@ -415,6 +419,11 @@ def main():
 
     logger.info("################### DONE ###################")
 
+
+def get_docker_default_tag(docker_name):
+    latest = "latest"
+    default_list = {'docker-ngts': '1.2.27'}
+    return default_list.get(docker_name, latest)
 
 if __name__ == "__main__":
     try:
