@@ -42,7 +42,7 @@ class TestRebootReload:
                                                                                    "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
             loganalyzer.ignore_regex.extend(ignore_regex_list)
 
-    @pytest.mark.ngts_skip({'platform_prefix_list': ['simx'], 'rm_ticket_list': [2566883]})
+    @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     @pytest.mark.parametrize('validation_type', validation_types)
     def test_push_gate_reboot(self, validation_type):
         """
@@ -91,7 +91,6 @@ class TestRebootReload:
                                     'background': 'start',
                                     'args': {'interface': self.ping_sender_iface,
                                              'count': 200, 'dst': self.dut_vlan40_int_ip,
-                                             'allowed_traffic_interruptions': 1,
                                              'allowed_traffic_loss_time': allowed_control_loss_time},
                                     }
         control_plane_checker = PingChecker(self.topology_obj.players, validation_control_plane)
@@ -107,7 +106,6 @@ class TestRebootReload:
                                  'args': {'interface': self.ping_sender_iface,
                                           'count': 200000, 'dst': self.hb_vlan40_ip,
                                           'interval': 0.001,
-                                          'allowed_traffic_interruptions': 1,
                                           'allowed_traffic_loss_time': allowed_data_loss_time}}
         data_plane_checker = PingChecker(self.topology_obj.players, validation_data_plane)
         logger.info('Starting background validation for data plane traffic')
