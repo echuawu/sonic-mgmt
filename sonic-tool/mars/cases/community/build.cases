@@ -134,7 +134,15 @@
         <name> sensors </name>
         <tout> 900 </tout>
         <ignore>
-            <bug> 2303231 </bug>
+        <condition_group>
+            <operand> AND </operand>
+                <condition>
+                    <key> chip_type </key>
+                    <op> == </op>
+                    <value> SPC3 </value>
+                </condition>
+                <bug> 2430822 </bug>
+        </condition_group>
         </ignore>
         <cmd>
              <params>
