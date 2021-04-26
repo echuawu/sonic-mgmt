@@ -4,7 +4,7 @@ logger = logging.getLogger()
 
 
 def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset_from_start=2, data_ofset_from_end=None,
-                                column_ofset=2, output_key=None):
+                                column_ofset=2, output_key=None, header_line_number=1):
     """
     This method doing parse for command output and provide dictionary or list of dictionaries with parsed results.
     Method works only in case when cmd output has structure like below
@@ -20,6 +20,7 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     :param column_ofset: Number of spaces between columns in output(usually 2)
     :param output_key: parameter which specify which key should be used in output(from example above can be used: LocalPort,
     RemoteDevice, RemotePortID, Capability, RemotePortDescr). If NONE - than we we will return list
+    :param header_line_number: the number of the header lines, usually the number is 1, but for some command, it will be more than 1
     :return: dictionary, example for output of "show lldp table" with args for method: headers_ofset=1,
                                                                                        len_ofset=2,
                                                                                        data_ofset_from_start=3,
@@ -33,7 +34,9 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     {'LocalPort': 'Ethernet8', 'RemoteDevice': 'r-ocelot-02',........}]
     """
     # Get all headers
-    headers = output.splitlines()[headers_ofset]
+    headers_lines = output.splitlines()[
+        headers_ofset: headers_ofset +
+        header_line_number]
 
     """Get lens for each column according to "---------" symbols len in output
     Interface    Oper    Admin    Alias    Description
@@ -42,23 +45,27 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     """
     column_lens = output.splitlines()[len_ofset].split()
 
-    # Parse only lines from "data_ofset_from_start" and if "data_ofset_from_end" exist - then parse till the "data_ofset_from_end"
+    # Parse only lines from "data_ofset_from_start" and if
+    # "data_ofset_from_end" exist - then parse till the "data_ofset_from_end"
     data = output.splitlines()[data_ofset_from_start:]
     if data_ofset_from_end:
         data = output.splitlines()[data_ofset_from_start:data_ofset_from_end]
 
     result_dict = {}
     result_list = []
+    last_output_key_value = ""
     for line in data:
         base_position = 0
         internal_result = {}
         for column_len in column_lens:
             new_position = base_position + len(column_len)
-            header_name = headers[base_position:new_position].strip()
+            header_name = get_column_header_name(
+                headers_lines, base_position, new_position)
             internal_result[header_name] = line[base_position:new_position].strip()
             base_position = new_position + column_ofset
         if output_key:
-            result_dict[internal_result[output_key]] = internal_result
+            last_output_key_value = update_result_dict(
+                internal_result, output_key, last_output_key_value, result_dict)
         else:
             result_list.append(internal_result)
 
@@ -66,6 +73,55 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
         return result_dict
     else:
         return result_list
+
+
+def get_column_header_name(headers_lines, base_position, new_position):
+    """
+    get the full column header name
+    :param headers_lines: how many lines of the header content
+    :param base_position: start position of the column header
+    :param new_position: end position of the column header
+    :return: column header name
+    """
+
+    header_name = ""
+    for headers_line in headers_lines:
+        tmp = headers_line[base_position:new_position].strip()
+        if tmp:
+            if header_name:
+                header_name = header_name + " " + \
+                    headers_line[base_position:new_position].strip()
+            else:
+                header_name = tmp
+    return header_name
+
+
+def update_result_dict(internal_result, output_key,
+                       last_output_key_value, result_dict):
+    """
+    update the result dict
+    :param internal_result: dict format value of one line in the return of the show command
+    :param output_key: the output key of the result dict, it is one of the column header name
+    :param last_output_key_value: the key value used in the previous line.
+    :param result_dict: the result dict which need to be updated
+    :return: the output key value
+    """
+    if internal_result[output_key]:
+        # if the corresponding column value is not empty, then it should be the
+        # first line of the value
+        output_key_value = internal_result[output_key]
+        result_dict[output_key_value] = internal_result
+    else:
+        # if the corresponding column value is empty, then it should be not
+        # first line of the value
+        output_key_value = last_output_key_value
+        internal_result[output_key] = output_key_value
+        if isinstance(result_dict[output_key_value], dict):
+            result_dict[output_key_value] = [
+                result_dict[output_key_value], internal_result]
+        else:
+            result_dict[output_key_value].append(internal_result)
+    return output_key_value
 
 
 def show_vlan_brief_parser(output):
@@ -100,7 +156,8 @@ def show_vlan_brief_parser(output):
     proxy_arp = None
 
     for line in data_lines:
-        # Skip lines like: +-----------+--------------+----- which does not have data, analyze only lines with data
+        # Skip lines like: +-----------+--------------+----- which does not
+        # have data, analyze only lines with data
         splited_data_line = line.split('|')[1:]
         if splited_data_line:
             vlan_id = splited_data_line[vlan_index].strip()

@@ -52,3 +52,8 @@ class ConfigDbJsonConst:
     HOSTNAME = "hostname"
     MAC = "mac"
     HWSKU = "hwsku"
+
+
+class IpIfaceAddrConst:
+    IPV4_ADDR_MASK_KEY = 'IPv4 address/mask'
+    IPV6_ADDR_MASK_KEY = 'IPv6 address/mask'
