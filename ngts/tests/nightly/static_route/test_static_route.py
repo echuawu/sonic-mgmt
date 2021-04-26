@@ -156,6 +156,14 @@ def static_route_configuration(topology_obj, engines, interfaces, platform_param
     cleanup_config(topology_obj, engines.dut, ip_config_dict)
     logger.info('StaticRoute Scale cleanup completed')
 
+    """
+    Reboot below required to prevent "AssertionError: RAM usage: [{'syncd': 89.2842}, {'orchagent': 120.477}]" in
+    PushGate RAM usage test - in case when run PushGate test after this test. The memory allocated during static route
+    configuration is not released immediately, as a result the consecutive ram checker is failing,
+    as it expects smaller values.
+    """
+    engines.dut.reload(['sudo reboot'])
+
 
 @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
 @allure.title('Test Scale Static Route')
