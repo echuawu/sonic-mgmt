@@ -9,8 +9,7 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_optio
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'platform_prefix_list': ['3700'],
-                        'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
+@pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
                                                'https://github.com/Azure/sonic-buildimage/issues/6610',
                                                'https://github.com/Azure/sonic-buildimage/issues/6720']})
 @allure.title('Dynamic Port Breakout negative test: breakout on unbreakable port')
@@ -22,11 +21,7 @@ def test_breakout_unbreakable_ports(topology_obj, dut_engine, cli_object,
     """
     try:
         breakout_mode, lb = random.choice(list(tested_modes_lb_conf.items()))
-        unsplittable_ports_list = get_unsplittable_ports_list(topology_obj, ports_breakout_modes)
-        if len(unsplittable_ports_list) == 0:
-            raise AssertionError("Setup has no unsplittable ports to test on,"
-                                 "please had this platform to ignore list for this test")
-        unsplittable_port = [random.choice(unsplittable_ports_list)]
+        unsplittable_port = [random.choice(get_unsplittable_ports_list(topology_obj, ports_breakout_modes))]
         with allure.step('Verify breakout mode: {} on unsplittable port: {} Fails'
                                  .format(breakout_mode, unsplittable_port)):
             verify_negative_breakout_configuration(dut_engine, cli_object, unsplittable_port, breakout_mode)
@@ -56,7 +51,7 @@ def test_unsupported_breakout_mode(topology_obj, dut_engine, cli_object, tested_
         with allure.step('Verify unsupported breakout mode {} on ports {} fails as expected'
                                  .format(unsupported_breakout_mode, lb)):
             verify_negative_breakout_configuration(dut_engine, cli_object, lb, unsupported_breakout_mode)
-        send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list=[lb])
+        send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, conf={unsupported_breakout_mode: lb})
     except Exception as e:
         raise e
 
@@ -90,7 +85,7 @@ def test_ports_breakout_after_wrong_removal(topology_obj, dut_engine, cli_object
         breakout_port_list.remove(port)
         breakout_port = random.choice(breakout_port_list)
         unbreakout_port_mode = ports_breakout_modes[port]['default_breakout_mode']
-        err_msg = r"\[ERROR\] {} interface is NOT present in BREAKOUT_CFG table of CONFIG DB".format(breakout_port)
+        err_msg = r"KeyError:\s+\'{}\'".format(breakout_port)
         with allure.step('Verify unbreak out with mode {} on breakout port {} failed as expected'
                                  .format(unbreakout_port_mode, breakout_port)):
             verify_breakout_on_port_failed(dut_engine, cli_object, breakout_port, unbreakout_port_mode, err_msg)
