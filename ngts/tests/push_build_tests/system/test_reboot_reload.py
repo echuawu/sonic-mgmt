@@ -42,6 +42,7 @@ class TestRebootReload:
                                                                                    "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
             loganalyzer.ignore_regex.extend(ignore_regex_list)
 
+    @pytest.mark.disable_loganalyzer
     @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     @pytest.mark.parametrize('validation_type', validation_types)
     def test_push_gate_reboot(self, validation_type):
