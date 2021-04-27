@@ -3,6 +3,7 @@ import logging
 import pytest
 import os
 
+from ngts.tools.skip_test.skip import ngts_skip
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 
 logger = logging.getLogger()
@@ -45,12 +46,15 @@ class TestRebootReload:
     @pytest.mark.disable_loganalyzer
     @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     @pytest.mark.parametrize('validation_type', validation_types)
-    def test_push_gate_reboot(self, validation_type):
+    def test_push_gate_reboot(self, platform_params, validation_type):
         """
         This tests checks reboot time, it doing reboot according to test parameter and after execution - it upload
         test results to MySQL DB
+        :param platform_params: platform_params fixture
         :param validation_type: validation type - which will be executed
         """
+        if validation_type == 'fast-reboot':
+            ngts_skip(platform_params.platform, rm_ticket_list=[2447510])
 
         allowed_data_loss_time = expected_traffic_loss_dict[validation_type]['data']
         allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
