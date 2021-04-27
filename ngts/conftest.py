@@ -2,7 +2,10 @@
 
 conftest.py
 
-Defines the methods and fixtures which will be used by pytest
+Defines the methods and fixtures which will be used by pytest,
+NOTE: Add here only fixtures and methods that can be used for canonical and community setups alike.
+
+if your methods only apply for canonical setups please add them in ngts/tests/conftest.py
 
 """
 
@@ -17,7 +20,6 @@ from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.tools.allure_report.allure_server import AllureServer
 from ngts.tools.skip_test.skip import ngts_skip
-from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.constants.constants import SonicConst
 
 logger = logging.getLogger()
@@ -206,35 +208,9 @@ def dut_mac(engines):
 
 
 @pytest.fixture(scope='session')
-def ha_dut_1_mac(engines, interfaces):
-    """
-    Pytest fixture which are returning mac address for link: ha-dut-1
-    """
-    return LinuxMacCli.get_mac_address_for_interface(engines.ha, interfaces.ha_dut_1)
-
-
-@pytest.fixture(scope='session')
-def ha_dut_2_mac(engines, interfaces):
-    """
-    Pytest fixture which are returning mac address for link: ha-dut-2
-    """
-    return LinuxMacCli.get_mac_address_for_interface(engines.ha, interfaces.ha_dut_2)
-
-
-@pytest.fixture(scope='session')
-def hb_dut_1_mac(engines, interfaces):
-    """
-    Pytest fixture which are returning mac address for link: hb-dut-1
-    """
-    return LinuxMacCli.get_mac_address_for_interface(engines.hb, interfaces.hb_dut_1)
-
-
-@pytest.fixture(scope='session')
-def hb_dut_2_mac(engines, interfaces):
-    """
-    Pytest fixture which are returning mac address for link: hb-dut-2
-    """
-    return LinuxMacCli.get_mac_address_for_interface(engines.hb, interfaces.hb_dut_2)
+def chip_type(topology_obj):
+    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
+    return chip_type
 
 
 @pytest.fixture(scope='session')
@@ -247,29 +223,6 @@ def sonic_version(engines):
     show_version_output = engines.dut.run_cmd('sudo show version')
     sonic_ver = re.search(r'SONiC\sSoftware\sVersion:\s(.*)', show_version_output, re.IGNORECASE).group(1)
     return sonic_ver
-
-
-@pytest.fixture(scope='session')
-def engines(topology_obj):
-    engines_data = DottedDict()
-    engines_data.dut = topology_obj.players['dut']['engine']
-    engines_data.ha = topology_obj.players['ha']['engine']
-    engines_data.hb = topology_obj.players['hb']['engine']
-    return engines_data
-
-
-@pytest.fixture(scope='session')
-def interfaces(topology_obj):
-    interfaces_data = DottedDict()
-    interfaces_data.ha_dut_1 = topology_obj.ports['ha-dut-1']
-    interfaces_data.ha_dut_2 = topology_obj.ports['ha-dut-2']
-    interfaces_data.hb_dut_1 = topology_obj.ports['hb-dut-1']
-    interfaces_data.hb_dut_2 = topology_obj.ports['hb-dut-2']
-    interfaces_data.dut_ha_1 = topology_obj.ports['dut-ha-1']
-    interfaces_data.dut_ha_2 = topology_obj.ports['dut-ha-2']
-    interfaces_data.dut_hb_1 = topology_obj.ports['dut-hb-1']
-    interfaces_data.dut_hb_2 = topology_obj.ports['dut-hb-2']
-    return interfaces_data
 
 
 @pytest.fixture(scope='session')
