@@ -7,6 +7,8 @@ import os
 import random
 import copy
 
+from retry.api import retry_call
+
 from abc import abstractmethod
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 
@@ -42,7 +44,6 @@ def protocol_for_reboot_flow():
 
 
 @allure.title('CoPP Policer test case')
-@pytest.mark.ngts_skip({'rm_ticket_list': [2617611]})
 @pytest.mark.parametrize("protocol", PROTOCOLS_LIST)
 def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow):
     """
@@ -107,7 +108,7 @@ class CoppBase:
         with allure.step('Check functionality of default burst limit'):
             self.run_validation_flow(self.default_cbs, self.low_limit, 'burst')
         with allure.step('Check functionality of default rate limit'):
-            self.run_validation_flow(self.low_limit, self.default_cir)
+            self.run_validation_flow(self.default_cbs, self.default_cir)
 
         # check non default burst and rate limit value with reboot
         if protocol_for_reboot_flow.lower() == self.tested_protocol:
@@ -118,13 +119,13 @@ class CoppBase:
             with allure.step('Check functionality of configured burst limit'):
                 self.run_validation_flow(self.user_limit, self.low_limit, 'burst')
             with allure.step('Check functionality of configured rate limit'):
-                self.run_validation_flow(self.low_limit, self.user_limit)
+                self.run_validation_flow(self.default_cbs, self.user_limit)
 
         # check restored default burst and rate value
         with allure.step('Check functionality of restored to default burst limit'):
             self.run_validation_flow(self.default_cbs, self.low_limit, 'burst')
         with allure.step('Check functionality of restored to default rate limit'):
-            self.run_validation_flow(self.low_limit, self.default_cir)
+            self.run_validation_flow(self.default_cbs, self.default_cir)
 
     # -------------------------------------------------------------------------------
 
@@ -139,14 +140,14 @@ class CoppBase:
         traffic_type = random.choice(['rate', 'burst'])
         if traffic_type == 'rate':
             with allure.step('Check functionality of non default rate limit before reboot'):
-                self.run_validation_flow(self.low_limit, self.user_limit, 'rate')
-            primary_validation_flow = "self.run_validation_flow(self.low_limit, self.user_limit, 'rate', False)"
+                self.run_validation_flow(self.default_cbs, self.user_limit, 'rate')
+            primary_validation_flow = "self.run_validation_flow(self.default_cbs, self.user_limit, 'rate', False)"
             secondary_validation_flow = "self.run_validation_flow(self.user_limit, self.low_limit, 'burst')"
         else:
             with allure.step('Check functionality of non default burst limit before reboot'):
                 self.run_validation_flow(self.user_limit, self.low_limit, 'burst')
             primary_validation_flow = "self.run_validation_flow(self.user_limit, self.low_limit, 'burst', False)"
-            secondary_validation_flow = "self.run_validation_flow(self.low_limit, self.user_limit, 'rate')"
+            secondary_validation_flow = "self.run_validation_flow(self.default_cbs, self.user_limit, 'rate')"
 
         logger.info('Reboot Switch')
         self.dut_cli_object.general.save_configuration(self.dut_engine)
@@ -173,10 +174,23 @@ class CoppBase:
         if update_configs_request:
             self.config_limit_value(cir_value, cbs_value)
 
+        retry_call(
+            self.validate_traffic,
+            fargs=[cbs_value, cir_value, traffic_type],
+            tries=3,
+            delay=8,
+            logger=logger,
+        )
+
+    # -------------------------------------------------------------------------------
+
+    def validate_traffic(self, cbs_value, cir_value, traffic_type):
         if traffic_type == 'rate':
+            logger.info('Tested traffic type is   RATE')
             self.create_rate_validation(cir_value)
             pps = cir_value
         else:
+            logger.info('Tested traffic type is   BURST')
             self.create_burst_validation(cbs_value)
             pps = cbs_value
         self.send_traffic()
@@ -266,12 +280,12 @@ class CoppBase:
             logger.info('The delta of RX counters is {} '.format(rx_count))
             self.traffic_duration = correct_traffic_duration_for_calculations(self.traffic_duration)
             rx_pps = int(rx_count / self.traffic_duration)
-            # We use +- 15% threshold due to not possible to be more precise
-            logger.info("Verify that received pps({}) is in allowed rate: {} +-15%".format(rx_pps, expected_pps))
-            assert int(rx_pps) > int(expected_pps) * 0.85, \
-                "The received pps {} is less then 85% of expected {}".format(rx_pps, expected_pps)
-            assert int(rx_pps) < int(expected_pps) * 1.15, \
-                "The received pps {} is bigger then 115% of expected {}".format(rx_pps, expected_pps)
+            # We use +- 20% threshold due to not possible to be more precise
+            logger.info("Verify that received pps({}) is in allowed rate: {} +-20%".format(rx_pps, expected_pps))
+            assert int(rx_pps) > int(expected_pps) * 0.8, \
+                "The received pps {} is less then 80% of expected {}".format(rx_pps, expected_pps)
+            assert int(rx_pps) < int(expected_pps) * 1.2, \
+                "The received pps {} is bigger then 120% of expected {}".format(rx_pps, expected_pps)
 
     # -------------------------------------------------------------------------------
 
@@ -282,6 +296,7 @@ class CoppBase:
         :param cbs_value: value of CBS
         :return:
         """
+        logger.info('Load new configuration with CIR: {} and CBS: {}'.format(cir_value, cbs_value))
         # copy file from switch to local system ( will be copied to current location ".")
         self.copy_remote_file(CONFIG_DB_COPP_CONFIG_REMOTE, CONFIG_DB_COPP_CONFIG_NAME, '/', 'get')
 
@@ -367,6 +382,7 @@ class SNMPTest(CoppBase):
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
+        self.low_limit = 150
         self.trap_ids = 'snmp'
         logger.info("The tested protocol SNMP have too big default value for burst, "
                     "can't be tested on canonical systems. "
@@ -413,6 +429,7 @@ class IP2METest(CoppBase):
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
+        self.low_limit = 150
         logger.info("The tested protocol IP2ME have too big default value for burst, "
                     "can't be tested on canonical systems. "
                     "Will be tested the value {} instead"
@@ -519,7 +536,7 @@ def get_trap_group(protocol, copp_dict, trap_ids=''):
     if protocol == 'snmp':
         protocol = 'ip2me'
     if protocol in copp_dict[COPP_TRAP]:
-        logger.info('protocon in a dict')
+        logger.info('The protocol {} exist under COPP_TRAP dictionary in copp_cfg.json file'.format(protocol))
         return copp_dict[COPP_TRAP][protocol][TRAP_GROUP]
     else:
         add_new_protocol_to_config(protocol, copp_dict, trap_ids)
