@@ -57,3 +57,59 @@ class ConfigDbJsonConst:
 class IpIfaceAddrConst:
     IPV4_ADDR_MASK_KEY = 'IPv4 address/mask'
     IPV6_ADDR_MASK_KEY = 'IPv6 address/mask'
+
+
+class AutonegCommandConstants:
+    INTERFACE = "Interface"
+    AUTONEG_MODE = "Auto-Neg Mode"
+    SPEED = "Speed"
+    ADV_SPEED = "Adv Speeds"
+    TYPE = "Type"
+    ADV_TYPES = "Adv Types"
+    OPER = "Oper"
+    ADMIN = "Admin"
+
+SPC = {
+ '25GBASE-CR': ['10G', '25G'],
+ '50GBASE-CR2': ['50G'],
+ '40GBASE-CR4': ['40G', '50G'],
+ '100GBASE-CR4': ['100G'],
+ 'SR': ['10G', '25G'],
+ 'SR2': ['50G'],
+ 'SR4': ['40G', '100G'],
+ 'LR': ['10G'],
+ 'LR4': ['40G', '100G'],
+ 'KR': ['10G', '25G'],
+ 'KR2': ['20G', '50G'],
+ 'KR4': ['40G', '56G', '100G'],
+ 'CAUI': ['100G'],
+ 'GMII': ['1G'],
+ 'SFI': ['10G'],
+ 'XLAUI': ['40G'],
+ 'CAUI4': ['100G'],
+ 'XAUI': ['10G'],
+ 'XFI': ['10G']
+ }
+SPC2_3 = {
+ '25GBASE-CR': ['10G', '25G'],
+ '50GBASE-CR2': ['50G'],
+ '40GBASE-CR4': ['40G', '50G'],
+ '100GBASE-CR4': ['100G'],
+ 'CR': ['1G', '10G', '25G', '50G'],
+ 'CR2': ['50G', '100G'],
+ 'CR4': ['40G', '100G', '200G', '400G'],
+ 'SR': ['1G', '10G', '25G', '50G'],
+ 'SR2': ['50G', '100G'],
+ 'SR4': ['40G', '100G', '200G', '400G'],
+ 'LR': ['1G', '10G', '25G', '50G'],
+ 'LR4': ['40G', '100G', '200G', '400G'],
+ 'KR': ['1G', '10G', '25G', '50G'],
+ 'KR2': ['50G', '100G'],
+ 'KR4': ['40G', '100G', '200G', '400G'],
+ 'CAUI': ['100G'],
+ 'GMII': ['1G'],
+ 'SFI': ['10G'],
+ 'XLAUI': ['40G'],
+ 'CAUI4': ['100G'],
+ 'XFI': ['10G']
+ }
