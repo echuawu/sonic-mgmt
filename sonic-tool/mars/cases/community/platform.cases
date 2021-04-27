@@ -330,7 +330,7 @@
 
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"test_get_presence or test_fans or test_get_position_in_parent or test_is_replaceable or test_thermals \"\'" --test-scripts platform_tests/api/test_psu.py </static_args>
+                 <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"test_get_presence or test_fans or test_get_position_in_parent or test_is_replaceable or test_thermals or test_temperature \"\'" --test-scripts platform_tests/api/test_psu.py </static_args>
              </params>
         </cmd>
     </case>
