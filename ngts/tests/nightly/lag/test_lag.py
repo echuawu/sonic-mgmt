@@ -465,7 +465,11 @@ def test_lags_with_member_scale(topology_obj, interfaces, engines, cleanup_list)
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
 
         with allure.step('Validate PortChannels and members status'):
-            verify_port_channels_status(dut_cli, engines.dut, lag_expected_info)
+            retry_call(verify_port_channels_status,
+                       fargs=[dut_cli, engines.dut, lag_expected_info],
+                       tries=3,
+                       delay=10,
+                       logger=logger)
 
         with allure.step('Validate for bug 2435816 - add and verify IPs on all PortChannels'):
             add_ip_conf(topology_obj, ip_config_dict, cleanup_list)
