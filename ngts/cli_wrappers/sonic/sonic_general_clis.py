@@ -1,20 +1,28 @@
+import re
 import allure
 import logging
 import random
 import time
 import pexpect
 import netmiko
+import json
 import traceback
+import os
 from retry import retry
 from retry.api import retry_call
+import paramiko
+from paramiko import SSHClient
+
+from ngts.cli_util.cli_constants import SonicConstant
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from infra.tools.connection_tools.onie_engine import OnieEngine
 from infra.tools.exceptions.real_issue import RealIssue
-from ngts.constants.constants import SonicConst, InfraConst
-
+from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst
+from ngts.tests.nightly.conftest import get_breakout_port_by_modes, \
+    get_speed_option_by_breakout_modes
 
 logger = logging.getLogger()
 
@@ -203,6 +211,7 @@ class SonicGeneralCli(GeneralCliCommon):
                      platform=None, hwsku=None,
                      wjh_deb_url=None, deploy_type='sonic', reboot_after_install=None):
         dut_engine = topology_obj.players['dut']['engine']
+        cli_object = topology_obj.players['dut']['cli']
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
@@ -217,7 +226,7 @@ class SonicGeneralCli(GeneralCliCommon):
                 SonicGeneralCli.do_installation(topology_obj, dut_engine, image_path, deploy_type)
 
         if apply_base_config:
-            SonicGeneralCli.apply_basic_config(dut_engine, setup_name, platform, hwsku)
+            SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku)
 
         if reboot_after_install:
             SonicGeneralCli.validate_dockers_are_up_reboot_if_fail(dut_engine)
@@ -390,16 +399,64 @@ class SonicGeneralCli(GeneralCliCommon):
         return switch_in_onie
 
     @staticmethod
-    def apply_basic_config(dut_engine, setup_name, platform, hwsku):
+    def apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku):
         shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
         switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
         dut_engine.run_cmd(
             'sudo curl {}/{} -o {}'.format(shared_path, SonicConst.PORT_CONFIG_INI, switch_config_ini_path))
+
+        config_db_file = SonicGeneralCli.update_config_db_file(topology_obj, setup_name, dut_engine,
+                                                               cli_object, hwsku)
         dut_engine.run_cmd(
-            'sudo curl {}/{} -o {}'.format(shared_path, SonicConst.CONFIG_DB_JSON, SonicConst.CONFIG_DB_JSON_PATH))
+            'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH))
 
         dut_engine.reload(['sudo reboot'])
+
+    @staticmethod
+    def update_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku):
+        config_db_file = SonicConst.CONFIG_DB_JSON
+        init_config_db_json = SonicGeneralCli.get_init_config_db_json_obj(dut_engine, hwsku)
+        if init_config_db_json.get("BREAKOUT_CFG"):
+            config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name)
+            config_db_file = SonicGeneralCli.update_breakout_cfg(topology_obj, setup_name, dut_engine,
+                                                                 cli_object, init_config_db_json, config_db_json)
+        return config_db_file
+
+    @staticmethod
+    def get_config_db_json_obj(setup_name):
+        config_db_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, SonicConst.CONFIG_DB_JSON))
+        with open(config_db_path) as config_db_json_file:
+            config_db_json = json.load(config_db_json_file)
+        return config_db_json
+
+    @staticmethod
+    def get_init_config_db_json_obj(dut_engine, hwsku):
+        init_config_db = \
+                dut_engine.run_cmd("sonic-cfggen -k {} -H -j /etc/sonic/init_cfg.json --print-data".format(hwsku),
+                                   print_output=False)
+        init_config_db_json = json.loads(init_config_db)
+        return init_config_db_json
+
+    @staticmethod
+    def update_breakout_cfg(topology_obj, setup_name, dut_engine, cli_object,
+                            init_config_db_json, config_db_json):
+        breakout_cfg_dict = init_config_db_json.get("BREAKOUT_CFG")
+        platform_json_obj = get_platform_json(dut_engine, cli_object)
+        parsed_platform_json_by_breakout_modes = parse_platform_json(topology_obj, platform_json_obj,
+                                                                     parse_by_breakout_modes=True)
+        ports_for_update = SonicInterfaceCli.get_dut_first_split_port_info(config_db_json)
+        for port, split_num in ports_for_update:
+            port_speed = SonicInterfaceCli.get_speed_in_G_format(config_db_json['PORT'][port]['speed'])
+            supported_brk_modes = parsed_platform_json_by_breakout_modes[port][split_num]
+            breakout_cfg_dict[port]["brkout_mode"] = SonicInterfaceCli.get_breakout_mode_by_speed_conf(supported_brk_modes, port_speed)
+        config_db_json["BREAKOUT_CFG"] = breakout_cfg_dict
+        new_config_db_json_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, "updated_config_db.json"))
+        with open(new_config_db_json_path, 'w') as f:
+            json.dump(config_db_json, f, indent=4)
+        os.chmod(new_config_db_json_path, 0o777)
+        return "updated_config_db.json"
+
 
     @staticmethod
     def install_wjh(dut_engine, wjh_deb_url):
@@ -413,3 +470,92 @@ class SonicGeneralCli(GeneralCliCommon):
     @staticmethod
     def execute_command_in_docker(dut_engine, docker, command):
         return dut_engine.run_cmd('docker exec -i {} {}'.format(docker, command))
+
+
+def parse_platform_json(topology_obj, platform_json_obj, parse_by_breakout_modes=False):
+    """
+    parsing platform breakout options and config_db.json breakout configuration.
+    :param topology_obj: topology object fixture
+    :param platform_json_obj: a json object of platform.json file
+    :param parse_by_breakout_modes: If true the function will return a dictionary with
+    available breakout options by split number for all dut ports,
+    i.e,
+       { 'Ethernet0' :    {1:{'1x100G[50G,40G,25G,10G]'},
+                           2: {'2x50G[40G,25G,10G]'},
+                           4: {'4x25G[10G]'},...}
+    :return: a dictionary with available speeds option for each split number on all dut ports
+    i.e,
+       { 'Ethernet0' :{'1': [200G,100G,50G,40G,25G,10G,1G],
+                       '2': [100G, 50G,40G,25G,10G,1G],
+                       '4': [50G,40G,25G,10G,1G]},..}
+    """
+    ports_speeds_by_modes_info = {}
+    breakout_options = r"\dx\d+G\(\d\)\+\dx\d+G\(\d\)|\dx\d+G\[[\d*G,]*\]|\dx\d+G"
+    for port_name, port_dict in platform_json_obj["interfaces"].items():
+        lanes = port_dict[SonicConstant.LANES].split(",")
+        breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].keys())))
+        for breakout_mode, breakout_ports_conf in get_breakout_port_by_modes(breakout_modes, lanes).items():
+            breakout_ports = breakout_ports_conf.keys()
+            for port in breakout_ports:
+                if port in topology_obj.players_all_ports['dut'] and port not in ports_speeds_by_modes_info:
+                    if parse_by_breakout_modes:
+                        ports_speeds_by_modes_info[port] = get_split_mode_supported_breakout_modes(breakout_modes)
+                    else:
+                        ports_speeds_by_modes_info[port] = get_split_mode_supported_speeds(breakout_modes)
+    return ports_speeds_by_modes_info
+
+
+def get_split_mode_supported_speeds(breakout_modes):
+    """
+    :param breakout_modes: a list of breakout modes, i.e. ['1x100G[50G,40G,25G,10G]',
+    '2x50G[40G,25G,10G]', '4x25G[10G]']
+    :return: a dictionary of supported speed for every split number option, i.e,
+    {1: {'100G', '50G', '40G', '10G', '25G'},
+    2: {'40G', '10G', '25G', '50G'},
+    4: {'10G', '25G'}}
+    """
+    split_mode_supported_speeds = {1: set(), 2: set(), 4: set()}
+    breakout_port_by_modes = get_speed_option_by_breakout_modes(breakout_modes)
+    for breakout_mode, supported_speeds_list in breakout_port_by_modes.items():
+        breakout_num, _ = breakout_mode.split("x")
+        split_mode_supported_speeds[int(breakout_num)].update(supported_speeds_list)
+    return split_mode_supported_speeds
+
+
+def get_split_mode_supported_breakout_modes(breakout_modes):
+    """
+    :param breakout_modes: a list of breakout modes, i.e. ['1x100G[50G,40G,25G,10G]',
+    '2x50G[40G,25G,10G]', '4x25G[10G]']
+    :return: a dictionary of supported breakout mode for every split number option, i.e,
+    {1:{'1x100G[50G,40G,25G,10G]'},
+    2: {'2x50G[40G,25G,10G]'},
+    4: {'4x25G[10G]'}
+    """
+    split_mode_supported_breakout_modes = {1: set(), 2: set(), 4: set()}
+    for breakout_mode in breakout_modes:
+        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
+        if re.search(breakout_pattern, breakout_mode):
+            breakout_num, _ = breakout_mode.split("x")
+            split_mode_supported_breakout_modes[int(breakout_num)].add(breakout_mode)
+    return split_mode_supported_breakout_modes
+
+
+def get_platform_json(engine_dut, cli_object):
+    """
+    return a json object of the platform.json file of your setup dut platform
+    :param engine_dut: ssh connection to dut
+    :param cli_object: cli_object of dut
+    :return: a Json Object of the platform.json file, i.e,
+    {'interfaces':
+     {'Ethernet0': {'index': '1,1,1,1',
+                    'lanes': '0,1,2,3',
+                    'breakout_modes': {'1x100G[50G,40G,25G,10G]': ['etp1'],
+                                       '2x50G[40G,25G,10G]': ['etp1a', 'etp1b'],
+                                       '4x25G[10G]': ['etp1a', 'etp1b', 'etp1c', 'etp1d']}}
+     , ...}
+    """
+    platform = cli_object.chassis.get_platform(engine_dut)
+    platform_path = SonicConst.PLATFORM_JSON_PATH.format(PLATFORM=platform)
+    platform_detailed_info_output = engine_dut.run_cmd("cat {}".format(platform_path), print_output=False)
+    platform_json = json.loads(platform_detailed_info_output)
+    return platform_json

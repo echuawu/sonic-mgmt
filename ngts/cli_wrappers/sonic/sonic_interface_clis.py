@@ -3,7 +3,7 @@ import logging
 
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.constants.constants import AutonegCommandConstants
+from ngts.constants.constants import ConfigDbJsonConst
 
 logger = logging.getLogger()
 
@@ -294,3 +294,76 @@ class SonicInterfaceCli(InterfaceCliCommon):
         return generic_sonic_output_parser(ifaces_auto_neg_status,
                                            headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
                                            data_ofset_from_end=None, column_ofset=2, output_key='Interface')
+
+    @staticmethod
+    def get_speed_in_G_format(speed_in_kb):
+        """
+        :param speed_in_kb: i.e, 25000
+        :return: speed in G format, i.e, 25G
+        """
+        return "{}G".format(int(int(speed_in_kb)/1000))
+
+    @staticmethod
+    def get_breakout_mode_configured_speed(breakout_mode):
+        """
+        this function will return the speed that will be configured on the port be the breakout mode.
+        :param breakout_mode: i,e. '4x25G[10G,1G]'
+        :return: return 25G
+        """
+        return re.search(r"\dx(\d+G)\[[\d*G,]*\]|\dx\d+G", breakout_mode).group(1)
+
+    @staticmethod
+    def get_breakout_mode_by_speed_conf(breakout_modes_list, port_speed):
+        """
+        :param breakout_modes_list: i.e, ['4x25G[10G,1G]', '4x1G']
+        :param port_speed: i.e, 25G
+        :return:
+        """
+        for breakout_mode in breakout_modes_list:
+            brk_mode_configured_speed = SonicInterfaceCli.get_breakout_mode_configured_speed(breakout_mode)
+            if brk_mode_configured_speed == port_speed:
+                return breakout_mode
+        raise Exception("Didn't found breakout mode that configured speed: {} in breakout_modes_list: {}"
+                        .format(port_speed, breakout_modes_list))
+
+    @staticmethod
+    def get_dut_first_split_port_info(config_db_json):
+        """
+
+        :param config_db_json: a json object of the switch config_db.json file
+        :return: a list of tuples of first split port and their split number
+        for example, [('Ethernet196', 2), ('Ethernet200', 2), ('Ethernet204', 4), ('Ethernet208', 4)]
+        """
+        dut_first_split_port_info = []
+        port_info_dict = config_db_json.get(ConfigDbJsonConst.PORT)
+        if port_info_dict:
+            for port, port_info in port_info_dict.items():
+                port_alias = port_info[ConfigDbJsonConst.ALIAS]
+                is_first_split_port = bool(re.match('etp\d+a', port_alias))
+                if is_first_split_port:
+                    split_num = SonicInterfaceCli.get_split_number(config_db_json, port_alias)
+                    dut_first_split_port_info.append((port, split_num))
+        return dut_first_split_port_info
+
+    @staticmethod
+    def get_split_number(config_db_json, port_alias):
+        """
+        return the port split number, as the port was split to 2/4/8.
+        :param config_db_json: a json object of the switch config_db.json file
+        :param port_alias: the sonic port alias, e.g. 'etp1'
+        :return: the number the port was split to, 2/4/8.
+        """
+        all_aliases = [port_info['alias'] for port_info in config_db_json[ConfigDbJsonConst.PORT].values()]
+        port_alias_number = SonicInterfaceCli.get_alias_number(port_alias)
+        all_aliases_of_split_port = list(filter(lambda alias: re.search("etp{}[a-z]$".format(port_alias_number), alias),
+                                                all_aliases))
+        split_number = len(all_aliases_of_split_port)
+        return split_number
+
+    @staticmethod
+    def get_alias_number(port_alias):
+        """
+        :param port_alias:  the sonic port alias, e.g. 'etp1'
+        :return: the number in the alias, e.g. 1
+        """
+        return re.search('etp(\d*)', port_alias).group(1)

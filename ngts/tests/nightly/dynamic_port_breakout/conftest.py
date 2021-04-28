@@ -11,7 +11,8 @@ from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.tests.nightly.conftest import get_speed_option_by_breakout_modes, get_dut_loopbacks, \
-    get_breakout_port_by_modes, get_platform_json
+    get_breakout_port_by_modes
+from ngts.cli_wrappers.sonic.sonic_general_clis import get_platform_json
 
 """
 
