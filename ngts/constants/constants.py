@@ -9,7 +9,6 @@ class SonicConst:
     PORT_CONFIG_INI = 'port_config.ini'
     CONFIG_DB_JSON = 'config_db.json'
     CONFIG_DB_JSON_PATH = SONIC_CONFIG_FOLDER + CONFIG_DB_JSON
-    PLATFORM_JSON_PATH = "/usr/share/sonic/device/{PLATFORM}/platform.json"
 
 
 class InfraConst:
@@ -42,7 +41,6 @@ class TopologyConsts:
 
 class ConfigDbJsonConst:
     PORT = 'PORT'
-    ALIAS = 'alias'
     FEATURE = 'FEATURE'
     LLDP = 'lldp'
     STATUS = 'status'
