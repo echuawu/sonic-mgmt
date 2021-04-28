@@ -6,6 +6,7 @@ import time
 import os
 import random
 import copy
+import codecs
 
 from retry.api import retry_call
 
@@ -20,9 +21,10 @@ UPDATED_FILE_PATH = '/tmp/' + CONFIG_DB_COPP_CONFIG_NAME
 CONFIG_DB_COPP_CONFIG_REMOTE = '/etc/sonic/' + CONFIG_DB_COPP_CONFIG_NAME
 COPP_TRAP = 'COPP_TRAP'
 COPP_GROUP = 'COPP_GROUP'
-DEFAULT_TRAP_GROUP = 'queue1_group2'
+DEFAULT_TRAP_GROUP = 'queue4_group2'
 TRAP_GROUP = 'trap_group'
 TRAP_IDS = 'trap_ids'
+GROUPS_WITH_MINIMAL_CONFIG = ['queue4_group1', 'queue4_group3']
 
 RATE_TRAFFIC_MULTIPLIER = 3
 BURST_TRAFFIC_MULTIPLIER = 30
@@ -30,7 +32,7 @@ RATE_TRAFFIC_DURATION = 10
 BURST_TRAFFIC_DURATION = 0.06
 
 # list of tested protocols
-PROTOCOLS_LIST = ["ARP", "IP2ME", "SNMP"]
+PROTOCOLS_LIST = ["ARP", "IP2ME", "SNMP", "SSH", "LLDP", "LACP", "BGP", "DHCP"]
 
 
 @pytest.fixture(scope='module')
@@ -91,11 +93,11 @@ class CoppBase:
         self.post_rx_counts = None
         self.default_cir = None
         self.default_cbs = None
-        self.low_limit = 100
+        self.low_limit = 150
         self.user_limit = None
         self.trap_ids = None
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def copp_test_runner(self, protocol_for_reboot_flow):
         """
@@ -127,7 +129,7 @@ class CoppBase:
         with allure.step('Check functionality of restored to default rate limit'):
             self.run_validation_flow(self.default_cbs, self.default_cir)
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def run_validation_flow_with_reboot(self):
         """
@@ -160,7 +162,7 @@ class CoppBase:
         with allure.step('Check functionality of non default {} limit value'.format(traffic_type[1])):
             eval(secondary_validation_flow)
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def run_validation_flow(self, cbs_value, cir_value, traffic_type='rate', update_configs_request=True):
         """
@@ -177,12 +179,12 @@ class CoppBase:
         retry_call(
             self.validate_traffic,
             fargs=[cbs_value, cir_value, traffic_type],
-            tries=3,
+            tries=4,
             delay=8,
             logger=logger,
         )
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def validate_traffic(self, cbs_value, cir_value, traffic_type):
         if traffic_type == 'rate':
@@ -196,7 +198,7 @@ class CoppBase:
         self.send_traffic()
         self.validate_results(pps)
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def get_tested_protocol_name(self):
         """
@@ -205,7 +207,7 @@ class CoppBase:
         """
         return type(self).__name__.replace('Test', '').lower()
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_burst_validation(self, cbs_value):
         """
@@ -216,7 +218,7 @@ class CoppBase:
                                times=int(cbs_value*BURST_TRAFFIC_MULTIPLIER*BURST_TRAFFIC_DURATION))
         self.create_pre_validation()
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_rate_validation(self, cir_value):
         """
@@ -227,7 +229,7 @@ class CoppBase:
                                times=cir_value*RATE_TRAFFIC_MULTIPLIER*RATE_TRAFFIC_DURATION)
         self.create_pre_validation()
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     @abstractmethod
     def create_validation(self, pps, times):
@@ -236,7 +238,7 @@ class CoppBase:
         """
         pass
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_pre_validation(self):
         """
@@ -245,7 +247,7 @@ class CoppBase:
         self.pre_validation = copy.deepcopy(self.validation)
         self.pre_validation['send_args']['loop'] = 1
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def send_traffic(self):
         """
@@ -263,7 +265,7 @@ class CoppBase:
             self.traffic_duration = time.time() - start_time
             time.sleep(1)
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def validate_results(self, expected_pps):
         """
@@ -287,7 +289,7 @@ class CoppBase:
             assert int(rx_pps) < int(expected_pps) * 1.2, \
                 "The received pps {} is bigger then 120% of expected {}".format(rx_pps, expected_pps)
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def config_limit_value(self, cir_value, cbs_value):
         """
@@ -312,7 +314,7 @@ class CoppBase:
         # apply updated config file
         self.dut_cli_object.general.load_configuration(self.dut_engine, UPDATED_FILE_PATH)
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def copy_remote_file(self, src, dst, file_system, direction='put'):
         """
@@ -335,16 +337,16 @@ class CoppBase:
 
 class ARPTest(CoppBase):
     """
-    ARP class/test extends the basic CoPP class with with specific validation for ARP protocol
+    ARP class/test extends the basic CoPP class with specific validation for ARP protocol
     """
     def __init__(self, topology_obj):
         CoppBase.__init__(self, topology_obj)
         self.default_cir = 600
         self.default_cbs = 600
-        self.user_limit = 500
+        self.user_limit = 1000
         self.dst_mac = 'ff:ff:ff:ff:ff:ff'
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_validation(self, pps, times):
         """
@@ -374,7 +376,7 @@ class ARPTest(CoppBase):
 
 class SNMPTest(CoppBase):
     """
-    SNMP class/test extends the basic CoPP class with with specific validation for SNMP protocol
+    SNMP class/test extends the basic CoPP class with specific validation for SNMP protocol
     """
     def __init__(self, topology_obj):
         CoppBase.__init__(self, topology_obj)
@@ -382,14 +384,14 @@ class SNMPTest(CoppBase):
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
-        self.low_limit = 150
+        # self.low_limit = 150
         self.trap_ids = 'snmp'
         logger.info("The tested protocol SNMP have too big default value for burst, "
                     "can't be tested on canonical systems. "
                     "Will be tested the value {} instead"
                     .format(self.default_cbs))
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_validation(self, pps, times):
         """
@@ -422,20 +424,19 @@ class SNMPTest(CoppBase):
 
 class IP2METest(CoppBase):
     """
-    IP2ME class/test extends the basic CoPP class with with specific validation for IP2ME packets type
+    IP2ME class/test extends the basic CoPP class with specific validation for IP2ME packets type
     """
     def __init__(self, topology_obj):
         CoppBase.__init__(self, topology_obj)
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
-        self.low_limit = 150
         logger.info("The tested protocol IP2ME have too big default value for burst, "
                     "can't be tested on canonical systems. "
                     "Will be tested the value {} instead"
                     .format(self.default_cbs))
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_validation(self, pps, times):
         """
@@ -459,25 +460,25 @@ class IP2METest(CoppBase):
 
 class SSHTest(CoppBase):
     """
-    SSH class/test extends the basic CoPP class with with specific validation for SSH packet type
+    SSH class/test extends the basic CoPP class with specific validation for SSH packet type
     """
     def __init__(self, topology_obj):
         CoppBase.__init__(self, topology_obj)
         self.default_cir = 600
         self.default_cbs = 600
-        self.user_limit = 400
+        self.user_limit = 1000
         self.trap_ids = 'ssh'
 
-    # -------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def create_validation(self, pps, times):
         """
-        Creating Scapy validation for SSH packets. Simple TCP packet with specific destination port.
+        Creating Scapy validation for SSH packets. Simple TCP packet with specific source and destination ports.
         :param pps: packets rate value
         :param times: packets number
         """
-        with allure.step('SSH - Create validation (with simple TCP packed and destination port 22)'):
-            ssh_pkt = 'Ether(dst="{}")/IP(dst="192.168.1.100")/TCP(dport=22)'
+        with allure.step('SSH - Create validation (with simple TCP packet and destination port 22)'):
+            ssh_pkt = 'Ether(dst="{}")/IP(dst="192.168.1.1", src="192.168.1.2")/TCP(dport=22, sport=22)'
             self.validation = {'sender': self.sender,
                                'send_args': {'interface': self.host_iface,
                                              'send_method': 'sendpfast',
@@ -488,6 +489,146 @@ class SSHTest(CoppBase):
                                }
 
 # -------------------------------------------------------------------------------
+
+
+class LLDPTest(CoppBase):
+    """
+    LLDP class/test extends the basic CoPP class with specific validation for LLDP packet type
+    """
+    def __init__(self, topology_obj):
+        CoppBase.__init__(self, topology_obj)
+        self.default_cir = 600
+        self.default_cbs = 600
+        self.user_limit = 1000
+
+# -------------------------------------------------------------------------------
+
+    def create_validation(self, pps, times):
+        """
+        Creating Scapy validation for LLDP packets. Simple ETH packet with specific destination mac and type.
+        :param pps: packets rate value
+        :param times: packets number
+        """
+        with allure.step('LLDP - Create validation (simple ETH packet with fixed d_mac and type)'):
+            lldp_pkt = 'Ether(dst="01:80:c2:00:00:0e", src="{}", type=0x88cc)'
+            self.validation = {'sender': self.sender,
+                               'send_args': {'interface': self.host_iface,
+                                             'send_method': 'sendpfast',
+                                             'packets': lldp_pkt.format(self.src_mac),
+                                             'pps': pps,
+                                             'loop': times,
+                                             'timeout': 20}
+                               }
+
+# -------------------------------------------------------------------------------
+
+
+class LACPTest(CoppBase):
+    """
+    LACP class/test extends the basic CoPP class with specific validation for LACP packet type
+    """
+    def __init__(self, topology_obj):
+        CoppBase.__init__(self, topology_obj)
+        self.default_cir = 600
+        self.default_cbs = 600
+        self.user_limit = 1000
+
+# -------------------------------------------------------------------------------
+
+    def create_validation(self, pps, times):
+        """
+        Creating Scapy validation for LACP packets. Simple ETH packet with specific destination mac and type.
+        :param pps: packets rate value
+        :param times: packets number
+        """
+        with allure.step('LACP - Create validation (simple ETH packet with fixed dst_mac and type)'):
+            lacp_pkt = 'Ether(dst="01:80:c2:00:00:02", src="{}", type=0x8809)/(chr(0x01)*50)'
+            self.validation = {'sender': self.sender,
+                               'send_args': {'interface': self.host_iface,
+                                             'send_method': 'sendpfast',
+                                             'packets': lacp_pkt.format(self.src_mac),
+                                             'pps': pps,
+                                             'loop': times,
+                                             'timeout': 20}
+                               }
+
+# -------------------------------------------------------------------------------
+
+
+class BGPTest(CoppBase):
+    """
+    BGP class/test extends the basic CoPP class with specific validation for BGP packet type
+    """
+
+    def __init__(self, topology_obj):
+        CoppBase.__init__(self, topology_obj)
+        self.default_cir = 600
+        self.default_cbs = 600
+        self.user_limit = 1000
+
+# -------------------------------------------------------------------------------
+
+    def create_validation(self, pps, times):
+        """
+        Creating Scapy validation for BGP packets. Simple TCP packet with specific TCP destination port.
+        :param pps: packets rate value
+        :param times: packets number
+        """
+        bgp_dict = {
+                    'bgp': 'IP(dst="192.168.1.1")',
+                    'bgpv6': 'IPv6(dst="2001:db8:5::1")'
+                    }
+        chosen_packet = random.choice(list(bgp_dict.keys()))
+        with allure.step('LLDP - Create validation (simple TCP packet with fixed TCP dst port)'):
+            bgp_pkt = 'Ether(dst="{}")/' + bgp_dict[chosen_packet] + '/TCP(dport=179)'
+            self.validation = {'sender': self.sender,
+                               'send_args': {'interface': self.host_iface,
+                                             'send_method': 'sendpfast',
+                                             'packets': bgp_pkt.format(self.dst_mac),
+                                             'pps': pps,
+                                             'loop': times,
+                                             'timeout': 20}
+                               }
+
+# -------------------------------------------------------------------------------
+
+
+class DHCPTest(CoppBase):
+    """
+    DHCP class/test extends the basic CoPP class with specific validation for DHCP packet type
+    """
+    def __init__(self, topology_obj):
+        CoppBase.__init__(self, topology_obj)
+        self.default_cir = 600
+        self.default_cbs = 600
+        self.user_limit = 1000
+
+# -------------------------------------------------------------------------------
+
+    def create_validation(self, pps, times):
+        """
+        Creating Scapy validation for DHCP packets. UDP packet with bootp and dhcp layers.
+        :param pps: packets rate value
+        :param times: packets number
+        """
+
+        decode_hex = codecs.getdecoder("hex_codec")
+        localmacraw = decode_hex(self.src_mac.replace(':', ''))[0]
+        dhcpv4_pkt = 'Ether(dst="ff:ff:ff:ff:ff:ff", type=0x800)/IP(dst="255.255.255.255", src="0.0.0.0")/' \
+                     'UDP(dport=67, sport=68)/BOOTP(chaddr="{}", ciaddr="0.0.0.0")/' \
+                     'DHCP(options=[("message-type", "discover"),"end"])'.format(localmacraw)
+        dhcpv6_pkt = 'Ether(dst="{}")/IPv6(src="2001:db8:5::2", dst="2001:db8:5::1")/' \
+                     'UDP(sport=547, dport=546)/DHCP6_Request(trid=0)'.format(self.dst_mac)
+        dhcp_pkt = random.choice([dhcpv4_pkt, dhcpv6_pkt])
+        with allure.step('DHCP - Create validation (with DHCP discover packet)'):
+            self.validation = {'sender': self.sender,
+                               'send_args': {'interface': self.host_iface,
+                                             'send_method': 'sendpfast',
+                                             'packets': dhcp_pkt,
+                                             'pps': pps,
+                                             'loop': times,
+                                             'timeout': 20}
+                               }
 
 
 def update_copp_json_file(protocol, cir_value, cbs_value, trap_ids):
@@ -503,6 +644,8 @@ def update_copp_json_file(protocol, cir_value, cbs_value, trap_ids):
     with open(CONFIG_DB_COPP_CONFIG_NAME) as copp_json_file:
         copp_json_file_dic = json.load(copp_json_file)
     trap_group = get_trap_group(protocol, copp_json_file_dic, trap_ids)
+    if trap_group in GROUPS_WITH_MINIMAL_CONFIG:
+        update_group_params(copp_json_file_dic, trap_group)
     update_limit_values(copp_json_file_dic, trap_group, cir_value, cbs_value)
     os.remove(CONFIG_DB_COPP_CONFIG_NAME)
     with open(CONFIG_DB_COPP_CONFIG_NAME, 'w') as copp_json_file:
@@ -576,6 +719,23 @@ def update_limit_values(copp_dict, trap_group, cir_value, cbs_value):
     else:
         copp_dict[COPP_GROUP][trap_group].update({'cbs': cbs_value})
 
+# -------------------------------------------------------------------------------
+
+
+def update_group_params(copp_dict, trap_group):
+    """
+    Updates the group with required parameters to use non default values
+    :param copp_dict: config dictionary
+    :param trap_group: trap group
+    :return:
+    """
+    # there is no point in CIR and CBS values, it will change later
+    copp_dict[COPP_GROUP][trap_group].update({"meter_type": "packets",
+                                              "mode": "sr_tcm",
+                                              "color": "blind",
+                                              "cir": "400",
+                                              "cbs": "400",
+                                              "red_action": "drop"})
 # -------------------------------------------------------------------------------
 
 

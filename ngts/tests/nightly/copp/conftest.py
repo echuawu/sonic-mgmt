@@ -5,6 +5,7 @@ import os
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.ip_config_template import IpConfigTemplate
+from ngts.cli_wrappers.linux.linux_route_clis import LinuxRouteCli
 
 
 logger = logging.getLogger()
@@ -27,47 +28,45 @@ def ignore_expected_loganalyzer_exceptions(loganalyzer):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def copp_configuration(topology_obj):
+def copp_configuration(topology_obj, engines, interfaces):
     """
     Pytest fixture which are doing configuration for test case based on copp config
     :param topology_obj: topology object fixture
     """
     logger.info('Starting CoPP Common configuration')
-    hadut1 = topology_obj.ports['ha-dut-1']
-    dutha1 = topology_obj.ports['dut-ha-1']
 
-    host_engine = topology_obj.players['ha']['engine']
     host_cli_object = topology_obj.players['ha']['cli']
 
-    dut_engine = topology_obj.players['dut']['engine']
     dut_cli_object = topology_obj.players['dut']['cli']
 
     with allure.step('Check that link in UP state'):
         retry_call(SonicInterfaceCli.check_ports_status,
-                   fargs=[dut_engine, [dutha1]],
+                   fargs=[engines.dut, [interfaces.dut_ha_1]],
                    tries=10,
                    delay=10,
                    logger=logger)
 
     # IP config which will be used in test
     ip_config_dict = {
-        'dut': [{'iface': dutha1, 'ips': [('192.168.1.1', '24'), ('2001:db8:5::1', '60')]}],
-        'ha': [{'iface': hadut1, 'ips': [('192.168.1.2', '24'), ('2001:db8:5::2', '60')]}]
+        'dut': [{'iface': interfaces.dut_ha_1, 'ips': [('192.168.1.1', '24'), ('2001:db8:5::1', '60')]}],
+        'ha': [{'iface': interfaces.ha_dut_1, 'ips': [('192.168.1.2', '24'), ('2001:db8:5::2', '60')]}]
     }
 
     logger.info('Disable periodic lldp traffic')
-    host_cli_object.general.stop_service(host_engine, 'lldpad')
+    host_cli_object.general.stop_service(engines.ha, 'lldpad')
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
+    LinuxRouteCli.add_route(engines.ha, '255.255.255.255', interfaces.ha_dut_1, '32')
 
     logger.info('CoPP Common configuration completed')
 
     yield
 
     logger.info('Starting CoPP Common configuration cleanup')
+    LinuxRouteCli.del_route(engines.ha, '255.255.255.255', interfaces.ha_dut_1, '32')
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    host_cli_object.general.start_service(host_engine, 'lldpad')
+    host_cli_object.general.start_service(engines.ha, 'lldpad')
 
-    dut_cli_object.general.load_configuration(dut_engine, CONFIG_DB_COPP_CONFIG)
-    dut_cli_object.general.save_configuration(dut_engine)
+    dut_cli_object.general.load_configuration(engines.dut, CONFIG_DB_COPP_CONFIG)
+    dut_cli_object.general.save_configuration(engines.dut)
 
     logger.info('CoPP Common cleanup completed')
