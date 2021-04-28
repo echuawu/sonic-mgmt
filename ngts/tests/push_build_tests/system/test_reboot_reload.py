@@ -2,6 +2,7 @@ import allure
 import logging
 import pytest
 import os
+from retry.api import retry_call
 
 from ngts.tools.skip_test.skip import ngts_skip
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
@@ -86,9 +87,9 @@ class TestRebootReload:
 
     def resolve_arp_static_route(self):
         validation = {'sender': 'ha', 'args': {'iface': 'bond0', 'count': 3, 'dst': self.dut_port_channel_ip}}
-        ping = PingChecker(self.topology_obj.players, validation)
+        ping_checker = PingChecker(self.topology_obj.players, validation)
         logger.info('Sending 3 ping packets to {}'.format(self.dut_port_channel_ip))
-        ping.run_validation()
+        retry_call(ping_checker.run_validation, fargs=[], tries=12, delay=5, logger=logger)
 
     def start_control_plane_validation(self, validation_type, allowed_control_loss_time):
         validation_control_plane = {'sender': 'ha',
