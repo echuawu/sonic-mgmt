@@ -1,3 +1,10 @@
+class PytestConst:
+    run_config_only_arg = '--run_config_only'
+    run_test_only_arg = '--run_test_only'
+    run_cleanup_only_arg = '--run_cleanup_only'
+    alluredir_arg = '--alluredir'
+
+
 class SonicConst:
     DOCKERS_LIST = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp', 'dhcp_relay']
 

@@ -14,7 +14,7 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
 from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
-from ngts.constants.constants import SonicConst
+from ngts.constants.constants import SonicConst, PytestConst
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -26,7 +26,7 @@ def run_config_only(request):
     """
     Method for get run_config_only from pytest arguments
     """
-    return request.config.getoption('--run_config_only')
+    return request.config.getoption(PytestConst.run_config_only_arg)
 
 
 @pytest.fixture(scope='session')
@@ -34,7 +34,7 @@ def run_test_only(request):
     """
     Method for get run_test_only from pytest arguments
     """
-    return request.config.getoption('--run_test_only')
+    return request.config.getoption(PytestConst.run_test_only_arg)
 
 
 @pytest.fixture(scope='session')
@@ -42,7 +42,7 @@ def run_cleanup_only(request):
     """
     Method for get run_cleanup_only from pytest arguments
     """
-    return request.config.getoption('--run_cleanup_only')
+    return request.config.getoption(PytestConst.run_cleanup_only_arg)
 
 
 @pytest.fixture(scope='package', autouse=True)

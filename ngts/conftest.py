@@ -20,7 +20,7 @@ from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.tools.allure_report.allure_server import AllureServer
 from ngts.tools.skip_test.skip import ngts_skip
-from ngts.constants.constants import SonicConst
+from ngts.constants.constants import SonicConst, PytestConst
 
 logger = logging.getLogger()
 
@@ -38,11 +38,14 @@ def pytest_addoption(parser):
     parser.addoption('--base_version', action='store', default=None, help='Path to base SONiC version')
     parser.addoption('--target_version', action='store', default=None, help='Path to target SONiC version')
     parser.addoption('--wjh_deb_url', action='store', default=None, help='URL path to WJH deb package')
-    parser.addoption('--run_config_only', action='store_true', help='If set then only the configuration part defined '
-                                                                    'in the push_build conftest will be executed')
-    parser.addoption('--run_test_only', action='store_true', help='If set then only the test(push_build) will be executed')
-    parser.addoption('--run_cleanup_only', action='store_true', help='If set then only the cleanup part defined '
-                                                                     'in the push_build conftest will be executed')
+    parser.addoption(PytestConst.run_config_only_arg, action='store_true', help='If set then only the configuration '
+                                                                                'part defined in the push_build '
+                                                                                'conftest will be executed')
+    parser.addoption(PytestConst.run_test_only_arg, action='store_true', help='If set then only the test(push_build) '
+                                                                              'will be executed')
+    parser.addoption(PytestConst.run_cleanup_only_arg, action='store_true', help='If set then only the cleanup part '
+                                                                                 'defined in the push_build conftest '
+                                                                                 'will be executed')
 
 
 @pytest.fixture(scope="session")

@@ -413,3 +413,13 @@ class SonicGeneralCli(GeneralCliCommon):
     @staticmethod
     def execute_command_in_docker(dut_engine, docker, command):
         return dut_engine.run_cmd('docker exec -i {} {}'.format(docker, command))
+
+    @staticmethod
+    def get_warm_reboot_status(dut_engine):
+        return dut_engine.run_cmd('systemctl is-active warmboot-finalizer')
+
+    @staticmethod
+    def check_warm_reboot_status(dut_engine, expected_status):
+        warm_reboot_status = SonicGeneralCli.get_warm_reboot_status(dut_engine)
+        if expected_status not in warm_reboot_status:
+            raise Exception('warm-reboot status "{}" not as expected "{}"'.format(warm_reboot_status, expected_status))
