@@ -56,6 +56,9 @@ class TestRebootReload:
         """
         if validation_type == 'fast-reboot':
             ngts_skip(platform_params.platform, rm_ticket_list=[2447510])
+        if validation_type == 'warm-reboot':
+            # Issue below cause swss docker down state and portchannel iface in down state
+            ngts_skip(platform_params.platform, rm_ticket_list=[2637874])
 
         allowed_data_loss_time = expected_traffic_loss_dict[validation_type]['data']
         allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
