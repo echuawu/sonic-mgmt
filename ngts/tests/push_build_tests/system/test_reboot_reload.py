@@ -89,7 +89,7 @@ class TestRebootReload:
         validation = {'sender': 'ha', 'args': {'iface': 'bond0', 'count': 3, 'dst': self.dut_port_channel_ip}}
         ping_checker = PingChecker(self.topology_obj.players, validation)
         logger.info('Sending 3 ping packets to {}'.format(self.dut_port_channel_ip))
-        retry_call(ping_checker.run_validation, fargs=[], tries=12, delay=5, logger=logger)
+        retry_call(ping_checker.run_validation, fargs=[], tries=12, delay=10, logger=logger)
 
     def start_control_plane_validation(self, validation_type, allowed_control_loss_time):
         validation_control_plane = {'sender': 'ha',
