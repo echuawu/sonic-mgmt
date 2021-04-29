@@ -615,7 +615,7 @@ class DHCPTest(CoppBase):
         decode_hex = codecs.getdecoder("hex_codec")
         localmacraw = decode_hex(self.src_mac.replace(':', ''))[0]
         dhcpv4_pkt = 'Ether(dst="ff:ff:ff:ff:ff:ff", type=0x800)/IP(dst="255.255.255.255", src="0.0.0.0")/' \
-                     'UDP(dport=67, sport=68)/BOOTP(chaddr="{}", ciaddr="0.0.0.0")/' \
+                     'UDP(dport=67, sport=68)/BOOTP(chaddr={}, ciaddr="0.0.0.0")/' \
                      'DHCP(options=[("message-type", "discover"),"end"])'.format(localmacraw)
         dhcpv6_pkt = 'Ether(dst="{}")/IPv6(src="2001:db8:5::2", dst="2001:db8:5::1")/' \
                      'UDP(sport=547, dport=546)/DHCP6_Request(trid=0)'.format(self.dst_mac)
