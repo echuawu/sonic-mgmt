@@ -10,8 +10,10 @@ from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_util.cli_constants import SonicConstant
+from ngts.constants.constants import SonicConst
 from ngts.tests.nightly.conftest import get_speed_option_by_breakout_modes, get_dut_loopbacks, \
-    get_breakout_port_by_modes, get_platform_json
+    get_breakout_port_by_modes
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 """
 
@@ -73,7 +75,7 @@ def get_dut_breakout_modes(dut_engine, cli_object):
                        'default_breakout_mode': '1x200G[100G,50G,40G,25G,10G,1G]'}, .....}
 
     """
-    platform_json = get_platform_json(dut_engine, cli_object)
+    platform_json = SonicGeneralCli.get_platform_json(dut_engine, cli_object)
     config_db_output = dut_engine.run_cmd("cat /etc/sonic/config_db.json ", print_output=False)
     config_db_json = json.loads(config_db_output)
     return parse_platform_json(platform_json, config_db_json)
@@ -102,7 +104,7 @@ def parse_platform_json(platform_json_obj, config_db_json):
                        'default_breakout_mode': '1x200G[100G,50G,40G,25G,10G,1G]'}, .....}
     """
     ports_breakout_info = {}
-    breakout_options = r"\dx\d+G\(\d\)\+\dx\d+G\(\d\)|\dx\d+G\[[\d*G,]*\]|\dx\d+G"
+    breakout_options = SonicConst.BREAKOUT_MODES_REGEX
     for port_name, port_dict in platform_json_obj["interfaces"].items():
         parsed_port_dict = dict()
         parsed_port_dict[SonicConstant.INDEX] = port_dict[SonicConstant.INDEX].split(",")
@@ -179,7 +181,7 @@ def is_breakout_mode(breakout_mode):
     breakout_mode: "1x50G(2)+2x25G(2)" -> return True
     breakout_mode: "1x100G[40G]" -> return False
     """
-    breakout_pattern = r"\dx\d+G\(\d\)\+\dx\d+G\(\d\)"
+    breakout_pattern = SonicConst.BREAKOUT_MODE_WITH_DIFF_LANE_SUPPORTED_SPEEDS_REGEX
     return re.search(breakout_pattern, breakout_mode) or not breakout_mode.startswith('1')
 
 

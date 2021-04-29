@@ -3,7 +3,7 @@ import logging
 
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.constants.constants import AutonegCommandConstants
+from ngts.constants.constants import ConfigDbJsonConst
 
 logger = logging.getLogger()
 

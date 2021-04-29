@@ -4,10 +4,10 @@ import random
 import os
 import re
 
-from ngts.cli_util.cli_constants import SonicConstant
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import SPC, SPC2_3
 from ngts.tests.nightly.conftest import get_dut_loopbacks, \
-    cleanup, get_platform_json, get_breakout_port_by_modes, get_speed_option_by_breakout_modes
+    cleanup
 
 logger = logging.getLogger()
 
@@ -35,8 +35,8 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
               ...
               'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
     """
-    platform_json_info = get_platform_json(engines.dut, cli_objects.dut)
-    split_mode_supported_speeds = parse_platform_json(topology_obj, platform_json_info)
+    platform_json_info = SonicGeneralCli.get_platform_json(engines.dut, cli_objects.dut)
+    split_mode_supported_speeds = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_info)
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
         for port in host_ports:
@@ -275,71 +275,3 @@ def convert_speeds_to_kb_format(speeds_list):
     """
     speeds_in_kb_format = list(map(lambda speed: str(speed_string_to_int(speed) * 1000), speeds_list))
     return ",".join(speeds_in_kb_format)
-
-
-def parse_platform_json(topology_obj, platform_json_obj, parse_by_breakout_modes=False):
-    """
-    parsing platform breakout options and config_db.json breakout configuration.
-    :param topology_obj: topology object fixture
-    :param platform_json_obj: a json object of platform.json file
-    :param parse_by_breakout_modes: If true the function will return a dictionary with
-    available breakout options by split number for all dut ports,
-    i.e,
-       { 'Ethernet0' :    {1:{'1x100G[50G,40G,25G,10G]'},
-                           2: {'2x50G[40G,25G,10G]'},
-                           4: {'4x25G[10G]'},...}
-    :return: a dictionary with available speeds option for each split number on all dut ports
-    i.e,
-       { 'Ethernet0' :{'1': [200G,100G,50G,40G,25G,10G,1G],
-                       '2': [100G, 50G,40G,25G,10G,1G],
-                       '4': [50G,40G,25G,10G,1G]},..}
-    """
-    ports_speeds_by_modes_info = {}
-    breakout_options = r"\dx\d+G\(\d\)\+\dx\d+G\(\d\)|\dx\d+G\[[\d*G,]*\]|\dx\d+G"
-    for port_name, port_dict in platform_json_obj["interfaces"].items():
-        lanes = port_dict[SonicConstant.LANES].split(",")
-        breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].keys())))
-        for breakout_mode, breakout_ports_conf in get_breakout_port_by_modes(breakout_modes, lanes).items():
-            breakout_ports = breakout_ports_conf.keys()
-            for port in breakout_ports:
-                if port in topology_obj.players_all_ports['dut'] and port not in ports_speeds_by_modes_info:
-                    if parse_by_breakout_modes:
-                        ports_speeds_by_modes_info[port] = get_split_mode_supported_breakout_modes(breakout_modes)
-                    else:
-                        ports_speeds_by_modes_info[port] = get_split_mode_supported_speeds(breakout_modes)
-    return ports_speeds_by_modes_info
-
-
-def get_split_mode_supported_speeds(breakout_modes):
-    """
-    :param breakout_modes: a list of breakout modes, i.e. ['1x100G[50G,40G,25G,10G]',
-    '2x50G[40G,25G,10G]', '4x25G[10G]']
-    :return: a dictionary of supported speed for every split number option, i.e,
-    {1: {'100G', '50G', '40G', '10G', '25G'},
-    2: {'40G', '10G', '25G', '50G'},
-    4: {'10G', '25G'}}
-    """
-    split_mode_supported_speeds = {1: set(), 2: set(), 4: set()}
-    breakout_port_by_modes = get_speed_option_by_breakout_modes(breakout_modes)
-    for breakout_mode, supported_speeds_list in breakout_port_by_modes.items():
-        breakout_num, _ = breakout_mode.split("x")
-        split_mode_supported_speeds[int(breakout_num)].update(supported_speeds_list)
-    return split_mode_supported_speeds
-
-
-def get_split_mode_supported_breakout_modes(breakout_modes):
-    """
-    :param breakout_modes: a list of breakout modes, i.e. ['1x100G[50G,40G,25G,10G]',
-    '2x50G[40G,25G,10G]', '4x25G[10G]']
-    :return: a dictionary of supported breakout mode for every split number option, i.e,
-    {1:{'1x100G[50G,40G,25G,10G]'},
-    2: {'2x50G[40G,25G,10G]'},
-    4: {'4x25G[10G]'}
-    """
-    split_mode_supported_breakout_modes = {1: set(), 2: set(), 4: set()}
-    for breakout_mode in breakout_modes:
-        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
-        if re.search(breakout_pattern, breakout_mode):
-            breakout_num, _ = breakout_mode.split("x")
-            split_mode_supported_breakout_modes[int(breakout_num)].add(breakout_mode)
-    return split_mode_supported_breakout_modes
