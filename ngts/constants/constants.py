@@ -113,3 +113,33 @@ SPC2_3 = {
  'CAUI4': ['100G'],
  'XFI': ['10G']
  }
+
+
+class P4SamplingEntryConsts:
+    ENTRY_PRIORITY_HEADERS = ['PRIO']
+    COUNTER_PACKETS_HEADERS = ['Packets']
+    COUNTER_BYTES_HEADERS = ['Bytes']
+    FLOW_ENTRY_KEY_HEADERS = ['Key SIP', 'Key DIP', 'Key PROTO', 'Key L4 SPORT', 'Key L4 SPORT',
+                              'Key Checksum Value/Mask']
+    PORT_ENTRY_KEY_HEADERS = ['Key Port', 'Key Checksum Value/Mask']
+    FLOW_ENTRY_ACTION_HEADERS = [
+                'Action',
+                'Action Mirror Port',
+                'Action SMAC',
+                'Action DMAC',
+                'Action SIP',
+                'Action DIP',
+                'Action VLAN',
+                'Action Is Trunc',
+                'Action Trunc Size']
+
+    PORT_ENTRY_ACTION_HEADERS = [
+                'Action',
+                'Action Mirror Port',
+                'Action SMAC',
+                'Action DMAC',
+                'Action SIP',
+                'Action DIP',
+                'Action VLAN',
+                'Action Is Trunc',
+                'Action Trunc Size']
