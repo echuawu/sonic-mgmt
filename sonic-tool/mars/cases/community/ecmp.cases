@@ -35,6 +35,11 @@
                 </condition>
                 <bug> 2577145 </bug>
             </condition_group>
+            <condition>
+                <key> topology </key>
+                <op> not in </op>
+                <value> ["t0"] </value>
+            </condition>
         </ignore>
         <cmd>
             <params>
