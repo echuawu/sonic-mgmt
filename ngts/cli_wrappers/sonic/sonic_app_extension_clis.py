@@ -2,6 +2,7 @@ import logging
 
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 
 
 logger = logging.getLogger()
@@ -105,4 +106,37 @@ class SonicAppExtensionCli:
         """
         engine.run_cmd("sudo spm upgrade -y --from-tarball {}".format(tarball_name))
 
+    @staticmethod
+    def show_app_version(engine: LinuxSshEngine, app_name: str, option: str = "") -> str:
+        """
+        Show app version:
+        :param engine: ssh engine object
+        :param app_name: app name
+        :param option: "", plain, all
+        :Return app version info
+        """
+        if option:
+            option = "--{}".format(option)
+        return engine.run_cmd("sudo spm show package versions {} {}".format(app_name, option), validate=True)
 
+    @staticmethod
+    def show_app_manifest(engine: LinuxSshEngine, app_name: str, version: str = "") -> str:
+        """
+        Show app manifest:
+        :param engine: ssh engine object
+        :param app_name: app name
+        :param version: app version
+        :Return specified version app manifest
+        """
+        return engine.run_cmd("sudo spm show package manifest {}={} ".format(app_name, version), validate=True)
+
+    @staticmethod
+    def show_app_changelog(engine: LinuxSshEngine, app_name: str, version: str = "") -> str:
+        """
+        Show app version:
+        :param engine: ssh engine object
+        :param app_name: app name
+        :param version: app version
+        :Return specified version app changelog
+        """
+        return engine.run_cmd("sudo spm show package changelog {}={} ".format(app_name, version), validate=True)
