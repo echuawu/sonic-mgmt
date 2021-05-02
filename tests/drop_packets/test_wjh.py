@@ -4,16 +4,23 @@ import scapy
 import re
 import random
 from drop_packets import *
-from ptf.testutils import verify_no_packet_any, simple_ip_only_packet, simple_ipv4ip_packet
+from ptf.testutils import verify_no_packet_any, simple_ip_only_packet, simple_ipv4ip_packet, simple_tcp_packet, simple_vxlan_packet
 from tests.common.helpers.assertions import pytest_assert
 from collections import OrderedDict
 from tests.common.platform.device_utils import fanout_switch_port_lookup
 from tests.common.platform.processes_utils import wait_critical_processes
 from tests.common.utilities import wait, wait_until
+from tests.vxlan.test_vxlan_decap import prepare_ptf, generate_vxlan_config_files
 import json
+from jinja2 import Template
+from netaddr import IPAddress
+from tests.vxlan.vnet_constants import DUT_VXLAN_PORT_JSON
+from tests.vxlan.vnet_utils import render_template_to_host
+import time
 
 SUCCESS_CODE = 0
-
+VTEP2_IP = "8.8.8.8"
+VNI_BASE = 336
 logger = logging.getLogger(__name__)
 pytest.CHANNEL_CONF = None
 
@@ -255,6 +262,74 @@ def check_feature_enabled(duthost):
     features = duthost.feature_facts()['ansible_facts']['feature_facts']
     if 'what-just-happened' not in features or features['what-just-happened'] != 'enabled':
         pytest.skip("what-just-happened feature is not available. Skipping the test.")
+
+
+@pytest.fixture(scope='module')
+def vxlan_config(duthosts, rand_one_dut_hostname, ptfhost, tbinfo):
+    duthost = duthosts[rand_one_dut_hostname]
+
+    logger.info("Gather minigraph facts")
+    mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
+
+    logger.info("Copying vxlan_switch.json")
+    render_template_to_host("vxlan_switch.j2", duthost, DUT_VXLAN_PORT_JSON)
+    duthost.shell("docker cp {} swss:/vxlan.switch.json".format(DUT_VXLAN_PORT_JSON))
+    duthost.shell("docker exec swss sh -c \"swssconfig /vxlan.switch.json\"")
+    time.sleep(3)
+
+    logger.info("Prepare PTF")
+    prepare_ptf(ptfhost, mg_facts, duthost)
+
+    logger.info("Generate VxLAN config files")
+    generate_vxlan_config_files(duthost, mg_facts)
+
+    setup_info = {
+        "mg_facts": mg_facts
+    }
+
+    yield setup_info
+
+    logger.info("Stop arp_responder on PTF")
+    ptfhost.shell("supervisorctl stop arp_responder")
+
+    logger.info("Always try to remove any possible VxLAN tunnel and map configuration")
+    for vlan in mg_facts["minigraph_vlans"]:
+            duthost.shell('docker exec -i database redis-cli -n 4 -c DEL "VXLAN_TUNNEL_MAP|tunnelVxlan|map%s"' % vlan)
+    duthost.shell('docker exec -i database redis-cli -n 4 -c DEL "VXLAN_TUNNEL|tunnelVxlan"')
+
+
+@pytest.fixture(scope='module')
+def vxlan_status(vxlan_config, duthosts, rand_one_dut_hostname):
+    duthost = duthosts[rand_one_dut_hostname]
+    #clear FDB and arp cache on DUT
+    duthost.shell('sonic-clear arp; fdbclear')
+    duthost.shell("sonic-cfggen -j /tmp/vxlan_db.tunnel.json --write-to-db")
+    duthost.shell("sonic-cfggen -j /tmp/vxlan_db.maps.json --write-to-db")
+
+
+# NOTE: this test case is available only for setups with SDK ver 4.4.2522
+def test_fid_miss(do_test, vxlan_config, vxlan_status, ptfadapter, duthost, setup, pkt_fields, ports_info, tbinfo):
+    router_mac = ports_info['dst_mac']
+    mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
+    switch_loopback_ip = mg_facts['minigraph_lo_interfaces'][0]['addr']
+
+    inner_packet = simple_tcp_packet(
+                        eth_dst=ports_info['src_mac'],
+                        eth_src=router_mac,
+                        ip_dst=pkt_fields['ipv4_dst'],
+                        ip_src=pkt_fields['ipv4_src']
+                        )
+
+    packet = simple_vxlan_packet(
+                        eth_dst=router_mac,
+                        eth_src=ports_info['src_mac'],
+                        ip_src=VTEP2_IP,
+                        ip_dst=switch_loopback_ip,
+                        vxlan_vni=6, # vni in mapping will be 1336 so we will receive the drop
+                        inner_frame=inner_packet
+                        )
+
+    do_test('L2', packet, ptfadapter, duthost, ports_info, setup['neighbor_sniff_ports'])
 
 
 def test_tunnel_ip_in_ip(do_test, ptfadapter, duthost, setup, pkt_fields, ports_info):
