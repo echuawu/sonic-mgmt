@@ -25,6 +25,7 @@ from switch import (switch_init,
                     port_list,
                     sai_thrift_read_port_watermarks,
                     sai_thrift_read_pg_counters,
+                    sai_thrift_read_pg_shared_watermark,
                     sai_thrift_read_buffer_pool_watermark,
                     sai_thrift_read_headroom_pool_watermark,
                     sai_thrift_port_tx_disable,
@@ -1713,9 +1714,8 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             send_packet(self, src_port_id, pkt, pkts_num_leak_out + pkts_num_fill_min)
             time.sleep(8)
 
-            q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[src_port_id])
+            pg_shared_wm_res = sai_thrift_read_pg_shared_watermark(self.client, port_list[src_port_id])
             print >> sys.stderr, "Init pkts num sent: %d, min: %d, actual watermark value to start: %d" % ((pkts_num_leak_out + pkts_num_fill_min), pkts_num_fill_min, pg_shared_wm_res[pg])
-            # pkts_num_fill_min should be zero for lossless and lossy on Mellanox platform
             if pkts_num_fill_min:
                 assert(pg_shared_wm_res[pg] == 0)
             else:
@@ -1746,8 +1746,8 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
                 time.sleep(8)
                 # these counters are clear on read, ensure counter polling
                 # is disabled before the test
-                q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[src_port_id])
-                print >> sys.stderr, "lower bound: %d, actual value: %d, upper bound: %d" % (expected_wm * cell_size, pg_shared_wm_res[pg], (expected_wm + margin) * cell_size)
+                pg_shared_wm_res = sai_thrift_read_pg_shared_watermark(self.client, port_list[src_port_id])
+                print >> sys.stderr, "lower bound: %d, actual value: %d, upper bound (+%d): %d" % (expected_wm * cell_size, pg_shared_wm_res[pg], margin, (expected_wm + margin) * cell_size)
                 assert(pg_shared_wm_res[pg] <= (expected_wm + margin) * cell_size)
                 assert(expected_wm * cell_size <= pg_shared_wm_res[pg])
 
@@ -1756,7 +1756,7 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             # overflow the shared pool
             send_packet(self, src_port_id, pkt, pkts_num)
             time.sleep(8)
-            q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[src_port_id])
+            pg_shared_wm_res = sai_thrift_read_pg_shared_watermark(self.client, port_list[src_port_id])
             print >> sys.stderr, "exceeded pkts num sent: %d, expected watermark: %d, actual value: %d" % (pkts_num, ((expected_wm + cell_occupancy) * cell_size), pg_shared_wm_res[pg])
             assert(fragment < cell_occupancy)
             assert(expected_wm * cell_size <= pg_shared_wm_res[pg])
@@ -1942,8 +1942,10 @@ class QSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             time.sleep(8)
             q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[dst_port_id])
             print >> sys.stderr, "Init pkts num sent: %d, min: %d, actual watermark value to start: %d" % ((pkts_num_leak_out + pkts_num_fill_min), pkts_num_fill_min, q_wm_res[queue])
-            if asic_type != 'mellanox':
-                assert(q_wm_res[queue] == (0 if pkts_num_fill_min else (1 * cell_size)))
+            if pkts_num_fill_min:
+                assert(q_wm_res[queue] == 0)
+            else:
+                assert(q_wm_res[queue] <= 1 * cell_size)
 
             # send packet batch of fixed packet numbers to fill queue shared
             # first round sends only 1 packet
@@ -1979,7 +1981,7 @@ class QSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             print >> sys.stderr, "exceeded pkts num sent: %d, actual value: %d, lower bound: %d, upper bound: %d" % (pkts_num, q_wm_res[queue], expected_wm * cell_size, (expected_wm + margin) * cell_size)
             assert(fragment < cell_occupancy)
             assert(expected_wm * cell_size <= q_wm_res[queue])
-            assert(q_wm_res[queue] <= (expected_wm + margin + cell_occupancy * 2) * cell_size)
+            assert(q_wm_res[queue] <= (expected_wm + margin) * cell_size)
 
         finally:
             sai_thrift_port_tx_enable(self.client, asic_type, [dst_port_id])
