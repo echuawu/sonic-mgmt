@@ -142,7 +142,7 @@ class SonicGeneralCli(GeneralCliCommon):
             retries = retries - 1
 
     @staticmethod
-    @retry(Exception, tries=12, delay=10)
+    @retry(Exception, tries=15, delay=10)
     def verify_dockers_are_up(engine, dockers_list=None):
         """
         Verifying the dockers are in up state
