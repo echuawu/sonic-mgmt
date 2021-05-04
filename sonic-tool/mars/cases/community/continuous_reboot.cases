@@ -15,13 +15,6 @@
     </global>
 
     <case>
-        <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
 
         <info> Continuous_Reboot Case </info>
         <name> continuous_reboot </name>

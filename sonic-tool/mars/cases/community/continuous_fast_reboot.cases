@@ -20,12 +20,7 @@
                 <!-- fast-reboot and warm-reboot are not supported on spectrum2 and spectrum3 platforms yet-->
                 <key> chip_type </key>
                 <op> in </op>
-                <value> ["spectrum2", "spectrum3"] </value>
-            </condition>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
+                <value> ["spectrum2"] </value>
             </condition>
         </ignore>
 
