@@ -24,7 +24,7 @@ def configure_dhcp_scale(topology_obj, interfaces, engines):
 
     with allure.step('Check that links in UP state'.format()):
         ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
+        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=20, delay=10,
                    logger=logger)
 
     vlan_config_dict = {
