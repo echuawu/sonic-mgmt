@@ -24,14 +24,9 @@
             <condition_group>
                 <operand> AND </operand>
                 <condition>
-                    <key> sonic_branch </key>
-                    <op> != </op>
-                    <value> master </value>
-                </condition>
-                <condition>
-                    <key> sonic_branch </key>
-                    <op> != </op>
-                    <value> 202012 </value>
+                    <key> chip_type </key>
+                    <op> == </op>
+                    <value> spectrum1 </value>
                 </condition>
                 <bug> 2577145 </bug>
             </condition_group>
