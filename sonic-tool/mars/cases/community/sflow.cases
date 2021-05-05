@@ -26,7 +26,7 @@
             <condition>
                 <key> topology </key>
                 <op> not in </op>
-                <value> ["t0"] </value>
+                <value> ["t0","t0-64"] </value>
             </condition>
         </ignore>
     </case>
