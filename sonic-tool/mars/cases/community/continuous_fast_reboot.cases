@@ -22,6 +22,11 @@
                 <op> in </op>
                 <value> ["spectrum2"] </value>
             </condition>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
         </ignore>
 
         <info> Continuous_Fast_Reboot Case </info>

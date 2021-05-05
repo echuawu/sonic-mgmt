@@ -15,6 +15,15 @@
     </global>
 
     <case>
+        <ignore>
+            <ignore_by_tag> TAG_ISSU_DISABLED </ignore_by_tag>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+            <bug> 2126499 </bug>
+        </ignore>
 
         <pre>
             <info> run linkstate/up.yml </info>
