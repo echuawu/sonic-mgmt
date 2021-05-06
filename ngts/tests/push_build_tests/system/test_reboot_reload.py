@@ -2,6 +2,7 @@ import allure
 import logging
 import pytest
 import os
+import sys
 import re
 from retry.api import retry_call
 
@@ -215,7 +216,9 @@ def prepare_pytest_cmd_with_custom_allure_dir(pytest_args_list):
     --clean-alluredir --alluredir=/tmp/allure_reboot_reload -k "not TestRebootReload"
     /local/repos/sonic-mgmt/ngts/tests/push_build_tests')
     """
-    cmd = 'pytest {} '.format(PytestConst.run_test_only_arg)
+    python_bin_folder = os.path.dirname(sys.executable)
+    pytest_path = os.path.join(python_bin_folder, 'pytest')
+    cmd = '{} {} '.format(pytest_path, PytestConst.run_test_only_arg)
     for arg in pytest_args_list:
         if '{}='.format(PytestConst.alluredir_arg) in arg:
             arg = '{}=/tmp/allure_reboot_reload'.format(PytestConst.alluredir_arg)
