@@ -19,6 +19,7 @@ import util
 from pkg_resources import parse_version
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.platform.daemon_utils import check_pmon_daemon_status
+from tests.common.platform.device_utils import get_dut_psu_line_pattern
 from tests.common.utilities import get_inventory_files, get_host_visible_vars
 
 pytestmark = [
@@ -164,22 +165,6 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
         for line in utility_cmd_output["stdout_lines"]:
             pytest_assert(line in syseeprom_output, "Line '{}' was not found in output on '{}'".format(line, duthost.hostname))
 
-# TODO: Gather expected data from a platform-specific data file instead of this method
-def check_vendor_specific_psustatus(dut, psu_status_line):
-    """
-    @summary: Vendor specific psu status check
-    """
-    if dut.facts["asic_type"] in ["mellanox"]:
-        from ..mellanox.check_sysfs import check_psu_sysfs
-
-        psu_line_pattern = re.compile(r"PSU\s+(\d)+\s+(OK|NOT OK|NOT PRESENT)")
-        psu_match = psu_line_pattern.match(psu_status_line)
-        psu_id = psu_match.group(1)
-        psu_status = psu_match.group(2)
-
-        check_psu_sysfs(dut, psu_id, psu_status)
-
-
 def test_show_platform_psustatus(duthosts, enum_supervisor_dut_hostname):
     """
     @summary: Verify output of `show platform psustatus`
@@ -192,10 +177,7 @@ def test_show_platform_psustatus(duthosts, enum_supervisor_dut_hostname):
     logging.info("Verifying output of '{}' on '{}' ...".format(cmd, duthost.hostname))
     psu_status_output_lines = duthost.command(cmd)["stdout_lines"]
 
-    if "201811" in duthost.os_version or "201911" in duthost.os_version:
-        psu_line_pattern = re.compile(r"PSU\s+(\d+)\s+(OK|NOT OK|NOT PRESENT)")
-    else:
-        psu_line_pattern = re.compile(r"PSU\s+(\d+).*?(OK|NOT OK|NOT PRESENT)\s+(green|amber|red|off)")
+    psu_line_pattern = get_dut_psu_line_pattern(duthost)
 
     # Check that all PSUs are showing valid status and also at least one PSU is OK
     num_psu_ok = 0
