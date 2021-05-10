@@ -307,7 +307,8 @@ def vxlan_status(vxlan_config, duthosts, rand_one_dut_hostname):
     duthost.shell("sonic-cfggen -j /tmp/vxlan_db.maps.json --write-to-db")
 
 
-# NOTE: this test case is available only for setups with SDK ver 4.4.2522
+# NOTE: this test case is available only for setups with SDK ver 4.4.2522 and above
+@pytest.mark.topology('t0')
 def test_fid_miss(do_test, vxlan_config, vxlan_status, ptfadapter, duthost, setup, pkt_fields, ports_info, tbinfo):
     router_mac = ports_info['dst_mac']
     mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
