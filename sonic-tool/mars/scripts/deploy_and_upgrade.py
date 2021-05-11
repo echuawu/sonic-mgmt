@@ -71,6 +71,10 @@ def _parse_args():
                         dest="deploy_only_target", help="If yes - then the installation of the base version will be "
                                                         "skipped and the target version will be installed instead of "
                                                         "the base.")
+    parser.add_argument("--send_takeover_notification", help="If set to True, the deployment script will send a takeover "
+                                                             "notification to all the active terminals and wait for "
+                                                             "a predefined period before starting the deployment",
+                        dest="send_takeover_notification", default=False, action='store_true')
 
     return parser.parse_args()
 
@@ -348,6 +352,28 @@ def install_image(ansible_path, mgmt_docker_engine, dut_name, topo, sonic_topo, 
 
 
 @separate_logger
+def send_takeover_notification(ansible_path, sonic_topo, mgmt_docker_engine, setup_name):
+    """
+    This method will send a takeover notification to all active terminals
+    """
+    logger.info("Sending takeover notification to all active terminals")
+    if sonic_topo == 'ptf-any':
+        sonic_mgmt_path = '/workspace/{setup_name}/sonic-mgmt/'
+        sonic_mgmt_dir = sonic_mgmt_path.format(setup_name=setup_name)
+    else:
+        sonic_mgmt_dir = '/root/mars/workspace/sonic-mgmt/'
+
+    cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} /ngts_venv/bin/pytest --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
+          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results" \
+          " {sonic_mgmt_dir}ngts/scripts/regression_takeover_notification/send_takeover_notification.py".\
+        format(sonic_mgmt_dir=sonic_mgmt_dir, setup_name=setup_name)
+
+    with mgmt_docker_engine.cd(ansible_path):
+        logger.info("Running CMD: {}".format(cmd))
+        mgmt_docker_engine.run(cmd)
+
+
+@separate_logger
 def deploy_minigprah(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, recover_by_reboot):
     """
     Method which doing minigraph deploy on DUT
@@ -468,6 +494,10 @@ def main():
                                    connect_kwargs={"password": hypervisor_device.USERS[0].PASSWORD})
 
     image_urls = prepare_images(args.base_version, args.target_version, args.serve_files)
+
+    if args.send_takeover_notification:
+        send_takeover_notification(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
+                                   sonic_topo=args.sonic_topo, setup_name=args.setup_name)
 
     if args.upgrade_only and re.match(r"^(no|false)$", args.upgrade_only, re.I):
         recover_topology(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
