@@ -74,7 +74,7 @@ def _parse_args():
     parser.add_argument("--send_takeover_notification", help="If set to True, the deployment script will send a takeover "
                                                              "notification to all the active terminals and wait for "
                                                              "a predefined period before starting the deployment",
-                        dest="send_takeover_notification", default=False, action='store_true')
+                        dest="send_takeover_notification", default='no', choices=["yes", "no"])
 
     return parser.parse_args()
 
@@ -495,7 +495,7 @@ def main():
 
     image_urls = prepare_images(args.base_version, args.target_version, args.serve_files)
 
-    if args.send_takeover_notification:
+    if args.send_takeover_notification == 'yes':
         send_takeover_notification(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
                                    sonic_topo=args.sonic_topo, setup_name=args.setup_name)
 
