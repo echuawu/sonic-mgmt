@@ -6,7 +6,6 @@ def pre(name, ci_tools) {
 
 
 def run_step(name, ci_tools) {
-    def mgmt_tools
     try {
         //last sha1 from local
         def last_local_commit = ci_tools.run_sh_return_output("git rev-parse ${env.MGMT_GERRIT_BRANCH}").trim()
@@ -15,7 +14,6 @@ def run_step(name, ci_tools) {
         if (!fileExists(".git/hooks/commit-msg")) {
             ci_tools.run_sh('''scp -p -P 29418 10.7.77.140:hooks/commit-msg ".git/hooks/"''')
         }
-        mgmt_tools = ci_tools.load_project_lib("${env.SHARED_LIB_FILE}")
         ci_tools.run_sh("git remote add upstream ${env.GITHUB_REPOSITORY} && git fetch upstream")
         try {
             ci_tools.run_sh("git merge upstream/${env.GITHUB_BRANCH}")
@@ -30,6 +28,9 @@ def run_step(name, ci_tools) {
                     if (conflict.contains(file)){
                         print "File ${conflict} will be taken from 'our' git"
                         ci_tools.run_sh("git checkout HEAD -- ${conflict}")
+                    } else {
+                        print "File ${conflict} will be taken from 'thiers' git"
+                        ci_tools.run_sh("git checkout upstream/${env.GITHUB_BRANCH} -- ${conflict}")
                     }
                 }
             }
