@@ -1,8 +1,14 @@
 ansible/files/sonic_lab_devices.csv
+ansible/files/sonic_lab_links.csv
+ansible/files/lab_connection_graph.xml
+ansible/group_vars/vm_host/main.yml
+ansible/veos
 ansible/lab
 ansible/library/conn_graph_facts.py
 ansible/module_utils/port_utils.py
 ansible/testbed-cli.sh
 ansible/testbed.csv
+ansible/files/sonic_lab_pdu_links.csv
+ansible/files/sonic_lab_console_links.csv
+ansible/group_vars/vm_host/creds.yml
 tests/common/devices.py
-tests/platform_tests/cli/test_show_platform.py
