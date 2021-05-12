@@ -15,7 +15,7 @@ from ngts.constants.constants import PytestConst
 logger = logging.getLogger()
 
 validation_types = ['fast-reboot', 'warm-reboot', 'reboot', 'config reload -y']
-expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
+expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
                               'warm-reboot': {'data': 0, 'control': 90},
                               'reboot': {'data': 180, 'control': 180},
                               'config reload -y': {'data': 180, 'control': 180}
@@ -59,8 +59,6 @@ class TestRebootReload:
         :param platform_params: platform_params fixture
         :param validation_type: validation type - which will be executed
         """
-        if validation_type == 'fast-reboot':
-            ngts_skip(platform_params.platform, rm_ticket_list=[2447510])
         if validation_type == 'warm-reboot':
             # Issue below cause swss docker down state and portchannel iface in down state
             ngts_skip(platform_params.platform, rm_ticket_list=[2637874])
