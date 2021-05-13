@@ -340,7 +340,7 @@ def verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf):
 
     with allure.step('Verify there is no breakout ports: {}'.format(all_breakout_ports)):
         cmd_output = cli_object.interface.show_interfaces_status(dut_engine)
-        verify_show_cmd(cmd_output, [("{}\s+".format(port), False) for port in all_breakout_ports])
+        verify_show_cmd(cmd_output, [(r"{}\s+".format(port), False) for port in all_breakout_ports])
 
 
 def send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list):
@@ -373,7 +373,7 @@ def send_ping_and_validate_result(dut_engine, lb_list, ports_ip_conf):
                         .format(src_port, src_ip, dst_port, dst_ip))
             output = dut_engine.run_cmd(ping_cmd)
             packets_recevied = int(
-                re.search("\d+\s+packets\s+transmitted,\s+(\d+)\s+received,\s+\d+%\s+packet\s+loss,\s+time\s+\d+ms",
+                re.search(r"\d+\s+packets\s+transmitted,\s+(\d+)\s+received,\s+\d+%\s+packet\s+loss,\s+time\s+\d+ms",
                           output).group(1))
             assert packets_recevied == 3, \
                 "Ping validation failed because actual packets received {} != expected packet: 3".format(

@@ -170,7 +170,7 @@ def extract_version_info(raw_version_data: str) -> (bool, list):
 
     """
     versions = raw_version_data.strip().split("\n")
-    dot_reg = re.compile(".*•\s*(?P<version>.*)")
+    dot_reg = re.compile(r".*•\s*(?P<version>.*)")
     new_versions = []
     version_dots = []
 

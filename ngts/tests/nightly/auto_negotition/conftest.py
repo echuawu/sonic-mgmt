@@ -132,13 +132,13 @@ def parse_cables_info(engines, cli_objects, ports_aliases_dict):
     """
     engines.dut.run_cmd("sudo mst cable add")
     cable_info = engines.dut.run_cmd("sudo mlxcables")
-    parse_regex_pattern = "Cable\s+#(\d+):(\n.*){7}Compliance\s+:\s+([\d+\w+\-\w+,\s]*)\n"
+    parse_regex_pattern = r"Cable\s+#(\d+):(\n.*){7}Compliance\s+:\s+([\d+\w+\-\w+,\s]*)\n"
     parsed_output_list = re.findall(parse_regex_pattern, cable_info)
     res = dict()
     for port_num, _, supported_types in parsed_output_list:
-        parsed_supported_types = re.findall("(\d+GBASE-\w+\d*)", supported_types)
+        parsed_supported_types = re.findall(r"(\d+GBASE-\w+\d*)", supported_types)
         for port_name, port_sonic_alias in ports_aliases_dict.items():
-            if re.match("etp{}\w*".format(port_num), port_sonic_alias):
+            if re.match(r"etp{}\w*".format(port_num), port_sonic_alias):
                 res[port_name] = parsed_supported_types
     return res
 
@@ -208,7 +208,7 @@ def get_interface_cable_type(type_string):
     :param type_string: a interface type string '25GBASE-CR'
     :return: string type value, i.e, 'CR'
     """
-    return re.search("\d+GBASE-(\w+\d*)", type_string).group(1)
+    return re.search(r"\d+GBASE-(\w+\d*)", type_string).group(1)
 
 
 def speed_string_to_int(speed):
@@ -216,7 +216,7 @@ def speed_string_to_int(speed):
     :param speed: a speed string i.e, '25G'
     :return: speed int value, i.e., 25
     """
-    return int(re.search('(\d+)G', speed).group(1))
+    return int(re.search(r'(\d+)G', speed).group(1))
 
 
 def get_matched_types(speed_list, types_dict):

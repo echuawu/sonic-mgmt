@@ -57,7 +57,7 @@ def get_invalid_interface(topology_obj):
     :return: an interface that does not exist on dut, i.e, Ethernet61
     """
     ports = topology_obj.players_all_ports['dut']
-    port_num = list(map(lambda port: int(re.search("Ethernet(\d+)", port).group(1)), ports))
+    port_num = list(map(lambda port: int(re.search(r"Ethernet(\d+)", port).group(1)), ports))
     max_port = max(port_num)
     return "Ethernet{}".format(max_port+1)
 
