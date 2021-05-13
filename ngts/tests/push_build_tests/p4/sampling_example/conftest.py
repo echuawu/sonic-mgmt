@@ -69,8 +69,21 @@ def sampling_pipline(topology_obj):
     logger.info('{} uninstallation completed'.format(app_name))
 
 
+@pytest.fixture(scope="package", autouse=False)
+def skipping_p4_sampling_test_case(engines, platform_params):
+    """
+    If p4-samping is not ready, skipping all p4-sampling test cases execution
+    :param engines: engines fixture
+    :param platform_params: platform_params fixture
+    """
+    if 'SN2' in platform_params.hwsku:
+        pytest.skip("Skipping p4-sampling test cases as SPC1 does not support it")
+    if not SonicAppExtensionCli.verify_version_support_app_ext(engines.dut):
+        pytest.skip("Skipping p4-sampling test cases as the running version does not support app extension feature.")
+
+
 @pytest.fixture(scope='package', autouse=True)
-def p4_sampling_configuration(topology_obj, engines, interfaces):
+def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engines, interfaces):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
