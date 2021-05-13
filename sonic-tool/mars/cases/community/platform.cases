@@ -103,11 +103,6 @@
         <tout> 10800 </tout>
         <ignore>
             <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-            <condition>
                 <key> dut_name </key>
                 <op> == </op>
                 <value> "r-boxer-sw01" </value>
@@ -126,11 +121,6 @@
         <name> reboot_for_daily </name>
         <tout> 10800 </tout>
         <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> != </op>
-                <value> yes </value>
-            </condition>
             <condition>
                 <key> dut_name </key>
                 <op> == </op>
