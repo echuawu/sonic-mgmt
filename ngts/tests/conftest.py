@@ -10,6 +10,16 @@ import pytest
 from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+
+
+@pytest.fixture(scope='session', autouse=True)
+def show_version(engines):
+    """
+    Print show version output to logs
+    :param engines: engines fixture
+    """
+    SonicGeneralCli.show_version(engines.dut)
 
 
 @pytest.fixture(scope='session')

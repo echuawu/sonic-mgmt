@@ -153,7 +153,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         logger.info('PushGate Common configuration completed')
 
         with allure.step('Doing debug logs print'):
-            log_debug_info_before_upgrade(engines.dut)
+            log_debug_info(engines.dut)
 
         with allure.step('Doing conf save'):
             logger.info('Doing config save')
@@ -197,7 +197,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         pytest.skip('Skipping test according to flags: run_config_only/run_test_only/run_cleanup_only')
 
 
-def log_debug_info_before_upgrade(dut_engine):
+def log_debug_info(dut_engine):
     logger.info('Started debug prints')
     SonicInterfaceCli.show_interfaces_status(dut_engine)
     SonicIpCli.show_ip_interfaces(dut_engine)

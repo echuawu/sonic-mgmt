@@ -440,3 +440,7 @@ class SonicGeneralCli(GeneralCliCommon):
         if 'msn2' in platform:
             return True
         return False
+
+    @staticmethod
+    def show_version(dut_engine):
+        return dut_engine.run_cmd('show version')
