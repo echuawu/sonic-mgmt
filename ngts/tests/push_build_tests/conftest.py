@@ -64,19 +64,20 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
     cli_object = topology_obj.players['dut']['cli']
 
-    if upgrade_params.is_upgrade_required:
-        with allure.step('Installing base version from ONIE'):
-            logger.info('Deploying via ONIE or call manufacture script with arg onie')
-            reboot_after_install = True if '201911' in upgrade_params.base_version else None
-            SonicGeneralCli.deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
-                                         setup_name=platform_params.setup_name, platform=platform_params.platform,
-                                         hwsku=platform_params.hwsku, deploy_type='onie',
-                                         reboot_after_install=reboot_after_install)
+    if run_config_only or full_flow_run:
+        if upgrade_params.is_upgrade_required:
+            with allure.step('Installing base version from ONIE'):
+                logger.info('Deploying via ONIE or call manufacture script with arg onie')
+                reboot_after_install = True if '201911' in upgrade_params.base_version else None
+                SonicGeneralCli.deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
+                                             setup_name=platform_params.setup_name, platform=platform_params.platform,
+                                             hwsku=platform_params.hwsku, deploy_type='onie',
+                                             reboot_after_install=reboot_after_install)
 
-    with allure.step('Check that links in UP state'.format()):
-        ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
-                   logger=logger)
+        with allure.step('Check that links in UP state'.format()):
+            ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
+            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
+                       logger=logger)
 
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
@@ -159,22 +160,23 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
             logger.info('Doing config save')
             cli_object.general.save_configuration(engines.dut)
 
-    if upgrade_params.is_upgrade_required:
-        with allure.step('Doing upgrade to target version'):
-            with allure.step('Copying config_db.json from base version'):
-                engines.dut.copy_file(source_file='config_db.json',
-                                      dest_file=PRE_UPGRADE_CONFIG.format(engines.dut.ip),
-                                      file_system=SonicConst.SONIC_CONFIG_FOLDER, overwrite_file=True, verify_file=False,
-                                      direction='get')
-            with allure.step('Performing sonic to sonic upgrade'):
-                logger.info('Performing sonic to sonic upgrade')
-                SonicGeneralCli.deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
-                                             wjh_deb_url=upgrade_params.wjh_deb_url, deploy_type='sonic')
-            with allure.step('Copying config_db.json from target version'):
-                engines.dut.copy_file(source_file='config_db.json',
-                                      dest_file=POST_UPGRADE_CONFIG.format(engines.dut.ip),
-                                      file_system=SonicConst.SONIC_CONFIG_FOLDER, overwrite_file=True, verify_file=False,
-                                      direction='get')
+        if upgrade_params.is_upgrade_required:
+            with allure.step('Doing upgrade to target version'):
+                with allure.step('Copying config_db.json from base version'):
+                    engines.dut.copy_file(source_file='config_db.json',
+                                          dest_file=PRE_UPGRADE_CONFIG.format(engines.dut.ip),
+                                          file_system=SonicConst.SONIC_CONFIG_FOLDER, overwrite_file=True,
+                                          verify_file=False, direction='get')
+                with allure.step('Performing sonic to sonic upgrade'):
+                    logger.info('Performing sonic to sonic upgrade')
+                    SonicGeneralCli.deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
+                                                 wjh_deb_url=upgrade_params.wjh_deb_url, deploy_type='sonic')
+                with allure.step('Copying config_db.json from target version'):
+                    engines.dut.copy_file(source_file='config_db.json',
+                                          dest_file=POST_UPGRADE_CONFIG.format(engines.dut.ip),
+                                          file_system=SonicConst.SONIC_CONFIG_FOLDER, overwrite_file=True,
+                                          verify_file=False,
+                                          direction='get')
 
     if run_test_only or full_flow_run:
         yield
