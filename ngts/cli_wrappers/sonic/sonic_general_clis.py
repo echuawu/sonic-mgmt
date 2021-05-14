@@ -425,7 +425,7 @@ class SonicGeneralCli(GeneralCliCommon):
         if expected_status not in warm_reboot_status:
             raise Exception('warm-reboot status "{}" not as expected "{}"'.format(warm_reboot_status, expected_status))
     def get_config_db(dut_engine):
-        config_db_json = dut_engine.run_cmd('cat {}'.format(SonicConst.CONFIG_DB_JSON_PATH), print_output=False)
+        config_db_json = dut_engine.run_cmd('cat {} ; echo'.format(SonicConst.CONFIG_DB_JSON_PATH), print_output=False)
         return json.loads(config_db_json)
 
     @staticmethod
