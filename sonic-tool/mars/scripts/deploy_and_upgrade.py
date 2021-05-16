@@ -364,7 +364,7 @@ def send_takeover_notification(ansible_path, sonic_topo, mgmt_docker_engine, set
         sonic_mgmt_dir = '/root/mars/workspace/sonic-mgmt/'
 
     cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} /ngts_venv/bin/pytest --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
-          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results" \
+          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results" \
           " {sonic_mgmt_dir}ngts/scripts/regression_takeover_notification/send_takeover_notification.py".\
         format(sonic_mgmt_dir=sonic_mgmt_dir, setup_name=setup_name)
 
