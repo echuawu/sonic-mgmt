@@ -52,6 +52,9 @@
         <info> Test Thermal Control Fan Status </info>
         <name> thermal_control_fan_status </name>
         <tout> 2700 </tout>
+        <ignore>
+            <bug> 2658245 </bug>
+        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k \"test_thermal_control_fan_status\"\'" --test-scripts platform_tests/test_platform_info.py </static_args>
