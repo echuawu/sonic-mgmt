@@ -15,6 +15,7 @@ import socket
 import sys
 import contextlib
 import subprocess
+import traceback
 import logging
 import BaseHTTPServer
 import shutil
@@ -272,7 +273,19 @@ def generate_minigraph(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, p
         if port_number:
             cmd += " -e port_number={}".format(port_number)
         logger.info("Running CMD: {}".format(cmd))
-        mgmt_docker_engine.run(cmd)
+        retries = initial_count = 3
+        SLEEP_TIME = 30
+        while retries:
+            try:
+                mgmt_docker_engine.run(cmd)
+                break
+            except Exception:
+                logger.warning("Failed in Generating minigraph. Trying again. Try number {} ".
+                               format(initial_count - retries + 1))
+                logger.warning(traceback.print_exc())
+                logger.error('Sleep {} seconds after attempt'.format(SLEEP_TIME))
+                time.sleep(SLEEP_TIME)
+                retries = retries - 1
 
 
 @separate_logger
