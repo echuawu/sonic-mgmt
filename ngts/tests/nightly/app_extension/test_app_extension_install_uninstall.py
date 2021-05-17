@@ -1,17 +1,15 @@
 import allure
 import logging
 import pytest
-import re
-from random import randint
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
-from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
-from ngts.tests.push_build_tests.app_extension.app_extension_helper import \
+from ngts.tests.nightly.app_extension.app_extension_helper import \
     verify_app_container_up_and_repo_status_installed, uninstall_app_with_force_and_remove_app_from_repo,\
     verify_app_container_status_none, gen_app_tarball, APP_INFO
 
 logger = logging.getLogger()
 
 
+@pytest.mark.ngts_skip({'rm_ticket_list': [2632313]})
 @pytest.mark.app_ext
 @pytest.mark.parametrize(
     "install_cmd_postfix, version, is_force_uninstalled",
@@ -55,6 +53,7 @@ def test_app_install_uninstall(engines, add_app_into_repo, install_cmd_postfix, 
         raise AssertionError(err)
 
 
+@pytest.mark.ngts_skip({'rm_ticket_list': [2632313]})
 @pytest.mark.app_ext
 @pytest.mark.parametrize(
     "app_name, version, expected_error_msg",
@@ -93,6 +92,7 @@ def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name,
         raise AssertionError(err)
 
 
+@pytest.mark.ngts_skip({'rm_ticket_list': [2632313]})
 @pytest.mark.app_ext
 @allure.title('Force installing app and skip dependency check')
 def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo):
@@ -123,6 +123,7 @@ def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo
         raise AssertionError(err)
 
 
+@pytest.mark.ngts_skip({'rm_ticket_list': [2632313]})
 @pytest.mark.app_ext
 @allure.title('Install app from tarball')
 def test_app_install_from_tarball(engines, add_app_into_repo):

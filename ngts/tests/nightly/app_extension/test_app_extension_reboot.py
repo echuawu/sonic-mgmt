@@ -6,7 +6,7 @@ import time
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import SonicConst
-from ngts.tests.push_build_tests.app_extension.app_extension_helper import \
+from ngts.tests.nightly.app_extension.app_extension_helper import \
     verify_app_container_up_and_repo_status_installed, APP_INFO, verify_app_container_start_delay
 
 logger = logging.getLogger()

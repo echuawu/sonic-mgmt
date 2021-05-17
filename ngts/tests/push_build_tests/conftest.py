@@ -15,6 +15,8 @@ from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
 from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from ngts.constants.constants import SonicConst, PytestConst
+from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
+from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -45,9 +47,22 @@ def run_cleanup_only(request):
     return request.config.getoption(PytestConst.run_cleanup_only_arg)
 
 
+@pytest.fixture(scope="session")
+def pre_app_ext(engines):
+    is_support_app_ext = SonicAppExtensionCli.verify_version_support_app_ext(engines.dut)
+    app_name = APP_INFO["name"]
+    app_repository_name = APP_INFO["repository"]
+    version = APP_INFO["shut_down"]["version"]
+    dut_engine = engines.dut
+
+    yield is_support_app_ext, app_name, version, app_repository_name
+    if is_support_app_ext:
+        app_cleanup(dut_engine, app_name)
+
+
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
-                            run_config_only, run_test_only, run_cleanup_only):
+                            run_config_only, run_test_only, run_cleanup_only, pre_app_ext):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -78,6 +93,12 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
             retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
                        logger=logger)
+
+    # Install app here in order to test migrating app from base image to target image
+    is_support_app_ext, app_name, version, app_repository_name = pre_app_ext
+    if is_support_app_ext:
+        with allure.step("Install app {}".format(app_name)):
+            install_app(engines.dut, app_name, app_repository_name, version)
 
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
@@ -207,3 +228,16 @@ def log_debug_info(dut_engine):
     SonicRouteCli.show_ip_route(dut_engine)
     SonicRouteCli.show_ip_route(dut_engine, ipv6=True)
     logger.info('Finished debug prints')
+
+
+def install_app(dut_engine, app_name, app_repository_name, version):
+    try:
+        with allure.step("Clean up app before install"):
+            app_cleanup(dut_engine, app_name)
+        with allure.step("Install {}, verison=".format(app_name, version)):
+            SonicAppExtensionCli.add_repository(dut_engine, app_name, app_repository_name, version=version)
+            SonicAppExtensionCli.install_app(dut_engine, app_name)
+        with allure.step("Enable app and save config"):
+            SonicAppExtensionCli.enable_app(dut_engine, app_name)
+    except Exception as err:
+        raise AssertionError(err)

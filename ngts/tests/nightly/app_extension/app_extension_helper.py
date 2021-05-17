@@ -27,7 +27,8 @@ APP_INFO = {
                    "version": "6.0.0"},
     "delay_true": {"digest": " sha256:5ce08cd9f4d9158882d9f471042a28ff62037a41e2a0a5510e8d773557fee042",
                    "version": "7.0.0"},
-
+    "shut_down": {"digest": " sha256:912eefe5b0b3566051115e141efe007dc68dbdb76a9772e0fe7768e1cc38ae3a",
+                  "version": "10.0.0"},
 }
 
 
@@ -324,3 +325,19 @@ def verify_app_container_start_delay(dut_engine, app_name, delay_time):
 
     assert time_diff > delay_time, "Expect app delay {} seconds to start, actually delay {} to start ".format(
         delay_time, time_diff)
+
+
+def app_cleanup(dut_engine, app_name):
+    """
+    Uninstall app and remove from repo
+    :param dut_engine: ssh engines
+    :param app_name: app extension name
+
+    """
+    # uninstall app with force
+    if dut_engine.run_cmd("docker image list | grep {}".format(app_name)):
+        SonicAppExtensionCli.disable_app(dut_engine, app_name)
+        SonicAppExtensionCli.uninstall_app(dut_engine, app_name)
+    # remove app from repo
+    if app_name in SonicAppExtensionCli.parse_app_package_list_dict(dut_engine):
+        SonicAppExtensionCli.remove_repository(dut_engine, app_name)

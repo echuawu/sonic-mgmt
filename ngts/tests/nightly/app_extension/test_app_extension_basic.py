@@ -3,11 +3,10 @@ import logging
 import pytest
 import json
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
-from ngts.tests.push_build_tests.app_extension.conftest import app_cleanup
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
-from ngts.tests.push_build_tests.app_extension.app_extension_helper import verify_app_repository_list_format, \
+from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_repository_list_format, \
     verify_add_app_to_repo, extract_version_info, get_non_semver_version_info, \
-    verify_changelog_same_to_manifest, APP_INFO, verify_app_container_up_and_repo_status_installed
+    verify_changelog_same_to_manifest, APP_INFO, verify_app_container_up_and_repo_status_installed, app_cleanup
 
 logger = logging.getLogger()
 

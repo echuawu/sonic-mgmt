@@ -4,8 +4,8 @@ import allure
 
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
-from ngts.tests.push_build_tests.app_extension.app_extension_helper import (
-     verify_add_app_to_repo, verify_app_container_up_and_repo_status_installed, APP_INFO)
+from ngts.tests.nightly.app_extension.app_extension_helper import \
+    verify_add_app_to_repo, verify_app_container_up_and_repo_status_installed, APP_INFO, app_cleanup
 
 
 logger = logging.getLogger()
@@ -29,21 +29,6 @@ def add_app_into_repo(engines):
 
     with allure.step('App package cleanup'):
         app_cleanup(dut_engine, app_name)
-
-
-def app_cleanup(dut_engine, app_name):
-    """
-    Uninstall app and remove from repo
-    :param dut_engine: ssh engines
-    :param app_name: app extension name
-
-    """
-    # uninstall app with force
-    if dut_engine.run_cmd("docker image list | grep {}".format(app_name)):
-        SonicAppExtensionCli.uninstall_app(dut_engine, app_name, is_force=True)
-    # remove app from repo
-    if app_name in SonicAppExtensionCli.parse_app_package_list_dict(dut_engine):
-        SonicAppExtensionCli.remove_repository(dut_engine, app_name)
 
 
 @pytest.fixture(scope='function', autouse=False)

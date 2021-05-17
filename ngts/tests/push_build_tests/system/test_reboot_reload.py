@@ -10,7 +10,10 @@ from ngts.tools.skip_test.skip import ngts_skip
 from ngts.helpers.run_process_on_host import run_process_on_host
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from ngts.constants.constants import PytestConst
+from ngts.constants.constants import PytestConst, SonicConst
+from dateutil.parser import parse as time_parse
+from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
+
 
 logger = logging.getLogger()
 
@@ -25,7 +28,7 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
 class TestRebootReload:
 
     @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, interfaces, engines):
+    def setup(self, topology_obj, interfaces, engines, pre_app_ext):
         self.topology_obj = topology_obj
         self.dut_engine = engines.dut
         self.cli_object = self.topology_obj.players['dut']['cli']
@@ -34,6 +37,7 @@ class TestRebootReload:
         self.dut_vlan40_int_ip = '40.0.0.1'
         self.dut_port_channel_ip = '30.0.0.1'
         self.hb_vlan40_ip = '40.0.0.3'
+        self.is_support_app_ext, self.app_name, self.version, _ = pre_app_ext
 
     @pytest.fixture(autouse=True)
     def ignore_expected_loganalyzer_exceptions(self, loganalyzer):
@@ -55,6 +59,10 @@ class TestRebootReload:
         """
         This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
         After reboot/reload finished - test doing functional validations(run PushGate tests)
+        Add 3 verification for app extesnion
+        1. Verify shutdown oder same to bgp->app(cpu-report)->swss, after warm/fast reboot
+        2. Verify warm_restarted status is reconciled, after warm-reboot
+        3. Verify app status is up, after config reload -y
         :param request: pytest build-in
         :param platform_params: platform_params fixture
         :param validation_type: validation type - which will be executed
@@ -93,6 +101,10 @@ class TestRebootReload:
                 data_plane_checker.complete_validation()
         except Exception as err:
             failed_validations['data_plane'] = err
+
+        # add 3 test cases for app extension
+        if self.is_support_app_ext:
+            self.verify_app_ext_test_cases(validation_type, failed_validations)
 
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
@@ -169,6 +181,54 @@ class TestRebootReload:
         generate_report(out, err)
         if rc:
             raise AssertionError('Functional validation failed, please check logs')
+
+    def verify_app_shutdown_order(self, validation_type):
+        """
+        Verify all app are up, and shutdown order is bgp-> app -> swss:
+
+        """
+        with allure.step("Verify all docker container is up"):
+            SonicGeneralCli.verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST.append(self.app_name))
+        with allure.step("Verify app shutdown order: bgp-> {} -> swss".format(self.app_name)):
+            bgp_shutdown_time = time_parse(
+                self.dut_engine.run_cmd("docker inspect --format='{{.State.FinishedAt}}' bgp"))
+            app_shutdown_time = time_parse(
+                self.dut_engine.run_cmd("docker inspect --format='{{.State.FinishedAt}}' %s " % self.app_name))
+            swss_shutdown_time = time_parse(
+                self.dut_engine.run_cmd("docker inspect --format='{{.State.FinishedAt}}' swss"))
+            assert bgp_shutdown_time < app_shutdown_time < swss_shutdown_time, "Container shutdown oder is not correct"
+
+    def verify_app_warm_restart_state(self, validation_type):
+        """
+        Verify warm restart state of app is
+        """
+        with allure.step("Verify warm_restart state of {} is reconciled".format(self.app_name)):
+            assert SonicGeneralCli.show_warm_restart_state(self.dut_engine)[self.app_name]["state"] == "reconciled", "Warm_restart state is not reconciled"
+
+    def verify_app_and_container_up_after_config_reload(self, validation_type):
+        with allure.step("Verify container are up"):
+            SonicGeneralCli.verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST)
+        with allure.step("Verify app is up and repo stat is installed"):
+            verify_app_container_up_and_repo_status_installed(self.dut_engine, self.app_name, self.version)
+
+    def verify_app_ext_test_cases(self, validation_type, failed_validations):
+        if validation_type in ["warm-reboot", "fast-reboot"]:
+            try:
+                self.verify_app_shutdown_order(validation_type)
+            except Exception as err:
+                failed_validations['app_ext_shutdown'] = err
+
+        if validation_type == "warm-reboot":
+            try:
+                self.verify_app_warm_restart_state(validation_type)
+            except Exception as err:
+                failed_validations['app_ext_warm_restart_state'] = err
+
+        if validation_type == "config reload -y":
+            try:
+                self.verify_app_and_container_up_after_config_reload(validation_type)
+            except Exception as err:
+                failed_validations['app_ext_config_reload'] = err
 
 
 def prepare_pytest_args(pytest_args_list):
@@ -252,3 +312,4 @@ def generate_report(out, err):
         allure.attach(bytes(allure_report_url, 'utf-8'), 'Allure report URL', allure.attachment_type.URI_LIST)
     except Exception as err:
         logger.error('Can not find and attach allure URL to allure report. Error: {}'.format(err))
+

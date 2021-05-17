@@ -90,9 +90,9 @@ class SonicAppExtensionCli:
         Return output from command
         """
         if is_force_upgrade:
-            output = engine.run_cmd("sudo sudo spm upgrade -y -f {}={}".format(app_name, version), validate=validate)
+            output = engine.run_cmd("sudo sudo spm install -y -f {}={}".format(app_name, version), validate=validate)
         else:
-            output = engine.run_cmd("sudo sudo spm upgrade -y {}={}".format(app_name, version), validate=validate)
+            output = engine.run_cmd("sudo sudo spm install -y {}={}".format(app_name, version), validate=validate)
 
         return output
 

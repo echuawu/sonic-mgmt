@@ -21,6 +21,8 @@ from infra.tools.exceptions.real_issue import RealIssue
 from ngts.constants.constants import SonicConst, InfraConst
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
+from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+
 
 logger = logging.getLogger()
 
@@ -579,3 +581,34 @@ class SonicGeneralCli(GeneralCliCommon):
         platform_json = json.loads(platform_detailed_info_output)
         return platform_json
 
+    @staticmethod
+    def show_warm_restart_state(dut_engine):
+        """
+        Show warm_sestart_state
+        Example:
+            name             restore_count  state
+            -------------  ---------------  ----------------------
+            warm-shutdown                0  pre-shutdown-succeeded
+            vlanmgrd                     4  reconciled
+            cpu-report                   1  reconciled
+            vrfmgrd                      4  reconciled
+            syncd                        4
+            neighsyncd                   4  reconciled
+        return: warm_restart stat dict like below, or raise exception
+            { "warm-shutdown": {"name":"warm-shutdown", "restore_count":"0", "state": "pre-shutdown-succeeded"},
+              "vlanmgrd": {"name":"vlanmgrd", "restore_count":"4", "state": "reconciled"},
+              "cpu-report": {"name":"cpu-report", "restore_count":"1", "state": "reconciled"},
+              "vrfmgrd": {"name":"vrfmgrd", "restore_count":"4", "state": "reconciled"},
+              "syncd": {"name":"syncd", "restore_count":"4", "state": ""},
+              "neighsyncd", {"name":"neighsyncd", "restore_count":"4", "state": "reconciled"}
+            }
+        """
+        warm_restart_state = dut_engine.run_cmd("show warm_restart state")
+        warm_restart_state_dict = generic_sonic_output_parser(warm_restart_state,
+                                                              headers_ofset=0,
+                                                              len_ofset=1,
+                                                              data_ofset_from_start=2,
+                                                              data_ofset_from_end=None,
+                                                              column_ofset=2,
+                                                              output_key='name')
+        return warm_restart_state_dict
