@@ -178,6 +178,7 @@ def prepare_pytest_args(pytest_args_list):
     :return: pytest run cmd
     """
     pytest_args_list = add_to_pytest_args_skip_reboot_reload_test(pytest_args_list)
+    pytest_args_list = add_to_pytest_args_disable_loganalyzer(pytest_args_list)
     cmd = prepare_pytest_cmd_with_custom_allure_dir(pytest_args_list)
 
     return cmd
@@ -201,6 +202,18 @@ def add_to_pytest_args_skip_reboot_reload_test(pytest_args_list):
         pytest_args_list.remove(available_data)
         available_data += ' and {}'.format(skip_arg)
         pytest_args_list.insert(index_k + 1, '"{}"'.format(available_data))
+
+    return pytest_args_list
+
+
+def add_to_pytest_args_disable_loganalyzer(pytest_args_list):
+    """
+    This method adds disable_loganalyzer parameter for pytest run args
+    :param pytest_args_list: list with pytest arguments
+    :return: modified list with pytest arguments
+    """
+    if PytestConst.disable_loganalyzer not in pytest_args_list:
+        pytest_args_list.insert(-1, PytestConst.disable_loganalyzer)
 
     return pytest_args_list
 

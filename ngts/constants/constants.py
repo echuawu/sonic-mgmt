@@ -3,6 +3,7 @@ class PytestConst:
     run_test_only_arg = '--run_test_only'
     run_cleanup_only_arg = '--run_cleanup_only'
     alluredir_arg = '--alluredir'
+    disable_loganalyzer = '--disable_loganalyzer'
 
 
 class SonicConst:
