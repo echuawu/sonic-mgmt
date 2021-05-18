@@ -383,7 +383,9 @@ def send_takeover_notification(ansible_path, sonic_topo, mgmt_docker_engine, set
 
     with mgmt_docker_engine.cd(ansible_path):
         logger.info("Running CMD: {}".format(cmd))
-        mgmt_docker_engine.run(cmd)
+        takeover_notification_result = mgmt_docker_engine.run(cmd, warn=True)
+        if takeover_notification_result.failed:
+            logger.error('Did not send a takeover notification.')
 
 
 @separate_logger
