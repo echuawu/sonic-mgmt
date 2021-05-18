@@ -80,7 +80,6 @@
         </cmd>
     </case>
 
-<!-- Test reboot is duplicated to exclude cold-reboot related cases from 'r-boxer-sw01' because of a known issue -->
     <case>
         <info> Test Reboot Case </info>
         <name> reboot </name>
@@ -95,45 +94,7 @@
         </ignore>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"not test_cold_reboot and not test_continuous_reboot\"\'" --test-scripts platform_tests/test_reboot.py  </static_args>
-             </params>
-        </cmd>
-    </case>
-
-    <case>
-        <info> Test Reboot Weekend Case </info>
-        <name> reboot_for_weekend </name>
-        <tout> 10800 </tout>
-        <ignore>
-            <condition>
-                <key> dut_name </key>
-                <op> == </op>
-                <value> "r-boxer-sw01" </value>
-            </condition>
-            <bug> 2431822 </bug>
-        </ignore>
-        <cmd>
-             <params>
                  <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals\'" --test-scripts platform_tests/test_reboot.py </static_args>
-             </params>
-        </cmd>
-    </case>
-
-    <case>
-        <info> Test Reboot Daily Case </info>
-        <name> reboot_for_daily </name>
-        <tout> 10800 </tout>
-        <ignore>
-            <condition>
-                <key> dut_name </key>
-                <op> == </op>
-                <value> "r-boxer-sw01" </value>
-            </condition>
-            <bug> 2431822 </bug>
-        </ignore>
-        <cmd>
-             <params>
-                 <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals --power_off_delay 5 -k \"not test_continuous_reboot\"\'" --test-scripts platform_tests/test_reboot.py </static_args>
              </params>
         </cmd>
     </case>
