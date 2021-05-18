@@ -8,7 +8,6 @@ Usage:          Examples of how to use:
 
 import sys
 import time
-import datetime
 import logging
 
 import ptf
@@ -105,8 +104,6 @@ class EverflowPolicerTest(BaseTest):
         logger.info(msg)
         msg = "cbs={}".format(self.cbs)
         logger.info(msg)
-        msg = "send_time={}".format(self.send_time)
-        logger.info(msg)
         msg = "tolerance={}".format(self.tolerance)
         logger.info(msg)
         msg = "min_range={}".format(self.min_rx_pps)
@@ -137,7 +134,6 @@ class EverflowPolicerTest(BaseTest):
         self.meter_type = self.test_params['meter_type']
         self.cir = int(self.test_params['cir'])
         self.cbs = int(self.test_params['cbs'])
-        self.send_time = int(self.test_params['send_time'])
         self.tolerance = int(self.test_params['tolerance'])
         self.check_ttl = self.test_params['check_ttl']
 
@@ -256,33 +252,32 @@ class EverflowPolicerTest(BaseTest):
 
             return dataplane.match_exp_pkt(payload_mask, pkt)
 
-        # send some amount to absorb CBS capacity
-        testutils.send_packet(self, self.src_port, str(self.base_pkt), count=self.NUM_OF_TOTAL_PACKETS)
         self.dataplane.flush()
 
-        end_time = datetime.datetime.now() + datetime.timedelta(seconds=self.send_time)
-        tx_pkts = 0
-        while datetime.datetime.now() < end_time:
-            testutils.send_packet(self, self.src_port, str(self.base_pkt))
-            tx_pkts += 1
+        packet_flow_start_tstamp = time.time()
+        testutils.send_packet(self, self.src_port, str(self.base_pkt), count=self.NUM_OF_TOTAL_PACKETS)
+        packet_flow_end_tstamp = time.time()
+        packet_flow_duration = packet_flow_end_tstamp - packet_flow_start_tstamp
 
-        rx_pkts = 0
-        while True:
+        count = 0
+        for i in range(0,self.NUM_OF_TOTAL_PACKETS):
             (rcv_device, rcv_port, rcv_pkt, pkt_time) = testutils.dp_poll(self, timeout=0.1, exp_pkt=masked_exp_pkt)
             if rcv_pkt is not None and match_payload(rcv_pkt):
-                rx_pkts += 1
+                count += 1
+            elif count == 0:
+                assert_str = "The first mirrored packet is not recieved"
+                assert count > 0, assert_str # Fast failure without waiting for full iteration
             else:
                 break # No more packets available
 
-        tx_pps = tx_pkts / self.send_time
-        rx_pps = rx_pkts / self.send_time
+        tx_pps = self.NUM_OF_TOTAL_PACKETS / packet_flow_duration
+        rx_pps = count / packet_flow_duration
 
-        logger.info("Sent {} packets".format(tx_pkts))
-        logger.info("Received {} mirrored packets after rate limiting".format(rx_pkts))
+        logger.info("Received {} mirrored packets after rate limiting".format(count))
         logger.info("TX PPS {}".format(tx_pps))
         logger.info("RX PPS {}".format(rx_pps))
 
-        return rx_pkts, tx_pps, rx_pps
+        return count, tx_pps, rx_pps
 
 
     def runTest(self):
@@ -309,11 +304,6 @@ class EverflowPolicerTest(BaseTest):
         testutils.add_filter(self.greFilter)
 
         # Send traffic and verify the mirroed traffic is rate limited
-        rx_pkts, tx_pps, rx_pps = self.checkMirroredFlow()
-
-        assert_str = "Transmition rate is lower then policer rate limiting." \
-                     "Most probably slow testbed server issue: tx_pps({}) <= rx_pps_max({})".format(tx_pps, self.max_rx_pps)
-        assert tx_pps > self.max_rx_pps, assert_str
-
-        assert_str = "min({1}) <= pps({0}) <= max({2})".format(rx_pps, self.min_rx_pps, self.max_rx_pps)
-        assert rx_pps >= self.min_rx_pps and rx_pps <= self.max_rx_pps, assert_str
+        count, tx_pps, rx_pps = self.checkMirroredFlow()
+        assert_str = "min({1}) <= count({0}) <= max({2})".format(count, self.min_rx_pps, self.max_rx_pps)
+        assert count >= self.min_rx_pps and rx_pps <= self.max_rx_pps, assert_str
