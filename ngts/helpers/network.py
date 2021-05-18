@@ -10,6 +10,19 @@ def generate_mac(num):
     return mac_list
 
 
+def is_ip_address(input_value):
+    """
+    Check if IPv4 or IPv6 address in input value.
+    :param input_value: string which we will validate
+    :return: True when IPv4/IPv6 address in input string, False when input string does not contain IPv4/IPv6 address
+    """
+    try:
+        if ipaddress.ip_address(input_value):
+            return True
+    except ValueError:
+        return False
+
+
 def get_bpf_filter_for_ipv6_address(ipv6_address, offset, base_proto='ip6', is_filter_part_of_another_filter=False):
     """
     This method generates a bpf filter for IPv6 address inside in packet

@@ -1,6 +1,7 @@
 import json
 
 from ngts.cli_wrappers.common.route_clis_common import RouteCliCommon
+from ngts.helpers.network import is_ip_address
 
 
 class SonicRouteCli(RouteCliCommon):
@@ -23,6 +24,10 @@ class SonicRouteCli(RouteCliCommon):
         cmd = 'sudo config route {} prefix '.format(action)
         if vrf:
             cmd += 'vrf {} '.format(vrf)
+
+        if not is_ip_address(via):
+            via = 'dev {}'.format(via)
+
         cmd += '{}/{} nexthop {}'.format(dst, dst_mask, via)
 
         return engine.run_cmd(cmd)
