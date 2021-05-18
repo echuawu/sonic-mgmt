@@ -87,6 +87,16 @@ class AutonegCommandConstants:
     ADV_TYPES = "Adv Types"
     OPER = "Oper"
     ADMIN = "Admin"
+    FEC = "FEC"
+    WIDTH = "Width"
+    REGEX_PARSE_EXPRESSION_FOR_MLXLINK = {
+        ADMIN: ("State\s*:\s*(\w*)", "Active", "up", "down"),
+        OPER: ("Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down"),
+        SPEED: ("Speed\s*:\s*(\d+G)", None, None, None),
+        WIDTH: ("Width\s*:\s*(\d+)x", None, None, None),
+        FEC: ("FEC\s*:\s*(.*)", "No FEC", "none", None),
+        AUTONEG_MODE: ("Auto Negotiation\s*:\s*(\w*)", "ON", "enabled", "disabled")
+    }
 
 SPC = {
  '25GBASE-CR': ['10G', '25G'],
@@ -110,10 +120,14 @@ SPC = {
  'XFI': ['10G']
  }
 SPC2_3 = {
- '25GBASE-CR': ['10G', '25G'],
+ '1000BASE-CX': ['1G', '10G', '25G'],
+ '25GBASE-CR': ['1G', '10G', '25G'],
+ '50GBASE-CR': ['1G', '10G', '25G', '50G'],
  '50GBASE-CR2': ['50G'],
- '40GBASE-CR4': ['40G', '50G'],
+ '40GBASE-CR4': ['40G'],
+ '100GBASE-CR2': ['100G'],
  '100GBASE-CR4': ['100G'],
+ '200GBASE-CR4': ['200G'],
  'CR': ['1G', '10G', '25G', '50G'],
  'CR2': ['50G', '100G'],
  'CR4': ['40G', '100G', '200G', '400G'],

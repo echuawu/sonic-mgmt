@@ -4,11 +4,13 @@ import allure
 import pytest
 import random
 from copy import deepcopy
+from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_matched_types, \
-    speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format
+from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_interface_cable_width,\
+    get_matched_types, speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format
 from ngts.constants.constants import AutonegCommandConstants
+from ngts.helpers.interface_helpers import get_alias_number
 from ngts.tests.nightly.conftest import save_configuration_and_reboot, save_configuration, compare_actual_and_expected
 
 logger = logging.getLogger()
@@ -72,6 +74,80 @@ def test_auto_neg(topology_obj, engines, cli_objects, tested_lb_dict,
     verify_auto_neg_configuration(engines.dut, cli_objects.dut, conf_backup)
 
 
+@pytest.mark.skip(reason="skip until all tests will be approved on final auto neg image")
+def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
+                                   interfaces, split_mode_supported_speeds,
+                                   interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list):
+    """
+    configuring default/costume auto neg on the dut port connected to host
+    while toggling a port connected to the host
+    Validating auto neg behavior is not affected by the ports being toggled.
+    validating with host-dut traffic.
+
+    :param topology_obj: topology object fixture
+    :param engines: setup engines fixture
+    :param cli_objects: cli objects fixture
+    :param interfaces: dut <-> hosts interfaces fixture
+    :param split_mode_supported_speeds: a dictionary with available
+    breakout options on all setup ports (including host ports)
+    :param interfaces_types_dict: a dictionary of port supported types based on
+    the port cable number and split mode including host port
+    :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
+    :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
+    :return: raise assertion error in case of failure
+    """
+    tested_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
+    def_conf = generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interfaces_types_dict)
+    sub_conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, cable_type_to_speed_capabilities_dict)
+    set_peer_port_ip_conf(topology_obj, interfaces, cleanup_list)
+    auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, def_conf, interfaces,
+                                 cable_type_to_speed_capabilities_dict, cleanup_list)
+    auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, sub_conf, interfaces,
+                                 cable_type_to_speed_capabilities_dict, cleanup_list)
+
+
+@pytest.mark.disable_loganalyzer
+def test_interface_with_fec_none(topology_obj, engines, cli_objects, tested_lb_dict, cleanup_list):
+    """
+    This test case verifying the FEC is NONE in scenario for celestial peak setup.
+
+    test flow:
+
+        chose a random loopback(without splits configuration):
+        configure FEC none on loopback
+        verify with mlxlink FEC was configured to "none"
+        verify with sonic show command ports are UP
+        check FEC persists across reload and all 3 boot types – warm, fast, and cold.
+
+    :param topology_obj: topology object fixture
+    :param engines:  ssh engines connection
+    :param cli_objects: cli objects of setup entities
+    :param cleanup_list: a list of cleanup functions that should be called in the end of the test
+    :return: raise assertion error in case of faliure
+    """
+    tested_lb = tested_lb_dict[1].pop()
+    logger.info("Configure fec to none on loopback: {}".format(tested_lb))
+    for interface in tested_lb:
+        cli_objects.dut.interface.configure_interface_fec(engines.dut, interface, fec_option="none")
+        cleanup_list.append((cli_objects.dut.interface.configure_interface_fec, (engines.dut, interface, 'rs')))
+
+    conf = {interface: {} for interface in tested_lb}
+    for interface in tested_lb:
+        conf[interface][AutonegCommandConstants.FEC] = "none"
+        conf[interface][AutonegCommandConstants.OPER] = "up"
+        conf[interface][AutonegCommandConstants.ADMIN] = "up"
+
+    logger.info("Verify Fec none configuration")
+    retry_call(verify_auto_neg_configuration, fargs=[engines.dut, cli_objects.dut, conf],
+               tries=3, delay=5, logger=logger)
+
+    reboot_reload_random(engines.dut, cli_objects.dut, conf.keys(), cleanup_list)
+
+    logger.info("Verify Fec none configuration after reload/reboot")
+    retry_call(verify_auto_neg_configuration, fargs=[engines.dut, cli_objects.dut, conf],
+               tries=3, delay=5, logger=logger)
+
+
 def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
     """
     Do reload/warm-reboot on dut
@@ -81,7 +157,7 @@ def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
     :param cleanup_list: a list of cleanup functions that should be called in the end of the test
     :return: raise assertion error in case reload/reboot failed
     """
-    mode = random.choices(['reload', 'warm-reboot'])
+    mode = random.choice(['reload', 'warm-reboot', 'fast-reboot', 'reboot'])
     with allure.step('Preforming {} on dut:'.format(mode)):
         if mode == 'reload':
             save_configuration(dut_engine, cli_object, cleanup_list)
@@ -136,19 +212,43 @@ def generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, types_dict
                     all_adv_types.append(adv_types)
                     speed = random.choice(list(adv_speeds))
                     adv_speeds = convert_speeds_to_kb_format(adv_speeds)
-                    cable_type = get_interface_cable_type(random.choice(list(adv_types)))
-                    conf[port] = {AutonegCommandConstants.AUTONEG_MODE: 'N/A',
-                                  AutonegCommandConstants.SPEED: speed,
-                                  AutonegCommandConstants.ADV_SPEED: adv_speeds,
-                                  AutonegCommandConstants.TYPE: cable_type,
-                                  AutonegCommandConstants.ADV_TYPES: get_types_in_string_format(adv_types)}
-                expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int)
-                expected_type = get_interface_cable_type(max(set.intersection(*all_adv_types), key=get_speed_from_cable_type))
-                for port in lb:
-                    conf[port]['expected_speed'] = expected_speed
-                    conf[port]['expected_type'] = expected_type
+                    interface_type = random.choice(list(adv_types))
+                    cable_type = get_interface_cable_type(interface_type)
+                    width = get_interface_cable_width(interface_type)
+                    conf[port] = build_custom_conf(speed, adv_speeds, cable_type, adv_types, width)
+                expected_speed, expected_interface_type, expected_type, expected_width = \
+                    get_custom_expected_conf_res(all_adv_speeds, all_adv_types)
+                conf = update_custom_expected_conf(conf, lb, expected_speed, expected_type, expected_width)
         logger.debug("Generated subset configuration is: {}".format(conf))
         return conf
+
+
+def get_custom_expected_conf_res(all_adv_speeds, all_adv_types):
+    expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int)
+    expected_interface_type = max(set.intersection(*all_adv_types), key=get_speed_from_cable_type)
+    expected_type = get_interface_cable_type(expected_interface_type)
+    expected_width = get_interface_cable_width(expected_interface_type)
+    return expected_speed, expected_interface_type, expected_type, expected_width
+
+
+def build_custom_conf(speed, adv_speeds, cable_type, adv_types, width):
+    port_custom_conf = {
+        AutonegCommandConstants.AUTONEG_MODE: 'N/A',
+        AutonegCommandConstants.SPEED: speed,
+        AutonegCommandConstants.ADV_SPEED: adv_speeds,
+        AutonegCommandConstants.TYPE: cable_type,
+        AutonegCommandConstants.WIDTH: width,
+        AutonegCommandConstants.ADV_TYPES: get_types_in_string_format(adv_types)
+    }
+    return port_custom_conf
+
+
+def update_custom_expected_conf(conf, lb, expected_speed, expected_type, expected_width):
+    for port in lb:
+        conf[port]['expected_speed'] = expected_speed
+        conf[port]['expected_type'] = expected_type
+        conf[port]['expected_width'] = expected_width
+    return conf
 
 
 def generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interfaces_types_dict):
@@ -176,21 +276,40 @@ def generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interface
                 lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, split_mode_supported_speeds)
                 lb_mutual_types = get_lb_mutual_type(lb, interfaces_types_dict)
                 min_speed = min(lb_mutual_speeds, key=speed_string_to_int)
-                min_type = get_interface_cable_type(min(lb_mutual_types, key=get_speed_from_cable_type))
-                expected_speed = max(lb_mutual_speeds, key=speed_string_to_int)
-                expected_type = get_interface_cable_type(max(lb_mutual_types, key=get_speed_from_cable_type))
+                interface_type = min(lb_mutual_types, key=get_interface_cable_width)
+                min_type = get_interface_cable_type(interface_type)
+                width = get_interface_cable_width(interface_type)
+                expected_speed, expected_interface_type, expected_type, expected_width = \
+                    get_default_expected_conf_res(lb_mutual_speeds, lb_mutual_types)
                 for port in lb:
-                    conf[port] = {AutonegCommandConstants.AUTONEG_MODE: 'disabled',
-                                  AutonegCommandConstants.SPEED: min_speed,
-                                  AutonegCommandConstants.ADV_SPEED: 'all',
-                                  AutonegCommandConstants.TYPE: min_type,
-                                  AutonegCommandConstants.ADV_TYPES: 'all',
-                                  AutonegCommandConstants.OPER: "up",
-                                  AutonegCommandConstants.ADMIN: "up",
-                                  'expected_speed': expected_speed,
-                                  'expected_type': expected_type}
+                    conf[port] = build_default_conf(min_speed, min_type, width, expected_speed, expected_type, expected_width)
         logger.debug("Generated default configuration is: {}".format(conf))
         return conf
+
+
+def get_default_expected_conf_res(lb_mutual_speeds, lb_mutual_types):
+    expected_speed = max(lb_mutual_speeds, key=speed_string_to_int)
+    expected_interface_type = max(lb_mutual_types, key=get_speed_from_cable_type)
+    expected_type = get_interface_cable_type(expected_interface_type)
+    expected_width = get_interface_cable_width(expected_interface_type)
+    return expected_speed, expected_interface_type, expected_type, expected_width
+
+
+def build_default_conf(min_speed, min_type, width, expected_speed, expected_type, expected_width):
+    port_default_conf = {
+        AutonegCommandConstants.AUTONEG_MODE: 'disabled',
+        AutonegCommandConstants.SPEED: min_speed,
+        AutonegCommandConstants.ADV_SPEED: 'all',
+        AutonegCommandConstants.TYPE: min_type,
+        AutonegCommandConstants.WIDTH: width,
+        AutonegCommandConstants.ADV_TYPES: 'all',
+        AutonegCommandConstants.OPER: "up",
+        AutonegCommandConstants.ADMIN: "up",
+        'expected_speed': expected_speed,
+        'expected_type': expected_type,
+        'expected_width': expected_width
+    }
+    return port_default_conf
 
 
 def auto_neg_checker(topology_obj, dut_engine, cli_object, tested_lb_dict, conf,
@@ -226,14 +345,23 @@ def auto_neg_checker(topology_obj, dut_engine, cli_object, tested_lb_dict, conf,
         verify_auto_neg_configuration(dut_engine, cli_object, conf)
         logger.info("Enable auto negotiation mode on the second port of the loopbacks")
         configure_port_auto_neg(dut_engine, cli_object, lb_ports_2_list, conf, cleanup_list)
-        for port, port_conf_dict in conf.items():
-            port_conf_dict[AutonegCommandConstants.SPEED] = conf[port]['expected_speed']
-            port_conf_dict[AutonegCommandConstants.TYPE] = conf[port]['expected_type']
-            port_conf_dict[AutonegCommandConstants.OPER] = "up"
-            port_conf_dict[AutonegCommandConstants.ADMIN] = "up"
+        update_port_conf(conf, conf.keys())
         logger.info("Verify the speed/type change to expected result when auto neg is enabled on both loopback ports")
         verify_auto_neg_configuration(dut_engine, cli_object, conf)
         #send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, get_loopback_lists(tested_lb_dict))
+
+
+def update_port_conf(conf, port_list):
+    """
+    :param conf: current configuration on ports
+    :param port_list: list of ports to update
+    :return: update conf info to the expected configuration on port when auto neg is enabled
+    """
+    for port in port_list:
+        conf[port][AutonegCommandConstants.SPEED] = conf[port]['expected_speed']
+        conf[port][AutonegCommandConstants.TYPE] = conf[port]['expected_type']
+        conf[port][AutonegCommandConstants.OPER] = "up"
+        conf[port][AutonegCommandConstants.ADMIN] = "up"
 
 
 def get_loopback_first_second_ports_lists(tested_lb_dict):
@@ -276,8 +404,15 @@ def verify_auto_neg_configuration(dut_engine, cli_object, conf):
     with allure.step('Verify speed, advertised speed, type, advertised type '
                      'and state on ports: {}'.format(list(conf.keys()))):
         for port, port_conf_dict in conf.items():
-            actual_conf = cli_object.interface.parse_show_interfaces_auto_negotiation_status(dut_engine, interface=port)
-            compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=actual_conf[port])
+            logger.info("Verify Auto negotiation status based on sonic command")
+            sonic_actual_conf = cli_object.interface.parse_show_interfaces_auto_negotiation_status(dut_engine, interface=port)
+            compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=sonic_actual_conf[port])
+            ports_aliases_dict = cli_object.interface.parse_ports_aliases_on_sonic(dut_engine)
+            port_number = get_alias_number(ports_aliases_dict[port])
+            pci_conf = cli_object.chassis.get_pci_conf(dut_engine)
+            logger.info("Verify Auto negotiation status based on mlxlink command")
+            mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(dut_engine, pci_conf, port_number)
+            compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf)
 
 
 def compare_actual_and_expected_auto_neg_output(expected_conf, actual_conf):
@@ -290,7 +425,7 @@ def compare_actual_and_expected_auto_neg_output(expected_conf, actual_conf):
         logger.debug("expected: {}".format(expected_conf))
         logger.debug("actual: {}".format(actual_conf))
         for key, value in expected_conf.items():
-            if key in actual_conf.keys():
+            if key in actual_conf.keys() and key != AutonegCommandConstants.TYPE:
                 actual_conf_value = actual_conf[key]
                 if key == AutonegCommandConstants.ADV_SPEED:
                     compare_advertised_speeds(value, actual_conf_value)
@@ -400,39 +535,7 @@ def get_speed_from_cable_type(interface_type):
     :param interface_type: an interface type string '100GBASE-CR4'
     :return: a int value of speed in type , i.e, 100
     """
-    return int(re.search(r'(\d+)G', interface_type).group(1))
-
-
-@pytest.mark.skip(reason="skip until all tests will be approved on final auto neg image")
-def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
-                                   interfaces, split_mode_supported_speeds,
-                                   interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list):
-    """
-    configuring default/costume auto neg on the dut port connected to host
-    while toggling a port connected to the host
-    Validating auto neg behavior is not affected by the ports being toggled.
-    validating with host-dut traffic.
-
-    :param topology_obj: topology object fixture
-    :param engines: setup engines fixture
-    :param cli_objects: cli objects fixture
-    :param interfaces: dut <-> hosts interfaces fixture
-    :param split_mode_supported_speeds: a dictionary with available
-    breakout options on all setup ports (including host ports)
-    :param interfaces_types_dict: a dictionary of port supported types based on
-    the port cable number and split mode including host port
-    :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
-    :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
-    :return: raise assertion error in case of failure
-    """
-    tested_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
-    def_conf = generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interfaces_types_dict)
-    sub_conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, cable_type_to_speed_capabilities_dict)
-    set_peer_port_ip_conf(topology_obj, interfaces, cleanup_list)
-    auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, def_conf, interfaces,
-                                 cable_type_to_speed_capabilities_dict, cleanup_list)
-    auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, sub_conf, interfaces,
-                                 cable_type_to_speed_capabilities_dict, cleanup_list)
+    return int(re.search(r'(\d+)G*BASE', interface_type).group(1))
 
 
 def auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, conf, interfaces, cable_type_to_speed_capabilities_dict, cleanup_list):
@@ -562,4 +665,3 @@ def disable_interface(engine, cli_object, interface, cleanup_list):
     logger.info("Disable the interface {}".format(interface))
     cleanup_list.append((cli_object.interface.enable_interface, (engine, interface)))
     cli_object.interface.disable_interface(engine, interface)
-

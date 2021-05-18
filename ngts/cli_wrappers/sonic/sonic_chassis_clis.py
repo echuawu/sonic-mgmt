@@ -32,3 +32,12 @@ class SonicChassisCli(ChassisCliCommon):
         :return: the cmd output
         """
         return engine.run_cmd("show platform summary")
+
+    @staticmethod
+    def show_mst_status(engine):
+        return engine.run_cmd("sudo mst status")
+
+    @staticmethod
+    def get_pci_conf(engine):
+        mst_status = SonicChassisCli.show_mst_status(engine)
+        return re.search("(.*pciconf0)", mst_status).group(1)

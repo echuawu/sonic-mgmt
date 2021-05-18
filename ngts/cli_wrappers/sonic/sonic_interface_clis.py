@@ -1,9 +1,8 @@
 import re
 import logging
-
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.constants.constants import ConfigDbJsonConst
+from ngts.constants.constants import AutonegCommandConstants
 
 logger = logging.getLogger()
 
@@ -294,3 +293,66 @@ class SonicInterfaceCli(InterfaceCliCommon):
         return generic_sonic_output_parser(ifaces_auto_neg_status,
                                            headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
                                            data_ofset_from_end=None, column_ofset=2, output_key='Interface')
+
+    @staticmethod
+    def show_port_mlxlink_status(engine, pci_conf, port_number):
+        """
+        show the mlxlink status of the interface
+        :param engine: ssh engine object
+        :param pci_conf: i.e, /dev/mst/mt53100_pciconf0
+        :param port_number: i.e, 1,2,3
+        :return: the command output
+        """
+        return engine.run_cmd("sudo mlxlink -d {pci_conf} -m -p {port_number}"
+                              .format(pci_conf=pci_conf, port_number=port_number))
+
+    @staticmethod
+    def configure_interface_fec(engine, interface, fec_option):
+        """
+        configure the interface fec
+        :param engine: ssh engine object
+        :param interface: i.e Ethernet0
+        :param fec_option: i.e, none | fec91 | fec74
+        :return: the command output
+        """
+        return engine.run_cmd("sudo config interface fec {interface_name} {fec_option}"
+                              .format(interface_name=interface, fec_option=fec_option))
+
+    @staticmethod
+    def parse_port_mlxlink_status(engine, pci_conf, port_number):
+        """
+        parsing the mlxlink status command,
+        sudo mlxlink -d /dev/mst/mt53100_pciconf0 -m -p 35
+
+        Operational Info
+        ----------------
+        State                           : Active
+        Physical state                  : ETH_AN_FSM_ENABLE
+        Speed                           : 1G
+        Width                           : 1x
+        FEC                             : No FEC
+        Loopback Mode                   : No Loopback
+        Auto Negotiation                : ON
+
+        ...
+        :param engine: ssh engine object
+        :param pci_conf: /dev/mst/mt53100_pciconf0
+        :param port_number: i.e. 35
+        :return: a dictionary with the parsed mlxlink status of the port
+        for example,
+        {
+        }
+        """
+        port_mlxlink_status = SonicInterfaceCli.show_port_mlxlink_status(engine, pci_conf, port_number)
+        regex_expressions = AutonegCommandConstants.REGEX_PARSE_EXPRESSION_FOR_MLXLINK
+        parsed_info = {}
+        for key, regex_expression_tuple in regex_expressions.items():
+            regex_exp, expected_val, parsed_val, default_val = regex_expression_tuple
+            actual_val = re.search(regex_exp, port_mlxlink_status).group(1)
+            parsed_info[key] = actual_val
+            if expected_val is not None and re.search(expected_val, actual_val):
+                parsed_info[key] = parsed_val
+            elif default_val is not None:
+                parsed_info[key] = default_val
+        return parsed_info
+

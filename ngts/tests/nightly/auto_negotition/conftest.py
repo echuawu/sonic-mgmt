@@ -130,16 +130,14 @@ def parse_cables_info(engines, cli_objects, ports_aliases_dict):
              {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...,
               'Ethernet32': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR']}
     """
-    engines.dut.run_cmd("sudo mst cable add")
-    cable_info = engines.dut.run_cmd("sudo mlxcables")
-    parse_regex_pattern = r"Cable\s+#(\d+):(\n.*){7}Compliance\s+:\s+([\d+\w+\-\w+,\s]*)\n"
-    parsed_output_list = re.findall(parse_regex_pattern, cable_info)
+    compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
+    parse_regex_pattern = "(Ethernet\d+):.*(\n.*){10}.*:(.*\n.*\n.*)"
+    parsed_output_list = re.findall(parse_regex_pattern, compliance_info)
     res = dict()
-    for port_num, _, supported_types in parsed_output_list:
-        parsed_supported_types = re.findall(r"(\d+GBASE-\w+\d*)", supported_types)
-        for port_name, port_sonic_alias in ports_aliases_dict.items():
-            if re.match(r"etp{}\w*".format(port_num), port_sonic_alias):
-                res[port_name] = parsed_supported_types
+    for port_name, _, supported_types in parsed_output_list:
+        parsed_supported_types = re.findall("(\d+G*BASE-\w+\d*)", supported_types)
+        res[port_name] = parsed_supported_types
+
     return res
 
 
@@ -208,7 +206,24 @@ def get_interface_cable_type(type_string):
     :param type_string: a interface type string '25GBASE-CR'
     :return: string type value, i.e, 'CR'
     """
-    return re.search(r"\d+GBASE-(\w+\d*)", type_string).group(1)
+    return re.search(r"\d+G*BASE-(\w+\d*)", type_string).group(1)
+
+
+def get_interface_cable_width(type_string):
+    """
+    :param type_string: a interface type string '25GBASE-CR'
+    :return: int width  value, i.e, '1'
+    more examples,
+    '25GBASE-CR' -> 1
+    '50GBASE-CR2' -> 2
+    '40GBASE-CR4' -> 4
+    """
+    match = re.search("\d+G*BASE-\w+(\d+)", type_string)
+    if match:
+        width = match.group(1)
+        return int(width)
+    else:
+        return 1
 
 
 def speed_string_to_int(speed):
@@ -275,3 +290,18 @@ def convert_speeds_to_kb_format(speeds_list):
     """
     speeds_in_kb_format = list(map(lambda speed: str(speed_string_to_int(speed) * 1000), speeds_list))
     return ",".join(speeds_in_kb_format)
+
+
+@pytest.fixture(autouse=True)
+def ignore_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "..", "..", "..",
+                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)

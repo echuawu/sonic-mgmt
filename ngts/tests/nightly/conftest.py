@@ -141,5 +141,5 @@ def compare_actual_and_expected(key, expected_val, actual_val):
     :param actual_val: the actual value
     :return: raise assertion error in case values does not match
     """
-    assert expected_val == actual_val, \
+    assert str(expected_val) == str(actual_val), \
         "Compared {} result failed: actual - {}, expected - {}".format(key, actual_val, expected_val)
