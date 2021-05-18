@@ -223,11 +223,11 @@ class SonicGeneralCli(GeneralCliCommon):
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 SonicGeneralCli.do_installation(topology_obj, dut_engine, image_path, deploy_type)
 
-        if apply_base_config:
-            SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku)
-
         if reboot_after_install:
             SonicGeneralCli.validate_dockers_are_up_reboot_if_fail(dut_engine)
+
+        if apply_base_config:
+            SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku)
 
         if wjh_deb_url:
             SonicGeneralCli.install_wjh(dut_engine, wjh_deb_url)
