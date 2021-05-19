@@ -474,6 +474,8 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                                     parsed_platform_json_by_breakout_modes)
         config_db_json["BREAKOUT_CFG"] = breakout_cfg_dict
         new_config_db_json_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, "updated_config_db.json"))
+        if os.path.exists(new_config_db_json_path):
+            os.remove(new_config_db_json_path)
         with open(new_config_db_json_path, 'w') as f:
             json.dump(config_db_json, f, indent=4)
         os.chmod(new_config_db_json_path, 0o777)
