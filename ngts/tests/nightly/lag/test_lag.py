@@ -467,7 +467,7 @@ def test_lags_with_member_scale(topology_obj, interfaces, engines, cleanup_list)
         with allure.step('Validate PortChannels and members status'):
             retry_call(verify_port_channels_status,
                        fargs=[dut_cli, engines.dut, lag_expected_info],
-                       tries=3,
+                       tries=5,
                        delay=10,
                        logger=logger)
 
