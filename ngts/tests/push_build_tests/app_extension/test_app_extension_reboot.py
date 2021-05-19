@@ -12,7 +12,7 @@ from ngts.tests.push_build_tests.app_extension.app_extension_helper import \
 logger = logging.getLogger()
 
 
-@pytest.mark.ngts_skip({'rm_ticket_list': [2634966]})
+@pytest.mark.ngts_skip({'rm_ticket_list': [2634966], 'platform_prefix_list': ['simx']})
 @pytest.mark.app_ext
 @allure.title('App delay to start after reboot ')
 def test_app_start_delay_after_reboot(add_app_into_repo):
