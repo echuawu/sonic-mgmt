@@ -177,22 +177,22 @@ def prepare_pytest_args(pytest_args_list):
     :param pytest_args_list: list with pytest arguments
     :return: pytest run cmd
     """
-    pytest_args_list = add_to_pytest_args_skip_reboot_reload_test(pytest_args_list)
+    pytest_args_list = add_to_pytest_args_skip_tests(pytest_args_list)
     pytest_args_list = add_to_pytest_args_disable_loganalyzer(pytest_args_list)
     cmd = prepare_pytest_cmd_with_custom_allure_dir(pytest_args_list)
 
     return cmd
 
 
-def add_to_pytest_args_skip_reboot_reload_test(pytest_args_list):
+def add_to_pytest_args_skip_tests(pytest_args_list):
     """
-    This method adds ignore parameter for the TestRebootReload, otherwise the Reload tests will be called
-    in an endless loop.
+    This method adds ignore parameter for the TestRebootReload and other tests.
+    We need to ignore TestRebootReload - otherwise the Reload tests will be called in an endless loop
     :param pytest_args_list: list with pytest arguments
     :return: modified list with pytest arguments
     """
     keyword_expression_arg = '-k'
-    skip_arg = 'not TestRebootReload'
+    skip_arg = 'not TestRebootReload and not test_validate_config_db_json_during_upgrade'
     if keyword_expression_arg not in pytest_args_list:
         pytest_args_list.insert(-1, keyword_expression_arg)
         pytest_args_list.insert(-1, '"{}"'.format(skip_arg))
