@@ -20,26 +20,41 @@ def test_show_lldp_table_output(topology_obj, engines):
     :return: None, raise error in case of unexpacted lldp result
     """
     with allure.step("Verifying the output of \"show lldp table\" command match the expected setup Noga topology"):
-        cli_object = topology_obj.players['dut']['cli']
+
         dut_ports_interconnects = get_dut_ports_interconnects(topology_obj.ports_interconnects)
         retry_call(verify_lldp_ports_match_topology_ports, fargs=[dut_ports_interconnects, topology_obj], tries=6,
                    delay=5, logger=logger)
-        lldp_table_info = cli_object.lldp.parse_lldp_table_info(engines.dut)
-        port_aliases_dict = cli_object.interface.parse_ports_aliases_on_sonic(engines.dut)
-        dut_hostname = cli_object.chassis.get_hostname(engines.dut)
-        for port_noga_alias, neighbor_port_noga_alias in dut_ports_interconnects.items():
-            port = topology_obj.ports[port_noga_alias]
-            port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
-            with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
-                                     .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
-                if is_port_connected_to_host(port_noga_alias):
-                    verify_lldp_table_info_for_host_port(topology_obj, lldp_table_info, port,
-                                                         neighbor_port_noga_alias,
-                                                         port_neighbor)
-                else:
-                    topo_remote_port_id = port_aliases_dict[port_neighbor]
-                    verify_lldp_table_info_for_sonic_port(port, lldp_table_info, dut_hostname,
-                                                          topo_remote_port_id, port_neighbor)
+
+    with allure.step('Verifying LLDP neighbor ports data'):
+        retry_call(verify_neighbour_ports, fargs=[topology_obj, engines, dut_ports_interconnects], tries=6, delay=5,
+                   logger=logger)
+
+
+def verify_neighbour_ports(topology_obj, engines, dut_ports_interconnects):
+    """
+    Verify LLDP neighbour ports info
+    :param topology_obj: topology object
+    :param engines: engines fixture
+    :param dut_ports_interconnects: dut ports interconnects
+    :return: Raise Assertion in case when failed
+    """
+    cli_object = topology_obj.players['dut']['cli']
+    lldp_table_info = cli_object.lldp.parse_lldp_table_info(engines.dut)
+    port_aliases_dict = cli_object.interface.parse_ports_aliases_on_sonic(engines.dut)
+    dut_hostname = cli_object.chassis.get_hostname(engines.dut)
+    for port_noga_alias, neighbor_port_noga_alias in dut_ports_interconnects.items():
+        port = topology_obj.ports[port_noga_alias]
+        port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
+        with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
+                                 .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
+            if is_port_connected_to_host(port_noga_alias):
+                verify_lldp_table_info_for_host_port(topology_obj, lldp_table_info, port,
+                                                     neighbor_port_noga_alias,
+                                                     port_neighbor)
+            else:
+                topo_remote_port_id = port_aliases_dict[port_neighbor]
+                verify_lldp_table_info_for_sonic_port(port, lldp_table_info, dut_hostname,
+                                                      topo_remote_port_id, port_neighbor)
 
 
 def get_dut_ports_interconnects(ports_interconnects):
