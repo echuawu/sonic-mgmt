@@ -40,7 +40,7 @@ def static_route_configuration(topology_obj):
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
 
 
-@pytest.mark.ngts_skip({'rm_ticket_list': [2632402]})
+@pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/7643']})
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('Test Basic Static Route')
