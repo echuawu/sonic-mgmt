@@ -230,9 +230,7 @@ def verify_lldp_neighbor_info_for_host_port(topology_obj, lldp_neighbor_info, po
     cli_object = topology_obj.players[host_name_alias]['cli']
     hostname = cli_object.chassis.get_hostname(host_engine)
     host_mac = cli_object.mac.get_mac_address_for_interface(host_engine, port_neighbor)
-    retry_call(verify_lldp_neighbor_info_for_port,
-               args=[port, lldp_neighbor_info, hostname, host_mac, port_neighbor],
-               tries=13, delay=10, logger=logger)
+    verify_lldp_neighbor_info_for_port(port, lldp_neighbor_info, hostname, host_mac, port_neighbor)
 
 
 def verify_lldp_neighbor_info_for_sonic_port(port, lldp_neighbor_info, topo_hostname, topo_remote_id, topo_neighbor_port_descr):
