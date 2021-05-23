@@ -204,16 +204,28 @@ def test_show_lldp_neighbors_output(topology_obj, engines):
         dut_hostname = cli_object.chassis.get_hostname(engines.dut)
         dut_mac = cli_object.mac.get_mac_address_for_interface(engines.dut, "eth0")
         for port_noga_alias, neighbor_port_noga_alias in dut_ports_interconnects.items():
-            port = topology_obj.ports[port_noga_alias]
-            port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
-            lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(engines.dut, port)
-            with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
-                             .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
-                if is_port_connected_to_host(port_noga_alias):
-                    verify_lldp_neighbor_info_for_host_port(topology_obj, lldp_info, port,
-                                                            neighbor_port_noga_alias, port_neighbor)
-                else:
-                    verify_lldp_neighbor_info_for_sonic_port(port, lldp_info, dut_hostname, dut_mac, port_neighbor)
+            retry_call(verify_lldp_neighbor_info,
+                       fargs=[topology_obj, cli_object, engines, port_noga_alias,
+                              neighbor_port_noga_alias, dut_hostname, dut_mac],
+                       tries=13, delay=10, logger=logger)
+
+
+def verify_lldp_neighbor_info(topology_obj, cli_object, engines,
+                              port_noga_alias, neighbor_port_noga_alias, dut_hostname, dut_mac):
+    """
+    Compare the LLDP info in the "show lldp neighbors" command to the topology expected connectivity
+    :return: None, raise assertion error if lldp neighbors info doesn't match the expected output
+    """
+    port = topology_obj.ports[port_noga_alias]
+    port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
+    lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(engines.dut, port)
+    with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
+                 .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
+        if is_port_connected_to_host(port_noga_alias):
+            verify_lldp_neighbor_info_for_host_port(topology_obj, lldp_info, port,
+                                                    neighbor_port_noga_alias, port_neighbor)
+        else:
+            verify_lldp_neighbor_info_for_sonic_port(port, lldp_info, dut_hostname, dut_mac, port_neighbor)
 
 
 def verify_lldp_neighbor_info_for_host_port(topology_obj, lldp_neighbor_info, port, neighbor_port_noga_alias, port_neighbor):
