@@ -1,4 +1,5 @@
 import allure
+import os
 import logging
 import pytest
 import random
@@ -20,6 +21,21 @@ TRAFFIC_TYPES = ['TCP', 'UDP']
 @pytest.fixture()
 def traffic_type():
     return random.choice(TRAFFIC_TYPES)
+
+
+@pytest.fixture(autouse=True)
+def ignore_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "..", "..", "..",
+                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
 @pytest.fixture(scope='package', autouse=True)

@@ -58,6 +58,14 @@ class SonicIpCli(IpCliCommon):
         return engine.run_cmd('sudo show ip interfaces')
 
     @staticmethod
+    def show_ipv6_interfaces(engine):
+        """
+        This method shows ipv6 configuration on interfaces
+        :return: the output of the command "show ipv6 interfaces"
+        """
+        return engine.run_cmd('sudo show ipv6 interfaces')
+
+    @staticmethod
     def get_interface_ips(engine, interface):
         """
         This method get ip address and mask on specified interface

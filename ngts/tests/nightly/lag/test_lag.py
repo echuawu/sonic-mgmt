@@ -153,8 +153,8 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             cleanup_last_config_in_stack(cleanup_list)  # pop vlan cleanup from stack
             cleanup_last_config_in_stack(cleanup_list)  # remove LAG
             lag_lacp_config_dict = {
-                'dut': [{'type': 'lacp', 'name': PORTCHANNEL_NAME, 'members': [interfaces.dut_hb_1, interfaces.dut_hb_2],
-                         'params': '--fallback enable'}]
+                'dut': [{'type': 'lacp', 'name': PORTCHANNEL_NAME,
+                         'members': [interfaces.dut_hb_1, interfaces.dut_hb_2], 'params': '--fallback enable'}]
             }
             add_lag_conf(topology_obj, lag_lacp_config_dict, cleanup_list)
             add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list)
@@ -390,7 +390,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
 @allure.title('LAGs scale Test')
 def test_lags_scale(topology_obj, engines, cleanup_list):
     """
-    This test case will check the configuration of maximum number of port channels without members.
+    This test case will check the configuration of maximum number of port channels with ipv4&ipv6 addresses.
     :param topology_obj: topology object
     :param engines: engines fixture
     :param cleanup_list: list with functions to cleanup
@@ -409,7 +409,8 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
         number_of_lags = CHIP_LAGS_LIM[chip_type]
 
-        lag_config_dict, lag_expected_info = get_lags_scale_configuration(number_of_lags)
+        lag_config_dict, lag_expected_info, ip_config_dict, ip_expected_info\
+            = get_lags_scale_configuration(number_of_lags)
 
         with allure.step('Create max number of PortChannels'):
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
@@ -423,9 +424,18 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
                 logger=logger,
             )
 
-        with allure.step('Validation for bug 2435254 - reboot, validate dockers and lags'):
+        with allure.step('Validation of bug 2435816 - add and verify IPs on all PortChannels'):
+            add_ip_conf(topology_obj, ip_config_dict, cleanup_list)
+            verify_port_channels_ip(dut_cli, engines.dut, ip_expected_info)
+
+        with allure.step('Reloading the DUT config using cmd: "config reload -y"'):
             dut_cli.general.save_configuration(engines.dut)
-            dut_cli.general.reboot_flow(engines.dut, reboot_type='reboot', topology_obj=topology_obj)
+            dut_cli.general.reload_configuration(engines.dut)
+            dut_cli.general.verify_dockers_are_up(engines.dut)
+            dut_cli.general.check_link_state(engines.dut, ifaces=topology_obj.players_all_ports['dut'])
+
+        with allure.step('Validation for bug 2435254 - validate lags and ips'
+                         ' are configured properly after config reload'):
             retry_call(
                 verify_port_channels_status,
                 fargs=[dut_cli, engines.dut, lag_expected_info],
@@ -433,62 +443,34 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
                 delay=5,
                 logger=logger,
             )
-
-    except BaseException as err:
-        raise AssertionError(err)
-
-
-@allure.title('LAG port channels with member scale Test')
-def test_lags_with_member_scale(topology_obj, interfaces, engines, cleanup_list):
-    """
-    This test case will check the configuration of maximum number of port channels with one member and IP address.
-    :param topology_obj: topology object
-    :param interfaces: interfaces fixture
-    :param engines: engines fixture
-    :param cleanup_list: list with functions to cleanup
-    :return: raise assertion error on unexpected behavior
-    """
-    try:
-        dut_cli = topology_obj.players['dut']['cli']
-
-        del_port_from_vlan(engines.dut, interfaces.dut_ha_1, '50', cleanup_list)
-
-        chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
-        max_lag_members = CHIP_LAGS_LIM[chip_type]
-
-        all_interfaces = list(dut_cli.interface.parse_interfaces_status(engines.dut))
-
-        lag_config_dict, ip_config_dict, lag_expected_info, ip_expected_info\
-            = get_lags_with_member_scale_configuration(interfaces, max_lag_members, all_interfaces)
-
-        with allure.step('Create max numbers of PortChannels, each one with member'):
-            add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
-
-        with allure.step('Validate PortChannels and members status'):
-            retry_call(verify_port_channels_status,
-                       fargs=[dut_cli, engines.dut, lag_expected_info],
-                       tries=5,
-                       delay=10,
-                       logger=logger)
-
-        with allure.step('Validate for bug 2435816 - add and verify IPs on all PortChannels'):
-            add_ip_conf(topology_obj, ip_config_dict, cleanup_list)
-            verify_port_channels_ip(dut_cli, engines.dut, ip_expected_info)
+            retry_call(
+                verify_port_channels_ip,
+                fargs=[dut_cli, engines.dut, ip_expected_info],
+                tries=3,
+                delay=10,
+                logger=logger,
+            )
     except BaseException as err:
         raise AssertionError(err)
 
 
 def get_lags_scale_configuration(number_of_lags):
     """
-    Create configuration info for large number of lags and expected result
+    Create configuration info for large number of lags with ip addresses and expected result
     :param number_of_lags: number of lags
     :return: lag_config_dict - lag configuration dictionary
              lag_expected_info - lag expected status information
+             ip_config_dict - ip configuration dictionary
+             ip_expected_info - ip expected status information
     """
     base_lag_name = 'PortChannel'
     base_lag_index = '1'
     lag_config_list = []
     lag_expected_info = []
+    base_ipv4 = ipaddress.IPv4Address('100.0.0.1')
+    base_ipv6 = ipaddress.IPv6Address('2000:2001::1')
+    ip_config_list = []
+    ip_expected_info = {'ipv4': [], 'ipv6': []}
     logger.info('Generate PortChannels configuration lists')
     for index in range(number_of_lags):
         lag_name = '{}{}'.format(base_lag_name, str(int(base_lag_index) + index))
@@ -496,50 +478,13 @@ def get_lags_scale_configuration(number_of_lags):
         lag_expected_info.append((r'{PORTCHANNEL}.*{PORTCHANNEL_STATUS}.*N/A'
                                   .format(PORTCHANNEL=lag_name,
                                           PORTCHANNEL_STATUS='Dw'), True))
-    lag_config_dict = {
-        'dut': lag_config_list
-    }
-    logger.debug('lag_config_dict: {} \nlag_expected_info: {}'.format(lag_config_dict, lag_expected_info))
-    return lag_config_dict, lag_expected_info
-
-
-def get_lags_with_member_scale_configuration(interfaces, max_lag_members, all_interfaces):
-    """
-    Create configuration info for lag, ip, vlan and expected result
-    :param interfaces: interfaces object
-    :param max_lag_members: system SDK limit of number members in lag
-    :param all_interfaces: all interfaces list
-    :return: lag_config_dict - lag configuration dictionary
-             ip_config_dict - ip configuration dictionary
-             vlan_config_dict - vlan configuration dictionary
-             lag_expected_info - lag expected status information
-    """
-    base_lag_name = 'PortChannel'
-    base_lag_index = '2000'
-    base_ip = ipaddress.IPv4Address('100.0.0.0')
-    ip_config_list = []
-    lag_config_list = []
-    lag_expected_info = []
-    ip_expected_info = []
-    logger.info('Generate PortChannels configuration lists')
-    for index in range(min(int(max_lag_members), len(all_interfaces))):
-        lag_name = '{}{}'.format(base_lag_name, str(int(base_lag_index) + index))
-        lag_config_list.append({'type': 'lacp', 'name': lag_name, 'members': [all_interfaces[index]]})
-        if all_interfaces[index] in [interfaces.dut_hb_1, interfaces.dut_hb_2]:
-            lag_status = 'Up'
-            port_status = 'S'
-        else:
-            lag_status = 'Dw'
-            port_status = 'D'
-        # create lists with expected results
-        lag_expected_info.append((r'{PORTCHANNEL}.*{PORTCHANNEL_STATUS}.*{PORT}\({PORTS_STATUS}\)'
-                                  .format(PORTCHANNEL=lag_name,
-                                          PORTCHANNEL_STATUS=lag_status,
-                                          PORT=all_interfaces[index],
-                                          PORTS_STATUS=port_status), True))
-        lag_ip_address = base_ip + index
-        ip_config_list.append({'iface': lag_name, 'ips': [(lag_ip_address, '24')]})
-        ip_expected_info.append((r'{PORTCHANNEL}\s+{IP}'.format(PORTCHANNEL=lag_name, IP=lag_ip_address), True))
+        lag_ipv4_address = base_ipv4 + index
+        lag_ipv6_address = base_ipv6 + index
+        ip_config_list.append({'iface': lag_name, 'ips': [(lag_ipv4_address, '24'), (lag_ipv6_address, '57')]})
+        ip_expected_info['ipv4'].append((r'{PORTCHANNEL}\s+{IP}/24'
+                                         .format(PORTCHANNEL=lag_name, IP=lag_ipv4_address), True))
+        ip_expected_info['ipv6'].append((r'{PORTCHANNEL}\s+{IP}/57'
+                                         .format(PORTCHANNEL=lag_name, IP=lag_ipv6_address), True))
 
     lag_config_dict = {
         'dut': lag_config_list
@@ -547,9 +492,8 @@ def get_lags_with_member_scale_configuration(interfaces, max_lag_members, all_in
     ip_config_dict = {
         'dut': ip_config_list
     }
-    logger.debug('lag_config_dict: {} \nip_config_dict: {} \n lag_expected_info: {}\n ip_expected_info: {}'
-                 .format(lag_config_dict, ip_config_dict, lag_expected_info, ip_expected_info))
-    return lag_config_dict, ip_config_dict, lag_expected_info, ip_expected_info
+    logger.debug('lag_config_dict: {} \nlag_expected_info: {}'.format(lag_config_dict, lag_expected_info))
+    return lag_config_dict, lag_expected_info, ip_config_dict, ip_expected_info
 
 
 def check_dependency(topology_obj, dependency, cleanup_list):
@@ -781,6 +725,18 @@ def verify_port_channels_status(cli_object, dut_engine, expected_lag_info):
 
 def verify_port_channels_ip(cli_object, dut_engine, expected_ip_info):
     """
+    Verify the PortChannels ips
+    :param cli_object: dut cli object
+    :param dut_engine: dut engine
+    :param expected_ip_info: expected ip information
+    :return: None, raise error in case of unexpected result
+    """
+    verify_port_channels_ipv4_addresses(cli_object, dut_engine, expected_ip_info['ipv4'])
+    verify_port_channels_ipv6_addresses(cli_object, dut_engine, expected_ip_info['ipv6'])
+
+
+def verify_port_channels_ipv4_addresses(cli_object, dut_engine, expected_ip_info):
+    """
     Verify the PortChannels ips from "show ip interfaces" output
     :param cli_object: dut cli object
     :param dut_engine: dut engine
@@ -788,6 +744,18 @@ def verify_port_channels_ip(cli_object, dut_engine, expected_ip_info):
     :return: None, raise error in case of unexpected result
     """
     ip_info = cli_object.ip.show_ip_interfaces(dut_engine)
+    verify_show_cmd(ip_info, expected_ip_info)
+
+
+def verify_port_channels_ipv6_addresses(cli_object, dut_engine, expected_ip_info):
+    """
+    Verify the PortChannels ips from "show ipv6 interfaces" output
+    :param cli_object: dut cli object
+    :param dut_engine: dut engine
+    :param expected_ip_info: expected ip information
+    :return: None, raise error in case of unexpected result
+    """
+    ip_info = cli_object.ip.show_ipv6_interfaces(dut_engine)
     verify_show_cmd(ip_info, expected_ip_info)
 
 
