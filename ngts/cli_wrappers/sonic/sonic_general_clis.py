@@ -18,7 +18,7 @@ from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from infra.tools.connection_tools.onie_engine import OnieEngine
 from infra.tools.exceptions.real_issue import RealIssue
-from ngts.constants.constants import SonicConst, InfraConst
+from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -406,18 +406,27 @@ class SonicGeneralCli(GeneralCliCommon):
         dut_engine.run_cmd(
             'sudo curl {}/{} -o {}'.format(shared_path, SonicConst.PORT_CONFIG_INI, switch_config_ini_path))
 
-        SonicGeneralCli.apply_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku, shared_path)
+        SonicGeneralCli.upload_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku, shared_path)
 
         dut_engine.reload(['sudo reboot'])
 
     @staticmethod
-    def apply_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku, shared_path):
+    def upload_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku, shared_path):
         config_db_file = SonicConst.CONFIG_DB_JSON
         if SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku):
             config_db_file = SonicGeneralCli.update_config_db_file(topology_obj, setup_name, dut_engine,
                                                                    cli_object, hwsku)
+        config_db_file = SonicGeneralCli.update_config_db_metadata_router(setup_name, config_db_file)
         dut_engine.run_cmd(
             'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH))
+
+    @staticmethod
+    def update_config_db_metadata_router(setup_name, config_db_json_file_name):
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.TYPE] =\
+            ConfigDbJsonConst.TOR_ROUTER
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json)
 
     @staticmethod
     def is_platform_supports_split_without_unmap(hwsku):
@@ -438,8 +447,8 @@ class SonicGeneralCli(GeneralCliCommon):
         return config_db_file
 
     @staticmethod
-    def get_config_db_json_obj(setup_name):
-        config_db_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, SonicConst.CONFIG_DB_JSON))
+    def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON ):
+        config_db_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, config_db_json_file_name))
         with open(config_db_path) as config_db_json_file:
             config_db_json = json.load(config_db_json_file)
         return config_db_json
@@ -475,13 +484,19 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                                     split_num,
                                                                                     parsed_platform_json_by_breakout_modes)
         config_db_json["BREAKOUT_CFG"] = breakout_cfg_dict
-        new_config_db_json_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, "updated_config_db.json"))
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json)
+
+    @staticmethod
+    def create_extended_config_db_file(setup_name, config_db_json):
+        new_config_db_json_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH,
+                                                   setup_name,
+                                                   "extended_config_db.json"))
         if os.path.exists(new_config_db_json_path):
             os.remove(new_config_db_json_path)
         with open(new_config_db_json_path, 'w') as f:
             json.dump(config_db_json, f, indent=4)
         os.chmod(new_config_db_json_path, 0o777)
-        return "updated_config_db.json"
+        return "extended_config_db.json"
 
     @staticmethod
     def install_wjh(dut_engine, wjh_deb_url):
