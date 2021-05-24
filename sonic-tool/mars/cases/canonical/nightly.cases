@@ -99,7 +99,7 @@
         <condition>
             <key> sonic_branch </key>
             <op> in </op>
-            <value> ["master"] </value>
+            <value> ["202012", "201911"] </value>
         </condition>
       </ignore>
     <cmd>
