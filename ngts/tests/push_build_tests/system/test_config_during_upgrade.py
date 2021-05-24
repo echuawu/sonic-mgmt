@@ -28,7 +28,9 @@ def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines
     allowed_diff_file_path = os.path.join(test_folder_path, allowed_diff_file)
 
     with allure.step('Getting base and target versions'):
-        base_image, target_image = get_base_and_target_images(engines.dut)
+        base_image, target_image = SonicGeneralCli.get_base_and_target_images(engines.dut)
+        assert base_image, 'Only 1 installed image available'
+
 
     with allure.step('Comparing configurations before and after the upgrade'):
         upgrade_diff = compare_dut_configs(base_config=PRE_UPGRADE_CONFIG.format(engines.dut.ip),
@@ -44,27 +46,6 @@ def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines
             allure.attach.file(POST_UPGRADE_CONFIG.format(engines.dut.ip),
                                'target_config_db.json', allure.attachment_type.JSON)
             raise AssertionError('Found unexpected diff in config_db.json during upgrade: \n {}'.format(upgrade_diff))
-
-
-def get_base_and_target_images(dut_engine):
-    """
-    This method getting base and target image from "sonic-installer list" output
-    """
-    installed_list_output = SonicGeneralCli.get_sonic_image_list(dut_engine)
-    target_image = re.search(r'Current:\s(.*)', installed_list_output, re.IGNORECASE).group(1)
-    try:
-        available_images = re.search(r'Available:\s\n(.*)\n(.*)', installed_list_output, re.IGNORECASE)
-        available_image_1 = available_images.group(1)
-        available_image_2 = available_images.group(2)
-        if target_image == available_image_1:
-            base_image = available_image_2
-        else:
-            base_image = available_image_1
-    except Exception as err:
-        logger.error('Only 1 installed image available')
-        raise err
-
-    return base_image, target_image
 
 
 def compare_dut_configs(base_config, target_config, base_ver, target_ver, allowed_diff_file):

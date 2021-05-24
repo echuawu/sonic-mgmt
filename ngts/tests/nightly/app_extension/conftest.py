@@ -6,7 +6,8 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.tests.nightly.app_extension.app_extension_helper import \
     verify_add_app_to_repo, verify_app_container_up_and_repo_status_installed, APP_INFO, app_cleanup
-
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.constants.constants import InfraConst
 
 logger = logging.getLogger()
 
@@ -56,3 +57,54 @@ def skipping_app_ext_test_case(engines):
     """
     if not SonicAppExtensionCli.verify_version_support_app_ext(engines.dut):
         pytest.skip("Skipping app ext test cases due to that app ext feature is not ready")
+
+
+@pytest.fixture(scope='function', autouse=False)
+def pre_install_base_image(topology_obj, upgrade_params, engines):
+    """
+    According to the upgrade_params, judge if do upgrade test.
+    If do upgrade
+    1. Install base image by deploy_image
+    2. After test is over, need to recovery image to old image
+
+    """
+    if not upgrade_params.is_upgrade_required:
+        pytest.skip('This platform not configure base and target version')
+    dut_engine = engines.dut
+
+    _, old_target_image = SonicGeneralCli.get_base_and_target_images(dut_engine)
+    base_version = upgrade_params.base_version
+    target_version = upgrade_params.target_version
+    if not base_version.startswith('http'):
+        base_version = '{}{}'.format(InfraConst.HTTP_SERVER, base_version)
+    if not target_version.startswith('http'):
+        target_version = '{}{}'.format(InfraConst.HTTP_SERVER, target_version)
+    with allure.step("Prerequisite: Install base image {}".format(base_version)):
+        SonicGeneralCli.deploy_image(topology_obj, base_version)
+
+    yield base_version, target_version
+
+    with allure.step("Recovery old target image {}".format(old_target_image)):
+        current_base_version, current_target_version = SonicGeneralCli.get_base_and_target_images(dut_engine)
+        if old_target_image != current_target_version:
+            if current_base_version == old_target_image:
+                switch_version_by_set_default_image(engines.dut, target_version)
+            else:
+                SonicGeneralCli.deploy_image(topology_obj, target_version)
+
+
+def switch_version_by_set_default_image(dut_engine, version):
+    """
+    Switch version by setting default image and check if switch success or not
+    """
+    with allure.step("Set {} as default image".format(version)):
+        SonicGeneralCli.set_default_image(dut_engine, version)
+    with allure.step('Rebooting the dut'):
+        dut_engine.reload(['sudo reboot'])
+    with allure.step('Verifying dut booted with correct image'):
+        # installer flavor might change after loading a different version
+        delimiter = SonicGeneralCli.get_installer_delimiter(dut_engine)
+        image_list = SonicGeneralCli.get_sonic_image_list(dut_engine, delimiter)
+        assert 'Current: {}'.format(version) in image_list
+    with allure.step("Verify basic container is up"):
+        SonicGeneralCli.verify_dockers_are_up(dut_engine)

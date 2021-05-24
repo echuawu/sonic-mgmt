@@ -5,7 +5,8 @@ import re
 
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.tests.nightly.app_extension.app_extension_helper import \
-    verify_app_container_up_and_repo_status_installed, gen_app_tarball, APP_INFO
+    verify_app_container_up_and_repo_status_installed, verify_app_container_down_and_repo_status_na, APP_INFO
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -78,5 +79,29 @@ def test_app_upgrade_with_abnormal_package(pre_install_app, app_name, version, e
             assert msg_pattern.match(output), "Error msg for upgrading abnormal app is not correct"
         with allure.step("Verify original verison still works well"):
             verify_app_container_up_and_repo_status_installed(dut_engine, app_name, old_version)
+    except Exception as err:
+        raise AssertionError(err)
+
+
+@pytest.mark.app_ext
+@allure.title('Sonic upgrade to sonic with skipping migrating package')
+def test_sonic_to_sonic_upgrade_with_sipping_migrating_package(pre_install_base_image, pre_install_app, skipping_migrating_package):
+    """
+    This test case is to test sonic upgrade to sonic without package migrating, after upgrade verify app is clean
+
+    """
+    base_version, target_version = pre_install_base_image
+    dut_engine, version = pre_install_app
+    app_name = APP_INFO["name"]
+
+    try:
+        with allure.step("Upgrade from sonic base:{} to sonic target:{}. Skipping migrating is {}".format(
+                base_version, target_version, skipping_migrating_package)):
+            SonicGeneralCli.deploy_sonic(dut_engine, target_version, skipping_migrating_package)
+        with allure.step("Verify basic container is up"):
+            SonicGeneralCli.verify_dockers_are_up(dut_engine)
+        with allure.step("Verify app:{} is clean".format(app_name)):
+            verify_app_container_down_and_repo_status_na(dut_engine, app_name)
+
     except Exception as err:
         raise AssertionError(err)

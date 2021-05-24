@@ -69,8 +69,11 @@ class SonicGeneralCli(GeneralCliCommon):
         return delimiter
 
     @staticmethod
-    def install_image(engine, image_path, delimiter='-'):
-        output = engine.run_cmd('sudo sonic{}installer install {} -y'.format(delimiter, image_path), validate=True)
+    def install_image(engine, image_path, delimiter='-', is_skipping_migrating_package=False):
+        if not is_skipping_migrating_package:
+            output = engine.run_cmd('sudo sonic{}installer install {} -y'.format(delimiter, image_path), validate=True)
+        else:
+            output = engine.run_cmd('sudo sonic{}installer install {} -y --skip-package-migration'.format(delimiter, image_path), validate=True)
         return output
 
     @staticmethod
@@ -239,7 +242,7 @@ class SonicGeneralCli(GeneralCliCommon):
         SonicGeneralCli.verify_dockers_are_up(dut_engine)
 
     @staticmethod
-    def deploy_sonic(dut_engine, image_path):
+    def deploy_sonic(dut_engine, image_path, is_skipping_migrating_package=False):
         tmp_target_path = '/tmp/sonic-mellanox.bin'
         delimiter = SonicGeneralCli.get_installer_delimiter(dut_engine)
 
@@ -248,7 +251,7 @@ class SonicGeneralCli(GeneralCliCommon):
                 SonicGeneralCli.download_file_from_http_url(dut_engine, image_path, tmp_target_path)
 
             with allure.step('Installing the image'):
-                SonicGeneralCli.install_image(dut_engine, tmp_target_path, delimiter)
+                SonicGeneralCli.install_image(dut_engine, tmp_target_path, delimiter, is_skipping_migrating_package)
 
             with allure.step('Setting image as default'):
                 image_binary = SonicGeneralCli.get_image_binary_version(dut_engine, tmp_target_path, delimiter)
@@ -647,3 +650,25 @@ class SonicGeneralCli(GeneralCliCommon):
                                                               column_ofset=2,
                                                               output_key='name')
         return warm_restart_state_dict
+
+
+    @staticmethod
+    def get_base_and_target_images(dut_engine):
+        """
+        This method getting base and target image from "sonic-installer list" output
+        """
+        installed_list_output = SonicGeneralCli.get_sonic_image_list(dut_engine)
+        target_image = re.search(r'Current:\s(.*)', installed_list_output, re.IGNORECASE).group(1)
+        try:
+            available_images = re.search(r'Available:\s\n(.*)\n(.*)', installed_list_output, re.IGNORECASE)
+            available_image_1 = available_images.group(1)
+            available_image_2 = available_images.group(2)
+            if target_image == available_image_1:
+                base_image = available_image_2
+            else:
+                base_image = available_image_1
+        except Exception as err:
+            logger.warning('Only 1 installed image available')
+            base_image = None
+
+        return base_image, target_image
