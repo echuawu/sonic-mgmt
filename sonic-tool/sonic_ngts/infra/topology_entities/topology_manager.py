@@ -414,7 +414,6 @@ class TopologyManager:
         connections = [{'link1': link1, 'link2': link2} for link1, link2 in self.setup_connectivity.items()]
         output = template.render(hosts=self.hosts.values(),
                                  switches=self.switches.values(),
-                                 ngts=self.setup_entities['ngts'],
                                  sonic_mgmt=self.setup_entities['sonic_mgmt'],
                                  connections=connections)
         new_topology_path = os.path.join(self.topology_dir_path, 'topology.xml')
@@ -426,7 +425,6 @@ class TopologyManager:
         sonic_topology_output = sonic_topology_template.render(hosts=self.hosts.values(),
                                                                switches=self.switches.values(),
                                                                hypervisor=self.setup_entities['hypervisor'],
-                                                               ngts=self.setup_entities['ngts'],
                                                                sonic_mgmt=self.setup_entities['sonic_mgmt'])
         new_setup_topology_file_path = os.path.join(self.sonic_topology_dir, 'topology.xml')
         create_file(new_setup_topology_file_path, sonic_topology_output, set_permission='666')
@@ -473,8 +471,6 @@ class TopologyManager:
             for port_mac, port_info_dict in host.ports_info.items():
                 self.noga_dict['hosts'][host.hostname]['links']["{} - {}-{}".format(host.ip, host.hostname, port_info_dict['if'])] = port_info_dict['connection_alias']
         hypervisor = self.setup_entities['hypervisor']
-        ngts = self.setup_entities['ngts']
         sonic_mgmt = self.setup_entities['sonic_mgmt']
         self.noga_dict['hosts'].update({hypervisor.hostname: {'alias': hypervisor.alias, 'links': {}}})
-        self.noga_dict['hosts'].update({ngts.hostname: {'alias': ngts.alias, 'links': {}}})
         self.noga_dict['hosts'].update({sonic_mgmt.hostname: {'alias': sonic_mgmt.alias, 'links': {}}})

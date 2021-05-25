@@ -13,6 +13,7 @@ from shutil import copyfile
 from ngts.constants.constants import LinuxConsts, ConfigDbJsonConst, SonicConst
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger("sonic_split_configuration_script")
 
 
@@ -125,6 +126,7 @@ def apply_base_configuration_from_user(args):
     save_port_config_ini_file(args)
     config_db_path = save_config_db(args, updated_init_config_db)
     load_configuration_files_to_switch(engine, port_config_ini_path, config_db_path, platform, hwsku)
+    SonicGeneralCli.update_config_db_metadata_mgmt_ip(engine, args.configuration_path_dst, args.switch_ip)
     engine.reload(reload_cmd_set=['sudo reboot'])
 
 

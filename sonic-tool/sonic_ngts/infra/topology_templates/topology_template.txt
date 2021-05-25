@@ -12,9 +12,6 @@
         </HOSTS>
  {% endfor %}
 
-    <HOSTS xmlns:xi="http://www.w3.org/2001/XInclude" name="{{ngts.hostname}}">
-            <xi:include href="{{ngts.hostname}}.xml"/>
-        </HOSTS>
     <HOSTS xmlns:xi="http://www.w3.org/2001/XInclude" name="{{sonic_mgmt.hostname}}">
             <xi:include href="{{sonic_mgmt.hostname}}.xml"/>
         </HOSTS>

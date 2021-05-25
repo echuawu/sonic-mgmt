@@ -41,26 +41,6 @@
         </HOST>
     </HOSTS>
 
-    <HOSTS name="NGTS">
-        <HOST>
-            <TYPE>Linux</TYPE>
-            <BASE_IP>{{ngts.ip}}</BASE_IP>
-	    <CONNECTIONS>
-                <CONNECTION CONN_TYPE="SSH">
-                    <CLI_TYPE>SHELL</CLI_TYPE>
-                    <IP>{{ngts.ip}}</IP>
-                </CONNECTION>
-            </CONNECTIONS>
-            <USERS>
-                <USER>
-                    <USERNAME>{{ngts.username}}</USERNAME>
-                    <PASSWORD>{{ngts.password}}</PASSWORD>
-                </USER>
-            </USERS>
-            <MAC_ADDRESS>{{ngts.mac}}</MAC_ADDRESS>
-        </HOST>
-    </HOSTS>
-
  {% for switch in switches -%}
     <HOSTS name="{{switch.alias|upper}}">
         <HOST>

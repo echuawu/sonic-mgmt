@@ -14,6 +14,8 @@ from retry.api import retry_call
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
+from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
+from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from infra.tools.connection_tools.onie_engine import OnieEngine
@@ -429,6 +431,23 @@ class SonicGeneralCli(GeneralCliCommon):
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json)
 
     @staticmethod
+    def update_config_db_metadata_mgmt_ip(engine, setup_name, ip):
+        def _get_subnet_mask(ip, interfaces_ips_output):
+            for elem in interfaces_ips_output:
+                if InfraConst.IP in elem:
+                    if elem[InfraConst.IP] == ip:
+                        return elem[InfraConst.MASK]
+
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name)
+        mask = _get_subnet_mask(ip, SonicIpCli.get_interface_ips(engine, 'eth0'))
+        routes = SonicRouteCli.show_ip_route(engine, route_type='kernel')
+        default_gw = re.search('0\.0\.0\.0/0 \[0/0\] via (.*), eth0', routes)
+        config_db_json[ConfigDbJsonConst.MGMT_INTERFACE] =\
+            json.loads(ConfigDbJsonConst.MGMT_INTERFACE_VALUE % (ip, mask, default_gw.group(1)))
+
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json, file_name=SonicConst.CONFIG_DB_JSON)
+
+    @staticmethod
     def is_platform_supports_split_without_unmap(hwsku):
         platform_prefix_with_unmap = ["SN2410", "SN2700", "SN3800", "SN4600"]
         for platform_prefix in platform_prefix_with_unmap:
@@ -487,10 +506,10 @@ class SonicGeneralCli(GeneralCliCommon):
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json)
 
     @staticmethod
-    def create_extended_config_db_file(setup_name, config_db_json):
+    def create_extended_config_db_file(setup_name, config_db_json, file_name=SonicConst.EXTENDED_CONFIG_DB_PATH):
         new_config_db_json_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH,
                                                    setup_name,
-                                                   "extended_config_db.json"))
+                                                   file_name))
         if os.path.exists(new_config_db_json_path):
             os.remove(new_config_db_json_path)
         with open(new_config_db_json_path, 'w') as f:

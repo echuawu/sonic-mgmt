@@ -5,7 +5,7 @@
 
     <players> {{hypervisor.ip}} </players>
     <steps>
-        <default> steps/ngts_regression_single_repo.steps </default>
+        <default> steps/ngts_regression.steps </default>
     </steps>
 
     <topology_file> topo/{{tm.setup_name}}/topology.xml </topology_file>
@@ -18,7 +18,7 @@
 
     <execution_block>
         <block_id> B_ID2 </block_id>
-        <entry_points> NGTS </entry_points>
+        <entry_points> SONIC_MGMT </entry_points>
         <tests_dbs_tarball> sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db </tests_dbs_tarball>
     </execution_block>
 
@@ -36,24 +36,15 @@
         <target_version> </target_version>
         <topology> ptf-any </topology>
 
-        <reboot_after_deploy> random </reboot_after_deploy>
+        <reboot_after_deploy> no </reboot_after_deploy>
         <docker_registry_url> harbor.mellanox.com/sonic </docker_registry_url>
 
-        <sonic_mgmt_docker_name> docker-sonic-mgmt </sonic_mgmt_docker_name>
-        <sonic_mgmt_docker_tag> latest </sonic_mgmt_docker_tag>
+        <sonic_mgmt_docker_name> docker-ngts </sonic_mgmt_docker_name>
 
         <sonic_mgmt_repo_url> http://10.7.77.140:8080/switchx/sonic/sonic-mgmt </sonic_mgmt_repo_url>
         <sonic_mgmt_repo_name> sonic-mgmt </sonic_mgmt_repo_name>
         <sonic_mgmt_repo_branch> develop </sonic_mgmt_repo_branch>
         <sonic_mgmt_workspace> /workspace/{{tm.setup_name}}/ </sonic_mgmt_workspace>
-
-        <docker_ngts_registry_url> harbor.mellanox.com/sonic </docker_ngts_registry_url>
-        <sonic_ngts_docker_name> docker-ngts </sonic_ngts_docker_name>
-        <sonic_ngts_docker_tag> 1.2.14 </sonic_ngts_docker_tag>
-
-        <sonic_tool_repo_url> http://10.7.77.140:8080/switchx/sonic/sonic-tool  </sonic_tool_repo_url>
-        <sonic_tool_repo_name> sonic-tool </sonic_tool_repo_name>
-        <sonic_tool_repo_branch> master </sonic_tool_repo_branch>
 
         <dump_log_since> "12 hour ago" </dump_log_since>
         <dump_backup_location> /auto/sw_system_project/sonic/dut_logs </dump_backup_location>

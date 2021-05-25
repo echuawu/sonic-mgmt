@@ -27,18 +27,10 @@ other_entities:
       hostname: r-sonic-10
       entity_id: hypervisor
 
-    - ip: 10.215.14.65
-      username: root
-      password: 3tango
-      alias: ngts
-      mac: 00:50:56:28:0e:41
-      hostname: r-sonic-10-ngts
-      entity_id: ngts
-
-    - ip: 10.215.14.66
+    - ip: 10.215.14.68
       username: root
       password: 12345 # NOTE: password is 12345
       alias: sonic-mgmt
-      mac: 00:50:56:28:0e:42
-      hostname: r-sonic-10-sonic-mgmt
+      mac: 00:50:56:28:0e:44
+      hostname: r-sonic-10-mgmt02
       entity_id: sonic_mgmt

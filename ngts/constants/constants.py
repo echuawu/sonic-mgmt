@@ -16,6 +16,7 @@ class SonicConst:
     SONIC_CONFIG_FOLDER = '/etc/sonic/'
     PORT_CONFIG_INI = 'port_config.ini'
     CONFIG_DB_JSON = 'config_db.json'
+    EXTENDED_CONFIG_DB_PATH = "extended_config_db.json"
     CONFIG_DB_JSON_PATH = SONIC_CONFIG_FOLDER + CONFIG_DB_JSON
     PLATFORM_JSON_PATH = "/usr/share/sonic/device/{PLATFORM}/platform.json"
 
@@ -42,6 +43,8 @@ class InfraConst:
     NGTS_PATH_PYTEST = '/ngts_venv/bin/pytest'
     SLEEP_BEFORE_RRBOOT = 5
     SLEEP_AFTER_RRBOOT = 35
+    IP = 'ip'
+    MASK = 'mask'
 
 
 class LinuxConsts:
@@ -65,6 +68,8 @@ class ConfigDbJsonConst:
     STATUS = 'status'
     ENABLED = 'enabled'
     DEVICE_METADATA = "DEVICE_METADATA"
+    MGMT_INTERFACE = "MGMT_INTERFACE"
+    MGMT_INTERFACE_VALUE = '''{"eth0|%s/%s": {"gwaddr": "%s"}}'''
     LOCALHOST = "localhost"
     TYPE = 'type'
     TOR_ROUTER = 'ToRRouter'
