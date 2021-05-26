@@ -209,7 +209,7 @@ MSN3800: # Tigris
 # SPC3
 MSN4410: # Ocelot
   total: 4000
-  sx_sdk: 1000
+  sx_sdk: 1100
   syncd: 70
   redis-server: 50
   snmpd: 20
@@ -231,7 +231,7 @@ MSN4410: # Ocelot
   sensord: 10
 MSN4600: # Liger
   total: 4000
-  sx_sdk: 1000
+  sx_sdk: 1100
   syncd: 70
   redis-server: 50
   snmpd: 20
@@ -253,7 +253,7 @@ MSN4600: # Liger
   sensord: 10
 MSN4600C: # Tigon
   total: 4000
-  sx_sdk: 1000
+  sx_sdk: 1100
   syncd: 70
   redis-server: 50
   snmpd: 20
@@ -275,7 +275,7 @@ MSN4600C: # Tigon
   sensord: 10
 MSN4700: # Leopard
   total: 4000
-  sx_sdk: 1000
+  sx_sdk: 1100
   syncd: 70
   redis-server: 50
   snmpd: 20
