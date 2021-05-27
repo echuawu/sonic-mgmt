@@ -17,6 +17,7 @@ function usage
   echo "    $0 [options] reset-topo <dut-name> <topo-name> <vault-password-file>"
   echo "    $0 [options] deploy <switch-name> <topo-name> <image_url> <vault-password-file>"
   echo "    $0 [options] (create-master | destroy-master) <k8s-server-name> <vault-password-file>"
+  echo "    $0 [options] restart-ptf <topo-name> <vault-password-file>"
   echo
   echo "Options:"
   echo "    -t <tbfile>     : testbed CSV file name (default: 'testbed.csv')"
@@ -65,6 +66,7 @@ function usage
   echo "        by default, data acl is enabled"
   echo "To create Kubernetes master on a server: $0 -m k8s_ubuntu create-master 'k8s-server-name'  ~/.password"
   echo "To destroy Kubernetes master on a server: $0 -m k8s_ubuntu destroy-master 'k8s-server-name' ~/.password"
+  echo "To restart ptf defined in testbed: $0 restart-ptf 'topo-name' ~/.password"
   echo
   echo "You should define your topology in testbed CSV file"
   echo
@@ -305,6 +307,22 @@ function renumber_topo
   echo Done
 }
 
+function restart_ptf
+{
+  topology=$1
+  passwd=$2
+  shift
+  shift
+
+  read_file ${topology}
+
+  echo "Restart ptf for testbed '${vm_set_name}'"
+
+  ANSIBLE_SCP_IF_SSH=y ansible-playbook -i $vmfile testbed_renumber_vm_topology.yml --vault-password-file="${passwd}" -l "$server" -e topo_name="$topo_name" -e duts_name="$duts" -e VM_base="$vm_base" -e ptf_ip="$ptf_ip" -e topo="$topo" -e vm_set_name="$vm_set_name" -e ptf_imagename="$ptf_imagename" -e ptf_ipv6="$ptf_ipv6"$@
+
+  echo Done 
+}
+
 function refresh_dut
 {
   topology=$1
@@ -362,7 +380,7 @@ function announce_routes
 
   read_file $topology
 
-  ANSIBLE_SCP_IF_SSH=y ansible-playbook -i "$inv_name" testbed_announce_routes.yml --vault-password-file="$passfile" \
+  ANSIBLE_SCP_IF_SSH=y ansible-playbook -i $vmfile testbed_announce_routes.yml --vault-password-file="$passfile" \
       -l "$server" -e vm_set_name="$vm_set_name" -e topo="$topo" -e ptf_ip="$ptf_ip" $@
 
   echo done
@@ -610,6 +628,8 @@ case "${subcmd}" in
                  setup_k8s_vms $@
                ;;
   destroy-master) stop_k8s_vms $@
+               ;;
+  restart-ptf) restart_ptf $@
                ;;
   *)           usage
                ;;
