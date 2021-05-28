@@ -114,6 +114,14 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
             for port in topology_obj.players_all_ports[host_alias]:
                 LinuxInterfaceCli.disable_interface(host_engine, port)
                 LinuxInterfaceCli.enable_interface(host_engine, port)
+
+    """
+    Reboot below required to prevent failure in tests after this test.
+    [SONiC – Design] Bug SW #2597709: [Community #7261][Functional]Static route incorrect,
+    PortChannel is not set to the specified one. | Assignee: David Z. | Status: Assigned
+    """
+    dut_cli.general.reboot_flow(engines.dut, reboot_type='reboot', topology_obj=topology_obj)
+
     logger.info('Lag LACP Test Common cleanup completed')
 
 
