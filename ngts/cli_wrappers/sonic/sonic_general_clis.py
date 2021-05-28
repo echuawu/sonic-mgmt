@@ -270,7 +270,7 @@ class SonicGeneralCli(GeneralCliCommon):
             with allure.step('Setting boot order to sonic'):
                 SonicGeneralCli.set_next_boot_entry_to_onie(dut_engine)
             with allure.step('Rebooting the switch'):
-                dut_engine.reload(['sudo reboot'], wait_after_ping=15, ssh_after_reload=False)
+                dut_engine.reload(['sudo reboot'], wait_after_ping=25, ssh_after_reload=False)
         SonicGeneralCli.install_image_onie(dut_engine.ip, image_path)
 
     @staticmethod
