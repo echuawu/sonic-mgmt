@@ -520,6 +520,7 @@ def main():
             filename=dict(required=False),
             filepath=dict(required=False),
             anchor=dict(required=False, type='list'),
+            ignore_errors=dict(required=False, type='bool', default=False),
         ),
         mutually_exclusive=[['host', 'hosts', 'anchor']],
         supports_check_mode=True
@@ -566,7 +567,7 @@ def main():
                 'device_port_vlans': lab_graph.vlanport,
             }
             module.exit_json(ansible_facts=results)
-        succeed, results = build_results(lab_graph, hostnames)
+        succeed, results = build_results(lab_graph, hostnames, m_args['ignore_errors'])
         if succeed:
             module.exit_json(ansible_facts=results)
         else:
