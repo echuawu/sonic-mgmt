@@ -281,6 +281,11 @@ def configure_docker_route(conn, container_name, mac_address, facts):
         conn.run('docker exec {CONTAINER_NAME} bash -c '\
                  '"sudo ip link set dev {CONTAINER_IFACE} up"'
                  .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=container_iface))
+
+        # add it for debug issue of mac address already in use
+        docker_info = conn.run('docker ps -a --format "table {{.Image}}\t{{.ID}}\t{{.Ports}}\t{{.Status}}\t{{.Names}}" ').stdout.strip()
+        logger.info("Debug issue of mac address already in use: {} ".format(docker_info))
+
         conn.run('docker exec {CONTAINER_NAME} bash -c '\
                  '"sudo ip link set dev {CONTAINER_IFACE} address {CONTAINER_IFACE_MAC}"'
                  .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=container_iface,
