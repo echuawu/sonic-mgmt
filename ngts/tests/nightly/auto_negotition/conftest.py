@@ -131,11 +131,11 @@ def parse_cables_info(engines, cli_objects, ports_aliases_dict):
               'Ethernet32': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR']}
     """
     compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
-    parse_regex_pattern = "(Ethernet\d+):.*(\n.*){10}.*:(.*\n.*\n.*)"
+    parse_regex_pattern = r"(Ethernet\d+):.*(\n.*){10}.*:(.*\n.*\n.*)"
     parsed_output_list = re.findall(parse_regex_pattern, compliance_info)
     res = dict()
     for port_name, _, supported_types in parsed_output_list:
-        parsed_supported_types = re.findall("(\d+G*BASE-\w+\d*)", supported_types)
+        parsed_supported_types = re.findall(r"(\d+G*BASE-\w+\d*)", supported_types)
         res[port_name] = parsed_supported_types
 
     return res
@@ -218,7 +218,7 @@ def get_interface_cable_width(type_string):
     '50GBASE-CR2' -> 2
     '40GBASE-CR4' -> 4
     """
-    match = re.search("\d+G*BASE-\w+(\d+)", type_string)
+    match = re.search(r"\d+G*BASE-\w+(\d+)", type_string)
     if match:
         width = match.group(1)
         return int(width)
