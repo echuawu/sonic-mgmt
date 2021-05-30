@@ -56,7 +56,7 @@ def run_step(name, ci_tools)
             }
         }
         if (ci_tools.is_parameter_contains_value(env.SHA1_MERGE_COMMIT) || env.NEW_CHANGES) {
-            env.MAIL_SUBJECT = "New changes pushed to Gerrit: ${env.GERRIT_HTTP_URL}/${change_number_list.last()}"
+            env.MAIL_SUBJECT = "Triggering CI on: ${env.GERRIT_HTTP_URL}/${change_number_list.last()}"
             currentBuild.description = env.MAIL_SUBJECT
 
             def last_commit_str = "Merge from GitHub"
