@@ -83,7 +83,7 @@
           "category": "Pre BAT",
           "node": "SONIC_LITE",
           "parameters": {
-            "cmd": "cd ${nfs_dir}; tar --exclude=.git -zcvf ${nfs_dir}/${TARBALL_NAME} sonic-mgmt"
+            "cmd": "cd ${nfs_dir}; tar -zcvf ${nfs_dir}/${TARBALL_NAME} sonic-mgmt"
           },
           "skip": false,
           "on_failure": "stop",
