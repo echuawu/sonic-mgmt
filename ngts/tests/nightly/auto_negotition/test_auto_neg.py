@@ -107,6 +107,7 @@ def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
 
 
 @pytest.mark.disable_loganalyzer
+@pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
 def test_interface_with_fec_none(topology_obj, engines, cli_objects, tested_lb_dict, cleanup_list):
     """
     This test case verifying the FEC is NONE in scenario for celestial peak setup.
