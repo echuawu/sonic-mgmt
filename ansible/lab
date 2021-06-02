@@ -1,7 +1,7 @@
 [sonic_latest]
 arc-switch1038     ansible_host=10.210.25.41 ansible_hostv6="fe80::9a03:9bff:fe94:628c" sonic_version=v2 hwsku="ACS-MSN3700" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0101
 mts-sonic-dut      ansible_host=10.9.74.46 ansible_hostv6="fe80::268a:7ff:fe27:149a" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=100000 mgmt_subnet_mask_length=24 vm_base=VM0201
-arc-switch1041     ansible_host=10.210.25.48 ansible_hostv6="fe80::268a:7ff:feb5:8280" sonic_version=v2 hwsku="ACS-MSN2740" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM0301
+r-anaconda-81      ansible_host=10.210.24.109 ansible_hostv6="fe80::268a:7ff:feb5:8280" sonic_version=v2 hwsku="ACS-MSN3700" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM0301
 arc-mtbc-1001      ansible_host=10.75.206.180 ansible_hostv6="fe80::9a03:9bff:fe82:f20e" sonic_version=v2 hwsku="ACS-MSN2410" iface_speed=25000 mgmt_subnet_mask_length=24 vm_base=VM0501
 arc-switch1025     ansible_host=10.210.25.45 ansible_hostv6="fe80::526b:4bff:fecd:2e74" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0601
 arc-switch1004     ansible_host=10.210.24.176 ansible_hostv6="fe80::526b:4bff:fecd:30cc" sonic_version=v2 hwsku="Mellanox-SN2700-D48C8" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0701
@@ -29,7 +29,7 @@ sonic_sn2700_40
 ptf_ptf1    ansible_host=10.255.0.188 ansible_ssh_user=root ansible_ssh_pass=root
 ptf_vms1-1  ansible_host=10.255.0.178 ansible_ssh_user=root ansible_ssh_pass=root
 ptf_vms6-1  ansible_host=10.250.0.102 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-1041    ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-anaconda-81    ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-1038    ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-1025    ansible_host=10.213.84.213 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-1004    ansible_host=10.213.80.153 ansible_ssh_user=root ansible_ssh_pass=root

@@ -68,12 +68,12 @@ arc-switch1025-t1  ansible_host=10.210.25.45 sonic_version=v2 sonic_hwsku=ACS-MS
 arc-switch1025-t1-lag  ansible_host=10.210.25.45 sonic_version=v2 sonic_hwsku=ACS-MSN2700 ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=arc-switch1035 dut_mac="7c:fe:90:63:f4:40" serial_console="ssh -l rcon:7024 10.224.2.81" pdu_host=pdu-10-208-0-24
 arc-switch1025-ptf32  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
 
-# MTR testbed arc-switch1041 topologies
-arc-switch1041 ansible_host=10.210.25.48  sonic_version=v2  sonic_hwsku=ACS-MSN2740 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-1041 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1041-t1  ansible_host=10.210.25.48  sonic_version=v2  sonic_hwsku=ACS-MSN2740 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-1041 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1041-t1-lag  ansible_host=10.210.25.48  sonic_version=v2  sonic_hwsku=ACS-MSN2740 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-1041 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1041-t0  ansible_host=10.210.25.48  sonic_version=v2  sonic_hwsku=ACS-MSN2740 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-1041 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1041-ptf32  ansible_host=10.210.25.48  sonic_version=v2  sonic_hwsku=ACS-MSN2740 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-1041 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+# MTR testbed r-anaconda-81 topologies
+r-anaconda-81 ansible_host=10.210.24.109  sonic_version=v2  sonic_hwsku=ACS-MSN3700 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-r-anaconda-81 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+r-anaconda-81-t1  ansible_host=10.210.24.109  sonic_version=v2  sonic_hwsku=ACS-MSN3700 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-r-anaconda-81 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+r-anaconda-81-t1-lag  ansible_host=10.210.24.109  sonic_version=v2  sonic_hwsku=ACS-MSN3700 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-r-anaconda-81 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+r-anaconda-81-t0  ansible_host=10.210.24.109  sonic_version=v2  sonic_hwsku=ACS-MSN3700 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-r-anaconda-81 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+r-anaconda-81-ptf32  ansible_host=10.210.24.109  sonic_version=v2  sonic_hwsku=ACS-MSN3700 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-r-anaconda-81 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
 
 # MTR testbed r-tigon-04 topologies
 r-tigon-04  ansible_host=10.210.25.123 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-14 ptf_host=ptf-r-tigon-04 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigon-04_interface_to_front_map.ini" dut_mac="1c:34:da:1c:02:00" pdu_host=pdu-10-208-0-24
@@ -247,12 +247,12 @@ r-leopard-01-t1
 r-leopard-01-t1-lag
 r-leopard-01-ptf32
 
-# MTR arc-switch1041 topologies
-arc-switch1041
-arc-switch1041-t0
-arc-switch1041-t1
-arc-switch1041-t1-lag
-arc-switch1041-ptf32
+# MTR r-anaconda-81 topologies
+r-anaconda-81
+r-anaconda-81-t0
+r-anaconda-81-t1
+r-anaconda-81-t1-lag
+r-anaconda-81-ptf32
 
 # MTR r-tigon-04 topologies
 r-tigon-04
@@ -419,12 +419,12 @@ r-tigon-11-t1-64-lag
 r-tigon-11-ptf32
 r-tigon-11-ptf64
 
-# MTR arc-switch1041 topologies
-arc-switch1041
-arc-switch1041-t0
-arc-switch1041-t1
-arc-switch1041-t1-lag
-arc-switch1041-ptf32
+# MTR r-anaconda-81 topologies
+r-anaconda-81
+r-anaconda-81-t0
+r-anaconda-81-t1
+r-anaconda-81-t1-lag
+r-anaconda-81-ptf32
 
 # MTS testbed mts-sonic-dut topologies
 mts-sonic-dut
@@ -512,8 +512,8 @@ ptf-r-leopard-01 ansible_host=10.215.22.61 ansible_ssh_user=root ansible_ssh_pas
 mts-ptf ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
 10.9.78.237 ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
 
-# MTR arc-switch1041 PTF host
-ptf-1041 ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
+# MTR r-anaconda-81 PTF host
+ptf-r-anaconda-81 ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
 10.213.86.93 ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
 
 # MTR r-tigon-04 PTF host

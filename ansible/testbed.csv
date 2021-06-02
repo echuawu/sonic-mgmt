@@ -10,10 +10,10 @@ mts-sonic-dut-t1,vm-t1,t1,docker-ptf-mlnx,mts-ptf,10.9.78.237/24,,server_2,VM020
 mts-sonic-dut-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,mts-ptf,10.9.78.237/24,,server_2,VM0201,mts-sonic-dut,Mellanox MTS testbed
 mts-sonic-dut-ptf32,vm-t1,ptf32,docker-ptf-mlnx,mts-ptf,10.9.78.237/24,,server_2,VM0201,mts-sonic-dut,Mellanox MTS testbed
 
-arc-switch1041-t0,vm-t1,t0,docker-ptf-mlnx,ptf-1041,10.213.86.93/16,,server_3,VM0301,arc-switch1041,Mellanox MTR testbed
-arc-switch1041-t1,vm-t1,t1,docker-ptf-mlnx,ptf-1041,10.213.86.93/16,,server_3,VM0301,arc-switch1041,Mellanox MTR testbed
-arc-switch1041-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-1041,10.213.86.93/16,,server_3,VM0301,arc-switch1041,Mellanox MTR testbed
-arc-switch1041-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-1041,10.213.86.93/16,,server_3,VM0301,arc-switch1041,Mellanox MTR testbed
+r-anaconda-81-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-anaconda-81,10.213.86.93/16,,server_3,VM0301,r-anaconda-81,Mellanox MTR testbed
+r-anaconda-81-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-anaconda-81,10.213.86.93/16,,server_3,VM0301,r-anaconda-81,Mellanox MTR testbed
+r-anaconda-81-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-anaconda-81,10.213.86.93/16,,server_3,VM0301,r-anaconda-81,Mellanox MTR testbed
+r-anaconda-81-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-anaconda-81,10.213.86.93/16,,server_3,VM0301,r-anaconda-81,Mellanox MTR testbed
 
 arc-switch1025-t0,vm-t1,t0,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,VM0601,arc-switch1025,Mellanox MTR testbed
 arc-switch1025-t0-64-32,vm-t1,t0-64-32,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,arc-switch1025,Mellanox MTR testbed
@@ -110,7 +110,7 @@ mtbc-3700c-01-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-mtbc04,10.75.205.201/24,,ser
 dev-simx-host01-vm01-t0,vms6-3,t0,docker-ptf-mlnx,ptf-vms6-3,10.75.206.214/24,,server_54,VM5401,dev-simx-host01-vm01,Mellanox virtual SID testbed
 dev-simx-host01-vm01-ptf32,vms6-3,ptf32,docker-ptf-mlnx,ptf-vms6-3,10.75.206.214/24,,server_54,VM5401,dev-simx-host01-vm01,Mellanox virtual SID testbed
 
-arc-switch1041-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1041,10.213.86.93/16,,server_3,VM0301,arc-switch1041,Mellanox MTR testbed
+r-anaconda-81-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-anaconda-81,10.213.86.93/16,,server_3,VM0301,r-anaconda-81,Mellanox MTR testbed
 arc-switch1038-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,VM0101,arc-switch1038,Mellanox MTR testbed
 arc-switch1025-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,VM0601,arc-switch1025,Mellanox MTR testbed
 arc-switch1004-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
