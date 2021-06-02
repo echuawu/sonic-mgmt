@@ -514,6 +514,7 @@ class SonicGeneralCli(GeneralCliCommon):
             os.remove(new_config_db_json_path)
         with open(new_config_db_json_path, 'w') as f:
             json.dump(config_db_json, f, indent=4)
+            f.write('\n')
         os.chmod(new_config_db_json_path, 0o777)
         return "extended_config_db.json"
 
