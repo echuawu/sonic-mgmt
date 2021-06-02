@@ -166,7 +166,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP8: Validate functionality of LAG with fallback parameter "true"'):
-            LinuxInterfaceCli.disable_interface(engines.hb, 'bond0')
+            config_bond_type_lag(topology_obj, interfaces, cleanup_list)
             logger.info('Wait 120 seconds for LACP timeout')
             time.sleep(120)
             verify_port_channel_status_with_retry(dut_cli,
@@ -174,6 +174,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
                                                   PORTCHANNEL_NAME,
                                                   'Up',
                                                   [(interfaces.dut_hb_1, 'S'), (interfaces.dut_hb_2, 'S')])
+            traffic_validation(topology_obj, traffic_type)
 
     except BaseException as err:
         raise AssertionError(err)
@@ -607,6 +608,17 @@ def add_lag_conf(topology_obj, lag_config_dict, cleanup_list):
     cleanup_list.append((LagLacpConfigTemplate.cleanup, (topology_obj, lag_config_dict,)))
 
 
+def remove_lag_conf(topology_obj, lag_config_dict, cleanup_list):
+    """
+    remove lag configurations
+    :param topology_obj: topology object
+    :param lag_config_dict: vlan configuration to remove
+    :param cleanup_list: list with functions to cleanup
+    """
+    LagLacpConfigTemplate.cleanup(topology_obj, lag_config_dict)
+    cleanup_list.append((LagLacpConfigTemplate.configuration, (topology_obj, lag_config_dict,)))
+
+
 def get_other_lag_dependency_err_msg(interface):
     """
     Get expected error message of adding the port to port channel
@@ -780,3 +792,43 @@ def traffic_validation(topology_obj, traffic_type):
                       ]
                   }
     ScapyChecker(topology_obj.players, validation).run_validation()
+
+
+def config_bond_type_lag(topology_obj, interfaces, cleanup_list):
+    """
+    Config bond to type lag, add to cleanup restore functions
+    :param topology_obj: topology object
+    :param interfaces: interfaces obj
+    :param cleanup_list: list with functions to cleanup
+    :return: None, raise error in case of unexpected result
+    """
+    lag_lacp_config_dict = {
+        'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_1]},
+               {'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_2]}]
+    }
+
+    vlan_config_dict = {
+        'hb': [{'vlan_id': 50, 'vlan_members': [{'bond0': None}]}]
+    }
+
+    ip_config_dict = {
+        'hb': [{'iface': 'bond0.50', 'ips': [('50.0.0.3', '24')]}]
+    }
+
+    lag_lacp_config_dict_type_lag = {
+        'hb': [{'type': 'lag', 'name': 'bond0', 'members': [interfaces.hb_dut_1]},
+               {'type': 'lag', 'name': 'bond0', 'members': [interfaces.hb_dut_2]}]
+    }
+    # add to cleanup stack original IP and Vlan config
+    cleanup_list.append((IpConfigTemplate.configuration, (topology_obj, ip_config_dict,)))
+    cleanup_list.append((VlanConfigTemplate.configuration, (topology_obj, vlan_config_dict,)))
+
+    # remove origin lag config and add to stack the adding
+    remove_lag_conf(topology_obj, lag_lacp_config_dict, cleanup_list)
+
+    # add temp config and add to stack the cleanup
+    add_lag_conf(topology_obj, lag_lacp_config_dict_type_lag, cleanup_list)
+
+    # add original IP and Vlan configs
+    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
