@@ -1,13 +1,10 @@
 import allure
 import pytest
-import random
+from retry.api import retry_call
 import re
-from copy import deepcopy
 
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
-    is_splittable, set_dpb_conf, verify_port_speed, set_ip_conf_for_ping, send_ping_and_validate_result
-
-from ngts.tests.nightly.dynamic_port_breakout.test_dpb_introp import verify_port_speed_and_status
+    is_splittable, set_dpb_conf, verify_port_speed, cleanup
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
@@ -29,6 +26,11 @@ def test_dpb_on_all_ports(topology_obj, dut_engine, cli_object, ports_breakout_m
                 'Configure breakout mode: {} on all splittable ports: {}'.format(max_breakout_mode, ports_list)):
             validate_split_all_splittable_ports(topology_obj, dut_engine, cli_object, ports_breakout_modes,
                                                 ports_list, max_breakout_mode, cleanup_list)
+        cleanup(cleanup_list)
+        with allure.step('Verify interfaces {} are in up state after breakout is removed'.format(ports_list)):
+            retry_call(cli_object.interface.check_ports_status,
+                       fargs=[dut_engine, ports_list],
+                       tries=2, delay=2)
 
     except Exception as e:
         raise e
@@ -73,3 +75,7 @@ def validate_split_all_splittable_ports(topology_obj, dut_engine, cli_object, po
     breakout_ports_conf = set_dpb_conf(topology_obj, dut_engine, cli_object, ports_breakout_modes,
                                        conf={breakout_mode: ports_list}, cleanup_list=cleanup_list)
     verify_port_speed(dut_engine, cli_object, breakout_ports_conf)
+    with allure.step('Verify interfaces {} are in up state'.format(ports_list)):
+        retry_call(cli_object.interface.check_ports_status,
+                   fargs=[dut_engine, ports_list],
+                   tries=2, delay=2)
