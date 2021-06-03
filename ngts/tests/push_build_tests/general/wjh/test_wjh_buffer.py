@@ -19,6 +19,22 @@ pytest.CHANNEL_CONF = None
 logger = logging.getLogger()
 
 
+table_parser_info = {
+    'raw': {'headers_ofset':0,
+            'len_ofset':2,
+            'data_ofset_from_start':3,
+            'column_ofset':1,
+            'output_key':'#'
+    },
+    'agg': {'headers_ofset':3,
+            'len_ofset':4,
+            'data_ofset_from_start':5,
+            'column_ofset':1,
+            'output_key':'#'
+    }
+}
+
+
 @pytest.fixture(scope='module', autouse=True)
 def check_global_configuration(engines):
     """
@@ -152,6 +168,33 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
     return False
 
 
+def validate_wjh_table(engines, cmd, table_type, interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac):
+    """
+    A function that checks the WJH table
+    :param engines: engines fixture
+    :param cmd: command to execute on DUT
+    :param table_type: table type
+    :param interfaces: interfaces
+    :param dst_ip: dst ip
+    :param src_ip: src ip
+    :param proto: protocol
+    :param drop_reason: drop reason
+    :param dst_mac: dst mac
+    :param src_mac: src mac
+    """
+    output = engines.dut.run_cmd(cmd)
+    parser = table_parser_info[table_type]
+    table = generic_sonic_output_parser(output, parser['headers_ofset'],
+                                            parser['len_ofset'],
+                                            parser['data_ofset_from_start'],
+                                            parser['column_ofset'],
+                                            parser['output_key'])
+
+    result = check_if_entry_exists(table, interfaces.dut_hb_2, dst_ip, \
+    src_ip, proto, drop_reason, dst_mac, src_mac)
+    assert result == False, "Could not find drop in WJH {} table".format(table_type)
+
+
 def do_raw_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac, command):
     """
     A function that checks the WJH feature with raw channel type
@@ -167,19 +210,9 @@ def do_raw_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_rea
     :param command: raw command
     """
     check_if_buffer_enabled(cli_object, engines, 'raw')
-    output = engines.dut.run_cmd(command)
-    table = generic_sonic_output_parser(output, headers_ofset=0,
-                                            len_ofset=2,
-                                            data_ofset_from_start=3,
-                                            column_ofset=1,
-                                            output_key='#')
 
-
-    result = check_if_entry_exists(table, interfaces.dut_hb_2, dst_ip, \
-    src_ip, proto, drop_reason, dst_mac, src_mac)
-
-    if result == False:
-        pytest.fail("Could not find drop in what-just-happened raw table.\nAborting!")
+    retry_call(validate_wjh_table, fargs=[engines, command, 'raw', interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
+                                tries=3, delay=3, logger=logger)
 
 
 def do_agg_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac, command):
@@ -197,17 +230,9 @@ def do_agg_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_rea
     :param command: aggregate command
     """
     check_if_buffer_enabled(cli_object, engines, 'aggregate')
-    output = engines.dut.run_cmd(command)
-    table = generic_sonic_output_parser(output, headers_ofset=3,
-                                            len_ofset=4,
-                                            data_ofset_from_start=5,
-                                            column_ofset=1,
-                                            output_key='#')
-    result = check_if_entry_exists(table, interfaces.dut_hb_2, dst_ip, \
-    src_ip, proto, drop_reason, dst_mac, src_mac)
 
-    if result == False:
-        pytest.fail("Could not find drop in what-just-happened aggregated table.\nAborting!")
+    retry_call(validate_wjh_table, fargs=[engines, command, 'agg', interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
+                            tries=3, delay=3, logger=logger)
 
 
 @pytest.mark.wjh
