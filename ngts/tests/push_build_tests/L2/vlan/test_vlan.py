@@ -218,7 +218,6 @@ class TestVLAN:
     @pytest.mark.build
     @pytest.mark.push_gate
     @allure.title('Test VLAN configuration on split port')
-    @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     def test_vlan_on_split_port(self):
         """
         configure different vlans on split port in trunk/access mode.

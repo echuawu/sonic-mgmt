@@ -2,6 +2,7 @@ import pytest
 import pathlib
 import os
 import logging
+import json
 
 from ngts.constants.constants import InfraConst
 
@@ -60,3 +61,15 @@ def create_result_dir(setup_name, session_id, suffix_path_name):
     pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
     logger.info("Created folder - {}".format(folder_path))
     return folder_path
+
+def get_platform_info(topology_obj):
+    try:
+        show_platform_summary_dict = json.loads(
+            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
+    except json.decoder.JSONDecodeError:
+        err_msg = 'NOGA Attribute Devdescription is empty! Fetched data: {}' \
+                  ' It should look like: {"hwsku":"ACS-MSN3700","platform":' \
+                  '"x86_64-mlnx_msn3700-r0"}'.format(
+            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
+        raise Exception(err_msg)
+    return show_platform_summary_dict

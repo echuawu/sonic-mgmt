@@ -8,8 +8,6 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakou
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6720']})
 @allure.title('Dynamic Port Breakout on all ports')
 def test_dpb_on_all_ports(topology_obj, dut_engine, cli_object, ports_breakout_modes, cleanup_list):
     """

@@ -6,7 +6,6 @@ import sys
 import re
 from retry.api import retry_call
 
-from ngts.tools.skip_test.skip import ngts_skip
 from ngts.helpers.run_process_on_host import run_process_on_host
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
@@ -66,10 +65,6 @@ class TestRebootReload:
         :param platform_params: platform_params fixture
         :param validation_type: validation type - which will be executed
         """
-        if validation_type == 'warm-reboot':
-            # Issue below cause swss docker down state and portchannel iface in down state
-            ngts_skip(platform_params.platform, rm_ticket_list=[2637874])
-
         allowed_data_loss_time = expected_traffic_loss_dict[validation_type]['data']
         allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
         failed_validations = {}

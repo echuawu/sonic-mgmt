@@ -9,10 +9,6 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_optio
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'platform_prefix_list': ['3700'],
-                        'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6610',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6720']})
 @allure.title('Dynamic Port Breakout negative test: breakout on unbreakable port')
 def test_breakout_unbreakable_ports(topology_obj, dut_engine, cli_object,
                                     ports_breakout_modes, tested_modes_lb_conf):
@@ -35,10 +31,6 @@ def test_breakout_unbreakable_ports(topology_obj, dut_engine, cli_object,
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
-                                               'https://github.com/Azure/sonic-buildimage/issues/5947',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6610',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6720']})
 @allure.title('Dynamic Port Breakout negative test: unsupported breakout mode')
 def test_unsupported_breakout_mode(topology_obj, dut_engine, cli_object, tested_modes_lb_conf,
                                    ports_breakout_modes, cleanup_list):
@@ -62,9 +54,6 @@ def test_unsupported_breakout_mode(topology_obj, dut_engine, cli_object, tested_
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6610',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6720']})
 @allure.title('Dynamic Port Breakout negative test: Wrong breakout removal from breakout port')
 def test_ports_breakout_after_wrong_removal(topology_obj, dut_engine, cli_object, ports_breakout_modes,
                                             cleanup_list, tested_modes_lb_conf):

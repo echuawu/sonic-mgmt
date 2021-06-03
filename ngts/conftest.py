@@ -19,12 +19,16 @@ from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setu
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.tools.allure_report.allure_server import AllureServer
-from ngts.tools.skip_test.skip import ngts_skip
 from ngts.constants.constants import SonicConst, PytestConst
+from ngts.tools.infra import get_platform_info
 
 logger = logging.getLogger()
 
-pytest_plugins = ('ngts.tools.sysdumps', 'ngts.tools.loganalyzer', 'ngts.tools.infra', 'pytester')
+pytest_plugins = ('ngts.tools.sysdumps',
+                  'ngts.tools.custom_skipif',
+                  'ngts.tools.loganalyzer',
+                  'ngts.tools.infra',
+                  'pytester')
 
 
 def pytest_addoption(parser):
@@ -114,51 +118,7 @@ def update_topology_with_cli_class(topology):
 
 @pytest.fixture(scope='session')
 def show_platform_summary(topology_obj):
-    try:
-        show_platform_summary_dict = json.loads(
-            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
-    except json.decoder.JSONDecodeError:
-        err_msg = 'NOGA Attribute Devdescription is empty! Fetched data: {}' \
-                  ' It should look like: {"hwsku":"ACS-MSN3700","platform":' \
-                  '"x86_64-mlnx_msn3700-r0"}'.format(
-            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
-        raise Exception(err_msg)
-    return show_platform_summary_dict
-
-
-@pytest.fixture(autouse=True)
-def skip_test_according_to_ngts_skip(request, platform_params):
-    """
-    This fixture doing skip for test cases according to BUG ID in Redmine/GitHub or platform
-    :param request: pytest buildin
-    :param show_platform_summary: output for cmd 'show platform summary' from fixture show_platform_summary
-    """
-    skip_marker = 'ngts_skip'
-    if request.node.get_closest_marker(skip_marker):
-        rm_ticket_list = request.node.get_closest_marker(skip_marker).args[0].get('rm_ticket_list')
-        github_ticket_list = request.node.get_closest_marker(skip_marker).args[0].get('github_ticket_list')
-        platform_prefix_list = request.node.get_closest_marker(skip_marker).args[0].get('platform_prefix_list')
-        operand = request.node.get_closest_marker(skip_marker).args[0].get('operand', 'or')
-
-        ngts_skip(platform_params.platform, rm_ticket_list, github_ticket_list, platform_prefix_list, operand)
-
-
-def pytest_runtest_setup(item):
-    """
-    Pytest hook - see https://docs.pytest.org/en/stable/reference.html#pytest.hookspec.pytest_runtest_setup
-    """
-    ngts_skip_test_change_fixture_execution_order(item)
-
-
-def ngts_skip_test_change_fixture_execution_order(item):
-    """
-    The purpose of this method is to change the order of fixtures execution - skip test by ngts logic should be run first
-    Otherwise autouse fixtures of ignored tests will be running, even if the test case is skipped.
-    :param item: pytest buildin
-    """
-    ngts_skip_fixture = item.fixturenames.pop(item.fixturenames.index('skip_test_according_to_ngts_skip'))
-    if ngts_skip_fixture:
-        item.fixturenames.insert(0, ngts_skip_fixture)
+    return get_platform_info(topology_obj)
 
 
 def pytest_sessionfinish(session, exitstatus):

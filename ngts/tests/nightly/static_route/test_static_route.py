@@ -166,7 +166,6 @@ def static_route_configuration(topology_obj, engines, interfaces, platform_param
 
 
 @pytest.mark.disable_loganalyzer
-@pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
 @allure.title('Test Scale Static Route')
 def test_scale_static_route(engines, players, interfaces, static_route_configuration):
     """

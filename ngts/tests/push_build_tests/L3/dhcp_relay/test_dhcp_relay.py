@@ -88,7 +88,6 @@ class TestDHCPRelay:
             self.dut_engine.run_cmd_set(cleanup_engine.commands_list)
 
     @pytest.mark.dhcp_relay
-    @pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6053']})
     def test_dhcp_relay_release_message(self):
         dhcp_release = '0x7'
         bootp_body = 'chaddr={},ciaddr="{}"'.format(self.chaddr, self.expected_ip)
@@ -189,7 +188,6 @@ class TestDHCPRelay:
             raise AssertionError(err)
 
     @pytest.mark.dhcp_relay
-    @pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6053']})
     def test_dhcp_relay_unicast_request_message(self):
         try:
             with allure.step('Getting IP address from DHCP server via DHCP relay functionality'):

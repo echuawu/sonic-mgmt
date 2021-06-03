@@ -1,9 +1,25 @@
 import requests
 
+from CustomSkipIf import CustomSkipIf
 
 INACTIVE_STATES = ['Fixed', 'Rejected', 'Closed (Rejected)', 'Closed']
 ROOT_ISSUE = 'root_issue'
 STATUS = 'status'
+
+
+class Redmine(CustomSkipIf):
+    def __init__(self, ignore_list, extra_params):
+        self.name = __name__
+        self.ignore_list = ignore_list
+        self.extra_params = extra_params
+
+    def is_skip_required(self, skip_dict):
+        is_issue_active, issue_id = is_redmine_issue_active(self.ignore_list)
+        if is_issue_active:
+            issue_url = 'https://redmine.mellanox.com/issues/{}'.format(issue_id)
+            skip_dict[self.name] = issue_url
+
+        return skip_dict
 
 
 def is_redmine_issue_active(issues_list):
@@ -46,4 +62,3 @@ def get_issues_status(issues_list):
             issues_status_dict[issue_id_str] = issues_status_response[issue_id_str][STATUS]
 
     return issues_status_dict
-

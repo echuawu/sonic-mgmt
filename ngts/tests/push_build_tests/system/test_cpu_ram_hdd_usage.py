@@ -27,7 +27,6 @@ class TestCpuRamHddUsage:
         self.setup_name = platform_params.setup_name
         self.sonic_ver = sonic_version
 
-    @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     @pytest.mark.parametrize('partition_usage', partitions_and_expected_usage)
     def test_hdd_usage(self, request, partition_usage):
         """
@@ -61,7 +60,6 @@ class TestCpuRamHddUsage:
 
     @pytest.mark.build
     @pytest.mark.push_gate
-    @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     def test_cpu_usage(self, request, expected_cpu_usage_file='expected_cpu_usage.yaml'):
         """
         This tests checks CPU usage - total and per process
@@ -121,7 +119,6 @@ class TestCpuRamHddUsage:
 
     @pytest.mark.build
     @pytest.mark.push_gate
-    @pytest.mark.ngts_skip({'platform_prefix_list': ['simx']})
     def test_ram_usage(self, request, expected_ram_usage_file='expected_ram_usage.yaml'):
         """
         This tests checks RAM usage - total and per process

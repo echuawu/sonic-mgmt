@@ -12,7 +12,6 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger()
 
 
-@pytest.mark.ngts_skip({'rm_ticket_list': [2632313]})
 @pytest.mark.app_ext
 @pytest.mark.parametrize("upgrade_type", ["repo", "repo_force"])
 @allure.title('App package upgrade ')
@@ -41,7 +40,6 @@ def test_app_upgrade(pre_install_app, upgrade_type):
         raise AssertionError(err)
 
 
-@pytest.mark.ngts_skip({'rm_ticket_list': [2632313]})
 @pytest.mark.app_ext
 @pytest.mark.parametrize(
     "app_name, version, expected_error_msg",

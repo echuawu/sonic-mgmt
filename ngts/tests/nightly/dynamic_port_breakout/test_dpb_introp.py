@@ -13,11 +13,6 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import get_ports_list_fro
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'rm_ticket_list': [2456527],
-                        'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6720',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6721',
-                                               'https://github.com/Azure/sonic-buildimage/issues/5947']})
 @allure.title('Dynamic Port Breakout with Dependencies')
 def test_dpb_configuration_interop(topology_obj, dut_engine, cli_object, ports_breakout_modes, tested_modes_lb_conf,
                                    cleanup_list, dependency_list=["vlan", "portchannel", "ip"], reboot_type='reboot'):
@@ -265,12 +260,6 @@ def reboot_and_check_functionality(topology_obj, dut_engine, cli_object, cleanup
 
 
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@pytest.mark.ngts_skip({'github_ticket_list': ['https://github.com/Azure/sonic-buildimage/issues/6631',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6630',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6610',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6720',
-                                               'https://github.com/Azure/sonic-buildimage/issues/6721',
-                                               'https://github.com/Azure/sonic-buildimage/issues/5947']})
 @allure.title('Dynamic Port remove breakout from breakout ports with dependencies')
 def test_remove_dpb_configuration_interop(topology_obj, dut_engine, cli_object, ports_breakout_modes,
                                           cleanup_list, tested_modes_lb_conf, dependency_list=["vlan", "portchannel", "ip"]):

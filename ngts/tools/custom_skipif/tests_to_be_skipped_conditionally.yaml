@@ -1,0 +1,97 @@
+# Nightly
+tests/nightly/app_extension/test_app_extension_upgrade.py:
+  Redmine:
+    - 2632313
+
+tests/nightly/auto_negotition/test_auto_neg.py::test_interface_with_fec_none:
+  Platform:
+    platforms:
+      - simx
+
+tests/nightly/copp/test_copp.py:
+  Platform:
+    platforms:
+      - simx
+
+tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6631
+    - https://github.com/Azure/sonic-buildimage/issues/6720
+
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6631
+    - https://github.com/Azure/sonic-buildimage/issues/5947
+
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_remove_dpb_configuration_interop:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6631
+    - https://github.com/Azure/sonic-buildimage/issues/6630
+    - https://github.com/Azure/sonic-buildimage/issues/5947
+
+tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_breakout_unbreakable_ports:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6631
+  Platform:
+    platforms:
+      - 3700
+
+tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_breakout_mode:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6631
+    - https://github.com/Azure/sonic-buildimage/issues/5947
+
+tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_ports_breakout_after_wrong_removal:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6631
+
+tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
+  Redmine:
+    - 2618296
+
+tests/nightly/lag/test_lag.py::test_lags_scale:
+  Redmine:
+    - 2618296
+  Platform:
+    platforms:
+      - simx
+
+tests/nightly/static_route/test_static_route.py:
+  Platform:
+    platforms:
+      - simx
+
+# PushGate
+tests/push_build_tests/L2/lldp/test_lldp.py::test_lldp_after_disable_on_dut:
+  Redmine:
+    - 2679473
+
+tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
+  Platform:
+    platforms:
+      - simx
+
+tests/push_build_tests/L3/crm/test_crm.py:
+  Redmine:
+    - 2597848
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6053
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_unicast_request_message:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/6053
+
+tests/push_build_tests/L3/static_route/test_static_route.py:
+  GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/7643
+
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
+  Platform:
+    platforms:
+      - simx
+
+tests/push_build_tests/system/test_reboot_reload.py::TestRebootReload::test_push_gate_reboot[warm-reboot]:
+  Redmine:
+    - 2637874

@@ -59,7 +59,6 @@ def test_repo_management(engines):
         app_cleanup(dut_engine, app_name)
 
 
-@pytest.mark.ngts_skip({'rm_ticket_list': [2597848]})
 @pytest.mark.app_ext
 @allure.title('test show package version')
 def test_show_package_version(add_app_into_repo):

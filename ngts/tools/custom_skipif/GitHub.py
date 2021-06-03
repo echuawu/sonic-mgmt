@@ -1,13 +1,47 @@
 import requests
-import requests_cache
 import logging
+import yaml
+import os
 
+from CustomSkipIf import CustomSkipIf
 
 logger = logging.getLogger()
 
-CACHE_EXPIRATION_TIMEOUT = 21600
-CACHE_FILE_PATH = '/tmp/github_api_cache'
-requests_cache.install_cache(CACHE_FILE_PATH, expire_after=CACHE_EXPIRATION_TIMEOUT)
+
+class GitHub(CustomSkipIf):
+    def __init__(self, ignore_list, extra_params):
+        self.name = __name__
+        self.ignore_list = ignore_list
+        self.extra_params = extra_params
+        self.credentials = self.get_cred()
+
+    def get_cred(self):
+        """
+        Get GitHub API credentials
+        :return: dictionary with GitHub credentials {'user': aaa, 'api_token': 'bbb'}
+        """
+        cred_file_name = 'credentials.yaml'
+        cred_folder_path = os.path.dirname(__file__)
+        cred_file_path = os.path.join(cred_folder_path, cred_file_name)
+
+        with open(cred_file_path) as cred_file:
+            cred = yaml.load(cred_file, Loader=yaml.FullLoader).get(self.name)
+
+        return cred
+
+    def is_skip_required(self, skip_dict_result):
+        """
+        Make decision about ignore - is it required or not
+        :param skip_dict_result: shared dictionary with data about skip test
+        :return: updated skip_dict_result
+        """
+        github_api = GitHubApi(self.credentials.get('user'), self.credentials.get('api_token'))
+
+        for github_issue in self.ignore_list:
+            if github_api.is_github_issue_active(github_issue):
+                skip_dict_result[self.name] = github_issue
+                break
+        return skip_dict_result
 
 
 class GitHubApi:
@@ -37,6 +71,7 @@ class GitHubApi:
         :return: dictionary with data
         """
         response = requests.get(url, auth=self.auth)
+        response.raise_for_status()
         return response.json()
 
     def is_github_issue_active(self, issue_url):
