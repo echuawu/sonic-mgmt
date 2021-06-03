@@ -78,10 +78,10 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
     add_lag_conf(topology_obj, lag_lacp_config_dict, cleanup_list)
 
     # VLAN config which will be used in this test
-    vlan_config_dict = {
-        'dut': [{'vlan_id': 50, 'vlan_members': [{PORTCHANNEL_NAME: 'trunk'}]}]
-    }
-    add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list)
+    vlan_config_dict = {'vlan_id': 50,
+                        'vlan_member': PORTCHANNEL_NAME
+                        }
+    add_vlan_conf(engines.dut, vlan_config_dict, cleanup_list)
 
     try:
         with allure.step('Validate the PortChannel status'):
@@ -156,7 +156,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
                          'members': [interfaces.dut_hb_1, interfaces.dut_hb_2], 'params': '--fallback enable'}]
             }
             add_lag_conf(topology_obj, lag_lacp_config_dict, cleanup_list)
-            add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list)
+            add_vlan_conf(engines.dut, vlan_config_dict, cleanup_list)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -203,10 +203,10 @@ def test_port_cannot_be_added_to_lag(topology_obj, traffic_type, interfaces, eng
         add_lag_conf(topology_obj, lag_lacp_config_dict, cleanup_list)
 
         # Add VLAN config
-        vlan_config_dict = {
-            'dut': [{'vlan_id': 50, 'vlan_members': [{PORTCHANNEL_NAME: 'trunk'}]}]
-        }
-        add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list)
+        vlan_config_dict = {'vlan_id': 50,
+                            'vlan_member': PORTCHANNEL_NAME
+                            }
+        add_vlan_conf(engines.dut, vlan_config_dict, cleanup_list)
 
         dependency_list = ['ip', 'speed', 'other_lag', 'vlan']
 
@@ -310,10 +310,10 @@ def test_lag_min_links(topology_obj, traffic_type, interfaces, engines, cleanup_
                                                   [(interfaces.dut_hb_1, 'S'), (interfaces.dut_hb_2, 'S')],
                                                   tries=5)
 
-        vlan_config_dict = {
-            'dut': [{'vlan_id': 50, 'vlan_members': [{PORTCHANNEL_NAME: 'trunk'}]}]
-        }
-        add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list)
+        vlan_config_dict = {'vlan_id': 50,
+                            'vlan_member': PORTCHANNEL_NAME
+                            }
+        add_vlan_conf(engines.dut, vlan_config_dict, cleanup_list)
 
         with allure.step('Validate the traffic via a LAG'):
             validation_ping = {'sender': 'ha', 'args': {'count': 3, 'dst': '50.0.0.1'}}
@@ -634,10 +634,11 @@ def config_vlan_dependency(topology_obj, cleanup_list):
     :param cleanup_list: list with functions to cleanup
     """
     duthb2 = topology_obj.ports['dut-hb-2']
-    vlan_config_dict = {
-        'dut': [{'vlan_id': 50, 'vlan_members': [{duthb2: 'trunk'}]}]
-    }
-    add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list)
+    engine = topology_obj.players['dut']['engine']
+    vlan_config_dict = {'vlan_id': 50,
+                        'vlan_member': duthb2
+                        }
+    add_vlan_conf(engine, vlan_config_dict, cleanup_list)
 
 
 def get_vlan_dependency_err_msg(interface):
@@ -650,15 +651,16 @@ def get_vlan_dependency_err_msg(interface):
     return err_msg
 
 
-def add_vlan_conf(topology_obj, vlan_config_dict, cleanup_list):
+def add_vlan_conf(engine, vlan_config_dict, cleanup_list):
     """
     Add vlan configurations
-    :param topology_obj: topology object
+    :param engine: engene of dut
     :param vlan_config_dict: vlan configuration to add
     :param cleanup_list: list with functions to cleanup
     """
-    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
-    cleanup_list.append((VlanConfigTemplate.cleanup, (topology_obj, vlan_config_dict,)))
+    SonicVlanCli.add_port_to_vlan(engine, vlan_config_dict['vlan_member'], vlan_config_dict['vlan_id'])
+    cleanup_list.append((SonicVlanCli.del_port_from_vlan,
+                         (engine, vlan_config_dict['vlan_member'], vlan_config_dict['vlan_id'])))
 
 
 def del_port_from_vlan(dut_engine, port, vlan, cleanup_list):
