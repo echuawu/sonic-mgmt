@@ -26,7 +26,7 @@ def test_show_lldp_table_output(topology_obj, engines):
                    delay=5, logger=logger)
 
     with allure.step('Verifying LLDP neighbor ports data'):
-        retry_call(verify_neighbour_ports, fargs=[topology_obj, engines, dut_ports_interconnects], tries=6, delay=5,
+        retry_call(verify_neighbour_ports, fargs=[topology_obj, engines, dut_ports_interconnects], tries=10, delay=5,
                    logger=logger)
 
 
