@@ -376,7 +376,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_id=None):
         elif hostname == "r-tigris-13":
             for i in range(1, 65):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
-        elif hostname == "r-leopard-01":
+        elif hostname == "r-leopard-01" or hostname == "r-leopard-58":
             for i in range(1, 33):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
         else:
