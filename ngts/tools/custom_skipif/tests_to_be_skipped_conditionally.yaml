@@ -8,10 +8,6 @@ tests/nightly/auto_negotition/test_auto_neg.py::test_interface_with_fec_none:
     platforms:
       - simx
 
-tests/nightly/copp/test_copp.py:
-  Platform:
-    platforms:
-      - simx
 
 tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py:
   GitHub:

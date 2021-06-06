@@ -4,6 +4,7 @@ import pytest
 import json
 import time
 import os
+import re
 import random
 import copy
 import codecs
@@ -26,10 +27,13 @@ TRAP_GROUP = 'trap_group'
 TRAP_IDS = 'trap_ids'
 GROUPS_WITH_MINIMAL_CONFIG = ['queue4_group1', 'queue4_group3']
 
-RATE_TRAFFIC_MULTIPLIER = 3
+RATE_TRAFFIC_MULTIPLIER = 4
 BURST_TRAFFIC_MULTIPLIER = 30
 RATE_TRAFFIC_DURATION = 10
 BURST_TRAFFIC_DURATION = 0.06
+SIMX_USER_CBS = 150
+SIMX_USER_CIR = 100
+
 
 # list of tested protocols
 PROTOCOLS_LIST = ["ARP", "IP2ME", "SNMP", "SSH", "LLDP", "LACP", "BGP", "DHCP"]
@@ -42,12 +46,14 @@ def protocol_for_reboot_flow():
     :param parser: pytest builtin
     :return: protocol
     """
-    return random.choice(PROTOCOLS_LIST)
+    protocol_for_reboot_flow = random.choice(PROTOCOLS_LIST)
+    logger.info("Random protocol for testing reboot flow is: {}".format(protocol_for_reboot_flow))
+    return protocol_for_reboot_flow
 
 
 @allure.title('CoPP Policer test case')
 @pytest.mark.parametrize("protocol", PROTOCOLS_LIST)
-def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow):
+def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params):
     """
     Run CoPP Policer test case, which will check that the policer enforces the rate limit for protocols.
     :param topology_obj: topology object fixture
@@ -59,7 +65,10 @@ def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow):
         # CIR (committed information rate) - bandwidth limit set by the policer
         # CBS (committed burst size) - largest burst of packets allowed by the policer
         tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj)')
-        tested_protocol_obj.copp_test_runner(protocol_for_reboot_flow)
+        if re.search('simx', platform_params.setup_name):
+            tested_protocol_obj.copp_simx_test_runner(protocol_for_reboot_flow)
+        else:
+            tested_protocol_obj.copp_test_runner(protocol_for_reboot_flow)
 
     except Exception as err:
         raise AssertionError(err)
@@ -102,7 +111,7 @@ class CoppBase:
     def copp_test_runner(self, protocol_for_reboot_flow):
         """
         Test runner, defines general logic of the test case.
-        Note - To validate specific traffic type, need to set low value for second traffic type in configuration file.
+        Note - To validate burst specific traffic type, need to set low rate value in this traffic type.
         :param protocol_for_reboot_flow: protocol name for reboot flow
         :return: None, raise error in case of unexpected result
         """
@@ -131,6 +140,24 @@ class CoppBase:
 
 # -------------------------------------------------------------------------------
 
+    def copp_simx_test_runner(self, protocol_for_reboot_flow):
+        """
+        Test runner for simx platform.
+        Note - To validate pps traffic type only, as burst traffic is not supported on simx.
+        :param protocol_for_reboot_flow: protocol name for reboot flow
+        :return: None, raise error in case of unexpected result
+        """
+        # check default burst and rate value
+        with allure.step('Check functionality of default rate limit'):
+            self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
+
+        # check non default burst and rate limit value with reboot
+        if protocol_for_reboot_flow.lower() == self.tested_protocol:
+            self.run_validation_flow_with_reboot_for_simx()
+            with allure.step('Check functionality of default rate limit after reboot flow'):
+                self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
+
+    # -------------------------------------------------------------------------------
     def run_validation_flow_with_reboot(self):
         """
         Runs validation flow logic with reboot.
@@ -163,7 +190,21 @@ class CoppBase:
             eval(secondary_validation_flow)
 
 # -------------------------------------------------------------------------------
+    def run_validation_flow_with_reboot_for_simx(self):
+        """
+        Runs validation flow logic with reboot.
+        To save time and do not reboot for each traffic type,
+        will be randomized primary validation, which will be checked specific traffic type before and after reboot,
+        and secondary validation,which will be checked specific traffic type only after reboot
+        :return: None, raise error in case of unexpected result
+        """
+        logger.info('Reboot Switch')
+        self.dut_cli_object.general.save_configuration(self.dut_engine)
+        self.dut_cli_object.general.reboot_flow(self.dut_engine, reboot_type='reboot', topology_obj=self.topology)
+        self.pre_rx_counts = self.dut_cli_object.ifconfig. \
+            get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
 
+# -------------------------------------------------------------------------------
     def run_validation_flow(self, cbs_value, cir_value, traffic_type='rate', update_configs_request=True):
         """
         Runs validation flow logic
