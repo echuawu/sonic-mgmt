@@ -34,5 +34,5 @@ r, ".* ERR syncd#SDK:.*\[SX_API_BULK_COUNTER.ERR\].*Invalid value of port counte
 r, ".* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to convert counter IDs to counter types bitmap.*"
 r, ".* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to create buffer: Parameter Error.*"
 r, ".* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to allocate SDK buffer.*"
-r, ".* ERR swss#portsyncd: :- readData: netlink reports .* on reading a netlink socket.*"
+r, ".* ERR swss#\w+syncd: :- readData: netlink reports .* on reading a netlink socket.*"
 r, ".* ERR syncd#SDK:.*\[SX_API_INTERNAL.ERR\].*Failed command read at communication channel: Connection reset by peer.*"
