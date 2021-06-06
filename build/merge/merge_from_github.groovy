@@ -23,15 +23,20 @@ def run_step(name, ci_tools) {
             def merge_our_files = ci_tools.run_sh_return_output("cat build/merge/merge_overwrite_conflicts")
             merge_our_files = merge_our_files.split("\n")
             conflict_files = conflict_files.split("\n")
+            def found_in_file
             for (conflict in conflict_files) {
+                found_in_file = false
                 for (file in merge_our_files) {
                     if (conflict.contains(file)){
+                        found_in_file = true
                         print "File ${conflict} will be taken from 'our' git"
                         ci_tools.run_sh("git checkout HEAD -- ${conflict}")
-                    } else {
-                        print "File ${conflict} will be taken from 'thiers' git"
-                        ci_tools.run_sh("git checkout upstream/${env.GITHUB_BRANCH} -- ${conflict}")
+                        break
                     }
+                }
+                if (!found_in_file){
+                    print "File ${conflict} will be taken from 'thiers' git"
+                    ci_tools.run_sh("git checkout upstream/${env.GITHUB_BRANCH} -- ${conflict}")
                 }
             }
             print "All permitted automatic fixes for conflicts were done.\nTrying to commit the conflicts solutions.\n" +
