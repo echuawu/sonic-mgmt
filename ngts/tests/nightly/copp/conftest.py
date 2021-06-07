@@ -55,14 +55,12 @@ def copp_configuration(topology_obj, engines, interfaces):
     logger.info('Disable periodic lldp traffic')
     host_cli_object.general.stop_service(engines.ha, 'lldpad')
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    LinuxRouteCli.add_route(engines.ha, '255.255.255.255', interfaces.ha_dut_1, '32')
 
     logger.info('CoPP Common configuration completed')
 
     yield
 
     logger.info('Starting CoPP Common configuration cleanup')
-    LinuxRouteCli.del_route(engines.ha, '255.255.255.255', interfaces.ha_dut_1, '32')
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     host_cli_object.general.start_service(engines.ha, 'lldpad')
 
