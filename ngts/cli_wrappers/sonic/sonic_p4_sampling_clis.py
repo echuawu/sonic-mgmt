@@ -1,6 +1,5 @@
-from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.tests.push_build_tests.p4.sampling_example.constants import SamplingConsts
+from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
 
 
@@ -12,7 +11,7 @@ class P4SamplingCli:
     @staticmethod
     def add_entry_to_table(engine, table_name, params):
         """
-        Add entry for specified table
+        Add entry for a specified table
         :param engine: ssh engine object
         :param table_name: the table name in which the entry will be added
         :param params: the parameters of the entry, in string format
@@ -25,6 +24,24 @@ class P4SamplingCli:
                 table_name, params))
 
     @staticmethod
+    def add_entries_to_table(engine, table_name, params_list):
+        """
+        Add entries for specified table
+        :param engine: ssh engine object
+        :param table_name: the table name in which the entry will be added
+        :param params_list: list of parameters of the entry, in string format
+               example: ['key 100.100.100.8 100.100.100.100 17 123 456 0x43/0x21
+               action DoMirror Ethernet0 01:12:23:34:45:56 01:A1:B1:C1:D1:1E 2.2.3.4 7.6.5.4 10 1 64 priority 12', ...]
+        :return: the output of the cli command
+        """
+
+        cmd_list = []
+        for params in params_list:
+            cmd_list.append('sudo config p4-sampling add control-in-port {} {}'.format(
+                table_name, params))
+        return engine.run_cmd_set(cmd_list)
+
+    @staticmethod
     def delete_entry_from_table(engine, table_name, params):
         """
         Delete the entry from the specified table
@@ -35,8 +52,24 @@ class P4SamplingCli:
         :return: the output of the cli command
         """
         return engine.run_cmd(
-            'sudo config p4-sampling delete control-in-port {} {}'.format(
+            'sudo config p4-sampling remove control-in-port {} {}'.format(
                 table_name, params))
+
+    @staticmethod
+    def delete_entries_from_table(engine, table_name, params_list):
+        """
+        Delete the entries from the specified table
+        :param engine: ssh engine object
+        :param table_name: the table name in which the entry will be deleted
+        :param params_list: the parameters used to delete the entry, in string format
+               example: ['key 100.100.100.8 100.100.100.100 17 123 456 0x43/0x21', ...]
+        :return: the output of the cli command
+        """
+        cmd_list = []
+        for params in params_list:
+            cmd_list.append('sudo config p4-sampling remove control-in-port {} {}'.format(
+                table_name, params))
+        return engine.run_cmd_set(cmd_list)
 
     @staticmethod
     def show_table_entries(engine, table_name):
@@ -108,7 +141,7 @@ class P4SamplingCli:
         packets_headers = P4SamplingEntryConsts.COUNTER_PACKETS_HEADERS
         bytes_headers = P4SamplingEntryConsts.COUNTER_BYTES_HEADERS
         key_headers_map = {'key': key_headers, 'packets': packets_headers, 'bytes': bytes_headers}
-        return P4SamplingCli.format_table_content(entry_counters, key_headers_map)
+        return P4SamplingCli.format_table_content_dict(entry_counters, key_headers_map, 'key')
 
     @staticmethod
     def clear_table_counters(engine, table_name):
@@ -137,7 +170,7 @@ class P4SamplingCli:
         :param table_name: the table name that the key headers is in
         :return: list of key headers
         """
-        if table_name == SamplingConsts.FLOW_TABLE_NAME:
+        if table_name == P4SamplingConsts.FLOW_TABLE_NAME:
             return P4SamplingEntryConsts.FLOW_ENTRY_KEY_HEADERS
         else:
             return P4SamplingEntryConsts.PORT_ENTRY_KEY_HEADERS
@@ -149,7 +182,7 @@ class P4SamplingCli:
         :param table_name: the table name that the action headers is in
         :return: list of action headers
         """
-        if table_name == SamplingConsts.FLOW_TABLE_NAME:
+        if table_name == P4SamplingConsts.FLOW_TABLE_NAME:
             return P4SamplingEntryConsts.FLOW_ENTRY_ACTION_HEADERS
         else:
             return P4SamplingEntryConsts.PORT_ENTRY_ACTION_HEADERS
@@ -164,11 +197,35 @@ class P4SamplingCli:
         """
         content_list = []
         for row_content in content_table:
-            row_dict = {}
-            for key, headers in key_headers_map.items():
-                value = ''
-                for header in headers:
-                    value = value + row_content[header] + ' '
-                row_dict[key] = value.strip()
+            row_dict = P4SamplingCli.create_row_dict(row_content, key_headers_map)
             content_list.append(row_dict)
         return content_list
+
+    @staticmethod
+    def format_table_content_dict(content_table, key_headers_map, out_key):
+        """
+        Convert the table content format to dictionary
+        :param content_table: the table content
+        :param key_headers_map: the map between dictionary key to the column headers of the table
+        :return: list of counters,
+                 example: {'Ethernet60 0x0021/0x0043':
+                            {'key':'Ethernet60 0x0021/0x0043', 'packets':'20', 'bytes': '5120'} ...}, ...
+        """
+        content_dict = {}
+        for row_content in content_table:
+            row_dict = P4SamplingCli.create_row_dict(row_content, key_headers_map)
+            content_dict[row_dict[out_key]] = row_dict
+        return content_dict
+
+    @staticmethod
+    def create_row_dict(row_content, key_headers_map):
+        row_dict = {}
+        for key, headers in key_headers_map.items():
+            value = ''
+            for header in headers:
+                if header == "Key Checksum Value/Mask":
+                    value = value + row_content[header].lower() + ' '
+                else:
+                    value = value + row_content[header] + ' '
+            row_dict[key] = value.strip()
+        return row_dict

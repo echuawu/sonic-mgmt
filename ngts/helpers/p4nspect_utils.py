@@ -1,6 +1,5 @@
 from dotted_dict import DottedDict
-import json
-from ngts.constants.constants import SonicConst
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_in_port"):
@@ -44,10 +43,11 @@ def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_
     entry_spliter_indexs = get_entry_spliter_indexs(lines, entry_spliter)
     entry_spliter_count = len(entry_spliter_indexs)
     ret = {}
+    port_configs = get_port_configs(engine)
     for i in range(1, entry_spliter_count - 1):
         entry_start_index = entry_spliter_indexs[i]
         entry_end_index = entry_spliter_indexs[i+1]
-        parse_entry_content(engine, lines[entry_start_index + 1:entry_end_index], content_column_spliter, ret)
+        parse_entry_content(engine, lines[entry_start_index + 1:entry_end_index], content_column_spliter, ret, port_configs)
     return ret
 
 
@@ -65,7 +65,7 @@ def get_entry_spliter_indexs(lines, spliter):
     return indices
 
 
-def parse_entry_content(engine, lines, content_column_spliter, ret):
+def parse_entry_content(engine, lines, content_column_spliter, ret, port_configs):
     """
     get the entry content, and add the content into the dictionary
     :param engine: ssh engine object
@@ -84,9 +84,9 @@ def parse_entry_content(engine, lines, content_column_spliter, ret):
             bytes = bytes_packets[0].split(':')[1].strip()
             packets = bytes_packets[1].split(':')[1].strip()
             debug_counters = line_content[-1].strip()
-            key_list.append(get_key_value(engine, line_content[1]))
+            key_list.append(get_key_value(engine, line_content[1], port_configs))
         else:
-            key_list.append(get_key_value(engine, line))
+            key_list.append(get_key_value(engine, line, port_configs))
     keys = " ".join(key_list)
     values = DottedDict()
     values.action = action
@@ -96,7 +96,7 @@ def parse_entry_content(engine, lines, content_column_spliter, ret):
     ret[keys] = values
 
 
-def get_key_value(engine, key_line_content):
+def get_key_value(engine, key_line_content, port_configs):
     """
     get key value
     :param engine: ssh engine object
@@ -105,13 +105,13 @@ def get_key_value(engine, key_line_content):
     """
     key_content = key_line_content.split()
     if key_content[-1] == "exact":
-        return convert_key_value(engine, key_content[0], key_content[1])
+        return convert_key_value(engine, key_content[0], key_content[1], port_configs)
     elif key_content[-1] == "ternary":
-        return "/".join([convert_key_value(engine, key_content[0], key_content[1]),
-                         convert_key_value(engine, key_content[0], key_content[2])])
+        return "/".join([convert_key_value(engine, key_content[0], key_content[1], port_configs),
+                         convert_key_value(engine, key_content[0], key_content[2], port_configs)])
 
 
-def convert_key_value(engine, key_name, key_value):
+def convert_key_value(engine, key_name, key_value, port_configs):
     """
     convert key value, for the ingress, the value should be converted from lable port to physical port, and some key
     value should be converted from hex to int
@@ -122,7 +122,7 @@ def convert_key_value(engine, key_name, key_value):
     """
     key_name = key_name.split(".")[-1]
     if key_name == 'ingress_port':
-        return convert_label_port_to_physical(engine, key_value)
+        return convert_label_port_to_physical(engine, key_value, port_configs)
     if key_name == 'hdr_checksum':
         return "{:#06x}".format(int(key_value, 16))
     elif key_name == 'protocol' or key_name == 'src_port' or key_name == 'dst_port':
@@ -130,17 +130,21 @@ def convert_key_value(engine, key_name, key_value):
     return key_value
 
 
-def convert_label_port_to_physical(engine, label_port):
+def convert_label_port_to_physical(engine, label_port, port_configs):
     """
     convert label_port port to physical port
     :param engine: ssh engine object
     :param label_port: lable port value
     :return: physical port
     """
-    config_db_json = engine.run_cmd(cmd='cat {}'.format(SonicConst.CONFIG_DB_JSON_PATH), print_output=False)
-    config_db = json.loads(config_db_json)
-    port_configs = config_db.get('PORT')
     for port in port_configs.keys():
         port_config = port_configs.get(port)
         if port_config.get('index') == label_port:
             return port
+    return label_port
+
+
+def get_port_configs(engine):
+    config_db = SonicGeneralCli.get_config_db(engine)
+    port_configs = config_db.get('PORT')
+    return port_configs

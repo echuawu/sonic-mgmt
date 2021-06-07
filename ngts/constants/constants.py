@@ -157,7 +157,7 @@ class P4SamplingEntryConsts:
     ENTRY_PRIORITY_HEADERS = ['PRIO']
     COUNTER_PACKETS_HEADERS = ['Packets']
     COUNTER_BYTES_HEADERS = ['Bytes']
-    FLOW_ENTRY_KEY_HEADERS = ['Key SIP', 'Key DIP', 'Key PROTO', 'Key L4 SPORT', 'Key L4 SPORT',
+    FLOW_ENTRY_KEY_HEADERS = ['Key SIP', 'Key DIP', 'Key PROTO', 'Key L4 SPORT', 'Key L4 DPORT',
                               'Key Checksum Value/Mask']
     PORT_ENTRY_KEY_HEADERS = ['Key Port', 'Key Checksum Value/Mask']
     FLOW_ENTRY_ACTION_HEADERS = [
@@ -181,3 +181,28 @@ class P4SamplingEntryConsts:
                 'Action VLAN',
                 'Action Is Trunc',
                 'Action Trunc Size']
+    dutha1_ip = '10.0.0.1'
+    duthb1_ip = '50.0.0.1'
+    dutha2_ip = '10.0.1.1'
+    duthb2_ip = '50.0.1.1'
+
+    hadut1_ip = "10.0.0.2"
+    hbdut1_ip = "50.0.0.2"
+    hadut2_ip = '10.0.1.2'
+    hbdut2_ip = '50.0.1.2'
+
+    hadut1_network = "10.0.0.0"
+    hbdut1_network = "50.0.0.0"
+    hadut2_network = '10.0.0.0'
+    hbdut2_network = '50.0.1.0'
+
+
+class P4SamplingConsts:
+    APP_NAME = 'p4-sampling'
+    REPOSITORY = 'urm.nvidia.com/sw-nbu-sws-sonic-docker/p4-sampling'
+    VERSION = '0.1.0-003'
+    PORT_TABLE_NAME = 'table-port-sampling'
+    FLOW_TABLE_NAME = 'table-flow-sampling'
+    ACTION_NAME = 'DoMirror'
+    TRAFFIC_INTERVAL = 0.2
+

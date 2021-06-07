@@ -356,3 +356,10 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 parsed_info[key] = default_val
         return parsed_info
 
+    @staticmethod
+    def clear_counters(engine):
+        """
+        clear counters
+        :param engine: ssh engine object
+        """
+        return engine.run_cmd("sonic-clear counters", validate=True)

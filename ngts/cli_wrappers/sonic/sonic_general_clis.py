@@ -24,6 +24,7 @@ from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 
 
 logger = logging.getLogger()

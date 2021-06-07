@@ -17,6 +17,9 @@ from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from ngts.constants.constants import SonicConst, PytestConst
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
+from ngts.constants.constants import P4SamplingEntryConsts
+from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -62,7 +65,7 @@ def pre_app_ext(engines):
 
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
-                            run_config_only, run_test_only, run_cleanup_only, pre_app_ext):
+                            run_config_only, run_test_only, run_cleanup_only, pre_app_ext, p4_sampling_table_params):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -73,6 +76,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     :param run_config_only: test run mode run_config_only
     :param run_test_only: test run mode run_test_only
     :param run_cleanup_only: test run mode run_cleanup_only
+    :param pre_app_ext: pre_app_ext fixture
+    :param p4_sampling_table_params: p4_sampling_table_params fixture
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
@@ -99,7 +104,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     if is_support_app_ext:
         with allure.step("Install app {}".format(app_name)):
             install_app(engines.dut, app_name, app_repository_name, version)
-
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
                                                                                           interfaces.dut_hb_2])
@@ -125,14 +129,18 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         'dut': [{'vlan_id': 40, 'vlan_members': [{'PortChannel0002': 'trunk'}, {interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 69, 'vlan_members': [{'PortChannel0002': 'trunk'}]},
                 {'vlan_id': 690, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
-                {'vlan_id': 691, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]}
+                {'vlan_id': 691, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
+                {'vlan_id': 10, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
+                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]}
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 690, 'vlan_members': [{interfaces.ha_dut_2: None}]},
-               {'vlan_id': 691, 'vlan_members': [{interfaces.ha_dut_2: None}]}
+               {'vlan_id': 691, 'vlan_members': [{interfaces.ha_dut_2: None}]},
+               {'vlan_id': 10, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{'bond0': None}]},
-               {'vlan_id': 69, 'vlan_members': [{'bond0': None}]}]
+               {'vlan_id': 69, 'vlan_members': [{'bond0': None}]},
+               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]},]
     }
 
     # IP config which will be used in test
@@ -141,12 +149,16 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'iface': 'PortChannel0001', 'ips': [('30.0.0.1', '24'), ('3000::1', '64')]},
                 {'iface': 'Vlan69', 'ips': [('69.0.0.1', '24'), ('6900::1', '64')]},
                 {'iface': 'Vlan690', 'ips': [('69.0.1.1', '24'), ('6900:1::1', '64')]},
-                {'iface': 'Vlan691', 'ips': [('69.1.0.1', '24'), ('6910::1', '64')]}
+                {'iface': 'Vlan691', 'ips': [('69.1.0.1', '24'), ('6910::1', '64')]},
+                {'iface': 'Vlan50'.format(interfaces.dut_hb_1), 'ips': [(P4SamplingEntryConsts.duthb1_ip, '24')]},
+                {'iface': 'Vlan10', 'ips': [(P4SamplingEntryConsts.dutha2_ip, '24')]}
                 ],
         'ha': [{'iface': '{}.40'.format(interfaces.ha_dut_2), 'ips': [('40.0.0.2', '24'), ('4000::2', '64')]},
+               {'iface': '{}.10'.format(interfaces.ha_dut_2), 'ips': [(P4SamplingEntryConsts.hadut2_ip, '24')]},
                {'iface': 'bond0', 'ips': [('30.0.0.2', '24'), ('3000::2', '64')]}],
         'hb': [{'iface': 'bond0.40', 'ips': [('40.0.0.3', '24'), ('4000::3', '64')]},
                {'iface': 'bond0.69', 'ips': [('69.0.0.2', '24'), ('6900::2', '64')]},
+               {'iface': '{}.50'.format(interfaces.hb_dut_1), 'ips': [(P4SamplingEntryConsts.hbdut1_ip, '24')]},
                ]
     }
 
@@ -166,12 +178,17 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
     if run_config_only or full_flow_run:
         logger.info('Starting PushGate Common configuration')
+        # TODO: temp solution, later the installation of the p4-sampling will be done during deploy image
+        fixture_helper.install_p4_sampling(engines.dut)
         InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
         LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
         VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
         IpConfigTemplate.configuration(topology_obj, ip_config_dict)
         RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
         DhcpRelayConfigTemplate.configuration(topology_obj, dhcp_relay_config_dict)
+        # add p4 sampling entries, need to check is the p4-sampling is installed or not
+        if P4SamplingUtils.check_p4_sampling_installed(engines.dut):
+            fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
         logger.info('PushGate Common configuration completed')
 
         with allure.step('Doing debug logs print'):
@@ -212,12 +229,30 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
         LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
         InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
+        if P4SamplingUtils.check_p4_sampling_installed(engines.dut):
+            fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, p4_sampling_table_params)
+        # TODO: temp solution, later the installation of the p4-sampling will be done during deploy image
+        fixture_helper.uninstall_p4_sampling(engines.dut)
         logger.info('Doing config save after cleanup')
         cli_object.general.save_configuration(engines.dut)
         logger.info('PushGate Common cleanup completed')
 
     if skip_tests:
         pytest.skip('Skipping test according to flags: run_config_only/run_test_only/run_cleanup_only')
+
+
+@pytest.fixture(scope='package')
+def p4_sampling_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
+    """
+    Fixture used to create the TableParams object which contains some params used in the testcases
+    :param interfaces: interfaces fixture
+    :param engines : engines fixture object
+    :param topology_obj: topology_obj fixture object
+    :param ha_dut_2_mac: ha_dut_2_mac fixture object
+    :param hb_dut_1_mac: hb_dut_1_mac fixture object
+    """
+    return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
+
 
 
 def log_debug_info(dut_engine):
