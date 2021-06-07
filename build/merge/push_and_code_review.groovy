@@ -43,9 +43,9 @@ def run_step(name, ci_tools)
                 //loop over push string for getting gerrit url's
                 def change_number
                 push_output.readLines().each { def line ->
-                    if (line.contains("http")) {
+                    if (line.contains("http://")) {
                         line.split(" ").each { split_str ->
-                            if (split_str.contains("http")) {
+                            if (split_str.contains("http://")) {
                                 int i = split_str.lastIndexOf("/")
                                 change_number = split_str.substring(i).substring(1)
                                 change_number_list.add(change_number)
