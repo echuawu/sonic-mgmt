@@ -15,21 +15,13 @@
     </Case>
   </global>
   <case>
-        <ignore>
-            <condition_group>
-                  <operand> OR </operand>
-                  <condition>
-                      <key> simx </key>
-                      <op> in </op>
-                      <value>  ["True"] </value>
-                  </condition>
-                  <condition>
-                      <key> sonic_branch </key>
-                      <op> in </op>
-                      <value> ["201911"] </value>
-                  </condition>
-              </condition_group>
-        </ignore>
+    <ignore>
+          <condition>
+              <key> sonic_branch </key>
+              <op> in </op>
+              <value> ["201911"] </value>
+          </condition>
+    </ignore>
     <name> COPP </name>
     <info> </info>
     <cmd>
