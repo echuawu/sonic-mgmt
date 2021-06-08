@@ -24,10 +24,37 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
                               }
 
 
+@pytest.mark.disable_loganalyzer
+@pytest.mark.parametrize('validation_type', validation_types)
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, pre_app_ext, platform_params, validation_type):
+    """
+    This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
+    After reboot/reload finished - test doing functional validations(run PushGate tests)
+    Add 3 verification for app extesnion
+    1. Verify shutdown oder same to bgp->app(cpu-report)->swss, after warm/fast reboot
+    2. Verify warm_restarted status is reconciled, after warm-reboot
+    3. Verify app status is up, after config reload -y
+    :param request: pytest build-in
+    :param platform_params: platform_params fixture
+    :param validation_type: validation type - which will be executed
+    """
+    try:
+        test_reboot_reload = TestRebootReload(topology_obj, interfaces, engines, pre_app_ext)
+        if re.search('simx', platform_params.setup_name):
+            if validation_type in ['reboot', 'config reload -y']:
+                test_reboot_reload.push_gate_reboot_simx_test_runner(request, validation_type)
+            else:
+                logger.info("Validation Type: {} is not supported on SIMX".format(validation_type))
+        else:
+            test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
+
+    except Exception as err:
+        raise AssertionError(err)
+
+
 class TestRebootReload:
 
-    @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, interfaces, engines, pre_app_ext):
+    def __init__(self, topology_obj, interfaces, engines, pre_app_ext):
         self.topology_obj = topology_obj
         self.dut_engine = engines.dut
         self.cli_object = self.topology_obj.players['dut']['cli']
@@ -52,8 +79,7 @@ class TestRebootReload:
             loganalyzer.ignore_regex.extend(ignore_regex_list)
 
     @pytest.mark.disable_loganalyzer
-    @pytest.mark.parametrize('validation_type', validation_types)
-    def test_push_gate_reboot(self, request, platform_params, validation_type):
+    def push_gate_reboot_test_runner(self, request, validation_type):
         """
         This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
         After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -62,16 +88,16 @@ class TestRebootReload:
         2. Verify warm_restarted status is reconciled, after warm-reboot
         3. Verify app status is up, after config reload -y
         :param request: pytest build-in
-        :param platform_params: platform_params fixture
         :param validation_type: validation type - which will be executed
         """
         allowed_data_loss_time = expected_traffic_loss_dict[validation_type]['data']
         allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
         failed_validations = {}
 
-        # Step below required, if no ARP for 30.0.0.2 warm/fast reboot will not work
-        with allure.step('Resolve ARP on DUT for IP 30.0.0.2'):
-            self.resolve_arp_static_route()
+        if validation_type in ['fast-reboot', 'warm-reboot']:
+           # Step below required, if no ARP for 30.0.0.2 warm/fast reboot will not work
+            with allure.step('Resolve ARP on DUT for IP 30.0.0.2 in case of warm/fast reboot validation'):
+                self.resolve_arp_static_route()
 
         with allure.step('Starting background validation for control plane traffic'):
             control_plane_checker = self.start_control_plane_validation(validation_type, allowed_control_loss_time)
@@ -95,6 +121,60 @@ class TestRebootReload:
                 data_plane_checker.complete_validation()
         except Exception as err:
             failed_validations['data_plane'] = err
+
+        # add 3 test cases for app extension
+        if self.is_support_app_ext:
+            self.verify_app_ext_test_cases(validation_type, failed_validations)
+
+        # Wait until warm-reboot finished
+        if validation_type == 'warm-reboot':
+            with allure.step('Checking warm-reboot status'):
+                retry_call(SonicGeneralCli.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
+                           delay=10, logger=logger)
+
+        # Step below required - to check that PortChannel0001 iface are UP
+        with allure.step('Checking that possible to ping PortChannel iface 30.0.0.1'):
+            self.resolve_arp_static_route()
+
+        try:
+            with allure.step('Running functional validations after reboot/reload'):
+                logger.info('Running functional validations after reboot/reload')
+                self.do_func_validations(request)
+        except Exception as err:
+            failed_validations['functional_validation'] = err
+        finally:
+            # Disconnect engine, otherwise the following error will pop-up "OSError: Socket is closed"
+            self.dut_engine.disconnect()
+
+        assert not failed_validations, 'We have failed validations during test run. ' \
+                                       'Test result errors dict: {}'.format(failed_validations)
+
+    @pytest.mark.disable_loganalyzer
+    def push_gate_reboot_simx_test_runner(self, request, validation_type):
+        """
+        Test checks control plane traffic loss time on simx platforms.
+        After reboot/reload finished - test doing functional validations(run PushGate tests)
+        Add 3 verification for app extension
+        1. Verify shutdown oder same to bgp->app(cpu-report)->swss
+        3. Verify app status is up, after config reload -y
+        :param request: pytest build-in
+        :param validation_type: validation type - which will be executed
+        """
+        allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
+        failed_validations = {}
+
+        with allure.step('Starting background validation for control plane traffic'):
+            control_plane_checker = self.start_control_plane_validation(validation_type, allowed_control_loss_time)
+
+        self.do_reboot_or_reload_action(action=validation_type)
+
+        try:
+            with allure.step('Checking control plane traffic loss'):
+                logger.info('Checking that control plane traffic loss not more '
+                            'than: {}'.format(allowed_control_loss_time))
+                control_plane_checker.complete_validation()
+        except Exception as err:
+            failed_validations['control_plane'] = err
 
         # add 3 test cases for app extension
         if self.is_support_app_ext:
@@ -240,13 +320,13 @@ def prepare_pytest_args(pytest_args_list):
 
 def add_to_pytest_args_skip_tests(pytest_args_list):
     """
-    This method adds ignore parameter for the TestRebootReload and other tests.
-    We need to ignore TestRebootReload - otherwise the Reload tests will be called in an endless loop
+    This method adds ignore parameter for the test_push_gate_reboot_policer and other tests.
+    We need to ignore test_push_gate_reboot_policer - otherwise the Reload tests will be called in an endless loop
     :param pytest_args_list: list with pytest arguments
     :return: modified list with pytest arguments
     """
     keyword_expression_arg = '-k'
-    skip_arg = 'not TestRebootReload and not test_validate_config_db_json_during_upgrade'
+    skip_arg = 'not test_push_gate_reboot_policer and not test_validate_config_db_json_during_upgrade'
     if keyword_expression_arg not in pytest_args_list:
         pytest_args_list.insert(-1, keyword_expression_arg)
         pytest_args_list.insert(-1, '"{}"'.format(skip_arg))
@@ -278,7 +358,7 @@ def prepare_pytest_cmd_with_custom_allure_dir(pytest_args_list):
     :param pytest_args_list: list with pytest arguments
     :return: pytest run cmd(example: 'pytest --run_test_only --setup_name=sonic_spider_r-spider-05
     --rootdir=/local/repos/sonic-mgmt/ngts -c /local/repos/sonic-mgmt/ngts/pytest.ini --log-level=INFO
-    --clean-alluredir --alluredir=/tmp/allure_reboot_reload -k "not TestRebootReload"
+    --clean-alluredir --alluredir=/tmp/allure_reboot_reload -k "not test_push_gate_reboot_policer"
     /local/repos/sonic-mgmt/ngts/tests/push_build_tests')
     """
     python_bin_folder = os.path.dirname(sys.executable)
