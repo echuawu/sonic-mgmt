@@ -7,6 +7,7 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from dateutil.parser import parse as time_parse
+from retry.api import retry_call
 
 
 logger = logging.getLogger()
@@ -80,8 +81,12 @@ def verify_app_container_up_and_repo_status_installed(dut_engine, app_name, vers
     :Return None, or raise exception  if app info not match all
 
     """
-    status = GeneralCliCommon.get_container_status(dut_engine, app_name)
-    assert "Up" in status, "expected status is Up, actual is {}".format(status)
+    def verify_app_container_up(dut_engine, app_name):
+        status = GeneralCliCommon.get_container_status(dut_engine, app_name)
+        assert "Up" in status, "expected status is Up, actual is {}".format(status)
+
+    retry_call(verify_app_container_up, fargs=[dut_engine, app_name],
+               tries=10, delay=5, logger=logger)
     app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
     if app_name in app_package_repo_dict:
         app_info = app_package_repo_dict[app_name]
@@ -317,7 +322,7 @@ def verify_app_container_start_delay(dut_engine, app_name, delay_time):
 
     """
     up_time_swss = time_parse(dut_engine.run_cmd("docker inspect --format='{{.State.StartedAt}}' swss"))
-    up_time_app = time_parse(dut_engine.run_cmd("docker inspect --format='{{.State.StartedAt}}' {}".format(app_name)))
+    up_time_app = time_parse(dut_engine.run_cmd("docker inspect --format='{{.State.StartedAt}}'  %s " % app_name))
     if up_time_app > up_time_swss:
         time_diff = (up_time_app - up_time_swss).seconds
     else:
