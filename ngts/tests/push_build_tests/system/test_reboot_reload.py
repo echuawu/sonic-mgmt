@@ -214,7 +214,8 @@ class TestRebootReload:
                                     'name': 'control_plane_{}'.format(validation_type),
                                     'background': 'start',
                                     'args': {'interface': self.ping_sender_iface,
-                                             'count': 200, 'dst': self.dut_vlan40_int_ip,
+                                             'count': 2000, 'dst': self.dut_vlan40_int_ip,
+                                             'interval': 0.1,
                                              'allowed_traffic_loss_time': allowed_control_loss_time},
                                     }
         control_plane_checker = PingChecker(self.topology_obj.players, validation_control_plane)
