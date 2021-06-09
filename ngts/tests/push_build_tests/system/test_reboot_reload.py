@@ -289,7 +289,9 @@ class TestRebootReload:
     def verify_app_ext_test_cases(self, validation_type, failed_validations):
         if validation_type in ["warm-reboot", "fast-reboot"]:
             try:
-                self.verify_app_shutdown_order(validation_type)
+                # comment it due to the code for Warm/fast reboot support is not merged yet to master
+                # self.verify_app_shutdown_order(validation_type)
+                logger.info("skip check due to the code for Warm/fast reboot support is not merged yet to master")
             except Exception as err:
                 failed_validations['app_ext_shutdown'] = err
 
