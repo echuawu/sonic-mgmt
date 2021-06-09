@@ -47,7 +47,7 @@ tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
 
 tests/nightly/lag/test_lag.py::test_lags_scale:
   Redmine:
-    - 2618296
+    - 2684914
   Platform:
     platforms:
       - simx
