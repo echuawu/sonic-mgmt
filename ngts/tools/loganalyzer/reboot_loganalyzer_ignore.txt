@@ -36,3 +36,5 @@ r, ".* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to create buff
 r, ".* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to allocate SDK buffer.*"
 r, ".* ERR swss#\w+syncd: :- readData: netlink reports .* on reading a netlink socket.*"
 r, ".* ERR syncd#SDK:.*\[SX_API_INTERNAL.ERR\].*Failed command read at communication channel: Connection reset by peer.*"
+r, ".* ERR \/hostcfgd:.*sudo systemctl (enable|disable).*failed. RC: 1.*"
+r, ".* ERR \/hostcfgd:.*Feature.*failed to be\s+(enabled and started|stopped and disabled).*"

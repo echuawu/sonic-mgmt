@@ -1,6 +1,7 @@
 import pytest
 import logging
 import allure
+import os
 
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
@@ -108,3 +109,18 @@ def switch_version_by_set_default_image(dut_engine, version):
         assert 'Current: {}'.format(version) in image_list
     with allure.step("Verify basic container is up"):
         SonicGeneralCli.verify_dockers_are_up(dut_engine)
+
+
+@pytest.fixture(autouse=False)
+def ignore_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "..", "..", "..",
+                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)

@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 @pytest.mark.app_ext
 @allure.title('App delay to start after reboot ')
-def test_app_start_delay_after_reboot(add_app_into_repo):
+def test_app_start_delay_after_reboot(add_app_into_repo, ignore_expected_loganalyzer_exceptions):
     """
     This test case is app delay to start after reboot, when manifest include the following info:
         {
