@@ -3,7 +3,7 @@ import logging
 import re
 import ipaddress
 import time
-import pytest
+import random
 from retry.api import retry_call
 
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
@@ -20,24 +20,23 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.conftest import cleanup_last_config_in_stack
 
-
 logger = logging.getLogger()
 PORTCHANNEL_NAME = 'PortChannel1111'
 BASE_PKT = 'Ether(dst="{}")/IP(src="50.0.0.2",dst="50.0.0.3")/{}()/Raw()'
 CHIP_LAGS_LIM = {
-    'SPC':  64,
+    'SPC': 64,
     'SPC2': 128,
     'SPC3': 128
 }
 CHIP_LAG_MEMBERS_LIM = {
-    'SPC':  32,
+    'SPC': 32,
     'SPC2': 64,
     'SPC3': 64
 }
 
 
 @allure.title('LAG_LACP core functionality and reboot')
-def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, engines, cleanup_list):
+def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, engines, cleanup_list, platform_params):
     """
     This test case will check the base functionality of LAG/LACP feature.
     Config base configuration as in the picture below.
@@ -129,7 +128,10 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
 
         with allure.step('STEP4: Reboot dut'):
             dut_cli.general.save_configuration(engines.dut)
-            dut_cli.general.reboot_flow(engines.dut, topology_obj=topology_obj)
+            reboot_type = random.choice(['reboot', 'fast-reboot', 'warm-reboot'])
+            if re.search('simx', platform_params.setup_name):
+                reboot_type = 'reboot'
+            dut_cli.general.reboot_flow(engines.dut, reboot_type=reboot_type, topology_obj=topology_obj)
 
         with allure.step('STEP5: Validate port channel status and send traffic'):
             verify_port_channel_status_with_retry(dut_cli,
@@ -408,7 +410,7 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
         number_of_lags = CHIP_LAGS_LIM[chip_type]
 
-        lag_config_dict, lag_expected_info, ip_config_dict, ip_expected_info\
+        lag_config_dict, lag_expected_info, ip_config_dict, ip_expected_info \
             = get_lags_scale_configuration(number_of_lags)
 
         with allure.step('Create max number of PortChannels'):
