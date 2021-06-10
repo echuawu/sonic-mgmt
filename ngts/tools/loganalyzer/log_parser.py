@@ -306,7 +306,7 @@ class DutLogAnalyzer:
         if stdin_as_input:
             log_file = sys.stdin
         else:
-            log_file = open(log_file_path, 'r')
+            log_file = open(log_file_path, 'r', encoding="utf-8")
 
         start_marker = self.create_start_marker()
         end_marker = self.create_end_marker()
