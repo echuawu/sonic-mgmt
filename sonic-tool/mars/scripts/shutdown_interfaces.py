@@ -4,6 +4,7 @@ try:
     # Builtin libs
     import argparse
     import time
+    import re
 
     # Third-party libs
     from fabric import Config
@@ -41,7 +42,7 @@ def main():
             if len(interfaces) > 0:
                 if any(d['interface'] == args.iface for d in interfaces):
                     for iface in interfaces:
-                        if int(iface['interface'].replace('Ethernet','')) >= iface_index:
+                        if re.search("Ethernet\d", iface['interface']) and int(iface['interface'].replace('Ethernet','')) >= iface_index:
                             dut.run('sudo config interface shutdown {}'.format(iface['interface']))
                 else:
                     logger.error("Start interface is not exist on DUT")
