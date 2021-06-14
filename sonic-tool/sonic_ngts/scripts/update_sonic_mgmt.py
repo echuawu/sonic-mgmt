@@ -269,6 +269,8 @@ if __name__ == "__main__":
     parser.add_argument("--dut", help="DUT name", type=str, required=True)
     parser.add_argument("--mgmt_repo", help="Path to the sonic-mgmt repo", type=str, required=True)
     parser.add_argument("--topo_dir", help="Path to the topology folder of current DUT", type=str, required=True)
+    parser.add_argument("--update_minigraph_only", help="True if only file user want to update is minigraph_facts.py",
+                        type=str, required=True)
     args = parser.parse_args()
 
     dut_name = args.dut
@@ -285,7 +287,10 @@ if __name__ == "__main__":
     noga_resource = get_noga_resource_data(resource_name=dut_name)
     hwsku = get_hwsku_from_noga_res(noga_resource)
 
-    if testbed_csv.entry_exists(dut_name=dut_name):
+    if args.update_minigraph_only == "True":
+        # Update minigraph_facts.py
+        mg_facts.write_minigraph_facts()
+    elif testbed_csv.entry_exists(dut_name=dut_name):
         logger.warning("{} - Entry for '{}' DUT already exists. Skip configuration.".format(conf_files.testbed_csv, dut_name))
     else:
         testbed_csv.row_template["# conf-name"] = dut_name + "-ptf-any"
