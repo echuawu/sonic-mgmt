@@ -41,7 +41,7 @@ def run_step(name, ci_tools) {
             }
             print "All permitted automatic fixes for conflicts were done.\nTrying to commit the conflicts solutions.\n" +
                     "Will fail if there are still more conflicts!"
-            ci_tools.run_sh("git commit -m 'Merge remote-tracking branch 'upstream/${env.GITHUB_BRANCH}' into ${env.MGMT_GERRIT_BRANCH}'")
+            ci_tools.run_sh("git commit")
         }
         //Check if there are new changes
 
@@ -55,6 +55,7 @@ def run_step(name, ci_tools) {
 
         //Add changeID
         ci_tools.run_sh("git commit -C HEAD --amend")
+        ci_tools.run_sh("git rebase --continue")
 
         env.NEW_CHANGES = true
 
