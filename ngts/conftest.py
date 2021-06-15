@@ -18,7 +18,6 @@ from dotted_dict import DottedDict
 from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
-from ngts.tools.allure_report.allure_server import AllureServer
 from ngts.constants.constants import SonicConst, PytestConst
 from ngts.tools.infra import get_platform_info
 
@@ -28,7 +27,8 @@ pytest_plugins = ('ngts.tools.sysdumps',
                   'ngts.tools.custom_skipif',
                   'ngts.tools.loganalyzer',
                   'ngts.tools.infra',
-                  'pytester')
+                  'pytester',
+                  'ngts.tools.allure_report')
 
 
 def pytest_addoption(parser):
@@ -119,23 +119,6 @@ def update_topology_with_cli_class(topology):
 @pytest.fixture(scope='session')
 def show_platform_summary(topology_obj):
     return get_platform_info(topology_obj)
-
-
-def pytest_sessionfinish(session, exitstatus):
-    """
-    Pytest hook which are executed after all tests before exist from program
-    :param session: pytest buildin
-    :param exitstatus: pytest buildin
-    """
-    if not session.config.getoption("--collectonly"):
-        allure_server_ip = '10.215.11.120'
-        allure_server_port = '5050'
-        allure_report_dir = session.config.known_args_namespace.allure_report_dir
-        try:
-            AllureServer(allure_server_ip, allure_server_port, allure_report_dir).generate_allure_report()
-        except Exception as err:
-            logger.error('Failed to upload allure report to server. Allure report not available. '
-                         '\nError: {}'.format(err))
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
