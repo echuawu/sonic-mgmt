@@ -61,12 +61,13 @@ r-leopard-01-t1-lag ansible_host=10.210.24.44 sonic_version=v2 sonic_hwsku=ACS-M
 r-leopard-01-ptf32 ansible_host=10.210.24.44 sonic_version=v2 sonic_hwsku=ACS-MSN4700 fanout_switch=r-leopard-20 ptf_host=ptf-r-leopard-01 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp32_interface_to_front_map.ini" dut_mac="1c:34:da:18:52:00" pdu_host=pdu-10-208-0-186
 
 # MTR testbed arc-switch1025 topologies
-arc-switch1025  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1025-t0  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1025-t0-64-32  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
-arc-switch1025-t1  ansible_host=10.210.25.45 sonic_version=v2 sonic_hwsku=ACS-MSN2700 ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=arc-switch1035 dut_mac="7c:fe:90:63:f4:40" serial_console="ssh -l rcon:7024 10.224.2.81" pdu_host=pdu-10-208-0-24
-arc-switch1025-t1-lag  ansible_host=10.210.25.45 sonic_version=v2 sonic_hwsku=ACS-MSN2700 ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=arc-switch1035 dut_mac="7c:fe:90:63:f4:40" serial_console="ssh -l rcon:7024 10.224.2.81" pdu_host=pdu-10-208-0-24
-arc-switch1025-ptf32  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+arc-switch1025  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+arc-switch1025-t0  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+arc-switch1025-t0-56  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+arc-switch1025-t0-64-32  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
+arc-switch1025-t1  ansible_host=10.210.25.45 sonic_version=v2 sonic_hwsku=Mellanox-SN2700-D48C8 ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" fanout_switch=arc-switch1035 dut_mac="7c:fe:90:63:f4:40" serial_console="ssh -l rcon:7024 10.224.2.81" pdu_host=pdu-10-208-0-24
+arc-switch1025-t1-lag  ansible_host=10.210.25.45 sonic_version=v2 sonic_hwsku=Mellanox-SN2700-D48C8 ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" fanout_switch=arc-switch1035 dut_mac="7c:fe:90:63:f4:40" serial_console="ssh -l rcon:7024 10.224.2.81" pdu_host=pdu-10-208-0-24
+arc-switch1025-ptf32  ansible_host=10.210.25.45  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:7024 10.224.2.81" ptf_host=ptf-1025 ptf_portmap="roles/test/files/mlnx/ptf-map/arc-switch1025_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
 
 # MTR testbed r-anaconda-81 topologies
 r-anaconda-81 ansible_host=10.210.24.109  sonic_version=v2  sonic_hwsku=ACS-MSN3700 serial_console="ssh -l rcon:7020 10.224.2.81" ptf_host=ptf-r-anaconda-81 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24
@@ -191,6 +192,7 @@ arc-switch1038-ptf32
 # MTR arc-switch1025 topologies
 arc-switch1025
 arc-switch1025-t0
+arc-switch1025-t0-56
 arc-switch1025-t0-64-32
 arc-switch1025-t1
 arc-switch1025-t1-lag
@@ -337,6 +339,7 @@ arc-switch1038-ptf32
 # MTR arc-switch1025 topologies
 arc-switch1025
 arc-switch1025-t0
+arc-switch1025-t0-56
 arc-switch1025-t0-64-32
 arc-switch1025-t1
 arc-switch1025-t1-lag
