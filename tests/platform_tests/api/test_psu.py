@@ -90,6 +90,7 @@ class TestPsuApi(PlatformApiTestBase):
         self.assert_expectations()
 
     def test_get_model(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
+        skip_version(duthost, ["201811", "201911", "202012"])
         for i in range(self.num_psus):
             model = psu.get_model(platform_api_conn, i)
             if self.expect(model is not None, "Unable to retrieve PSU {} model".format(i)):
@@ -97,6 +98,7 @@ class TestPsuApi(PlatformApiTestBase):
         self.assert_expectations()
 
     def test_get_serial(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
+        skip_version(duthost, ["201811", "201911", "202012"])
         for i in range(self.num_psus):
             serial = psu.get_serial(platform_api_conn, i)
             if self.expect(serial is not None, "Unable to retrieve PSU {} serial number".format(i)):
