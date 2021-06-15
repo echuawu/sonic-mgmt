@@ -34,7 +34,7 @@
         <tout> 4200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]] --raw_args "\'test_sonic.yml -i inventory --limit [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_name=[[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_type=[[conf:extra_info.topology]] -e testcase_name=continuous_reboot -e reboot_type=fast-reboot -e repeat_count=5 -e dump_since=-24hours [[conf:extra_info.verbosity]]\'" </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --raw_args "\'test_sonic.yml -i inventory --limit [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_name=[[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_type=[[conf:extra_info.topology]] -e testcase_name=continuous_reboot -e reboot_type=fast-reboot -e repeat_count=5 -e dump_since=-24hours [[conf:extra_info.verbosity]]\'" </static_args>
              </params>
         </cmd>
 

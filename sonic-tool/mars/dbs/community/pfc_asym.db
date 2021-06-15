@@ -34,7 +34,7 @@
                         <tout> 300 </tout>
                         <params>
                             <exec> ./testbed-cli.sh remove-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
-                            <cmd_workdir> [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
+                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
@@ -44,7 +44,7 @@
                         <tout> 1800 </tout>
                         <params>
                             <exec> ./testbed-cli.sh add-topo [[conf:extra_info.dut_name]]-t0 vault </exec>
-                            <cmd_workdir> [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
+                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
@@ -54,7 +54,7 @@
                         <tout> 1200 </tout>
                         <params>
                             <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-t0 lab vault </exec>
-                            <cmd_workdir> [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
+                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                 </on_failure>
@@ -77,7 +77,7 @@
                         <tout> 300 </tout>
                         <params>
                             <exec> ./testbed-cli.sh remove-topo [[conf:extra_info.dut_name]]-t0 vault </exec>
-                            <cmd_workdir> [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
+                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
@@ -87,7 +87,7 @@
                         <tout> 1800 </tout>
                         <params>
                             <exec> ./testbed-cli.sh add-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
-                            <cmd_workdir> [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
+                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
@@ -97,7 +97,7 @@
                         <tout> 1200 </tout>
                         <params>
                             <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] lab vault </exec>
-                            <cmd_workdir> [[conf:extra_info.sonic_mgmt_workspace]]/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
+                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                 </on_failure>
