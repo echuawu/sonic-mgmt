@@ -22,6 +22,7 @@ import shutil
 import json
 import time
 from multiprocessing.pool import ThreadPool
+from retry.api import retry_call
 
 # Third-party libs
 from fabric import Config
@@ -534,8 +535,8 @@ def main():
     if args.sonic_topo != 'ptf-any':
         generate_minigraph(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                            sonic_topo=args.sonic_topo, port_number=args.port_number)
-        deploy_minigprah(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
-                         sonic_topo=args.sonic_topo, recover_by_reboot=args.recover_by_reboot)
+        retry_call(deploy_minigprah, fargs=[ansible_path, mgmt_docker_engine, args.dut_name, args.sonic_topo,
+ 					    args.recover_by_reboot], tries=3, delay=30, logger=logger)
 
     post_install_check(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                        sonic_topo=args.sonic_topo)
