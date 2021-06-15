@@ -168,12 +168,8 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     logger.info("Try to remove existing docker container anyway")
     conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
 
-    if image_tag == "2018":
-        cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} \
-            --name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} start.sh"
-    else:
-        cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} \
-            --name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
+    cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} \
+        --name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
     cmd = cmd_tmplt.format(
         CONTAINER_MOUNTPOINTS=container_mountpoints,
         CONTAINER_NAME=container_name,
@@ -199,33 +195,6 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     if not configure_docker_route(conn, container_name, container_iface_mac, facts):
         logger.error("Configure docker container failed.")
         sys.exit(1)
-
-
-    logger.info("Install extra packages")
-    if not install_extra_packages(conn, container_name):
-        logger.error("Install extra packages failed.")
-        sys.exit(1)
-
-    logger.info("Add required configuration for installing ver_sdk tool on sonic-mgmt")
-    conn.run('docker exec --user root {CONTAINER_NAME} bash -c "echo \'export PYTHONPATH=\\"/opt/ver_sdk\\":\\"\\$PYTHONPATH\\"\' >> /root/.bashrc"'
-             .format(CONTAINER_NAME=container_name))
-    conn.run('docker exec --user root {CONTAINER_NAME} bash -c "echo \'export PATH=\\"/opt/ver_sdk/bin\\":\\"\\$PATH\\"\' >> /root/.bashrc"'
-             .format(CONTAINER_NAME=container_name))
-
-    if image_tag != "2018":
-        # Some of our Jenkins node are still using old sonic-mgmt image. I added tag "2018" for this old version in
-        # our internal docker registry. The latest sonic-mgmt image is different with the "2018" image:
-        # * By default, root SSH login is disabled.
-        # * The default root password is no longer "12345".
-        # When the sonic-mgmt image is not the "2018" version, we need to enable root SSH login and reset password.
-        logger.info("Extra configuration for root SSH login")
-        conn.run("docker exec {CONTAINER_NAME} bash -c \"sudo "
-                 "sed -i -E 's/^#?PermitRootLogin.*$/PermitRootLogin yes/g' /etc/ssh/sshd_config\""
-                 .format(CONTAINER_NAME=container_name))
-        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo /etc/init.d/ssh restart"'
-                 .format(CONTAINER_NAME=container_name))
-        conn.run("docker exec --user root {CONTAINER_NAME} bash -c \"echo 'root:12345' | chpasswd\""
-                 .format(CONTAINER_NAME=container_name))
 
 
 @retry(Exception, tries=3, delay=10)
@@ -311,27 +280,6 @@ def configure_docker_route(conn, container_name, mac_address, facts):
         return False
 
 
-def install_extra_packages(conn, container_name):
-    """
-    @summary: Install extra packages in the docker container.
-
-    @param conn: Fabric connection to the host server
-    @param container_name: Docker container name to be started
-    @return: Returns True if installation is successful. Otherwise, return False
-    """
-    try:
-        logger.info("Install extra apt packages")
-        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo apt-get update"'.format(CONTAINER_NAME=container_name))
-        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo apt-get install snmp -y"'
-                 .format(CONTAINER_NAME=container_name))
-        logger.info("Installed extra apt packages")
-        return True
-    except UnexpectedExit as e:
-        logger.error("Exception: %s" % repr(e))
-        logger.error("Install extra packages failed")
-        return False
-
-
 def cleanup_dangling_docker_images(test_server):
     """
     @summary:
@@ -365,7 +313,6 @@ def main():
 
     topo = parse_topology(args.topo)
     test_server_device = topo.get_device_by_topology_id(constants.TEST_SERVER_DEVICE_ID)
-
 
     docker_host = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
     mac = docker_host.MAC_ADDRESS
@@ -427,8 +374,9 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.40'}
+    default_list = {'docker-ngts': '1.2.41'}
     return default_list.get(docker_name, latest)
+
 
 if __name__ == "__main__":
     try:
