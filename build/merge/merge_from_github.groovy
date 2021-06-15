@@ -55,7 +55,6 @@ def run_step(name, ci_tools) {
 
         //Add changeID
         ci_tools.run_sh("git commit -C HEAD --amend")
-        ci_tools.run_sh("git rebase --continue")
 
         env.NEW_CHANGES = true
 
