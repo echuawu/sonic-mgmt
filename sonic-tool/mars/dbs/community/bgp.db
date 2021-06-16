@@ -71,4 +71,16 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_traffic_shift.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_allow_list.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_bbr.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_bounce.cases </cases>
+    </test>
+
 </DBDEF>

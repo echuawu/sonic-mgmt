@@ -378,4 +378,37 @@
         </cmd>
     </case>
 
+    <case>
+        <info> Test CPU memory usage Case </info>
+        <name> cpu_memory_usage </name>
+        <tout> 1800 </tout>
+        <cmd>
+             <params>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_cpu_memory_usage.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Test Component Case </info>
+        <name> component </name>
+        <tout> 1800 </tout>
+        <cmd>
+             <params>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_component.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Critical Process Monitoring Case </info>
+        <name> critical_process_monitoring </name>
+        <tout> 1800 </tout>
+        <cmd>
+             <params>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts process_monitoring/test_critical_process_monitoring.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
 </CASEDEF>
