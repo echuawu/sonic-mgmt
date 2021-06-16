@@ -8,6 +8,8 @@ TEST_SERVER_DEVICE_ID = "TEST_SERVER"
 NGTS_DEVICE_ID = "NGTS"
 DUT_DEVICE_ID = "DUT"
 FANOUT_DEVICE_ID = "FANOUT"
+SONIC_MGMT_DIR = '/root/mars/workspace/sonic-mgmt/'
+HTTTP_SERVER_FIT69 = 'fit69.mtl.labs.mlnx'
 
 DOCKER_SONIC_MGMT_IMAGE_NAME = "docker-sonic-mgmt"
 DOCKER_NGTS_IMAGE_NAME = "docker-ngts"
