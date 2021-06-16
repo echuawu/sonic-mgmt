@@ -147,17 +147,19 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
+        allure_proj = self.get_allure_project_id(get_dut_name_only=False)
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
         cmd = "py.test {SCRIPTS} --inventory \"../ansible/inventory, ../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
                --allow_recover \
-               --junit-xml {REPORT_FILE} --assert plain {OPTIONS}"
+               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} --allure_server_project_id {ALLURE_PROJ}"
         cmd = cmd.format(SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
                          SONIC_TOPO=self.sonic_topo,
                          REPORT_FILE=self.report_file,
-                         OPTIONS=self.raw_options)
+                         OPTIONS=self.raw_options,
+                         ALLURE_PROJ=allure_proj)
         # Take the first epoint as just one is specified in *.setup file. Currently supported are: SONIC_MGMT or NGTS
         # Take the first player as just one is specified in *.setup file
         epoint = self.EPoints[0]
@@ -178,6 +180,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         return rc
 
     def run_post_commands(self):
+        self.collect_allure_report_data()
+
         for player in self.Players:
             try:
                 self.Logger.info("Connecting to %s" % player.player_ip)
@@ -199,6 +203,24 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                 self.Logger.error(repr(e))
                 self.Logger.warning("Failed to get junit xml test report %s from remote player" % self.report_file)
         return ErrorCode.SUCCESS
+
+    def get_allure_project_id(self, get_dut_name_only=False):
+        allure_proj = self.dut_name + self.test_scripts.replace('/', '-').replace('_', '-').replace('.', '-')
+        # Example allure_proj: r-panther-13platform-tests-cli-test-show-platform-py
+        if get_dut_name_only:
+            allure_proj = self.dut_name
+        return allure_proj
+
+    def collect_allure_report_data(self):
+        self.Logger.info('Going to upload allure data to server')
+
+        allure_project = self.get_allure_project_id(get_dut_name_only=True)
+        cmd = 'PYTHONPATH=/devts /ngts_venv/bin/python {}/ngts/scripts/allure_reporter.py --action upload --setup_name {}'.format(self.sonic_mgmt_path, allure_project)
+        self.Logger.info('Running cmd: {}'.format(cmd))
+        self.EPoints[0].Player.run_process(cmd, shell=True, disable_realtime_log=False, delete_files=False)
+
+        self.Players[0].wait()
+        self.Logger.info('Finished upload allure data to server')
 
 
 if __name__ == "__main__":

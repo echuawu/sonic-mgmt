@@ -46,6 +46,11 @@ class InfraConst:
     IP = 'ip'
     MASK = 'mask'
 
+    ALLURE_SERVER_IP = '10.215.11.120'
+    ALLURE_SERVER_PORT = '5050'
+    ALLURE_SERVER_URL = 'http://{}:{}'.format(ALLURE_SERVER_IP, ALLURE_SERVER_PORT)
+    ALLURE_REPORT_DIR = '/tmp/allure-results'
+
 
 class LinuxConsts:
     error_exit_code = 1
