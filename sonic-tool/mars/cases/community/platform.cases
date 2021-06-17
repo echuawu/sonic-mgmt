@@ -337,14 +337,14 @@
         The reason is that:
             1. some SFP doesn't support temperature sensor and cause all
             test case failure
-            2. it seems that we don't have a testbed whose SFP all support 
+            2. it seems that we don't have a testbed whose SFP all support
             temperature sensor
-        
+
         Based on this, we have to ignore this case for now.
     -->
 
     <!-- Mellanox platform API only initialize component on host side, but the test
-            case only run on PMON docker, and all test case will be skipped due to 
+            case only run on PMON docker, and all test case will be skipped due to
             component is not initialized.
     -->
 
@@ -384,7 +384,7 @@
         <tout> 1800 </tout>
         <cmd>
              <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_cpu_memory_usage.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_cpu_memory_usage.py </static_args>
              </params>
         </cmd>
     </case>
@@ -395,7 +395,7 @@
         <tout> 1800 </tout>
         <cmd>
              <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_component.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_component.py </static_args>
              </params>
         </cmd>
     </case>
@@ -406,7 +406,7 @@
         <tout> 1800 </tout>
         <cmd>
              <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts process_monitoring/test_critical_process_monitoring.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts process_monitoring/test_critical_process_monitoring.py </static_args>
              </params>
         </cmd>
     </case>
