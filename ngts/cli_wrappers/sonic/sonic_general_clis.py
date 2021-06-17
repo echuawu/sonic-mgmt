@@ -24,6 +24,7 @@ from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+import ngts.helpers.json_file_helper as json_file_helper
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 
 
@@ -59,6 +60,19 @@ class SonicGeneralCli(GeneralCliCommon):
         :param state: state
         """
         engine.run_cmd('sudo config feature state {} {}'.format(feature_name, state), validate=True)
+
+    @staticmethod
+    def disable_enable_feature_state(engine, feature_name, times):
+        """
+        This method to set feature state on the sonic switch
+        :param engine: ssh engine object
+        :param feature_name: the feature name
+        """
+        cmd_list = []
+        for i in range(times):
+            cmd_list.append('sudo config feature state {} disabled'.format(feature_name))
+            cmd_list.append('sudo config feature state {} enabled'.format(feature_name))
+        return engine.run_cmd_set(cmd_list)
 
     @staticmethod
     def get_installer_delimiter(engine):
@@ -498,7 +512,7 @@ class SonicGeneralCli(GeneralCliCommon):
         :return: the name of the updated config_db.json file with BREAKOUT_CFG section
         """
         breakout_cfg_dict = init_config_db_json.get("BREAKOUT_CFG")
-        platform_json_obj = SonicGeneralCli.get_platform_json(dut_engine, cli_object)
+        platform_json_obj = json_file_helper.get_platform_json(dut_engine, cli_object)
         parsed_platform_json_by_breakout_modes = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_obj,
                                                                      parse_by_breakout_modes=True)
         ports_for_update = get_all_split_ports_parents(config_db_json)
@@ -599,26 +613,7 @@ class SonicGeneralCli(GeneralCliCommon):
                         ports_speeds_by_modes_info[port] = get_split_mode_supported_speeds(breakout_modes)
         return ports_speeds_by_modes_info
 
-    @staticmethod
-    def get_platform_json(engine_dut, cli_object):
-        """
-        return a json object of the platform.json file of your setup dut platform
-        :param engine_dut: ssh connection to dut
-        :param cli_object: cli_object of dut
-        :return: a Json Object of the platform.json file, i.e,
-        {'interfaces':
-         {'Ethernet0': {'index': '1,1,1,1',
-                        'lanes': '0,1,2,3',
-                        'breakout_modes': {'1x100G[50G,40G,25G,10G]': ['etp1'],
-                                           '2x50G[40G,25G,10G]': ['etp1a', 'etp1b'],
-                                           '4x25G[10G]': ['etp1a', 'etp1b', 'etp1c', 'etp1d']}}
-         , ...}
-        """
-        platform = cli_object.chassis.get_platform(engine_dut)
-        platform_path = SonicConst.PLATFORM_JSON_PATH.format(PLATFORM=platform)
-        platform_detailed_info_output = engine_dut.run_cmd("cat {}".format(platform_path), print_output=False)
-        platform_json = json.loads(platform_detailed_info_output)
-        return platform_json
+
 
     @staticmethod
     def show_warm_restart_state(dut_engine):

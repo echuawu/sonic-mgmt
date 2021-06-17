@@ -102,7 +102,7 @@ class P4SamplingUtils:
                                                                                                 port_entries, indices,
                                                                                                 chksum_type)
         logger.info("Check the sdk acl value before traffic send for port entry")
-        logger.info(engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'"))
+        engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
         P4SamplingUtils.send_recv_port_table_traffic(topology_obj, port_traffic_params_list, count, expect_count)
         P4SamplingUtils.verify_entry_counter(
             engine,
@@ -131,7 +131,7 @@ class P4SamplingUtils:
                                                                                                    flow_entries,
                                                                                                    indices, chksum_type)
         logger.info("Check the sdk acl value before traffic send for flow entry")
-        logger.info(engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'"))
+        engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
         P4SamplingUtils.send_recv_flow_table_traffic(
             topology_obj, flow_traffic_params_list, count, expect_count)
         P4SamplingUtils.verify_entry_counter(
@@ -154,7 +154,7 @@ class P4SamplingUtils:
         P4SamplingUtils.verify_cli_table_entry(engine, table_name, entries, expected_match)
         # TODO: uncomment it after Redmine ticket #2682842 fixed
         # P4SamplingUtils.verify_p4nspect_table_entry(engine, table_name, entries, expected_match)
-        logger.info(engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'"))
+        engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
 
     @staticmethod
     def verify_cli_table_entry(engine, table_name, entries, expected_match=True):
@@ -275,6 +275,7 @@ class P4SamplingUtils:
         :param expect_count: expect counter
         :return: None
         """
+
         time.sleep(COUNTER_REFRESH_INTERVAL)
         hit_counters = P4SamplingCli.show_and_parse_table_counters(
             engine, table_name)
@@ -359,8 +360,6 @@ class P4SamplingUtils:
         :param expect_count: packets count expect to be received
         :return: None
         """
-        # TODO: due to bug 2652388: params defined in action dose not take effect,
-        #  can not add filter with the params in the action, later need to add it.
         for port_traffic_params in port_traffic_params_list:
             validation_r = {'receivers':
                 [
@@ -382,8 +381,6 @@ class P4SamplingUtils:
         :param expect_count: packets count expect to be received
         :return: None
         """
-        # TODO: due to bug 2652388: params defined in action dose not take effect,
-        #  can not add filter with the params in the action, later need to add it.
         for flow_traffic_params in flow_traffic_params_list:
             validation_r = {'receivers':
                 [

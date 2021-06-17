@@ -1,8 +1,11 @@
 import re
-
+import json
 from ngts.constants.constants import ConfigDbJsonConst
 from ngts.helpers.interface_helpers import get_alias_number, get_speed_in_G_format
-from ngts.tests.nightly.conftest import get_speed_option_by_breakout_modes
+from ngts.tests.nightly.conftest import get_speed_option_by_breakout_modes, get_breakout_port_by_modes
+import ngts.helpers.json_file_helper as json_file_helper
+from ngts.cli_util.cli_constants import SonicConstant
+from ngts.constants.constants import SonicConst
 
 
 def get_breakout_mode_configured_speed(breakout_mode):
@@ -105,3 +108,69 @@ def get_split_mode_supported_breakout_modes(breakout_modes):
             breakout_num, _ = breakout_mode.split("x")
             split_mode_supported_breakout_modes[int(breakout_num)].add(breakout_mode)
     return split_mode_supported_breakout_modes
+
+
+def get_dut_breakout_modes(dut_engine, cli_object):
+    """
+    parsing platform breakout options and config_db.json breakout configuration.
+    :return: a dictionary with available breakout options on all dut ports
+    i.e,
+       { 'Ethernet0' :{'index': ['1', '1', '1', '1'],
+                       'lanes': ['0', '1', '2', '3'],
+                       'alias_at_lanes': ['etp1a', ' etp1b', ' etp1c', ' etp1d'],
+                       'breakout_modes': ['1x200G[100G,50G,40G,25G,10G,1G]',
+                                          '2x100G[50G,40G,25G,10G,1G]',
+                                          '4x50G[40G,25G,10G,1G]'],
+                       'breakout_port_by_modes': {'1x200G[100G,50G,40G,25G,10G,1G]': {'Ethernet0': '200G'},
+                                                  '2x100G[50G,40G,25G,10G,1G]': {'Ethernet0': '100G[',
+                                                                                 'Ethernet2': '100G'},
+                                                  '4x50G[40G,25G,10G,1G]': {'Ethernet0': '50G',
+                                                                            'Ethernet1': '50G',
+                                                                            'Ethernet2': '50G',
+                                                                            'Ethernet3': '50G'}},
+                       'default_breakout_mode': '1x200G[100G,50G,40G,25G,10G,1G]'}, .....}
+
+    """
+    platform_json = json_file_helper.get_platform_json(dut_engine, cli_object)
+    config_db_json = json_file_helper.get_config_db(dut_engine)
+    return parse_platform_json(platform_json, config_db_json)
+
+
+def parse_platform_json(platform_json_obj, config_db_json):
+    """
+    parsing platform breakout options and config_db.json breakout configuration.
+    :param platform_json_obj: a json object of platform.json file
+    :param config_db_json: a json object of config_db.json file
+    :return: a dictionary with available breakout options on all dut ports
+    i.e,
+       { 'Ethernet0' :{'index': ['1', '1', '1', '1'],
+                       'lanes': ['0', '1', '2', '3'],
+                       'alias_at_lanes': ['etp1a', ' etp1b', ' etp1c', ' etp1d'],
+                       'breakout_modes': ['1x200G[100G,50G,40G,25G,10G,1G]',
+                                          '2x100G[50G,40G,25G,10G,1G]',
+                                          '4x50G[40G,25G,10G,1G]'],
+                       'breakout_port_by_modes': {'1x200G[100G,50G,40G,25G,10G,1G]': {'Ethernet0': '200G'},
+                                                  '2x100G[50G,40G,25G,10G,1G]': {'Ethernet0': '100G',
+                                                                                 'Ethernet2': '100G'},
+                                                  '4x50G[40G,25G,10G,1G]': {'Ethernet0': '50G',
+                                                                            'Ethernet1': '50G',
+                                                                            'Ethernet2': '50G',
+                                                                            'Ethernet3': '50G'}},
+                       'default_breakout_mode': '1x200G[100G,50G,40G,25G,10G,1G]'}, .....}
+    """
+    ports_breakout_info = {}
+    breakout_options = SonicConst.BREAKOUT_MODES_REGEX
+    for port_name, port_dict in platform_json_obj["interfaces"].items():
+        parsed_port_dict = dict()
+        parsed_port_dict[SonicConstant.INDEX] = port_dict[SonicConstant.INDEX].split(",")
+        parsed_port_dict[SonicConstant.LANES] = port_dict[SonicConstant.LANES].split(",")
+        breakout_modes = re.findall(breakout_options, ",".join(port_dict[SonicConstant.BREAKOUT_MODES].keys()))
+        parsed_port_dict[SonicConstant.BREAKOUT_MODES] = breakout_modes
+        parsed_port_dict['breakout_port_by_modes'] = get_breakout_port_by_modes(breakout_modes,
+                                                                                parsed_port_dict
+                                                                                [SonicConstant.LANES])
+        parsed_port_dict['speeds_by_modes'] = get_speed_option_by_breakout_modes(breakout_modes)
+        parsed_port_dict['default_breakout_mode'] = \
+            config_db_json[SonicConstant.BREAKOUT_CFG][port_name][SonicConstant.BRKOUT_MODE]
+        ports_breakout_info[port_name] = parsed_port_dict
+    return ports_breakout_info

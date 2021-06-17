@@ -7,6 +7,7 @@ from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import SPC, SPC2_3
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
+import ngts.helpers.json_file_helper as json_file_helper
 
 logger = logging.getLogger()
 
@@ -34,7 +35,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
               ...
               'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
     """
-    platform_json_info = SonicGeneralCli.get_platform_json(engines.dut, cli_objects.dut)
+    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut)
     split_mode_supported_speeds = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_info)
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
