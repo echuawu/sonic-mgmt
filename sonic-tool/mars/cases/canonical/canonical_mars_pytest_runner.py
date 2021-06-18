@@ -32,7 +32,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
         allure_project = self.get_allure_project_id()
 
-        cmd = '/ngts_venv/bin/pytest --setup_name={} {} --allure_server_project_id {} {}'.format(self.setup_name, self.raw_options, allure_project, self.test_script)
+        cmd = '/ngts_venv/bin/pytest --setup_name={} {} --allure_server_project_id={} {}'.format(self.setup_name, self.raw_options, allure_project, self.test_script)
 
         # Use random allure_project for CI runs
         if 'CI' in allure_project:
@@ -56,7 +56,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         else:
             dut_name = '-'.join(self.setup_name.replace('_', '-'))  # Get DUT name in case of CI setup
 
-        allure_proj = dut_name + self.test_script.replace('/', '-').replace('_', '-').replace('.', '-')
+        allure_proj = dut_name + self.test_script.replace('/', '-').replace('_', '-').replace('.', '-').strip('-')
 
         return allure_proj
 
