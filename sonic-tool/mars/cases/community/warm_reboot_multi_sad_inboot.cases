@@ -23,6 +23,7 @@
                 <value> yes </value>
             </condition>
             <bug> 2126499 </bug>
+            <bug> 2694986 </bug>
         </ignore>
 
         <pre>
@@ -36,7 +37,7 @@
 
         <info> Warm_Reboot_Multi_Sad_Inboot Case </info>
         <name> warm_reboot_multi_sad_inboot </name>
-        <tout> 900 </tout>
+        <tout> 3600 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --raw_args "\'test_sonic.yml -i inventory --limit [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_name=[[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_type=[[conf:extra_info.topology]] -e testcase_name=warm-reboot-multi-sad-inboot -e reboot_limit=1 [[conf:extra_info.verbosity]]\'" </static_args>
