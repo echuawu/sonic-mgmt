@@ -10,9 +10,9 @@ r-tigris-22 ansible_host=r-tigris-22  sonic_version=v2  sonic_hwsku=ACS-MSN3800 
 # MTR canonical testbed r-spider-05 topologies
 r-spider-05-ptf-any ansible_host=r-spider-05  sonic_version=v2  sonic_hwsku=ACS-MSN2410             serial_console="ssh -l rcon:7021 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23
 r-spider-05 ansible_host=r-spider-05  sonic_version=v2  sonic_hwsku=ACS-MSN2410             serial_console="ssh -l rcon:7021 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23
-r
+
 # MTR canonical testbed r-panther-simx-23 topologies
--panther-simx-23-ptf-any ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-panther-simx-23-ptf-any ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-panther-simx-23 ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
 # MTR canonical testbed r-panther-simx-18 topologies
@@ -88,8 +88,8 @@ r-liger-02-ptf-any ansible_host=r-liger-02  sonic_version=v2  sonic_hwsku=ACS-MS
 r-liger-02 ansible_host=r-liger-02  sonic_version=v2  sonic_hwsku=ACS-MSN4600             serial_console="ssh -l rcon:7002 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-158
 
 # MTR canonical testbed r-leopard-56 topologies
-r-leopard-56-ptf-any ansible_host=r-leopard-56  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="ssh -l rcon:7003 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host= pdu-10-208-2-33
-r-leopard-56 ansible_host=r-leopard-56  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="ssh -l rcon:7003 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host= pdu-10-208-2-33
+r-leopard-56-ptf-any ansible_host=r-leopard-56  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="ssh -l rcon:7003 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33
+r-leopard-56 ansible_host=r-leopard-56  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="ssh -l rcon:7003 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33
 
 # MTR canonical testbed r-leopard-41 topologies
 r-leopard-41-ptf-any ansible_host=r-leopard-41  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="ssh -l rcon:7043 10.208.0.70" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-158
