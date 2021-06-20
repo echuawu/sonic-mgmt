@@ -32,10 +32,6 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
         cmd = '/ngts_venv/bin/pytest --setup_name={} {} --allure_server_project_id={} {}'.format(self.setup_name, self.raw_options, allure_project, self.test_script)
 
-        # Use random allure_project for CI runs
-        if 'CI' in allure_project:
-            cmd = '/ngts_venv/bin/pytest --setup_name={} {} {}'.format(self.setup_name, self.raw_options, self.test_script)
-
         for epoint in self.EPoints:
             dic_args = self._get_dic_args_by_running_stage(RunningStage.RUN)
             dic_args["epoint"] = epoint

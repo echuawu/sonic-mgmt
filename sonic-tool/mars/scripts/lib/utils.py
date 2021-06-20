@@ -93,8 +93,8 @@ def get_allure_project_id(setup_name, test_script_full_path, get_dut_name_only=F
     else:
         sonic_mgmt_folder_index = test_script_full_path.find('mgmt')
         if sonic_mgmt_folder_index != -1:
-            test_path_rel_mgmt = test_script_full_path[sonic_mgmt_folder_index:]
-        allure_proj = "{}-{}".format(setup_name, test_path_rel_mgmt)
+            test_script_full_path = test_script_full_path[sonic_mgmt_folder_index:]
+        allure_proj = "{}-{}".format(setup_name, test_script_full_path)
 
     allure_proj = allure_proj[:max_length]
     allure_proj = re.sub(non_alphabetic_chars, "-", allure_proj)
