@@ -25,8 +25,8 @@ PORTCHANNEL_NAME = 'PortChannel1111'
 BASE_PKT = 'Ether(dst="{}")/IP(src="50.0.0.2",dst="50.0.0.3")/{}()/Raw()'
 CHIP_LAGS_LIM = {
     'SPC': 64,
-    'SPC2': 128,
-    'SPC3': 128
+    'SPC2': 110,    # TODO SDK support 128, but currently 128 doesn't work
+    'SPC3': 110     # TODO SDK support 128, but currently 128 doesn't work
 }
 CHIP_LAG_MEMBERS_LIM = {
     'SPC': 32,
