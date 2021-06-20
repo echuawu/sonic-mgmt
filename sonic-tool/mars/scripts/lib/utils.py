@@ -4,6 +4,7 @@ Utilities functions
 import logging
 import sys
 import time
+import re
 
 from lib import setup_env
 
@@ -82,3 +83,20 @@ def wait_until(timeout, interval, condition, *args, **kwargs):
     if elapsed_time >= timeout:
         logger.debug("%s is still False after %d seconds, exit with False" % (condition.__name__, timeout))
         return False
+
+
+def get_allure_project_id(setup_name, test_script_full_path, get_dut_name_only=False):
+    max_length = 70
+    non_alphabetic_chars = "[^0-9a-zA-Z]+"
+    if get_dut_name_only:
+        allure_proj = setup_name
+    else:
+        sonic_mgmt_folder_index = test_script_full_path.find('mgmt')
+        if sonic_mgmt_folder_index != -1:
+            test_path_rel_mgmt = test_script_full_path[sonic_mgmt_folder_index:]
+        allure_proj = "{}-{}".format(setup_name, test_path_rel_mgmt)
+
+    allure_proj = allure_proj[:max_length]
+    allure_proj = re.sub(non_alphabetic_chars, "-", allure_proj)
+    allure_proj = allure_proj.strip('-')
+    return allure_proj

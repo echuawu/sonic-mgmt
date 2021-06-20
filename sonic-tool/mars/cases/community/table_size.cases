@@ -10,7 +10,7 @@
         </Test>
         <Case>
             <tags> TABLE_SIZE, RESOURCES </tags>
-            <wrapper> community_mars_pytest_runner.py </wrapper>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
             <tout> 3600 </tout>
         </Case>
     </global>

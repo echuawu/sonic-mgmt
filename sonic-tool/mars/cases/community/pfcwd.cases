@@ -19,7 +19,7 @@
         </Test>
         <Case>
             <tags> PFCWD </tags>
-            <wrapper> community_mars_pytest_runner.py </wrapper>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
             <tout> 10800 </tout>
         </Case>
     </global>

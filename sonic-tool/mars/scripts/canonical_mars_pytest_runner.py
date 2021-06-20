@@ -4,14 +4,12 @@
 import sys
 import os
 
-# Local modules
 from reg2_wrapper.common.error_code import ErrorCode
 from reg2_wrapper.utils.parser.cmd_argument import RunningStage
 from reg2_wrapper.test_wrapper.standalone_wrapper import StandaloneWrapper
 
-sigterm_h_path = os.path.normpath(os.path.join(os.path.split(__file__)[0], "../sig_term_handler"))
-sys.path.append(sigterm_h_path)
-from handler_mixin import TermHandlerMixin
+from sig_term_handler.handler_mixin import TermHandlerMixin
+from lib.utils import get_allure_project_id
 
 
 class RunPytest(TermHandlerMixin, StandaloneWrapper):
@@ -30,7 +28,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
     def run_commands(self):
         rc = ErrorCode.SUCCESS
 
-        allure_project = self.get_allure_project_id()
+        allure_project = get_allure_project_id(self.setup_name, self.test_script)
 
         cmd = '/ngts_venv/bin/pytest --setup_name={} {} --allure_server_project_id={} {}'.format(self.setup_name, self.raw_options, allure_project, self.test_script)
 
@@ -49,16 +47,6 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
             rc = player.wait() or rc
             player.remove_remote_test_path(player.testPath)
         return rc
-
-    def get_allure_project_id(self):
-        if self.setup_name.startswith('sonic'):
-            dut_name = self.setup_name.split('_')[2]  # Get DUT name in case of setup name starts from "sonic"
-        else:
-            dut_name = '-'.join(self.setup_name.replace('_', '-'))  # Get DUT name in case of CI setup
-
-        allure_proj = dut_name + self.test_script.replace('/', '-').replace('_', '-').replace('.', '-').strip('-')
-
-        return allure_proj
 
     def run_post_commands(self):
         self.collect_allure_report_data()

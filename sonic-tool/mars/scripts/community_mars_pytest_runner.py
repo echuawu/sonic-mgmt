@@ -17,9 +17,8 @@ from reg2_wrapper.common.error_code import ErrorCode
 from reg2_wrapper.utils.parser.cmd_argument import RunningStage
 from reg2_wrapper.test_wrapper.standalone_wrapper import StandaloneWrapper
 
-sigterm_h_path = os.path.normpath(os.path.join(os.path.split(__file__)[0], "../sig_term_handler"))
-sys.path.append(sigterm_h_path)
-from handler_mixin import TermHandlerMixin
+from sig_term_handler.handler_mixin import TermHandlerMixin
+from lib.utils import get_allure_project_id
 
 
 class RunPytest(TermHandlerMixin, StandaloneWrapper):
@@ -147,7 +146,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
-        allure_proj = self.get_allure_project_id(get_dut_name_only=False)
+        allure_proj = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=False)
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
         cmd = "py.test {SCRIPTS} --inventory \"../ansible/inventory, ../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
@@ -204,17 +203,11 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                 self.Logger.warning("Failed to get junit xml test report %s from remote player" % self.report_file)
         return ErrorCode.SUCCESS
 
-    def get_allure_project_id(self, get_dut_name_only=False):
-        allure_proj = self.dut_name + self.test_scripts.replace('/', '-').replace('_', '-').replace('.', '-')
-        # Example allure_proj: r-panther-13platform-tests-cli-test-show-platform-py
-        if get_dut_name_only:
-            allure_proj = self.dut_name
-        return allure_proj
 
     def collect_allure_report_data(self):
         self.Logger.info('Going to upload allure data to server')
 
-        allure_project = self.get_allure_project_id(get_dut_name_only=True)
+        allure_project = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=True)
         cmd = 'PYTHONPATH=/devts /ngts_venv/bin/python {}/ngts/scripts/allure_reporter.py --action upload --setup_name {}'.format(self.sonic_mgmt_path, allure_project)
         self.Logger.info('Running cmd: {}'.format(cmd))
         self.EPoints[0].Player.run_process(cmd, shell=True, disable_realtime_log=False, delete_files=False)

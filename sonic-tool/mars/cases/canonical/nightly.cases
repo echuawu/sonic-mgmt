@@ -9,7 +9,7 @@
     </Test>
     <Case>
       <tags> nightly </tags>
-      <wrapper> canonical_mars_pytest_runner.py </wrapper>
+      <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
       <tout> 36000 </tout>
       <tags>ALL</tags>
     </Case>
