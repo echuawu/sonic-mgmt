@@ -111,7 +111,7 @@ class AutonegCommandConstants:
 SPC = {
  '25GBASE-CR': ['10G', '25G'],
  '50GBASE-CR2': ['50G'],
- '40GBASE-CR4': ['40G', '50G'],
+ '40GBASE-CR4': ['40G'],
  '100GBASE-CR4': ['100G'],
  'SR': ['10G', '25G'],
  'SR2': ['50G'],

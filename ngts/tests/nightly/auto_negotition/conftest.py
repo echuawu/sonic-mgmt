@@ -1,13 +1,12 @@
 import logging
 import pytest
-import random
 import os
 import re
+from retry.api import retry_call
 
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import SPC, SPC2_3
-from ngts.tests.nightly.conftest import get_dut_loopbacks, \
-    cleanup
+from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
 
 logger = logging.getLogger()
 
@@ -45,8 +44,9 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     return split_mode_supported_speeds
 
 
-@pytest.fixture(autouse=True, scope='session')
-def tested_lb_dict(topology_obj):
+@pytest.fixture(autouse=True, scope='function')
+def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_speeds,
+                   cable_type_to_speed_capabilities_dict):
     """
     :param topology_obj: topology object fixture
     :return: a dictionary of loopback list for each split mode on the dut
@@ -54,10 +54,56 @@ def tested_lb_dict(topology_obj):
     2: [('Ethernet12', 'Ethernet16')],
     4: [('Ethernet20', 'Ethernet24')]}
     """
-    tested_lb_dict = {1: [random.choice(get_dut_loopbacks(topology_obj))],
+    tested_lb_dict = {1: [],
                       2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])],
                       4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])]}
+    verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict, split_mode_supported_speeds,
+                          cable_type_to_speed_capabilities_dict)
+    split_mode = 1
+    for lb in get_dut_loopbacks(topology_obj):
+        if verify_cable_compliance_info_support_all_speeds(lb, split_mode, interfaces_types_dict, split_mode_supported_speeds,
+                                                            cable_type_to_speed_capabilities_dict):
+            tested_lb_dict[split_mode].append(lb)
+            break
+    if not tested_lb_dict[split_mode]:
+        raise AssertionError("Test cannot run due to incorrect cable info on all dut un split loopbacks")
+
     return tested_lb_dict
+
+
+def verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict, split_mode_supported_speeds,
+                          cable_type_to_speed_capabilities_dict):
+    for split_mode, ports_lb_list in tested_lb_dict.items():
+        for lb in ports_lb_list:
+            if not verify_cable_compliance_info_support_all_speeds(lb, split_mode, interfaces_types_dict,
+                                                                   split_mode_supported_speeds,
+                                                                   cable_type_to_speed_capabilities_dict):
+                raise AssertionError("Test cannot run due to incorrect cable info on loopbacks {}".format(lb))
+
+
+def verify_cable_compliance_info_support_all_speeds(ports_list, split_mode, interfaces_types_dict,
+                                                    split_mode_supported_speeds, cable_type_to_speed_capabilities_dict):
+    supported_speeds_match_res = True
+    for port in ports_list:
+        supported_speeds_by_platform_json = set(split_mode_supported_speeds[port][split_mode])
+        supported_speeds_by_cable_compliance = \
+            get_port_supported_speeds_based_on_cable_compliance_info(port, interfaces_types_dict,
+                                                                     cable_type_to_speed_capabilities_dict)
+        if not supported_speeds_by_platform_json == supported_speeds_by_cable_compliance:
+            logger.warning("Test cannot run due to incorrect cable info: "
+                                 "Port {} supported speeds list is {} but cable compliance "
+                                 "of port on include types {} which support speeds {}."
+                                 .format(port, supported_speeds_by_platform_json, interfaces_types_dict[port],
+                                         supported_speeds_by_cable_compliance))
+            supported_speeds_match_res = False
+    return supported_speeds_match_res
+
+
+def get_port_supported_speeds_based_on_cable_compliance_info(port, interfaces_types_dict, cable_type_to_speed_capabilities_dict):
+    supported_speeds_set = set()
+    for cable_type in interfaces_types_dict[port]:
+        supported_speeds_set.update(set(cable_type_to_speed_capabilities_dict[cable_type]))
+    return supported_speeds_set
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -113,15 +159,21 @@ def cable_type_to_speed_capabilities_dict(engines, cli_objects, chip_type, parse
         types_set.update(interface_type_list)
     for interface_type in types_set:
         if chip_type == "SPC":
+            if interface_type not in SPC:
+                AssertionError("It seems that type {} shouldn't be supported on SPC system, "
+                               "it might be needed to change the cable on this setup".format(interface_type))
             types_dict[interface_type] = SPC[interface_type]
         else:
+            if interface_type not in SPC2_3:
+                AssertionError("Type {} is not updated in SPC2/SPC3 types dictionary, please update type capability"
+                               .format(interface_type))
             types_dict[interface_type] = SPC2_3[interface_type]
     return types_dict
 
 
 @pytest.fixture(autouse=True, scope='session')
 @pytest.mark.usefixtures("ports_aliases_dict")
-def parse_cables_info(engines, cli_objects, ports_aliases_dict):
+def parse_cables_info(topology_obj, engines, cli_objects, ports_aliases_dict):
     """
     :param engines: setup engines fixture
     :param cli_objects: cli objects fixture
@@ -130,7 +182,8 @@ def parse_cables_info(engines, cli_objects, ports_aliases_dict):
              {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...,
               'Ethernet32': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR']}
     """
-    compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
+    compliance_info = retry_call(check_cable_compliance_info_updated_for_all_port, fargs=[topology_obj, engines],
+                                 tries=12, delay=10, logger=logger)
     parse_regex_pattern = r"(Ethernet\d+):.*(\n.*){10}.*:(.*\n.*\n.*)"
     parsed_output_list = re.findall(parse_regex_pattern, compliance_info)
     res = dict()
@@ -139,6 +192,17 @@ def parse_cables_info(engines, cli_objects, ports_aliases_dict):
         res[port_name] = parsed_supported_types
 
     return res
+
+
+def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
+    ports = topology_obj.players_all_ports['dut']
+    logger.info("Verify cable compliance info is updated for all ports")
+    compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
+    for port in ports:
+        if not re.search("{}: SFP EEPROM detected".format(port), compliance_info):
+            raise AssertionError("Cable Information for port {} is not Loaded by"
+                                 " \"show interfaces transceiver eeprom\" cmd".format(port))
+    return compliance_info
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -248,27 +312,6 @@ def get_matched_types(speed_list, types_dict):
     return matched_types
 
 
-@pytest.fixture(autouse=False)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of reboot.
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "negative_auto_neg_log_analyzer_ignores.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-    yield
-    # if loganalyzer:
-    #     ignore_regex_list = \
-    #         loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-    #                                                            "negative_auto_neg_log_analyzer_ignores.txt")))
-    #     for ignore in ignore_regex_list:
-    #         loganalyzer.ignore_regex.remove(ignore)
-
-
 def get_lb_mutual_speed(lb, split_mode, split_mode_supported_speeds):
     """
     :param lb: a tuple of ports connected as loopback ('Ethernet52', 'Ethernet56')
@@ -292,8 +335,8 @@ def convert_speeds_to_kb_format(speeds_list):
     return ",".join(speeds_in_kb_format)
 
 
-@pytest.fixture(autouse=True)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
+@pytest.fixture(autouse=False)
+def ignore_expected_loganalyzer_reboot_exceptions(loganalyzer):
     """
     expanding the ignore list of the loganalyzer for these tests because of reboot.
     :param loganalyzer: loganalyzer utility fixture
@@ -305,3 +348,19 @@ def ignore_expected_loganalyzer_exceptions(loganalyzer):
                                                                "..", "..", "..",
                                                                "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
         loganalyzer.ignore_regex.extend(ignore_regex_list)
+
+
+@pytest.fixture(autouse=False)
+def ignore_auto_neg_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "negative_auto_neg_log_analyzer_ignores.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
+
+

@@ -3,11 +3,30 @@ tests/nightly/app_extension/test_app_extension_upgrade.py:
   Redmine:
     - 2632313
 
-tests/nightly/auto_negotition/test_auto_neg.py::test_interface_with_fec_none:
+tests/nightly/auto_negotition/test_auto_neg.py:
   Platform:
     platforms:
       - simx
 
+tests/nightly/auto_negotition/test_auto_neg_scale.py::test_scale:
+  Platform:
+    platforms:
+      - simx
+  Redmine:
+    - 2686798
+
+tests/nightly/auto_negotition/test_auto_neg_negative.py:
+  Platform:
+    platforms:
+      - simx
+
+tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_config_advertised_types:
+  Redmine:
+    - 2699181
+
+tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_advertised_speed_type_mismatch:
+  Redmine:
+    - 2696717
 
 tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py:
   GitHub:

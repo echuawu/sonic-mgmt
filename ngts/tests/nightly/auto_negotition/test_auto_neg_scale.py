@@ -1,14 +1,14 @@
 import pytest
 import logging
 from ngts.constants.constants import AutonegCommandConstants
-from ngts.tests.nightly.auto_negotition.test_auto_neg import generate_default_conf, configure_port_auto_neg,\
-    configure_ports, verify_auto_neg_configuration
+from ngts.tests.nightly.auto_negotition.test_auto_neg import verify_auto_neg_configuration, configure_ports, \
+    configure_port_auto_neg, generate_default_conf
 from ngts.tests.nightly.conftest import get_dut_loopbacks
+from ngts.tests.nightly.auto_negotition.conftest import verify_tested_lb_dict
 
 logger = logging.getLogger()
 
 
-@pytest.mark.skip(reason="skip until all tests will be approved on final auto neg image")
 def test_scale(topology_obj, engines, cli_objects, tested_lb_all_dict,
                split_mode_supported_speeds, interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list):
     """
@@ -27,7 +27,8 @@ def test_scale(topology_obj, engines, cli_objects, tested_lb_all_dict,
     :param cleanup_list: a list of cleanup functions that should be called in the end of the test
     :return: raise assertion error in case of failure
     """
-    conf = generate_default_conf(tested_lb_all_dict, split_mode_supported_speeds, interfaces_types_dict)
+    conf = generate_default_conf(tested_lb_all_dict, split_mode_supported_speeds, interfaces_types_dict,
+                                 cable_type_to_speed_capabilities_dict)
     ports = topology_obj.players_all_ports['dut']
     dut_conf = dict()
     for port in ports:
@@ -47,6 +48,7 @@ def test_scale(topology_obj, engines, cli_objects, tested_lb_all_dict,
     for port, port_conf_dict in dut_conf.items():
         port_conf_dict[AutonegCommandConstants.SPEED] = dut_conf[port]['expected_speed']
         port_conf_dict[AutonegCommandConstants.TYPE] = dut_conf[port]['expected_type']
+        port_conf_dict[AutonegCommandConstants.WIDTH] = dut_conf[port]['expected_width']
         port_conf_dict[AutonegCommandConstants.OPER] = "up"
         port_conf_dict[AutonegCommandConstants.ADMIN] = "up"
     logger.info("verify speed, type was modified for all ports")
@@ -54,7 +56,8 @@ def test_scale(topology_obj, engines, cli_objects, tested_lb_all_dict,
 
 
 @pytest.fixture(autouse=True, scope='session')
-def tested_lb_all_dict(topology_obj, interfaces):
+def tested_lb_all_dict(topology_obj, interfaces, interfaces_types_dict, split_mode_supported_speeds,
+                       cable_type_to_speed_capabilities_dict):
     """
     This function return a dictionary with all the switch ports for each split mode.
     :param topology_obj: topology fixture object
@@ -83,4 +86,6 @@ def tested_lb_all_dict(topology_obj, interfaces):
     tested_lb_dict[1].append((interfaces.dut_ha_2, interfaces.ha_dut_2))
     tested_lb_dict[1].append((interfaces.dut_hb_1, interfaces.hb_dut_1))
     tested_lb_dict[1].append((interfaces.dut_hb_2, interfaces.hb_dut_2))
+    verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict, split_mode_supported_speeds,
+                          cable_type_to_speed_capabilities_dict)
     return tested_lb_dict
