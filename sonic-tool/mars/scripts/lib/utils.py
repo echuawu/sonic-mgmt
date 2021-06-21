@@ -99,4 +99,5 @@ def get_allure_project_id(setup_name, test_script_full_path, get_dut_name_only=F
     allure_proj = allure_proj[:max_length]
     allure_proj = re.sub(non_alphabetic_chars, "-", allure_proj)
     allure_proj = allure_proj.strip('-')
+    allure_proj = allure_proj.lower()
     return allure_proj
