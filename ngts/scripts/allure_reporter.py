@@ -128,13 +128,12 @@ if __name__ == "__main__":
 
     allure_project_id = setup_name.replace('_', '-')
 
-    if not setup_name.startswith('CI'):
-        try:
-            topology = get_topology_by_setup_name(setup_name, slow_cli=False)
-            dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-            allure_project_id = dut_name
-        except Exception as err:
-            allure_project_id = setup_name
+    try:
+        topology = get_topology_by_setup_name(setup_name, slow_cli=False)
+        dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+        allure_project_id = dut_name
+    except Exception as err:
+        allure_project_id = setup_name
 
     allure_server_base_url = '{}/{}'.format(allure_server_addr, ALLURE_DOCKER_SERVICE)
     if args.action == 'upload':
