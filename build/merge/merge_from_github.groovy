@@ -16,7 +16,7 @@ def run_step(name, ci_tools) {
         }
         ci_tools.run_sh("git remote add upstream ${env.GITHUB_REPOSITORY} && git fetch upstream")
         try {
-            ci_tools.run_sh("git merge upstream/${env.GITHUB_BRANCH}")
+            ci_tools.run_sh("git merge upstream/${env.GITHUB_BRANCH} --no-ff")
         } catch (Throwable ex) {
             print "Merge conflicts were found. Verifying if all conflicts are in 'permitted to override' list."
             def conflict_files = ci_tools.run_sh_return_output("git diff --name-only --diff-filter=U")
