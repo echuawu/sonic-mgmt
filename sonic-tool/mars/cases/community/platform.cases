@@ -372,6 +372,7 @@
                 <op> == </op>
                 <value> "r-leopard-56" </value>
             </condition>
+            <bug> 2700528 </bug>
         </ignore>
         <cmd>
              <params>
@@ -406,6 +407,9 @@
         <info> Critical Process Monitoring Case </info>
         <name> critical_process_monitoring </name>
         <tout> 1800 </tout>
+        <ignore>
+            <bug> 2700493 </bug>
+        </ignore>
         <cmd>
              <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts process_monitoring/test_critical_process_monitoring.py </static_args>
