@@ -16,6 +16,7 @@
             url: "{{ wjh_deb_url }}"
             dest: "{{ tmp_folder }}"
             force: yes
+            timeout: 60
           run_once: True
           delegate_to: localhost
 
