@@ -25,7 +25,6 @@ from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_al
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 
 
 logger = logging.getLogger()
@@ -60,19 +59,6 @@ class SonicGeneralCli(GeneralCliCommon):
         :param state: state
         """
         engine.run_cmd('sudo config feature state {} {}'.format(feature_name, state), validate=True)
-
-    @staticmethod
-    def disable_enable_feature_state(engine, feature_name, times):
-        """
-        This method to set feature state on the sonic switch
-        :param engine: ssh engine object
-        :param feature_name: the feature name
-        """
-        cmd_list = []
-        for i in range(times):
-            cmd_list.append('sudo config feature state {} disabled'.format(feature_name))
-            cmd_list.append('sudo config feature state {} enabled'.format(feature_name))
-        return engine.run_cmd_set(cmd_list)
 
     @staticmethod
     def get_installer_delimiter(engine):
@@ -184,18 +170,19 @@ class SonicGeneralCli(GeneralCliCommon):
             engine.run_cmd('docker ps | grep {}'.format(docker), validate=True)
 
     @staticmethod
-    def check_link_state(engine, ifaces=None):
+    def check_link_state(engine, ifaces=None, expected_status='up'):
         """
         Verify that links in UP state. Default interface is  Ethernet0, this link exist in each Canonical setup
         :param engine: ssh engine object
         :param ifaces: list of interfaces to check
+        :param expected_status: 'up' if expected UP, or 'down' if expected DOWN
         :return: None, raise error in case of unexpected result
         """
         if ifaces is None:
             ifaces = ['Ethernet0']
         with allure.step('Check that link in UP state'):
             retry_call(SonicInterfaceCli.check_ports_status,
-                       fargs=[engine, ifaces],
+                       fargs=[engine, ifaces, expected_status],
                        tries=8,
                        delay=10,
                        logger=logger)

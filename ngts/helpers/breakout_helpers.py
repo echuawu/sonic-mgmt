@@ -174,3 +174,40 @@ def parse_platform_json(platform_json_obj, config_db_json):
             config_db_json[SonicConstant.BREAKOUT_CFG][port_name][SonicConstant.BRKOUT_MODE]
         ports_breakout_info[port_name] = parsed_port_dict
     return ports_breakout_info
+
+
+@staticmethod
+def get_default_breakout_mode(engine_dut, cli_object, port_list):
+    """
+    get the default port breakout mode for port list
+    :param engine_dut: ssh engine object
+    :param cli_object: dut cli object
+    :param port_list:port list
+    :return: dictionary of the breakout mode
+    """
+    ports_breakout_modes = get_dut_breakout_modes(engine_dut, cli_object)
+    default_ports_breakout_conf = {}
+    for port in port_list:
+        default_breakout_mode = ports_breakout_modes[port]['default_breakout_mode']
+        if default_breakout_mode in default_ports_breakout_conf.keys():
+            default_ports_breakout_conf[default_breakout_mode].append(port)
+        else:
+            default_ports_breakout_conf[default_breakout_mode] = [port]
+    return default_ports_breakout_conf
+
+
+@staticmethod
+def get_breakout_mode(engine_dut, cli_object, port_list):
+    """
+    get the breakout mode for port list
+    :param engine_dut: ssh engine object
+    :param cli_object: dut cli object
+    :param port_list:port list
+    :return: dictionary of the breakout mode
+    """
+    breakout_mode = {}
+    port_breakout_modes = get_dut_breakout_modes(engine_dut, cli_object)
+    for port in port_list:
+        supported_breakout_modes = port_breakout_modes[port]['breakout_modes']
+        breakout_mode[port] = supported_breakout_modes[-1]
+    return breakout_mode

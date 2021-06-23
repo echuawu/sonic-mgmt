@@ -205,7 +205,7 @@ class P4SamplingEntryConsts:
 class P4SamplingConsts:
     APP_NAME = 'p4-sampling'
     REPOSITORY = 'urm.nvidia.com/sw-nbu-sws-sonic-docker/p4-sampling'
-    VERSION = '0.1.0-005'
+    VERSION = '0.1.0'
     PORT_TABLE_NAME = 'table-port-sampling'
     FLOW_TABLE_NAME = 'table-flow-sampling'
     ACTION_NAME = 'DoMirror'

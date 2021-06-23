@@ -12,10 +12,7 @@ import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.constants.constants import P4SamplingEntryConsts
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 logger = logging.getLogger()
-SPEED = '10G'
 
 
 # TODO: after add function to install the app in the mars orchestration, need to disable this fixture
@@ -59,21 +56,6 @@ def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engi
     :param interfaces: interfaces fixture
     :param interfaces: clean_p4_entries fixture
     """
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
-                                                                                          interfaces.dut_ha_2,
-                                                                                          interfaces.dut_hb_1,
-                                                                                          interfaces.dut_hb_2])
-    # Interfaces config which will be used in test
-    interfaces_config_dict = {
-        'dut': [{'iface': interfaces.dut_ha_1, 'speed': SPEED,
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_1, SPEED)},
-                {'iface': interfaces.dut_ha_2, 'speed': SPEED,
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, SPEED)},
-                {'iface': interfaces.dut_hb_1, 'speed': SPEED,
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_1, SPEED)},
-                {'iface': interfaces.dut_hb_2, 'speed': SPEED,
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, SPEED)}]
-    }
 
     ip_config_dict = {
         'dut': [{'iface': '{}'.format(interfaces.dut_ha_1), 'ips': [(P4SamplingEntryConsts.dutha1_ip, '24')]},
@@ -96,7 +78,6 @@ def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engi
     }
 
     logger.info('Starting P4 Sampling configuration')
-    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
     logger.info('P4 Sampling Common configuration completed')
@@ -104,7 +85,6 @@ def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engi
     logger.info('Starting P4 Sampling configuration cleanup')
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
     logger.info('P4 Sampling cleanup completed')
 
 

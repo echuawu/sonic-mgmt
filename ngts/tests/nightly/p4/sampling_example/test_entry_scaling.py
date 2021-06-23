@@ -9,9 +9,11 @@ from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.tests.push_build_tests.system.test_cpu_ram_hdd_usage import get_cpu_usage_and_processes
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 import yaml
 import os
 import time
+import re
 
 logger = logging.getLogger()
 CHKSUM_MASK = '0xffff'
@@ -60,12 +62,15 @@ class TestEntryScaling:
             engines.dut, topology_obj.ports['dut-hb-1'])
         port_params = self.generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         flow_params = self.generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
-
+        with allure.step("Enable p4-sampling"):
+            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify cpu and ram usage before the entries added"):
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
         with allure.step("Add {} entries for port table and {} entries for flow table with cli command and "
                          "check execution time".format(count, count)):
             self.add_multiple_entries(engines.dut, port_params, flow_params)
+        # TODO: remove slep after the bug is fixed
+        # 2684913: [Functional] [p4-sampling] | install the p4-sampling, then add entries, then send traffic with script, *IMMEDIATELY WITHOUT ANY DELAY* the traffic can not be mirrored
         time.sleep(10)
 
         with allure.step("Verify cpu and ram usage after the entries added"):
@@ -77,13 +82,12 @@ class TestEntryScaling:
         with allure.step("Save configuration before reboot"):
             self.save_config(engines.dut)
         with allure.step("Do cold reboot and verify the execution time"):
-            self.do_cold_reboot(engines.dut)
+            self.do_cold_reboot(engines.dut, topology_obj)
         with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
             self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
         with allure.step("Remove all entries and verify the execution time"):
             self.remove_all_entries(engines.dut, port_params, flow_params)
-        time.sleep(10)
         with allure.step("Check entries are removed "):
             P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
             P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
@@ -94,7 +98,7 @@ class TestEntryScaling:
         with allure.step("Save configuration before reboot"):
             self.save_config(engines.dut)
         with allure.step("Do cold reboot and verify the execution time after the entries are cleared"):
-            self.do_cold_reboot(engines.dut)
+            self.do_cold_reboot(engines.dut, topology_obj)
 
     @staticmethod
     def generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac):
@@ -248,15 +252,34 @@ class TestEntryScaling:
                 P4SamplingUtils.verify_flow_table_send_recv_traffic(topology_obj, engine, interfaces, flow_entries,
                                                                     indices, pkt_count, pkt_count, 'match')
 
-    @staticmethod
-    def do_cold_reboot(engine):
+    def do_cold_reboot(self, engine_dut, topology_obj):
         start_time = datetime.now()
-        engine.reload(['sudo reboot'])
+        SonicGeneralCli.reboot_flow(engine_dut, 'reboot', topology_obj=topology_obj)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))
-        # TODO: this is a bug for the image, after the reboot, need to wait for 180 sec to p4-sampling is up
-        time.sleep(180)
+        # TODO: this is a bug for the image, after the reboot, need to wait for 180 secs before install p4-sampling
+        self.wait_until_dut_ready(engine_dut)
+
+    def wait_until_dut_ready(self, engine_dut):
+        uptime = self.get_uptime(engine_dut)
+        # to avoid dead loop
+        i = 1
+        while uptime < 3 and i < 18:
+            time.sleep(10)
+            i += 1
+            uptime = self.get_uptime(engine_dut)
+
+    @staticmethod
+    def get_uptime(engine_dut):
+        reg = r'(.+)(up.+\d+)(\D*,)(.+)(,)(.+)(,)(.+)(,)(.+)'
+        uptime_ret = engine_dut.run_cmd('uptime')
+        uptime = re.match(reg, uptime_ret).group(2).split()[1]
+        uptime_arr = uptime.split(':')
+        if len(uptime_arr) == 2:
+            return int(uptime_arr[0]) * 60 + int(uptime_arr[1])
+        else:
+            return int(uptime_arr[0])
 
     @staticmethod
     def save_config(engine):
