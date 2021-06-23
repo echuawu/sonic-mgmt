@@ -164,6 +164,21 @@ class TestEntryTraffic:
             self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
             self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
 
+    @allure.title('Test upgrade and downgrade p4-sampling app')
+    def test_upgrade_p4_sampling(self, engines, table_params, topology_obj, interfaces):
+        current_version = SonicAppExtensionCli.get_installed_app_version(engines.dut, P4SamplingConsts.APP_NAME)
+        with allure.step('Upgrade p4-sampling from version {} to version: {}'.format(current_version,
+                                                                                     P4SamplingConsts.UPGRADE_TARGET_VERSION)):
+            SonicAppExtensionCli.upgrade_app(engines.dut, P4SamplingConsts.APP_NAME,
+                                             P4SamplingConsts.UPGRADE_TARGET_VERSION, True)
+        with allure.step('Run basic test after upgrade to version {}'.format(P4SamplingConsts.UPGRADE_TARGET_VERSION)):
+            self.run_p4_smapling_basic_test(engines, table_params, topology_obj, interfaces)
+        with allure.step('Upgrade p4-sampling from version {} to version: {}'.format(P4SamplingConsts.UPGRADE_TARGET_VERSION,
+                                                                                     current_version)):
+            SonicAppExtensionCli.upgrade_app(engines.dut, P4SamplingConsts.APP_NAME, current_version, True)
+        with allure.step('Run basic test after upgrade to version {}'.format(current_version)):
+            self.run_p4_smapling_basic_test(engines, table_params, topology_obj, interfaces)
+
     @staticmethod
     def get_ingress_ports(indices, port_entries):
         """
@@ -359,3 +374,38 @@ class TestEntryTraffic:
             cmd_list.append('sudo config feature state {} disabled'.format(feature_name))
             cmd_list.append('sudo config feature state {} enabled'.format(feature_name))
         return engine.run_cmd_set(cmd_list)
+
+    @staticmethod
+    def run_p4_smapling_basic_test(engines, table_params, topology_obj, interfaces):
+        """
+        run basic p4_sampling test
+        :param engines: engines fixture object
+        :param table_params: table_params fixture object
+        :param topology_obj: topology_obj fixture object
+        :param interfaces: interfaces fixture object
+        """
+
+        with allure.step('Get entries in table {} and {}, verify the entries are added correctly'.format(
+                P4SamplingConsts.PORT_TABLE_NAME, P4SamplingConsts.FLOW_TABLE_NAME)):
+            with allure.step('Verify the entries are added for {}'.format(P4SamplingConsts.PORT_TABLE_NAME)):
+                P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.PORT_TABLE_NAME,
+                                                   table_params.port_entry)
+            with allure.step('Verify the entries are added for {}'.format(P4SamplingConsts.FLOW_TABLE_NAME)):
+                P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME,
+                                                   table_params.flow_entry)
+
+        with allure.step("Verify the the packet that match entry key can be counted and mirrored"):
+            with allure.step("Clear statistics and counters"):
+                P4SamplingUtils.clear_statistics(engines.dut)
+            with allure.step("Send packets and verify"):
+                count = 20
+                P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, count, count)
+
+        with allure.step("Verifying that the packet that does not match entry key will not be counted"):
+            with allure.step("Clear statistics and counters"):
+                P4SamplingUtils.clear_statistics(engines.dut)
+            with allure.step("Send packets and verify"):
+                count = 20
+                expect_count = 0
+                P4SamplingUtils.verify_traffic_miss(topology_obj, engines, interfaces, table_params, count,
+                                                    expect_count)

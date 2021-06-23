@@ -81,18 +81,25 @@ class SonicAppExtensionCli:
         engine.run_cmd("sudo spm install -y --from-tarball {}".format(tarball_name), validate=True)
 
     @staticmethod
-    def upgrade_app(engine, app_name: str, version: str, is_force_upgrade: bool = False, validate: bool = True) -> str:
+    def upgrade_app(engine, app_name: str, version: str, is_force_upgrade: bool = False, validate: bool = True,
+                    allow_downgrade: bool = False) -> str:
         """
         Upgrade app with specified version from repo:
         :param engine: ssh engine object
         :param app_name: app name
         :param version:  app package version
+        :param allow_downgrade: allow downgrade, True is allow downgrade, False is not allow
         Return output from command
         """
+        allow_downgrade_option = "--allow-downgrade" if allow_downgrade else ""
         if is_force_upgrade:
-            output = engine.run_cmd("sudo sudo spm install -y -f {}={}".format(app_name, version), validate=validate)
+            output = engine.run_cmd("sudo sudo spm install -y -f {}={} {}".format(app_name, version,
+                                                                                  allow_downgrade_option),
+                                    validate=validate)
         else:
-            output = engine.run_cmd("sudo sudo spm install -y {}={}".format(app_name, version), validate=validate)
+            output = engine.run_cmd("sudo sudo spm install -y {}={} {}".format(app_name, version,
+                                                                               allow_downgrade_option),
+                                    validate=validate)
 
         return output
 
@@ -154,3 +161,15 @@ class SonicAppExtensionCli:
             return True
         else:
             return False
+
+    @staticmethod
+    def get_installed_app_version(engine_dut, app_name):
+        """
+        get the installed app version
+        :param engine_dut: ssh engine object
+        :param app_name: app name
+        :return: the installed app version
+        """
+        apps_dict = SonicAppExtensionCli.parse_app_package_list_dict(engine_dut)
+        app_dict = apps_dict[app_name]
+        return app_dict['Version']
