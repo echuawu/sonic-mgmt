@@ -63,17 +63,18 @@ def test_auto_neg(topology_obj, engines, cli_objects, tested_lb_dict,
         logger.info("Enable auto-negotiation with default settings and"
                     " validate speed/type configuration is as expected.")
         auto_neg_checker(topology_obj, engines.dut, cli_objects.dut, tested_lb_dict, conf,
-                         cable_type_to_speed_capabilities_dict, cleanup_list)
+                         cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list)
         configure_port_auto_neg(engines.dut, cli_objects.dut, conf.keys(), conf, cleanup_list, mode='disabled')
 
     with allure.step("Check custom auto neg configuration"):
-        conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, cable_type_to_speed_capabilities_dict)
+        conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds,
+                                    cable_type_to_speed_capabilities_dict, interfaces_types_dict)
         logger.info("Checking custom configuration: {}".format(conf))
         conf_backup = deepcopy(conf)
         logger.info("Enable auto-negotiation with custom settings and "
                     "validate speed/type configuration is as expected.")
         auto_neg_checker(topology_obj, engines.dut, cli_objects.dut, tested_lb_dict, conf,
-                         cable_type_to_speed_capabilities_dict, cleanup_list, set_cleanup=False)
+                         cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list, set_cleanup=False)
 
     with allure.step("Randomly reboot/reload"):
         reboot_reload_random(engines.dut, cli_objects.dut, conf.keys(), cleanup_list)
@@ -114,24 +115,27 @@ def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
     with allure.step("Generate configurations for test"):
         def_conf = generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interfaces_types_dict,
                                          cable_type_to_speed_capabilities_dict)
-        sub_conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, cable_type_to_speed_capabilities_dict)
-        modify_subset_conf_for_toggle_peer(interfaces.dut_ha_1, sub_conf, cable_type_to_speed_capabilities_dict)
+        sub_conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds,
+                                        cable_type_to_speed_capabilities_dict, interfaces_types_dict)
+        modify_subset_conf_for_toggle_peer(interfaces.dut_ha_1, sub_conf, interfaces_types_dict,
+                                           cable_type_to_speed_capabilities_dict)
 
     with allure.step("Set ip configuration for future traffic validations"):
         set_peer_port_ip_conf(topology_obj, interfaces, cleanup_list)
 
     with allure.step("Check default configuration"):
         logger.info("Checking default configuration: {}".format(def_conf))
-        auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, def_conf, interfaces,
+        auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, def_conf, interfaces, interfaces_types_dict,
                                      cable_type_to_speed_capabilities_dict, cleanup_list)
 
     with allure.step("Check custom configuration"):
         logger.info("Checking custom configuration: {}".format(sub_conf))
-        auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, sub_conf, interfaces,
+        auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, sub_conf, interfaces, interfaces_types_dict,
                                      cable_type_to_speed_capabilities_dict, cleanup_list)
 
 
-def modify_subset_conf_for_toggle_peer(dut_peer_port, sub_conf, cable_type_to_speed_capabilities_dict):
+def modify_subset_conf_for_toggle_peer(dut_peer_port, sub_conf, interfaces_types_dict,
+                                       cable_type_to_speed_capabilities_dict):
     """
     This function modify the subset configuration because in order to
     configure adv-speed on a linux port the only configuration is with hex values,
@@ -165,7 +169,8 @@ def modify_subset_conf_for_toggle_peer(dut_peer_port, sub_conf, cable_type_to_sp
     peer_port_speed = max(sub_conf[dut_peer_port][AutonegCommandConstants.ADV_SPEED].split(','),
                           key=lambda speed_as_str: int(speed_as_str))
     expected_speed = "{}G".format(int(int(peer_port_speed)/1000))
-    interface_type = get_matched_types([expected_speed], cable_type_to_speed_capabilities_dict).pop()
+    interface_type = get_matched_types(dut_peer_port, [expected_speed], interfaces_types_dict,
+                                       cable_type_to_speed_capabilities_dict).pop()
     cable_type = get_interface_cable_type(interface_type)
     width = get_interface_cable_width(interface_type)
     for port, port_conf_dict in sub_conf.items():
@@ -246,12 +251,14 @@ def get_speeds_in_Gb_str_format(speeds_list):
     return ",".join(speeds_in_str_format)
 
 
-def generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, types_dict):
+def generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, types_dict, interfaces_types_dict):
     """
     :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
     :param split_mode_supported_speeds: a dictionary with available
     breakout options on all setup ports (including host ports)
     :param types_dict: a dictionary of supported speed by type based on dut chip type
+    :param interfaces_types_dict: a dictionary of port supported types based on the port cable number
+    and split mode including host ports i.e, {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...}
     :return: a dictionary of the port auto negotiation custom configuration and expected outcome
     {'Ethernet4': {'Auto-Neg Mode': 'disabled',
                    'Speed': '10G',
@@ -284,15 +291,16 @@ def generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, types_dict
                 all_adv_speeds = []
                 all_adv_types = []
                 for port in lb:
-                    adv_speeds = set(random.choices(lb_mutual_speeds, k=random.choice(range(1, len(lb_mutual_speeds)+1))))
+                    adv_speeds = set(random.choices(lb_mutual_speeds,
+                                                    k=random.choice(range(1, len(lb_mutual_speeds)+1))))
                     if mutual_speed_in_subset not in adv_speeds:
                         adv_speeds.add(mutual_speed_in_subset)
-                    adv_types = get_matched_types(adv_speeds, types_dict)
+                    adv_types = get_matched_types(port, adv_speeds, interfaces_types_dict, types_dict)
                     all_adv_speeds.append(adv_speeds)
                     all_adv_types.append(adv_types)
                     speed = mutual_speed_in_subset
                     adv_speeds = convert_speeds_to_kb_format(adv_speeds)
-                    interface_type = get_matched_types([speed], types_dict).pop()
+                    interface_type = get_matched_types(port, [speed], interfaces_types_dict, types_dict).pop()
                     cable_type = get_interface_cable_type(interface_type)
                     width = get_interface_cable_width(interface_type)
                     conf[port] = build_custom_conf(speed, adv_speeds, cable_type, adv_types, width)
@@ -331,9 +339,10 @@ def update_custom_expected_conf(conf, lb, expected_speed, expected_type, expecte
     return conf
 
 
-def get_default_expected_conf_res(lb_mutual_speeds, cable_type_to_speed_capabilities_dict):
+def get_default_expected_conf_res(lb, lb_mutual_speeds, cable_type_to_speed_capabilities_dict, interfaces_types_dict):
     expected_speed = max(lb_mutual_speeds, key=speed_string_to_int)
-    expected_interface_type = get_matched_types([expected_speed], cable_type_to_speed_capabilities_dict).pop()
+    expected_interface_type = get_matched_types(lb[0], [expected_speed], interfaces_types_dict,
+                                                cable_type_to_speed_capabilities_dict).pop()
     expected_type = get_interface_cable_type(expected_interface_type)
     expected_width = get_interface_cable_width(expected_interface_type)
     return expected_speed, expected_interface_type, expected_type, expected_width
@@ -476,17 +485,18 @@ def compare_advertised_types(expected_adv_type, actual_adv_type):
 
 
 def set_speed_type_cleanup(port, engine, cli_object, base_interfaces_speeds,
-                           cable_type_to_speed_capabilities_dict, cleanup_list):
+                           cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list):
     base_speed = base_interfaces_speeds[port]
-    base_type = get_port_base_type(base_speed, cable_type_to_speed_capabilities_dict)
+    base_type = get_port_base_type(port, base_speed, interfaces_types_dict, cable_type_to_speed_capabilities_dict)
     cleanup_list.append((cli_object.interface.set_interface_speed, (engine, port, base_speed)))
     cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, base_type)))
     cleanup_list.append((cli_object.interface.config_advertised_speeds, (engine, port, 'all')))
     cleanup_list.append((cli_object.interface.config_advertised_interface_types, (engine, port, 'all')))
 
 
-def get_port_base_type(base_speed, cable_type_to_speed_capabilities_dict):
-    base_speed_matched_type_list = get_matched_types([base_speed], cable_type_to_speed_capabilities_dict)
+def get_port_base_type(port, base_speed, interfaces_types_dict, cable_type_to_speed_capabilities_dict):
+    base_speed_matched_type_list = get_matched_types(port, [base_speed], interfaces_types_dict,
+                                                     cable_type_to_speed_capabilities_dict)
     if not base_speed_matched_type_list:
         raise AssertionError("Couldn't match type to speed {}, base on \"show interfaces transceiver eeprom\" "
                              "the cable types supported are {}".format(base_speed,
@@ -495,7 +505,8 @@ def get_port_base_type(base_speed, cable_type_to_speed_capabilities_dict):
     return base_type
 
 
-def auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, conf, interfaces, cable_type_to_speed_capabilities_dict, cleanup_list):
+def auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, conf, interfaces,
+                                 interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list):
     """
 
     :param topology_obj: topology object fixture
@@ -505,6 +516,8 @@ def auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, conf, inter
     :param interfaces: dut <-> hosts interfaces fixture
     breakout options on all setup ports (including host ports)
     the port cable number and split mode including host port
+    :param interfaces_types_dict: a dictionary of port supported types based on the port cable number
+    and split mode including host ports i.e, {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...}
     :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
     :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
     :return: raise assertion error in case of failure
@@ -516,7 +529,7 @@ def auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, conf, inter
                                                              tries=4, delay=10, logger=logger)
     disable_auto_neg_on_peer_ports(engines, cli_objects, interfaces, conf, cleanup_list)
     configure_peer_ports(engines, cli_objects, conf, interfaces, dut_interfaces_speeds, ha_interfaces_speeds,
-                         cable_type_to_speed_capabilities_dict, cleanup_list)
+                         interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list)
     toggle_port(engines.dut, cli_objects.dut, interfaces.dut_ha_1, cleanup_list)
     logger.info("Enable auto-negotiation on dut interface {}".format(interfaces.dut_ha_1))
     configure_port_auto_neg(engines.dut, cli_objects.dut, ports_list=[interfaces.dut_ha_1], conf=conf,
@@ -554,16 +567,18 @@ def disable_auto_neg_on_peer_ports(engines, cli_objects, interfaces, conf, clean
 
 
 def configure_peer_ports(engines, cli_objects, conf, interfaces, dut_interfaces_speeds, ha_interfaces_speeds,
-                         cable_type_to_speed_capabilities_dict, cleanup_list):
+                         interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list):
     logger.info("Configure auto negotiation on dut port {}".format(interfaces.dut_ha_1))
     configure_ports(engines.dut, cli_objects.dut, conf={interfaces.dut_ha_1: conf[interfaces.dut_ha_1]},
                     base_interfaces_speeds=dut_interfaces_speeds,
                     cable_type_to_speed_capabilities_dict=cable_type_to_speed_capabilities_dict,
+                    interfaces_types_dict=interfaces_types_dict,
                     cleanup_list=cleanup_list)
     logger.info("Configure auto negotiation on host port {}".format(interfaces.ha_dut_1))
     configure_ports(engines.ha, cli_objects.ha, conf={interfaces.ha_dut_1: conf[interfaces.ha_dut_1]},
                     base_interfaces_speeds=ha_interfaces_speeds,
                     cable_type_to_speed_capabilities_dict=cable_type_to_speed_capabilities_dict,
+                    interfaces_types_dict=interfaces_types_dict,
                     cleanup_list=cleanup_list)
 
 
@@ -571,35 +586,6 @@ def toggle_port(engine, cli_object, port, cleanup_list):
     logger.info("Toggle port: {}".format(port))
     disable_interface(engine, cli_object, port, cleanup_list)
     cli_object.interface.enable_interface(engine, port)
-
-
-def configure_dut_peer_ports(engines, cli_objects, conf, interfaces, cable_type_to_speed_capabilities_dict, cleanup_list):
-    """
-    :param engines: setup engines fixture
-    :param cli_objects: cli objects fixture
-    :param conf: the auto negotiation configuration dictionary to be tested
-    :param interfaces: dut <-> hosts interfaces fixture
-    breakout options on all setup ports (including host ports)
-    the port cable number and split mode including host port
-    :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
-    :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
-    :return: raise assertion error in case of failure
-    """
-    logger.info("Get base speed settings on ports: {}".format([interfaces.dut_ha_1, interfaces.ha_dut_1]))
-    dut_interfaces_speeds = \
-        cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=[interfaces.dut_ha_1])
-    ha_interfaces_speeds = \
-        cli_objects.ha.interface.get_interfaces_speed(engines.ha, interfaces_list=[interfaces.ha_dut_1])
-    logger.info("Configure auto negotiation on dut port {}".format(interfaces.dut_ha_1))
-    configure_ports(engines.dut, cli_objects.dut, conf={interfaces.dut_ha_1: conf[interfaces.dut_ha_1]},
-                    base_interfaces_speeds=dut_interfaces_speeds,
-                    cable_type_to_speed_capabilities_dict=cable_type_to_speed_capabilities_dict,
-                    cleanup_list=cleanup_list)
-    logger.info("Configure auto negotiation on host port {}".format(interfaces.ha_dut_1))
-    configure_ports(engines.ha, cli_objects.ha, conf={interfaces.ha_dut_1: conf[interfaces.ha_dut_1]},
-                    base_interfaces_speeds=ha_interfaces_speeds,
-                    cable_type_to_speed_capabilities_dict=cable_type_to_speed_capabilities_dict,
-                    cleanup_list=cleanup_list)
 
 
 def set_peer_port_ip_conf(topology_obj, interfaces, cleanup_list):
@@ -646,7 +632,7 @@ def disable_interface(engine, cli_object, interface, cleanup_list):
 
 
 def auto_neg_checker(topology_obj, dut_engine, cli_object, tested_lb_dict, conf,
-                     cable_type_to_speed_capabilities_dict, cleanup_list, set_cleanup=True):
+                     cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list, set_cleanup=True):
     """
     The function does as following:
      1) Configure the auto negotiation configuration on ports(speed, type, advertised speeds, advertised types)
@@ -663,6 +649,8 @@ def auto_neg_checker(topology_obj, dut_engine, cli_object, tested_lb_dict, conf,
     :param tested_lb_dict:  a dictionary of loopback list for each split mode on the dut
     :param conf: a dictionary of the port auto negotiation configuration and expected outcome
     :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
+    :param interfaces_types_dict: a dictionary of port supported types based on the port cable number
+    and split mode including host ports i.e, {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...}
     :param cleanup_list: a list of cleanup functions that should be called in the end of the test
     :param set_cleanup:  if True, add cleanup to cleanup list
     :return: raise a assertion error in case validation failed
@@ -671,7 +659,8 @@ def auto_neg_checker(topology_obj, dut_engine, cli_object, tested_lb_dict, conf,
         lb_ports_1_list, lb_ports_2_list = get_loopback_first_second_ports_lists(tested_lb_dict)
         base_interfaces_speeds = cli_object.interface.get_interfaces_speed(dut_engine, interfaces_list=conf.keys())
         logger.info("Configure auto negotiation configuration on ports(speed,type,advertised speeds,advertised types)")
-        configure_ports(dut_engine, cli_object, conf, base_interfaces_speeds, cable_type_to_speed_capabilities_dict,
+        configure_ports(dut_engine, cli_object, conf, base_interfaces_speeds,
+                        cable_type_to_speed_capabilities_dict, interfaces_types_dict,
                         cleanup_list, set_cleanup=set_cleanup)
         logger.info("Enable auto negotiation mode on the first port of the loopbacks")
         configure_port_auto_neg(dut_engine, cli_object, lb_ports_1_list, conf, cleanup_list)
@@ -702,7 +691,7 @@ def get_types_in_string_format(types_list):
     :param types_list: a list/set of types, i.e, {'25GBASE-CR', '40GBASE-CR4'}
     :return: return a string of types configuration in string list format, i.e,'CR,CR4'
     """
-    types_in_str_format = list(set(map(lambda type: get_interface_cable_type(type), types_list)))
+    types_in_str_format = list(set(map(lambda interface_type: get_interface_cable_type(interface_type), types_list)))
     return ",".join(types_in_str_format)
 
 
@@ -715,7 +704,7 @@ def get_speed_from_cable_type(interface_type):
 
 
 def configure_ports(engine, cli_object, conf, base_interfaces_speeds, cable_type_to_speed_capabilities_dict,
-                    cleanup_list, set_cleanup=True):
+                    interfaces_types_dict, cleanup_list, set_cleanup=True):
     """
     configure the ports speed, advertised speed, type and advertised type based on conf dictionary
 
@@ -724,16 +713,18 @@ def configure_ports(engine, cli_object, conf, base_interfaces_speeds, cable_type
     :param conf: a dictionary of the port auto negotiation default configuration and expected outcome
     :param base_interfaces_speeds: base speed on the ports before test configuration
     :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
+    :param interfaces_types_dict: a dictionary of port supported types based on the port cable number
+    and split mode including host ports i.e, {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...}
     :param cleanup_list: a list of cleanup functions that should be called in the end of the test
     :param set_cleanup: if True, add cleanup to cleanup list
     :return: none
     """
     with allure.step('Configuring speed, advertised speed, type and advertised type on ports: {}'
-                             .format(list(conf.keys()))):
+                     .format(list(conf.keys()))):
         for port, port_conf_dict in conf.items():
             if set_cleanup:
                 set_speed_type_cleanup(port, engine, cli_object, base_interfaces_speeds,
-                                       cable_type_to_speed_capabilities_dict, cleanup_list)
+                                       cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list)
             logger.info("Configure speed on {}".format(port))
             cli_object.interface.\
                 set_interface_speed(engine, port, port_conf_dict[AutonegCommandConstants.SPEED])
@@ -779,6 +770,7 @@ def generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interface
     breakout options on all setup ports (including host ports)
     :param interfaces_types_dict: a dictionary of port supported types based on
     the port cable number and split mode including host port
+    :param cable_type_to_speed_capabilities_dict: a dictionary of supported speed by type based on dut chip type
     :return: a dictionary of the port auto negotiation default configuration and expected outcome
     {'Ethernet52': {'Auto-Neg Mode': 'disabled',
     'Speed': '10G',
@@ -801,7 +793,8 @@ def generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interface
                 min_type = get_interface_cable_type(interface_type)
                 width = get_interface_cable_width(interface_type)
                 expected_speed, expected_interface_type, expected_type, expected_width = \
-                    get_default_expected_conf_res(lb_mutual_speeds, cable_type_to_speed_capabilities_dict)
+                    get_default_expected_conf_res(lb, lb_mutual_speeds, cable_type_to_speed_capabilities_dict,
+                                                  interfaces_types_dict)
                 for port in lb:
                     conf[port] = build_default_conf(min_speed, min_type, width,
                                                     expected_speed, expected_type, expected_width)

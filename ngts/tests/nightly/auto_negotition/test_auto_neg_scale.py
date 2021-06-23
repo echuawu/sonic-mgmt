@@ -40,7 +40,7 @@ def test_scale(topology_obj, engines, cli_objects, tested_lb_all_dict,
     base_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=ports)
     logger.info("configure the smallest speed/type and configure all advertised speeds/types on all interfaces")
     configure_ports(engines.dut, cli_objects.dut, dut_conf, base_interfaces_speeds,
-                    cable_type_to_speed_capabilities_dict, cleanup_list)
+                    cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list)
     logger.info("Check auto negotiation was configured correctly")
     verify_auto_neg_configuration(engines.dut, cli_objects.dut, dut_conf)
     logger.info("Set auto negotiation mode to enabled on all ports")

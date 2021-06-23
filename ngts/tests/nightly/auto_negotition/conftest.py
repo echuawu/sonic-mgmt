@@ -62,8 +62,9 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
                           cable_type_to_speed_capabilities_dict)
     split_mode = 1
     for lb in get_dut_loopbacks(topology_obj):
-        if verify_cable_compliance_info_support_all_speeds(lb, split_mode, interfaces_types_dict, split_mode_supported_speeds,
-                                                            cable_type_to_speed_capabilities_dict):
+        if verify_cable_compliance_info_support_all_speeds(lb, split_mode, interfaces_types_dict,
+                                                           split_mode_supported_speeds,
+                                                           cable_type_to_speed_capabilities_dict):
             tested_lb_dict[split_mode].append(lb)
             break
     if not tested_lb_dict[split_mode]:
@@ -92,15 +93,16 @@ def verify_cable_compliance_info_support_all_speeds(ports_list, split_mode, inte
                                                                      cable_type_to_speed_capabilities_dict)
         if not supported_speeds_by_platform_json == supported_speeds_by_cable_compliance:
             logger.warning("Test cannot run due to incorrect cable info: "
-                                 "Port {} supported speeds list is {} but cable compliance "
-                                 "of port on include types {} which support speeds {}."
-                                 .format(port, supported_speeds_by_platform_json, interfaces_types_dict[port],
-                                         supported_speeds_by_cable_compliance))
+                           "Port {} supported speeds list is {} but cable compliance "
+                           "of port on include types {} which support speeds {}."
+                           .format(port, supported_speeds_by_platform_json, interfaces_types_dict[port],
+                                   supported_speeds_by_cable_compliance))
             supported_speeds_match_res = False
     return supported_speeds_match_res
 
 
-def get_port_supported_speeds_based_on_cable_compliance_info(port, interfaces_types_dict, cable_type_to_speed_capabilities_dict):
+def get_port_supported_speeds_based_on_cable_compliance_info(port, interfaces_types_dict,
+                                                             cable_type_to_speed_capabilities_dict):
     supported_speeds_set = set()
     for cable_type in interfaces_types_dict[port]:
         supported_speeds_set.update(set(cable_type_to_speed_capabilities_dict[cable_type]))
@@ -176,6 +178,7 @@ def cable_type_to_speed_capabilities_dict(engines, cli_objects, chip_type, parse
 @pytest.mark.usefixtures("ports_aliases_dict")
 def parse_cables_info(topology_obj, engines, cli_objects, ports_aliases_dict):
     """
+    :param topology_obj: topology_obj fixture
     :param engines: setup engines fixture
     :param cli_objects: cli objects fixture
     :param ports_aliases_dict: a dictionary of the port and it's sonic alias on the dut
@@ -190,9 +193,16 @@ def parse_cables_info(topology_obj, engines, cli_objects, ports_aliases_dict):
     res = dict()
     for port_name, _, supported_types in parsed_output_list:
         parsed_supported_types = re.findall(r"(\d+G*BASE-\w+\d*)", supported_types)
+        remove_cx_type(parsed_supported_types)
         res[port_name] = parsed_supported_types
 
     return res
+
+
+def remove_cx_type(parsed_supported_types):
+    for cable_type in parsed_supported_types:
+        if re.search('-CX', cable_type):
+            parsed_supported_types.remove(cable_type)
 
 
 def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
@@ -248,7 +258,7 @@ def update_split_ports_types(topology_obj, split_mode_supported_speeds, ports_su
     for split_mode, ports_list in splitted_ports.items():
         for port in ports_list:
             supported_speeds = split_mode_supported_speeds[port][split_mode]
-            supported_types = get_matched_types(supported_speeds, types_dict)
+            supported_types = get_matched_types(port, supported_speeds, ports_supported_types, types_dict)
             ports_supported_types[port] = list(supported_types)
     return ports_supported_types
 
@@ -299,16 +309,21 @@ def speed_string_to_int(speed):
     return int(re.search(r'(\d+)G', speed).group(1))
 
 
-def get_matched_types(speed_list, types_dict):
+def get_matched_types(port, speed_list, ports_supported_types, types_dict):
     """
+    :param port: i.e, "Ethernet0"
     :param speed_list: set of speeds, {'40G', '25G', '50G', '10G'}
+    :param ports_supported_types: a dictionary of port supported types based on
+    the port cable number and port split mode
+    {'Ethernet0': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR'], ...,
+     'Ethernet32': ['40GBASE-CR4', '100GBASE-CR4', '25GBASE-CR']}
     :param types_dict: a dictionary of supported speed by type based on dut chip type
     :return: a set of types that match speeds in the list, i.e, {'25GBASE-CR', '40GBASE-CR4'}
     """
     matched_types = set()
     for speed in speed_list:
-        for interface_type, type_supported_speeds_list in types_dict.items():
-            if speed in type_supported_speeds_list:
+        for interface_type in ports_supported_types[port]:
+            if speed in types_dict.get(interface_type, []):
                 matched_types.add(interface_type)
     return matched_types
 
@@ -347,7 +362,8 @@ def ignore_expected_loganalyzer_reboot_exceptions(loganalyzer):
         ignore_regex_list = \
             loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                "..", "..", "..",
-                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
+                                                               "tools", "loganalyzer",
+                                                               "reboot_loganalyzer_ignore.txt")))
         loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
@@ -363,5 +379,3 @@ def ignore_auto_neg_expected_loganalyzer_exceptions(loganalyzer):
             loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                "negative_auto_neg_log_analyzer_ignores.txt")))
         loganalyzer.ignore_regex.extend(ignore_regex_list)
-
-

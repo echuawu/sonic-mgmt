@@ -130,9 +130,9 @@ SPC = {
  'XFI': ['10G']
  }
 SPC2_3 = {
- '1000BASE-CX': ['1G', '10G', '25G'],
+ '1000BASE-CX': ['1G'],
  '25GBASE-CR': ['1G', '10G', '25G'],
- '50GBASE-CR': ['1G', '10G', '25G', '50G'],
+ '50GBASE-CR': ['50G'],
  '50GBASE-CR2': ['50G'],
  '40GBASE-CR4': ['40G'],
  '100GBASE-CR2': ['100G'],

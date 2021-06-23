@@ -6,7 +6,7 @@ from retry.api import retry_call
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_lb_mutual_speed, \
     convert_speeds_to_kb_format
-from ngts.tests.nightly.auto_negotition.test_auto_neg import get_lb_mutual_type, get_types_in_string_format, \
+from ngts.tests.nightly.auto_negotition.test_auto_neg import get_lb_mutual_type,  \
     get_speed_from_cable_type, configure_ports, configure_port_auto_neg, generate_default_conf
 from ngts.tests.nightly.conftest import cleanup
 from ngts.constants.constants import AutonegCommandConstants
@@ -104,7 +104,7 @@ def test_negative_config_advertised_speeds(topology_obj, engines, cli_objects, t
     logger.info("Verify auto-negotiation fails in case of mismatch advertised speeds")
     conf = get_mismatch_speed_conf(split_mode, lb, lb_mutual_speeds, split_mode_supported_speeds, interfaces_types_dict,
                                    cable_type_to_speed_capabilities_dict)
-    verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf,
+    verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf, interfaces_types_dict,
                                      cable_type_to_speed_capabilities_dict, cleanup_list)
 
 
@@ -120,14 +120,14 @@ def get_mismatch_speed_conf(split_mode, lb, lb_mutual_speeds, split_mode_support
     return conf
 
 
-def verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf,
+def verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf, interfaces_types_dict,
                                      cable_type_to_speed_capabilities_dict, cleanup_list):
     logger.info("Set auto negotiation mode to disabled on ports")
     configure_port_auto_neg(engines.dut, cli_objects.dut, lb, conf, cleanup_list, mode='disabled')
     base_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=conf.keys())
     logger.info("Configure mismatch auto neg values")
     configure_ports(engines.dut, cli_objects.dut, conf, base_interfaces_speeds, cable_type_to_speed_capabilities_dict,
-                    cleanup_list)
+                    interfaces_types_dict, cleanup_list)
     logger.info("Check ports are up while auto neg is disabled")
     retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, lb], tries=3, delay=10, logger=logger)
     logger.info("Enable auto neg on port: {} and verify port is down due to mismatch".format(lb[0]))
@@ -181,7 +181,7 @@ def test_negative_config_interface_type(topology_obj, engines, cli_objects, inte
 def test_negative_config_advertised_types(topology_obj, engines, cli_objects, tested_lb_dict,
                                           split_mode_supported_speeds,
                                           interfaces_types_dict, cable_type_to_speed_capabilities_dict,
-                                           ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list):
+                                          ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list):
     """
     Test command config interface advertised-types <interface_name> <interface_type_list>.
     Verify the command return error if given invalid interface name.
@@ -208,12 +208,13 @@ def test_negative_config_advertised_types(topology_obj, engines, cli_objects, te
                                                                          "all")
     verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
     lb_mutual_types = list(get_lb_mutual_type(lb, interfaces_types_dict))
-    lb_mutual_types_in_str_format = list(set(map(lambda type: get_interface_cable_type(type), lb_mutual_types)))
+    lb_mutual_types_in_str_format = list(set(map(lambda interface_type: get_interface_cable_type(interface_type),
+                                                 lb_mutual_types)))
     conf = get_mismatch_type_conf(split_mode, lb, lb_mutual_types_in_str_format,
                                   split_mode_supported_speeds, interfaces_types_dict,
                                   cable_type_to_speed_capabilities_dict)
     logger.info("verify auto-negotiation fails in case of mismatch advertised types")
-    verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf,
+    verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf, interfaces_types_dict,
                                      cable_type_to_speed_capabilities_dict, cleanup_list)
 
 
@@ -231,7 +232,8 @@ def get_mismatch_type_conf(split_mode, lb, lb_mutual_types, split_mode_supported
 
 def test_negative_advertised_speed_type_mismatch(topology_obj, engines, cli_objects, tested_lb_dict,
                                                  split_mode_supported_speeds, cable_type_to_speed_capabilities_dict,
-                                                 interfaces_types_dict,  ignore_auto_neg_expected_loganalyzer_exceptions,
+                                                 interfaces_types_dict,
+                                                 ignore_auto_neg_expected_loganalyzer_exceptions,
                                                  cleanup_list):
     """
     Verify error in log when configuring mismatch type and speed, like 'CR4' and '10G',
@@ -257,7 +259,7 @@ def test_negative_advertised_speed_type_mismatch(topology_obj, engines, cli_obje
                                         interfaces_types_dict,
                                         cable_type_to_speed_capabilities_dict)
     logger.info("verify auto-negotiation fails in case of mismatch advertised types and speeds")
-    verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf,
+    verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf, interfaces_types_dict,
                                      cable_type_to_speed_capabilities_dict, cleanup_list)
 
 
@@ -267,6 +269,7 @@ def get_mismatch_speed_type_conf(lb, tested_lb_dict, split_mode_supported_speeds
                                  cable_type_to_speed_capabilities_dict)
     lb_mutual_types = get_lb_mutual_type(lb, interfaces_types_dict)
     max_type = max(lb_mutual_types, key=get_speed_from_cable_type)
-    conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = convert_speeds_to_kb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
+    conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = \
+        convert_speeds_to_kb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
     conf[lb[0]][AutonegCommandConstants.ADV_TYPES] = get_interface_cable_type(max_type)
     return conf

@@ -88,11 +88,23 @@
     <name> Auto negotiation </name>
     <info> </info>
     <ignore>
-        <condition>
-            <key> sonic_branch </key>
-            <op> in </op>
-            <value> ["202012", "201911"] </value>
-        </condition>
+        <condition_group>
+                <operand> OR </operand>
+                <condition_group>
+                    <operand> AND </operand>
+                    <condition>
+                        <key> dut_hwsku </key>
+                        <op> in </op>
+                        <value>  ["ACS-MSN3700", "ACS-MSN3700c"] </value>
+                    </condition>
+                    <bug> 2700007 </bug>
+                </condition_group>
+                <condition>
+                    <key> sonic_branch </key>
+                    <op> in </op>
+                    <value> ["202012", "201911"] </value>
+                </condition>
+            </condition_group>
       </ignore>
     <cmd>
       <params>
