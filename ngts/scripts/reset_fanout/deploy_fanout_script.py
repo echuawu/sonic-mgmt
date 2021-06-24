@@ -25,6 +25,7 @@ def reset_factory_fanout(dut_engine):
     with allure.step(reset_factory_log):
         logger.info(reset_factory_log)
         dut_engine.reload(reload_cmd_set=['reset factory keep-basic', 'YES'])
+        show_version_concise_fanout(dut_engine)
         logger.info(FINISHED_LOG.format(reset_factory_log))
 
 
@@ -62,11 +63,19 @@ def image_boot_next_fanout(dut_engine):
         logger.info(FINISHED_LOG.format(image_boot_next_log))
 
 
+def show_version_concise_fanout(dut_engine):
+    show_version_concise_log = "Show version concise on the fanout"
+    with allure.step(show_version_concise_log):
+        logger.info(show_version_concise_log)
+        dut_engine.run_cmd('show version concise')
+        logger.info(FINISHED_LOG.format(show_version_concise_log))
+
 
 def install_new_image_on_fanout(dut_engine, onyx_img_url):
     install_new_image_on_fanout_log = "Installing new image on the fanout"
     with allure.step(install_new_image_on_fanout_log):
         logger.info(install_new_image_on_fanout_log)
+        show_version_concise_fanout(dut_engine)
         fetch_image_on_fanout(dut_engine, onyx_img_url)
         install_image_on_fanout(dut_engine, onyx_img_url)
         image_boot_next_fanout(dut_engine)

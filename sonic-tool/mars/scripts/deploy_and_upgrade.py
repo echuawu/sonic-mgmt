@@ -309,7 +309,7 @@ def _remove_mlnx_lab_suffix(hostname_string):
 
 
 @separate_logger
-def deploy_fanout(ansible_path, mgmt_docker_engine, topo, setup_name, onyx_image_url):
+def deploy_fanout(ansible_path, mgmt_docker_engine, topo, setup_name, onyx_image_url, dut_name):
     """
     Method which deploy fanout switch config
     """
@@ -551,7 +551,8 @@ def main():
     # Community only steps
     if args.sonic_topo != 'ptf-any':
         deploy_fanout(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                      topo=topo, setup_name=args.setup_name, onyx_image_url=args.onyx_image_url)
+                      topo=topo, setup_name=args.setup_name, onyx_image_url=args.onyx_image_url,
+                      dut_name=args.dut_name)
 
         generate_minigraph(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                            sonic_topo=args.sonic_topo, port_number=args.port_number)
