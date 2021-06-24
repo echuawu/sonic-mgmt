@@ -87,7 +87,8 @@ def test_negative_config_advertised_speeds(topology_obj, engines, cli_objects, t
     :return: raise assertion error in case of failure
     """
     split_mode = random.choice([2, 4])
-    lb = tested_lb_dict[split_mode].pop()
+    first_lb = 0
+    lb = tested_lb_dict[split_mode][first_lb]
     lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, split_mode_supported_speeds)
 
     logger.info("Verify the command return error if given invalid speed list")
@@ -145,18 +146,18 @@ def verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf, interfaces_
                tries=6, delay=10, logger=logger)
 
 
-def get_invalid_speed(port, supported_speed, split_mode_supported_speeds):
+def get_invalid_speed(port, supported_speeds, split_mode_supported_speeds):
     """
     :param port: an interface on dut , i.e, Ethernet60
-    :param supported_speed: port supported speeds
+    :param supported_speeds: a list of port supported speeds
     :param split_mode_supported_speeds: a dictionary with available speed for each breakout mode on all setup ports
     :return: a list of speeds which are not supported by the port, i.e,
     """
-    return convert_speeds_to_kb_format(set(split_mode_supported_speeds[port][1]).difference(supported_speed))
+    return convert_speeds_to_kb_format(set(split_mode_supported_speeds[port][1]).difference(supported_speeds))
 
 
 def test_negative_config_interface_type(topology_obj, engines, cli_objects, interfaces,
-                                        interfaces_types_dict):
+                                        cable_type_to_speed_capabilities_dict):
     """
     Test command "config interface type <interface_name> <interface_type>".
     Verify the command return error if given invalid interface name.
@@ -170,8 +171,8 @@ def test_negative_config_interface_type(topology_obj, engines, cli_objects, inte
     :return: raise assertion error in case of failure
     """
     logger.info("Verify the command return error if given invalid interface name")
-    interfaces_types = list(map(lambda str_type: get_interface_cable_type(str_type),
-                                interfaces_types_dict[interfaces.dut_ha_1]))
+    types_supported_on_dut = list(cable_type_to_speed_capabilities_dict.keys())
+    interfaces_types = list(map(get_interface_cable_type, types_supported_on_dut))
     output = cli_objects.dut.interface.config_interface_type(engines.dut,
                                                              get_invalid_interface(topology_obj),
                                                              random.choice(interfaces_types))
@@ -201,7 +202,8 @@ def test_negative_config_advertised_types(topology_obj, engines, cli_objects, te
     :return: raise assertion error in case of failure
     """
     split_mode = random.choice([2, 1])
-    lb = tested_lb_dict[split_mode].pop()
+    first_lb = 0
+    lb = tested_lb_dict[split_mode][first_lb]
     logger.info("Verify the command return error if given invalid interface name")
     output = cli_objects.dut.interface.config_advertised_interface_types(engines.dut,
                                                                          get_invalid_interface(topology_obj),
@@ -253,7 +255,8 @@ def test_negative_advertised_speed_type_mismatch(topology_obj, engines, cli_obje
     :return: raise assertion error in case of failure
     """
     split_mode = 1
-    lb = tested_lb_dict[split_mode].pop()
+    first_lb = 0
+    lb = tested_lb_dict[split_mode][first_lb]
     tested_lb_dict = {1: [lb]}
     conf = get_mismatch_speed_type_conf(lb, tested_lb_dict, split_mode_supported_speeds,
                                         interfaces_types_dict,

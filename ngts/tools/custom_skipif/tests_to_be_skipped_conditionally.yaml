@@ -20,6 +20,10 @@ tests/nightly/auto_negotition/test_auto_neg_negative.py:
     platforms:
       - simx
 
+tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_config_advertised_speeds:
+  Redmine:
+    - 2700638
+
 tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_config_advertised_types:
   Redmine:
     - 2699181

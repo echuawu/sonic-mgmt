@@ -45,7 +45,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     return split_mode_supported_speeds
 
 
-@pytest.fixture(autouse=True, scope='function')
+@pytest.fixture(autouse=True, scope='session')
 def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_speeds,
                    cable_type_to_speed_capabilities_dict):
     """
@@ -69,7 +69,7 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
             break
     if not tested_lb_dict[split_mode]:
         raise AssertionError("Test cannot run due to incorrect cable info on all dut un split loopbacks")
-
+    logger.info("Tests will run on the following ports that have accurate cable compliance:\n{}".format(tested_lb_dict))
     return tested_lb_dict
 
 
@@ -80,7 +80,8 @@ def verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict, split_mode_supp
             if not verify_cable_compliance_info_support_all_speeds(lb, split_mode, interfaces_types_dict,
                                                                    split_mode_supported_speeds,
                                                                    cable_type_to_speed_capabilities_dict):
-                raise AssertionError("Test cannot run due to incorrect cable info on loopbacks {}".format(lb))
+                raise AssertionError("Test cannot run due to incorrect cable info on loopback: {}, "
+                                     "with split configuration mode: {}".format(lb, split_mode))
 
 
 def verify_cable_compliance_info_support_all_speeds(ports_list, split_mode, interfaces_types_dict,
@@ -92,7 +93,7 @@ def verify_cable_compliance_info_support_all_speeds(ports_list, split_mode, inte
             get_port_supported_speeds_based_on_cable_compliance_info(port, interfaces_types_dict,
                                                                      cable_type_to_speed_capabilities_dict)
         if not supported_speeds_by_platform_json == supported_speeds_by_cable_compliance:
-            logger.warning("Test cannot run due to incorrect cable info: "
+            logger.warning("Test detected incorrect cable info: "
                            "Port {} supported speeds list is {} but cable compliance "
                            "of port on include types {} which support speeds {}."
                            .format(port, supported_speeds_by_platform_json, interfaces_types_dict[port],
@@ -105,7 +106,7 @@ def get_port_supported_speeds_based_on_cable_compliance_info(port, interfaces_ty
                                                              cable_type_to_speed_capabilities_dict):
     supported_speeds_set = set()
     for cable_type in interfaces_types_dict[port]:
-        supported_speeds_set.update(set(cable_type_to_speed_capabilities_dict[cable_type]))
+        supported_speeds_set.update(set(cable_type_to_speed_capabilities_dict.get(cable_type, [])))
     return supported_speeds_set
 
 
@@ -188,13 +189,19 @@ def parse_cables_info(topology_obj, engines, cli_objects, ports_aliases_dict):
     """
     compliance_info = retry_call(check_cable_compliance_info_updated_for_all_port, fargs=[topology_obj, engines],
                                  tries=12, delay=10, logger=logger)
-    parse_regex_pattern = r"(Ethernet\d+):.*(\n.*){10}.*:(.*\n.*\n.*)"
-    parsed_output_list = re.findall(parse_regex_pattern, compliance_info)
+    parsed_output_list = re.compile("Ethernet\d+").split(compliance_info)
+    # first value is ""
+    parsed_output_list.pop(0)
+    parse_regex_pattern = r"(Ethernet\d+)"
+    parsed_port_list = re.findall(parse_regex_pattern, compliance_info)
     res = dict()
-    for port_name, _, supported_types in parsed_output_list:
-        parsed_supported_types = re.findall(r"(\d+G*BASE-\w+\d*)", supported_types)
-        remove_cx_type(parsed_supported_types)
-        res[port_name] = parsed_supported_types
+    for index, port_name in enumerate(parsed_port_list):
+        parsed_types = re.findall(r"(\d+G*BASE-\w+\d*)", parsed_output_list[index])
+        remove_cx_type(parsed_types)
+        # TODO: remove once bug redmine 2696720 is resolved
+        if re.search("400G CR8", parsed_output_list[index]):
+            parsed_types.append("400GBASE-CR8")
+        res[port_name] = parsed_types
 
     return res
 

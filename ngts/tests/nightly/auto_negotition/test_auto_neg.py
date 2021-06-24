@@ -9,7 +9,7 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_interface_cable_width, \
-    get_matched_types, speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format
+    get_matched_types, speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format, verify_tested_lb_dict
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.helpers.interface_helpers import get_alias_number
 from ngts.tests.nightly.conftest import save_configuration_and_reboot, save_configuration, compare_actual_and_expected
@@ -17,10 +17,10 @@ from ngts.tests.nightly.conftest import save_configuration_and_reboot, save_conf
 logger = logging.getLogger()
 
 
-def test_auto_neg(topology_obj, engines, cli_objects, tested_lb_dict,
-                  split_mode_supported_speeds, interfaces_types_dict,
-                  cable_type_to_speed_capabilities_dict, cleanup_list,
-                  ignore_expected_loganalyzer_reboot_exceptions):
+def test_auto_neg_conf(topology_obj, engines, cli_objects, tested_lb_dict,
+                       split_mode_supported_speeds, interfaces_types_dict,
+                       cable_type_to_speed_capabilities_dict, cleanup_list,
+                       ignore_expected_loganalyzer_reboot_exceptions):
     """
     check 1#:
     This test case will set on loopbacks with/without splits,
@@ -111,7 +111,8 @@ def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
     :return: raise assertion error in case of failure
     """
     tested_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
-
+    verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict,
+                          split_mode_supported_speeds, cable_type_to_speed_capabilities_dict)
     with allure.step("Generate configurations for test"):
         def_conf = generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interfaces_types_dict,
                                          cable_type_to_speed_capabilities_dict)
@@ -341,8 +342,9 @@ def update_custom_expected_conf(conf, lb, expected_speed, expected_type, expecte
 
 def get_default_expected_conf_res(lb, lb_mutual_speeds, cable_type_to_speed_capabilities_dict, interfaces_types_dict):
     expected_speed = max(lb_mutual_speeds, key=speed_string_to_int)
-    expected_interface_type = get_matched_types(lb[0], [expected_speed], interfaces_types_dict,
-                                                cable_type_to_speed_capabilities_dict).pop()
+    matched_types = get_matched_types(lb[0], [expected_speed], interfaces_types_dict,
+                                      cable_type_to_speed_capabilities_dict)
+    expected_interface_type = min(matched_types, key=get_interface_cable_width)
     expected_type = get_interface_cable_type(expected_interface_type)
     expected_width = get_interface_cable_width(expected_interface_type)
     return expected_speed, expected_interface_type, expected_type, expected_width
@@ -523,7 +525,7 @@ def auto_neg_toggle_peer_checker(topology_obj, engines, cli_objects, conf, inter
     :return: raise assertion error in case of failure
     """
     retry_call(cli_objects.dut.interface.check_ports_status,
-               fargs=[engines.dut, [interfaces.dut_ha_1]], tries=6, delay=10, logger=logger)
+               fargs=[engines.dut, [interfaces.dut_ha_1]], tries=12, delay=10, logger=logger)
     dut_interfaces_speeds, ha_interfaces_speeds = retry_call(get_peer_ports_speeds,
                                                              fargs=[engines, cli_objects, interfaces],
                                                              tries=4, delay=10, logger=logger)
