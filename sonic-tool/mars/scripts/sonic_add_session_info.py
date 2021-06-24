@@ -35,6 +35,7 @@ from mlxlib.common import trace
 
 logger = trace.set_logger()
 
+SONIC_MGMT_WORKSPACE = '/root/mars/workspace/'
 
 class SonicAddSessionInfo(SessionAddInfo):
     """
@@ -93,7 +94,7 @@ class SonicAddSessionInfo(SessionAddInfo):
             machine = machines_players
         print "machine=" + str(machine)
 
-        remote_workspace = self.conf_obj.get_extra_info().get("sonic_mgmt_workspace", "")
+        remote_workspace = SONIC_MGMT_WORKSPACE
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
             return (1, {})
