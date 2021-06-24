@@ -77,9 +77,6 @@ def _parse_args():
                                                              "notification to all the active terminals and wait for "
                                                              "a predefined period before starting the deployment",
                         dest="send_takeover_notification", default='no', choices=["yes", "no"])
-    parser.add_argument("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
-                                                 " Example: http://fit69.mtl.labs.mlnx/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
-                        dest="onyx_image_url", default=None)
 
     return parser.parse_args()
 
@@ -245,7 +242,7 @@ def is_url(image_path):
 
 
 def get_installer_url_from_nfs_path(image_path):
-    http_base = 'http://{}'.format(constants.HTTTP_SERVER_FIT69)
+    http_base = 'http://fit69.mtl.labs.mlnx'
     verify_image_stored_in_nfs(image_path)
     image_path = get_image_path_in_new_nfs_dir(image_path)
     return "{http_base}{image_path}".format(http_base=http_base, image_path=image_path)
@@ -291,49 +288,6 @@ def generate_minigraph(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, p
                 time.sleep(SLEEP_TIME)
                 retries = retries - 1
 
-
-def _get_hostname_from_ip(ip):
-    host_name_index = 0
-    hostname_str = socket.gethostbyaddr(ip)[host_name_index]
-    return _remove_mlnx_lab_suffix(hostname_str)
-
-
-def _remove_mlnx_lab_suffix(hostname_string):
-    """
-    Returns switch hostname without mlnx lab prefix
-    :param hostname_string: 'arc-switch1030.mtr.labs.mlnx'
-    :return: arc-switch1030
-    """
-    host_name_index = 0
-    return hostname_string.split('.')[host_name_index]
-
-
-@separate_logger
-def deploy_fanout(ansible_path, mgmt_docker_engine, topo, setup_name, onyx_image_url):
-    """
-    Method which deploy fanout switch config
-    """
-    logger.info("Performing reset_factory on switch")
-    onyx_image_argument = " --onyx_image_url={} ".format(onyx_image_url) if onyx_image_url else ''
-    cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} {ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
-          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results" \
-          " --disable_loganalyzer {onyx_image_argument}" \
-          " {sonic_mgmt_dir}ngts/scripts/reset_fanout/deploy_fanout_script.py".\
-        format(ngts_pytest=constants.NGTS_PATH_PYTEST, sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name,
-               onyx_image_argument=onyx_image_argument)
-    with mgmt_docker_engine.cd(ansible_path):
-        logger.info("Running CMD: {}".format(cmd))
-        mgmt_docker_engine.run(cmd)
-
-    fanout_device_ip = topo.get_device_by_topology_id(constants.FANOUT_DEVICE_ID).BASE_IP
-    host_name = _get_hostname_from_ip(fanout_device_ip)
-    pfcwd_dockers_url = 'http://{}/auto/sw_system_project/sonic/docker/'.format(constants.HTTTP_SERVER_FIT69)
-    with mgmt_docker_engine.cd(ansible_path):
-        cmd = "ansible-playbook -i lab fanout.yml -l {host_name} -e pfcwd_dockers_url={pfcwd_dockers_url} -vvv".format(
-            host_name=host_name, pfcwd_dockers_url=pfcwd_dockers_url)
-        logger.info("Running CMD: {}".format(cmd))
-        logger.info("Deploy fanout")
-        return mgmt_docker_engine.run(cmd)
 
 @separate_logger
 def recover_topology(ansible_path, mgmt_docker_engine, hypervisor_engine, dut_name, sonic_topo):
@@ -391,6 +345,7 @@ def install_image(ansible_path, mgmt_docker_engine, sonic_topo, image_url, setup
     Method which doing installation of image on DUT via ONIE or via SONiC cli
     """
     logger.info("Upgrade switch using SONiC upgrade playbook using upgrade type: {}".format(upgrade_type))
+    sonic_mgmt_dir = '/root/mars/workspace/sonic-mgmt/'
     if sonic_topo == 'ptf-any':
         apply_base_config = '--apply_base_config=True '
     else:
@@ -400,7 +355,7 @@ def install_image(ansible_path, mgmt_docker_engine, sonic_topo, image_url, setup
           " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results" \
           " --base_version={base_version} --deploy_type={deploy_type} --disable_loganalyzer {apply_base_config} " \
           " {sonic_mgmt_dir}/ngts/scripts/sonic_deploy/test_sonic_deploy_image.py".\
-        format(ngts_pytest=constants.NGTS_PATH_PYTEST, sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name,
+        format(ngts_pytest=constants.NGTS_PATH_PYTEST, sonic_mgmt_dir=sonic_mgmt_dir, setup_name=setup_name,
                base_version=image_url, deploy_type=upgrade_type, apply_base_config=apply_base_config)
     with mgmt_docker_engine.cd(ansible_path):
         logger.info("Running CMD: {}".format(cmd))
@@ -413,10 +368,16 @@ def send_takeover_notification(ansible_path, sonic_topo, mgmt_docker_engine, set
     This method will send a takeover notification to all active terminals
     """
     logger.info("Sending takeover notification to all active terminals")
+    if sonic_topo == 'ptf-any':
+        sonic_mgmt_path = '/workspace/{setup_name}/sonic-mgmt/'
+        sonic_mgmt_dir = sonic_mgmt_path.format(setup_name=setup_name)
+    else:
+        sonic_mgmt_dir = '/root/mars/workspace/sonic-mgmt/'
+
     cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} /ngts_venv/bin/pytest --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
           " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results" \
           " {sonic_mgmt_dir}ngts/scripts/regression_takeover_notification/send_takeover_notification.py".\
-        format(sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name)
+        format(sonic_mgmt_dir=sonic_mgmt_dir, setup_name=setup_name)
 
     with mgmt_docker_engine.cd(ansible_path):
         logger.info("Running CMD: {}".format(cmd))
@@ -548,15 +509,12 @@ def main():
                   sonic_topo=args.sonic_topo, setup_name=args.setup_name,
                   image_url=base_version_url, upgrade_type=args.upgrade_type)
 
-    # Community only steps
+    # For Canonical setups do not apply minigraph - just apply configs from shared location - it is part of install phase
     if args.sonic_topo != 'ptf-any':
-        deploy_fanout(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                      topo=topo, setup_name=args.setup_name, onyx_image_url=args.onyx_image_url)
-
         generate_minigraph(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                            sonic_topo=args.sonic_topo, port_number=args.port_number)
         retry_call(deploy_minigprah, fargs=[ansible_path, mgmt_docker_engine, args.dut_name, args.sonic_topo,
-                                            args.recover_by_reboot], tries=3, delay=30, logger=logger)
+ 					    args.recover_by_reboot], tries=3, delay=30, logger=logger)
 
     post_install_check(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                        sonic_topo=args.sonic_topo)
