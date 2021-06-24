@@ -38,3 +38,4 @@ r, ".* ERR swss#\w+syncd: :- readData: netlink reports .* on reading a netlink s
 r, ".* ERR syncd#SDK:.*\[SX_API_INTERNAL.ERR\].*Failed command read at communication channel: Connection reset by peer.*"
 r, ".* ERR \/hostcfgd:.*sudo systemctl (enable|disable).*failed. RC: 1.*"
 r, ".* ERR \/hostcfgd:.*Feature.*failed to be\s+(enabled and started|stopped and disabled).*"
+r, ".* ERR swss#portsyncd:.*netlink reports an error=-33 on reading a netlink socket.*"
