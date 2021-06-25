@@ -17,7 +17,7 @@ import contextlib
 import subprocess
 import traceback
 import logging
-import BaseHTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import shutil
 import json
 import time
@@ -51,7 +51,7 @@ def _parse_args():
     parser.add_argument('--log_level', dest='log_level', default=logging.INFO, help='log verbosity')
     parser.add_argument("--upgrade-only", nargs="?", default="no", dest="upgrade_only",
                         help="Specify whether to skip topology change and only do upgrade. Default: 'no'")
-    parser.add_argument("--reboot", nargs="?", default="no", choices=["no", "random"] + constants.REBOOT_TYPES.keys(),
+    parser.add_argument("--reboot", nargs="?", default="no", choices=["no", "random"] + list(constants.REBOOT_TYPES.keys()),
                         dest="reboot", help="Specify whether reboot the switch after deploy. Default: 'no'")
     parser.add_argument("--repo-name", dest="repo_name", help="Specify the sonic-mgmt repository name")
     parser.add_argument("--workspace-path", dest="workspace_path",
@@ -84,7 +84,7 @@ def _parse_args():
     return parser.parse_args()
 
 
-class ImageHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class ImageHTTPRequestHandler(BaseHTTPRequestHandler):
     """
     @summary: HTTP request handler class, for serving SONiC image files over HTTP.
     """
@@ -185,7 +185,7 @@ def start_http_server(served_files):
     """
     logger.info("Try to serve files over HTTP:\n%s" % json.dumps(served_files, indent=4))
     ImageHTTPRequestHandler.served_files = served_files
-    httpd = BaseHTTPServer.HTTPServer(("", 0), ImageHTTPRequestHandler)
+    httpd = HTTPServer(("", 0), ImageHTTPRequestHandler)
 
     def run_httpd():
         httpd.serve_forever()

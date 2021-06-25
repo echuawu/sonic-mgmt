@@ -1,5 +1,5 @@
 import sys
-import constants
+from lib import constants
 
 
 def extend_sys_path():
