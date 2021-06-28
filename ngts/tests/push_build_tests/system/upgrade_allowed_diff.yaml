@@ -34,6 +34,7 @@
       - root['CRM']['Config']['snat_entry_threshold_type']
       - root['DEVICE_METADATA']['localhost']['buffer_model']
       - root['FEATURE']['what-just-happened']
+      - root['FEATURE']['restapi']
     values_changed:
       - root['VERSIONS']['DATABASE']['VERSION']
   "master":
