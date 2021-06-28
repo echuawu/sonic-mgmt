@@ -7,7 +7,7 @@ pipeline {
     environment {
         GENERIC_CI_GIT_BRANCH = 'ci_version-4.1'
         MAIN_NODE = 'SONIC_LITE'
-        JSON_FILE = 'build/build/manual_merge/manual_merge.json'
+        JSON_FILE = 'build/manual_merge/manual_merge.json'
     }
     stages {
         stage("Main") {
