@@ -217,7 +217,7 @@ def test_dhcp_relay_after_link_flap(ptfhost, dut_dhcp_relay_data, validate_dut_r
             duthost.shell('ifconfig {} up'.format(iface))
 
         # Sleep a bit to ensure uplinks are up
-        time.sleep(20)
+        time.sleep(30)
 
         # Run the DHCP relay test on the PTF host
         ptf_runner(ptfhost,
