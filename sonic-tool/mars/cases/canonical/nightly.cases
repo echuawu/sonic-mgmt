@@ -95,7 +95,7 @@
                     <condition>
                         <key> dut_hwsku </key>
                         <op> in </op>
-                        <value>  ["ACS-MSN3700", "ACS-MSN3700c", "ACS-MSN3420"] </value>
+                        <value>  ["ACS-MSN3700", "ACS-MSN3700C", "ACS-MSN3420"] </value>
                     </condition>
                     <bug> 2700007 </bug>
                 </condition_group>

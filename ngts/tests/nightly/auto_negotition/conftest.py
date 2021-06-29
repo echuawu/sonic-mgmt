@@ -73,6 +73,27 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
     return tested_lb_dict
 
 
+@pytest.fixture(scope='session')
+def tested_dut_host_lb_dict(topology_obj, interfaces, interfaces_types_dict, split_mode_supported_speeds,
+                            cable_type_to_speed_capabilities_dict):
+    """
+    :param topology_obj: topology object fixture
+    :return: a dictionary of loopback of dut - host ports connectivity
+    {1: [('Ethernet64', 'enp66s0f0')]}
+    """
+    if not verify_cable_compliance_info_support_all_speeds(ports_list=[interfaces.dut_ha_1],
+                                                           split_mode=1,
+                                                           interfaces_types_dict=interfaces_types_dict,
+                                                           split_mode_supported_speeds=split_mode_supported_speeds,
+                                                           cable_type_to_speed_capabilities_dict=
+                                                           cable_type_to_speed_capabilities_dict):
+        raise AssertionError("Test cannot run due to incorrect cable info on dut port connected to host")
+    tested_dut_host_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
+    logger.info("Test will run on the following ports which have accurate cable compliance:\n{}"
+                .format(tested_dut_host_lb_dict))
+    return tested_dut_host_lb_dict
+
+
 def verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict, split_mode_supported_speeds,
                           cable_type_to_speed_capabilities_dict):
     for split_mode, ports_lb_list in tested_lb_dict.items():

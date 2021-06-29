@@ -9,7 +9,7 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_interface_cable_width, \
-    get_matched_types, speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format, verify_tested_lb_dict
+    get_matched_types, speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.helpers.interface_helpers import get_alias_number
 from ngts.tests.nightly.conftest import save_configuration_and_reboot, save_configuration, compare_actual_and_expected
@@ -89,7 +89,7 @@ def test_auto_neg_conf(topology_obj, engines, cli_objects, tested_lb_dict,
         verify_auto_neg_configuration(engines.dut, cli_objects.dut, conf_backup)
 
 
-def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
+def test_auto_neg_toggle_peer_port(tested_dut_host_lb_dict, topology_obj, engines, cli_objects,
                                    interfaces, split_mode_supported_speeds,
                                    interfaces_types_dict, cable_type_to_speed_capabilities_dict, cleanup_list):
     """
@@ -110,13 +110,10 @@ def test_auto_neg_toggle_peer_port(topology_obj, engines, cli_objects,
     :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
     :return: raise assertion error in case of failure
     """
-    tested_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
-    verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict,
-                          split_mode_supported_speeds, cable_type_to_speed_capabilities_dict)
     with allure.step("Generate configurations for test"):
-        def_conf = generate_default_conf(tested_lb_dict, split_mode_supported_speeds, interfaces_types_dict,
+        def_conf = generate_default_conf(tested_dut_host_lb_dict, split_mode_supported_speeds, interfaces_types_dict,
                                          cable_type_to_speed_capabilities_dict)
-        sub_conf = generate_subset_conf(tested_lb_dict, split_mode_supported_speeds,
+        sub_conf = generate_subset_conf(tested_dut_host_lb_dict, split_mode_supported_speeds,
                                         cable_type_to_speed_capabilities_dict, interfaces_types_dict)
         modify_subset_conf_for_toggle_peer(interfaces.dut_ha_1, sub_conf, interfaces_types_dict,
                                            cable_type_to_speed_capabilities_dict)

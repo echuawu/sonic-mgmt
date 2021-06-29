@@ -1,4 +1,4 @@
-r, ".* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\]-Interface_Type\[.*\]\] configuration is invalid.*"
+r, ".* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] configuration is invalid.*"
 r, ".* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_update_speed: Failed to merge speeds, interface types and auto_neg.*"
 r, ".* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_attr_set: Failed to update speed.*"
 r, ".* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[.*\]- sai_set_attribute: Failed set attrib dispatch.*"
@@ -6,4 +6,4 @@ r, ".* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_SET failed in syncd
 r, ".* ERR syncd#SDK: :- processQuadEvent: VID: oid:.* RID: oid:.*"
 r, ".* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_.*INTERFACE_TYPE:.*SAI_PORT_INTERFACE_TYPE_.*"
 r, ".* ERR swss#orchagent: :- set: set status: SAI_STATUS_INVALID_ATTR_VALUE_.*"
-r, ".* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ .* interface type to .*"
+r, ".* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+.*interface type to .*"
