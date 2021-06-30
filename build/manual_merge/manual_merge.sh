@@ -34,7 +34,7 @@ if [[ ! -f "$FILE" ]]; then
 fi
 echo "merging upstream/${GITHUB_BRANCH}"
 git remote add upstream ${GITHUB_REPOSITORY} && git fetch upstream
-git merge upstream/${GITHUB_BRANCH}
+git merge upstream/${GITHUB_BRANCH} --no-ff
 
 echo
 echo "*********************************************************************************"
