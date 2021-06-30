@@ -7,6 +7,7 @@ tests/nightly/auto_negotition/test_auto_neg.py:
   Platform:
     platforms:
       - simx
+      - 4700
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::test_scale:
   Platform:
