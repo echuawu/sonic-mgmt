@@ -103,8 +103,8 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
 tests/push_build_tests/L3/static_route/test_static_route.py:
-  GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/7643
+  Redmine:
+    - 2705262
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   Platform:
