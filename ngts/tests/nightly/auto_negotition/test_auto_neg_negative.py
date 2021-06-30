@@ -131,12 +131,8 @@ def verify_auto_neg_failure_scenario(engines, cli_objects, lb, conf, interfaces_
                     interfaces_types_dict, cleanup_list)
     logger.info("Check ports are up while auto neg is disabled")
     retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, lb], tries=3, delay=10, logger=logger)
-    logger.info("Enable auto neg on port: {} and verify port is down due to mismatch".format(lb[0]))
-    configure_port_auto_neg(engines.dut, cli_objects.dut, ports_list=[lb[0]], conf=conf,
-                            cleanup_list=cleanup_list, mode='enabled')
-    retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, lb, 'down'],
-               tries=6, delay=10, logger=logger)
-    configure_port_auto_neg(engines.dut, cli_objects.dut, ports_list=[lb[1]], conf=conf,
+    logger.info("Enable auto neg on ports: {} and verify ports are down due to mismatch".format(lb))
+    configure_port_auto_neg(engines.dut, cli_objects.dut, ports_list=lb, conf=conf,
                             cleanup_list=cleanup_list, mode='enabled')
     retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, lb, 'down'],
                tries=6, delay=10, logger=logger)
