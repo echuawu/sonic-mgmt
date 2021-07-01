@@ -1,6 +1,6 @@
 - name: set default reboot_limit in seconds
   set_fact:
-      reboot_limit: 30
+      reboot_limit: 45
   when: reboot_limit is not defined
 
 - name: set default values vnet variables
