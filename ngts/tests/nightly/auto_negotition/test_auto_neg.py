@@ -9,10 +9,11 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_interface_cable_width, \
-    get_matched_types, speed_string_to_int, get_lb_mutual_speed, convert_speeds_to_kb_format
+    get_matched_types, speed_string_to_int, convert_speeds_to_kb_format
 from ngts.constants.constants import AutonegCommandConstants
-from ngts.helpers.interface_helpers import get_alias_number
-from ngts.tests.nightly.conftest import save_configuration_and_reboot, save_configuration, compare_actual_and_expected
+from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
+from ngts.tests.nightly.conftest import compare_actual_and_expected, \
+    reboot_reload_random
 
 logger = logging.getLogger()
 
@@ -217,26 +218,6 @@ def test_interface_with_fec_none(topology_obj, engines, cli_objects, tested_lb_d
     logger.info("Verify Fec none configuration after reload/reboot")
     retry_call(verify_auto_neg_configuration, fargs=[engines.dut, cli_objects.dut, conf],
                tries=3, delay=5, logger=logger)
-
-
-def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
-    """
-    Do reload/warm-reboot on dut
-    :param dut_engine: a ssh connection to dut
-    :param cli_object: a cli object of dut
-    :param ports: a ports list on dut to validate after reboot
-    :param cleanup_list: a list of cleanup functions that should be called in the end of the test
-    :return: raise assertion error in case reload/reboot failed
-    """
-    mode = random.choice(['reload', 'warm-reboot', 'fast-reboot', 'reboot'])
-    with allure.step('Preforming {} on dut:'.format(mode)):
-        if mode == 'reload':
-            save_configuration(dut_engine, cli_object, cleanup_list)
-            logger.info("Reloading dut")
-            cli_object.general.reload_configuration(dut_engine)
-        else:
-            logger.info("Preforming warm reboot on dut")
-            save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)
 
 
 def get_speeds_in_Gb_str_format(speeds_list):

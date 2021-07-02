@@ -25,7 +25,7 @@ from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_al
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
-
+from ngts.helpers.interface_helpers import get_dut_default_ports_list
 
 logger = logging.getLogger()
 
@@ -575,32 +575,55 @@ class SonicGeneralCli(GeneralCliCommon):
         :param topology_obj: topology object fixture
         :param platform_json_obj: a json object of platform.json file
         :param parse_by_breakout_modes: If true the function will return a dictionary with
-        available breakout options by split number for all dut ports,
-        i.e,
-           { 'Ethernet0' :    {1:{'1x100G[50G,40G,25G,10G]'},
-                               2: {'2x50G[40G,25G,10G]'},
-                               4: {'4x25G[10G]'},...}
-        :return: a dictionary with available speeds option for each split number on all dut ports
-        i.e,
+        available breakout options by split number for all dut ports
+        :return: a dictionary with available speeds option/ breakout options for each split number on all dut ports
+        i.e, parse_by_breakout_modes = FALSE
+
            { 'Ethernet0' :{'1': [200G,100G,50G,40G,25G,10G,1G],
                            '2': [100G, 50G,40G,25G,10G,1G],
                            '4': [50G,40G,25G,10G,1G]},..}
+
+        OR Iin case of: parse_by_breakout_modes = TRUE
+
+           { 'Ethernet0' :    {1:{'1x100G[50G,40G,25G,10G]'},
+                               2: {'2x50G[40G,25G,10G]'},
+                               4: {'4x25G[10G]'},...}
+
         """
         ports_speeds_by_modes_info = {}
         breakout_options = SonicConst.BREAKOUT_MODES_REGEX
-        for port_name, port_dict in platform_json_obj["interfaces"].items():
-            lanes = port_dict[SonicConstant.LANES].split(",")
-            breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].keys())))
-            breakout_ports = ["Ethernet{}".format(lane) for lane in lanes]
-            for port in breakout_ports:
-                if port in topology_obj.players_all_ports['dut']:
-                    if parse_by_breakout_modes:
-                        ports_speeds_by_modes_info[port] = get_split_mode_supported_breakout_modes(breakout_modes)
-                    else:
-                        ports_speeds_by_modes_info[port] = get_split_mode_supported_speeds(breakout_modes)
+        if not platform_json_obj.get("interfaces"):
+            ports_speeds_by_modes_info = SonicGeneralCli.generate_mock_ports_speeds(topology_obj,
+                                                                                    parse_by_breakout_modes)
+        else:
+            for port_name, port_dict in platform_json_obj["interfaces"].items():
+                lanes = port_dict[SonicConstant.LANES].split(",")
+                breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].keys())))
+                breakout_ports = ["Ethernet{}".format(lane) for lane in lanes]
+                for port in breakout_ports:
+                    if port in topology_obj.players_all_ports['dut']:
+                        if parse_by_breakout_modes:
+                            ports_speeds_by_modes_info[port] = get_split_mode_supported_breakout_modes(breakout_modes)
+                        else:
+                            ports_speeds_by_modes_info[port] = get_split_mode_supported_speeds(breakout_modes)
         return ports_speeds_by_modes_info
 
-
+    @staticmethod
+    def generate_mock_ports_speeds(topology_obj,  parse_by_breakout_modes=False):
+        if parse_by_breakout_modes:
+            raise AssertionError("This version doesn't support platform.json,\n"
+                                 "there no mock option for interfaces breakout mode option")
+        else:
+            mock_ports_speeds_by_modes_info ={}
+            port_list = get_dut_default_ports_list(topology_obj)
+            for port in port_list:
+                mock_ports_speeds_by_modes_info[port] = {
+                    1: ['100G', '50G', '25G', '10G'],
+                    2: ['50G', '25G', '10G'],
+                    4: ['25G', '10G']
+                }
+            logger.debug("Mock ports speed option dictionary: {}".format(mock_ports_speeds_by_modes_info))
+            return mock_ports_speeds_by_modes_info
 
     @staticmethod
     def show_warm_restart_state(dut_engine):

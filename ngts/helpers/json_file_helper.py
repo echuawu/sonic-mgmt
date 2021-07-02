@@ -1,13 +1,19 @@
 import json
+import re
+import logging
 from ngts.constants.constants import SonicConst
 from ngts.helpers.config_db_utils import save_config_db_json
 
+logger = logging.getLogger()
 
-def get_platform_json(engine_dut, cli_object):
+
+def get_platform_json(engine_dut, cli_object, fail_if_doesnt_exist=True):
     """
     return a json object of the platform.json file of your setup dut platform
     :param engine_dut: ssh connection to dut
     :param cli_object: cli_object of dut
+    :param fail_if_doesnt_exist: if true, raise assertion error in case platform.json doesn't exist,
+    if false return an empty dict
     :return: a Json Object of the platform.json file, i.e,
     {'interfaces':
      {'Ethernet0': {'index': '1,1,1,1',
@@ -17,9 +23,16 @@ def get_platform_json(engine_dut, cli_object):
                                        '4x25G[10G]': ['etp1a', 'etp1b', 'etp1c', 'etp1d']}}
      , ...}
     """
+    platform_json = {}
     platform = cli_object.chassis.get_platform(engine_dut)
     platform_path = SonicConst.PLATFORM_JSON_PATH.format(PLATFORM=platform)
     platform_detailed_info_output = engine_dut.run_cmd("cat {} ; echo".format(platform_path), print_output=False)
+    if re.search('No such file or directory', platform_detailed_info_output):
+        if fail_if_doesnt_exist:
+            raise AssertionError("no platform.json was found,\n error: {}".format(platform_detailed_info_output))
+        else:
+            logger.warning("File {} was not found on this version".format(platform_path))
+            return platform_json
     platform_json = json.loads(platform_detailed_info_output)
     return platform_json
 

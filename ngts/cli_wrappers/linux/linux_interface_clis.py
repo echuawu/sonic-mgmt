@@ -1,5 +1,6 @@
 import re
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
+from ngts.constants.constants import LinuxConsts, SonicConst, FEC_MODES_TO_ETHTOOL
 
 
 class LinuxInterfaceCli(InterfaceCliCommon):
@@ -216,9 +217,10 @@ class LinuxInterfaceCli(InterfaceCliCommon):
     @staticmethod
     def parse_link_mode(output_mode_string):
         """
-        :param output_mode_string: i.e, "1000baseKX/Full
-                                         10000baseKR/Full
-	                                     40000baseKR4/Full..."
+        :param output_mode_string: i.e,
+        "1000baseKX/Full
+        10000baseKR/Full
+        40000baseKR4/Full..."
         :return: a list of speeds and types
         i.e,
         speed_list = ["1G", "10G", "40G"]
@@ -232,3 +234,48 @@ class LinuxInterfaceCli(InterfaceCliCommon):
             type_list.append("{}BASE-{}".format(speed, cable_type))
             speed_list.append(speed)
         return speed_list, type_list
+
+    @staticmethod
+    def configure_interface_fec(engine, interface, fec_option):
+        """
+        configure the interface fec
+        :param engine: ssh engine object
+        :param interface: i.e Ethernet0
+        :param fec_option: i.e, none | fec91 | fec74
+        :return: the command output
+        """
+        fec_option = FEC_MODES_TO_ETHTOOL[fec_option]
+        return engine.run_cmd("ethtool --set-fec {interface_name} encoding {fec_option}"
+                              .format(interface_name=interface, fec_option=fec_option))
+
+    @staticmethod
+    def show_interface_fec(engine, interface):
+        return engine.run_cmd("ethtool --show-fec {interface_name}".format(interface_name=interface))
+
+    @staticmethod
+    def parse_interface_fec(engine, interface):
+        parsed_interface_fec_output = {}
+        interface_fec_output = LinuxInterfaceCli.show_interface_fec(engine, interface)
+        if not re.match("Invalid argument", interface_fec_output):
+            parse_fec_info_regex = "{}:\s*(\w*)"
+            parse_keys = [LinuxConsts.CONF_FEC, LinuxConsts.ACTIVE_FEC]
+            for key in parse_keys:
+                fec_val = re.search(parse_fec_info_regex.format(key), interface_fec_output).group(1)
+                parsed_interface_fec_output[key] = LinuxInterfaceCli.parse_fec_mode(fec_val)
+        else:
+            raise AssertionError("Fec show command return output: {}\n, "
+                                 "Interface {} is probably down.".format(interface_fec_output, interface))
+        return parsed_interface_fec_output
+
+    @staticmethod
+    def parse_fec_mode(actual_fec_val):
+        if re.search("BaseR", actual_fec_val):
+            return SonicConst.FEC_FC_MODE
+        elif re.search("RS", actual_fec_val):
+            return SonicConst.FEC_RS_MODE
+        elif re.search("Off|{}".format(SonicConst.FEC_NONE_MODE), actual_fec_val, re.IGNORECASE):
+            return SonicConst.FEC_NONE_MODE
+        elif re.search("Auto", actual_fec_val):
+            return "auto"
+        else:
+            raise AssertionError("Couldn't parse fec mode: {}".format(actual_fec_val))

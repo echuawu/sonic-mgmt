@@ -1,7 +1,11 @@
+import random
 import re
 import allure
 import pytest
 import logging
+
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.helpers import json_file_helper as json_file_helper
 
 logger = logging.getLogger()
 
@@ -25,31 +29,6 @@ def disable_ssh_client_alive_interval(topology_obj):
     engine.run_cmd('sudo service ssh restart')
 
 
-def get_speed_option_by_breakout_modes(breakout_modes):
-    """
-    :param breakout_modes: a list of breakout modes supported by a port, i.e,
-    ['1x200G[100G,50G,40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]', '4x50G[40G,25G,10G,1G]']
-    :return: a dictionary with speed configuration available for each breakout modes,
-    i.e,
-    {'1x200G[100G,50G,40G,25G,10G,1G]': [100G,50G,40G,25G,10G,1G],
-    '2x100G[50G,40G,25G,10G,1G]': [50G,40G,25G,10G,1G],
-    '4x50G[40G,25G,10G,1G]': [40G,25G,10G,1G]}
-    """
-    breakout_port_by_modes = {}
-    for breakout_mode in breakout_modes:
-        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
-        if re.search(breakout_pattern, breakout_mode):
-            breakout_num, speed_conf = breakout_mode.split("x")
-            speed_value = r"(\d+G)\[[\d*G,]*\]|(\d+G)"
-            speed = re.match(speed_value, speed_conf).group(1)
-            speeds_list_pattern = r"\d+G\[([\d*G,]*)\]|(\d+G)"
-            speeds_list_str = re.match(speeds_list_pattern, speed_conf).group(1)
-            speeds_list = speeds_list_str.split(sep=',')
-            speeds_list.append(speed)
-            breakout_port_by_modes[breakout_mode] = speeds_list
-    return breakout_port_by_modes
-
-
 def get_dut_loopbacks(topology_obj):
     """
     :return: a list of ports tuple which are connected as loopbacks on dut
@@ -66,34 +45,6 @@ def get_dut_loopbacks(topology_obj):
     dut_loopback_aliases_list = dut_loopbacks.items()
     return list(map(lambda lb_tuple: (topology_obj.ports[lb_tuple[0]], topology_obj.ports[lb_tuple[1]]),
                     dut_loopback_aliases_list))
-
-
-def get_breakout_port_by_modes(breakout_modes, lanes):
-    """
-    :param breakout_modes: a list of breakout modes supported by a port, i.e,
-    ['1x200G[100G,50G,40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]', '4x50G[40G,25G,10G,1G]']
-    :param lanes: a list with port lanes, i.e, for port Ethernet0 the list will be [0, 1, 2, 3]
-    :return: a dictionary with ports and speed configuration result for each breakout modes,
-    i.e,
-    {'1x200G[100G,50G,40G,25G,10G,1G]': {'Ethernet0': '200G'},
-    '2x100G[50G,40G,25G,10G,1G]': {'Ethernet0': '100G',
-                                   'Ethernet2': '100G'},
-    '4x50G[40G,25G,10G,1G]': {'Ethernet0': '50G', 'Ethernet1': '50G',
-                              'Ethernet2': '50G', 'Ethernet3': '50G'}}
-    """
-    breakout_port_by_modes = {}
-    for breakout_mode in breakout_modes:
-        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
-        if re.search(breakout_pattern, breakout_mode):
-            breakout_num, speed_conf = breakout_mode.split("x")
-            speed_value = r"(\d+G)\[[\d*G,]*\]|(\d+G)"
-            speed = re.match(speed_value, speed_conf).group(1)
-            num_lanes_after_breakout = len(lanes) // int(breakout_num)
-            lanes_after_breakout = [lanes[idx:idx + num_lanes_after_breakout]
-                                    for idx in range(0, len(lanes), num_lanes_after_breakout)]
-            breakout_port = {'Ethernet{}'.format(lanes[0]): speed for lanes in lanes_after_breakout}
-            breakout_port_by_modes[breakout_mode] = breakout_port
-    return breakout_port_by_modes
 
 
 def cleanup(cleanup_list):
@@ -143,3 +94,58 @@ def compare_actual_and_expected(key, expected_val, actual_val):
     """
     assert str(expected_val) == str(actual_val), \
         "Compared {} result failed: actual - {}, expected - {}".format(key, actual_val, expected_val)
+
+
+@pytest.fixture(scope='session')
+def hosts_ports(engines, cli_objects, interfaces):
+    hosts_ports = {engines.ha: (cli_objects.ha, [interfaces.ha_dut_1, interfaces.ha_dut_2]),
+                   engines.hb: (cli_objects.hb, [interfaces.hb_dut_1, interfaces.hb_dut_2])}
+    return hosts_ports
+
+
+@pytest.fixture(scope='session')
+@pytest.mark.usefixtures("hosts_ports")
+def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports):
+    """
+    :param topology_obj: topology object fixture
+    :param engines: setup engines fixture
+    :param cli_objects: cli objects fixture
+    :param interfaces: host <-> dut interfaces fixture
+    :param hosts_ports: a dictionary with hosts engine, cli_object and ports
+    :return: a dictionary with available breakout options on all setup ports (included host ports)
+    format : {<port_name> : {<split type>: {[<supported speeds]}
+
+    i.e,  {'Ethernet0': {1: {'100G', '50G', '40G', '10G', '25G'},
+                        2: {'40G', '10G', '25G', '50G'},
+                        4: {'10G', '25G'}},
+          ...
+          'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
+    """
+    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
+    split_mode_supported_speeds = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_info)
+    for host_engine, host_info in hosts_ports.items():
+        host_cli, host_ports = host_info
+        for port in host_ports:
+            split_mode_supported_speeds[port] = \
+                {1: host_cli.interface.parse_show_interface_ethtool_status(host_engine, port)["supported speeds"]}
+    return split_mode_supported_speeds
+
+
+def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
+    """
+    Do reload/warm-reboot on dut
+    :param dut_engine: a ssh connection to dut
+    :param cli_object: a cli object of dut
+    :param ports: a ports list on dut to validate after reboot
+    :param cleanup_list: a list of cleanup functions that should be called in the end of the test
+    :return: raise assertion error in case reload/reboot failed
+    """
+    mode = random.choice(['reload', 'warm-reboot', 'fast-reboot', 'reboot'])
+    with allure.step('Preforming {} on dut:'.format(mode)):
+        logger.info('Saving Configuration and preforming {} on dut:'.format(mode))
+        if mode == 'reload':
+            save_configuration(dut_engine, cli_object, cleanup_list)
+            logger.info("Reloading dut")
+            cli_object.general.reload_configuration(dut_engine)
+        else:
+            save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)

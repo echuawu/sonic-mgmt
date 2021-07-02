@@ -1,8 +1,9 @@
 import re
 import logging
+import ast
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.constants.constants import AutonegCommandConstants
+from ngts.constants.constants import AutonegCommandConstants, SonicConst
 
 logger = logging.getLogger()
 
@@ -348,13 +349,31 @@ class SonicInterfaceCli(InterfaceCliCommon):
         parsed_info = {}
         for key, regex_expression_tuple in regex_expressions.items():
             regex_exp, expected_val, parsed_val, default_val = regex_expression_tuple
-            actual_val = re.search(regex_exp, port_mlxlink_status).group(1)
+            actual_val = re.search(regex_exp, port_mlxlink_status)
+            if actual_val:
+                actual_val = actual_val.group(1)
+            else:
+                raise AssertionError("Couldn't get value match with regex expression {}".format(regex_exp))
             parsed_info[key] = actual_val
-            if expected_val is not None and re.search(expected_val, actual_val):
+            if key == AutonegCommandConstants.FEC:
+                parsed_info[key] = SonicInterfaceCli.parse_fec_mode(actual_val)
+            elif expected_val is not None and re.search(expected_val, actual_val):
                 parsed_info[key] = parsed_val
             elif default_val is not None:
                 parsed_info[key] = default_val
         return parsed_info
+
+    @staticmethod
+    def parse_fec_mode(actual_mlxlink_fec_val):
+        if re.search("Firecode FEC", actual_mlxlink_fec_val, re.IGNORECASE):
+            return SonicConst.FEC_FC_MODE
+        elif re.search(SonicConst.FEC_RS_MODE, actual_mlxlink_fec_val, re.IGNORECASE):
+            return SonicConst.FEC_RS_MODE
+        elif re.search("No FEC",  actual_mlxlink_fec_val, re.IGNORECASE):
+            return SonicConst.FEC_NONE_MODE
+        else:
+            raise AssertionError("Couldn't parse FEC value: {} on mlxlink output".format(actual_mlxlink_fec_val))
+
 
     @staticmethod
     def clear_counters(engine):
@@ -363,3 +382,17 @@ class SonicInterfaceCli(InterfaceCliCommon):
         :param engine: ssh engine object
         """
         return engine.run_cmd("sonic-clear counters", validate=True)
+
+    @staticmethod
+    def get_interface_supported_fec_modes(engine, interface):
+        """
+        configure invalid fec mode on port to get actual fec modes supported on port from the error message
+        :param engine: ssh engine object
+        :param interface: port name, i.e Ethernet0
+        :return: a list of FEC modes supported on port
+        """
+        invalid_fec_option = "invalid_fec_mode"
+        output = SonicInterfaceCli.configure_interface_fec(engine, interface, fec_option=invalid_fec_option)
+        fec_options_list_string = re.search("Error:\s+\'fec\s+not\s+in\s+(\[.*\])!", output).group(1)
+        fec_options_list = ast.literal_eval(fec_options_list_string)
+        return fec_options_list

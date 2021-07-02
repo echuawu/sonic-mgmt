@@ -1,8 +1,6 @@
 import re
-import json
 from ngts.constants.constants import ConfigDbJsonConst
 from ngts.helpers.interface_helpers import get_alias_number, get_speed_in_G_format
-from ngts.tests.nightly.conftest import get_speed_option_by_breakout_modes, get_breakout_port_by_modes
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.constants.constants import SonicConst
@@ -211,3 +209,56 @@ def get_breakout_mode(engine_dut, cli_object, port_list):
         supported_breakout_modes = port_breakout_modes[port]['breakout_modes']
         breakout_mode[port] = supported_breakout_modes[-1]
     return breakout_mode
+
+
+def get_speed_option_by_breakout_modes(breakout_modes):
+    """
+    :param breakout_modes: a list of breakout modes supported by a port, i.e,
+    ['1x200G[100G,50G,40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]', '4x50G[40G,25G,10G,1G]']
+    :return: a dictionary with speed configuration available for each breakout modes,
+    i.e,
+    {'1x200G[100G,50G,40G,25G,10G,1G]': [100G,50G,40G,25G,10G,1G],
+    '2x100G[50G,40G,25G,10G,1G]': [50G,40G,25G,10G,1G],
+    '4x50G[40G,25G,10G,1G]': [40G,25G,10G,1G]}
+    """
+    breakout_port_by_modes = {}
+    for breakout_mode in breakout_modes:
+        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
+        if re.search(breakout_pattern, breakout_mode):
+            breakout_num, speed_conf = breakout_mode.split("x")
+            speed_value = r"(\d+G)\[[\d*G,]*\]|(\d+G)"
+            speed = re.match(speed_value, speed_conf).group(1)
+            speeds_list_pattern = r"\d+G\[([\d*G,]*)\]|(\d+G)"
+            speeds_list_str = re.match(speeds_list_pattern, speed_conf).group(1)
+            speeds_list = speeds_list_str.split(sep=',')
+            speeds_list.append(speed)
+            breakout_port_by_modes[breakout_mode] = speeds_list
+    return breakout_port_by_modes
+
+
+def get_breakout_port_by_modes(breakout_modes, lanes):
+    """
+    :param breakout_modes: a list of breakout modes supported by a port, i.e,
+    ['1x200G[100G,50G,40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]', '4x50G[40G,25G,10G,1G]']
+    :param lanes: a list with port lanes, i.e, for port Ethernet0 the list will be [0, 1, 2, 3]
+    :return: a dictionary with ports and speed configuration result for each breakout modes,
+    i.e,
+    {'1x200G[100G,50G,40G,25G,10G,1G]': {'Ethernet0': '200G'},
+    '2x100G[50G,40G,25G,10G,1G]': {'Ethernet0': '100G',
+                                   'Ethernet2': '100G'},
+    '4x50G[40G,25G,10G,1G]': {'Ethernet0': '50G', 'Ethernet1': '50G',
+                              'Ethernet2': '50G', 'Ethernet3': '50G'}}
+    """
+    breakout_port_by_modes = {}
+    for breakout_mode in breakout_modes:
+        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
+        if re.search(breakout_pattern, breakout_mode):
+            breakout_num, speed_conf = breakout_mode.split("x")
+            speed_value = r"(\d+G)\[[\d*G,]*\]|(\d+G)"
+            speed = re.match(speed_value, speed_conf).group(1)
+            num_lanes_after_breakout = len(lanes) // int(breakout_num)
+            lanes_after_breakout = [lanes[idx:idx + num_lanes_after_breakout]
+                                    for idx in range(0, len(lanes), num_lanes_after_breakout)]
+            breakout_port = {'Ethernet{}'.format(lanes[0]): speed for lanes in lanes_after_breakout}
+            breakout_port_by_modes[breakout_mode] = breakout_port
+    return breakout_port_by_modes

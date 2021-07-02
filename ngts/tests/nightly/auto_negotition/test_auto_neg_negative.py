@@ -4,11 +4,11 @@ import logging
 from retry.api import retry_call
 
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
-from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, get_lb_mutual_speed, \
-    convert_speeds_to_kb_format
+from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_type, convert_speeds_to_kb_format
 from ngts.tests.nightly.auto_negotition.test_auto_neg import get_lb_mutual_type,  \
     get_speed_from_cable_type, configure_ports, configure_port_auto_neg, generate_default_conf
 from ngts.tests.nightly.conftest import cleanup
+from ngts.helpers.interface_helpers import get_lb_mutual_speed
 from ngts.constants.constants import AutonegCommandConstants
 
 logger = logging.getLogger()

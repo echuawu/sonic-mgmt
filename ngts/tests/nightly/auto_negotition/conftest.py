@@ -4,45 +4,10 @@ import os
 import re
 from retry.api import retry_call
 
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import SPC, SPC2_3
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
-import ngts.helpers.json_file_helper as json_file_helper
 
 logger = logging.getLogger()
-
-
-@pytest.fixture(autouse=True, scope='session')
-def hosts_ports(engines, cli_objects, interfaces):
-    hosts_ports = {engines.ha: (cli_objects.ha, [interfaces.ha_dut_1, interfaces.ha_dut_2]),
-                   engines.hb: (cli_objects.hb, [interfaces.hb_dut_1, interfaces.hb_dut_2])}
-    return hosts_ports
-
-
-@pytest.fixture(autouse=True, scope='session')
-@pytest.mark.usefixtures("hosts_ports")
-def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports):
-    """
-    :param topology_obj: topology object fixture
-    :param engines: setup engines fixture
-    :param cli_objects: cli objects fixture
-    :param interfaces: host <-> dut interfaces fixture
-    :param hosts_ports: a dictionary with hosts engine, cli_object and ports
-    :return: a dictionary with available breakout options on all setup ports (included host ports)
-        i.e,  {'Ethernet0': {1: {'100G', '50G', '40G', '10G', '25G'},
-                            2: {'40G', '10G', '25G', '50G'},
-                            4: {'10G', '25G'}},
-              ...
-              'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
-    """
-    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut)
-    split_mode_supported_speeds = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_info)
-    for host_engine, host_info in hosts_ports.items():
-        host_cli, host_ports = host_info
-        for port in host_ports:
-            split_mode_supported_speeds[port] = \
-                {1: host_cli.interface.parse_show_interface_ethtool_status(host_engine, port)["supported speeds"]}
-    return split_mode_supported_speeds
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -354,20 +319,6 @@ def get_matched_types(port, speed_list, ports_supported_types, types_dict):
             if speed in types_dict.get(interface_type, []):
                 matched_types.add(interface_type)
     return matched_types
-
-
-def get_lb_mutual_speed(lb, split_mode, split_mode_supported_speeds):
-    """
-    :param lb: a tuple of ports connected as loopback ('Ethernet52', 'Ethernet56')
-    :param split_mode: the port split mode i.e, 1/2/4
-    :param split_mode_supported_speeds: a dictionary with available breakout options on all setup ports
-    (including host ports)
-    :return: a list of mutual speeds supported by the loopback ports, i.e. ['50G', '10G', '40G', '25G', '100G']
-    """
-    speeds_sets = []
-    for port in lb:
-        speeds_sets.append(set(split_mode_supported_speeds[port][split_mode]))
-    return list(set.intersection(*speeds_sets))
 
 
 def convert_speeds_to_kb_format(speeds_list):

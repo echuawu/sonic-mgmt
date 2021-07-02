@@ -7,6 +7,9 @@ class PytestConst:
 
 
 class SonicConst:
+    FEC_RS_MODE = 'rs'
+    FEC_FC_MODE = 'fc'
+    FEC_NONE_MODE = 'none'
     DOCKERS_LIST = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp', 'dhcp_relay']
 
     CPU_RAM_CHECK_PROCESS_LIST = ['sx_sdk', 'syncd', 'redis-server', 'snmpd', 'zebra', 'bgpd', 'bgpcfgd', 'bgpmon',
@@ -53,6 +56,9 @@ class InfraConst:
 
 
 class LinuxConsts:
+    CONF_FEC = "Configured FEC encodings"
+    ACTIVE_FEC = "Active FEC encoding"
+    FEC_AUTO_MODE = 'auto'
     error_exit_code = 1
     linux = 'linux'
 
@@ -157,6 +163,19 @@ SPC2_3 = {
  'CAUI4': ['100G'],
  'XFI': ['10G']
  }
+
+FEC_MODES_SPEED_SUPPORT = {
+    SonicConst.FEC_FC_MODE: {'25G'},
+    SonicConst.FEC_RS_MODE: {'25G', '100G'},
+    SonicConst.FEC_NONE_MODE: {'1G', '10G', '25G', '40G', '50G', '100G', '200G', '400G'}
+}
+
+FEC_MODES_TO_ETHTOOL = {
+    SonicConst.FEC_FC_MODE: "baser",
+    SonicConst.FEC_RS_MODE: SonicConst.FEC_RS_MODE,
+    SonicConst.FEC_NONE_MODE: "off",
+    LinuxConsts.FEC_AUTO_MODE: LinuxConsts.FEC_AUTO_MODE
+}
 
 
 class P4SamplingEntryConsts:
