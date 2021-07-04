@@ -1,8 +1,4 @@
 # Nightly
-tests/nightly/app_extension/test_app_extension_upgrade.py:
-  Redmine:
-    - 2632313
-
 tests/nightly/auto_negotition/test_auto_neg.py:
   Platform:
     platforms:
@@ -21,10 +17,6 @@ tests/nightly/auto_negotition/test_auto_neg_negative.py:
     platforms:
       - simx
 
-tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_config_advertised_speeds:
-  Redmine:
-    - 2700638
-
 tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_config_advertised_types:
   Redmine:
     - 2699181
@@ -33,45 +25,25 @@ tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_advertise
   Redmine:
     - 2696717
 
-tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py:
-  GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6631
-    - https://github.com/Azure/sonic-buildimage/issues/6720
-
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
   GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6631
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_remove_dpb_configuration_interop:
   GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6631
     - https://github.com/Azure/sonic-buildimage/issues/6630
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_breakout_unbreakable_ports:
-  GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6631
   Platform:
     platforms:
       - 3700
 
 tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_breakout_mode:
   GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6631
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_ports_breakout_after_wrong_removal:
-  GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6631
-
-tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
-  Redmine:
-    - 2618296
-
 tests/nightly/lag/test_lag.py::test_lags_scale:
-  Redmine:
-    - 2684914
   Platform:
     platforms:
       - simx
@@ -82,10 +54,6 @@ tests/nightly/static_route/test_static_route.py:
       - simx
 
 # PushGate
-tests/push_build_tests/L2/lldp/test_lldp.py::test_lldp_after_disable_on_dut:
-  Redmine:
-    - 2679473
-
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   Platform:
     platforms:
@@ -124,6 +92,3 @@ tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_
   Redmine:
     - 2638158
 
-tests/nightly/p4/sampling_example/test_entry_advance.py::test_enable_disable_p4_sampling:
-  Redmine:
-    - 2656574

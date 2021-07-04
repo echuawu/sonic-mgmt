@@ -63,9 +63,6 @@
         <info> WR ARP Case </info>
         <name> wr_arp </name>
         <tout> 3600 </tout>
-        <ignore>
-            <bug> 2384141 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts arp/test_wr_arp.py </static_args>
@@ -77,9 +74,6 @@
         <info> ACL Case </info>
         <name> acl </name>
         <tout> 3600 </tout>
-        <ignore>
-            <bug> 2136404 </bug>
-        </ignore>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -m \"not (reboot or port_toggle)\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts acl/test_acl.py </static_args>
@@ -102,9 +96,6 @@
         <info> PFCWD config Case</info>
         <name> pfc_wd_config </name>
         <tout> 1200  </tout>
-        <ignore>
-            <bug> 2413350 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw    -options "\'--log-cli-level info --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pfcwd/test_pfc_config.py  </static_args>
@@ -116,9 +107,6 @@
         <info> PFCWD All ports storm Case</info>
         <name> pfc_wd_ports_storm </name>
         <tout> 1200 </tout>
-        <ignore>
-            <bug> 2413350 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw    -options "\'--log-cli-level info --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pfcwd/test_pfcwd_all_port_storm.py  </static_args>
@@ -184,9 +172,6 @@
         <info> Telemetry Case </info>
         <name> telemetry </name>
         <tout> 3600 </tout>
-        <ignore>
-            <bug> 2402645 </bug>
-        </ignore>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts telemetry/test_telemetry.py </static_args>
@@ -213,9 +198,6 @@
         <info> VXLAN Decap Case </info>
         <name> vxlan_decap </name>
         <tout> 3600 </tout>
-        <ignore>
-            <bug> 2256267 </bug>
-        </ignore>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vxlan_decap.py </static_args>
@@ -238,9 +220,6 @@
         <info> WHAT-JUST-HAPPENED Case </info>
         <name> wjh </name>
         <tout> 3600 </tout>
-        <ignore>
-            <bug> 2413350 </bug>
-        </ignore>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -v -k \"not test_equal_smac_dmac_drop and not test_multicast_smac_drop and not test_unicast_ip_incorrect_eth_dst\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts drop_packets/test_wjh.py </static_args>

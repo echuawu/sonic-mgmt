@@ -52,9 +52,6 @@
         <info> Test Thermal Control Fan Status </info>
         <name> thermal_control_fan_status </name>
         <tout> 2700 </tout>
-        <ignore>
-            <bug> 2658245 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k \"test_thermal_control_fan_status\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py </static_args>
@@ -66,13 +63,6 @@
         <info> Test Dynamic Minimum Table and PSU policy  </info>
         <name> thermal_control_for_mellanox </name>
         <tout> 1200 </tout>
-        <ignore>
-            <condition_group>
-                <operand> AND </operand>
-                <bug> 2459420 </bug>
-                <bug> 2459412 </bug>
-            </condition_group>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/mellanox/test_thermal_control.py </static_args>
@@ -90,7 +80,6 @@
                 <op> == </op>
                 <value> "r-boxer-sw01" </value>
             </condition>
-            <bug> 2431822 </bug>
         </ignore>
         <cmd>
              <params>
@@ -180,9 +169,6 @@
         <info> Test Check SFP Using ethtool Case </info>
         <name> check_sfp_using_ethtool </name>
         <tout> 600 </tout>
-        <ignore>
-            <bug> 2367843 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/mellanox/test_check_sfp_using_ethtool.py </static_args>
@@ -352,9 +338,6 @@
         <info> Test SFP API Case</info>
         <name> platform_api_sfp </name>
         <tout> 1200 </tout>
-        <ignore>
-            <bug> 2441090 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--skip-absent-sfp=True --log-cli-level info  --show-capture=no -ra --showlocals -k \"not test_get_name and not test_get_model and not test_get_serial and not test_get_status and not test_get_position_in_parent and not test_get_reset_status and not test_get_rx_los and not test_get_tx_fault and not test_get_temperature and not test_get_voltage and not test_get_tx_bias and not test_get_rx_power and not test_get_tx_power and not test_tx_disable and not test_thermals and not test_power_override and not test_tx_disable_channel and not test_lpmode\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_sfp.py </static_args>

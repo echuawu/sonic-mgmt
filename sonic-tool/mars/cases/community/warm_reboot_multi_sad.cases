@@ -22,8 +22,6 @@
                 <op> == </op>
                 <value> yes </value>
             </condition>
-            <bug> 2126499 </bug>
-            <bug> 2694986 </bug>
         </ignore>
 
         <pre>

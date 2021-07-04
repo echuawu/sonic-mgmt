@@ -19,17 +19,6 @@
         <name> sensors </name>
         <tout> 900 </tout>
         <ignore>
-            <condition_group>
-                <operand> OR </operand>
-                <condition_group>
-                    <operand> AND </operand>
-                    <condition>
-                        <key> dut_hwsku </key>
-                        <op> in </op>
-                        <value>  ["ACS-MSN2100"] </value>
-                    </condition>
-                    <bug> 2616518 </bug>
-                </condition_group>
                 <condition_group>
                     <operand> AND </operand>
                     <condition>
@@ -39,7 +28,6 @@
                     </condition>
                     <bug> 2430822 </bug>
                 </condition_group>
-            </condition_group>
         </ignore>
         <cmd>
              <params>

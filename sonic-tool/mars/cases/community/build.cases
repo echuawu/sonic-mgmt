@@ -41,9 +41,6 @@
         <info> Test Platform Info : test_show_platform_fanstatus_mocked Case </info>
         <name> platform_info_test_show_platform_fanstatus_mocked </name>
         <tout> 1800 </tout>
-        <ignore>
-            <bug> 2604969 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked </static_args>
@@ -55,9 +52,6 @@
         <info> Test Platform Info : test_show_platform_temperature_mocked Case </info>
         <name> platform_info_test_show_platform_temperature_mocked </name>
         <tout> 1800 </tout>
-        <ignore>
-            <bug> 2604256 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py::test_show_platform_temperature_mocked </static_args>
@@ -102,9 +96,6 @@
         <info> Test Check SFP Using ethtool Case </info>
         <name> check_sfp_using_ethtool </name>
         <tout> 600 </tout>
-        <ignore>
-            <bug> 2367843 </bug>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/mellanox/test_check_sfp_using_ethtool.py </static_args>
