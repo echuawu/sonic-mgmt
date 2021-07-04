@@ -18,7 +18,7 @@ class Platform(CustomSkipIf):
         :return: updated skip_dict
         """
         for platform in self.ignore_list['platforms']:
-            if platform in self.extra_params['current_platform']:
+            if str(platform) in self.extra_params['current_platform']:
                 skip_dict_result[self.name] = platform
                 break
 
