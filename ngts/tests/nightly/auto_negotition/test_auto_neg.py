@@ -178,48 +178,6 @@ def modify_subset_conf_for_toggle_peer(dut_peer_port, sub_conf, interfaces_types
         sub_conf[port]['expected_width'] = width
 
 
-@pytest.mark.disable_loganalyzer
-def test_interface_with_fec_none(topology_obj, engines, cli_objects, tested_lb_dict, cleanup_list):
-    """
-    This test case verifying the FEC is NONE in scenario for celestial peak setup.
-
-    test flow:
-
-        chose a random loopback(without splits configuration):
-        configure FEC none on loopback
-        verify with mlxlink FEC was configured to "none"
-        verify with sonic show command ports are UP
-        check FEC persists across reload and all 3 boot types – warm, fast, and cold.
-
-    :param topology_obj: topology object fixture
-    :param engines:  ssh engines connection
-    :param cli_objects: cli objects of setup entities
-    :param cleanup_list: a list of cleanup functions that should be called in the end of the test
-    :return: raise assertion error in case of faliure
-    """
-    tested_lb = tested_lb_dict[1].pop()
-    logger.info("Configure fec to none on loopback: {}".format(tested_lb))
-    for interface in tested_lb:
-        cli_objects.dut.interface.configure_interface_fec(engines.dut, interface, fec_option="none")
-        cleanup_list.append((cli_objects.dut.interface.configure_interface_fec, (engines.dut, interface, 'rs')))
-
-    conf = {interface: {} for interface in tested_lb}
-    for interface in tested_lb:
-        conf[interface][AutonegCommandConstants.FEC] = "none"
-        conf[interface][AutonegCommandConstants.OPER] = "up"
-        conf[interface][AutonegCommandConstants.ADMIN] = "up"
-
-    logger.info("Verify Fec none configuration")
-    retry_call(verify_auto_neg_configuration, fargs=[engines.dut, cli_objects.dut, conf],
-               tries=3, delay=5, logger=logger)
-
-    reboot_reload_random(engines.dut, cli_objects.dut, conf.keys(), cleanup_list)
-
-    logger.info("Verify Fec none configuration after reload/reboot")
-    retry_call(verify_auto_neg_configuration, fargs=[engines.dut, cli_objects.dut, conf],
-               tries=3, delay=5, logger=logger)
-
-
 def get_speeds_in_Gb_str_format(speeds_list):
     """
     :param speeds_list: a list of speeds ['10000', '50000']
