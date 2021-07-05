@@ -6,7 +6,7 @@ from retry.api import retry_call
 
 from ngts.constants.constants import SPC, SPC2_3
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
-
+from ngts.helpers.interface_helpers import get_lb_mutual_speed
 logger = logging.getLogger()
 
 
@@ -21,8 +21,10 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
     4: [('Ethernet20', 'Ethernet24')]}
     """
     tested_lb_dict = {1: [],
-                      2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])],
-                      4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])]}
+                      2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])]
+                      }
+    update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
+
     verify_tested_lb_dict(tested_lb_dict, interfaces_types_dict, split_mode_supported_speeds,
                           cable_type_to_speed_capabilities_dict)
     split_mode = 1
@@ -36,6 +38,21 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
         raise AssertionError("Test cannot run due to incorrect cable info on all dut un split loopbacks")
     logger.info("Tests will run on the following ports that have accurate cable compliance:\n{}".format(tested_lb_dict))
     return tested_lb_dict
+
+
+def update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict):
+    """
+    :param topology_obj: topology object fixture
+    :param split_mode_supported_speeds: a dictionary with available speed options for each split mode on all setup ports
+    :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
+    :return: Update loopback with split 4 configuration only in cases were there are mutaul speeds available,
+    for example, parsing of platform.json file for panther will not return speeds option for port with split 4,
+    because this breakout mode is not supported on panther
+    """
+    split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
+    mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
+    if mutual_speeds:
+        tested_lb_dict.update({4: [split_4_lb]})
 
 
 @pytest.fixture(scope='session')

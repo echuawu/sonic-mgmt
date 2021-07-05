@@ -86,7 +86,7 @@ def test_negative_config_advertised_speeds(topology_obj, engines, cli_objects, t
     :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
     :return: raise assertion error in case of failure
     """
-    split_mode = random.choice([2, 4])
+    split_mode = 2
     first_lb = 0
     lb = tested_lb_dict[split_mode][first_lb]
     lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, split_mode_supported_speeds)
