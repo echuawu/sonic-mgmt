@@ -133,8 +133,30 @@ class SonicGeneralCli(GeneralCliCommon):
             ports_list = topology_obj.players_all_ports['dut']
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             engine.reload(['sudo {}'.format(reboot_type)], wait_after_ping=wait_after_ping)
-            SonicGeneralCli.verify_dockers_are_up(engine, SonicConst.DOCKERS_LIST)
-            SonicGeneralCli.check_link_state(engine, ports_list)
+            SonicGeneralCli.port_reload_reboot_checks(engine, ports_list)
+
+    @staticmethod
+    def reload_flow(engine, ports_list=None, topology_obj=None):
+        """
+        Reloading switch and validate dockers and ports state
+        :param engine: ssh engine object
+        :param ports_list: list of the ports to check status after reboot
+        :param topology_obj: topology object
+        :return: None, raise error in case of unexpected result
+        """
+        if not (ports_list or topology_obj):
+            raise Exception('ports_list or topology_obj must be passed to reload_flow method')
+        if not ports_list:
+            ports_list = topology_obj.players_all_ports['dut']
+        with allure.step('Reloading dut'):
+            logger.info("Reloading dut")
+            SonicGeneralCli.reload_configuration(engine)
+            SonicGeneralCli.port_reload_reboot_checks(engine, ports_list)
+
+    @staticmethod
+    def port_reload_reboot_checks(engine, ports_list):
+        SonicGeneralCli.verify_dockers_are_up(engine, SonicConst.DOCKERS_LIST)
+        SonicGeneralCli.check_link_state(engine, ports_list)
 
     @staticmethod
     def validate_dockers_are_up_reboot_if_fail(engine, retries=2):

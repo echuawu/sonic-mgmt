@@ -4,6 +4,7 @@ import allure
 import pytest
 import logging
 
+from ngts.constants.constants import SonicConst
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers import json_file_helper as json_file_helper
 
@@ -133,7 +134,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
 
 def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
     """
-    Do reload/warm-reboot on dut
+    Do reload/or reboot by any given way (reboot, fast-reboot, warm-reboot) on dut
     :param dut_engine: a ssh connection to dut
     :param cli_object: a cli object of dut
     :param ports: a ports list on dut to validate after reboot
@@ -145,7 +146,6 @@ def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
         logger.info('Saving Configuration and preforming {} on dut:'.format(mode))
         if mode == 'reload':
             save_configuration(dut_engine, cli_object, cleanup_list)
-            logger.info("Reloading dut")
-            cli_object.general.reload_configuration(dut_engine)
+            cli_object.general.reload_flow(dut_engine, ports_list=ports)
         else:
             save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)
