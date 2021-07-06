@@ -14,6 +14,21 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 FILES_DIR = os.path.join(BASE_DIR, 'files')
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
+
+@pytest.fixture(autouse=True)
+def ignore_techsupport_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "log_analyzer_techsupport_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
+
+
 def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
     duthost = engines.dut
 
@@ -33,6 +48,7 @@ def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
 
     with allure.step('Validate that the tecsupport file contain one more SDK extended dump'):
         assert number_of_sdk_error_after == number_of_sdk_error_before + 1
+
 
 def cp_sdk_event_trigger_script_to_dut_syncd(engine):
     dst = os.path.join('/tmp', 'mellanox_sdk_trigger_event_script.py')
