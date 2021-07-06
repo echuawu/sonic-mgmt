@@ -47,6 +47,8 @@ tests/nightly/lag/test_lag.py::test_lags_scale:
   Platform:
     platforms:
       - simx
+  Redmine:
+    - 2704837
 
 tests/nightly/static_route/test_static_route.py:
   Platform:
