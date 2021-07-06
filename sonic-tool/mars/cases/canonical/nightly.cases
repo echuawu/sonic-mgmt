@@ -93,7 +93,7 @@
             <condition>
                 <key> dut_hwsku </key>
                 <op> in </op>
-                <value>  ["ACS-MSN3420"] </value>
+                <value>  ["ACS-MSN3420", "ACS-MSN2410", "ACS-MSN2010"] </value>
             </condition>
             <condition>
                 <key> sonic_branch </key>

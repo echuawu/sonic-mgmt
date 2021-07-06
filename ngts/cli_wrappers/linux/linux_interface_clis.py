@@ -256,7 +256,7 @@ class LinuxInterfaceCli(InterfaceCliCommon):
     def parse_interface_fec(engine, interface):
         parsed_interface_fec_output = {}
         interface_fec_output = LinuxInterfaceCli.show_interface_fec(engine, interface)
-        if not re.match("Invalid argument", interface_fec_output):
+        if not re.search("Invalid argument", interface_fec_output, re.IGNORECASE):
             parse_fec_info_regex = "{}:\s*(\w*)"
             parse_keys = [LinuxConsts.CONF_FEC, LinuxConsts.ACTIVE_FEC]
             for key in parse_keys:

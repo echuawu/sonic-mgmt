@@ -140,7 +140,7 @@ class TestFec:
             self.verify_fec_configuration(conf)
             retry_call(self.verify_fec_configuration_on_host_port,
                        fargs=[conf[dut_host_port], self.cli_objects.ha, self.engines.ha, self.interfaces.ha_dut_1],
-                       tries=3, delay=5, logger=logger)
+                       tries=6, delay=10, logger=logger)
 
     def test_fec_bug_2705016(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
         reboot_type = 'warm-reboot'
@@ -304,7 +304,7 @@ class TestFec:
             expected_conf = conf[dut_port]
             retry_call(self.verify_fec_configuration_on_host_port,
                        fargs=[expected_conf, cli_object, engine, interface],
-                       tries=3, delay=10, logger=logger)
+                       tries=6, delay=10, logger=logger)
 
     def verify_fec_configuration_on_host_port(self, expected_conf, cli_object, engine, interface):
         actual_speed = cli_object.interface.parse_show_interface_ethtool_status(engine, interface)["speed"]
