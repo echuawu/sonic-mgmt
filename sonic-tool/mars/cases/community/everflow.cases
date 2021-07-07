@@ -28,7 +28,15 @@
         <name> Everflow IPv4 Case with policer </name>
         <tout> 5000 </tout>
         <ignore>
-            <bug> 2364224 </bug>
+            <condition_group>
+                    <operand> AND </operand>
+                    <condition>
+                        <key> chip_type </key>
+                        <op> in </op>
+                        <value> [SPC2, SPC3] </value>
+                    </condition>
+                    <bug> 2364224 </bug>
+            </condition_group>
         </ignore>
         <cmd>
              <params>
