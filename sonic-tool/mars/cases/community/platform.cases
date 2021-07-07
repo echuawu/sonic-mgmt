@@ -230,7 +230,7 @@
 
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"not test_get_name and not test_get_model and not test_get_serial and not test_set_fans_led and not test_get_fans_target_speed and not test_set_fans_speed\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_chassis_fans.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"not test_get_model and not test_get_serial and not test_set_fans_led and not test_get_fans_target_speed and not test_set_fans_speed\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_chassis_fans.py </static_args>
              </params>
         </cmd>
     </case>
@@ -242,7 +242,7 @@
 
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"test_get_position_in_parent or test_is_replaceable\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_thermal.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"test_get_position_in_parent or test_is_replaceable or test_get_name\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_thermal.py </static_args>
              </params>
         </cmd>
     </case>
@@ -278,7 +278,7 @@
         <tout> 1200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"test_get_name or test_get_presence or test_fans or test_get_position_in_parent or test_is_replaceable or test_thermals \" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_psu.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals -k \"test_get_name or test_get_presence or test_fans or test_get_position_in_parent or test_is_replaceable or test_thermals or test_get_model or test_get_serial or test_get_revision \" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_psu.py </static_args>
              </params>
         </cmd>
     </case>
