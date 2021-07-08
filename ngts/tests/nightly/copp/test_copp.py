@@ -324,12 +324,12 @@ class CoppBase:
             logger.info('The delta of RX counters is {} '.format(rx_count))
             self.traffic_duration = correct_traffic_duration_for_calculations(self.traffic_duration)
             rx_pps = int(rx_count / self.traffic_duration)
-            # We use +- 20% threshold due to not possible to be more precise
-            logger.info("Verify that received pps({}) is in allowed rate: {} +-20%".format(rx_pps, expected_pps))
-            assert int(rx_pps) > int(expected_pps) * 0.8, \
-                "The received pps {} is less then 80% of expected {}".format(rx_pps, expected_pps)
-            assert int(rx_pps) < int(expected_pps) * 1.2, \
-                "The received pps {} is bigger then 120% of expected {}".format(rx_pps, expected_pps)
+            # We use +- 25% threshold due to not possible to be more precise
+            logger.info("Verify that received pps({}) is in allowed rate: {} +-25%".format(rx_pps, expected_pps))
+            assert int(rx_pps) > int(expected_pps) * 0.75, \
+                "The received pps {} is less then 75% of expected {}".format(rx_pps, expected_pps)
+            assert int(rx_pps) < int(expected_pps) * 1.25, \
+                "The received pps {} is bigger then 125% of expected {}".format(rx_pps, expected_pps)
 
 # -------------------------------------------------------------------------------
 
