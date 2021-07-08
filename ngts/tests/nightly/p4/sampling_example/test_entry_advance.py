@@ -19,19 +19,19 @@ DPB_ERR_MSG = "ERR: Can not dynamic breakout*"
 @pytest.mark.usefixtures('p4_sampling_entries')
 class TestEntryTraffic:
     @pytest.fixture(scope='class')
-    def port_traffic_params_list(self, engines, interfaces, table_params):
+    def port_traffic_params_list(self, engines, interfaces, topology_obj, table_params):
         chksum_type = 'match'
         indices = [0]
-        port_traffic_params_list = TrafficParams.prepare_port_table_send_receive_traffic_params(engines.dut, interfaces,
+        port_traffic_params_list = TrafficParams.prepare_port_table_send_receive_traffic_params(interfaces, topology_obj,
                                                                                   table_params.port_entry, indices,
                                                                                   chksum_type)
         return port_traffic_params_list
 
     @pytest.fixture(scope='class')
-    def flow_traffic_params_list(self, engines, interfaces, table_params):
+    def flow_traffic_params_list(self, engines, interfaces, topology_obj, table_params):
         chksum_type = 'match'
         indices = [0]
-        _, flow_traffic_params_list = TrafficParams.prepare_flow_table_send_receive_traffic_params(engines.dut, interfaces,
+        _, flow_traffic_params_list = TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj,
                                                                                      table_params.flow_entry, indices,
                                                                                      chksum_type)
         return flow_traffic_params_list
@@ -46,9 +46,10 @@ class TestEntryTraffic:
             P4SamplingUtils.stop_background_traffic(port_table_scapy_senders)
             P4SamplingUtils.stop_background_traffic(flow_table_scapy_senders)
 
+    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
     @allure.title('Test disable p4-sampling, change the config db file, and re-enable it, the entries can be changed.')
     def test_enable_disable_p4_sampling(self, topology_obj, engines, interfaces, table_params):
-        pkt_count = 50
+        pkt_count = 20
         with allure.step("Verify that the entries has been added"):
             P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
             P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
@@ -110,16 +111,17 @@ class TestEntryTraffic:
 
     @allure.title('Test disables p4-sampling or shutdown interface, and verifies that traffic can not be mirrored. '
                   'Then enable it back and verify that traffic can be mirrored again.')
+    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
     @pytest.mark.usefixtures('start_stop_continuous_traffic')
     def test_p4_sampling_traffic_concussive(self, topology_obj, engines, interfaces, table_params,
                                             port_traffic_params_list, flow_traffic_params_list):
         indices = [0]
-        disable_enable_times = 1000
+        disable_enable_times = 10
         port_entry_keys = []
         for index in indices:
             port_entry_keys.append(list(table_params.port_entry.keys())[index])
         chksum_type = 'match'
-        flow_entry_keys, _ = TrafficParams.prepare_flow_table_send_receive_traffic_params(engines.dut, interfaces,
+        flow_entry_keys, _ = TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj,
                                                                                           table_params.flow_entry,
                                                                                           indices, chksum_type)
         with allure.step("Check traffic counter will increase after the update interval"):
@@ -283,8 +285,7 @@ class TestEntryTraffic:
         :return: None
         """
         logger.info("Clear the entry counters before send traffic")
-        P4SamplingCli.clear_table_counters(engine_dut, PORT_TABLE_NAME)
-        P4SamplingCli.clear_table_counters(engine_dut, FLOW_TABLE_NAME)
+        P4SamplingCli.clear_all_table_counters(engine_dut)
         time.sleep(COUNTER_REFRESH_INTERVAL)
         pkt_count = int(1 / P4SamplingConsts.TRAFFIC_INTERVAL)
         P4SamplingUtils.verify_entry_counter(engine_dut, PORT_TABLE_NAME, port_entry_keys, pkt_count)
@@ -398,14 +399,14 @@ class TestEntryTraffic:
             with allure.step("Clear statistics and counters"):
                 P4SamplingUtils.clear_statistics(engines.dut)
             with allure.step("Send packets and verify"):
-                count = 20
+                count = 5
                 P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, count, count)
 
         with allure.step("Verifying that the packet that does not match entry key will not be counted"):
             with allure.step("Clear statistics and counters"):
                 P4SamplingUtils.clear_statistics(engines.dut)
             with allure.step("Send packets and verify"):
-                count = 20
+                count = 5
                 expect_count = 0
                 P4SamplingUtils.verify_traffic_miss(topology_obj, engines, interfaces, table_params, count,
                                                     expect_count)

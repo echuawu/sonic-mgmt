@@ -215,15 +215,12 @@ def get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_m
     :param ha_dut_2_mac: ha_dut_2_mac fixture object
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     """
-    #TODO: only add one entry since there are some bugs: 2649575 and 2652634, after issue fixed, need to add 2 entries
-
     table_param_data = DottedDict()
     chksum_value = '0x0001'
     chksum_value1 = '0x0100'
     chksum_mask = '0xffff'
     port_entry_key_list = ['{} {}/{}'.format(interfaces.dut_ha_2, chksum_value, chksum_mask),
                            '{} {}/{}'.format(interfaces.dut_hb_1, chksum_value1, chksum_mask)]
-    port_entry_key_list = ['{} {}/{}'.format(interfaces.dut_ha_2, chksum_value, chksum_mask)]
 
     l3_mirror_vlan = 40
     l3_mirror_is_truc = 'True'
@@ -241,44 +238,29 @@ def get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_m
                                                                      P4SamplingEntryConsts.hadut2_ip,
                                                                      l3_mirror_vlan, l3_mirror_is_truc,
                                                                      l3_mirror_truc_size)]
-    port_entry_action_param_list = ['{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, hb_dut_1_mac,
-                                                                     P4SamplingEntryConsts.duthb1_ip,
-                                                                     P4SamplingEntryConsts.hbdut1_ip,
-                                                                     l3_mirror_vlan, l3_mirror_is_truc,
-                                                                     l3_mirror_truc_size)]
     port_entry_priority_list = [1, 1]
     port_entry_match_chksum_list = [chksum_value, chksum_value1]
     port_entry_mismatch_chksum_list = [0x0000, 0x0000]
     protocol = 6
     src_port = 20
     dst_port = 80
+    l3_mirror_vlan_flow = 50
 
-    flow_entry_key_list = ['{} {} {} {} {} {}/{}'.format(P4SamplingEntryConsts.hbdut1_ip, P4SamplingEntryConsts.hadut1_ip,
+    flow_entry_key_list = ['{} {} {} {} {} {}/{}'.format(P4SamplingEntryConsts.hbdut1_ip, P4SamplingEntryConsts.dutha1_ip,
                                                          protocol, src_port, dst_port, chksum_value, chksum_mask),
-                           '{} {} {} {} {} {}/{}'.format(P4SamplingEntryConsts.hadut2_ip, P4SamplingEntryConsts.hbdut2_ip,
-                                                         protocol, src_port, dst_port, chksum_value1, chksum_mask),]
-    flow_entry_key_list = [
-        '{} {} {} {} {} {}/{}'.format(
-            P4SamplingEntryConsts.hadut2_ip,
-            P4SamplingEntryConsts.hbdut2_ip,
-            protocol,
-            src_port,
-            dst_port,
-            chksum_value,
-            chksum_mask)
-    ]
-    flow_entry_action_param_list = ['{} {} {} {} {} {} {} {}'.format(interfaces.dut_ha_2, dutha2_mac, hb_dut_1_mac,
+                           '{} {} {} {} {} {}/{}'.format(P4SamplingEntryConsts.hadut2_ip, P4SamplingEntryConsts.duthb2_ip,
+                                                         protocol, src_port, dst_port, chksum_value1, chksum_mask)]
+
+    flow_entry_action_param_list = ['{} {} {} {} {} {} {} {}'.format(interfaces.dut_ha_2, dutha2_mac, ha_dut_2_mac,
                                                                      P4SamplingEntryConsts.dutha2_ip,
-                                                                     P4SamplingEntryConsts.hbdut1_ip, l3_mirror_vlan,
-                                                                     l3_mirror_is_truc, l3_mirror_truc_size),
-                                    '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, ha_dut_2_mac,
+                                                                     P4SamplingEntryConsts.hadut2_ip,
+                                                                     l3_mirror_vlan_flow, l3_mirror_is_truc,
+                                                                     l3_mirror_truc_size),
+                                    '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, hb_dut_1_mac,
                                                                      P4SamplingEntryConsts.duthb1_ip,
-                                                                     P4SamplingEntryConsts.hadut2_ip, l3_mirror_vlan,
-                                                                     l3_mirror_is_truc, l3_mirror_truc_size)]
-    flow_entry_action_param_list = ['{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, ha_dut_2_mac,
-                                                                     P4SamplingEntryConsts.duthb1_ip,
-                                                                     P4SamplingEntryConsts.hadut2_ip, l3_mirror_vlan,
-                                                                     l3_mirror_is_truc, l3_mirror_truc_size)]
+                                                                     P4SamplingEntryConsts.hbdut1_ip,
+                                                                     l3_mirror_vlan_flow, l3_mirror_is_truc,
+                                                                     l3_mirror_truc_size)]
     flow_entry_priority_list = [1, 1]
     flow_entry_match_chksum_list = [chksum_value, chksum_value1]
     flow_entry_mismatch_chksum_list = [0x0000, 0x0000]

@@ -490,12 +490,14 @@ class TestNegativeConfig:
                 with allure.step('Verify show entries of port table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
                         engines.dut.run_cmd(
-                            'show p4-sampling control-in-port {} entries {}'.format(PORT_TABLE_NAME, extra_arg)),
+                            'show p4-sampling {} {} entries {}'.format(P4SamplingConsts.CONTTROL_IN_PORT,
+                                                                       PORT_TABLE_NAME, extra_arg)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify show counters of port table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
                         engines.dut.run_cmd(
-                            'show p4-sampling control-in-port {} counters {}'.format(PORT_TABLE_NAME, extra_arg)),
+                            'show p4-sampling {} {} counters {}'.format(P4SamplingConsts.CONTTROL_IN_PORT,
+                                                                        PORT_TABLE_NAME, extra_arg)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
         with allure.step('Verify add entry for the table_flow_sampling'):
@@ -518,12 +520,14 @@ class TestNegativeConfig:
                 with allure.step('Verify show entries of flow table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
                         engines.dut.run_cmd(
-                            'show p4-sampling control-in-port {} entries {}'.format(FLOW_TABLE_NAME, extra_arg)),
+                            'show p4-sampling {} {} entries {}'.format(P4SamplingConsts.CONTTROL_IN_PORT,
+                                                                       FLOW_TABLE_NAME, extra_arg)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify show counters of flow table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
                         engines.dut.run_cmd(
-                            'show p4-sampling control-in-port {} counters {}'.format(FLOW_TABLE_NAME, extra_arg)),
+                            'show p4-sampling {} {} counters {}'.format(P4SamplingConsts.CONTTROL_IN_PORT,
+                                                                        FLOW_TABLE_NAME, extra_arg)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
     @allure.title('Test P4 sampling add entry with non physical port as ingress port or mirror port')

@@ -14,9 +14,11 @@ import yaml
 import os
 import time
 import re
+from retry import retry
 
 logger = logging.getLogger()
 CHKSUM_MASK = '0xffff'
+P4_SAMPLING_ENTRY_PRIO_MAX = 126
 
 
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
@@ -50,13 +52,14 @@ class TestEntryScaling:
         return expected_ram_usage_dict
 
     @allure.title('Test 500 entries added for each table')
+    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
     def test_scaling_entries(self, topology_obj, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
         """
         configure 500 entries for each table, and send traffic for some entry, verify the cpu and memory usage,
         verify the the execution time for the add, show and delete cli command, verify it is added correctly with p4nspect,
         verify the reboot time
         """
-        count = 127
+        count = 12
         cli_object = topology_obj.players['dut']['cli']
         duthb1_mac = cli_object.mac.get_mac_address_for_interface(
             engines.dut, topology_obj.ports['dut-hb-1'])
@@ -80,7 +83,7 @@ class TestEntryScaling:
             self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
         with allure.step("Save configuration before reboot"):
-            self.save_config(engines.dut)
+            SonicGeneralCli.save_configuration(engines.dut)
         with allure.step("Do cold reboot and verify the execution time"):
             self.do_cold_reboot(engines.dut, topology_obj)
         with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
@@ -96,7 +99,7 @@ class TestEntryScaling:
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
 
         with allure.step("Save configuration before reboot"):
-            self.save_config(engines.dut)
+            SonicGeneralCli.save_configuration(engines.dut)
         with allure.step("Do cold reboot and verify the execution time after the entries are cleared"):
             self.do_cold_reboot(engines.dut, topology_obj)
 
@@ -124,7 +127,7 @@ class TestEntryScaling:
                                                              l3_mirror_is_truc, l3_mirror_truc_size)
             entry_params = DottedDict()
             entry_params.action = action_params
-            entry_params.priority = random.randint(0, 20)
+            entry_params.priority = random.randint(0, P4_SAMPLING_ENTRY_PRIO_MAX)
             entry_params.match_chksum = P4SamplingUtils.convert_int_to_hex((i+1)*4)
             entry_params.mismatch_chksum = 0x0000
             ret[key] = entry_params
@@ -162,7 +165,7 @@ class TestEntryScaling:
                                                              l3_mirror_is_truc, l3_mirror_truc_size)
             entry_params = DottedDict()
             entry_params.action = action_params
-            entry_params.priority = random.randint(0, 20)
+            entry_params.priority = random.randint(0, P4_SAMPLING_ENTRY_PRIO_MAX)
             entry_params.match_chksum = P4SamplingUtils.convert_int_to_hex((i + 1) * 4)
             entry_params.mismatch_chksum = '0x0000'
             ret[key] = entry_params
@@ -239,7 +242,7 @@ class TestEntryScaling:
     @staticmethod
     def verify_send_recv_traffic(topology_obj, interfaces, engine, port_entries, flow_entries):
         with allure.step("Send traffic"):
-            pkt_count = 100
+            pkt_count = 20
             with allure.step("Clear counters before send traffic"):
                 P4SamplingUtils.clear_statistics(engine)
             with allure.step("Send traffic for some of port table entries and verify"):
@@ -260,6 +263,7 @@ class TestEntryScaling:
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))
         # TODO: this is a bug for the image, after the reboot, need to wait for 180 secs before install p4-sampling
         self.wait_until_dut_ready(engine_dut)
+        self.verify_p4_sampling_up(engine_dut)
 
     def wait_until_dut_ready(self, engine_dut):
         uptime = self.get_uptime(engine_dut)
@@ -271,6 +275,16 @@ class TestEntryScaling:
             uptime = self.get_uptime(engine_dut)
 
     @staticmethod
+    @retry(Exception, tries=10, delay=10)
+    def verify_p4_sampling_up(engine_dut):
+        """
+        Verifying the dockers are in up state
+        :param engine: ssh engine object
+        :return: None, raise error in case of unexpected result
+        """
+        engine_dut.run_cmd('docker ps | grep {}'.format(P4SamplingConsts.APP_NAME), validate=True)
+
+    @staticmethod
     def get_uptime(engine_dut):
         reg = r'(.+)(up.+\d+)(\D*,)(.+)(,)(.+)(,)(.+)(,)(.+)'
         uptime_ret = engine_dut.run_cmd('uptime')
@@ -280,10 +294,6 @@ class TestEntryScaling:
             return int(uptime_arr[0]) * 60 + int(uptime_arr[1])
         else:
             return int(uptime_arr[0])
-
-    @staticmethod
-    def save_config(engine):
-        engine.run_cmd('sudo config save -y')
 
     @staticmethod
     def verify_cpu_ram_usage(engine,  expected_cpu_usage_dict, expected_ram_usage_dict):

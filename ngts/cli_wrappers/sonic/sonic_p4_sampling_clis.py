@@ -20,8 +20,7 @@ class P4SamplingCli:
         :return: the output of the cli command
         """
         return engine.run_cmd(
-            'sudo config p4-sampling add control-in-port {} {}'.format(
-                table_name, params))
+            'sudo config p4-sampling add {} {} {}'.format(P4SamplingConsts.CONTTROL_IN_PORT, table_name, params))
 
     @staticmethod
     def add_entries_to_table(engine, table_name, params_list):
@@ -37,8 +36,8 @@ class P4SamplingCli:
 
         cmd_list = []
         for params in params_list:
-            cmd_list.append('sudo config p4-sampling add control-in-port {} {}'.format(
-                table_name, params))
+            cmd_list.append('sudo config p4-sampling add {} {} {}'.format(P4SamplingConsts.CONTTROL_IN_PORT,
+                                                                          table_name, params))
         return engine.run_cmd_set(cmd_list)
 
     @staticmethod
@@ -52,8 +51,7 @@ class P4SamplingCli:
         :return: the output of the cli command
         """
         return engine.run_cmd(
-            'sudo config p4-sampling remove control-in-port {} {}'.format(
-                table_name, params))
+            'sudo config p4-sampling remove {} {} {}'.format(P4SamplingConsts.CONTTROL_IN_PORT, table_name, params))
 
     @staticmethod
     def delete_entries_from_table(engine, table_name, params_list):
@@ -67,8 +65,8 @@ class P4SamplingCli:
         """
         cmd_list = []
         for params in params_list:
-            cmd_list.append('sudo config p4-sampling remove control-in-port {} {}'.format(
-                table_name, params))
+            cmd_list.append('sudo config p4-sampling remove {} {} {}'.format(P4SamplingConsts.CONTTROL_IN_PORT,
+                                                                             table_name, params))
         return engine.run_cmd_set(cmd_list)
 
     @staticmethod
@@ -81,7 +79,7 @@ class P4SamplingCli:
         :return: the output of the cli command
         """
         return engine.run_cmd(
-            'show p4-sampling control-in-port {} entries'.format(table_name))
+            'show p4-sampling {} {} entries'.format(P4SamplingConsts.CONTTROL_IN_PORT, table_name))
 
     @staticmethod
     def show_table_counters(engine, table_name):
@@ -93,7 +91,7 @@ class P4SamplingCli:
         :return: the output of the cli command
         """
         return engine.run_cmd(
-            'show p4-sampling control-in-port {} counters'.format(table_name))
+            'show p4-sampling {} {} counters'.format(P4SamplingConsts.CONTTROL_IN_PORT, table_name))
 
     @staticmethod
     def show_and_parse_table_entries(engine, table_name, exclude_keys=[]):
@@ -152,7 +150,8 @@ class P4SamplingCli:
                example: table_port_sampling
         :return: None
         """
-        engine.run_cmd('show p4-sampling control-in-port {} counters -c'.format(table_name), validate=True)
+        engine.run_cmd('show p4-sampling {} {} counters -c'.format(P4SamplingConsts.CONTTROL_IN_PORT, table_name),
+                       validate=True)
 
     @staticmethod
     def clear_all_table_counters(engine):

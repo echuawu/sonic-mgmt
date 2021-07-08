@@ -4,7 +4,6 @@ from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
-from ngts.cli_wrappers.sonic.sonic_lldp_clis import SonicLldpCli
 from ngts.helpers.p4nspect_utils import get_p4nspect_query_parsed
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
@@ -31,8 +30,7 @@ class P4SamplingUtils:
         logger.info("Clear the Interface counters before send traffic")
         SonicInterfaceCli.clear_counters(engine)
         logger.info("Clear the entry counters before send traffic")
-        P4SamplingCli.clear_table_counters(engine, PORT_TABLE_NAME)
-        P4SamplingCli.clear_table_counters(engine, FLOW_TABLE_NAME)
+        P4SamplingCli.clear_all_table_counters(engine)
 
     @staticmethod
     def verify_traffic_hit(topology_obj, engines, interfaces, table_params, count, expect_count):
@@ -98,11 +96,9 @@ class P4SamplingUtils:
         port_entry_keys = []
         for index in indices:
             port_entry_keys.append(list(port_entries.keys())[index])
-        port_traffic_params_list = TrafficParams.prepare_port_table_send_receive_traffic_params(engine, interfaces,
-                                                                                                port_entries, indices,
-                                                                                                chksum_type)
-        logger.info("Check the sdk acl value before traffic send for port entry")
-        engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
+        port_traffic_params_list = \
+            TrafficParams.prepare_port_table_send_receive_traffic_params(interfaces, topology_obj, port_entries,
+                                                                         indices, chksum_type)
         P4SamplingUtils.send_recv_port_table_traffic(topology_obj, port_traffic_params_list, count, expect_count)
         P4SamplingUtils.verify_entry_counter(
             engine,
@@ -127,11 +123,9 @@ class P4SamplingUtils:
         :return:
         """
         logger.info("Send traffic for one of the flow entry")
-        flow_entry_keys, flow_traffic_params_list = TrafficParams.prepare_flow_table_send_receive_traffic_params(engine, interfaces,
-                                                                                                   flow_entries,
-                                                                                                   indices, chksum_type)
-        logger.info("Check the sdk acl value before traffic send for flow entry")
-        engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
+        flow_entry_keys, flow_traffic_params_list = \
+            TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj, flow_entries,
+                                                                         indices, chksum_type)
         P4SamplingUtils.send_recv_flow_table_traffic(
             topology_obj, flow_traffic_params_list, count, expect_count)
         P4SamplingUtils.verify_entry_counter(
@@ -226,7 +220,7 @@ class P4SamplingUtils:
                                 [
                                     {'receiver': '{}'.format(port_traffic_params['receiver']),
                                      'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
-                                                      'filter': 'ip', 'count': expect_mirror_count}}
+                                                      'filter': port_traffic_params['filter'], 'count': expect_mirror_count}}
                                 ]
                             }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
@@ -259,9 +253,55 @@ class P4SamplingUtils:
                                 [
                                     {'receiver': '{}'.format(flow_traffic_params['receiver']),
                                      'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
-                                                      'filter': 'ip', 'count': expect_mirror_count}}
+                                                      'filter': flow_traffic_params['filter'], 'count': expect_mirror_count}}
                                 ]
                             }
+            scapy_r = ScapyChecker(topology_obj.players, validation)
+            scapy_r.run_validation()
+
+    @staticmethod
+    def send_port_table_traffic(topology_obj, port_traffic_params_list, count):
+        """
+        Send and verify traffic for the port table.
+        :param topology_obj: topology_obj fixture object
+        :param port_traffic_params_list: the traffic params which will be used when send traffic.
+        :param count: the count of the packets to be sent
+        :return:
+        """
+        for port_traffic_params in port_traffic_params_list:
+            chksum = port_traffic_params['chksum']
+            port_entry_pkt = 'Ether()/IP(dst="{}", chksum={})'.format(port_traffic_params['dst_ip'],
+                                                                      chksum)
+            validation_r = {'sender': '{}'.format(port_traffic_params['sender']),
+                            'send_args': {'interface': "{}".format(port_traffic_params['src_port']),
+                                          'packets': port_entry_pkt, 'count': count}
+                            }
+            scapy_r = ScapyChecker(topology_obj.players, validation_r)
+            scapy_r.run_validation()
+
+    @staticmethod
+    def send_flow_table_traffic(topology_obj, flow_traffic_params_list, count):
+        """
+        Send and verify traffic for the flow table.
+        :param topology_obj: topology_obj fixture object
+        :param flow_traffic_params_list: the traffic params which will be used when send traffic.
+        :param count: the count of the packets to be sent
+        :return: None
+        """
+        for flow_traffic_params in flow_traffic_params_list:
+            flow_entry_keys = flow_traffic_params['flow_entry_key'].split()
+            src_ip = flow_entry_keys[0]
+            dst_ip = flow_entry_keys[1]
+            proto = flow_entry_keys[2]
+            src_port = flow_entry_keys[3]
+            dst_port = flow_entry_keys[4]
+            chksum = flow_traffic_params['chksum']
+            flow_entry_pkt = 'Ether()/IP(src="{}",dst="{}", proto={}, chksum={})/TCP(sport={}, dport={})'.format(
+                src_ip, dst_ip, proto, chksum, src_port, dst_port)
+            validation = {'sender': '{}'.format(flow_traffic_params['sender']),
+                          'send_args': {'interface': "{}".format(flow_traffic_params['src_port']),
+                                        'packets': flow_entry_pkt, 'count': count}
+                          }
             scapy_r = ScapyChecker(topology_obj.players, validation)
             scapy_r.run_validation()
 
@@ -365,7 +405,7 @@ class P4SamplingUtils:
                 [
                     {'receiver': '{}'.format(port_traffic_params['receiver']),
                      'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
-                                      'filter': 'ip', 'operator': operator, 'count': expect_count}}
+                                      'filter': port_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
                 ]
             }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
@@ -386,7 +426,7 @@ class P4SamplingUtils:
                 [
                     {'receiver': '{}'.format(flow_traffic_params['receiver']),
                      'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
-                                      'filter': 'ip', 'operator': operator, 'count': expect_count}}
+                                      'filter': flow_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
                 ]
             }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
@@ -429,12 +469,11 @@ class P4SamplingUtils:
 
 
 class TrafficParams:
-
     @staticmethod
-    def prepare_port_table_send_receive_traffic_params(engine, interfaces, port_entries, indices, chksum_type):
+    def prepare_port_table_send_receive_traffic_params(interfaces, topology_obj, port_entries, indices, chksum_type):
         """
         prepare the traffic params to be used when send traffic
-        :param engine: ssh engine object
+        :param topology_obj fixture object
         :param interfaces: interfaces fixture object
         :param port_entries: list of port_entry params
         :param indices: index list to indicate for which entries the traffic should sent for
@@ -449,9 +488,10 @@ class TrafficParams:
             port_entry_chksum = TrafficParams.get_checkusm(port_entries[port_entry_key], chksum_type)
             ingress_port = port_entry_key.split()[0]
             dst_ip = TrafficParams.get_port_table_traffic_dst_ip(interfaces, ingress_port)
-            src_port, sender = TrafficParams.get_port_table_traffic_sender_src_port(engine, interfaces, port_entry_key)
-            mirror_host_port, receiver = TrafficParams.get_port_table_traffic_mirror_receiver(engine, interfaces,
+            src_port, sender = TrafficParams.get_port_table_traffic_sender_src_port(interfaces, topology_obj, port_entry_key)
+            mirror_host_port, receiver = TrafficParams.get_port_table_traffic_mirror_receiver(interfaces, topology_obj,
                                                                                               port_entries[port_entry_key].action)
+            filter_template = TrafficParams.get_pkt_filter(port_entries[port_entry_key].action, True)
 
             port_traffic_params_list.append(
                 {
@@ -460,42 +500,55 @@ class TrafficParams:
                     'src_port': src_port,
                     'mirror_port': mirror_host_port,
                     'dst_ip': dst_ip,
-                    'chksum': port_entry_chksum})
+                    'chksum': port_entry_chksum,
+                    'filter': filter_template},
+            )
         return port_traffic_params_list
 
     @staticmethod
-    def get_port_table_traffic_sender_src_port(engine, interfaces, port_entry_key):
+    def get_pkt_filter(entry_action_params, is_port=False):
+        entry_action_param_list = entry_action_params.split()
+        src_mac = entry_action_param_list[1]
+        dst_mac = entry_action_param_list[2]
+        # TODO: there is a bug 2706940 for the port table entry, the src ip and dst ip is swapped
+        src_ip = entry_action_param_list[4] if is_port else entry_action_param_list[3]
+        dst_ip = entry_action_param_list[3] if is_port else entry_action_param_list[4]
+        vlan = entry_action_param_list[5]
+        return 'vlan {} and src {} and dst {}'.format(vlan, src_ip, dst_ip)
+
+    @staticmethod
+    def get_port_table_traffic_sender_src_port(interfaces, topology_obj, port_entry_key):
         """
         get the traffic sender and the port on the sender for port entry traffic
-        :param engine:ssh engine object
+        :param topology_obj fixture object
         :param interfaces:interfaces fixture object
         :param port_entry_key:port entry key
         :return: port and sender name
         """
         ingress_port = port_entry_key.split()[0]
-        src_port = TrafficParams.get_neighbor_host_interface(engine, ingress_port)
+        src_port = TrafficParams.get_neighbor_host_interface(topology_obj, ingress_port)
         sender = TrafficParams.get_host(interfaces, src_port)
         return src_port, sender
 
     @staticmethod
-    def get_port_table_traffic_mirror_receiver(engine, interfaces, port_entry_action):
+    def get_port_table_traffic_mirror_receiver(interfaces, topology_obj, port_entry_action):
         """
         get the mirror traffic receive port and the receiver for port entry traffic
-        :param engine: ssh engine object
+        :param topology_obj fixture object
         :param interfaces:interfaces fixture object
         :param port_entry_action: port entry action params
         :return: mirror traffic receive port and receiver
         """
         mirror_port = port_entry_action.split()[0]
-        mirror_host_port = TrafficParams.get_neighbor_host_interface(engine, mirror_port)
+        mirror_host_port = TrafficParams.get_neighbor_host_interface(topology_obj, mirror_port)
         receiver = TrafficParams.get_host(interfaces, mirror_host_port)
         return mirror_host_port, receiver
 
     @staticmethod
-    def prepare_flow_table_send_receive_traffic_params(engine, interfaces, flow_entries, indices, chksum_type):
+    def prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj, flow_entries, indices, chksum_type):
         """
         prepare the traffic params to be used when send traffic
-        :param engine: ssh engine object
+        :param topology_obj fixture object
         :param interfaces: interfaces fixture object
         :param flow_entries: list of flow entry params
         :param indices: index list to indicate for which entries the traffic should sent for
@@ -508,10 +561,13 @@ class TrafficParams:
         flow_traffic_params_list = []
         for flow_entry_key in flow_entry_keys:
             src_port, sender = TrafficParams.get_flow_table_traffic_sender_src_port(interfaces, flow_entry_key)
-            mirror_host_port, receiver = TrafficParams.get_flow_table_traffic_mirror_receiver(engine, interfaces,
+            mirror_host_port, receiver = TrafficParams.get_flow_table_traffic_mirror_receiver(interfaces,
+                                                                                              topology_obj,
                                                                                               flow_entries[flow_entry_key].action)
             flow_entry_chksum = TrafficParams.get_checkusm(
                 flow_entries[flow_entry_key], chksum_type)
+
+            filter_template = TrafficParams.get_pkt_filter(flow_entries[flow_entry_key].action)
 
             flow_traffic_params_list.append(
                 {
@@ -520,7 +576,8 @@ class TrafficParams:
                     'receiver': receiver,
                     'src_port': src_port,
                     'mirror_port': mirror_host_port,
-                    'chksum': flow_entry_chksum})
+                    'chksum': flow_entry_chksum,
+                    'filter': filter_template})
         return flow_entry_keys, flow_traffic_params_list
 
     @staticmethod
@@ -537,30 +594,30 @@ class TrafficParams:
         return src_port, sender
 
     @staticmethod
-    def get_flow_table_traffic_mirror_receiver(engine, interfaces, flow_entry_action):
+    def get_flow_table_traffic_mirror_receiver(interfaces, topology_obj, flow_entry_action):
         """
         get the mirror traffic receive port and the receiver for flow entry traffic
-        :param engine: ssh engine object
+        :param topology_obj: topology_obj fixture object
         :param interfaces: interfaces fixture object
         :param flow_entry_action: flow entry action params
         :return: mirror traffic receive port and receiver
         """
         mirror_port = flow_entry_action.split()[0]
-        mirror_host_port = TrafficParams.get_neighbor_host_interface(
-            engine, mirror_port)
+        mirror_host_port = TrafficParams.get_neighbor_host_interface(topology_obj, mirror_port)
         receiver = TrafficParams.get_host(interfaces, mirror_host_port)
         return mirror_host_port, receiver
 
     @staticmethod
-    def get_neighbor_host_interface(engine, intf):
+    def get_neighbor_host_interface(topology_obj, intf):
         """
         get the interface neighbor
-        :param engine: ssh engine object
+        :param topology_obj: topology_obj fixture object
         :param intf: the interface name
         :return: the neighbor interface alias, example: Ethernet116, enp4s0f1
         """
-        ret = SonicLldpCli.parse_lldp_info_for_specific_interface(engine, intf)
-        return ret['Port']['PortDescr'].split()[-1]
+        intf_alias = [k for k, v in topology_obj.ports.items() if v == intf][0]
+        neighbor_intf_alias = topology_obj.ports_interconnects[intf_alias]
+        return topology_obj.ports[neighbor_intf_alias]
 
     @staticmethod
     def get_checkusm(entry_key_value, chksum_type):

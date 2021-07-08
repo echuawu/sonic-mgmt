@@ -8,11 +8,39 @@ Defines the methods and fixtures which will be used by pytest
 
 import pytest
 import logging
+import allure
+import os
 import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.constants.constants import P4SamplingEntryConsts
+from ngts.helpers.p4_sampling_utils import P4SamplingUtils, TrafficParams
 logger = logging.getLogger()
+
+
+@pytest.fixture(autouse=False)
+def ignore_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "..", "..", "..", "..",
+                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "..", "..", "..", "..",
+                                                               "tools", "loganalyzer",
+                                                               "loganalyzer_common_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "p4_sampling_loganalyzer_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
 # TODO: after add function to install the app in the mars orchestration, need to disable this fixture
@@ -116,4 +144,32 @@ def table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
     return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
 
 
+@pytest.fixture(scope='class')
+def port_traffic_params_list(engines, interfaces, topology_obj, table_params):
+    chksum_type = 'match'
+    indices = [0]
+    port_traffic_params_list = TrafficParams.prepare_port_table_send_receive_traffic_params(interfaces, topology_obj,
+                                                                              table_params.port_entry, indices,
+                                                                              chksum_type)
+    return port_traffic_params_list
 
+
+@pytest.fixture(scope='class')
+def flow_traffic_params_list(engines, interfaces, topology_obj, table_params):
+    chksum_type = 'match'
+    indices = [0]
+    _, flow_traffic_params_list = TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj,
+                                                                                 table_params.flow_entry, indices,
+                                                                                 chksum_type)
+    return flow_traffic_params_list
+
+
+@pytest.fixture(scope='function')
+def start_stop_continuous_traffic(topology_obj, port_traffic_params_list, flow_traffic_params_list):
+    with allure.step("Send continuous traffic"):
+        port_table_scapy_senders = P4SamplingUtils.start_background_port_table_traffic(topology_obj, port_traffic_params_list)
+        flow_table_scapy_senders = P4SamplingUtils.start_background_flow_table_traffic(topology_obj, flow_traffic_params_list)
+    yield
+    with allure.step("Stop continuous traffic"):
+        P4SamplingUtils.stop_background_traffic(port_table_scapy_senders)
+        P4SamplingUtils.stop_background_traffic(flow_table_scapy_senders)
