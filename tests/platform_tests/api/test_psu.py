@@ -90,6 +90,7 @@ class TestPsuApi(PlatformApiTestBase):
         self.assert_expectations()
 
     def test_get_model(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
+        duthost = duthosts[enum_rand_one_per_hwsku_hostname]
         skip_version(duthost, ["201811", "201911", "202012"])
         for i in range(self.num_psus):
             model = psu.get_model(platform_api_conn, i)
@@ -98,6 +99,7 @@ class TestPsuApi(PlatformApiTestBase):
         self.assert_expectations()
 
     def test_get_serial(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
+        duthost = duthosts[enum_rand_one_per_hwsku_hostname]
         skip_version(duthost, ["201811", "201911", "202012"])
         for i in range(self.num_psus):
             serial = psu.get_serial(platform_api_conn, i)
