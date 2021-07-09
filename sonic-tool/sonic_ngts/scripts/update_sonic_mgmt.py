@@ -13,6 +13,7 @@ from xml.etree.ElementTree import Element
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from infra.noga.noga import get_noga_resource_data
+from infra.engines.ssh.ssh_engine import SSH
 
 logger = logging.getLogger(__name__)
 
@@ -92,20 +93,34 @@ class Inventory:
                     return True
         return False
 
-    def add_entry(self, dut_name, hwsku, console, pdu_host):
+    def add_entry(self, dut_name, hwsku, console, pdu_host, syseeprom_info):
         """
         Add new entries to the inventory file
         Entry example:
         r-lionfish-07-ptf-any
         r-lionfish-07-ptf-any  ansible_host=r-lionfish-07  sonic_version=v2  sonic_hwsku=ACS-MSN3420 \
             serial_console="ssh -l rcon:7034 10.208.0.49" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-186
+            base_mac=1C:34:DA:19:A4:00 serial=MT2012X01822 model=MSN3420-CB2FO
+            syseeprom_info="{'0x28': u'x86_64-mlnx_msn3420-r0', '0x29': u'2020.11-5.3.0005-9600',
+            '0x22': u'MSN3420-CB2FO', '0x23': u'MT2012X01822', '0x21': u'MSN3420', '0x26': u'0',
+            '0x24': u'1C:34:DA:19:A4:00', '0x25': u'03/23/2020 21:58:43', '0xfe': u'0x2F4BF307',
+            '0x2b': u'Mellanox', '0x2a': u'254'}"
         """
         buff = ""
+        description_line = "# MTR canonical testbed {} topologies".format(dut_name)
+        base_mac = get_base_mac(syseeprom_info)
+        serial = get_serial(syseeprom_info)
+        model = get_model(syseeprom_info)
+
         sonic_latest_entry = "ansible_host={dut_name}  sonic_version=v2  sonic_hwsku={hwsku} \
-            serial_console=\"{console}\" ptf_host=ptf-dummy ptf_portmap=\"\" pdu_host={pdu_host}"
+            serial_console=\"{console}\" ptf_host=ptf-dummy ptf_portmap=\"\" pdu_host={pdu_host} " \
+            "base_mac={base_mac} serial={serial} model={model} syseeprom_info=\"{syseeprom_info}\""
         tb_topo = "{dut_name}-ptf-any\n{dut_name}".format(dut_name=dut_name)
-        dev_topo = "{dut_name}-ptf-any {sonic_latest}\n{dut_name} {sonic_latest}".format(dut_name=dut_name,
-                sonic_latest=sonic_latest_entry.format(dut_name=dut_name, hwsku=hwsku, console=console, pdu_host=pdu_host))
+        dev_topo = "{description_line}\n{dut_name}-ptf-any {sonic_latest}\n{dut_name} {sonic_latest}\n".format(
+            description_line=description_line, dut_name=dut_name,
+            sonic_latest=sonic_latest_entry.format(dut_name=dut_name, hwsku=hwsku, console=console, pdu_host=pdu_host,
+                                                   base_mac=base_mac, serial=serial, model=model,
+                                                   syseeprom_info=syseeprom_info))
         pdu_line = "{} ansible_host={} protocol=snmp".format(pdu_host, pdu_host[4:].replace('-', '.'))
         for line in self.inventory_buff.splitlines():
             if "[lab]" in line:
@@ -264,6 +279,53 @@ def get_hwsku_from_noga_res(noga_resource):
     return hwsku
 
 
+def get_system_eeprom_info(dut):
+    """
+    Generate a get_system_eeprom_info.py, and then use it to get the system eeprom info
+
+    {'0x28': u'x86_64-mlnx_msn4600-r0', '0x29': u'2020.11-5.3.0005-9600', '0x22': u'MSN4600-VS2FO_QP1', '0x23': u'MT2117X17690', '0x21': u'MSN4600', '0x26': u'17', '0x24': u'1C:34:DA:BD:FE:00', '0x25': u'05/12/2021 09:07:16', '0xfe': u'0x84AC2031', '0x2b': u'Mellanox', '0x2a': u'254'}
+
+    """
+
+    gen_get_system_eeprom_info_py = """
+cat << EOF > get_system_eeprom_info.py
+import sonic_platform.platform as P
+info = P.Platform().get_chassis().get_system_eeprom_info()
+print(info)
+EOF\n
+    """
+
+    logger.info("Generate get_system_eeprom_info.py: {}".format(gen_get_system_eeprom_info_py))
+    dut.engine.send_command_timing(gen_get_system_eeprom_info_py)
+    syseeprom_info = dut.engine.send_command_timing("python get_system_eeprom_info.py")
+    logger.info("syseeprom is :{}".format(syseeprom_info))
+    return syseeprom_info
+
+
+def get_model(syseeprom_info):
+    """
+    Get model info from syseeprom_info
+    """
+    model_code_key = '0x22'
+    return eval(syseeprom_info)[model_code_key]
+
+
+def get_serial(syseeprom_info):
+    """
+    Get serial info from syseeprom_info
+    """
+    serial_code_key = '0x23'
+    return eval(syseeprom_info)[serial_code_key]
+
+
+def get_base_mac(syseeprom_info):
+    """
+    Get base_mac info from syseeprom_info
+    """
+    base_mac_code_key = '0x24'
+    return eval(syseeprom_info)[base_mac_code_key]
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dut", help="DUT name", type=str, required=True)
@@ -308,13 +370,17 @@ if __name__ == "__main__":
         # Update lab_connection_graph.xml
         connection_gr_add_entry(conf_files.lab_connection_graph, dut_name, hwsku)
 
+        # Get system eeprom info from DUT
+        dut_engine = SSH(ip=dut_name, username="admin", password="YourPaSsWoRd")
+        syseeprom_info = get_system_eeprom_info(dut_engine)
+
         # Update inventory
         pdu_host = noga_resource["attributes"]["Specific"]["pdu"]
         try:
             pdu_host = "pdu-" + pdu_host.split('/')[0].replace('.', '-')
         except Exception:
             logger.error("PDU has unexpected format, using value from NOGA: {}".format(pdu_host))
-        inv.add_entry(dut_name, hwsku, noga_resource["attributes"]["Specific"]["serial_connection_command"], pdu_host)
+        inv.add_entry(dut_name, hwsku, noga_resource["attributes"]["Specific"]["serial_connection_command"], pdu_host, syseeprom_info)
 
         # Update minigraph_facts.py
         mg_facts.write_minigraph_facts()
