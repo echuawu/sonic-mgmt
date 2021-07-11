@@ -22,12 +22,14 @@ logger = get_logger("Shutdown Interfaces")
 SHUTDOWN_INTERFACES_DELAY = 15
 INTERFACES_UP_DELAY = 60
 
+
 def _parse_args():
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--topo", dest="topo", help="Path to the MARS topology configuration file")
     parser.add_argument("--interface", dest="iface", help="First interface name to start shutdown from")
     return parser.parse_args()
+
 
 def main():
     args = _parse_args()
@@ -58,8 +60,13 @@ def main():
             return
 
         time.sleep(SHUTDOWN_INTERFACES_DELAY)
+        res = dut.run("sudo config save -y")
+
+        if res.exited:
+            logger.error("save configuration command had failed, shutdown interfaces will not persist though reboot")
     else:
         return
+
 
 if __name__ == '__main__':
     main()
