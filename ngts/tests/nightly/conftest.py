@@ -132,16 +132,21 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     return split_mode_supported_speeds
 
 
-def reboot_reload_random(dut_engine, cli_object, ports, cleanup_list):
+def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_list):
     """
     Do reload/or reboot by any given way (reboot, fast-reboot, warm-reboot) on dut
+    :param topology_obj: topology_obj fixture
     :param dut_engine: a ssh connection to dut
     :param cli_object: a cli object of dut
     :param ports: a ports list on dut to validate after reboot
     :param cleanup_list: a list of cleanup functions that should be called in the end of the test
     :return: raise assertion error in case reload/reboot failed
     """
-    mode = random.choice(['reload', 'warm-reboot', 'fast-reboot', 'reboot'])
+    supported_reboot_modes = ['reload', 'warm-reboot', 'fast-reboot', 'reboot']
+    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
+    if chip_type == "SPC2":
+        supported_reboot_modes.remove('fast-reboot')
+    mode = random.choice(supported_reboot_modes)
     with allure.step('Preforming {} on dut:'.format(mode)):
         logger.info('Saving Configuration and preforming {} on dut:'.format(mode))
         if mode == 'reload':

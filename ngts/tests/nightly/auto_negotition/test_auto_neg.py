@@ -78,7 +78,7 @@ def test_auto_neg_conf(topology_obj, engines, cli_objects, tested_lb_dict,
                          cable_type_to_speed_capabilities_dict, interfaces_types_dict, cleanup_list, set_cleanup=False)
 
     with allure.step("Randomly reboot/reload"):
-        reboot_reload_random(engines.dut, cli_objects.dut, conf.keys(), cleanup_list)
+        reboot_reload_random(topology_obj, engines.dut, cli_objects.dut, conf.keys(), cleanup_list)
 
     with allure.step("Verify configuration persist after reboot/reload"):
         logger.info("validate speed/type configuration is as expected after reload/reboot")

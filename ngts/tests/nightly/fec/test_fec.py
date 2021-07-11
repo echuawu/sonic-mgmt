@@ -75,7 +75,7 @@ class TestFec:
 
         tested_ports = list(dut_lb_conf.keys())
         tested_ports += list(dut_host_conf.keys())
-        reboot_reload_random(self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
+        reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
 
         with allure.step("Verify FEC on dut loopbacks"):
             self.verify_fec_configuration(dut_lb_conf)
