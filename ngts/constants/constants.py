@@ -238,5 +238,19 @@ class P4SamplingConsts:
     TRAFFIC_INTERVAL = 0.2
 
 
+
 class LoganalyzerConsts:
     LOG_FILE_NAME = "syslog"
+
+class AppExtensionInstallationConstants:
+    WJH_APP_NAME = 'what-just-happened'
+    WJH_REPOSITORY ='harbor.mellanox.com/sonic-wjh/docker-wjh'
+    LC_MANAGER = 'line-card-manager'
+    LC_MANAGER_REPOSITORY = 'harbor.mellanox.com/sonic-lc-manager/line-card-manager'
+    CMD_GET_SDK_VERSION = "docker exec -i {} bash -c 'sx_sdk --version'"
+    SYNCD_DOCKER = 'syncd'
+    APPLICATION_LIST = [
+        P4SamplingConsts.APP_NAME,
+        WJH_APP_NAME,
+        LC_MANAGER
+    ]

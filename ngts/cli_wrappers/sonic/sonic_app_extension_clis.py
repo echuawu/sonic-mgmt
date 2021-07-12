@@ -159,8 +159,7 @@ class SonicAppExtensionCli:
         output = dut_engine.run_cmd('which {}'.format(app_ext_cmd_prefix))
         if app_ext_cmd_prefix in output:
             return True
-        else:
-            return False
+        return False
 
     @staticmethod
     def get_installed_app_version(engine_dut, app_name):

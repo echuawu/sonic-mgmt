@@ -60,8 +60,6 @@ def _parse_args():
                         help="Specify the test setup's number of ports. Default: ''")
     parser.add_argument("--setup-name", default="", dest="setup_name",
                         help="Specify the test setup name. Default: ''")
-    parser.add_argument("--wjh-deb-url", help="Specify url to WJH debian package",
-                        dest="wjh_deb_url", default="")
     parser.add_argument("--recover_by_reboot", help="If post validation install validation has failed, "
                                                     "reboot the dut and run post validation again."
                                                     "This flag might be useful when the first boot has failed due to fw upgrade timeout",
@@ -82,6 +80,14 @@ def _parse_args():
     parser.add_argument("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
                                                  " Example: http://fit69.mtl.labs.mlnx/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
                         dest="onyx_image_url", default=None)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--wjh-deb-url", help="Specify url to WJH debian package",
+                        dest="wjh_deb_url", default="")
+    group.add_argument("--app_extension_dict_path",
+                       help="Specify path with json data of app extensions"
+                            " Content of file: '{\"lc-manager\":\"harbor.mellanox.com/sonic-lc-manager/lc-manager:0.0.6\","
+                            "\"p4-sampling\":\"harbor.mellanox.com/sonic-p4/p4-sampling:0.2.0-004\"}' ",
+                       dest="app_extension_dict_path", default=None)
 
     return parser.parse_args()
 
@@ -154,6 +160,20 @@ def separate_logger(func):
         with open(std_data_filename) as data:
             return data.read()
 
+    def get_allure_url(std_data_filename):
+        allure_urls = []
+        allure_url_regex = 'Allure report URL: (http:.*html)'
+        with open(std_data_filename) as data:
+            for line in data.readlines():
+                if re.search(allure_url_regex, line):
+                    allure_urls.append(re.search(allure_url_regex, line).group(1))
+        return allure_urls
+
+    def log_allure_urls(allure_urls):
+        if allure_urls:
+            logger.info('Allure report URLS: {}'.format(allure_urls))
+
+
     def wrapper(*args, **kwargs):
         method_name = func.__name__
         dut_name = kwargs.get('dut_name')
@@ -172,6 +192,7 @@ def separate_logger(func):
             raise Exception(err)
         finally:
             logger.info('#' * 100)
+            log_allure_urls(get_allure_url(std_data_filename))
             logger.info('Finished run for method: {}'.format(method_name))
             logger.info('#' * 100)
 
@@ -386,7 +407,7 @@ def recover_topology(ansible_path, mgmt_docker_engine, hypervisor_engine, dut_na
 
 
 @separate_logger
-def install_image(ansible_path, mgmt_docker_engine, sonic_topo, image_url, setup_name, upgrade_type='onie'):
+def install_image(ansible_path, mgmt_docker_engine, sonic_topo, image_url, setup_name, dut_name, upgrade_type='onie'):
     """
     Method which doing installation of image on DUT via ONIE or via SONiC cli
     """
@@ -501,6 +522,21 @@ def install_wjh(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, wjh_deb_
                         -e wjh_deb_url={PATH} -vvv".format(SWITCH=dut_name, TOPO=sonic_topo,
                                                            PATH=wjh_deb_url))
 
+@separate_logger
+def install_supported_app_extensions(ansible_path, mgmt_docker_engine, setup_name, dut_name, app_extension_dict_path):
+    app_extension_path_str = ''
+    if app_extension_dict_path:
+        app_extension_path_str = '--app_extension_dict_path={}'.format(app_extension_dict_path)
+    cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} {ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
+          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results " \
+          " --disable_loganalyzer {app_extension_path_str} " \
+          " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extesions.py". \
+        format(ngts_pytest=constants.NGTS_PATH_PYTEST, sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name,
+               app_extension_path_str=app_extension_path_str)
+    with mgmt_docker_engine.cd(ansible_path):
+        logger.info("Running CMD: {}".format(cmd))
+        mgmt_docker_engine.run(cmd)
+
 
 def main():
 
@@ -546,7 +582,7 @@ def main():
 
     install_image(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
                   sonic_topo=args.sonic_topo, setup_name=args.setup_name,
-                  image_url=base_version_url, upgrade_type=args.upgrade_type)
+                  image_url=base_version_url, upgrade_type=args.upgrade_type, dut_name=args.dut_name)
 
     # Community only steps
     if args.sonic_topo != 'ptf-any':
@@ -567,7 +603,7 @@ def main():
 
         install_image(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
                       sonic_topo=args.sonic_topo, setup_name=args.setup_name,
-                      image_url=image_urls["target_version"], upgrade_type='sonic')
+                      image_url=image_urls["target_version"], upgrade_type='sonic', dut_name=args.dut_name)
 
         post_install_check(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                            sonic_topo=args.sonic_topo)
@@ -579,6 +615,10 @@ def main():
     if args.wjh_deb_url:
         install_wjh(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                     sonic_topo=args.sonic_topo, wjh_deb_url=args.wjh_deb_url)
+    else:
+        install_supported_app_extensions(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
+                                         setup_name=args.setup_name, app_extension_dict_path=args.app_extension_dict_path,
+                                         dut_name=args.dut_name)
 
 
 if __name__ == "__main__":
