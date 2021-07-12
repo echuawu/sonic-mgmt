@@ -82,6 +82,10 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
     platforms:
       - simx
 
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage:
+  Redmine:
+    - 2716189
+
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   Redmine:
     - 2637874
