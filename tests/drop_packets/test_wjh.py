@@ -308,8 +308,11 @@ def vxlan_status(vxlan_config, duthosts, rand_one_dut_hostname):
 
 
 # NOTE: this test case is available only for setups with SDK ver 4.4.2522 and above
-@pytest.mark.topology('t0')
-def test_fid_miss(do_test, vxlan_config, vxlan_status, ptfadapter, duthost, setup, pkt_fields, ports_info, tbinfo):
+def test_fid_miss(request, do_test, ptfadapter, duthost, setup, pkt_fields, ports_info, tbinfo):
+    if tbinfo['topo']['type'] != 't0':
+        pytest.skip("fid_miss test case is only available for t0 topology")
+    request.getfixturevalue('vxlan_config')
+    request.getfixturevalue('vxlan_status')
     router_mac = ports_info['dst_mac']
     mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
     switch_loopback_ip = mg_facts['minigraph_lo_interfaces'][0]['addr']
