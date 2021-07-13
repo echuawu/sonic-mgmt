@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CASEDEF>
+    <global>
+        <Test>
+            <info> Auto Negotiation Test </info>
+            <name> autoneg </name>
+            <owner> </owner>
+            <pre></pre>
+            <post></post>
+        </Test>
+        <Case>
+            <tags> autoneg </tags>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
+            <tout> 1800 </tout>
+        </Case>
+    </global>
+
+    <case>
+        <info> Test Auto Negotiation Case </info>
+        <name> auto_negotiation </name>
+        <tout> 1800 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_auto_negotiation.py </static_args>
+             </params>
+        </cmd>
+        <ignore>
+            <condition_group>
+                <operand> OR </operand>
+                <condition>
+                    <key> dut_hwsku </key>
+                    <op> in </op>
+                    <value>  ["ACS-MSN3800", "Mellanox-SN3800-C64", "Mellanox-SN3800-D24C52", "Mellanox-SN3800-D28C49S1", "Mellanox-SN3800-D28C50", "Mellanox-SN3800-D112C8"] </value>
+                </condition>
+                <condition>
+                    <key> sonic_branch </key>
+                    <op> in </op>
+                    <value> ["202012", "201911"] </value>
+                </condition>
+            </condition_group>
+      </ignore>
+    </case>
+</CASEDEF>

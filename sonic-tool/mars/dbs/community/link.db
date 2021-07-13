@@ -52,6 +52,10 @@
     </global>
 
     <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/autoneg.cases </cases>
+    </test>
+
+    <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/link_flap.cases </cases>
     </test>
 
