@@ -462,7 +462,7 @@ def reboot_validation(ansible_path, mgmt_docker_engine, reboot, dut_name, sonic_
     Method which doing reboot validation
     """
     if reboot == "random":
-        reboot_type = random.choice(constants.REBOOT_TYPES.values())
+        reboot_type = random.choice(list(constants.REBOOT_TYPES.values()))
     else:
         reboot_type = constants.REBOOT_TYPES[reboot]
 
