@@ -19,6 +19,7 @@ SONIC_MGMT_MOUNTPOINTS = {
     '/.autodirect/mswg/projects': '/.autodirect/mswg/projects',
     '/auto/sw_system_project': '/auto/sw_system_project',
     '/auto/sw_system_release': '/auto/sw_system_release',
+    '/.autodirect/sw_system_release/': '/.autodirect/sw_system_release/',
     '/auto/sw_regression/system/SONIC/MARS': '/auto/sw_regression/system/SONIC/MARS',
     '/.autodirect/sw_regression/system/SONIC/MARS': '/.autodirect/sw_regression/system/SONIC/MARS',
     '/workspace': '/workspace',
