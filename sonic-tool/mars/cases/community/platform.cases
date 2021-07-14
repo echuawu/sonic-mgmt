@@ -349,17 +349,9 @@
         <info> Test Firmware Utility Case </info>
         <name> fwutil </name>
         <tout> 5200 </tout>
-        <ignore>
-            <condition>
-                <key> dut_name </key>
-                <op> == </op>
-                <value> "r-leopard-56" </value>
-            </condition>
-            <bug> 2700528 </bug>
-        </ignore>
         <cmd>
              <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --config_file=config/mellanox_config.yml --binaries_path=/auto/sw_system_project/sonic/platform_fw/ --second_image_path=/auto/sw_system_release/sonic/master-lastrc-internal-sonic-mellanox.bin --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/fw_utility/test_fwutil.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --fw-pkg /auto/sw_system_project/sonic/platform_fw/fw-pkg/firmware.tar.gz --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/fwutil/test_fwutil.py </static_args>
              </params>
         </cmd>
     </case>
