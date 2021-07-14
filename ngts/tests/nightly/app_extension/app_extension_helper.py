@@ -83,6 +83,7 @@ def verify_app_container_up_and_repo_status_installed(dut_engine, app_name, vers
     """
     def verify_app_container_up(dut_engine, app_name):
         status = GeneralCliCommon.get_container_status(dut_engine, app_name)
+        assert status, "{} container is not up, container status is None".format(app_name)
         assert "Up" in status, "expected status is Up, actual is {}".format(status)
 
     retry_call(verify_app_container_up, fargs=[dut_engine, app_name],
