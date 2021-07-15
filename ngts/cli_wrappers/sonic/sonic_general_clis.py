@@ -189,7 +189,10 @@ class SonicGeneralCli(GeneralCliCommon):
         if dockers_list is None:
             dockers_list = SonicConst.DOCKERS_LIST
         for docker in dockers_list:
-            engine.run_cmd('docker ps | grep {}'.format(docker), validate=True)
+            try:
+                engine.run_cmd('docker ps | grep {}'.format(docker), validate=True)
+            except:
+                raise Exception("{} docker is not up".format(docker))
 
     @staticmethod
     def check_link_state(engine, ifaces=None, expected_status='up'):
@@ -255,15 +258,19 @@ class SonicGeneralCli(GeneralCliCommon):
                 SonicGeneralCli.do_installation(topology_obj, dut_engine, image_path, deploy_type)
 
         if reboot_after_install:
-            SonicGeneralCli.validate_dockers_are_up_reboot_if_fail(dut_engine)
+            with allure.step("Validate dockers are up, reboot if any docker is not up"):
+                SonicGeneralCli.validate_dockers_are_up_reboot_if_fail(dut_engine)
 
         if apply_base_config:
-            SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku)
+            with allure.step("Apply port_config.ini and config_db.json"):
+                SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku)
 
         if wjh_deb_url:
-            SonicGeneralCli.install_wjh(dut_engine, wjh_deb_url)
+            with allure.step("Installing wjh deb url"):
+                SonicGeneralCli.install_wjh(dut_engine, wjh_deb_url)
 
-        SonicGeneralCli.verify_dockers_are_up(dut_engine)
+        with allure.step("Validate dockers are up"):
+            SonicGeneralCli.verify_dockers_are_up(dut_engine)
 
     @staticmethod
     def deploy_sonic(dut_engine, image_path, is_skipping_migrating_package=False):
