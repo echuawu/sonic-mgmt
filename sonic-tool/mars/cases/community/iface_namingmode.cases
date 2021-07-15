@@ -15,6 +15,13 @@
     </global>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Interface naming mode Case </info>
         <name> iface_namingmode </name>
         <tout> 1800 </tout>

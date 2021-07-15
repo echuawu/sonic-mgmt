@@ -59,4 +59,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/neighbour_mac.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/nbr_health.cases </cases>
+    </test>
+
 </DBDEF>

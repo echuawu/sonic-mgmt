@@ -57,10 +57,9 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/interfaces.cases </cases>
     </test>
-<!--
+
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/iface_namingmode.cases </cases>
     </test>
--->
 
 </DBDEF>
