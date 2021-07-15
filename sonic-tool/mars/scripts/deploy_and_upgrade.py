@@ -77,6 +77,8 @@ def _parse_args():
                                                              "notification to all the active terminals and wait for "
                                                              "a predefined period before starting the deployment",
                         dest="send_takeover_notification", default='no', choices=["yes", "no"])
+    parser.add_argument("--deploy_fanout", help="Specify whether to do fanout deployment. Default is 'no'",
+                        choices=["no", "yes"], dest="deploy_fanout", default="no")
     parser.add_argument("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
                                                  " Example: http://fit69.mtl.labs.mlnx/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
                         dest="onyx_image_url", default=None)
@@ -548,10 +550,10 @@ def main():
 
     # Community only steps
     if args.sonic_topo != 'ptf-any':
-        deploy_fanout(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                      topo=topo, setup_name=args.setup_name, onyx_image_url=args.onyx_image_url,
-                      dut_name=args.dut_name)
-
+        if args.deploy_fanout == 'yes':
+            deploy_fanout(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
+                          topo=topo, setup_name=args.setup_name, onyx_image_url=args.onyx_image_url,
+                          dut_name=args.dut_name)
         generate_minigraph(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                            sonic_topo=args.sonic_topo, port_number=args.port_number)
         retry_call(deploy_minigprah, fargs=[ansible_path, mgmt_docker_engine, args.dut_name, args.sonic_topo,
