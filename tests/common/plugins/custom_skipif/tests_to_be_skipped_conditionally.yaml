@@ -179,3 +179,8 @@ tests/nightly/fec:
   - Platform:
     - 4700
     - 3420
+
+tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
+  - Redmine:
+    - 2729657
+
