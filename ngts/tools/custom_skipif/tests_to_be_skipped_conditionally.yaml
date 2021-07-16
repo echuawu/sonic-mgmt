@@ -61,7 +61,23 @@ tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
     platforms:
       - simx
 
-tests/push_build_tests/L3/crm/test_crm.py:
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
+  Redmine:
+    - 2597848
+
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_neighbor_and_nexthop:
+  Redmine:
+    - 2597848
+
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member:
+  Redmine:
+    - 2597848
+
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_fdb_entry:
+  Redmine:
+    - 2597848
+
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
   Redmine:
     - 2597848
 

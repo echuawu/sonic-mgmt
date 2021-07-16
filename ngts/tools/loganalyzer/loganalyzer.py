@@ -20,6 +20,7 @@ COMMON_IGNORE = join(split(__file__)[0], "loganalyzer_common_ignore.txt")
 COMMON_EXPECT = join(split(__file__)[0], "loganalyzer_common_expect.txt")
 SYSLOG_TMP_FOLDER = "/tmp/syslog"
 
+
 class LogAnalyzerError(Exception):
     """Raised when loganalyzer found matches during analysis phase."""
     def __repr__(self):
@@ -27,7 +28,7 @@ class LogAnalyzerError(Exception):
 
 
 class LogAnalyzer:
-    def __init__(self, dut_engine, marker_prefix, dut_run_dir="/tmp", start_marker=None):
+    def __init__(self, dut_engine, marker_prefix, log_folder, log_file, dut_run_dir="/tmp", start_marker=None):
         self.dut_engine = dut_engine
         self.dut_run_dir = dut_run_dir
         self.extracted_syslog = join(self.dut_run_dir, "syslog")
@@ -42,8 +43,7 @@ class LogAnalyzer:
         self.expected_matches_target = 0
         self._markers = []
         self.verify = True
-        # If None - syslog will be printed to the stdout, otherwise written to the file by this path
-        self.permanent_log_file = None # Folder path used to permanently store syslog content
+        self.init_log_folder(log_folder, log_file)
 
     def _add_end_marker(self, marker):
         """
@@ -110,29 +110,13 @@ class LogAnalyzer:
             remove(self.log_file_path)
         except Exception as err:
             logger.warning("Can't delete file '{}'. {}".format(self.log_file_path, err))
-        try:
-            # Remove test folder
-            logger.info("Removing folder {}".format(dirname(self.log_file_path)))
-            removedirs(dirname(self.log_file_path))
-        except Exception as err:
-            logger.warning("Can't delete folder '{}'. {}".format(dirname(self.log_file_path), err))
-
-    def get_log_file_path(self):
-        """
-        @summary: Get local file path to store syslog file. If empty, syslog will be printed to the stdout.
-
-        @return: If not empty - return syslog file path, None otherwise
-        """
-        if self.permanent_log_file is not None:
-            return self.permanent_log_file
-        else:
-            return None
-
-    def del_log_file_path(self):
-        """
-        @summary: Clear custom folder name where syslog is storing. Now syslog will be printed to the stdout.
-        """
-        self.permanent_log_file = None
+        if not self.log_file_path.startswith(SYSLOG_TMP_FOLDER):
+            try:
+                # Remove test folder
+                logger.info("Removing folder {}".format(dirname(self.log_file_path)))
+                removedirs(dirname(self.log_file_path))
+            except Exception as err:
+                logger.warning("Can't delete folder '{}'. {}".format(dirname(self.log_file_path), err))
 
     def update_marker_prefix(self, marker_prefix):
         """
@@ -178,14 +162,7 @@ class LogAnalyzer:
 
         return call_result
 
-    def init(self, log_folder, log_file):
-        """
-        @summary: Add start marker into syslog on the DUT.
-
-        @return: True for successfull execution False otherwise
-        """
-        logger.info("Loganalyzer init")
-
+    def init_log_folder(self, log_folder, log_file):
         if exists(log_folder):
             self.log_file_path = os.path.join(log_folder, log_file)
             self.print_log = False
@@ -193,7 +170,16 @@ class LogAnalyzer:
             self.print_log = True
             self.log_file_path = ".".join((SYSLOG_TMP_FOLDER, time.strftime("%Y-%m-%d-%H:%M:%S", time.gmtime())))
             logger.error("{} - folder does not exist.\nPrinting the log analyzer output to the stdout".format(log_folder))
+
         logger.info("Loganalyzer log file - {}".format(self.log_file_path))
+
+    def init(self):
+        """
+        @summary: Add start marker into syslog on the DUT.
+
+        @return: True for successfull execution False otherwise
+        """
+        logger.info("Loganalyzer init")
 
         self.dut_engine.run_cmd("sudo rm -f {}".format(join(self.dut_run_dir, DUT_LOGANALYZER)))
         self.dut_engine.copy_file(source_file=LOG_PARSER, dest_file=DUT_LOGANALYZER, file_system=self.dut_run_dir,

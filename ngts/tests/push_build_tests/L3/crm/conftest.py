@@ -1,10 +1,17 @@
 import allure
 import pytest
+import logging
+import os
+
 from retry.api import retry_call
+from ngts.cli_wrappers.linux.linux_arp_cache_cli import LinuxARPCache
+
+
+logger = logging.getLogger()
 
 
 @pytest.fixture(scope='module')
-def env(topology_obj):
+def env(topology_obj, platform_params):
     """ Fixture which contains DUT - engine and CLI objects """
     class Collector:
         pass
@@ -12,10 +19,12 @@ def env(topology_obj):
     Collector.sonic_cli = topology_obj.players['dut']['cli']
     Collector.vlan_iface_69 = 'Vlan69'
     Collector.vlan_iface_40 = 'Vlan40'
+    Collector.dut_ha_2 = topology_obj.ports["dut-ha-2"]
     Collector.ip_neigh_69 = '69.0.0.5'
     Collector.ip_neigh_40 = '40.0.0.5'
     Collector.dst_ip = '2.2.2.0'
     Collector.mask = 24
+    Collector.platform_params = platform_params
     yield Collector
 
 
@@ -46,10 +55,12 @@ def cleanup(request):
     """
     params_list = []
     yield params_list
-    if not request.node.rep_call.passed and not request.node.rep_call.skipped:
-        with allure.step('Execute test cleanup commands'):
-            for item in params_list:
-                item[0](*item[1:])
+    if "rep_call" in dir(request.node):
+        if not request.node.rep_call.skipped:
+            if params_list:
+                with allure.step('Execute test cleanup commands'):
+                    for item in params_list:
+                        item[0](*item[1:])
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -59,7 +70,6 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
 
-
     setattr(item, "rep_" + rep.when, rep)
 
 
@@ -68,3 +78,130 @@ def ensure_polling_configured(expected_interval, sonic_cli, dut_engine):
     Function checks that crm polling interval was configured
     """
     assert (sonic_cli.crm.get_polling_interval(dut_engine) == expected_interval), "CRM polling interval was not updated"
+
+
+@pytest.fixture(scope='module')
+def map_res_to_thr():
+    """
+    Contains mapping of CRM resource names to its threshold names
+    """
+    res_to_thr = {
+        'ipv4_route': 'ipv4 route',
+        'ipv6_route': 'ipv6 route',
+        'ipv4_nexthop': 'ipv4 nexthop',
+        'ipv6_nexthop': 'ipv6 nexthop',
+        'ipv4_neighbor': 'ipv4 neighbor',
+        'ipv6_neighbor': 'ipv6 neighbor',
+        'nexthop_group_member': 'nexthop group member',
+        'nexthop_group': 'nexthop group object',
+        'acl_entry': 'acl group entry',
+        'acl_counter': 'acl group counter',
+        'fdb_entry': 'fdb'
+    }
+    return res_to_thr
+
+
+@pytest.fixture(scope='module', autouse=True)
+def increase_arp_cache(env):
+    """
+    Increase default Linux ARP cache config, this will prevent dynamical ARP and neighbor clearing.
+    This is needed to keep hardware resources counter unchanged dynamically during tests execution.
+
+    gc_thresh1 The minimum number of entries to keep in the ARP cache. The garbage collector will
+        not run if there are fewer than this number of entries in the cache. Defaults to 128.
+    gc_thresh2 The soft maximum number of entries to keep in the ARP cache. The garbage collector
+        will allow the number of entries to exceed this for 5 seconds before collection will be performed.
+        Defaults to 512.
+    gc_thresh3 The hard maximum number of entries to keep in the ARP cache. The garbage collector
+        will always run if there are more than this number of entries in the cache. Defaults to 1024.
+    gc_interval The amount of time after which to clear outdated ARP entries.
+
+    Example of commands to be executed:
+    sysctl -w net.ipv4.neigh.default.gc_interval=600
+    sysctl -w net.ipv6.neigh.default.gc_interval=600
+    sysctl -w net.ipv4.route.gc_interval=600
+    sysctl -w net.ipv6.route.gc_interval=600
+
+    sysctl -w net.ipv4.neigh.default.gc_thresh3=8192
+    sysctl -w net.ipv4.neigh.default.gc_thresh2=8192
+    sysctl -w net.ipv4.neigh.default.gc_thresh1=8192
+
+    sysctl -w net.ipv6.neigh.default.gc_thresh1=8192
+    sysctl -w net.ipv6.neigh.default.gc_thresh2=8192
+    sysctl -w net.ipv6.neigh.default.gc_thresh3=8192
+    """
+
+    gc_thresh = {4: {1: None, 2: None, 3: None}, 6: {1: None, 2: None, 3: None}}
+    route_gc_interval = {4: None, 6: None}
+    neigh_gc_interval = {4: None, 6: None}
+
+    test_gc_interval = 600
+    test_gc_thresh = 30000
+    # Collect Linux gc_interval and gc_thresh1 values
+    for ip_ver in [4, 6]:
+        for thresh_id in range(1, 4):
+            # Store default
+            gc_thresh[ip_ver][thresh_id] = LinuxARPCache.get_gc_thresh(env.dut_engine, ip_ver, thresh_id)
+            # Configure threshold that will not reach by test case
+            LinuxARPCache.set_gc_thresh(env.dut_engine, ip_ver, thresh_id, test_gc_thresh)
+        # Store default net.ipv[4|6].route.gc_interval
+        route_gc_interval[ip_ver] = LinuxARPCache.get_route_gc_interval(env.dut_engine, ip_ver)
+        # Increase 'route.gc_interval' intervall to 600 seconds
+        LinuxARPCache.set_route_gc_interval(env.dut_engine, ip_ver, route_gc_interval[ip_ver])
+        # Store default net.ipv[4|6].neigh.default.gc_interval
+        neigh_gc_interval[ip_ver] = LinuxARPCache.get_neigh_gc_interval(env.dut_engine, ip_ver)
+        # Increase 'neigh.default.gc_interval' intervall to 600 seconds
+        LinuxARPCache.set_neigh_gc_interval(env.dut_engine, ip_ver, neigh_gc_interval[ip_ver])
+
+    yield
+
+    # Restore default Linux gc_interval and gc_thresh values
+    for ip_ver in [4, 6]:
+        for thresh_id in range(1, 4):
+            LinuxARPCache.set_gc_thresh(env.dut_engine, ip_ver, thresh_id, gc_thresh[ip_ver][thresh_id])
+        LinuxARPCache.set_route_gc_interval(env.dut_engine, ip_ver, route_gc_interval[ip_ver])
+        LinuxARPCache.set_neigh_gc_interval(env.dut_engine, ip_ver, neigh_gc_interval[ip_ver])
+
+
+@pytest.fixture
+def thresholds_cleanup(env, map_res_to_thr, cleanup):
+    crm_thresholds = env.sonic_cli.crm.parse_thresholds_table(env.dut_engine)
+    cmd = 'crm config thresholds {res} type {th_type}; crm config thresholds {res} low {low}; crm config thresholds {res} high {high}'
+    yield
+    # Restore CRM thresholds configuration
+    for crm_res, cli_res in map_res_to_thr.items():
+        th_type = crm_thresholds[crm_res]['Threshold Type']
+        low = crm_thresholds[crm_res]['Low Threshold']
+        high = crm_thresholds[crm_res]['High Threshold']
+        env.dut_engine.run_cmd(cmd.format(res=cli_res, th_type=th_type, low=low, high=high))
+
+
+@pytest.fixture(scope='module', autouse=True)
+def stop_arp_update(env):
+    cmd_template = 'docker exec -i swss supervisorctl {action} arp_update'
+    with allure.step('Stop arp_update in SONIC'):
+        env.dut_engine.run_cmd(cmd_template.format(action='stop'))
+    yield
+    with allure.step('Start arp_update in SONIC'):
+        env.dut_engine.run_cmd(cmd_template.format(action='start'))
+
+
+@pytest.fixture(scope='module')
+def disable_rsyslog_ratelimit(env):
+    cmd_comment_interval = 'docker exec -i swss sed -e "s/\$SystemLogRateLimitInterval/\#\$SystemLogRateLimitInterval/g" -i /etc/rsyslog.conf'
+    cmd_comment_burst = 'docker exec -i swss sed -e "s/\$SystemLogRateLimitBurst/\#\$SystemLogRateLimitBurst/g" -i /etc/rsyslog.conf'
+
+    cmd_restart_rsyslogd = 'docker exec -i swss supervisorctl restart rsyslogd'
+
+    cmd_uncomment_interval = 'docker exec -i swss sed -e "s/\#\$SystemLogRateLimitInterval/\$SystemLogRateLimitInterval/g" -i /etc/rsyslog.conf '
+    cmd_uncomment_burst = 'docker exec -i swss sed -e "s/\#\$SystemLogRateLimitBurst/\$SystemLogRateLimitBurst/g" -i /etc/rsyslog.conf'
+
+    with allure.step('Disabling rate limit for rsyslogd in swss docker'):
+        env.dut_engine.run_cmd(cmd_comment_interval)
+        env.dut_engine.run_cmd(cmd_comment_burst)
+        env.dut_engine.run_cmd(cmd_restart_rsyslogd)
+    yield
+    with allure.step('Enabling rate limit for rsyslogd in swss docker'):
+        env.dut_engine.run_cmd(cmd_uncomment_interval)
+        env.dut_engine.run_cmd(cmd_uncomment_burst)
+        env.dut_engine.run_cmd(cmd_restart_rsyslogd)

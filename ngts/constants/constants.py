@@ -32,6 +32,10 @@ class SonicConst:
                                              BREAKOUT_MODE_WITH_ADDITIONAL_SUPPORTED_SPEEDS_REGEX,
                                              BREAKOUT_MODE_WITHOUT_ADDITIONAL_SUPPORTED_SPEEDS_REGEX)
 
+    MINIGRAPH_XML = 'minigraph.xml'
+    MINIGRAPH_XML_PATH = SONIC_CONFIG_FOLDER + MINIGRAPH_XML
+
+
 
 class InfraConst:
     HTTP_SERVER = 'http://fit69'
@@ -233,3 +237,6 @@ class P4SamplingConsts:
     ACTION_NAME = 'DoMirror'
     TRAFFIC_INTERVAL = 0.2
 
+
+class LoganalyzerConsts:
+    LOG_FILE_NAME = "syslog"

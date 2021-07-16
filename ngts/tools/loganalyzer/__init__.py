@@ -4,11 +4,12 @@ import os
 import time
 
 from .loganalyzer import LogAnalyzer
+from ngts.constants.constants import LoganalyzerConsts
+
 
 logger = logging.getLogger()
 TEMP_IGNORE = os.path.join(os.path.dirname(__file__), "loganalyzer_temporal_ignore.txt")
 LOCAL_LOGS_DIR_TEMPLATE = "/tmp/test_run-{}"
-LOG_FILE_NAME = "syslog"
 
 
 def pytest_addoption(parser):
@@ -32,11 +33,13 @@ def loganalyzer(topology_obj, request, loganalyzer_log_folder):
         "sudo /usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1"
         )
 
-    log_path = loganalyzer_log_folder
+    loganalyzer = LogAnalyzer(dut_engine=dut_engine,
+                              marker_prefix=request.node.name,
+                              log_folder=loganalyzer_log_folder,
+                              log_file=LoganalyzerConsts.LOG_FILE_NAME)
 
-    loganalyzer = LogAnalyzer(dut_engine=dut_engine, marker_prefix=request.node.name)
     logger.info("Add start marker into DUT syslog")
-    marker = loganalyzer.init(log_folder=log_path, log_file=LOG_FILE_NAME)
+    marker = loganalyzer.init()
     logger.info("Loading log analyzer configs")
     # Read existed common regular expressions located with legacy loganalyzer module
     loganalyzer.load_common_config()
@@ -48,6 +51,7 @@ def loganalyzer(topology_obj, request, loganalyzer_log_folder):
         return
     loganalyzer.analyze(marker)
 
+
 @pytest.fixture(autouse=True)
 def loganalyzer_load_temporal_ignore(loganalyzer):
     """
@@ -57,6 +61,7 @@ def loganalyzer_load_temporal_ignore(loganalyzer):
         ignore_reg_exp = loganalyzer.parse_regexp_file(src=TEMP_IGNORE)
         loganalyzer.ignore_regex.extend(ignore_reg_exp)
     yield
+
 
 @pytest.fixture(autouse=True)
 def loganalyzer_log_folder(log_folder, session_id, request):

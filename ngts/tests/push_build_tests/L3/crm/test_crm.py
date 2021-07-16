@@ -1,141 +1,27 @@
 import allure
-import logging
 import pytest
 import time
-import os
-import json
-import copy
-import tempfile
 
 from retry.api import retry_call
-
-
-logger = logging.getLogger()
-MAX_CRM_UPDATE_TIME = 5
-AVAILABLE_TOLERANCE = 0.02
-
-
-class ValidationParamError(Exception):
-    pass
-
-
-def get_main_crm_stat(env, resource):
-    """
-    Get crm counters of first table from 'crm show resources all' command
-    :param env: pytest fixture
-    :param resource: CRM resource name. Supported CRM resources:
-        ipv4_route, ipv6_route, ipv4_nexthop, ipv6_nexthop, ipv4_neighbor,
-        ipv6_neighbor, nexthop_group_member, nexthop_group, fdb_entry
-    """
-    crm_resources_all = env.sonic_cli.crm.parse_resources_table(env.dut_engine)
-    res = crm_resources_all['main_resources'][resource]
-    return int(res['Used Count']), int(res['Available Count'])
-
-
-def get_acl_crm_stat(env, resource):
-    """
-    Get crm counters of third table from 'crm show resources all' command
-    :param env: pytest fixture
-    :param resource: CRM resource name. Supported CRM resources:
-        ipv4_route, ipv6_route, ipv4_nexthop, ipv6_nexthop, ipv4_neighbor,
-        ipv6_neighbor, nexthop_group_member, nexthop_group, fdb_entry
-    """
-    crm_resource_acl = env.sonic_cli.crm.parse_resources_table(env.dut_engine)['table_resources']
-    if not crm_resource_acl:
-        return None
-
-    assert len(crm_resource_acl) == 2, 'Expect 2 entries for ACL table'
-    for item in crm_resource_acl:
-        if item['Resource Name'] == resource:
-            current_used = item['Used Count']
-            current_available = item['Available Count']
-            break
-    else:
-        raise Exception('Incorrect CRM resource name specified. Excepted {}. Provided - {}'.format(
-            'acl_entry, acl_counter', resource)
-            )
-
-    return int(current_used), int(current_available)
-
-
-def ensure_crm_acl_table_not_empty(env):
-    """
-    Verify that CRM ACL table is not empty
-    """
-    acl_res = "acl_entry"
-    assert get_acl_crm_stat(env, acl_res) is not None, "CRM ACL table is empty"
-
-
-def verify_counters(env, resource, used, used_sign, available):
-    """
-    Verifies used and available counters for specific CRM resource
-    :param env: pytest fixture
-    :param resource: CRM resource name. For example (ipv4_route, ipv4_nexthop, nexthop_group_member, etc.)
-    :param used: expected value of used counter for specific 'res' CRM resource
-    :param used_sign: comparison sign of used value. For example ('==', '>=', '<=')
-    :param available: expected value of available counter for specific 'res' CRM resource
-    :param available_sign: comparison sign of available value. For example ('==', '>=', '<=')
-    :return: Raise AssertionError if comparison does not match
-    """
-    if 'acl' in resource:
-        current_used, current_available = get_acl_crm_stat(env, resource)
-    else:
-        current_used, current_available = get_main_crm_stat(env, resource)
-
-    assert eval('{} {} {}'.format(current_used, used_sign, used)),\
-        'Unexpected used count for \'{}\': expected \'{}\' {}; actual received - {}'.format(
-            resource, used_sign, used, current_used
-        )
-
-    low_treshold = available - int(available * AVAILABLE_TOLERANCE)
-    high_treshold = available + int(available * AVAILABLE_TOLERANCE)
-    assert low_treshold <= current_available <= high_treshold,\
-        'Unexpected available count for \'{}\': expected range {}...{}; actual received - {}'.format(
-            resource, low_treshold, high_treshold, current_available
-        )
-
-
-def apply_acl_config(env, entry_num=1):
-    """
-    Create acl rules defined in config file
-    :param env: Test environment object
-    :param entry_num: Number of entries required to be created in ACL rule
-    """
-    base_dir = os.path.dirname(os.path.realpath(__file__))
-    acl_rules_file = "acl.json"
-    acl_rules_path = os.path.join(base_dir, acl_rules_file)
-    dst_dir = "/tmp"
-
-    env.dut_engine.run_cmd("mkdir -p {}".format(dst_dir))
-
-    # Create ACL table
-    env.sonic_cli.acl.create_table(env.dut_engine, tbl_name='DATAACL', tbl_type='L3', description='"DATAACL table"',
-        stage='ingress')
-
-    if entry_num == 1:
-        logger.info("Generating config for ACL rule, ACL table - DATAACL")
-        env.dut_engine.copy_file(source_file=acl_rules_path, dest_file=acl_rules_file, file_system=dst_dir,
-                overwrite_file=True, verify_file=False)
-    elif entry_num > 1:
-        acl_config = json.loads(open(acl_rules_path).read())
-        acl_entry_template = acl_config["acl"]["acl-sets"]["acl-set"]["dataacl"]["acl-entries"]["acl-entry"]["1"]
-        acl_entry_config = acl_config["acl"]["acl-sets"]["acl-set"]["dataacl"]["acl-entries"]["acl-entry"]
-        for seq_id in range(2, entry_num + 2):
-            acl_entry_config[str(seq_id)] = copy.deepcopy(acl_entry_template)
-            acl_entry_config[str(seq_id)]["config"]["sequence-id"] = seq_id
-
-        with tempfile.NamedTemporaryFile(suffix=".json", prefix="acl_config", mode="w") as fp:
-            json.dump(acl_config, fp)
-            fp.flush()
-            logger.info("Generating config for ACL rule, ACL table - DATAACL")
-
-            env.dut_engine.copy_file(source_file=fp.name, dest_file=acl_rules_file, file_system=dst_dir,
-                overwrite_file=True, verify_file=False)
-    else:
-        raise Exception("Incorrect number of ACL entries specified - {}".format(entry_num))
-
-    logger.info("Applying ACL config on DUT")
-    env.sonic_cli.acl.apply_config(env.dut_engine, os.path.join(dst_dir, acl_rules_file))
+from ngts.cli_util.sonic_docker_utils import SwssContainer
+from crm_helper import (
+    MAX_CRM_UPDATE_TIME,
+    APPLY_CFG_MAX_UPDATE_TIME,
+    ACL_TABLE_NAME,
+)
+from crm_helper import (
+    get_main_crm_stat,
+    get_required_minimum,
+    get_acl_crm_stat,
+    ensure_crm_acl_table_not_empty,
+    verify_counters,
+    apply_acl_config,
+    verify_thresholds,
+    set_op_del,
+    th_apply_neighbor_config,
+    th_apply_nexthop_group_member,
+    th_apply_fdb_config,
+)
 
 
 @pytest.mark.build
@@ -378,4 +264,159 @@ def test_crm_acl(env, cleanup):
             verify_counters, fargs=[env, acl_counter_resource, acl_counter_used, '==', acl_counter_available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
-    cleanup.append((env.sonic_cli.acl.delete_config, env))
+    cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
+
+
+@pytest.mark.parametrize('ip_ver,start_ip', [('4', '2.2.2.0'), ('6', '2001::')], ids=['ipv4', 'ipv6'])
+@pytest.mark.disable_loganalyzer
+@allure.title('Test CRM thresholds')
+def test_crm_thresholds_neighbors(env, cleanup, loganalyzer_log_folder, map_res_to_thr, thresholds_cleanup,
+                                  disable_rsyslog_ratelimit, ip_ver, start_ip):
+    # Test name used for lognalyzer marker
+    test_name = 'test_crm_thresholds'
+
+    with allure.step("Generate and apply neighbors config"):
+        # IP neighbor and nexthop configuration
+        # Used to calculate amount of expected neighbors
+        neigh_cfg_add = th_apply_neighbor_config(env, ip_ver, start_ip, env.vlan_iface_40)
+        neigh_cfg_del = set_op_del(neigh_cfg_add)
+        cleanup.append((SwssContainer.apply_config, env.dut_engine, neigh_cfg_del))
+        cleanup.append((time.sleep, MAX_CRM_UPDATE_TIME))
+
+    neigh_used, neigh_available = get_main_crm_stat(env, "ipv{}_neighbor".format(ip_ver))
+    with allure.step("Verify thresholds {}".format("ipv{}_neighbor".format(ip_ver))):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr["ipv{}_neighbor".format(ip_ver)],
+                            crm_used=neigh_used,
+                            crm_avail=neigh_available
+        )
+
+
+@pytest.mark.parametrize('ip_ver,start_ip', [('4', '2.2.2.0'), ('6', '2001::')], ids=['ipv4', 'ipv6'])
+@pytest.mark.disable_loganalyzer
+@allure.title('Test CRM thresholds nexthop')
+def test_crm_thresholds_nexthop(env, cleanup, loganalyzer_log_folder, map_res_to_thr, thresholds_cleanup,
+                                disable_rsyslog_ratelimit, ip_ver, start_ip):
+    nexthop_group_res = 'nexthop_group'
+    nexthop_group_member_res = 'nexthop_group_member'
+    # Test name used for lognalyzer marker
+    test_name = 'test_crm_thresholds_nexthop'
+    with allure.step("Generate and apply nexthop and nexthop group members config"):
+        neigh_cfg_add = th_apply_neighbor_config(env, ip_ver, start_ip, env.vlan_iface_40)
+        neigh_cfg_del = set_op_del(neigh_cfg_add)
+        cleanup.append((SwssContainer.apply_config, env.dut_engine, neigh_cfg_del))
+
+        nexthop_group_member_add = th_apply_nexthop_group_member(env, ip_ver, start_ip, neigh_cfg_add)
+        nexthop_group_member_del = set_op_del(nexthop_group_member_add)
+        cleanup.append((SwssContainer.apply_config, env.dut_engine, nexthop_group_member_del))
+
+    route_used, route_available = get_main_crm_stat(env, "ipv{}_route".format(ip_ver))
+    with allure.step("Verify thresholds {}".format('ipv{}_route'.format(ip_ver))):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr['ipv{}_route'.format(ip_ver)],
+                            crm_used=route_used,
+                            crm_avail=route_available
+        )
+
+    nexthop_group_used, nexthop_group_available = get_main_crm_stat(env, nexthop_group_res)
+    with allure.step("Verify thresholds {}".format(nexthop_group_res)):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr[nexthop_group_res],
+                            crm_used=nexthop_group_used,
+                            crm_avail=nexthop_group_available
+        )
+
+    nexthop_group_member_used, nexthop_group_member_available = get_main_crm_stat(env, nexthop_group_member_res)
+    with allure.step("Verify thresholds {}".format(nexthop_group_member_res)):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr[nexthop_group_member_res],
+                            crm_used=nexthop_group_member_used,
+                            crm_avail=nexthop_group_member_available
+        )
+
+
+@pytest.mark.disable_loganalyzer
+@allure.title('Test CRM thresholds FDB')
+def test_crm_thresholds_fdb(env, cleanup, loganalyzer_log_folder, map_res_to_thr, thresholds_cleanup,
+                            disable_rsyslog_ratelimit):
+    # Test name used for lognalyzer marker
+    test_name = 'test_crm_thresholds_fdb'
+    fdb_clear_cmd = 'fdbclear'
+    fdb_entry_res = "fdb_entry"
+    th_apply_fdb_config(env, fdb_entry_res)
+    cleanup.append((env.dut_engine.run_cmd, fdb_clear_cmd))
+
+    fdb_used, fdb_available = get_main_crm_stat(env, fdb_entry_res)
+    with allure.step("Verify thresholds {}".format(fdb_entry_res)):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr[fdb_entry_res],
+                            crm_used=fdb_used,
+                            crm_avail=fdb_available
+        )
+
+
+@pytest.mark.disable_loganalyzer
+@allure.title('Test CRM thresholds ACL')
+def test_crm_thresholds_acl(env, cleanup, loganalyzer_log_folder, map_res_to_thr, thresholds_cleanup,
+                            disable_rsyslog_ratelimit):
+    # Test name used for lognalyzer marker
+    test_name = 'test_crm_thresholds_acl'
+    acl_entry_resource = 'acl_entry'
+    acl_counter_resource = 'acl_counter'
+
+    # Create ACL table to be able to read available resources
+    with allure.step("Apply basic ACL config"):
+        apply_acl_config(env, entry_num=1)
+    with allure.step('Wait until CRM ACL table will be created'):
+        retry_call(
+            ensure_crm_acl_table_not_empty, fargs=[env, ], tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+        )
+
+    _, acl_entry_available = get_acl_crm_stat(env, acl_entry_resource)
+    _, acl_counter_available = get_acl_crm_stat(env, acl_counter_resource)
+    max_from_acl_available = acl_entry_available if acl_entry_available > acl_counter_available else acl_counter_available
+    required_acl_entries = get_required_minimum(max_from_acl_available)
+
+    with allure.step("Create ACL config with {} entries".format(required_acl_entries)):
+        apply_acl_config(env, entry_num=required_acl_entries)
+        cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
+        cleanup.append((env.sonic_cli.acl.remove_table, env.dut_engine, ACL_TABLE_NAME))
+
+    with allure.step("Verify 'ACL' counters incremented"):
+        retry_call(
+            verify_counters, fargs=[env, acl_entry_resource, required_acl_entries, '>='],
+            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+        )
+        retry_call(
+            verify_counters, fargs=[env, acl_counter_resource, required_acl_entries, '>='],
+            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+        )
+
+    acl_used, acl_available = get_acl_crm_stat(env, acl_entry_resource)
+    with allure.step("Verify thresholds {}".format(acl_entry_resource)):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr[acl_entry_resource],
+                            crm_used=acl_used,
+                            crm_avail=acl_available
+        )
+    acl_used, acl_available = get_acl_crm_stat(env, acl_counter_resource)
+    with allure.step("Verify thresholds {}".format(acl_counter_resource)):
+        verify_thresholds(env,
+                            test_name,
+                            loganalyzer_log_folder,
+                            crm_cli_res=map_res_to_thr[acl_counter_resource],
+                            crm_used=acl_used,
+                            crm_avail=acl_available
+        )

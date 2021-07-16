@@ -183,6 +183,8 @@ def platform_params(show_platform_summary, setup_name):
     platform_data.platform = show_platform_summary['platform']
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name
+    platform_data.asic_type = show_platform_summary["asic_type"]
+    platform_data.asic_count = show_platform_summary["asic_count"]
     return platform_data
 
 

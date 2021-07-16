@@ -3,7 +3,8 @@ import logging
 logger = logging.getLogger()
 
 
-def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset_from_start=2, data_ofset_from_end=None,
+def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
+                                data_ofset_from_start_end=None, data_ofset_from_end=None,
                                 column_ofset=2, output_key=None, header_line_number=1):
     """
     This method doing parse for command output and provide dictionary or list of dictionaries with parsed results.
@@ -16,7 +17,8 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     :param headers_ofset: Line number in which we have headers, in example above it is line 1(in real it is 2, but in python it is 1)
     :param len_ofset: Line number from which we can find len for all fields, in example above it is line 2
     :param data_ofset_from_start: Line number from which we will start parsing data and fill dictionary with results
-    :param data_ofset_from_end: Line number till which we will do parse(parameter is optional)
+    :param data_ofset_from_start_end: Line number from start till which we will do parse(parameter is optional)
+    :param data_ofset_from_end: Line number from end till which we will do parse(parameter is optional)
     :param column_ofset: Number of spaces between columns in output(usually 2)
     :param output_key: parameter which specify which key should be used in output(from example above can be used: LocalPort,
     RemoteDevice, RemotePortID, Capability, RemotePortDescr). If NONE - than we we will return list
@@ -48,8 +50,10 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     # Parse only lines from "data_ofset_from_start" and if
     # "data_ofset_from_end" exist - then parse till the "data_ofset_from_end"
     data = output.splitlines()[data_ofset_from_start:]
-    if data_ofset_from_end:
+    if data_ofset_from_end and not data_ofset_from_start_end:
         data = output.splitlines()[data_ofset_from_start:data_ofset_from_end]
+    if data_ofset_from_start_end and not data_ofset_from_end:
+        data = output.splitlines()[data_ofset_from_start:data_ofset_from_start_end]
 
     result_dict = {}
     result_list = []

@@ -21,6 +21,19 @@ class SonicAclCli:
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def remove_table(engine, tbl_name):
+        """
+        Creates ACL table from SONIC
+        :param engine: ssh engine object
+        :param tbl_name: ACL table name
+        :param tbl_type: ACL table type [L3, MIRROR, MIRROR_DSCP, etc.]
+        :return: command output
+        """
+        cmd = 'config acl remove table {}'.format(tbl_name)
+
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def apply_config(engine, cfg_path):
         """
         On DUT applies ACL config defined in file 'cfg_path'

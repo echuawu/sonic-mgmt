@@ -3,10 +3,10 @@ import ipaddress
 
 
 def generate_mac(num):
-    """ Generate list of MAC addresses in format XX-XX-XX-XX-XX-XX """
+    """ Generate list of MAC addresses in format XX:XX:XX:XX:XX:XX """
     mac_list = list()
     for mac_postfix in range(1, num + 1):
-        mac_list.append(str(netaddr.EUI(mac_postfix)))
+        mac_list.append(str(netaddr.EUI(mac_postfix)).replace("-", ":"))
     return mac_list
 
 
