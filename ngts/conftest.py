@@ -42,6 +42,8 @@ def pytest_addoption(parser):
     parser.addoption('--base_version', action='store', default=None, help='Path to base SONiC version')
     parser.addoption('--target_version', action='store', default=None, help='Path to target SONiC version')
     parser.addoption('--wjh_deb_url', action='store', default=None, help='URL path to WJH deb package')
+    parser.addoption("--session_id", action="store", default=None, help="Number of mars session id.")
+    parser.addoption("--tech_support_duration", action="store", default=None, help="duration of tech support for test")
     parser.addoption(PytestConst.run_config_only_arg, action='store_true', help='If set then only the configuration '
                                                                                 'part defined in the push_build '
                                                                                 'conftest will be executed')

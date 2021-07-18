@@ -25,6 +25,7 @@ def session_id():
     logger.info("SESSION_ID = '{}'".format(session_id))
     return session_id
 
+
 @pytest.fixture(scope='session')
 def dumps_folder(setup_name, session_id):
     """
@@ -36,6 +37,7 @@ def dumps_folder(setup_name, session_id):
     if not env_log_folder:  # default value is empty string, defined in steps file
         env_log_folder = create_result_dir(setup_name, session_id, CASES_DUMPS_DIR)
     return env_log_folder
+
 
 @pytest.fixture(scope='session')
 def log_folder(setup_name, session_id):
@@ -49,6 +51,7 @@ def log_folder(setup_name, session_id):
         env_log_folder = create_result_dir(setup_name, session_id, CASES_SYSLOG_DIR)
     return env_log_folder
 
+
 def create_result_dir(setup_name, session_id, suffix_path_name):
     """
     Create directory for test artifacts in shared location
@@ -58,9 +61,11 @@ def create_result_dir(setup_name, session_id, suffix_path_name):
     :return: created directory path
     """
     folder_path = '/'.join([InfraConst.REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
+    logger.info("Create folder: {} if it doesn't exist".format(folder_path))
     pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
     logger.info("Created folder - {}".format(folder_path))
     return folder_path
+
 
 def get_platform_info(topology_obj):
     try:
