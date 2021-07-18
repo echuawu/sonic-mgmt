@@ -66,7 +66,7 @@ def test_cancelled_warm_reboot(request, add_fail_step_to_reboot, verify_dut_heal
 
 ### Tetcases to verify reboot procedure with SAD cases ###
 @pytest.mark.usefixtures('get_advanced_reboot', 'backup_and_restore_config_db')
-def test_warm_reboot_sad(request, get_advanced_reboot, advanceboot_neighbor_restore):
+def test_warm_reboot_sad(request, get_advanced_reboot):
     '''
     Warm reboot with sad path
 
@@ -94,7 +94,7 @@ def test_warm_reboot_sad(request, get_advanced_reboot, advanceboot_neighbor_rest
 
 
 @pytest.mark.usefixtures('get_advanced_reboot', 'backup_and_restore_config_db')
-def test_warm_reboot_multi_sad(request, get_advanced_reboot, advanceboot_neighbor_restore):
+def test_warm_reboot_multi_sad(request, get_advanced_reboot):
     '''
     Warm reboot with multi sad path
 
@@ -153,7 +153,7 @@ def test_warm_reboot_multi_sad_inboot(request, get_advanced_reboot):
 
 
 @pytest.mark.usefixtures('get_advanced_reboot', 'backup_and_restore_config_db')
-def test_warm_reboot_sad_bgp(request, get_advanced_reboot, advanceboot_neighbor_restore):
+def test_warm_reboot_sad_bgp(request, get_advanced_reboot):
     '''
     Warm reboot with sad (bgp)
 
@@ -176,7 +176,7 @@ def test_warm_reboot_sad_bgp(request, get_advanced_reboot, advanceboot_neighbor_
 
 
 @pytest.mark.usefixtures('get_advanced_reboot', 'backup_and_restore_config_db')
-def test_warm_reboot_sad_lag_member(request, get_advanced_reboot, advanceboot_neighbor_restore):
+def test_warm_reboot_sad_lag_member(request, get_advanced_reboot):
     '''
     Warm reboot with sad path (lag member)
 
@@ -208,7 +208,7 @@ def test_warm_reboot_sad_lag_member(request, get_advanced_reboot, advanceboot_ne
 
 
 @pytest.mark.usefixtures('get_advanced_reboot', 'backup_and_restore_config_db')
-def test_warm_reboot_sad_lag(request, get_advanced_reboot, advanceboot_neighbor_restore):
+def test_warm_reboot_sad_lag(request, get_advanced_reboot):
     '''
     Warm reboot with sad path (lag)
 
