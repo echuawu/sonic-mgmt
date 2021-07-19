@@ -9,7 +9,7 @@ community_plugins_path = '/tests/common/plugins/'
 full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
 sys.path.append(full_path_to_community_plugins)
 
-from allure_server import pytest_addoption, pytest_sessionfinish
+from allure_server import pytest_addoption, pytest_sessionfinish, pytest_terminal_summary
 
 
 def pytest_sessionstart(session):
