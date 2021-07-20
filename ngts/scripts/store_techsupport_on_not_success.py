@@ -28,6 +28,7 @@ def duration(request):
     return request.config.getoption('--tech_support_duration')
 
 
+@pytest.mark.disable_loganalyzer
 def test_store_techsupport_on_not_success(topology_obj, setup_name, session_id_arg, duration):
     with allure.step("Create folder for the dump if it doesn't exist"):
         folder_path = create_result_dir(setup_name, session_id_arg, suffix_path_name="")
