@@ -71,8 +71,8 @@ def create_maps(config):
         port_name_list = config["PORT"].keys()
         port_name_list_sorted = natsorted(port_name_list)
 
-        for idx, val in enumerate(port_name_list_sorted):
-            port_index_map[val] = idx
+        for port_name in port_name_list_sorted:
+            port_index_map[port_name] = int(config["PORT"][port_name]["index"]) - 1
 
         port_name_to_alias_map = { name : v['alias'] if 'alias' in v else '' for name, v in config["PORT"].iteritems()}
 
