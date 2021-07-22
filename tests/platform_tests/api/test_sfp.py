@@ -384,7 +384,8 @@ class TestSfpApi(PlatformApiTestBase):
 
     def test_reset(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
         # TODO: Verify that the transceiver was actually reset
-        for i in self.candidate_sfp:
+        sfp_list = list(set(self.candidate_sfp))
+        for i in sfp_list:
             info_dict = sfp.get_transceiver_info(platform_api_conn, i)
             if not self.expect(info_dict is not None, "Unable to retrieve transceiver {} info".format(i)):
                continue
