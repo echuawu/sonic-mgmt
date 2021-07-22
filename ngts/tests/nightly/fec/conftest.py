@@ -73,7 +73,7 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds):
     2: [('Ethernet12', 'Ethernet16')],
     4: [('Ethernet20', 'Ethernet24')]}
     """
-    lb_list_in_split_mode_1 = random.choices(get_dut_loopbacks(topology_obj), k=3)
+    lb_list_in_split_mode_1 = random.sample(get_dut_loopbacks(topology_obj), k=3)
     split_2_lb = (topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])
     split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
     tested_lb_dict = {
@@ -102,7 +102,7 @@ def tested_lb_dict_for_bug_2705016_flow(topology_obj, split_mode_supported_speed
     4: [('Ethernet20', 'Ethernet24')]}
     """
     modes_checked_in_bug_2705016_flow = [SonicConst.FEC_RS_MODE, SonicConst.FEC_NONE_MODE]
-    lb_list_in_split_mode_1 = random.choices(get_dut_loopbacks(topology_obj), k=4)
+    lb_list_in_split_mode_1 = random.sample(get_dut_loopbacks(topology_obj), k=4)
     split_2_lb = (topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])
     split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
     tested_lb_dict = {
