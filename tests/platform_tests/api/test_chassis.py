@@ -379,7 +379,7 @@ class TestChassisApi(PlatformApiTestBase):
         else:
             int_list = get_port_map(duthost, 'all')
             for k, v in int_list.items():
-                list_sfps.extend(v)
+                list_sfps.extend([i + 1 for i in v])
         list_sfps.sort()
         if duthost.facts.get("chassis"):
             expected_num_sfps = len(duthost.facts.get("chassis").get('sfps'))
@@ -393,7 +393,7 @@ class TestChassisApi(PlatformApiTestBase):
 
         for i in list_sfps:
             sfp = chassis.get_sfp(platform_api_conn, i)
-            self.expect(sfp and sfp == sfp_list[i], "SFP {} is incorrect".format(i))
+            self.expect(sfp and sfp == sfp_list[i - 1], "SFP {} is incorrect".format(i))
         self.assert_expectations()
 
     def test_status_led(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
