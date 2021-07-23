@@ -7,14 +7,10 @@ Defines the methods and fixtures which will be used by pytest for only canonical
 """
 
 import pytest
-import logging
 from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
-from ngts.tests.push_build_tests.system.test_cpu_ram_hdd_usage import get_cpu_usage_and_processes
-
-logger = logging.getLogger()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -105,23 +101,3 @@ def dut_hb_2_mac(engines, cli_objects, topology_obj):
     """
     return cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, topology_obj.ports['dut-hb-2'])
 
-
-@pytest.fixture(autouse=True)
-def get_ram_usage_for_syncd_process(engines):
-    """
-    Pytest fixture which prints RAM usage for syncd process
-    """
-    yield
-
-    process = 'syncd'
-    total_cpu_usage, cpu_usage_per_process_dict = get_cpu_usage_and_processes(engines.dut)
-
-    try:
-        process_pid = cpu_usage_per_process_dict[process]['pid']
-        cat_smaps_cmd = "sudo cat /proc/{}/smaps".format(process_pid)
-        get_ram_usage_cmd = cat_smaps_cmd + "| grep Pss | awk '{Total+=$2} END {print Total/1024}'"
-        used_ram_mb = float(engines.dut.run_cmd(get_ram_usage_cmd))
-        logger.info('Process: {} used {} Mb of RAM'.format(process, used_ram_mb))
-
-    except KeyError:
-        logger.error('Can not find RAM usage for process: {} - process is not running'.format(process))
