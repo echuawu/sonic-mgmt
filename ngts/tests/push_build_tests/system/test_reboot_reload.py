@@ -252,7 +252,7 @@ class TestRebootReload:
     def do_func_validations(request):
         pytest_args_list = list(request.config.invocation_params.args)
         pytest_run_cmd = prepare_pytest_args(pytest_args_list)
-        out, err, rc = run_process_on_host(pytest_run_cmd, timeout=1500)
+        out, err, rc = run_process_on_host(pytest_run_cmd, timeout=3600)
         generate_report(out, err)
         if rc:
             raise AssertionError('Functional validation failed, please check logs')
