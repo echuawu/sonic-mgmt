@@ -54,21 +54,15 @@ def test_app_install_uninstall(engines, add_app_into_repo, install_cmd_postfix, 
 
 @pytest.mark.app_ext
 @pytest.mark.parametrize(
-    "app_name, version, expected_error_msg",
+    "app_name, version, abnormal_type",
     [
-        (APP_INFO["name"], APP_INFO["invalid_manifest"]["version"],
-         "Failed to install {}=={}: name is a required field but it is missing".format(
-             APP_INFO["name"], APP_INFO["invalid_manifest"]["version"])),
-        (APP_INFO["name"], APP_INFO["missing_dependency"]["version"],
-         "Failed to install {}=={}: Package {} requires missing-dependency150.0.0 but it is not installed".format(
-             APP_INFO["name"], APP_INFO["missing_dependency"]["version"], APP_INFO["name"])),
-        (APP_INFO["name"], APP_INFO["package_conflict"]["version"],
-         "Failed to install {}=={}: Package {} conflicts with syncd>0.0.0 but version".format(
-             APP_INFO["name"], APP_INFO["package_conflict"]["version"], APP_INFO["name"])),
+        (APP_INFO["name"], APP_INFO["invalid_manifest"]["version"], "invalid_manifest"),
+        (APP_INFO["name"], APP_INFO["missing_dependency"]["version"], "missing_dependency"),
+        (APP_INFO["name"], APP_INFO["package_conflict"]["version"], "package_conflict"),
     ],
 )
 @allure.title('Install app with abnormal package')
-def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name, version, expected_error_msg):
+def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name, version, abnormal_type):
     """
     This test case is to install some abnormal package.
     It include 3 sub test cases
@@ -78,11 +72,20 @@ def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name,
     And check corresponding Failed message
 
     """
+    expected_error_msgs = {
+        "invalid_manifest": "Failed to install {}=={}: \"name\" is a required field but it is missing".format(
+             APP_INFO["name"], APP_INFO["invalid_manifest"]["version"]),
+        "missing_dependency": "Failed to install {}=={}: Package {} requires missing-dependency150.0.0 but it is not "
+                              "installed".format(APP_INFO["name"], APP_INFO["missing_dependency"]["version"], APP_INFO["name"]),
+        "package_conflict": "Failed to install {}=={}: Package {} conflicts with syncd>0.0.0 but version".format(
+             APP_INFO["name"], APP_INFO["package_conflict"]["version"], APP_INFO["name"])
+    }
     dut_engine = engines.dut
     logger.info("Invalid manifest: install {} with version {}".format(app_name, version))
     try:
         with allure.step("Install app {} with abnormal package, version={}".format(app_name, version)):
             output = dut_engine.run_cmd("sudo sonic-package-manager install -y {}=={}".format(app_name, version))
+            expected_error_msg = expected_error_msgs[abnormal_type]
             logger.info("Excepted message is {}, actual message is {}".format(expected_error_msg, output))
             assert expected_error_msg == output or expected_error_msg in output, "install app with abnormal package fail"
 
