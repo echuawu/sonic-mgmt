@@ -2,10 +2,16 @@ import json
 import os
 import pytest
 import logging
+import yaml
+
+import requests
 
 from ipaddress import ip_interface
 from jinja2 import Template
 from natsort import natsorted
+
+from tests.common import constants
+from tests.common.helpers.assertions import pytest_assert as pt_assert
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +29,7 @@ ICMP_RESPONDER_PY = "icmp_responder.py"
 ICMP_RESPONDER_CONF_TEMPL = "icmp_responder.conf.j2"
 GARP_SERVICE_PY = 'garp_service.py'
 GARP_SERVICE_CONF_TEMPL = 'garp_service.conf.j2'
+PTF_TEST_PORT_MAP = '/root/ptf_test_port_map.json'
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -63,6 +70,21 @@ def copy_ptftests_directory(ptfhost):
 
     logger.info("Delete PTF test files from PTF host '{0}'".format(ptfhost.hostname))
     ptfhost.file(path=os.path.join(ROOT_DIR, PTF_TESTS), state="absent")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def set_ptf_port_mapping_mode(ptfhost, request, tbinfo):
+    """Set per-module ptf port mapping mode used by ptftests on ptf."""
+    if "backend" in tbinfo["topo"]["name"]:
+        ptf_port_mapping_mode = getattr(request.module, "PTF_PORT_MAPPING_MODE", constants.PTF_PORT_MAPPING_MODE_DEFAULT)
+    else:
+        ptf_port_mapping_mode = "use_orig_interface"
+    logging.info("Set ptf port mapping mode: %s", ptf_port_mapping_mode)
+    data = {
+        "PTF_PORT_MAPPING_MODE": ptf_port_mapping_mode
+    }
+    ptfhost.copy(content=yaml.dump(data), dest=os.path.join(ROOT_DIR, PTF_TESTS, "constants.yaml"))
+    return
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -248,3 +270,52 @@ def run_garp_service(duthost, ptfhost, tbinfo, change_mac_addresses, request):
     if tbinfo['topo']['type'] == 't0':
         logger.info("Stopping GARP service on PTF host")
         ptfhost.shell('supervisorctl stop garp_service')
+
+
+def ptf_test_port_map(ptfhost, tbinfo, duthosts, mux_server_url):
+    active_dut_map = {}
+    if 'dualtor' in tbinfo['topo']['name']:
+        res = requests.get(mux_server_url)
+        pt_assert(res.status_code==200, 'Failed to get mux status: {}'.format(res.text))
+        for mux_status in res.json().values():
+            active_dut_index = 0 if mux_status['active_side'] == 'upper_tor' else 1
+            active_dut_map[str(mux_status['port_index'])] = active_dut_index
+
+    disabled_ptf_ports = set()
+    for ptf_map in tbinfo['topo']['ptf_map_disabled'].values():
+        # Loop ptf_map of each DUT. Each ptf_map maps from ptf port index to dut port index
+        disabled_ptf_ports = disabled_ptf_ports.union(set(ptf_map.keys()))
+
+    router_macs = [duthost.facts['router_mac'] for duthost in duthosts]
+
+    logger.info('active_dut_map={}'.format(active_dut_map))
+    logger.info('disabled_ptf_ports={}'.format(disabled_ptf_ports))
+    logger.info('router_macs={}'.format(router_macs))
+
+    ports_map = {}
+    for ptf_port, dut_intf_map in tbinfo['topo']['ptf_dut_intf_map'].items():
+        if str(ptf_port) in disabled_ptf_ports:
+            # Skip PTF ports that are connected to disabled VLAN interfaces
+            continue
+
+        if len(dut_intf_map.keys()) == 2:
+            # PTF port is mapped to two DUTs -> dualtor topology and the PTF port is a vlan port
+            # Packet sent from this ptf port will only be accepted by the active side DUT
+            # DualToR DUTs use same special Vlan interface MAC address
+            target_dut_index = int(active_dut_map[ptf_port])
+            ports_map[ptf_port] = {
+                'target_dut': target_dut_index,
+                'target_mac': tbinfo['topo']['properties']['topology']['DUT']['vlan_configs']['one_vlan_a']['Vlan1000']['mac']
+            }
+        else:
+            # PTF port is mapped to single DUT
+            target_dut_index = int(dut_intf_map.keys()[0])
+            ports_map[ptf_port] = {
+                'target_dut': target_dut_index,
+                'target_mac': router_macs[target_dut_index]
+            }
+
+    logger.debug('ptf_test_port_map={}'.format(json.dumps(ports_map, indent=2)))
+
+    ptfhost.copy(content=json.dumps(ports_map), dest=PTF_TEST_PORT_MAP)
+    return PTF_TEST_PORT_MAP
