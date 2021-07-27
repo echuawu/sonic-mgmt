@@ -54,7 +54,7 @@ def protocol_for_reboot_flow():
 @pytest.mark.disable_loganalyzer
 @allure.title('CoPP Policer test case')
 @pytest.mark.parametrize("protocol", PROTOCOLS_LIST)
-def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params):
+def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params, sonic_version):
     """
     Run CoPP Policer test case, which will check that the policer enforces the rate limit for protocols.
     :param topology_obj: topology object fixture
@@ -65,7 +65,7 @@ def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform
     try:
         # CIR (committed information rate) - bandwidth limit set by the policer
         # CBS (committed burst size) - largest burst of packets allowed by the policer
-        tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj)')
+        tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj, sonic_version)')
         if re.search('simx', platform_params.setup_name):
             tested_protocol_obj.copp_simx_test_runner(protocol_for_reboot_flow)
         else:
@@ -81,8 +81,9 @@ class CoppBase:
     """
     Base CoPP class
     """
-    def __init__(self, topology_obj):
+    def __init__(self, topology_obj, sonic_version):
         self.topology = topology_obj
+        self.sonic_version = sonic_version
         self.sender = 'ha'
         self.host_iface = topology_obj.ports['ha-dut-1']
         self.dut_iface = topology_obj.ports['dut-ha-1']
@@ -345,7 +346,7 @@ class CoppBase:
         self.copy_remote_file(CONFIG_DB_COPP_CONFIG_REMOTE, CONFIG_DB_COPP_CONFIG_NAME, '/', 'get')
 
         # update the json file
-        update_copp_json_file(self.get_tested_protocol_name(), cir_value, cbs_value, self.trap_ids)
+        update_copp_json_file(self.get_tested_protocol_name(), cir_value, cbs_value, self.sonic_version, self.trap_ids)
 
         # copy file back to switch
         self.copy_remote_file(CONFIG_DB_COPP_CONFIG_NAME, CONFIG_DB_COPP_CONFIG_NAME, '/tmp')
@@ -381,8 +382,8 @@ class ARPTest(CoppBase):
     """
     ARP class/test extends the basic CoPP class with specific validation for ARP protocol
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
@@ -420,8 +421,8 @@ class SNMPTest(CoppBase):
     """
     SNMP class/test extends the basic CoPP class with specific validation for SNMP protocol
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         # TODO trapped as ip2me. Mellanox should add support for SNMP trap. update values accordingly
         self.default_cir = 6000
         self.default_cbs = 1000
@@ -468,8 +469,8 @@ class IP2METest(CoppBase):
     """
     IP2ME class/test extends the basic CoPP class with specific validation for IP2ME packets type
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
@@ -504,8 +505,8 @@ class SSHTest(CoppBase):
     """
     SSH class/test extends the basic CoPP class with specific validation for SSH packet type
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
@@ -537,8 +538,8 @@ class LLDPTest(CoppBase):
     """
     LLDP class/test extends the basic CoPP class with specific validation for LLDP packet type
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
@@ -569,8 +570,8 @@ class LACPTest(CoppBase):
     """
     LACP class/test extends the basic CoPP class with specific validation for LACP packet type
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
@@ -602,8 +603,8 @@ class BGPTest(CoppBase):
     BGP class/test extends the basic CoPP class with specific validation for BGP packet type
     """
 
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
@@ -639,8 +640,8 @@ class DHCPTest(CoppBase):
     """
     DHCP class/test extends the basic CoPP class with specific validation for DHCP packet type
     """
-    def __init__(self, topology_obj):
-        CoppBase.__init__(self, topology_obj)
+    def __init__(self, topology_obj, sonic_version):
+        CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
@@ -673,19 +674,20 @@ class DHCPTest(CoppBase):
                                }
 
 
-def update_copp_json_file(protocol, cir_value, cbs_value, trap_ids):
+def update_copp_json_file(protocol, cir_value, cbs_value, sonic_version, trap_ids):
     """
     This function updates the local copp.json configuration file with given CIR and CBS value for given protocol
     :param protocol: protocol name
     :param cir_value: value of CIR
     :param cbs_value: value of CBS
+    :param sonic_version: sonic image version
     :param trap_ids: traps_ids value of the protocol.
                     Used if  the protocol doesn't exist in default copp_cfg.json file.
     :return:
     """
     with open(CONFIG_DB_COPP_CONFIG_NAME) as copp_json_file:
         copp_json_file_dic = json.load(copp_json_file)
-    trap_group = get_trap_group(protocol, copp_json_file_dic, trap_ids)
+    trap_group = get_trap_group(protocol, copp_json_file_dic, sonic_version, trap_ids)
     if trap_group in GROUPS_WITH_MINIMAL_CONFIG:
         update_group_params(copp_json_file_dic, trap_group)
     update_limit_values(copp_json_file_dic, trap_group, cir_value, cbs_value)
@@ -696,13 +698,14 @@ def update_copp_json_file(protocol, cir_value, cbs_value, trap_ids):
 # -------------------------------------------------------------------------------
 
 
-def get_trap_group(protocol, copp_dict, trap_ids=''):
+def get_trap_group(protocol, copp_dict, sonic_version, trap_ids=''):
     """
     Getting the trap group by give protocol name.
     If this protocol not into the config dictionary(copp_cfg.json) file,
         add new key-value tuple and the trap_group will be default.
     :param protocol: protocol name
     :param copp_dict: config dictionary
+    :param sonic_version: sonic image version
     :param trap_ids: trap_ids of the protocol
     :return: trap_group
     For example the part of config dictionary:
@@ -720,6 +723,11 @@ def get_trap_group(protocol, copp_dict, trap_ids=''):
     # TODO SNMP trapped as ip2me. Mellanox should add support for SNMP trap
     if protocol == 'snmp':
         protocol = 'ip2me'
+
+    # branch 202012 have deprecated format of dhcp trap name
+    if protocol == 'dhcp' and '202012' not in sonic_version:
+        protocol = 'dhcp_relay'
+
     if protocol in copp_dict[COPP_TRAP]:
         logger.info('The protocol {} exist under COPP_TRAP dictionary in copp_cfg.json file'.format(protocol))
         return copp_dict[COPP_TRAP][protocol][TRAP_GROUP]
