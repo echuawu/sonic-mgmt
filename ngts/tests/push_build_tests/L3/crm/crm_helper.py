@@ -382,9 +382,13 @@ def th_apply_fdb_config(env, fdb_entry_res):
     required_fdb_entries = get_required_minimum(fdb_entry_available)
     vlan_id = int(env.vlan_iface_40.replace('Vlan', ''))
 
-    env.sonic_cli.mac.fdb_config('SET', env.dut_engine, vlan_id, env.dut_ha_2, required_fdb_entries)
+    fdb_conf_set = env.sonic_cli.mac.generate_fdb_config(required_fdb_entries, vlan_id, env.dut_ha_2, 'SET')
+    SwssContainer.apply_config(env.dut_engine, fdb_conf_set)
+
     with allure.step('Verify \'{}\' counter incremented'.format(fdb_entry_res)):
         retry_call(
             verify_counters, fargs=[env, fdb_entry_res, required_fdb_entries, '>='],
             tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
+
+    return fdb_conf_set

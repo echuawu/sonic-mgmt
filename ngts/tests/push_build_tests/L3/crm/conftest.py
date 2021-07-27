@@ -56,11 +56,10 @@ def cleanup(request):
     params_list = []
     yield params_list
     if "rep_call" in dir(request.node):
-        if not request.node.rep_call.skipped:
-            if params_list:
-                with allure.step('Execute test cleanup commands'):
-                    for item in params_list:
-                        item[0](*item[1:])
+        if params_list:
+            with allure.step('Execute test cleanup commands'):
+                for item in params_list:
+                    item[0](*item[1:])
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)

@@ -62,7 +62,8 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask):
 
 @pytest.mark.build
 @pytest.mark.push_gate
-@pytest.mark.parametrize("ip_ver,neighbor,neigh_mac_addr", [("4", "2.2.2.2", "11:22:33:44:55:66"), ("6", "2001::1", "11:22:33:44:55:66")])
+@pytest.mark.parametrize("ip_ver,neighbor,neigh_mac_addr", [("4", "2.2.2.2", "11:22:33:44:55:66"),
+                                                            ("6", "2001::1", "11:22:33:44:55:66")])
 @allure.title('Test CRM neighbor and nexthop counters')
 def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr):
     """
@@ -137,8 +138,10 @@ def test_crm_nexthop_group_and_member(env, cleanup):
     with allure.step('Add neighbors: {} {}'.format(neigh_69, neigh_40)):
         env.sonic_cli.ip.add_ip_neigh(env.dut_engine, neigh_69, mac_addr_templ.format(vlan_id_69), vlan_69)
         env.sonic_cli.ip.add_ip_neigh(env.dut_engine, neigh_40, mac_addr_templ.format(vlan_id_40), vlan_40)
-    cleanup.append((env.sonic_cli.ip.del_ip_neigh, env.dut_engine, neigh_69, mac_addr_templ.format(vlan_id_69), vlan_69))
-    cleanup.append((env.sonic_cli.ip.del_ip_neigh, env.dut_engine, neigh_40, mac_addr_templ.format(vlan_id_40), vlan_40))
+    cleanup.append((env.sonic_cli.ip.del_ip_neigh, env.dut_engine, neigh_69, mac_addr_templ.format(vlan_id_69),
+                    vlan_69))
+    cleanup.append((env.sonic_cli.ip.del_ip_neigh, env.dut_engine, neigh_40, mac_addr_templ.format(vlan_id_40),
+                    vlan_40))
 
     with allure.step('Add route: {}/{} {}'.format(dst_ip, mask, neigh_69)):
         env.sonic_cli.route.add_route(env.dut_engine, dst_ip, neigh_69, mask)
@@ -286,12 +289,12 @@ def test_crm_thresholds_neighbors(env, cleanup, loganalyzer_log_folder, map_res_
     neigh_used, neigh_available = get_main_crm_stat(env, "ipv{}_neighbor".format(ip_ver))
     with allure.step("Verify thresholds {}".format("ipv{}_neighbor".format(ip_ver))):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr["ipv{}_neighbor".format(ip_ver)],
-                            crm_used=neigh_used,
-                            crm_avail=neigh_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr["ipv{}_neighbor".format(ip_ver)],
+                          crm_used=neigh_used,
+                          crm_avail=neigh_available
+                          )
 
 
 @pytest.mark.parametrize('ip_ver,start_ip', [('4', '2.2.2.0'), ('6', '2001::')], ids=['ipv4', 'ipv6'])
@@ -315,32 +318,32 @@ def test_crm_thresholds_nexthop(env, cleanup, loganalyzer_log_folder, map_res_to
     route_used, route_available = get_main_crm_stat(env, "ipv{}_route".format(ip_ver))
     with allure.step("Verify thresholds {}".format('ipv{}_route'.format(ip_ver))):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr['ipv{}_route'.format(ip_ver)],
-                            crm_used=route_used,
-                            crm_avail=route_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr['ipv{}_route'.format(ip_ver)],
+                          crm_used=route_used,
+                          crm_avail=route_available
+                          )
 
     nexthop_group_used, nexthop_group_available = get_main_crm_stat(env, nexthop_group_res)
     with allure.step("Verify thresholds {}".format(nexthop_group_res)):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr[nexthop_group_res],
-                            crm_used=nexthop_group_used,
-                            crm_avail=nexthop_group_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr[nexthop_group_res],
+                          crm_used=nexthop_group_used,
+                          crm_avail=nexthop_group_available
+                          )
 
     nexthop_group_member_used, nexthop_group_member_available = get_main_crm_stat(env, nexthop_group_member_res)
     with allure.step("Verify thresholds {}".format(nexthop_group_member_res)):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr[nexthop_group_member_res],
-                            crm_used=nexthop_group_member_used,
-                            crm_avail=nexthop_group_member_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr[nexthop_group_member_res],
+                          crm_used=nexthop_group_member_used,
+                          crm_avail=nexthop_group_member_available
+                          )
 
 
 @pytest.mark.disable_loganalyzer
@@ -349,20 +352,20 @@ def test_crm_thresholds_fdb(env, cleanup, loganalyzer_log_folder, map_res_to_thr
                             disable_rsyslog_ratelimit):
     # Test name used for lognalyzer marker
     test_name = 'test_crm_thresholds_fdb'
-    fdb_clear_cmd = 'fdbclear'
     fdb_entry_res = "fdb_entry"
-    th_apply_fdb_config(env, fdb_entry_res)
-    cleanup.append((env.dut_engine.run_cmd, fdb_clear_cmd))
+    fdb_conf_set = th_apply_fdb_config(env, fdb_entry_res)
+    fdb_conf_del = set_op_del(fdb_conf_set)
+    cleanup.append((SwssContainer.apply_config, env.dut_engine, fdb_conf_del))
 
     fdb_used, fdb_available = get_main_crm_stat(env, fdb_entry_res)
     with allure.step("Verify thresholds {}".format(fdb_entry_res)):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr[fdb_entry_res],
-                            crm_used=fdb_used,
-                            crm_avail=fdb_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr[fdb_entry_res],
+                          crm_used=fdb_used,
+                          crm_avail=fdb_available
+                          )
 
 
 @pytest.mark.disable_loganalyzer
@@ -405,18 +408,18 @@ def test_crm_thresholds_acl(env, cleanup, loganalyzer_log_folder, map_res_to_thr
     acl_used, acl_available = get_acl_crm_stat(env, acl_entry_resource)
     with allure.step("Verify thresholds {}".format(acl_entry_resource)):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr[acl_entry_resource],
-                            crm_used=acl_used,
-                            crm_avail=acl_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr[acl_entry_resource],
+                          crm_used=acl_used,
+                          crm_avail=acl_available
+                          )
     acl_used, acl_available = get_acl_crm_stat(env, acl_counter_resource)
     with allure.step("Verify thresholds {}".format(acl_counter_resource)):
         verify_thresholds(env,
-                            test_name,
-                            loganalyzer_log_folder,
-                            crm_cli_res=map_res_to_thr[acl_counter_resource],
-                            crm_used=acl_used,
-                            crm_avail=acl_available
-        )
+                          test_name,
+                          loganalyzer_log_folder,
+                          crm_cli_res=map_res_to_thr[acl_counter_resource],
+                          crm_used=acl_used,
+                          crm_avail=acl_available
+                          )
