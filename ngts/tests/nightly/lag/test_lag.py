@@ -237,7 +237,7 @@ def test_port_cannot_be_added_to_lag(topology_obj, traffic_type, interfaces, eng
 def test_lag_min_links(topology_obj, traffic_type, interfaces, engines, cleanup_list):
     """
     This test case will check the functionality of 'min-links' parameter.
-    Checks that port channel in down state, until he have num of members < min-links parameter.( 0 value is exclusion)
+    Checks that port channel in down state, until he have num of members < min-links parameter.
     :param topology_obj: topology object
     :param traffic_type: the type of the traffic
     :param interfaces: interfaces fixture
@@ -248,9 +248,9 @@ def test_lag_min_links(topology_obj, traffic_type, interfaces, engines, cleanup_
     try:
         dut_cli = topology_obj.players['dut']['cli']
 
-        with allure.step('STEP1: Create PortChannel with min-links 0 and no members'):
+        with allure.step('STEP1: Create PortChannel with min-links 1 and no members'):
             lag_config_dict = {
-                'dut': [{'type': 'lacp', 'name': PORTCHANNEL_NAME, 'members': [], 'params': '--min-links 0'}]
+                'dut': [{'type': 'lacp', 'name': PORTCHANNEL_NAME, 'members': [], 'params': '--min-links 1'}]
             }
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
 
