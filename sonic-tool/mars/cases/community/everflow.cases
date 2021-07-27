@@ -35,7 +35,7 @@
                         <op> in </op>
                         <value> [SPC2, SPC3] </value>
                     </condition>
-                    <bug> 2364224 </bug>
+                    <bug> 2739322 </bug>
             </condition_group>
         </ignore>
         <cmd>
