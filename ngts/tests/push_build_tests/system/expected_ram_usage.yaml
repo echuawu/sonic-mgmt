@@ -10,7 +10,7 @@
 MSN2010: # Boxer
   total: 3500
   sx_sdk: 900
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -32,7 +32,7 @@ MSN2010: # Boxer
 MSN2100: # Bulldog
   total: 3000
   sx_sdk: 500
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -54,7 +54,7 @@ MSN2100: # Bulldog
 MSN2410: # Spider
   total: 3000
   sx_sdk: 500
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -76,7 +76,7 @@ MSN2410: # Spider
 SN2700: # Panther
   total: 3000
   sx_sdk: 500
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -98,7 +98,7 @@ SN2700: # Panther
 MSN2700: # Simx Panther
   total: 3000
   sx_sdk: 500
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -121,7 +121,7 @@ MSN2700: # Simx Panther
 MSN3420: # Lionfish
   total: 4000
   sx_sdk: 1000
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -143,7 +143,7 @@ MSN3420: # Lionfish
 MSN3700: # Anaconda
   total: 4000
   sx_sdk: 1000
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -165,7 +165,7 @@ MSN3700: # Anaconda
 MSN3700C: # Anaconda C
   total: 4000
   sx_sdk: 1000
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -187,7 +187,7 @@ MSN3700C: # Anaconda C
 MSN3800: # Tigris
   total: 4000
   sx_sdk: 1000
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -210,7 +210,7 @@ MSN3800: # Tigris
 MSN4410: # Ocelot
   total: 4000
   sx_sdk: 1100
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -232,7 +232,7 @@ MSN4410: # Ocelot
 MSN4600: # Liger
   total: 4000
   sx_sdk: 1100
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -254,7 +254,7 @@ MSN4600: # Liger
 MSN4600C: # Tigon
   total: 4000
   sx_sdk: 1100
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
@@ -276,7 +276,7 @@ MSN4600C: # Tigon
 MSN4700: # Leopard
   total: 4000
   sx_sdk: 1100
-  syncd: 70
+  syncd: 100
   redis-server: 50
   snmpd: 20
   zebra: 30
