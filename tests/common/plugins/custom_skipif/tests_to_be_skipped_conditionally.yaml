@@ -1,116 +1,111 @@
+########## Community ##########
+
+
+########## Canonical ##########
 # Nightly
 tests/nightly/auto_negotition/test_auto_neg.py:
-  Platform:
-    platforms:
-      - simx
-      - 4700
+  - Platform:
+    - simx
+    - 4700
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::test_scale:
-  Platform:
-    platforms:
-      - simx
-  Redmine:
+  - Platform:
+    - simx
+  - Redmine:
     - 2686798
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py:
-  Platform:
-    platforms:
-      - simx
+  - Platform:
+    - simx
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_config_advertised_types:
-  Redmine:
+  - Redmine:
     - 2699181
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::test_negative_advertised_speed_type_mismatch:
-  Redmine:
+  - Redmine:
     - 2696717
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
-  GitHub:
+  - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_remove_dpb_configuration_interop:
-  GitHub:
+  - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6630
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_breakout_unbreakable_ports:
-  Platform:
-    platforms:
-      - 3700
+  - Platform:
+    - 3700
 
 tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_breakout_mode:
-  GitHub:
+  - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/lag/test_lag.py::test_lags_scale:
-  Platform:
-    platforms:
-      - simx
-  Redmine:
+  - Platform:
+    - simx
+  - Redmine:
     - 2704837
 
 tests/nightly/static_route/test_static_route.py:
-  Platform:
-    platforms:
-      - simx
+  - Platform:
+    - simx
 
 # PushGate
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
-  Platform:
-    platforms:
-      - simx
+  - Platform:
+    - simx
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
-  Redmine:
+  - Redmine:
     - 2597848
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_neighbor_and_nexthop:
-  Redmine:
+  - Redmine:
     - 2597848
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member:
-  Redmine:
+  - Redmine:
     - 2597848
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_fdb_entry:
-  Redmine:
+  - Redmine:
     - 2597848
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
-  Redmine:
+  - Redmine:
     - 2597848
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
-  GitHub:
+  - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_unicast_request_message:
-  GitHub:
+  - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
 tests/push_build_tests/L3/static_route/test_static_route.py:
-  Redmine:
+  - Redmine:
     - 2705262
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
-  Platform:
-    platforms:
-      - simx
+  - Platform:
+    - simx
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage:
-  Redmine:
+  - Redmine:
     - 2716189
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
-  Redmine:
+  - Redmine:
     - 2637874
 
 tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_version:
-  Redmine:
+  - Redmine:
     - 2626014
 
 tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_support_on_spc1:
-  Redmine:
+  - Redmine:
     - 2638158
-

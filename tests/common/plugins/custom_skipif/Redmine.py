@@ -7,11 +7,10 @@ ROOT_ISSUE = 'root_issue'
 STATUS = 'status'
 
 
-class Redmine(CustomSkipIf):
-    def __init__(self, ignore_list, extra_params):
-        self.name = __name__
-        self.ignore_list = ignore_list
-        self.extra_params = extra_params
+class SkipIf(CustomSkipIf):
+    def __init__(self, ignore_list, pytest_item_obj):
+        super(SkipIf, self).__init__(ignore_list, pytest_item_obj)
+        self.name = 'Redmine'
 
     def is_skip_required(self, skip_dict):
         is_issue_active, issue_id = is_redmine_issue_active(self.ignore_list)

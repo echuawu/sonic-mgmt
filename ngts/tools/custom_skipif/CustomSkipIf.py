@@ -1,18 +1,29 @@
-from abc import ABCMeta, abstractmethod
+import sys
+import os
+import logging
+import json
+
+from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
+
+CUSTOM_SKIP_IF_DICT = 'custom_skip_if_dict'
+CUSTOM_TEST_SKIP_PLATFORM_TYPE = 'dynamic_tests_skip_platform_type'
+
+logger = logging.getLogger()
+
+path = os.path.abspath(__file__)
+sonic_mgmt_path = path.split('/ngts/')[0]
+community_plugins_path = '/tests/common/plugins/'
+full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
+sys.path.append(full_path_to_community_plugins)
+
+from custom_skipif.CustomSkipIf import pytest_runtest_setup
 
 
-class CustomSkipIf:
-    __metaclass__ = ABCMeta
-    # def __init__(self, ignore_list, extra_params):
-    #     self.name = __name__
-    #     self.ignore_list = ignore_list
-    #     self.extra_params = extra_params
+def pytest_collection(session):
 
-    @abstractmethod
-    def is_skip_required(self, skip_dict_result):
-        """
-        Decide whether or not to skip a test
-        :param skip_dict_result: shared dictionary with data about skip test
-        :return: updated skip_dict
-        """
-        return skip_dict_result
+    topology = get_topology_by_setup_name(session.config.option.setup_name, slow_cli=False)
+    devdescription = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription']
+    platform = json.loads(devdescription).get('platform')
+
+    session.config.cache.set(CUSTOM_SKIP_IF_DICT, None)
+    session.config.cache.set(CUSTOM_TEST_SKIP_PLATFORM_TYPE, platform)

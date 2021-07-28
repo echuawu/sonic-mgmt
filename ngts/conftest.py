@@ -24,7 +24,7 @@ from ngts.tools.infra import get_platform_info
 logger = logging.getLogger()
 
 pytest_plugins = ('ngts.tools.sysdumps',
-                  'ngts.tools.custom_skipif',
+                  'ngts.tools.custom_skipif.CustomSkipIf',
                   'ngts.tools.loganalyzer',
                   'ngts.tools.infra',
                   'pytester',
