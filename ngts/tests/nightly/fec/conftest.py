@@ -162,10 +162,11 @@ def dut_ports_default_speeds_configuration(topology_obj, engines, cli_objects):
 
 
 @pytest.fixture(autouse=True, scope='session')
-def dut_ports_default_fec_configuration(topology_obj, engines, cli_objects, interfaces, tested_lb_dict,
-                                        tested_lb_dict_for_bug_2705016_flow, pci_conf, dut_ports_number_dict):
+def dut_ports_default_mlxlink_configuration(topology_obj, engines, cli_objects, interfaces, tested_lb_dict,
+                                            tested_lb_dict_for_bug_2705016_flow, pci_conf, dut_ports_number_dict):
     logger.info("Getting port basic fec configuration")
-    dut_ports_basic_fec_dict = {}
+    dut_ports_basic_mlxlink_dict = {}
+
     ports = get_tested_lb_dict_tested_ports(tested_lb_dict)
     ports += get_tested_lb_dict_tested_ports(tested_lb_dict_for_bug_2705016_flow)
     ports += [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
@@ -175,9 +176,13 @@ def dut_ports_default_fec_configuration(topology_obj, engines, cli_objects, inte
                                   fargs=[engines.dut, pci_conf, port_number],
                                   tries=6, delay=10, logger=logger)
         port_fec_mode = mlxlink_conf[AutonegCommandConstants.FEC]
-        dut_ports_basic_fec_dict[port] = port_fec_mode
-    logger.debug("port basic fec configuration: {}".format(dut_ports_basic_fec_dict))
-    return dut_ports_basic_fec_dict
+        port_width_mode = int(mlxlink_conf[AutonegCommandConstants.WIDTH])
+        dut_ports_basic_mlxlink_dict[port] = {
+            AutonegCommandConstants.FEC: port_fec_mode,
+            AutonegCommandConstants.TYPE: "CR{}".format(port_width_mode if port_width_mode > 1 else "")
+        }
+    logger.debug("port basic fec configuration: {}".format(dut_ports_basic_mlxlink_dict))
+    return dut_ports_basic_mlxlink_dict
 
 
 def get_tested_lb_dict_tested_ports(tested_lb_dict):

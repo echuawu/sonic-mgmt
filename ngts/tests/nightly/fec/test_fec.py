@@ -2,6 +2,7 @@ import pytest
 import logging
 import random
 import allure
+import re
 from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
@@ -9,7 +10,7 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, compare_actual_and_expected, save_configuration
 from ngts.helpers.interface_helpers import get_lb_mutual_speed
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
-    LinuxConsts, FEC_MODES_SPEED_SUPPORT
+    LinuxConsts, FecConstants
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
 
@@ -30,8 +31,11 @@ class TestFec:
               tested_lb_dict, tested_lb_dict_for_bug_2705016_flow, pci_conf,
               fec_capability_for_dut_ports, dut_ports_number_dict,
               split_mode_supported_speeds, tested_dut_to_host_conn,
-              dut_ports_default_speeds_configuration, dut_ports_default_fec_configuration):
+              dut_ports_default_speeds_configuration, dut_ports_default_mlxlink_configuration, chip_type,
+              platform_params):
         self.topology_obj = topology_obj
+        self.chip_type = chip_type
+        self.platform = platform_params.filtered_platform
         self.interfaces = interfaces
         self.engines = engines
         self.cli_objects = cli_objects
@@ -42,14 +46,25 @@ class TestFec:
         self.fec_capability_for_dut_ports = fec_capability_for_dut_ports
         self.dut_ports_number_dict = dut_ports_number_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
+        self.fec_modes_speed_support = self.get_fec_modes_speed_support()
         # For Cleanup
         self.dut_ports_basic_speeds_configuration = dut_ports_default_speeds_configuration
-        self.dut_ports_basic_fec_configuration = dut_ports_default_fec_configuration
+        self.dut_ports_basic_mlxlink_configuration = dut_ports_default_mlxlink_configuration
+
+    def get_fec_modes_speed_support(self):
+        if self.chip_type == "SPC":
+            return FecConstants.FEC_MODES_SPC_SPEED_SUPPORT
+        elif self.chip_type == "SPC2":
+            return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[self.platform.upper()]
+        elif self.chip_type == "SPC3":
+            return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[self.platform.upper()]
+        else:
+            raise AssertionError("Chip type {} is unrecognized".format(self.chip_type))
 
     def test_fec_capabilities(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
         with allure.step("Configure FEC on dut loopbacks"):
             logger.info("Configure FEC on dut loopbacks")
-            dut_lb_conf = self.configure_fec(self.tested_lb_dict, FEC_MODES_SPEED_SUPPORT, cleanup_list)
+            dut_lb_conf = self.configure_fec(self.tested_lb_dict, cleanup_list)
 
         with allure.step("Configure FEC on dut - host connectivities"):
             logger.info("Configure FEC on host - dut connectivities")
@@ -154,7 +169,6 @@ class TestFec:
 
         with allure.step("Configure FEC mode on ports: {}".format(tested_ports)):
             conf = self.configure_fec(self.tested_lb_dict_for_bug_2705016_flow,
-                                      FEC_MODES_SPEED_SUPPORT,
                                       cleanup_list)
 
         self.verify_fec_configuration(conf)
@@ -243,19 +257,20 @@ class TestFec:
             IpConfigTemplate.configuration(self.topology_obj, ip_config_dict)
         return ip_conf
 
-    def configure_fec(self, tested_lb_dict, fec_modes_speed_support, cleanup_list):
+    def configure_fec(self, tested_lb_dict, cleanup_list):
         conf = {}
         for split_mode, fec_mode_tested_lb_dict in tested_lb_dict.items():
             for fec_mode, lb_list in fec_mode_tested_lb_dict.items():
                 for lb in lb_list:
-                    speed = self.get_lb_speed_conf_for_fec_mode(lb, split_mode, fec_mode, fec_modes_speed_support)
+                    speed = self.get_lb_speed_conf_for_fec_mode(lb, split_mode, fec_mode, self.fec_modes_speed_support)
+                    interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
                     for port in lb:
-                        self.update_port_fec_conf_dict(conf, port, speed, fec_mode, cleanup_list)
+                        self.update_port_fec_conf_dict(conf, port, speed, fec_mode, interface_type, cleanup_list)
         return conf
 
     def get_lb_speed_conf_for_fec_mode(self, lb, split_mode, fec_mode, fec_modes_speed_support):
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
-        fec_mode_supported_speeds = fec_modes_speed_support[fec_mode]
+        fec_mode_supported_speeds = set(fec_modes_speed_support[fec_mode][split_mode].keys())
         mutual_speeds_option = list(fec_mode_supported_speeds.intersection(lb_mutual_speeds))
         speed = random.choice(mutual_speeds_option)
         return speed
@@ -269,11 +284,12 @@ class TestFec:
         return conf
 
     def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, cleanup_list):
-        fec_mode_supported_speeds = FEC_MODES_SPEED_SUPPORT[fec_mode]
+        fec_mode_supported_speeds = set(self.fec_modes_speed_support[fec_mode][split_mode].keys())
         port_supported_speeds = self.split_mode_supported_speeds[dut_host_port][split_mode]
         mutual_speeds_option = list(fec_mode_supported_speeds.intersection(port_supported_speeds))
         speed = random.choice(mutual_speeds_option)
-        self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, cleanup_list)
+        interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
+        self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, interface_type, cleanup_list)
 
     def configure_fec_mode_on_host(self, cleanup_list):
         for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
@@ -334,27 +350,53 @@ class TestFec:
                                                                               traffic_validation["dst"]))
                 ping.run_validation()
 
-    def update_port_fec_conf_dict(self, conf, port, speed, tested_fec_mode, cleanup_list):
+    def update_port_fec_conf_dict(self, conf, port, speed, tested_fec_mode, interface_type, cleanup_list):
         self.set_speed_fec_cleanup(port, cleanup_list)
         self.cli_objects.dut.interface.set_interface_speed(self.engines.dut, port, speed)
+        self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, interface_type)
         self.cli_objects.dut.interface.configure_interface_fec(self.engines.dut, port, tested_fec_mode)
         conf[port] = {AutonegCommandConstants.SPEED: speed,
                       AutonegCommandConstants.FEC: tested_fec_mode,
+                      AutonegCommandConstants.WIDTH: self.get_interface_width(interface_type),
                       AutonegCommandConstants.ADMIN: 'up',
-                      AutonegCommandConstants.OPER: 'up'}
+                      AutonegCommandConstants.OPER: 'up'
+        }
+
+    @staticmethod
+    def get_interface_width(interface_type):
+        """
+        :param interface_type: a interface type string 'CR'
+        :return: int width  value, i.e, '1'
+        more examples,
+        'CR' -> 1
+        'CR2' -> 2
+        'CR4' -> 4
+        """
+        match = re.search(r"\w+(\d+)", interface_type)
+        if match:
+            width = match.group(1)
+            return int(width)
+        else:
+            return 1
 
     def set_speed_fec_cleanup(self, port, cleanup_list):
         base_speed = self.dut_ports_basic_speeds_configuration[port]
-        base_fec = self.dut_ports_basic_fec_configuration[port]
+        base_fec = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.FEC]
+        base_interface_type = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE]
         cleanup_list.append((self.cli_objects.dut.interface.set_interface_speed, (self.engines.dut, port, base_speed)))
-        cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (self.engines.dut, port, base_fec)))
+        cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (self.engines.dut,
+                                                                                      port, base_fec)))
+        cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (self.engines.dut, port,
+                                                                                    base_interface_type)))
 
     def update_conf(self, conf):
         for port, port_conf in conf.items():
             base_speed = self.dut_ports_basic_speeds_configuration[port]
-            base_fec = self.dut_ports_basic_fec_configuration[port]
+            base_fec = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.FEC]
+            base_width = self.get_interface_width(self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE])
             conf[port][AutonegCommandConstants.SPEED] = base_speed
             conf[port][AutonegCommandConstants.FEC] = base_fec
+            conf[port][AutonegCommandConstants.WIDTH] = base_width
 
     def verify_fec_configuration(self, conf):
         """
