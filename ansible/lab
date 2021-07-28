@@ -1,4 +1,5 @@
 [sonic_latest]
+r-ocelot-07      ansible_host=10.210.24.11 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4410" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-tigris-22      ansible_host=10.210.24.108 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3800" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-spider-05      ansible_host=10.210.24.178 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2410" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-panther-simx-23      ansible_host=10.213.88.23 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000

@@ -3,6 +3,10 @@
 
 #  MTR canonical testbeds
 
+# MTR canonical testbed r-ocelot-07 topologies
+r-ocelot-07-ptf-any ansible_host=r-ocelot-07  sonic_version=v2  sonic_hwsku=ACS-MSN4410             serial_console="ssh -l rcon:7034 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-136 base_mac=1C:34:DA:C2:23:00 serial=MT2122X13172 model=MSN4410-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4410-r0', '0x29': u'2020.11-5.3.0005-9600', '0x22': u'MSN4410-WS2FO', '0x23': u'MT2122X13172', '0x21': u'MSN4410', '0x26': u'17', '0x24': u'1C:34:DA:C2:23:00', '0x25': u'06/21/2021 15:59:42', '0xfe': u'0xF7F2A513', '0x2b': u'Mellanox Technologies', '0x2a': u'254'}"
+r-ocelot-07 ansible_host=r-ocelot-07  sonic_version=v2  sonic_hwsku=ACS-MSN4410             serial_console="ssh -l rcon:7034 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-136 base_mac=1C:34:DA:C2:23:00 serial=MT2122X13172 model=MSN4410-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4410-r0', '0x29': u'2020.11-5.3.0005-9600', '0x22': u'MSN4410-WS2FO', '0x23': u'MT2122X13172', '0x21': u'MSN4410', '0x26': u'17', '0x24': u'1C:34:DA:C2:23:00', '0x25': u'06/21/2021 15:59:42', '0xfe': u'0xF7F2A513', '0x2b': u'Mellanox Technologies', '0x2a': u'254'}"
+
 # MTR canonical testbed r-tigris-22 topologies
 r-tigris-22-ptf-any ansible_host=r-tigris-22  sonic_version=v2  sonic_hwsku=ACS-MSN3800             serial_console="ssh -l rcon:7010 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=B8:59:9F:A9:34:00 serial=MT1937X00537 model=MSN3800-CS2FO syseeprom_info="{'0xFE': '0x9EFF0119', '0x28': 'x86_64-mlnx_msn3800-r0', '0x29': '2020.11-5.3.0005-9600', '0x22': 'MSN3800-CS2FO', '0x23': 'MT1937X00537', '0x21': 'MSN3800', '0x26': '1', '0x24': 'B8:59:9F:A9:34:00', '0x25': '07/01/2020 13:54:00', '0x2B': 'Mellanox', '0x2A': '254'}"
 r-tigris-22 ansible_host=r-tigris-22  sonic_version=v2  sonic_hwsku=ACS-MSN3800             serial_console="ssh -l rcon:7010 10.208.2.34" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=B8:59:9F:A9:34:00 serial=MT1937X00537 model=MSN3800-CS2FO syseeprom_info="{'0xFE': '0x9EFF0119', '0x28': 'x86_64-mlnx_msn3800-r0', '0x29': '2020.11-5.3.0005-9600', '0x22': 'MSN3800-CS2FO', '0x23': 'MT1937X00537', '0x21': 'MSN3800', '0x26': '1', '0x24': 'B8:59:9F:A9:34:00', '0x25': '07/01/2020 13:54:00', '0x2B': 'Mellanox', '0x2A': '254'}"
@@ -500,6 +504,8 @@ dev-r-vrt-233-010-t0
 dev-r-vrt-233-010-ptf32
 
 [lab]
+r-ocelot-07-ptf-any
+r-ocelot-07
 
 # MTR canonical setups topologies
 
@@ -864,6 +870,7 @@ ptf-1 ansible_host=10.0.0.200 ansible_ssh_user=root ansible_ssh_pass=password
 ptf-vms6-3 ansible_host=10.75.206.214 ansible_ssh_user=root ansible_ssh_pass=root
 
 [pdu]
+pdu-10-208-0-136 ansible_host=10.208.0.136 protocol=snmp
 pdu-10-208-0-22 ansible_host=10.208.0.22 protocol=snmp
 pdu-1 ansible_host=192.168.9.2 protocol=snmp
 pdu-2 ansible_host=192.168.9.3
