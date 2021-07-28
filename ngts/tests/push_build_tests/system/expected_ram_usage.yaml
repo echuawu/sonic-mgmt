@@ -40,7 +40,7 @@ MSN2100: # Bulldog
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -62,7 +62,7 @@ MSN2410: # Spider
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -84,7 +84,7 @@ SN2700: # Panther
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -106,7 +106,7 @@ MSN2700: # Simx Panther
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -129,7 +129,7 @@ MSN3420: # Lionfish
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -151,7 +151,7 @@ MSN3700: # Anaconda
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -173,7 +173,7 @@ MSN3700C: # Anaconda C
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -195,7 +195,7 @@ MSN3800: # Tigris
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -218,7 +218,7 @@ MSN4410: # Ocelot
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -240,7 +240,7 @@ MSN4600: # Liger
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -262,7 +262,7 @@ MSN4600C: # Tigon
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -284,7 +284,7 @@ MSN4700: # Leopard
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 30
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
