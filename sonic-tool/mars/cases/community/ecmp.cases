@@ -21,15 +21,6 @@
         <name> fg_ecmp </name>
         <tout> 3600 </tout>
         <ignore>
-            <condition_group>
-                <operand> AND </operand>
-                <condition>
-                    <key> chip_type </key>
-                    <op> == </op>
-                    <value> spectrum1 </value>
-                </condition>
-                <bug> 2577145 </bug>
-            </condition_group>
             <condition>
                 <key> topology </key>
                 <op> not in </op>

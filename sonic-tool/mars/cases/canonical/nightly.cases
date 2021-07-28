@@ -15,13 +15,6 @@
     </Case>
   </global>
   <case>
-    <ignore>
-          <condition>
-              <key> sonic_branch </key>
-              <op> in </op>
-              <value> ["201911"] </value>
-          </condition>
-    </ignore>
     <name> COPP </name>
     <info> </info>
     <cmd>
@@ -39,13 +32,6 @@
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/lag --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
-    <ignore>
-        <condition>
-            <key> dut_hwsku </key>
-            <op> in </op>
-            <value>  ["ACS-MSN3800"] </value>
-        </condition>
-    </ignore>
   </case>
 
   <case>
@@ -66,9 +52,6 @@
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/dynamic_port_breakout --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
-    <ignore>
-		<bug>2512760</bug>
-    </ignore>
   </case>
 
   <case>
@@ -79,28 +62,17 @@
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/static_route --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
-    <ignore>
-		<bug>2492541</bug>
-    </ignore>
   </case>
 
  <case>
     <name> FEC tests </name>
     <info> </info>
     <ignore>
-        <condition_group>
-            <operand> AND </operand>
-            <condition>
-                <key> dut_hwsku </key>
-                <op> in </op>
-                <value>  ["ACS-MSN3420", "ACS-MSN2410", "ACS-MSN2010"] </value>
-            </condition>
-            <condition>
-                <key> sonic_branch </key>
-                <op> in </op>
-                <value> ["202012", "201911"] </value>
-            </condition>
-        </condition_group>
+        <condition>
+            <key> sonic_branch </key>
+            <op> in </op>
+            <value> ["202012"] </value>
+        </condition>
     </ignore>
     <cmd>
       <params>
@@ -113,23 +85,11 @@
     <name> Auto negotiation </name>
     <info> </info>
     <ignore>
-        <condition_group>
-                <operand> OR </operand>
-                <condition_group>
-                    <operand> AND </operand>
-                    <condition>
-                        <key> dut_hwsku </key>
-                        <op> in </op>
-                        <value>  ["ACS-MSN3700", "ACS-MSN3700C", "ACS-MSN3420", "Mellanox-SN2700", "ACS-MSN2700"] </value>
-                    </condition>
-                    <bug> 2700007 </bug>
-                </condition_group>
-                <condition>
-                    <key> sonic_branch </key>
-                    <op> in </op>
-                    <value> ["202012", "201911"] </value>
-                </condition>
-            </condition_group>
+        <condition>
+            <key> sonic_branch </key>
+            <op> in </op>
+            <value> ["202012"] </value>
+        </condition>
       </ignore>
     <cmd>
       <params>

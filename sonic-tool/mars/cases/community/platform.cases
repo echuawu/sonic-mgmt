@@ -255,15 +255,6 @@
         <info> Test PSU API Case  </info>
         <name> platform_api_psu_tempreture </name>
         <tout> 1200 </tout>
-            <!-- Mellanox does not support sensor that is being tested on MSN2100 and MSN2010. https://redmine.mellanox.com/issues/2638331
-            -->
-        <ignore>
-            <condition>
-            <key> dut_hwsku </key>
-            <op> in </op>
-            <value>  ["ACS-MSN2100", "ACS-MSN2010"] </value>
-        </condition>
-        </ignore>
 
         <cmd>
              <params>
@@ -349,9 +340,6 @@
         <info> Test CPU memory usage Case </info>
         <name> cpu_memory_usage </name>
         <tout> 1800 </tout>
-        <ignore>
-            <bug> 2716189 </bug>
-        </ignore>
         <cmd>
              <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_cpu_memory_usage.py </static_args>
@@ -374,9 +362,6 @@
         <info> Critical Process Monitoring Case </info>
         <name> critical_process_monitoring </name>
         <tout> 1800 </tout>
-        <ignore>
-            <bug> 2700493 </bug>
-        </ignore>
         <cmd>
              <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts process_monitoring/test_critical_process_monitoring.py </static_args>

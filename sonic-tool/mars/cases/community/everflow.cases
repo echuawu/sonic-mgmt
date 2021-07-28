@@ -27,17 +27,6 @@
         <info> Everflow IPv4 Case with policer </info>
         <name> Everflow IPv4 Case with policer </name>
         <tout> 5000 </tout>
-        <ignore>
-            <condition_group>
-                    <operand> AND </operand>
-                    <condition>
-                        <key> chip_type </key>
-                        <op> in </op>
-                        <value> [SPC2, SPC3] </value>
-                    </condition>
-                    <bug> 2739322 </bug>
-            </condition_group>
-        </ignore>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals --clean-alluredir -k \"test_everflow_dscp_with_policer\" --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts everflow/test_everflow_testbed.py </static_args>

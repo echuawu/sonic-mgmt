@@ -25,19 +25,11 @@
              </params>
         </cmd>
         <ignore>
-            <condition_group>
-                <operand> OR </operand>
-                <condition>
-                    <key> dut_hwsku </key>
-                    <op> in </op>
-                    <value>  ["ACS-MSN3800", "Mellanox-SN3800-C64", "Mellanox-SN3800-D24C52", "Mellanox-SN3800-D28C49S1", "Mellanox-SN3800-D28C50", "Mellanox-SN3800-D112C8"] </value>
-                </condition>
-                <condition>
-                    <key> sonic_branch </key>
-                    <op> in </op>
-                    <value> ["202012", "201911"] </value>
-                </condition>
-            </condition_group>
+            <condition>
+                <key> sonic_branch </key>
+                <op> in </op>
+                <value> ["202012"] </value>
+            </condition>
       </ignore>
     </case>
 </CASEDEF>

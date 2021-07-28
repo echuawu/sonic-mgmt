@@ -1,8 +1,56 @@
 ########## Community ##########
+# Autoneg
+platform_tests/test_auto_negotiation.py:
+  - Platform:
+    - 3800
 
+# Ci_community
+vxlan/test_vnet_vxlan.py:
+  - Redmine:
+    - 2413591
+
+# ecmp
+ecmp/test_fgnhg.py:
+  - Redmine:
+    - 2577145
+    Platform:
+    - msn2
+
+# everflow
+everflow/test_everflow_testbed.py::EverflowIPv4Tests::test_everflow_dscp_with_policer:
+  - Redmine:
+    - 2739322
+    Platform:
+    - msn3
+    - msn4
+
+# Platform
+platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
+  - Platform:
+    - 2010
+    - 2100
+
+platform_tests/test_cpu_memory_usage.py:
+  - Redmine:
+    - 2716519
+
+# Sensors
+platform_tests/test_sensors.py:
+  - Redmine:
+    - 2430822
+    Platform:
+    - msn4
 
 ########## Canonical ##########
 # Nightly
+tests/nightly/auto_negotition:
+  - Redmine:
+    - 2700007
+    Platform:
+    - 3700
+    - 3420
+    - 2700
+
 tests/nightly/auto_negotition/test_auto_neg.py:
   - Platform:
     - simx
@@ -43,6 +91,10 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_break
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
+tests/nightly/lag:
+  - Platform:
+    - 3800
+
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
     - simx
@@ -52,6 +104,12 @@ tests/nightly/lag/test_lag.py::test_lags_scale:
 tests/nightly/static_route/test_static_route.py:
   - Platform:
     - simx
+
+tests/nightly/fec:
+  - Platform:
+    - 3420
+    - 2410
+    - 2010
 
 # PushGate
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
