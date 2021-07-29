@@ -300,11 +300,11 @@ mtbc-sonic-01-2410-t1-lag  ansible_host=10.75.71.4  sonic_version=v2  sonic_hwsk
 mtbc-sonic-01-2410-ptf32   ansible_host=10.75.71.4  sonic_version=v2  sonic_hwsku=ACS-MSN2410 serial_console="ssh -l rcon:2022 10.75.68.208" ptf_host=ptf-mtbc02 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
 
 # MTBC testbed mtbc-sonic-03-2700 topologies
-mtbc-sonic-03-2700 ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
-mtbc-sonic-03-2700-t0  ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
-mtbc-sonic-03-2700-t1  ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
-mtbc-sonic-03-2700-t1-lag  ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
-mtbc-sonic-03-2700-ptf32   ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=ACS-MSN2700 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
+mtbc-sonic-03-2700 ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
+mtbc-sonic-03-2700-t0  ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
+mtbc-sonic-03-2700-t1  ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
+mtbc-sonic-03-2700-t1-lag  ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
+mtbc-sonic-03-2700-ptf32   ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
 
 # MTBC testbed mtbc-3700c-01 topologies
 mtbc-3700c-01 ansible_host=10.75.67.50  sonic_version=v2  sonic_hwsku=ACS-MSN3700C serial_console="ssh -l rcon:2001 10.75.68.204" ptf_host=ptf-mtbc04 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini"
