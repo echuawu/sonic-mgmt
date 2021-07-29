@@ -45,7 +45,7 @@ def get_all_split_ports_parents(config_db_json):
     if port_info_dict:
         for port, port_info in port_info_dict.items():
             port_alias = port_info[ConfigDbJsonConst.ALIAS]
-            is_first_split_port = bool(re.match('etp\d+a', port_alias))
+            is_first_split_port = bool(re.match(r'etp\d+a', port_alias))
             if is_first_split_port:
                 split_num = get_split_number(config_db_json, port_alias)
                 dut_first_split_port_info.append((port, split_num))

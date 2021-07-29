@@ -67,8 +67,7 @@ def tested_dut_host_lb_dict(topology_obj, interfaces, interfaces_types_dict, spl
                                                            split_mode=1,
                                                            interfaces_types_dict=interfaces_types_dict,
                                                            split_mode_supported_speeds=split_mode_supported_speeds,
-                                                           cable_type_to_speed_capabilities_dict=
-                                                           cable_type_to_speed_capabilities_dict):
+                                                           cable_type_to_speed_capabilities_dict=cable_type_to_speed_capabilities_dict):
         raise AssertionError("Test cannot run due to incorrect cable info on dut port connected to host")
     tested_dut_host_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
     logger.info("Test will run on the following ports which have accurate cable compliance:\n{}"
@@ -192,7 +191,7 @@ def parse_cables_info(topology_obj, engines, cli_objects, ports_aliases_dict):
     """
     compliance_info = retry_call(check_cable_compliance_info_updated_for_all_port, fargs=[topology_obj, engines],
                                  tries=12, delay=10, logger=logger)
-    parsed_output_list = re.compile("Ethernet\d+").split(compliance_info)
+    parsed_output_list = re.compile(r"Ethernet\d+").split(compliance_info)
     # first value is ""
     parsed_output_list.pop(0)
     parse_regex_pattern = r"(Ethernet\d+)"

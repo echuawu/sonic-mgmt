@@ -187,13 +187,13 @@ def stop_arp_update(env):
 
 @pytest.fixture(scope='module')
 def disable_rsyslog_ratelimit(env):
-    cmd_comment_interval = 'docker exec -i swss sed -e "s/\$SystemLogRateLimitInterval/\#\$SystemLogRateLimitInterval/g" -i /etc/rsyslog.conf'
-    cmd_comment_burst = 'docker exec -i swss sed -e "s/\$SystemLogRateLimitBurst/\#\$SystemLogRateLimitBurst/g" -i /etc/rsyslog.conf'
+    cmd_comment_interval = r'docker exec -i swss sed -e "s/\$SystemLogRateLimitInterval/\#\$SystemLogRateLimitInterval/g" -i /etc/rsyslog.conf'
+    cmd_comment_burst = r'docker exec -i swss sed -e "s/\$SystemLogRateLimitBurst/\#\$SystemLogRateLimitBurst/g" -i /etc/rsyslog.conf'
 
     cmd_restart_rsyslogd = 'docker exec -i swss supervisorctl restart rsyslogd'
 
-    cmd_uncomment_interval = 'docker exec -i swss sed -e "s/\#\$SystemLogRateLimitInterval/\$SystemLogRateLimitInterval/g" -i /etc/rsyslog.conf '
-    cmd_uncomment_burst = 'docker exec -i swss sed -e "s/\#\$SystemLogRateLimitBurst/\$SystemLogRateLimitBurst/g" -i /etc/rsyslog.conf'
+    cmd_uncomment_interval = r'docker exec -i swss sed -e "s/\#\$SystemLogRateLimitInterval/\$SystemLogRateLimitInterval/g" -i /etc/rsyslog.conf '
+    cmd_uncomment_burst = r'docker exec -i swss sed -e "s/\#\$SystemLogRateLimitBurst/\$SystemLogRateLimitBurst/g" -i /etc/rsyslog.conf'
 
     with allure.step('Disabling rate limit for rsyslogd in swss docker'):
         env.dut_engine.run_cmd(cmd_comment_interval)

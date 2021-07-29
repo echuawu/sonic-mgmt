@@ -24,7 +24,7 @@ def test_breakout_unbreakable_ports(topology_obj, dut_engine, cli_object,
                                  "please had this platform to ignore list for this test")
         unsplittable_port = [random.choice(unsplittable_ports_list)]
         with allure.step('Verify breakout mode: {} on unsplittable port: {} Fails'
-                                 .format(breakout_mode, unsplittable_port)):
+                         .format(breakout_mode, unsplittable_port)):
             verify_negative_breakout_configuration(dut_engine, cli_object, unsplittable_port, breakout_mode)
     except Exception as e:
         raise e
@@ -46,7 +46,7 @@ def test_unsupported_breakout_mode(topology_obj, dut_engine, cli_object, tested_
         unsupported_breakout_mode = random.choice(list(all_breakout_options.difference(set(mutual_breakout_modes))))
 
         with allure.step('Verify unsupported breakout mode {} on ports {} fails as expected'
-                                 .format(unsupported_breakout_mode, lb)):
+                         .format(unsupported_breakout_mode, lb)):
             verify_negative_breakout_configuration(dut_engine, cli_object, lb, unsupported_breakout_mode)
         send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list=[lb])
     except Exception as e:
@@ -81,7 +81,7 @@ def test_ports_breakout_after_wrong_removal(topology_obj, dut_engine, cli_object
         unbreakout_port_mode = ports_breakout_modes[port]['default_breakout_mode']
         err_msg = r"\[ERROR\] {} interface is NOT present in BREAKOUT_CFG table of CONFIG DB".format(breakout_port)
         with allure.step('Verify unbreak out with mode {} on breakout port {} failed as expected'
-                                 .format(unbreakout_port_mode, breakout_port)):
+                         .format(unbreakout_port_mode, breakout_port)):
             verify_breakout_on_port_failed(dut_engine, cli_object, breakout_port, unbreakout_port_mode, err_msg)
 
     with allure.step('Verify ports {} are up after wrong breakout removal'.format(ports_list_after_breakout)):
@@ -93,7 +93,7 @@ def test_ports_breakout_after_wrong_removal(topology_obj, dut_engine, cli_object
         cleanup(cleanup_list)
 
     with allure.step('Verify breakout ports were removed correctly'):
-        verify_no_breakout(dut_engine, cli_object, ports_breakout_modes,  conf={breakout_mode: lb})
+        verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf={breakout_mode: lb})
 
 
 def get_breakout_ports(ports_breakout_modes, breakout_mode, port):
@@ -110,7 +110,7 @@ def verify_negative_breakout_configuration(dut_engine, cli_object, ports_list, b
         pre_breakout_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, ports_list)
     err_msg = r"\[ERROR\]\s+Target\s+mode\s+.*is\s+not\s+available\s+for\s+the\s+port\s+{}"
     with allure.step('Verify breakout mode {} on ports {} fails as expected'
-                             .format(breakout_mode, ports_list)):
+                     .format(breakout_mode, ports_list)):
         for port in ports_list:
             verify_breakout_on_port_failed(dut_engine, cli_object, port, breakout_mode, err_msg.format(port))
     with allure.step('Get speed configuration of ports {} after breakout'.format(ports_list)):
@@ -138,11 +138,10 @@ def verify_breakout_on_port_failed(dut_engine, cli_object, port, breakout_mode, 
     :return: raise error if error message was not in output after breakout
     """
     with allure.step('Verify breakout mode {} on port {} failed as expected with error message: {}'
-                             .format(breakout_mode, port, err_msg)):
+                     .format(breakout_mode, port, err_msg)):
         output = cli_object.interface.configure_dpb_on_port(dut_engine, port, breakout_mode,
-                                                                 expect_error=True, force=False)
+                                                            expect_error=True, force=False)
         if not re.search(err_msg, output, re.IGNORECASE):
             raise AssertionError("Expected breakout mode {} on port {} "
                                  "to failed with error msg {} but output {}".
                                  format(breakout_mode, port, err_msg, output))
-

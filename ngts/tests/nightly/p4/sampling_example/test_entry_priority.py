@@ -233,15 +233,15 @@ def send_recv_port_table_traffic(topology_obj, port_traffic_params_list, count, 
         port_entry_pkt = 'Ether()/IP(dst="{}", chksum={})'.format(port_traffic_params['dst_ip'],
                                                                   chksum)
         validation = {'sender': '{}'.format(port_traffic_params['sender']),
-                        'send_args': {'interface': "{}".format(port_traffic_params['src_port']),
-                                      'packets': port_entry_pkt, 'count': count},
-                        'receivers':
-                            [
+                      'send_args': {'interface': "{}".format(port_traffic_params['src_port']),
+                                    'packets': port_entry_pkt, 'count': count},
+                      'receivers':
+                      [
                                 {'receiver': '{}'.format(port_traffic_params['receiver']),
                                  'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
                                                   'filter': port_traffic_params['filter'], 'count': expect_mirror_count}}
-                            ]
-                        }
+        ]
+        }
         for j in miss_indices:
             port_traffic_params = port_traffic_params_list[j]
             receiver = {'receiver': '{}'.format(port_traffic_params['receiver']),
@@ -266,15 +266,15 @@ def send_recv_flow_table_traffic(topology_obj, flow_traffic_params_list, count, 
         flow_traffic_params = flow_traffic_params_list[i]
         flow_entry_pkt = get_flow_entry_pkt(flow_traffic_params)
         validation = {'sender': '{}'.format(flow_traffic_params['sender']),
-                        'send_args': {'interface': "{}".format(flow_traffic_params['src_port']),
-                                      'packets': flow_entry_pkt, 'count': count},
-                        'receivers':
-                            [
+                      'send_args': {'interface': "{}".format(flow_traffic_params['src_port']),
+                                    'packets': flow_entry_pkt, 'count': count},
+                      'receivers':
+                      [
                                 {'receiver': '{}'.format(flow_traffic_params['receiver']),
                                  'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
                                                   'filter': flow_traffic_params['filter'], 'count': expect_mirror_count}}
-                            ]
-                        }
+        ]
+        }
         for j in miss_indices:
             flow_traffic_params = flow_traffic_params_list[j]
             receiver = {'receiver': '{}'.format(flow_traffic_params['receiver']),

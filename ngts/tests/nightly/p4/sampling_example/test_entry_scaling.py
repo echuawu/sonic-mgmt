@@ -120,7 +120,7 @@ class TestEntryScaling:
         l3_mirror_is_truc = True
         l3_mirror_truc_size = 512
         for i in range(count):
-            key = '{} {}/{}'.format(ingress_port, P4SamplingUtils.convert_int_to_hex((i+1)*4), CHKSUM_MASK)
+            key = '{} {}/{}'.format(ingress_port, P4SamplingUtils.convert_int_to_hex((i + 1) * 4), CHKSUM_MASK)
             action_params = '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, hb_dut_1_mac,
                                                              P4SamplingEntryConsts.duthb1_ip,
                                                              P4SamplingEntryConsts.hbdut1_ip, l3_mirror_vlan,
@@ -128,7 +128,7 @@ class TestEntryScaling:
             entry_params = DottedDict()
             entry_params.action = action_params
             entry_params.priority = random.randint(0, P4_SAMPLING_ENTRY_PRIO_MAX)
-            entry_params.match_chksum = P4SamplingUtils.convert_int_to_hex((i+1)*4)
+            entry_params.match_chksum = P4SamplingUtils.convert_int_to_hex((i + 1) * 4)
             entry_params.mismatch_chksum = 0x0000
             ret[key] = entry_params
         return ret
@@ -199,7 +199,7 @@ class TestEntryScaling:
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info("Time take for add {} entries : {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
-                                                               time_take))
+                                                                       time_take))
 
     @staticmethod
     def remove_all_entries(engine, port_entry_params, flow_entry_params):
@@ -226,7 +226,7 @@ class TestEntryScaling:
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info("Time take for remove {} entries: {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
-                                                                 time_take))
+                                                                         time_take))
 
     def verify_entries_and_traffic(self, topology_obj, interfaces, engine, port_entries, flow_entries):
         self.verify_entries_added(engine, port_entries, flow_entries)
@@ -247,7 +247,7 @@ class TestEntryScaling:
                 P4SamplingUtils.clear_statistics(engine)
             with allure.step("Send traffic for some of port table entries and verify"):
                 # define which entry will be used to verify the traffic, currently use the first and the last one
-                indices = list(set([0, len(port_entries) -1]))
+                indices = list(set([0, len(port_entries) - 1]))
                 P4SamplingUtils.verify_port_table_send_recv_traffic(topology_obj, engine, interfaces, port_entries,
                                                                     indices, pkt_count, pkt_count, 'match')
             with allure.step("Send traffic for some of flow table entries and verify"):
@@ -296,7 +296,7 @@ class TestEntryScaling:
             return int(uptime_arr[0])
 
     @staticmethod
-    def verify_cpu_ram_usage(engine,  expected_cpu_usage_dict, expected_ram_usage_dict):
+    def verify_cpu_ram_usage(engine, expected_cpu_usage_dict, expected_ram_usage_dict):
         total_cpu_usage, _ = get_cpu_usage_and_processes(engine)
         free_output = engine.run_cmd('sudo free')
         total_ram_size_mb = int(free_output.splitlines()[1].split()[1]) / 1024

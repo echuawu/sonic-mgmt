@@ -140,7 +140,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{'bond0': None}]},
                {'vlan_id': 69, 'vlan_members': [{'bond0': None}]},
-               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]},]
+               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]}, ]
     }
 
     # IP config which will be used in test
@@ -252,7 +252,6 @@ def p4_sampling_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     """
     return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
-
 
 
 def log_debug_info(dut_engine):

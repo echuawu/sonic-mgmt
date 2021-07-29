@@ -20,4 +20,3 @@ def save_config_db_json(engine, config_db_json):
                      file_system='/tmp', overwrite_file=True, verify_file=False)
     engine.run_cmd('sudo mv {} {}'.format(LOCAL_CONFIG_DB_PATH, SonicConst.CONFIG_DB_JSON_PATH))
     os.remove(LOCAL_CONFIG_DB_PATH)
-

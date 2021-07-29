@@ -6,6 +6,7 @@ class SonicChassisCli(ChassisCliCommon):
     """
     This class is for chassis cli commands for sonic only
     """
+
     def __init__(self):
         pass
 
@@ -17,7 +18,7 @@ class SonicChassisCli(ChassisCliCommon):
         :return: the dut platform type
         """
         output = SonicChassisCli.show_platform_summary(engine)
-        pattern = "Platform:\s*(.*)"
+        pattern = r"Platform:\s*(.*)"
         try:
             platform = re.search(pattern, output, re.IGNORECASE).group(1)
             return platform

@@ -25,7 +25,7 @@ class CRMHelper:
     def validate_threshold_type(th_type):
         theshold_types = ['percentage', 'used', 'free']
 
-        if not th_type in theshold_types:
+        if th_type not in theshold_types:
             raise CrmThresholdTypeError('Unsupported threshold type: \'{}\''.format(th_type))
 
     @staticmethod

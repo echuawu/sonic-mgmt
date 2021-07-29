@@ -23,6 +23,3 @@ def lldp_configuration(topology_obj):
                 LinuxInterfaceCli.disable_interface(host_engine, port)
                 LinuxInterfaceCli.enable_interface(host_engine, port)
     yield
-
-
-

@@ -163,8 +163,8 @@ def get_platform_and_hwsku_from_switch(engine, args):
     """
     logger.info("Getting switch Platform and HwSKU")
     output = engine.run_cmd("show platform summary")
-    platform = re.search("Platform:\s*(.*)", output, re.IGNORECASE).group(1)
-    hwsku = args.hwsku if args.hwsku is not None else re.search("HwSKU:\s*(.*)", output, re.IGNORECASE).group(1)
+    platform = re.search(r"Platform:\s*(.*)", output, re.IGNORECASE).group(1)
+    hwsku = args.hwsku if args.hwsku is not None else re.search(r"HwSKU:\s*(.*)", output, re.IGNORECASE).group(1)
     return platform, hwsku
 
 
@@ -206,7 +206,7 @@ def get_port_config_ini_ports_configuration(port_config_ini_path):
     with open(port_config_ini_path, 'r') as file:
         file_content = file.read()
         file.close()
-    port_configuration_pattern = "(Ethernet\d+)\s*([\d+,]*\d*)\s*(etp\d+\w*)\s*(\d+)\s*(\d+)"
+    port_configuration_pattern = r"(Ethernet\d+)\s*([\d+,]*\d*)\s*(etp\d+\w*)\s*(\d+)\s*(\d+)"
     port_configuration_list = re.findall(port_configuration_pattern, file_content, re.IGNORECASE)
     port_configuration_dict = get_port_configuration_as_dict(port_configuration_list)
     return port_configuration_dict

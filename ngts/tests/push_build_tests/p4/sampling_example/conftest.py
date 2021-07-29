@@ -69,4 +69,3 @@ def table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     """
     return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
-

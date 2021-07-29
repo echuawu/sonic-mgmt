@@ -167,7 +167,7 @@ def modify_subset_conf_for_toggle_peer(dut_peer_port, sub_conf, interfaces_types
     """
     peer_port_speed = max(sub_conf[dut_peer_port][AutonegCommandConstants.ADV_SPEED].split(','),
                           key=lambda speed_as_str: int(speed_as_str))
-    expected_speed = "{}G".format(int(int(peer_port_speed)/1000))
+    expected_speed = "{}G".format(int(int(peer_port_speed) / 1000))
     interface_type = get_matched_types(dut_peer_port, [expected_speed], interfaces_types_dict,
                                        cable_type_to_speed_capabilities_dict).pop()
     cable_type = get_interface_cable_type(interface_type)
@@ -184,7 +184,7 @@ def get_speeds_in_Gb_str_format(speeds_list):
     :return: return a string of speeds configuration in G format, i.e, "10G,50G"
     """
     speeds_list = sorted(speeds_list, key=lambda speed_str: int(speed_str))
-    speeds_in_str_format = list(map(lambda speed: "{}G".format(int(int(speed)/1000)), speeds_list))
+    speeds_in_str_format = list(map(lambda speed: "{}G".format(int(int(speed) / 1000)), speeds_list))
     return ",".join(speeds_in_str_format)
 
 
@@ -229,7 +229,7 @@ def generate_subset_conf(tested_lb_dict, split_mode_supported_speeds, types_dict
                 all_adv_types = []
                 for port in lb:
                     adv_speeds = set(random.choices(lb_mutual_speeds,
-                                                    k=random.choice(range(1, len(lb_mutual_speeds)+1))))
+                                                    k=random.choice(range(1, len(lb_mutual_speeds) + 1))))
                     if mutual_speed_in_subset not in adv_speeds:
                         adv_speeds.add(mutual_speed_in_subset)
                     adv_types = get_matched_types(port, adv_speeds, interfaces_types_dict, types_dict)

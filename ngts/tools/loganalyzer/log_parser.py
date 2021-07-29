@@ -1,6 +1,6 @@
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # Global imports
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 import sys
 import getopt
 import re
@@ -9,20 +9,21 @@ import pprint
 import logging
 import logging.handlers
 
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # Global variables
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 tokenizer = ','
 comment_key = '#'
 system_log_file = '/var/log/syslog'
 
-#-- List of ERROR codes to be returned by DutLogAnalyzer
+# -- List of ERROR codes to be returned by DutLogAnalyzer
 err_duplicate_start_marker = -1
 err_duplicate_end_marker = -2
 err_no_end_marker = -3
 err_no_start_marker = -4
 err_invalid_string_format = -5
 err_invalid_input = -6
+
 
 class DutLogAnalyzer:
     '''
@@ -58,23 +59,23 @@ class DutLogAnalyzer:
     def init_sys_logger(self):
         logger = logging.getLogger('LogAnalyzer')
         logger.setLevel(logging.DEBUG)
-        handler = logging.handlers.SysLogHandler(address = '/dev/log')
+        handler = logging.handlers.SysLogHandler(address='/dev/log')
         logger.addHandler(handler)
         return logger
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
-    def __init__(self, run_id, verbose, start_marker = None):
+    def __init__(self, run_id, verbose, start_marker=None):
         self.run_id = run_id
         self.verbose = verbose
         self.start_marker = start_marker
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def print_diagnostic_message(self, message):
         if (not self.verbose):
             return
 
         print('[LogAnalyzer][diagnostic]:{}'.format(message))
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def create_start_marker(self):
         if (self.start_marker is None) or (len(self.start_marker) == 0):
@@ -82,16 +83,16 @@ class DutLogAnalyzer:
         else:
             return self.start_marker
 
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def is_filename_stdin(self, file_name):
         return file_name == "-"
 
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def create_end_marker(self):
         return self.end_marker_prefix + "-" + self.run_id
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def place_marker_to_file(self, log_file, marker):
         '''
@@ -130,7 +131,7 @@ class DutLogAnalyzer:
         self.place_marker_to_syslog(marker)
 
         return
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def error_to_regx(self, error_string):
         '''
@@ -150,11 +151,11 @@ class DutLogAnalyzer:
             original_string = error_string
             #-- Escapes out of all the meta characters --#
             error_string = re.escape(error_string)
-            #-- Replaces a white space with the white space regular expression
+            # -- Replaces a white space with the white space regular expression
             error_string = re.sub(r"(\\\s+)+", "\\\\s+", error_string)
-            #-- Replaces a digit number with the digit regular expression
+            # -- Replaces a digit number with the digit regular expression
             error_string = re.sub(r"\b\d+\b", "\\\\d+", error_string)
-            #-- Replaces a hex number with the hex regular expression
+            # -- Replaces a hex number with the hex regular expression
             error_string = re.sub(r"0x[0-9a-fA-F]+", "0x[0-9a-fA-F]+", error_string)
             self.print_diagnostic_message('Built error string: %s' % error_string)
 
@@ -163,7 +164,7 @@ class DutLogAnalyzer:
             error_string = '|'.join(map(self.error_to_regx, error_string))
 
         return error_string
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def create_msg_regex(self, file_lsit):
         '''
@@ -189,17 +190,17 @@ class DutLogAnalyzer:
                 for index, row in enumerate(csvreader):
                     row = [item for item in row if item != ""]
                     self.print_diagnostic_message('[diagnostic]:processing row:%d' % index)
-                    self.print_diagnostic_message('row:%s'% row)
+                    self.print_diagnostic_message('row:%s' % row)
                     try:
-                        #-- Ignore Empty Lines
+                        # -- Ignore Empty Lines
                         if not row:
                             continue
-                        #-- Ignore commented Lines
+                        # -- Ignore commented Lines
                         if row[0].startswith(comment_key):
                             self.print_diagnostic_message('[diagnostic]:skipping row[0]:%s' % row[0])
                             continue
 
-                        #-- ('s' | 'r') = (Raw String | Regular Expression)
+                        # -- ('s' | 'r') = (Raw String | Regular Expression)
                         is_regex = row[0]
                         if ('s' == row[0]):
                             is_regex = False
@@ -208,7 +209,7 @@ class DutLogAnalyzer:
                         else:
                             raise Exception('file:%s, malformed line:%d. '
                                             'must be \'s\'(string) or \'r\'(regex)'
-                                            %(filename,index))
+                                            % (filename, index))
 
                         if (is_regex):
                             messages_regex.extend(row[1:])
@@ -225,7 +226,7 @@ class DutLogAnalyzer:
         else:
             regex = None
         return regex, messages_regex
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def line_matches(self, str, match_messages_regex, ignore_messages_regex):
         '''
@@ -257,7 +258,7 @@ class DutLogAnalyzer:
                 ret_code = True
 
         return ret_code
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def line_is_expected(self, str, expect_messages_regex):
         '''
@@ -292,11 +293,10 @@ class DutLogAnalyzer:
         @return: List of strings match search criteria.
         '''
 
+        self.print_diagnostic_message('analyzing file: %s' % log_file_path)
 
-        self.print_diagnostic_message('analyzing file: %s'% log_file_path)
-
-        #-- indicates whether log analyzer currently is in the log range between start
-        #-- and end marker. see analyze_file method.
+        # -- indicates whether log analyzer currently is in the log range between start
+        # -- and end marker. see analyze_file method.
         in_analysis_range = False
         stdin_as_input = self.is_filename_stdin(log_file_path)
         matching_lines = []
@@ -338,7 +338,7 @@ class DutLogAnalyzer:
                     in_analysis_range = False
                     break
 
-            if in_analysis_range :
+            if in_analysis_range:
                 if self.line_is_expected(rev_line, expect_messages_regex):
                     expected_lines.append(rev_line)
 
@@ -356,7 +356,7 @@ class DutLogAnalyzer:
                 sys.exit(err_no_end_marker)
 
         return matching_lines, expected_lines
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def analyze_file_list(self, log_file_list, match_messages_regex, ignore_messages_regex, expect_messages_regex):
         '''
@@ -385,10 +385,11 @@ class DutLogAnalyzer:
 
             match_strings.reverse()
             expect_strings.reverse()
-            res[log_file] = [ match_strings, expect_strings ]
+            res[log_file] = [match_strings, expect_strings]
 
         return res
-    #---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
+
 
 def usage():
     print('loganalyzer input parameters:')
@@ -418,7 +419,8 @@ def usage():
     print('                                 in one of specified log files during the analysis. Must be present')
     print('                                 when action == analyze.')
 
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+
 
 def check_action(action, log_files_in, out_dir, match_files_in, ignore_files_in, expect_files_in):
     '''
@@ -443,13 +445,13 @@ def check_action(action, log_files_in, out_dir, match_files_in, ignore_files_in,
             print('ERROR: missing required match_files_in for analyze action')
             ret_code = False
 
-
     else:
         ret_code = False
         print('ERROR: invalid action:%s specified' % action)
 
     return ret_code
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+
 
 def check_run_id(run_id):
     '''
@@ -467,7 +469,8 @@ def check_run_id(run_id):
         ret_code = False
 
     return ret_code
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+
 
 def write_result_file(run_id, out_dir, analysis_result_per_file, messages_regex_e, unused_regex_messages):
     '''
@@ -521,7 +524,8 @@ def write_result_file(run_id, out_dir, analysis_result_per_file, messages_regex_
 
         out_file.write("\n-------------------------------------------------\n\n")
         out_file.flush()
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+
 
 def write_summary_file(run_id, out_dir, analysis_result_per_file, unused_regex_messages):
     '''
@@ -558,7 +562,8 @@ def write_summary_file(run_id, out_dir, analysis_result_per_file, unused_regex_m
     out_file.write("-----------------------------------\n")
     out_file.flush()
     out_file.close()
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+
 
 def main(argv):
 
@@ -651,7 +656,8 @@ def main(argv):
     else:
         print('Unknown action:%s specified' % action)
     return len(result)
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

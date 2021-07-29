@@ -105,7 +105,7 @@ def test_basic_static_route(engines, interfaces, players):
                                     {'receiver': 'ha', 'receive_args': {'interface': receiver_interface_ha,
                                                                         'filter': tcpdump_filter,
                                                                         'count': 1}}
-                                ]
+                            ]
                             }
             ScapyChecker(players, validation_1).run_validation()
 
@@ -123,7 +123,7 @@ def test_basic_static_route(engines, interfaces, players):
                                     {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
                                                                         'filter': tcpdump_filter,
                                                                         'count': 1}}
-                                ]
+                            ]
                             }
             ScapyChecker(players, validation_1).run_validation()
 
@@ -138,7 +138,7 @@ def test_basic_static_route(engines, interfaces, players):
                                 [
                                     {'receiver': 'ha', 'receive_args': {'interface': receiver_interface_ha,
                                                                         'filter': tcpdump_filter, 'count': 1}}
-                                ]
+                            ]
                             }
             ScapyChecker(players, validation_2).run_validation()
 
@@ -154,7 +154,7 @@ def test_basic_static_route(engines, interfaces, players):
                                 [
                                     {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
                                                                         'filter': tcpdump_filter, 'count': 1}}
-                                ]
+                            ]
                             }
             ScapyChecker(players, validation_4).run_validation()
 
@@ -171,7 +171,7 @@ def test_basic_static_route(engines, interfaces, players):
                                                                         'filter': tcpdump_filter, 'count': 0}},
                                     {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
                                                                         'filter': tcpdump_filter, 'count': 1}}
-                                ]
+                            ]
                             }
             ScapyChecker(players, validation_3).run_validation()
 
@@ -186,7 +186,7 @@ def test_basic_static_route(engines, interfaces, players):
                                 [
                                     {'receiver': 'ha', 'receive_args': {'interface': receiver_interface_ha,
                                                                         'filter': tcpdump_filter, 'count': 1}}
-                                ]
+                            ]
                             }
             ScapyChecker(players, validation_4).run_validation()
 

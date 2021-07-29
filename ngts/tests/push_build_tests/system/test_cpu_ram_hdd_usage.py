@@ -45,15 +45,15 @@ class TestCpuRamHddUsage:
             raise AssertionError(err)
         finally:
             mysql_columns_values = {
-                                    "test_name": request.node.originalname,
-                                    "setup_name": self.setup_name,
-                                    "time_stamp": time.time(),
-                                    "os_version": self.sonic_ver,
-                                    "platform": self.platform,
-                                    "disk_partition": partition_usage['partition'],
-                                    "used": used_size,
-                                    "free": available_size,
-                                    "total": total_size
+                "test_name": request.node.originalname,
+                "setup_name": self.setup_name,
+                "time_stamp": time.time(),
+                "os_version": self.sonic_ver,
+                "platform": self.platform,
+                "disk_partition": partition_usage['partition'],
+                "used": used_size,
+                "free": available_size,
+                "total": total_size
             }
             logger.info('Uploading test results to MySQL DB')
             DB().insert(table='disk_usage', columns_values=mysql_columns_values)
@@ -106,12 +106,12 @@ class TestCpuRamHddUsage:
             raise AssertionError(err)
         finally:
             mysql_columns_values = {
-                                    "test_name": request.node.originalname,
-                                    "setup_name": self.setup_name,
-                                    "time_stamp": time.time(),
-                                    "os_version": self.sonic_ver,
-                                    "platform": self.platform,
-                                    "total_cpu_usage": total_cpu_usage
+                "test_name": request.node.originalname,
+                "setup_name": self.setup_name,
+                "time_stamp": time.time(),
+                "os_version": self.sonic_ver,
+                "platform": self.platform,
+                "total_cpu_usage": total_cpu_usage
             }
             mysql_columns_values.update(cpu_usage_per_process)
             logger.info('Uploading test results to MySQL DB')
@@ -172,13 +172,13 @@ class TestCpuRamHddUsage:
             raise AssertionError(err)
         finally:
             mysql_columns_values = {
-                                    "test_name": request.node.name,
-                                    "setup_name": self.setup_name,
-                                    "time_stamp": time.time(),
-                                    "os_version": self.sonic_ver,
-                                    "platform": self.platform,
-                                    "total_ram_size": total_ram_size_mb,
-                                    "total_used_ram_size": used_ram_size_mb
+                "test_name": request.node.name,
+                "setup_name": self.setup_name,
+                "time_stamp": time.time(),
+                "os_version": self.sonic_ver,
+                "platform": self.platform,
+                "total_ram_size": total_ram_size_mb,
+                "total_used_ram_size": used_ram_size_mb
             }
             mysql_columns_values.update(ram_usage_per_process)
             logger.info('Uploading test results to MySQL DB')

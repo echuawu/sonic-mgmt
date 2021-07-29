@@ -87,9 +87,9 @@ class SonicIpCli(IpCliCommon):
         for cnt in range(amount):
             ip_addr = netaddr.IPAddress(start_ip) + cnt
             entry_json = {entry_key_template.format(iface=iface, ip=ip_addr):
-                {"neigh": mac_lst[cnt], "family": family},
-                "OP": operation
-            }
+                          {"neigh": mac_lst[cnt], "family": family},
+                          "OP": operation
+                          }
             config_json.append(entry_json)
         return config_json
 
@@ -106,14 +106,14 @@ class SonicIpCli(IpCliCommon):
         entry_key_template = "ROUTE_TABLE:{network}"
         config_json = []
         # set mask: 32 for ipv4, 128 for ipv6
-        mask = 32 if re.match("^([0-9]+(\.|$)){4}", start_ip) else 128
+        mask = 32 if re.match(r"^([0-9]+(\.|$)){4}", start_ip) else 128
 
         for cnt in range(amount):
             network = netaddr.IPAddress(start_ip) + cnt
             entry_json = {entry_key_template.format(network=network.format() + "/{}".format(mask)):
-                {"nexthop": nexthop, "ifname": iface},
-                "OP": operation
-            }
+                          {"nexthop": nexthop, "ifname": iface},
+                          "OP": operation
+                          }
             config_json.append(entry_json)
         return config_json
 
@@ -129,13 +129,13 @@ class SonicIpCli(IpCliCommon):
         entry_key_template = "ROUTE_TABLE:{network}"
         config_json = []
         # set mask: 32 for ipv4, 128 for ipv6
-        mask = 32 if re.match("^([0-9]+(\.|$)){4}", start_ip) else 128
+        mask = 32 if re.match(r"^([0-9]+(\.|$)){4}", start_ip) else 128
 
         fail_msg = ("Not enough neighbors to create a unique nexthop group for each route."
                     "Expected routes to be created - {}; Expected neighbors - {}. Available neighbors - {}".format(
-            nx_group_amount, nx_group_amount * 2, len(neighbor_cfg)
-            )
-        )
+                        nx_group_amount, nx_group_amount * 2, len(neighbor_cfg)
+                    )
+                    )
 
         assert len(neighbor_cfg) >= (nx_group_amount * 2), fail_msg
 
@@ -143,15 +143,15 @@ class SonicIpCli(IpCliCommon):
         for cnt in range(nx_group_amount):
             network = netaddr.IPAddress(start_ip) + cnt
             # Sequentially get unique pair of neighbors
-            neighs = neighbor_cfg[neigh_id: neigh_id+2]
+            neighs = neighbor_cfg[neigh_id: neigh_id + 2]
             neigh_id += 2
 
             iface, nexthop = SonicIpCli.compose_neighbor_pairs(neighs)
 
             entry_json = {entry_key_template.format(network=network.format() + "/{}".format(mask)):
-                {"nexthop": nexthop, "ifname": iface},
-                "OP": operation
-            }
+                          {"nexthop": nexthop, "ifname": iface},
+                          "OP": operation
+                          }
             config_json.append(entry_json)
         return config_json
 
@@ -170,7 +170,7 @@ class SonicIpCli(IpCliCommon):
                     line = key.replace("NEIGH_TABLE:", "")
                     separator = line.find(":")
                     iface_name = line[:separator]
-                    nexthop_name = line[separator+1:]
+                    nexthop_name = line[separator + 1:]
 
                     ifnames.append(iface_name)
                     nexthops.append(nexthop_name)

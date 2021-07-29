@@ -141,7 +141,7 @@ def tested_dut_to_host_conn(topology_obj, engines, interfaces, cli_objects):
                                  "engine": engines.hb,
                                  'host': 'hb'
                                  }
-                        }
+    }
     return tested_conn_dict
 
 

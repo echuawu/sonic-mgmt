@@ -31,7 +31,6 @@ def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines
         base_image, target_image = SonicGeneralCli.get_base_and_target_images(engines.dut)
         assert base_image, 'Only 1 installed image available'
 
-
     with allure.step('Comparing configurations before and after the upgrade'):
         upgrade_diff = compare_dut_configs(base_config=PRE_UPGRADE_CONFIG.format(engines.dut.ip),
                                            target_config=POST_UPGRADE_CONFIG.format(engines.dut.ip),

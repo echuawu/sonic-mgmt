@@ -32,34 +32,34 @@ THR_VERIFY_CMDS = {
             crm config thresholds {{crm_cli_res}} \
             low {{crm_used|int - 1}}; crm config thresholds {{crm_cli_res}} \
             high {{crm_used|int}}\""
-        ),
+         ),
         ("clear_used",
             "bash -c \"crm config thresholds {{crm_cli_res}} type used && \
             crm config thresholds {{crm_cli_res}} low {{crm_used|int}} && \
             crm config thresholds {{crm_cli_res}} high {{crm_used|int + 1}}\""
-        )],
+         )],
     "free": [
         ("exceeded_free",
             "bash -c \"crm config thresholds {{crm_cli_res}} type free && \
             crm config thresholds {{crm_cli_res}} low {{crm_avail|int - 1}} && \
             crm config thresholds {{crm_cli_res}} high {{crm_avail|int}}\""
-        ),
+         ),
         ("clear_free",
             "bash -c \"crm config thresholds {{crm_cli_res}} type free && \
             crm config thresholds {{crm_cli_res}} low {{crm_avail|int}} && \
             crm config thresholds {{crm_cli_res}} high {{crm_avail|int + 1}}\""
-        )],
+         )],
     "percentage": [
         ("exceeded_percentage",
             "bash -c \"crm config thresholds {{crm_cli_res}} type percentage && \
             crm config thresholds {{crm_cli_res}} low {{th_lo|int}} && \
             crm config thresholds {{crm_cli_res}} high {{th_hi|int}}\""
-        ),
+         ),
         ("clear_percentage",
             "bash -c \"crm config thresholds {{crm_cli_res}} type percentage && \
             crm config thresholds {{crm_cli_res}} low {{th_lo|int}} && \
             crm config thresholds {{crm_cli_res}} high {{th_hi|int}}\""
-        )]
+         )]
 }
 
 
@@ -67,6 +67,8 @@ logger = logging.getLogger()
 
 
 TH_GENERATOR = None
+
+
 def th_generator():
     """
     Context manager which generates threshold pairs one by one
@@ -77,6 +79,7 @@ def th_generator():
     while True:
         for key_id in keys:
             yield THR_VERIFY_CMDS[key_id]
+
 
 def get_threshold_to_verify():
     """
@@ -140,7 +143,7 @@ def get_acl_crm_stat(env, resource):
     else:
         raise Exception('Incorrect CRM resource name specified. Excepted {}. Provided - {}'.format(
             'acl_entry, acl_counter', resource)
-            )
+        )
 
     return int(current_used), int(current_available)
 
@@ -172,7 +175,7 @@ def verify_counters(env, resource, used, used_sign, available=None):
     assert eval('{} {} {}'.format(current_used, used_sign, used)),\
         'Unexpected used count for \'{}\': expected \'{}\' {}; actual received - {}'.format(
             resource, used_sign, used, current_used
-        )
+    )
 
     if available:
         low_treshold = available - int(available * AVAILABLE_TOLERANCE)
@@ -198,12 +201,12 @@ def apply_acl_config(env, entry_num=1):
 
     # Create ACL table
     env.sonic_cli.acl.create_table(env.dut_engine, tbl_name=ACL_TABLE_NAME, tbl_type='L3',
-        description='"{} table"'.format(ACL_TABLE_NAME), stage='ingress')
+                                   description='"{} table"'.format(ACL_TABLE_NAME), stage='ingress')
 
     if entry_num == 1:
         logger.info('Generating config for ACL rule, ACL table - {}'.format(ACL_TABLE_NAME))
         env.dut_engine.copy_file(source_file=acl_rules_path, dest_file=acl_rules_file, file_system=dst_dir,
-                overwrite_file=True, verify_file=False)
+                                 overwrite_file=True, verify_file=False)
     elif entry_num > 1:
         acl_config = json.loads(open(acl_rules_path).read())
         acl_entry_template = acl_config['acl']['acl-sets']['acl-set'][ACL_TABLE_NAME.lower()]['acl-entries']['acl-entry']['1']
@@ -218,7 +221,7 @@ def apply_acl_config(env, entry_num=1):
             logger.info('Generating config for ACL rule, ACL table - {}'.format(ACL_TABLE_NAME))
 
             env.dut_engine.copy_file(source_file=fp.name, dest_file=acl_rules_file, file_system=dst_dir,
-                overwrite_file=True, verify_file=False)
+                                     overwrite_file=True, verify_file=False)
     else:
         raise Exception('Incorrect number of ACL entries specified - {}'.format(entry_num))
 
@@ -266,14 +269,14 @@ def verify_thresholds(env, test_name, la_log_folder, **kwargs):
             used_percent = get_used_percent(kwargs['crm_used'], crm_avail)
             if th_type == 'exceeded_percentage':
                 if used_percent < 1:
-                    pytest.skip('The used percentage for {} is {} and verification for exceeded_percentage is skipped' \
+                    pytest.skip('The used percentage for {} is {} and verification for exceeded_percentage is skipped'
                                 .format(kwargs['crm_cli_res'], used_percent))
                 kwargs['th_lo'] = used_percent - 1
                 kwargs['th_hi'] = used_percent
                 loganalyzer.expect_regex = [EXPECT_EXCEEDED]
             elif th_type == 'clear_percentage':
                 if used_percent >= 100:
-                    pytest.skip('The used percentage for {} is {} and verification for clear_percentage is skipped' \
+                    pytest.skip('The used percentage for {} is {} and verification for clear_percentage is skipped'
                                 .format(kwargs['crm_cli_res'], used_percent))
                 kwargs['th_lo'] = used_percent
                 kwargs['th_hi'] = used_percent + 1
@@ -294,17 +297,17 @@ def verify_thresholds(env, test_name, la_log_folder, **kwargs):
 
 def get_full_stat(env):
     stats = {'ipv4_route': None,
-                'ipv6_route': None,
-                'ipv4_nexthop': None,
-                'ipv6_nexthop': None,
-                'ipv4_neighbor': None,
-                'ipv6_neighbor': None,
-                'nexthop_group_member': None,
-                'nexthop_group': None,
-                'fdb_entry': None,
-                'acl_entry': None,
-                'acl_counter': None
-        }
+             'ipv6_route': None,
+             'ipv4_nexthop': None,
+             'ipv6_nexthop': None,
+             'ipv4_neighbor': None,
+             'ipv6_neighbor': None,
+             'nexthop_group_member': None,
+             'nexthop_group': None,
+             'fdb_entry': None,
+             'acl_entry': None,
+             'acl_counter': None
+             }
     for resource in stats:
         if 'acl' in resource:
             used, available = get_acl_crm_stat(env, resource)

@@ -2,6 +2,7 @@ class StubEngine:
     """
     Class which emulate engine object
     """
+
     def __init__(self):
         self.commands_list = []
 

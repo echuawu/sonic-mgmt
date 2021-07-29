@@ -81,6 +81,7 @@ class CoppBase:
     """
     Base CoPP class
     """
+
     def __init__(self, topology_obj, sonic_version):
         self.topology = topology_obj
         self.sonic_version = sonic_version
@@ -257,8 +258,8 @@ class CoppBase:
         Creating burst valudation, based on given CBS value
         :param cbs_value: CBS value
         """
-        self.create_validation(pps=cbs_value*BURST_TRAFFIC_MULTIPLIER,
-                               times=int(cbs_value*BURST_TRAFFIC_MULTIPLIER*BURST_TRAFFIC_DURATION))
+        self.create_validation(pps=cbs_value * BURST_TRAFFIC_MULTIPLIER,
+                               times=int(cbs_value * BURST_TRAFFIC_MULTIPLIER * BURST_TRAFFIC_DURATION))
         self.create_pre_validation()
 
 # -------------------------------------------------------------------------------
@@ -268,8 +269,8 @@ class CoppBase:
         Creating rate valudation, based on given CIR value
         :param cir_value: CIR value
         """
-        self.create_validation(pps=cir_value*RATE_TRAFFIC_MULTIPLIER,
-                               times=cir_value*RATE_TRAFFIC_MULTIPLIER*RATE_TRAFFIC_DURATION)
+        self.create_validation(pps=cir_value * RATE_TRAFFIC_MULTIPLIER,
+                               times=cir_value * RATE_TRAFFIC_MULTIPLIER * RATE_TRAFFIC_DURATION)
         self.create_pre_validation()
 
 # -------------------------------------------------------------------------------
@@ -382,6 +383,7 @@ class ARPTest(CoppBase):
     """
     ARP class/test extends the basic CoPP class with specific validation for ARP protocol
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
@@ -397,9 +399,9 @@ class ARPTest(CoppBase):
         :param pps: packets rate value
         :param times: packets number
         """
-        arp_dict = {'ARP Request':            'ARP(op=1, psrc="192.168.1.1", pdst="192.168.2.2")',
-                    'ARP Reply':              'ARP(op=2, psrc="192.168.1.1", pdst="192.168.2.2")',
-                    'Neighbor Solicitation':  'IPv6(src="2001:db8:5::5",dst="ff02::1")/ICMPv6ND_NS()',
+        arp_dict = {'ARP Request': 'ARP(op=1, psrc="192.168.1.1", pdst="192.168.2.2")',
+                    'ARP Reply': 'ARP(op=2, psrc="192.168.1.1", pdst="192.168.2.2")',
+                    'Neighbor Solicitation': 'IPv6(src="2001:db8:5::5",dst="ff02::1")/ICMPv6ND_NS()',
                     'Neighbor Advertisement': 'IPv6(src="2001:db8:5::5",dst="ff02::1")/ICMPv6ND_NA()'}
         chosen_packet = random.choice(list(arp_dict.keys()))
 
@@ -421,6 +423,7 @@ class SNMPTest(CoppBase):
     """
     SNMP class/test extends the basic CoPP class with specific validation for SNMP protocol
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         # TODO trapped as ip2me. Mellanox should add support for SNMP trap. update values accordingly
@@ -469,6 +472,7 @@ class IP2METest(CoppBase):
     """
     IP2ME class/test extends the basic CoPP class with specific validation for IP2ME packets type
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 6000
@@ -505,6 +509,7 @@ class SSHTest(CoppBase):
     """
     SSH class/test extends the basic CoPP class with specific validation for SSH packet type
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
@@ -538,6 +543,7 @@ class LLDPTest(CoppBase):
     """
     LLDP class/test extends the basic CoPP class with specific validation for LLDP packet type
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
@@ -570,6 +576,7 @@ class LACPTest(CoppBase):
     """
     LACP class/test extends the basic CoPP class with specific validation for LACP packet type
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600
@@ -618,9 +625,9 @@ class BGPTest(CoppBase):
         :param times: packets number
         """
         bgp_dict = {
-                    'bgp': 'IP(dst="192.168.1.1")',
-                    'bgpv6': 'IPv6(dst="2001:db8:5::1")'
-                    }
+            'bgp': 'IP(dst="192.168.1.1")',
+            'bgpv6': 'IPv6(dst="2001:db8:5::1")'
+        }
         chosen_packet = random.choice(list(bgp_dict.keys()))
         with allure.step('LLDP - Create validation (simple TCP packet with fixed TCP dst port)'):
             bgp_pkt = 'Ether(dst="{}")/' + bgp_dict[chosen_packet] + '/TCP(dport=179)'
@@ -640,6 +647,7 @@ class DHCPTest(CoppBase):
     """
     DHCP class/test extends the basic CoPP class with specific validation for DHCP packet type
     """
+
     def __init__(self, topology_obj, sonic_version):
         CoppBase.__init__(self, topology_obj, sonic_version)
         self.default_cir = 600

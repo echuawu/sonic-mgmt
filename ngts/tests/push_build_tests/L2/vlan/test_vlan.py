@@ -86,8 +86,8 @@ class TestVLAN:
                                   {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                       'filter': self.get_test_basic_packet(self.vlan_30),
                                                                       'count': 3}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 untagged packets from bond0 to {} VLAN {}'.format(self.hb_dut_1, self.vlan_30))
             ScapyChecker(self.players, validation).run_validation()
 
@@ -101,8 +101,8 @@ class TestVLAN:
                                   {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                       'filter': self.get_tcpdump_filter(self.vlan_30),
                                                                       'count': 3}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 tagged packets from bond0 with VLAN tag {} to {} VLAN {}'.format(self.vlan_30,
                                                                                                     self.hb_dut_1,
                                                                                                     self.vlan_30))
@@ -118,8 +118,8 @@ class TestVLAN:
                                   {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                       'filter': self.get_tcpdump_filter(),  # for check on all ifaces
                                                                       'count': 0}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 tagged packets from bond0 with VLAN tag {} to {} VLAN {}'.format(self.vlan_800,
                                                                                                     self.hb_dut_1,
                                                                                                     self.vlan_800))
@@ -154,8 +154,8 @@ class TestVLAN:
                                   {'receiver': 'ha', 'receive_args': {'interface': self.ha_dut_2,
                                                                       'filter': self.get_tcpdump_filter(self.vlan_30),
                                                                       'count': 3}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 tagged packets in VLAN {} from {} to {} VLAN {}'.format(self.vlan_30, self.hb_dut_1,
                                                                                            self.ha_dut_2, self.vlan_30))
             ScapyChecker(self.players, validation).run_validation()
@@ -172,8 +172,8 @@ class TestVLAN:
                                   {'receiver': 'ha', 'receive_args': {'interface': 'bond0',
                                                                       'filter': self.get_tcpdump_filter(),
                                                                       'count': 3}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 tagged packets with VLAN {} from {} to bond0 on HA'.format(self.vlan_30,
                                                                                               self.hb_dut_1))
             ScapyChecker(self.players, validation).run_validation()
@@ -192,8 +192,8 @@ class TestVLAN:
                                   {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                       'filter': self.get_tcpdump_filter(),  # to check on all ifaces
                                                                       'count': 0}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 tagged packets with VLAN {} from {} to {} VLAN {}'.format(self.vlan_800,
                                                                                              self.ha_dut_2,
                                                                                              self.hb_dut_1,
@@ -209,8 +209,8 @@ class TestVLAN:
                                   {'receiver': 'ha', 'receive_args': {'interface': self.ha_dut_2,
                                                                       'filter': self.get_tcpdump_filter(),  # to check all on ifaces
                                                                       'count': 0}}
-                              ]
-                          }
+            ]
+            }
             logger.info('Sending 3 untagged packets from {} to {} VLAN {}'.format(self.hb_dut_1, self.ha_dut_2,
                                                                                   self.vlan_30))
             ScapyChecker(self.players, validation).run_validation()
@@ -264,8 +264,8 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_800),
                                                                           'count': 3}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending 3 untagged packets from bond0 to {} VLAN {} via split ports'.format(self.hb_dut_1,
                                                                                                          self.vlan_800))
                 ScapyChecker(self.players, validation).run_validation()
@@ -326,7 +326,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(),
                                                                           'count': 0}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 untagged packets from bond0 to {} VLAN {}'.format(self.hb_dut_1, self.vlan_4095))
                 ScapyChecker(self.players, validation).run_validation()
@@ -358,7 +358,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_4094),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 untagged packets from bond0 to {} VLAN {}'.format(self.hb_dut_1, self.vlan_4094))
                 ScapyChecker(self.players, validation).run_validation()
@@ -373,7 +373,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_4094),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 to {} VLAN {}'.format(self.vlan_4094,
                                                                                                self.hb_dut_1,
@@ -390,7 +390,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(),  # check all ifaces
                                                                           'count': 0}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 to {} VLAN {}'.format(self.vlan_800,
                                                                                                self.hb_dut_1,
@@ -448,7 +448,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_30),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 to hb-dut-1 VLAN {}'.format(self.vlan_30,
                                                                                                      self.vlan_30))
@@ -465,7 +465,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_800),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 to hb-dut-1 VLAN {}'.format(self.vlan_800,
                                                                                                      self.vlan_800))
@@ -481,7 +481,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(),  # check all ifaces
                                                                           'count': 0}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 untagged packets from bond0 (ha-dut-1) to hb-dut-1')
                 ScapyChecker(self.players, validation).run_validation()
@@ -498,7 +498,7 @@ class TestVLAN:
                                       {'receiver': 'ha', 'receive_args': {'interface': self.ha_dut_2,
                                                                           'filter': self.get_tcpdump_filter(),  # check all ifaces
                                                                           'count': 0}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 (ha-dut-1) to ha-dut-2 VLAN {}'.format(
                     self.vlan_800, self.vlan_800))
@@ -531,7 +531,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_800),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 untagged packets from bond0 (ha-dut-1) to hb-dut-1 VLAN {}'.format(self.vlan_800))
                 ScapyChecker(self.players, validation).run_validation()
@@ -546,7 +546,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_800),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 (ha-dut-1) to hb-dut-1 VLAN {}'.format(
                     self.vlan_800, self.vlan_800))
@@ -562,7 +562,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(),  # check on all ifaces
                                                                           'count': 0}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 (ha-dut-1) to hb-dut-1 VLAN {}'.format(
                     self.vlan_30, self.vlan_30))
@@ -592,7 +592,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_30),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 untagged packets from bond0 (ha-dut-1) to hb-dut-1 VLAN {}'.format(self.vlan_30))
                 ScapyChecker(self.players, validation).run_validation()
@@ -607,7 +607,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(self.vlan_30),
                                                                           'count': 3}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 (ha-dut-1) to hb-dut-1 VLAN {}'.format(
                     self.vlan_30, self.vlan_30))
@@ -623,7 +623,7 @@ class TestVLAN:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
                                                                           'filter': self.get_tcpdump_filter(),  # check on all ifaces
                                                                           'count': 0}}
-                                  ]
+                              ]
                               }
                 logger.info('Sending 3 tagged packets VLAN {} from bond0 (ha-dut-1) to hb-dut-1 VLAN {}'.format(
                     self.vlan_800, self.vlan_800))

@@ -1,0 +1,11 @@
+- LICENSE
+- README.md
+- lgtm.yml
+- docs
+- azure-pipelines.yml
+- setup-container.sh
+- spytest
+- test_reporting
+- build
+- tests
+- ansible

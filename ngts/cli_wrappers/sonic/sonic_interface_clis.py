@@ -162,7 +162,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         """
         result = {}
         interfaces_data = SonicInterfaceCli.show_interfaces_alias(engine)
-        regex_pattern = "(Ethernet\d+)\s*(etp\d+\w*)"
+        regex_pattern = r"(Ethernet\d+)\s*(etp\d+\w*)"
         list_output = re.findall(regex_pattern, interfaces_data, re.IGNORECASE)
         for port, port_sonic_alias in list_output:
             result[port] = port_sonic_alias
@@ -369,11 +369,10 @@ class SonicInterfaceCli(InterfaceCliCommon):
             return SonicConst.FEC_FC_MODE
         elif re.search(SonicConst.FEC_RS_MODE, actual_mlxlink_fec_val, re.IGNORECASE):
             return SonicConst.FEC_RS_MODE
-        elif re.search("No FEC",  actual_mlxlink_fec_val, re.IGNORECASE):
+        elif re.search("No FEC", actual_mlxlink_fec_val, re.IGNORECASE):
             return SonicConst.FEC_NONE_MODE
         else:
             raise AssertionError("Couldn't parse FEC value: {} on mlxlink output".format(actual_mlxlink_fec_val))
-
 
     @staticmethod
     def clear_counters(engine):
@@ -393,6 +392,6 @@ class SonicInterfaceCli(InterfaceCliCommon):
         """
         invalid_fec_option = "invalid_fec_mode"
         output = SonicInterfaceCli.configure_interface_fec(engine, interface, fec_option=invalid_fec_option)
-        fec_options_list_string = re.search("Error:\s+\'fec\s+not\s+in\s+(\[.*\])!", output).group(1)
+        fec_options_list_string = re.search(r"Error:\s+\'fec\s+not\s+in\s+(\[.*\])!", output).group(1)
         fec_options_list = ast.literal_eval(fec_options_list_string)
         return fec_options_list

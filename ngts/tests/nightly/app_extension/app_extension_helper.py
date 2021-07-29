@@ -195,7 +195,6 @@ def extract_version_info(raw_version_data: str) -> (bool, list):
     return is_plain_output, new_versions
 
 
-
 def get_non_semver_version_info(versions: list) -> list:
     """
     Calculate SemVer(Semantic Versioning) version number and Non-SemVer version number

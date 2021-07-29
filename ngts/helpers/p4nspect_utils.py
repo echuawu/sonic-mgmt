@@ -46,7 +46,7 @@ def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_
     port_configs = get_port_configs(engine)
     for i in range(1, entry_spliter_count - 1):
         entry_start_index = entry_spliter_indexs[i]
-        entry_end_index = entry_spliter_indexs[i+1]
+        entry_end_index = entry_spliter_indexs[i + 1]
         parse_entry_content(engine, lines[entry_start_index + 1:entry_end_index], content_column_spliter, ret, port_configs)
     return ret
 

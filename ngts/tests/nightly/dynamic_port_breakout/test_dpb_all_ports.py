@@ -58,7 +58,7 @@ def get_max_breakout_mode(breakout_modes):
     breakout_mode_pattern_capture_breakout_number = r"(\d)x\d+G\[[\d*G,]*\]|(\d)x\d+G"
     max_breakout_mode = max(breakout_modes_filtered, key=lambda breakout_mode:
                             int(re.search(breakout_mode_pattern_capture_breakout_number,
-                                breakout_mode).group(1)))
+                                          breakout_mode).group(1)))
     return max_breakout_mode
 
 

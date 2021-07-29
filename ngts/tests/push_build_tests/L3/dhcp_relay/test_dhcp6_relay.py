@@ -108,15 +108,15 @@ def verify_dhcp6_client_output(engine, dhclient_cmd, dhclient_iface, expected_ip
 
     if expected_ip:
         assert LinuxDhcpCli.reply_dhclient_message.format(dhclient_iface) in dhclient_output, 'Client does not have ' \
-               'line "Reply message on " in dhcp client output'
+            'line "Reply message on " in dhcp client output'
         assert expected_ip in dhclient_output, 'dhclient output does not contain the expected IPv6 address'
         assert LinuxDhcpCli.successfull_dhclient_message in dhclient_output, 'dhclient output does not contain the ' \
                                                                              '"Bound to lease" line'
     else:
         assert LinuxDhcpCli.advertise_dhclient_message.format(dhclient_iface) not in dhclient_output, 'Unexpected' \
-                'line "Advertise message on " in dhcp client output'
+            'line "Advertise message on " in dhcp client output'
         assert LinuxDhcpCli.reply_dhclient_message.format(dhclient_iface) not in dhclient_output, 'Unexpected line ' \
-               '"Reply message on " in dhcp client output'
+            '"Reply message on " in dhcp client output'
         assert LinuxDhcpCli.successfull_dhclient_message not in dhclient_output, 'Unexpected line "Bound to lease" in' \
                                                                                  ' dhcp client output'
 
@@ -292,8 +292,8 @@ class TestDHCP6Relay:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': self.tcpdump_relay_forward_message_filter,
                                                                           'count': 3}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP solicit message from client')
                 ScapyChecker(self.players, validation).run_validation()
 
@@ -321,12 +321,12 @@ class TestDHCP6Relay:
                                                       dst_ip=self.dut_dhcp_server_vlan_iface_ip,
                                                       s_port=LinuxDhcpCli.ipv6_server_src_port,
                                                       d_port=LinuxDhcpCli.ipv6_dst_port) + \
-                              'DHCP6_RelayReply(linkaddr="{link_addr}", peeraddr="{peer_addr}")/' \
-                              'DHCP6OptIAAddress()/' \
-                              'DHCP6OptRelayMsg(message=[' \
-                              'DHCP6_Advertise(trid=12345)/' \
-                              'DHCP6OptDNSDomains(dnsdomains=["abc.com"])])'.format(link_addr=self.dut_dhclient_main_vlan_ip,
-                                                                                    peer_addr=self.dhclient_main_iface_linklocal_ipv6)
+            'DHCP6_RelayReply(linkaddr="{link_addr}", peeraddr="{peer_addr}")/' \
+            'DHCP6OptIAAddress()/' \
+            'DHCP6OptRelayMsg(message=[' \
+            'DHCP6_Advertise(trid=12345)/' \
+            'DHCP6OptDNSDomains(dnsdomains=["abc.com"])])'.format(link_addr=self.dut_dhclient_main_vlan_ip,
+                                                                  peer_addr=self.dhclient_main_iface_linklocal_ipv6)
 
         try:
             with allure.step('Validating that DHCPv6 relay-reply message from server with additional options '
@@ -338,8 +338,8 @@ class TestDHCP6Relay:
                                   [
                                       {'receiver': 'ha', 'receive_args': {'interface': self.dhclient_main_iface,
                                                                           'filter': tcpdump_filter, 'count': 3}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP relay-reply from server to relay')
                 ScapyChecker(self.players, validation).run_validation()
 
@@ -363,11 +363,11 @@ class TestDHCP6Relay:
                                                              dst_ip=self.dut_dhclient_main_vlan_ip,
                                                              s_port=LinuxDhcpCli.ipv6_server_src_port,
                                                              d_port=LinuxDhcpCli.ipv6_dst_port) + \
-                  'DHCP6_RelayForward(msgtype=12, hopcount=32, linkaddr="5700::1", peeraddr="fe80::e42:a1ff:fe17:e6fd")/' \
-                  'DHCP6OptRelayMsg(message=[' \
-                  'DHCP6_Solicit(trid=12345)/' \
-                  'DHCP6OptElapsedTime()/' \
-                  'DHCP6OptOptReq()])'
+            'DHCP6_RelayForward(msgtype=12, hopcount=32, linkaddr="5700::1", peeraddr="fe80::e42:a1ff:fe17:e6fd")/' \
+            'DHCP6OptRelayMsg(message=[' \
+            'DHCP6_Solicit(trid=12345)/' \
+            'DHCP6OptElapsedTime()/' \
+            'DHCP6OptOptReq()])'
 
         try:
             with allure.step('Validating that DHCPv6 relay-forward message with hop-count=32 not encapsulated to '
@@ -380,8 +380,8 @@ class TestDHCP6Relay:
                                   [
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': tcpdump_filter, 'count': 0}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP relay-forward packet from dhcp client side to relay with hop-count 32')
                 ScapyChecker(self.players, validation).run_validation()
 
@@ -402,11 +402,11 @@ class TestDHCP6Relay:
                                                             dst_ip=self.dut_dhclient_main_vlan_ip,
                                                             s_port=LinuxDhcpCli.ipv6_server_src_port,
                                                             d_port=LinuxDhcpCli.ipv6_dst_port) + \
-              'DHCP6_RelayForward(msgtype=12, hopcount=5, linkaddr="5700::1", peeraddr="fe80::e42:a1ff:fe17:e6fd")/' \
-              'DHCP6OptRelayMsg(message=[' \
-              'DHCP6_Solicit(trid=12345)/' \
-              'DHCP6OptElapsedTime()/' \
-              'DHCP6OptOptReq()])'
+            'DHCP6_RelayForward(msgtype=12, hopcount=5, linkaddr="5700::1", peeraddr="fe80::e42:a1ff:fe17:e6fd")/' \
+            'DHCP6OptRelayMsg(message=[' \
+            'DHCP6_Solicit(trid=12345)/' \
+            'DHCP6OptElapsedTime()/' \
+            'DHCP6OptOptReq()])'
 
         try:
             with allure.step('Validating that DHCPv6 relay-forward message with hop-count=5 encapsulated to '
@@ -419,8 +419,8 @@ class TestDHCP6Relay:
                                   [
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': tcpdump_filter, 'count': 3}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP relay-forward packet from dhcp client side to relay with hop-count 5')
                 ScapyChecker(self.players, validation).run_validation()
 
@@ -453,8 +453,8 @@ class TestDHCP6Relay:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': self.tcpdump_relay_forward_message_filter,
                                                                           'count': 3}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP request message from client with empty payload')
                 ScapyChecker(self.players, validation).run_validation()
 
@@ -474,8 +474,8 @@ class TestDHCP6Relay:
                                                                dst_ip=LinuxDhcpCli.dhcpv6_reserved_dst_ip,
                                                                s_port=LinuxDhcpCli.ipv6_src_port,
                                                                d_port=LinuxDhcpCli.ipv6_dst_port) + \
-                                                               'DHCP6_Request()/' \
-                                                               'Raw("test string here")'
+            'DHCP6_Request()/' \
+            'Raw("test string here")'
 
         try:
             with allure.step('Validating that DHCPv6 request message with malformed payload encapsulated '
@@ -489,8 +489,8 @@ class TestDHCP6Relay:
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': self.tcpdump_relay_forward_message_filter,
                                                                           'count': 3}}
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP request message from client with malformed payload')
                 ScapyChecker(self.players, validation).run_validation()
         except BaseException as err:
@@ -526,8 +526,8 @@ class TestDHCP6Relay:
                                   [
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': tcpdump_filter, 'count': 3}},
-                                  ]
-                              }
+                ]
+                }
                 logger.info('Sending DHCP renew message from dhcp client from global IPv6 to dhcp server IPv6')
                 ScapyChecker(self.players, validation).run_validation()
 

@@ -56,7 +56,7 @@ def cp_sdk_event_trigger_script_to_dut_syncd(engine):
                      dest_file='mellanox_sdk_trigger_event_script.py',
                      file_system='/tmp',
                      direction='put'
-    )
+                     )
     engine.run_cmd('docker cp {} {}'.format(dst, 'syncd:/'))
 
 
@@ -66,11 +66,11 @@ def count_sdk_dumps(engine):
 
     output_lines = engine.run_cmd('show techsupport').split('\n')
 
-    tar_file = output_lines[len(output_lines)-1]
+    tar_file = output_lines[len(output_lines) - 1]
     tarball_file_name = str(tar_file.replace('/var/dump/', ''))
     tarball_dir_name = str(tarball_file_name.replace('.tar.gz', ''))
 
-    sdk_dump_pattern = '{}/{}/{}'.format(tarball_dir_name, sdk_dump_dir, sdk_file_pattern )
+    sdk_dump_pattern = '{}/{}/{}'.format(tarball_dir_name, sdk_dump_dir, sdk_file_pattern)
 
     engine.copy_file(source_file=tar_file, dest_file=tarball_file_name, file_system='/tmp/', direction='get')
 
@@ -83,4 +83,3 @@ def count_sdk_dumps(engine):
 
     engine.run_cmd("rm -rf {}".format(tar_file))
     return len(after_list)
-

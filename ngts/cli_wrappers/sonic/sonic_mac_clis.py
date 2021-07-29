@@ -36,8 +36,8 @@ class SonicMacCli(MacCliCommon):
 
         for mac_address in generate_mac(entries_num):
             fdb_entry_json = {entry_key_template.format(vid=vlan_id, mac=mac_address):
-                {"port": iface, "type": "dynamic"},
-                "OP": op
-            }
+                              {"port": iface, "type": "dynamic"},
+                              "OP": op
+                              }
             fdb_config_json.append(fdb_entry_json)
         return fdb_config_json

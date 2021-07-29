@@ -12,6 +12,7 @@ class SonicAppExtensionCli:
     """
     This class hosts SONiC APP Extension cli methods
     """
+
     def __init__(self):
         pass
 

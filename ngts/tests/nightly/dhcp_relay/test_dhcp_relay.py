@@ -99,11 +99,11 @@ def test_dhcp_relay_few_dhcp_servers(topology_obj, interfaces):
             validation = {'sender': 'ha', 'send_args': {'interface': interfaces.ha_dut_1, 'packets': pkt, 'count': 1},
                           'receivers':
                               [
-                                 {'receiver': 'hb',
-                                  'receive_args': {'interface': interfaces.hb_dut_1, 'filter': 'port 67',
-                                                   'count': num_of_dhcp_servers}}
-                              ]
-                          }
+                {'receiver': 'hb',
+                 'receive_args': {'interface': interfaces.hb_dut_1, 'filter': 'port 67',
+                                  'count': num_of_dhcp_servers}}
+            ]
+            }
             ScapyChecker(topology_obj.players, validation).run_validation()
     except BaseException as err:
         raise AssertionError(err)
@@ -133,11 +133,11 @@ def test_dhcp6_relay_few_dhcp_servers(topology_obj, interfaces):
             validation = {'sender': 'ha', 'send_args': {'interface': interfaces.ha_dut_1, 'packets': pkt, 'count': 1},
                           'receivers':
                               [
-                                 {'receiver': 'hb',
-                                  'receive_args': {'interface': interfaces.hb_dut_1, 'filter': 'port 547',
-                                                   'count': num_of_dhcp_servers}}
-                              ]
-                          }
+                {'receiver': 'hb',
+                 'receive_args': {'interface': interfaces.hb_dut_1, 'filter': 'port 547',
+                                  'count': num_of_dhcp_servers}}
+            ]
+            }
             ScapyChecker(topology_obj.players, validation).run_validation()
     except BaseException as err:
         raise AssertionError(err)

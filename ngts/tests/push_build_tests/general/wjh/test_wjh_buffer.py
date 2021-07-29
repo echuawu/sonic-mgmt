@@ -20,18 +20,18 @@ logger = logging.getLogger()
 
 
 table_parser_info = {
-    'raw': {'headers_ofset':0,
-            'len_ofset':2,
-            'data_ofset_from_start':3,
-            'column_ofset':1,
-            'output_key':'#'
-    },
-    'agg': {'headers_ofset':3,
-            'len_ofset':4,
-            'data_ofset_from_start':5,
-            'column_ofset':1,
-            'output_key':'#'
-    }
+    'raw': {'headers_ofset': 0,
+            'len_ofset': 2,
+            'data_ofset_from_start': 3,
+            'column_ofset': 1,
+            'output_key': '#'
+            },
+    'agg': {'headers_ofset': 3,
+            'len_ofset': 4,
+            'data_ofset_from_start': 5,
+            'column_ofset': 1,
+            'output_key': '#'
+            }
 }
 
 
@@ -118,9 +118,9 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
     with allure.step('Configuring dut_ha_2 speed to be 10G, and dut_hb_2 to be 25G'):
         interfaces_config_dict = {
             'dut': [{'iface': interfaces.dut_ha_2, 'speed': '10G',
-                    'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '10G')},
+                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '10G')},
                     {'iface': interfaces.dut_hb_2, 'speed': '25G',
-                    'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
+                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
                     ]
         }
 
@@ -162,7 +162,7 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
             # entry['IP Proto'] == proto and
             entry['dMAC'] == dst_mac and
             entry['sMAC'] == src_mac and
-            entry['Drop reason - Recommended action'] in drop_reason):
+                entry['Drop reason - Recommended action'] in drop_reason):
             return True
 
     return False
@@ -185,13 +185,13 @@ def validate_wjh_table(engines, cmd, table_type, interfaces, dst_ip, src_ip, pro
     output = engines.dut.run_cmd(cmd)
     parser = table_parser_info[table_type]
     table = generic_sonic_output_parser(output, parser['headers_ofset'],
-                                            parser['len_ofset'],
-                                            parser['data_ofset_from_start'],
-                                            parser['column_ofset'],
-                                            parser['output_key'])
+                                        parser['len_ofset'],
+                                        parser['data_ofset_from_start'],
+                                        parser['column_ofset'],
+                                        parser['output_key'])
 
-    result = check_if_entry_exists(table, interfaces.dut_hb_2, dst_ip, \
-    src_ip, proto, drop_reason, dst_mac, src_mac)
+    result = check_if_entry_exists(table, interfaces.dut_hb_2, dst_ip,
+                                   src_ip, proto, drop_reason, dst_mac, src_mac)
     assert result == False, "Could not find drop in WJH {} table".format(table_type)
 
 
@@ -212,7 +212,7 @@ def do_raw_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_rea
     check_if_buffer_enabled(cli_object, engines, 'raw')
 
     retry_call(validate_wjh_table, fargs=[engines, command, 'raw', interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
-                                tries=3, delay=3, logger=logger)
+               tries=3, delay=3, logger=logger)
 
 
 def do_agg_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac, command):
@@ -232,7 +232,7 @@ def do_agg_test(engines, cli_object, interfaces, dst_ip, src_ip, proto, drop_rea
     check_if_buffer_enabled(cli_object, engines, 'aggregate')
 
     retry_call(validate_wjh_table, fargs=[engines, command, 'agg', interfaces, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
-                            tries=3, delay=3, logger=logger)
+               tries=3, delay=3, logger=logger)
 
 
 @pytest.mark.wjh
@@ -265,11 +265,11 @@ def test_buffer_tail_drop(engines, topology_obj, players, interfaces, wjh_buffer
         },
         'expect': [
             {
-            'parameter': 'loss_packets',
-            'operator': '>=',
-            'type': 'int',
-            'value': '0'
-        }
+                'parameter': 'loss_packets',
+                'operator': '>=',
+                'type': 'int',
+                'value': '0'
+            }
         ]
     }
 
@@ -289,7 +289,7 @@ def test_buffer_tail_drop(engines, topology_obj, players, interfaces, wjh_buffer
     cli_object = topology_obj.players['dut']['cli']
     with allure.step('Validating WJH raw table output'):
         do_raw_test(engines=engines, cli_object=cli_object, interfaces=interfaces, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason=drop_reason_message,
-        dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer')
+                    dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer')
 
     with allure.step('Sending iPerf traffic'):
         logger.info('Sending iPerf traffic')
@@ -297,4 +297,4 @@ def test_buffer_tail_drop(engines, topology_obj, players, interfaces, wjh_buffer
 
     with allure.step('Validating WJH aggregated table output'):
         do_agg_test(engines=engines, cli_object=cli_object, interfaces=interfaces, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason=drop_reason_message,
-        dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer --aggregate')
+                    dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer --aggregate')

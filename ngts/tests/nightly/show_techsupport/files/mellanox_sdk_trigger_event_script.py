@@ -20,6 +20,7 @@ parser = argparse.ArgumentParser(description='This example demonstrats how to re
 parser.add_argument('--device_id', default=1, type=lambda x: int(x, 0), help='The device id on which the health example will run')
 args = parser.parse_args()
 
+
 def trigger():
 
     print("[+] opening sdk")

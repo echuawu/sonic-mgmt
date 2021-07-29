@@ -190,10 +190,10 @@ class LinuxInterfaceCli(InterfaceCliCommon):
         """
         iface_ethtool_info = LinuxInterfaceCli.show_interface_ethtool_status(engine, interface=interface)
         adv_speed, adv_type = LinuxInterfaceCli.\
-            parse_link_mode(re.search("Advertised link modes:([\s*(\d+\w+\/\w+)\s+]*)", iface_ethtool_info).group(1))
+            parse_link_mode(re.search(r"Advertised link modes:([\s*(\d+\w+\/\w+)\s+]*)", iface_ethtool_info).group(1))
         sup_speed, sup_type = LinuxInterfaceCli.\
             parse_link_mode(re.search("Supported link modes:([\s*(\d+\w+\/\w+)\s+]*)", iface_ethtool_info).group(1))
-        auto_neg_mode = re.search("Auto-negotiation:\s+(\w+)", iface_ethtool_info).group(1)
+        auto_neg_mode = re.search(r"Auto-negotiation:\s+(\w+)", iface_ethtool_info).group(1)
 
         speed = LinuxInterfaceCli.parse_speed(iface_ethtool_info)
         res = {"autoneg": auto_neg_mode,
@@ -207,9 +207,9 @@ class LinuxInterfaceCli(InterfaceCliCommon):
 
     @staticmethod
     def parse_speed(ethtool_output):
-        speed_search_regex_res = re.search("Speed:\s+(\d+)Mb/s", ethtool_output)
+        speed_search_regex_res = re.search(r"Speed:\s+(\d+)Mb/s", ethtool_output)
         if speed_search_regex_res is not None:
-            speed = "{}G".format(int(int(speed_search_regex_res.group(1))/1000))
+            speed = "{}G".format(int(int(speed_search_regex_res.group(1)) / 1000))
         else:
             speed = "N/A"
         return speed
@@ -226,11 +226,11 @@ class LinuxInterfaceCli(InterfaceCliCommon):
         speed_list = ["1G", "10G", "40G"]
         type_list = ["1GBASE-KX", "10GBASE-KR", "40GBASE-KR4"}
         """
-        speed_type_list = re.findall("(\d+)base(\w+)\/\w+", output_mode_string)
+        speed_type_list = re.findall(r"(\d+)base(\w+)\/\w+", output_mode_string)
         speed_list = []
         type_list = []
         for speed, cable_type in speed_type_list:
-            speed = "{}G".format(int(int(speed)/1000))
+            speed = "{}G".format(int(int(speed) / 1000))
             type_list.append("{}BASE-{}".format(speed, cable_type))
             speed_list.append(speed)
         return speed_list, type_list
@@ -257,7 +257,7 @@ class LinuxInterfaceCli(InterfaceCliCommon):
         parsed_interface_fec_output = {}
         interface_fec_output = LinuxInterfaceCli.show_interface_fec(engine, interface)
         if not re.search("Invalid argument", interface_fec_output, re.IGNORECASE):
-            parse_fec_info_regex = "{}:\s*(\w*)"
+            parse_fec_info_regex = r"{}:\s*(\w*)"
             parse_keys = [LinuxConsts.CONF_FEC, LinuxConsts.ACTIVE_FEC]
             for key in parse_keys:
                 fec_val = re.search(parse_fec_info_regex.format(key), interface_fec_output).group(1)

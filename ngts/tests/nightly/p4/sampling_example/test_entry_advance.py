@@ -23,8 +23,8 @@ class TestEntryTraffic:
         chksum_type = 'match'
         indices = [0]
         port_traffic_params_list = TrafficParams.prepare_port_table_send_receive_traffic_params(interfaces, topology_obj,
-                                                                                  table_params.port_entry, indices,
-                                                                                  chksum_type)
+                                                                                                table_params.port_entry, indices,
+                                                                                                chksum_type)
         return port_traffic_params_list
 
     @pytest.fixture(scope='class')
@@ -32,8 +32,8 @@ class TestEntryTraffic:
         chksum_type = 'match'
         indices = [0]
         _, flow_traffic_params_list = TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj,
-                                                                                     table_params.flow_entry, indices,
-                                                                                     chksum_type)
+                                                                                                   table_params.flow_entry, indices,
+                                                                                                   chksum_type)
         return flow_traffic_params_list
 
     @pytest.fixture(scope='function')
@@ -246,7 +246,7 @@ class TestEntryTraffic:
         :return: None
         """
         traffic_send_duration = 1
-        pkt_count = int(traffic_send_duration/P4SamplingConsts.TRAFFIC_INTERVAL)
+        pkt_count = int(traffic_send_duration / P4SamplingConsts.TRAFFIC_INTERVAL)
         SonicInterfaceCli.clear_counters(engine_dut)
         logger.info('sleep for {} second to wait for the the traffic can be received'.format(traffic_send_duration))
         time.sleep(traffic_send_duration)

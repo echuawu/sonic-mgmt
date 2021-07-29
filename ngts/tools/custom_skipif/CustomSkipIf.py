@@ -16,7 +16,7 @@ community_plugins_path = '/tests/common/plugins/'
 full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
 sys.path.append(full_path_to_community_plugins)
 
-from custom_skipif.CustomSkipIf import pytest_runtest_setup
+from custom_skipif.CustomSkipIf import pytest_runtest_setup  # noqa: E402
 
 
 def pytest_collection(session):

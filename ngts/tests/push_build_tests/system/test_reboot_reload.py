@@ -428,4 +428,3 @@ def generate_report(out, err):
         allure.attach(bytes(allure_report_url, 'utf-8'), 'Allure report URL', allure.attachment_type.URI_LIST)
     except Exception as err:
         logger.error('Can not find and attach allure URL to allure report. Error: {}'.format(err))
-

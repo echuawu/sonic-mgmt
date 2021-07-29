@@ -36,7 +36,6 @@ class SonicConst:
     MINIGRAPH_XML_PATH = SONIC_CONFIG_FOLDER + MINIGRAPH_XML
 
 
-
 class InfraConst:
     HTTP_SERVER = 'http://fit69'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
@@ -118,55 +117,56 @@ class AutonegCommandConstants:
         AUTONEG_MODE: ("Auto Negotiation\s*:\s*(\w*)", "ON", "enabled", "disabled")
     }
 
+
 SPC = {
- '25GBASE-CR': ['10G', '25G'],
- '50GBASE-CR2': ['50G'],
- '40GBASE-CR4': ['40G'],
- '100GBASE-CR4': ['100G'],
- 'SR': ['10G', '25G'],
- 'SR2': ['50G'],
- 'SR4': ['40G', '100G'],
- 'LR': ['10G'],
- 'LR4': ['40G', '100G'],
- 'KR': ['10G', '25G'],
- 'KR2': ['20G', '50G'],
- 'KR4': ['40G', '56G', '100G'],
- 'CAUI': ['100G'],
- 'GMII': ['1G'],
- 'SFI': ['10G'],
- 'XLAUI': ['40G'],
- 'CAUI4': ['100G'],
- 'XAUI': ['10G'],
- 'XFI': ['10G']
- }
+    '25GBASE-CR': ['10G', '25G'],
+    '50GBASE-CR2': ['50G'],
+    '40GBASE-CR4': ['40G'],
+    '100GBASE-CR4': ['100G'],
+    'SR': ['10G', '25G'],
+    'SR2': ['50G'],
+    'SR4': ['40G', '100G'],
+    'LR': ['10G'],
+    'LR4': ['40G', '100G'],
+    'KR': ['10G', '25G'],
+    'KR2': ['20G', '50G'],
+    'KR4': ['40G', '56G', '100G'],
+    'CAUI': ['100G'],
+    'GMII': ['1G'],
+    'SFI': ['10G'],
+    'XLAUI': ['40G'],
+    'CAUI4': ['100G'],
+    'XAUI': ['10G'],
+    'XFI': ['10G']
+}
 SPC2_3 = {
- '1000BASE-CX': ['1G'],
- '25GBASE-CR': ['1G', '10G', '25G'],
- '50GBASE-CR': ['50G'],
- '50GBASE-CR2': ['50G'],
- '40GBASE-CR4': ['40G'],
- '100GBASE-CR2': ['100G'],
- '100GBASE-CR4': ['100G'],
- '200GBASE-CR4': ['200G'],
- '400GBASE-CR8': ['400G'],
- 'CR': ['1G', '10G', '25G', '50G'],
- 'CR2': ['50G', '100G'],
- 'CR4': ['40G', '100G', '200G', '400G'],
- 'SR': ['1G', '10G', '25G', '50G'],
- 'SR2': ['50G', '100G'],
- 'SR4': ['40G', '100G', '200G', '400G'],
- 'LR': ['1G', '10G', '25G', '50G'],
- 'LR4': ['40G', '100G', '200G', '400G'],
- 'KR': ['1G', '10G', '25G', '50G'],
- 'KR2': ['50G', '100G'],
- 'KR4': ['40G', '100G', '200G', '400G'],
- 'CAUI': ['100G'],
- 'GMII': ['1G'],
- 'SFI': ['10G'],
- 'XLAUI': ['40G'],
- 'CAUI4': ['100G'],
- 'XFI': ['10G']
- }
+    '1000BASE-CX': ['1G'],
+    '25GBASE-CR': ['1G', '10G', '25G'],
+    '50GBASE-CR': ['50G'],
+    '50GBASE-CR2': ['50G'],
+    '40GBASE-CR4': ['40G'],
+    '100GBASE-CR2': ['100G'],
+    '100GBASE-CR4': ['100G'],
+    '200GBASE-CR4': ['200G'],
+    '400GBASE-CR8': ['400G'],
+    'CR': ['1G', '10G', '25G', '50G'],
+    'CR2': ['50G', '100G'],
+    'CR4': ['40G', '100G', '200G', '400G'],
+    'SR': ['1G', '10G', '25G', '50G'],
+    'SR2': ['50G', '100G'],
+    'SR4': ['40G', '100G', '200G', '400G'],
+    'LR': ['1G', '10G', '25G', '50G'],
+    'LR4': ['40G', '100G', '200G', '400G'],
+    'KR': ['1G', '10G', '25G', '50G'],
+    'KR2': ['50G', '100G'],
+    'KR4': ['40G', '100G', '200G', '400G'],
+    'CAUI': ['100G'],
+    'GMII': ['1G'],
+    'SFI': ['10G'],
+    'XLAUI': ['40G'],
+    'CAUI4': ['100G'],
+    'XFI': ['10G']
+}
 
 
 class PlatformConstants:
@@ -441,26 +441,26 @@ class P4SamplingEntryConsts:
                               'Key Checksum Value/Mask']
     PORT_ENTRY_KEY_HEADERS = ['Key Port', 'Key Checksum Value/Mask']
     FLOW_ENTRY_ACTION_HEADERS = [
-                'Action',
-                'Action Mirror Port',
-                'Action SMAC',
-                'Action DMAC',
-                'Action SIP',
-                'Action DIP',
-                'Action VLAN',
-                'Action Is Trunc',
-                'Action Trunc Size']
+        'Action',
+        'Action Mirror Port',
+        'Action SMAC',
+        'Action DMAC',
+        'Action SIP',
+        'Action DIP',
+        'Action VLAN',
+        'Action Is Trunc',
+        'Action Trunc Size']
 
     PORT_ENTRY_ACTION_HEADERS = [
-                'Action',
-                'Action Mirror Port',
-                'Action SMAC',
-                'Action DMAC',
-                'Action SIP',
-                'Action DIP',
-                'Action VLAN',
-                'Action Is Trunc',
-                'Action Trunc Size']
+        'Action',
+        'Action Mirror Port',
+        'Action SMAC',
+        'Action DMAC',
+        'Action SIP',
+        'Action DIP',
+        'Action VLAN',
+        'Action Is Trunc',
+        'Action Trunc Size']
     dutha1_ip = '10.0.0.1'
     duthb1_ip = '50.0.0.1'
     dutha2_ip = '10.0.1.1'
@@ -489,13 +489,13 @@ class P4SamplingConsts:
     TRAFFIC_INTERVAL = 0.2
 
 
-
 class LoganalyzerConsts:
     LOG_FILE_NAME = "syslog"
 
+
 class AppExtensionInstallationConstants:
     WJH_APP_NAME = 'what-just-happened'
-    WJH_REPOSITORY ='harbor.mellanox.com/sonic-wjh/docker-wjh'
+    WJH_REPOSITORY = 'harbor.mellanox.com/sonic-wjh/docker-wjh'
     LC_MANAGER = 'line-card-manager'
     LC_MANAGER_REPOSITORY = 'harbor.mellanox.com/sonic-lc-manager/line-card-manager'
     CMD_GET_SDK_VERSION = "docker exec -i {} bash -c 'sx_sdk --version'"

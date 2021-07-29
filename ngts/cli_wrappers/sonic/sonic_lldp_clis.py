@@ -36,7 +36,6 @@ class SonicLldpCli(LldpCliCommon):
         """
         return engine.run_cmd('show lldp table')
 
-
     @staticmethod
     def parse_lldp_table_info(engine):
         """
@@ -49,7 +48,7 @@ class SonicLldpCli(LldpCliCommon):
           }
         """
         lldp_table_output = SonicLldpCli.show_lldp_table(engine)
-        regex_pattern = "(Ethernet\d+)\s*(\w*-[\w*-]*\w*\d+-*\d*)\s*([\d*\w*:]*\d*\w*)\s*(\w*)\s*(.*)"
+        regex_pattern = r"(Ethernet\d+)\s*(\w*-[\w*-]*\w*\d+-*\d*)\s*([\d*\w*:]*\d*\w*)\s*(\w*)\s*(.*)"
         output_list = re.findall(regex_pattern, lldp_table_output)
         res_dict = {}
         for lldp_info_tuple in output_list:
@@ -91,12 +90,12 @@ class SonicLldpCli(LldpCliCommon):
         show_lldp_interval_cmd = "docker exec {}  /bin/bash -c \"lldpcli show running-configuration\""\
             .format(SonicDockersConstant.LLDP)
         with allure.step('Check lldp transmit delay is {} seconds on player {}'
-                                 .format(expected_transmit_interval, engine.ip)):
+                         .format(expected_transmit_interval, engine.ip)):
             output = engine.run_cmd(show_lldp_interval_cmd)
-            actual_transmit_delay = re.search("Transmit delay: (\d+)", output, re.IGNORECASE).group(1)
+            actual_transmit_delay = re.search(r"Transmit delay: (\d+)", output, re.IGNORECASE).group(1)
             assert int(actual_transmit_delay) == int(expected_transmit_interval), \
                 "The expected transmit delay for lldp is {}, the actual transmit is {}."\
-                    .format(expected_transmit_interval, actual_transmit_delay)
+                .format(expected_transmit_interval, actual_transmit_delay)
 
     @staticmethod
     def pause_lldp(engine):

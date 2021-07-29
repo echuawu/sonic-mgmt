@@ -23,6 +23,7 @@ SYSLOG_TMP_FOLDER = "/tmp/syslog"
 
 class LogAnalyzerError(Exception):
     """Raised when loganalyzer found matches during analysis phase."""
+
     def __repr__(self):
         return pprint.pformat(self.message)
 
@@ -53,10 +54,10 @@ class LogAnalyzer:
         """
         self.dut_engine.run_cmd("sudo rm -f {}".format(join(self.dut_run_dir, DUT_LOGANALYZER)))
         self.dut_engine.copy_file(source_file=LOG_PARSER, dest_file=DUT_LOGANALYZER, file_system=self.dut_run_dir,
-            overwrite_file=True, verify_file=False)
+                                  overwrite_file=True, verify_file=False)
 
         cmd = "python {run_dir}/{run_module} --action add_end_marker --run_id {marker}".format(run_dir=self.dut_run_dir,
-            run_module=DUT_LOGANALYZER, marker=marker)
+                                                                                               run_module=DUT_LOGANALYZER, marker=marker)
 
         logger.info("Adding end marker '{}'".format(marker))
         self.dut_engine.run_cmd(cmd)
@@ -96,8 +97,8 @@ class LogAnalyzer:
             raise LogAnalyzerError(result)
 
         # if the number of expected matches is provided
-        if (self.expect_regex and (self.expected_matches_target > 0)
-           and result["total"]["expected_match"] != self.expected_matches_target):
+        if (self.expect_regex and (self.expected_matches_target > 0) and
+                result["total"]["expected_match"] != self.expected_matches_target):
             raise LogAnalyzerError(result)
 
     def rm_log_file(self):
@@ -183,7 +184,7 @@ class LogAnalyzer:
 
         self.dut_engine.run_cmd("sudo rm -f {}".format(join(self.dut_run_dir, DUT_LOGANALYZER)))
         self.dut_engine.copy_file(source_file=LOG_PARSER, dest_file=DUT_LOGANALYZER, file_system=self.dut_run_dir,
-            overwrite_file=True, verify_file=False)
+                                  overwrite_file=True, verify_file=False)
 
         return self._setup_marker()
 
@@ -193,7 +194,7 @@ class LogAnalyzer:
         """
         start_marker = ".".join((self.marker_prefix, time.strftime("%Y-%m-%d-%H:%M:%S", time.gmtime())))
         cmd = "python {run_dir}/{run_module} --action init --run_id {start_marker}".format(run_dir=self.dut_run_dir,
-            run_module=DUT_LOGANALYZER, start_marker=start_marker)
+                                                                                           run_module=DUT_LOGANALYZER, start_marker=start_marker)
 
         logger.info("Adding start marker '{}'".format(start_marker))
         self.dut_engine.run_cmd(cmd)
@@ -323,7 +324,7 @@ class LogAnalyzer:
         """
         folder, src_file = split(self.extracted_syslog)
         self.dut_engine.copy_file(source_file=src_file, dest_file=dest, file_system=folder,
-            overwrite_file=True, verify_file=False, direction='get', disable_md5=True)
+                                  overwrite_file=True, verify_file=False, direction='get', disable_md5=True)
 
     def remove_extracted_log(self):
         """
@@ -362,7 +363,7 @@ class LogAnalyzer:
 
         self.dut_engine.run_cmd("sudo rm -f {}".format(join(self.dut_run_dir, module_name)))
         self.dut_engine.copy_file(source_file=EXTRACT_LOG_MODULE, dest_file=module_name, file_system=self.dut_run_dir,
-            overwrite_file=True, verify_file=False)
+                                  overwrite_file=True, verify_file=False)
         self.dut_engine.run_cmd(cmd)
 
     def print_logs(self):

@@ -3,6 +3,7 @@ import allure
 from ngts.cli_util.stub_engine import StubEngine
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
 
+
 class VlanConfigTemplate:
     """
     This class contain 2 methods for configure and cleanup VLAN related settings.

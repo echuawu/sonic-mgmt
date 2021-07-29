@@ -239,7 +239,7 @@ class TestFec:
         ip_prefix = 20
         for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
             ip_config_dict = dict()
-            dst_ip = ip_template.format(ip_prefix=ip_prefix,ip_index=ip_index)
+            dst_ip = ip_template.format(ip_prefix=ip_prefix, ip_index=ip_index)
             ip_config_dict['dut'] = [{'iface': tested_dut_host_conn_dict["dut_port"],
                                       'ips': [(dst_ip, '24')]}]
             ip_index += 1
@@ -360,7 +360,7 @@ class TestFec:
                       AutonegCommandConstants.WIDTH: self.get_interface_width(interface_type),
                       AutonegCommandConstants.ADMIN: 'up',
                       AutonegCommandConstants.OPER: 'up'
-        }
+                      }
 
     @staticmethod
     def get_interface_width(interface_type):

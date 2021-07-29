@@ -75,6 +75,6 @@ def get_platform_info(topology_obj):
         err_msg = 'NOGA Attribute Devdescription is empty! Fetched data: {}' \
                   ' It should look like: {"hwsku":"ACS-MSN3700","platform":' \
                   '"x86_64-mlnx_msn3700-r0"}'.format(
-            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
+                      topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
         raise Exception(err_msg)
     return show_platform_summary_dict

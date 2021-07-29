@@ -51,6 +51,7 @@ def ports_breakout_modes(dut_engine, cli_object):
 def tested_modes_lb_conf(topology_obj, ports_breakout_modes):
     return get_random_lb_breakout_conf(topology_obj, ports_breakout_modes)
 
+
 def get_random_lb_breakout_conf(topology_obj, ports_breakout_modes):
     """
     :return: A dictionary with different loopback for each supported breakout modes.
@@ -346,8 +347,8 @@ def set_ip_dependency(topology_obj, ports_list, ports_dependencies, cleanup_list
         elif 'portchannel' in dependency_list:
             ip_member = ports_dependencies[port]['portchannel']
             lag_lacp_config_dict = {'dut': [{'type': 'lacp',
-                                            'name': ip_member,
-                                            'members': [port]}]}
+                                             'name': ip_member,
+                                             'members': [port]}]}
             cleanup_list.append((LagLacpConfigTemplate.cleanup, (topology_obj, lag_lacp_config_dict,)))
         ip = '10.0.0.{}'.format(idx)
         ip_config_dict['dut'].append({'iface': ip_member, 'ips': [(ip, '24')]})

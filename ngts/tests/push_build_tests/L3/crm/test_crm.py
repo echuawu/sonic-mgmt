@@ -45,7 +45,7 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask):
     cleanup.append((env.sonic_cli.route.del_route, env.dut_engine, dst, vlan_iface, mask))
     with allure.step('Verify CRM {} counters'.format(crm_resource)):
         retry_call(
-            verify_counters, fargs=[env, crm_resource, used+1, '==', available],
+            verify_counters, fargs=[env, crm_resource, used + 1, '==', available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.pop()
@@ -86,12 +86,12 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr
     cleanup.append((env.sonic_cli.ip.add_ip_neigh, env.dut_engine, neighbor, neigh_mac_addr, vlan_iface))
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
         retry_call(
-            verify_counters, fargs=[env, nexthop_resource, nexthop_used+1, '>=', nexthop_available],
+            verify_counters, fargs=[env, nexthop_resource, nexthop_used + 1, '>=', nexthop_available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(neighbor_resource)):
         retry_call(
-            verify_counters, fargs=[env, neighbor_resource, neighbor_used+1, '>=', neighbor_available],
+            verify_counters, fargs=[env, neighbor_resource, neighbor_used + 1, '>=', neighbor_available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.pop()
@@ -153,12 +153,12 @@ def test_crm_nexthop_group_and_member(env, cleanup):
 
     with allure.step('Verify CRM nexthop_group_member counters'):
         retry_call(
-            verify_counters, fargs=[env, group_member_res, group_member_used+2, '==', group_member_available],
+            verify_counters, fargs=[env, group_member_res, group_member_used + 2, '==', group_member_available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM nexthop_group counters'):
         retry_call(
-            verify_counters, fargs=[env, group_res, group_used+1, '==', group_available],
+            verify_counters, fargs=[env, group_res, group_used + 1, '==', group_available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
@@ -200,7 +200,7 @@ def test_crm_fdb_entry(env, cleanup, interfaces):
 
     with allure.step('Verify CRM {} counters'.format(fdb_resource)):
         retry_call(
-            verify_counters, fargs=[env, fdb_resource, fdb_used+1, '==', fdb_available],
+            verify_counters, fargs=[env, fdb_resource, fdb_used + 1, '==', fdb_available],
             tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 

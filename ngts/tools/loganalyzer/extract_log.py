@@ -1,5 +1,12 @@
 #!/usr/bin/python
 
+import locale
+import argparse
+from datetime import datetime
+import sys
+import re
+import gzip
+import os
 DOCUMENTATION = '''
 module:  extract_log
 version_added:  "1.0"
@@ -31,14 +38,6 @@ Options:
       Default: None
 
 '''
-
-import os
-import gzip
-import re
-import sys
-from datetime import datetime
-import argparse
-import locale
 
 
 def extract_lines(directory, filename, target_string):
@@ -87,7 +86,7 @@ def convert_date(fct, s):
         # but we still perform some wrap around test to avoid the race condition
         # 183 is the number of days in half year, just a reasonable choice
         if (dt - fct).days > 183:
-            dt.replace(year = dt.year - 1)
+            dt.replace(year=dt.year - 1)
     else:
         re_result = re.findall(r'^\d{4}-\d{2}-\d{2}\.\d{2}:\d{2}:\d{2}\.\d{6}', s)
         str_date = re_result[0]
@@ -137,7 +136,7 @@ def list_files(directory, prefixname):
     (Comparator used is @filename_comparator)"""
 
     return sorted([filename for filename in os.listdir(directory)
-        if filename.startswith(prefixname)], key=cmp_to_key(filename_comparator))
+                   if filename.startswith(prefixname)], key=cmp_to_key(filename_comparator))
 
 
 def cmp_to_key(mycmp):
@@ -145,16 +144,22 @@ def cmp_to_key(mycmp):
     class Comparator:
         def __init__(self, obj, *args):
             self.obj = obj
+
         def __lt__(self, other):
             return mycmp(self.obj, other.obj) < 0
+
         def __gt__(self, other):
             return mycmp(self.obj, other.obj) > 0
+
         def __eq__(self, other):
             return mycmp(self.obj, other.obj) == 0
+
         def __le__(self, other):
             return mycmp(self.obj, other.obj) <= 0
+
         def __ge__(self, other):
             return mycmp(self.obj, other.obj) >= 0
+
         def __ne__(self, other):
             return mycmp(self.obj, other.obj) != 0
     return Comparator
@@ -215,6 +220,7 @@ def extract_log(directory, prefixname, target_string, target_filename):
     files_to_copy = calculate_files_to_copy(filenames, file_with_latest_line)
     combine_logs_and_save(directory, files_to_copy, latest_line, target_filename)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--directory', help='syslog files directory', required=True)
@@ -224,6 +230,7 @@ def main():
     args = parser.parse_args()
 
     extract_log(args.directory, args.file_prefix, args.start_string, args.target_filename)
+
 
 if __name__ == '__main__':
     main()

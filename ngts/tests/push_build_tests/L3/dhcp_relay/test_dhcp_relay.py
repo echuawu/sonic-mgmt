@@ -104,8 +104,8 @@ class TestDHCPRelay:
                                   [
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': tcpdump_filter_release, 'count': 1}}
-                                  ]
-                              }
+                ]
+                }
                 ScapyChecker(self.players, validation).run_validation()
 
         except BaseException as err:
@@ -129,10 +129,10 @@ class TestDHCPRelay:
                                                             'count': 3},
                                               'receivers':
                                                   [
-                                                       {'receiver': 'ha', 'receive_args':
-                                                           {'interface': self.dhclient_iface,
-                                                            'filter': tcpdump_filter_nak, 'count': 1}}
-                                                  ]
+                                                  {'receiver': 'ha', 'receive_args':
+                                                   {'interface': self.dhclient_iface,
+                                                    'filter': tcpdump_filter_nak, 'count': 1}}
+                                              ]
                                               }
                 ScapyChecker(self.players, validation_nak_default_vrf).run_validation()
         except BaseException as err:
@@ -157,7 +157,7 @@ class TestDHCPRelay:
                                                            'receive_args': {'interface': self.dhcp_server_iface,
                                                                             'filter': tcpdump_filter_decline,
                                                                             'count': 1}}
-                                                      ]
+                                                  ]
                                                   }
                 ScapyChecker(self.players, validation_decline_default_vrf).run_validation()
         except BaseException as err:
@@ -181,7 +181,7 @@ class TestDHCPRelay:
                                                          {'receiver': 'hb',
                                                           'receive_args': {'interface': self.dhcp_server_iface,
                                                                            'filter': tcpdump_filter_inform, 'count': 1}}
-                                                     ]
+                                                 ]
                                                  }
                 ScapyChecker(self.players, validation_inform_default_vrf).run_validation()
         except BaseException as err:
@@ -196,7 +196,7 @@ class TestDHCPRelay:
             with allure.step('Trying to GET ip address from DHCP server when DHCP request sent to not broadcast address'):
                 dhclient_with_server_ip_run_cmd = 'dhclient {} -cf dhclient.conf -s {} -v'.format(self.dhclient_iface,
                                                                                                   self.dut_dhclient_vlan_ip)
-                dhcp_client_output =self.dhcp_client_engine.run_cmd(dhclient_with_server_ip_run_cmd)
+                dhcp_client_output = self.dhcp_client_engine.run_cmd(dhclient_with_server_ip_run_cmd)
                 assert self.expected_ip in dhcp_client_output
                 assert LinuxDhcpCli.dhcp_client_no_offers not in dhcp_client_output
 
@@ -236,7 +236,7 @@ class TestDHCPRelay:
                                                               'receive_args': {'interface': self.dhclient_iface,
                                                                                'filter': tcpdump_filter_ak_on_client,
                                                                                'count': 1}}
-                                                         ]
+                                                     ]
                                                      }
                 ScapyChecker(self.players, validation_custom_request_src_prt).run_validation()
         except BaseException as err:
@@ -269,7 +269,7 @@ class TestDHCPRelay:
                                                           'receive_args': {'interface': self.dhcp_server_iface,
                                                                            'filter': tcpdump_filter_empty_request,
                                                                            'count': 1}}
-                                                     ]
+                                                 ]
                                                  }
                 scapy_checker = ScapyChecker(self.players, validation_empty_dhcp_request)
                 retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=5, logger=logger)
@@ -285,8 +285,8 @@ class TestDHCPRelay:
         try:
             with allure.step('Validate UDP message with SRC and DST port the same as DHCP not forwarded to DHCP server'):
                 # PING below need to prevent issue when packet not forwarded to host from switch
-                validation_ping = {'sender': 'ha', 'args': {'count': 3,  'dst': '30.0.0.1'}}
-                retry_call(PingChecker(self.players, validation_ping).run_validation, fargs=[], tries=2,  delay=5,
+                validation_ping = {'sender': 'ha', 'args': {'count': 3, 'dst': '30.0.0.1'}}
+                retry_call(PingChecker(self.players, validation_ping).run_validation, fargs=[], tries=2, delay=5,
                            logger=logger)
                 validation_udp_packet = {'sender': 'ha', 'send_args': {'interface': self.dhclient_iface,
                                                                        'packets': udp_pkt, 'count': 3},
@@ -298,8 +298,8 @@ class TestDHCPRelay:
                                                  {'receiver': 'hb',
                                                   'receive_args': {'interface': self.dhcp_server_iface,
                                                                    'filter': tcpdump_filter_src_1_2_3_4, 'count': 0}}
-                                             ]
-                                         }
+                ]
+                }
                 ScapyChecker(self.players, validation_udp_packet).run_validation()
         except BaseException as err:
             raise AssertionError(err)
@@ -313,8 +313,8 @@ class TestDHCPRelay:
 
         pkt_with_random_payload = 'Ether(src="{}", dst="{}")/IP(dst="{}",src="{}")/UDP(sport={},dport={})/' \
                                   'BOOTP(chaddr={}, xid=RandInt())/Raw(RandString(size=1024))'.format(
-            self.dhclient_mac, broadcast_mac, broadcast_ip, dhclient_default_ip, dhcp_default_sport,
-            dhcp_default_dport, self.chaddr)
+                                      self.dhclient_mac, broadcast_mac, broadcast_ip, dhclient_default_ip, dhcp_default_sport,
+                                      dhcp_default_dport, self.chaddr)
 
         try:
             with allure.step('Send bootp packet with invalid payload'):
@@ -327,7 +327,7 @@ class TestDHCPRelay:
                                                        'receive_args': {'interface': self.dhcp_server_iface,
                                                                         'filter': tcpdump_filter_random_payload,
                                                                         'count': 1}}
-                                                  ]
+                                              ]
                                               }
                 ScapyChecker(self.players, validation_invalid_payload).run_validation()
         except BaseException as err:

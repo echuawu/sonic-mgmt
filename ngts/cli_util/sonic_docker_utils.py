@@ -2,6 +2,7 @@ import tempfile
 import json
 import os
 
+
 class SwssContainer:
     @staticmethod
     def apply_config(engine, config_dict):
@@ -13,7 +14,7 @@ class SwssContainer:
             dst_dir = "/tmp"
             file_name = next(tempfile._get_candidate_names()) + ".json"
             engine.copy_file(source_file=fp.name, dest_file=file_name, file_system=dst_dir,
-                overwrite_file=True, verify_file=False)
+                             overwrite_file=True, verify_file=False)
 
             # Copy JSON config inside swss container
             cmd = "docker cp {} swss:/".format(os.path.join(dst_dir, file_name))

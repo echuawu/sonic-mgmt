@@ -221,8 +221,8 @@ class P4SamplingUtils:
                                     {'receiver': '{}'.format(port_traffic_params['receiver']),
                                      'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
                                                       'filter': port_traffic_params['filter'], 'count': expect_mirror_count}}
-                                ]
-                            }
+            ]
+            }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
             scapy_r.run_validation()
 
@@ -247,15 +247,15 @@ class P4SamplingUtils:
             flow_entry_pkt = 'Ether()/IP(src="{}",dst="{}", proto={}, chksum={})/TCP(sport={}, dport={})'.format(
                 src_ip, dst_ip, proto, chksum, src_port, dst_port)
             validation = {'sender': '{}'.format(flow_traffic_params['sender']),
-                            'send_args': {'interface': "{}".format(flow_traffic_params['src_port']),
-                                          'packets': flow_entry_pkt, 'count': count},
-                            'receivers':
-                                [
+                          'send_args': {'interface': "{}".format(flow_traffic_params['src_port']),
+                                        'packets': flow_entry_pkt, 'count': count},
+                          'receivers':
+                          [
                                     {'receiver': '{}'.format(flow_traffic_params['receiver']),
                                      'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
                                                       'filter': flow_traffic_params['filter'], 'count': expect_mirror_count}}
-                                ]
-                            }
+            ]
+            }
             scapy_r = ScapyChecker(topology_obj.players, validation)
             scapy_r.run_validation()
 
@@ -402,12 +402,12 @@ class P4SamplingUtils:
         """
         for port_traffic_params in port_traffic_params_list:
             validation_r = {'receivers':
-                [
-                    {'receiver': '{}'.format(port_traffic_params['receiver']),
-                     'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
-                                      'filter': port_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
-                ]
-            }
+                            [
+                                {'receiver': '{}'.format(port_traffic_params['receiver']),
+                                 'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
+                                                  'filter': port_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
+                            ]
+                            }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
             scapy_r.run_validation()
 
@@ -423,12 +423,12 @@ class P4SamplingUtils:
         """
         for flow_traffic_params in flow_traffic_params_list:
             validation_r = {'receivers':
-                [
-                    {'receiver': '{}'.format(flow_traffic_params['receiver']),
-                     'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
-                                      'filter': flow_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
-                ]
-            }
+                            [
+                                {'receiver': '{}'.format(flow_traffic_params['receiver']),
+                                 'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
+                                                  'filter': flow_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
+                            ]
+                            }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
             scapy_r.run_validation()
 

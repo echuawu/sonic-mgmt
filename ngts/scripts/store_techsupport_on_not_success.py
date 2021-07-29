@@ -42,7 +42,7 @@ def test_store_techsupport_on_not_success(topology_obj, setup_name, session_id_a
 
     with allure.step('Copy dump: {} to log folder {}'.format(tarball_file_name, folder_path)):
         dest_file = folder_path + '/sysdump_' + tarball_file_name
-        logger.info('Copy dump {} to log folder {}'.format(tar_file,folder_path))
+        logger.info('Copy dump {} to log folder {}'.format(tar_file, folder_path))
         dut_engine.copy_file(source_file=tar_file,
                              dest_file=dest_file,
                              file_system='/',

@@ -149,8 +149,8 @@ def port_traffic_params_list(engines, interfaces, topology_obj, table_params):
     chksum_type = 'match'
     indices = [0]
     port_traffic_params_list = TrafficParams.prepare_port_table_send_receive_traffic_params(interfaces, topology_obj,
-                                                                              table_params.port_entry, indices,
-                                                                              chksum_type)
+                                                                                            table_params.port_entry, indices,
+                                                                                            chksum_type)
     return port_traffic_params_list
 
 
@@ -159,8 +159,8 @@ def flow_traffic_params_list(engines, interfaces, topology_obj, table_params):
     chksum_type = 'match'
     indices = [0]
     _, flow_traffic_params_list = TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj,
-                                                                                 table_params.flow_entry, indices,
-                                                                                 chksum_type)
+                                                                                               table_params.flow_entry, indices,
+                                                                                               chksum_type)
     return flow_traffic_params_list
 
 

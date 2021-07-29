@@ -170,7 +170,7 @@ class SonicGeneralCli(GeneralCliCommon):
             try:
                 SonicGeneralCli.verify_dockers_are_up(engine)
                 break
-            except:
+            except BaseException:
                 logger.error('Catched exception {} during verifing docker conatiners are up.'
                              ' Rebooting dut and try again, try number {}'.format(traceback.print_exc(),
                                                                                   initial_count - retries + 1))
@@ -191,7 +191,7 @@ class SonicGeneralCli(GeneralCliCommon):
         for docker in dockers_list:
             try:
                 engine.run_cmd('docker ps | grep {}'.format(docker), validate=True)
-            except:
+            except BaseException:
                 raise Exception("{} docker is not up".format(docker))
 
     @staticmethod
@@ -364,7 +364,6 @@ class SonicGeneralCli(GeneralCliCommon):
             logger.info('Waiting for CLI bring-up after reload')
             time.sleep(sonic_cli_ssh_connect_timeout)
 
-
     @staticmethod
     def check_is_alive_and_revive(topology_obj):
         ip = topology_obj.players['dut']['engine'].ip
@@ -417,7 +416,6 @@ class SonicGeneralCli(GeneralCliCommon):
             time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
         else:
             logger.info('Switch is in ONIE install mode')
-
 
     @staticmethod
     def prepare_for_installation(topology_obj):
@@ -475,7 +473,7 @@ class SonicGeneralCli(GeneralCliCommon):
         config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name)
         mask = _get_subnet_mask(ip, SonicIpCli.get_interface_ips(engine, 'eth0'))
         routes = SonicRouteCli.show_ip_route(engine, route_type='kernel')
-        default_gw = re.search('0\.0\.0\.0/0 \[0/0\] via (.*), eth0', routes)
+        default_gw = re.search(r'0\.0\.0\.0/0 \[0/0\] via (.*), eth0', routes)
         config_db_json[ConfigDbJsonConst.MGMT_INTERFACE] =\
             json.loads(ConfigDbJsonConst.MGMT_INTERFACE_VALUE % (ip, mask, default_gw.group(1)))
 
@@ -500,7 +498,7 @@ class SonicGeneralCli(GeneralCliCommon):
         return config_db_file
 
     @staticmethod
-    def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON ):
+    def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
         config_db_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, config_db_json_file_name))
         with open(config_db_path) as config_db_json_file:
             config_db_json = json.load(config_db_json_file)
@@ -509,8 +507,8 @@ class SonicGeneralCli(GeneralCliCommon):
     @staticmethod
     def get_init_config_db_json_obj(dut_engine, hwsku):
         init_config_db = \
-                dut_engine.run_cmd("sonic-cfggen -k {} -H -j /etc/sonic/init_cfg.json --print-data".format(hwsku),
-                                   print_output=False)
+            dut_engine.run_cmd("sonic-cfggen -k {} -H -j /etc/sonic/init_cfg.json --print-data".format(hwsku),
+                               print_output=False)
         init_config_db_json = json.loads(init_config_db)
         return init_config_db_json
 
@@ -530,7 +528,7 @@ class SonicGeneralCli(GeneralCliCommon):
         breakout_cfg_dict = init_config_db_json.get("BREAKOUT_CFG")
         platform_json_obj = json_file_helper.get_platform_json(dut_engine, cli_object)
         parsed_platform_json_by_breakout_modes = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_obj,
-                                                                     parse_by_breakout_modes=True)
+                                                                                     parse_by_breakout_modes=True)
         ports_for_update = get_all_split_ports_parents(config_db_json)
         for port, split_num in ports_for_update:
             breakout_cfg_dict[port]["brkout_mode"] = get_port_current_breakout_mode(config_db_json, port,
@@ -638,12 +636,12 @@ class SonicGeneralCli(GeneralCliCommon):
         return ports_speeds_by_modes_info
 
     @staticmethod
-    def generate_mock_ports_speeds(topology_obj,  parse_by_breakout_modes=False):
+    def generate_mock_ports_speeds(topology_obj, parse_by_breakout_modes=False):
         if parse_by_breakout_modes:
             raise AssertionError("This version doesn't support platform.json,\n"
                                  "there no mock option for interfaces breakout mode option")
         else:
-            mock_ports_speeds_by_modes_info ={}
+            mock_ports_speeds_by_modes_info = {}
             port_list = get_dut_default_ports_list(topology_obj)
             for port in port_list:
                 mock_ports_speeds_by_modes_info[port] = {
@@ -685,7 +683,6 @@ class SonicGeneralCli(GeneralCliCommon):
                                                               column_ofset=2,
                                                               output_key='name')
         return warm_restart_state_dict
-
 
     @staticmethod
     def get_base_and_target_images(dut_engine):

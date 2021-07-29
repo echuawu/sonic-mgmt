@@ -14,8 +14,8 @@ logger = logging.getLogger()
     "install_cmd_postfix, version, is_force_uninstalled",
     [
         (APP_INFO["name"], None, True),
-        ("{}=={}".format(APP_INFO["name"], APP_INFO["normal2"]["version"]),  APP_INFO["normal2"]["version"], False),
-        ("{}@{}".format(APP_INFO["name"], APP_INFO["normal1"]["digest"]),  APP_INFO["normal1"]["version"], True),
+        ("{}=={}".format(APP_INFO["name"], APP_INFO["normal2"]["version"]), APP_INFO["normal2"]["version"], False),
+        ("{}@{}".format(APP_INFO["name"], APP_INFO["normal1"]["digest"]), APP_INFO["normal1"]["version"], True),
         ("{}=={} --force".format(APP_INFO["name"], APP_INFO["normal2"]["version"]), APP_INFO["normal2"]["version"], True),
     ],
 )
@@ -74,11 +74,11 @@ def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name,
     """
     expected_error_msgs = {
         "invalid_manifest": "Failed to install {}=={}: \"name\" is a required field but it is missing".format(
-             APP_INFO["name"], APP_INFO["invalid_manifest"]["version"]),
+            APP_INFO["name"], APP_INFO["invalid_manifest"]["version"]),
         "missing_dependency": "Failed to install {}=={}: Package {} requires missing-dependency150.0.0 but it is not "
                               "installed".format(APP_INFO["name"], APP_INFO["missing_dependency"]["version"], APP_INFO["name"]),
         "package_conflict": "Failed to install {}=={}: Package {} conflicts with syncd>0.0.0 but version".format(
-             APP_INFO["name"], APP_INFO["package_conflict"]["version"], APP_INFO["name"])
+            APP_INFO["name"], APP_INFO["package_conflict"]["version"], APP_INFO["name"])
     }
     dut_engine = engines.dut
     logger.info("Invalid manifest: install {} with version {}".format(app_name, version))

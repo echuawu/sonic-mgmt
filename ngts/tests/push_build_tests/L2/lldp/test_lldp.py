@@ -46,7 +46,7 @@ def verify_neighbour_ports(topology_obj, engines, dut_ports_interconnects):
         port = topology_obj.ports[port_noga_alias]
         port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
         with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
-                                 .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
+                         .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
             if is_port_connected_to_host(port_noga_alias):
                 verify_lldp_table_info_for_host_port(topology_obj, lldp_table_info, port,
                                                      neighbor_port_noga_alias,
@@ -84,7 +84,8 @@ def verify_lldp_ports_match_topology_ports(dut_ports_interconnects, topology_obj
         dut_ports = list(map(lambda x: topology_obj.ports[x], dut_ports_interconnects.keys()))
         lldp_ports = list(lldp_table_info.keys())
         msg = "Topology ports list: {} doesnt match \n lldp ports list: {}".format(dut_ports, lldp_ports)
-        compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
+
+        def compare(x, y): return collections.Counter(x) == collections.Counter(y)
         assert compare(lldp_ports, dut_ports), msg
 
 
@@ -144,7 +145,7 @@ def verify_lldp_table_info_for_port(port, lldp_table_info, topo_hostname, topo_r
     :param topo_neighbor_port_capability: port capability in topology
     :return:  None, raise AssertionError in case of validation fails
     """
-    lldp_hostname,  lldp_remote_port_id, lldp_port_capabilities, lldp_neighbor_port_descr = lldp_table_info[port]
+    lldp_hostname, lldp_remote_port_id, lldp_port_capabilities, lldp_neighbor_port_descr = lldp_table_info[port]
     logger.info("Neighbor of port {} according to LLDP is: RemoteDevice: {} RemotePortID: {} RemotePortDescr: {}"
                 .format(port, lldp_hostname, lldp_remote_port_id, lldp_neighbor_port_descr))
     logger.info("Neighbor of port {} according to topology is: RemoteDevice: {} RemotePortID: {} RemotePortDescr: {}"
@@ -235,7 +236,7 @@ def verify_lldp_neighbor_info(topology_obj, cli_object, engines,
     port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
     lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(engines.dut, port)
     with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
-                 .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
+                     .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
         if is_port_connected_to_host(port_noga_alias):
             verify_lldp_neighbor_info_for_host_port(topology_obj, lldp_info, port,
                                                     neighbor_port_noga_alias, port_neighbor)
@@ -426,7 +427,7 @@ def test_lldp_change_transmit_delay(topology_obj, engines):
             logger.info("Verify LLDP service resume within {} seconds".format(interval))
             with allure.step("Expect test LLDP to pass within {} seconds after LLDP is resume".format(interval)):
                 retry_call(verify_lldp_info_for_host_dut_ports, fargs=[topology_obj],
-                           tries=int(interval/10)+1, delay=10, logger=logger)
+                           tries=int(interval / 10) + 1, delay=10, logger=logger)
 
 
 def verify_lldp_info_for_host_dut_ports(topology_obj):

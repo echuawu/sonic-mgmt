@@ -32,7 +32,7 @@ def test_dpb_configuration_interop(topology_obj, dut_engine, cli_object, ports_b
         ports_dependencies = set_dependencies(topology_obj, dependency_list, ports_list, cleanup_list)
         verify_breakout_without_force(dut_engine, cli_object, ports_breakout_modes,
                                       tested_modes_lb_conf, ports_dependencies)
-        breakout_ports_conf = verify_breakout_with_force(topology_obj, dut_engine, cli_object,  ports_breakout_modes,
+        breakout_ports_conf = verify_breakout_with_force(topology_obj, dut_engine, cli_object, ports_breakout_modes,
                                                          cleanup_list, tested_modes_lb_conf,
                                                          dependency_list, ports_dependencies)
         reboot_type = random.choice(
@@ -134,7 +134,7 @@ def verify_breakout_failed_due_dependency(dut_engine, cli_object, breakout_mode,
     """
     with allure.step('Configure breakout without force on port: {}'.format(port)):
         output = cli_object.interface.configure_dpb_on_port(dut_engine, port, breakout_mode,
-                                                                 expect_error=True, force=False)
+                                                            expect_error=True, force=False)
     verify_dependencies_in_output(port_dependencies, output)
 
 
@@ -350,8 +350,6 @@ def verify_remove_breakout_with_force(topology_obj, dut_engine, cli_object,
     with allure.step('Verify remove breakout succeeded and breakout ports no longer exist'):
         verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf=tested_modes_lb_conf)
     verify_port_speed_and_status(cli_object, dut_engine, breakout_ports_conf)
-    verify_no_dependencies_on_ports(dut_engine, cli_object, dependency_list,  ports_dependencies)
+    verify_no_dependencies_on_ports(dut_engine, cli_object, dependency_list, ports_dependencies)
     send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, tested_modes_lb_conf.values())
     return breakout_ports_conf
-
-

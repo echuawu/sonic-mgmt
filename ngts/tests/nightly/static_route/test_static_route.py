@@ -185,7 +185,7 @@ def test_scale_static_route(engines, players, interfaces, static_route_configura
 
     ipv4_list, ipv6_list = static_route_configuration
     # Instead of use big list with IPs use one smaller with 1k IPs(in other case - scapy will fail, too many packets)
-    validation_list_ipv4_1k = [ipv4_list[0], ipv4_list[-1]] + random.sample(ipv4_list, 998) 
+    validation_list_ipv4_1k = [ipv4_list[0], ipv4_list[-1]] + random.sample(ipv4_list, 998)
     validation_list_ipv6_1k = [ipv6_list[0], ipv6_list[-1]] + random.sample(ipv6_list, 998)
     tcpdump_filter = 'udp src port 1234 and dst port 5678'
     pcap_ipv4_file_path = '/tmp/1k_ipv4_packets.pcap'
@@ -203,7 +203,7 @@ def test_scale_static_route(engines, players, interfaces, static_route_configura
 
         with allure.step('Check static routes IPv4 on switch by sending traffic'):
 
-            ipv4_pkts = Ether(dst=dut_mac)/IP(src='1.2.3.4', dst=validation_list_ipv4_1k)/UDP(sport=1234, dport=5678)
+            ipv4_pkts = Ether(dst=dut_mac) / IP(src='1.2.3.4', dst=validation_list_ipv4_1k) / UDP(sport=1234, dport=5678)
             wrpcap(pcap_ipv4_file_path, ipv4_pkts)
 
             do_traffic_validation(sender_host='ha', sender_iface=interfaces.ha_dut_1, pcap_file=pcap_ipv4_file_path,
@@ -211,7 +211,7 @@ def test_scale_static_route(engines, players, interfaces, static_route_configura
                                   expected_packets=len(validation_list_ipv4_1k), players=players)
 
         with allure.step('Check static routes IPv6 on switch by sending traffic'):
-            ipv6_pkts = Ether(dst=dut_mac)/IPv6(src='1500::2', dst=validation_list_ipv6_1k)/UDP(sport=1234, dport=5678)
+            ipv6_pkts = Ether(dst=dut_mac) / IPv6(src='1500::2', dst=validation_list_ipv6_1k) / UDP(sport=1234, dport=5678)
             wrpcap(pcap_ipv6_file_path, ipv6_pkts)
 
             do_traffic_validation(sender_host='ha', sender_iface=interfaces.ha_dut_1, pcap_file=pcap_ipv6_file_path,
@@ -241,8 +241,8 @@ def do_traffic_validation(sender_host, sender_iface, pcap_file, receiver_host, r
                                                                        'filter': tcpdump_filter,
                                                                        'count': expected_packets,
                                                                        'timeout': 20}},
-                      ]
-                  }
+    ]
+    }
     logger.info('Sending traffic')
     scapy_checker = ScapyChecker(players, validation)
     retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=10, logger=logger)

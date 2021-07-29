@@ -8,7 +8,7 @@ logger = logging.getLogger()
 class LinuxARPCache:
     @staticmethod
     def _get_value_from_output(msg):
-        re_pattern = re.compile("\d*$")
+        re_pattern = re.compile(r"\d*$")
         value = int(re_pattern.search(msg).group(0))
         return value
 

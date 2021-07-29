@@ -791,8 +791,8 @@ def traffic_validation(topology_obj, traffic_type):
                           {'receiver': 'hb',
                            'receive_args': {'interface': 'bond0.50',
                                             'filter': tcpdump_filter, 'count': 100}}
-                      ]
-                  }
+    ]
+    }
     ScapyChecker(topology_obj.players, validation).run_validation()
 
 

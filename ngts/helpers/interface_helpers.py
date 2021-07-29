@@ -6,7 +6,7 @@ def get_speed_in_G_format(speed_in_kb):
     :param speed_in_kb: i.e, 25000
     :return: speed in G format, i.e, 25G
     """
-    return "{}G".format(int(int(speed_in_kb)/1000))
+    return "{}G".format(int(int(speed_in_kb) / 1000))
 
 
 def get_alias_number(port_alias):
@@ -14,14 +14,14 @@ def get_alias_number(port_alias):
     :param port_alias:  the sonic port alias, e.g. 'etp1'
     :return: the number in the alias, e.g. 1
     """
-    return re.search('etp(\d+)', port_alias).group(1)
+    return re.search(r'etp(\d+)', port_alias).group(1)
 
 
 def get_dut_default_ports_list(topology_obj):
     base_ports_list = []
     dut_ports = topology_obj.players_all_ports['dut']
     for port_alias, port_name in topology_obj.ports.items():
-        if port_name in dut_ports and not re.search("dut-lb-splt\d-p\d-[^1]", port_alias):
+        if port_name in dut_ports and not re.search(r"dut-lb-splt\d-p\d-[^1]", port_alias):
             base_ports_list.append(port_name)
     return base_ports_list
 

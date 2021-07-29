@@ -44,4 +44,3 @@ def test_app_start_delay_after_reboot(add_app_into_repo, ignore_expected_loganal
             verify_app_container_start_delay(dut_engine, app_name, delay_time)
     except Exception as err:
         raise AssertionError(err)
-

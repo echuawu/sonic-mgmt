@@ -10,8 +10,8 @@ path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
 sys.path.append(sonic_mgmt_path)
 
-from ngts.constants.constants import InfraConst
-from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
+from ngts.constants.constants import InfraConst  # noqa: E402
+from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name  # noqa: E402
 
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'

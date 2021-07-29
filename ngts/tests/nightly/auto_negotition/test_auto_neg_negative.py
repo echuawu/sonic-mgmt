@@ -21,7 +21,7 @@ INVALID_AUTO_NEG_MODE = r"enable"
 INVALID_PORT_ERR_REGEX = r"Invalid\s+port"
 INVALID_SPEED_ERR_REGEX = r"Invalid\s+speed\s+specified"
 INVALID_AUTO_NEG_MODE_ERR_REGEX = r'Error:\s+Invalid\s+value\s+for\s+"<mode>":\s+invalid choice:' \
-                            r'\s+enable.\s\(choose\s+from\s+enabled,\s+disabled\)'
+    r'\s+enable.\s\(choose\s+from\s+enabled,\s+disabled\)'
 
 
 def test_negative_config_interface_autoneg(topology_obj, engines, cli_objects, interfaces):
@@ -59,7 +59,7 @@ def get_invalid_interface(topology_obj):
     ports = topology_obj.players_all_ports['dut']
     port_num = list(map(lambda port: int(re.search(r"Ethernet(\d+)", port).group(1)), ports))
     max_port = max(port_num)
-    return "Ethernet{}".format(max_port+1)
+    return "Ethernet{}".format(max_port + 1)
 
 
 def test_negative_config_advertised_speeds(topology_obj, engines, cli_objects, tested_lb_dict,
