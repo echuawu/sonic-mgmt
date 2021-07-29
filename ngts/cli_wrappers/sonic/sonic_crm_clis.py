@@ -10,8 +10,10 @@ CRM_DEFAULT_INTERVAL = 300
 class CrmThresholdTypeError(Exception):
     pass
 
+
 class CrmThresholdValueError(Exception):
     pass
+
 
 class CrmThresholdResourceError(Exception):
     pass
@@ -169,7 +171,7 @@ class SonicCrmCli:
         """
         output = engine.run_cmd('crm show summary')
         if 'error' in output.lower():
-            logger.warning('CRM was not enabled yet, returning default {} sec. interval'.foramt(CRM_DEFAULT_INTERVAL))
+            logger.warning('CRM was not enabled yet, returning default {} sec. interval'.format(CRM_DEFAULT_INTERVAL))
             return CRM_DEFAULT_INTERVAL
         else:
             return int(engine.run_cmd('crm show summary | awk \'{print $3}\'').strip())
@@ -206,20 +208,42 @@ class SonicCrmCli:
         """
         result = {'main_resources': {}, 'acl_resources': [], 'table_resources': []}
         output = engine.run_cmd("crm show resources all")
-        result['main_resources'] = generic_sonic_output_parser(output, headers_ofset=1,
-                                                               len_ofset=2,
-                                                               data_ofset_from_start=3,
-                                                               data_ofset_from_start_end=12,
+        first_table, rest_output = SonicCrmCli.extract_first_table_from_output(output)
+        result['main_resources'] = generic_sonic_output_parser(first_table, headers_ofset=0,
+                                                               len_ofset=1,
+                                                               data_ofset_from_start=2,
+                                                               data_ofset_from_end=0,
                                                                column_ofset=2,
                                                                output_key='Resource Name')
-        result['acl_resources'] = generic_sonic_output_parser(output, headers_ofset=14, len_ofset=15,
-                                                              data_ofset_from_start=16,
-                                                              data_ofset_from_end=-4,
+
+        first_table, rest_output = SonicCrmCli.extract_first_table_from_output(rest_output)
+        result['acl_resources'] = generic_sonic_output_parser(first_table, headers_ofset=0, len_ofset=1,
+                                                              data_ofset_from_start=2,
+                                                              data_ofset_from_end=0,
                                                               column_ofset=2,
                                                               output_key=None)
-        result['table_resources'] = generic_sonic_output_parser(output, headers_ofset=38, len_ofset=39,
-                                                                data_ofset_from_start=40,
+
+        result['table_resources'] = generic_sonic_output_parser(rest_output, headers_ofset=1, len_ofset=2,
+                                                                data_ofset_from_start=3,
                                                                 data_ofset_from_end=0,
                                                                 column_ofset=2,
                                                                 output_key=None)
         return result
+
+    @staticmethod
+    def extract_first_table_from_output(output):
+        """
+        Extracting first table from output of tables
+        :param output: string of tables
+        return first table in string type and rest output in string type
+        """
+        empty_line = ""
+        split_output = output.splitlines()[1:]
+        if empty_line in split_output:
+            first_table_end_index = split_output.index(empty_line)
+            first_table = split_output[:first_table_end_index]
+            rest_output = split_output[first_table_end_index + 1:]
+        else:
+            first_table = split_output
+            rest_output = ''
+        return '\n'.join(first_table), '\n'.join(rest_output)
