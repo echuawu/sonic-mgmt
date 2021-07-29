@@ -105,12 +105,6 @@ tests/nightly/static_route/test_static_route.py:
   - Platform:
     - simx
 
-tests/nightly/fec:
-  - Platform:
-    - 3420
-    - 2410
-    - 2010
-
 # PushGate
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   - Platform:
@@ -171,3 +165,7 @@ tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_
 tests/nightly/fec/test_fec.py::test_negative_fec:
   - Redmine:
     - 2740606
+
+tests/nightly/fec:
+  - Platform:
+    - 4700
