@@ -36,6 +36,10 @@ def ignore_expected_loganalyzer_exceptions(loganalyzer):
                                                                "..", "..", "..",
                                                                "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
         loganalyzer.ignore_regex.extend(ignore_regex_list)
+        ignoreRegex = [
+            ".*ERR.*hostcfgd: \'sudo systemctl stop macsec.service\' failed. RC: 5, output: None.*"
+        ]
+        loganalyzer.ignore_regex.extend(ignoreRegex)
 
 
 @pytest.fixture(scope='package', autouse=True)
