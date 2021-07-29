@@ -17,7 +17,14 @@ ecmp/test_fgnhg.py:
     - msn2
 
 # everflow
-everflow/test_everflow_testbed.py::EverflowIPv4Tests::test_everflow_dscp_with_policer:
+everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
+  - Redmine:
+    - 2739322
+    Platform:
+    - msn3
+    - msn4
+
+everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_everflow_dscp_with_policer:
   - Redmine:
     - 2739322
     Platform:
