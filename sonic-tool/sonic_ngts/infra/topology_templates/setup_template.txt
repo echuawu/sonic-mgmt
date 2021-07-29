@@ -44,7 +44,7 @@
         <sonic_mgmt_repo_url> http://10.7.77.140:8080/switchx/sonic/sonic-mgmt </sonic_mgmt_repo_url>
         <sonic_mgmt_repo_name> sonic-mgmt </sonic_mgmt_repo_name>
         <sonic_mgmt_repo_branch> develop </sonic_mgmt_repo_branch>
-        <sonic_mgmt_workspace> /workspace/{{tm.setup_name}}/ </sonic_mgmt_workspace>
+        <sonic_mgmt_workspace> /root/mars/workspace/ </sonic_mgmt_workspace>
 
         <dump_log_since> "12 hour ago" </dump_log_since>
         <dump_backup_location> /auto/sw_system_project/sonic/dut_logs </dump_backup_location>
