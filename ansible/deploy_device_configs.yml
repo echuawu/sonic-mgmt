@@ -19,7 +19,7 @@
       r-tigon-04:
         port_config:
            src: "roles/sonicv2/files/mlnx/hwsku/r-tigon-04/port_config.ini"
-           dest: "/usr/share/sonic/device/x86_64-mlnx_msn4600c-r0/ACS-MSN4600C/port_config.ini"
+           dest: "/usr/share/sonic/device/x86_64-mlnx_msn4600c-r0/Mellanox-SN4600C-D112C8/port_config.ini"
 
 - name: Find specific configs if defined for this dut
   set_fact:
