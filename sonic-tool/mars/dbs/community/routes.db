@@ -57,5 +57,8 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/default_route.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/route_perf.cases </cases>
+    </test>
 
 </DBDEF>
