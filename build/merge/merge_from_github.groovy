@@ -38,6 +38,7 @@ def run_step(name, ci_tools) {
                     print "File ${conflict} will be taken from 'thiers' git"
                     ci_tools.run_sh("git checkout upstream/${env.GITHUB_BRANCH} -- ${conflict}")
                 }
+                ci_tools.run_sh("git add ${conflict}")
             }
             print "All permitted automatic fixes for conflicts were done.\nTrying to commit the conflicts solutions.\n" +
                     "Will fail if there are still more conflicts!"
