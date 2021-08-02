@@ -629,7 +629,7 @@
       <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/20/1" StartDevice="r-tigon-04" StartPort="Ethernet76"/>
       <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/20/2" StartDevice="r-tigon-04" StartPort="Ethernet78"/>
       <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/21/1" StartDevice="r-tigon-04" StartPort="Ethernet80"/>
-      <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/21/2" StartDevice="r-tigon-04" StartPort="Ethernet8"/>
+      <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/21/2" StartDevice="r-tigon-04" StartPort="Ethernet82"/>
       <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/22/1" StartDevice="r-tigon-04" StartPort="Ethernet84"/>
       <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/22/2" StartDevice="r-tigon-04" StartPort="Ethernet86"/>
       <DeviceInterfaceLink BandWidth="50000"  EndDevice="r-tigon-14" EndPort="ethernet 1/23/1" StartDevice="r-tigon-04" StartPort="Ethernet88"/>
