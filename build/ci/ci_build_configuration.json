@@ -56,6 +56,17 @@
           "out_of_mail": true
         },
         {
+          "name": "Beautify",
+          "module": "com.mellanox.jenkins.generic_modules.Beautify",
+          "category": "Pre BAT",
+          "node": "SONIC_LITE",
+          "parameters": {
+            "beautifier_params": "--ignore build/ci/beautify/beautifier_ignore_list.txt --config build/ci/config/beautify",
+          },
+          "skip": false,
+          "on_failure": "stop"
+        },
+        {
           "name": "Components Match",
           "module": "com.mellanox.jenkins.generic_modules.ComponentMatch",
           "category": "Pre BAT",
