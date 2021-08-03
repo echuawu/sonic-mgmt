@@ -185,7 +185,7 @@ def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets):
 
 def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
     # send packet
-    send_packets(pkt, duthost, ptfadapter, ports_info["ptf_tx_port_id"])
+    send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"])
     # verify packet is dropped
     exp_pkt = expected_packet_mask(pkt)
     testutils.verify_no_packet_any(ptfadapter, exp_pkt, ports=sniff_ports)
@@ -198,7 +198,7 @@ def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
 
 def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
     num_packets = random.randint(2,100)
-    send_packets(pkt, duthost, ptfadapter, ports_info["ptf_tx_port_id"], num_packets=num_packets)
+    send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"], num_packets=num_packets)
     # verify packet is dropped
     exp_pkt = expected_packet_mask(pkt)
     testutils.verify_no_packet_any(ptfadapter, exp_pkt, ports=sniff_ports)
@@ -210,8 +210,10 @@ def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
 
 
 @pytest.fixture(scope='module')
-def do_test():
-    def do_wjh_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
+def do_test(duthosts, rand_one_dut_hostname):
+    duthost = duthosts[rand_one_dut_hostname]
+
+    def do_wjh_test(discard_group, pkt, ptfadapter, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
         try:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('raw') != -1):
                 do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports, comparable_pkt)
@@ -380,7 +382,7 @@ def test_tunnel_ip_in_ip(do_test, ptfadapter, duthost, setup, pkt_fields, ports_
         inner_frame=inner_packet
     )
 
-    do_test("L3", pkt, ptfadapter, duthost, ports_info, setup['neighbor_sniff_ports'])
+    do_test("L3", pkt, ptfadapter, ports_info, setup['neighbor_sniff_ports'])
 
 
 def check_if_l1_enabled(type):
