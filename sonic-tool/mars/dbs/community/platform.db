@@ -49,14 +49,17 @@
             <name> Generate sysdump on not success </name>
             <type> setup_mode </type>
             <cmd>
-                <type> reg_exec_func </type>
-                <name> run_on_stm </name>
-                <tout> 600 </tout>
-                <params>
-                    <cmd> /auto/app/Python-2.release/bin/python [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </cmd>
-                    <cmd_params> --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py --topo_file [[conf:topology_file]] --entry_points SONIC_MGMT   --setup_name [[conf:extra_info.setup_name]] --raw_options '--tech_support_duration=6000  --session_id=[[run_time:session_id]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini     --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer'</cmd_params>
-                </params>
-            </cmd>
+			   <type> reg_exec_cmd </type>
+			   <players_selection>
+					<ep_targets> SONIC_MGMT </ep_targets>
+			   </players_selection>
+
+				<name> run_on_stm </name>
+				<tout> 600 </tout>
+				<params>
+					<exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py  --setup_name=[[conf:extra_info.setup_name]] --tech_support_duration=7200  --session_id=[[run_time:session_id]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini     --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+				</params>
+			</cmd>
             </on_not_success>
         </Case>
     </global>

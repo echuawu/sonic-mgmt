@@ -54,13 +54,16 @@ pytest_plugins = ('tests.common.plugins.ptfadapter',
                   'tests.common.plugins.custom_fixtures',
                   'tests.common.dualtor',
                   'tests.vxlan',
-                  'tests.common.plugins.allure_server')
+                  'tests.common.plugins.allure_server',
+                  'tests.common.plugins.mars_test_cases_results')
 
 
 def pytest_addoption(parser):
     parser.addoption("--testbed", action="store", default=None, help="testbed name")
     parser.addoption("--testbed_file", action="store", default=None, help="testbed file name")
 
+    parser.addoption("--session_id", action="store", default=None, help="Number of mars session id.")
+    parser.addoption("--mars_key_id", action="store", default=None, help="mars key id.")
     # test_vrf options
     parser.addoption("--vrf_capacity", action="store", default=None, type=int, help="vrf capacity of dut (4-1000)")
     parser.addoption("--vrf_test_count", action="store", default=None, type=int, help="number of vrf to be tested (1-997)")

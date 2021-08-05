@@ -40,6 +40,7 @@ class InfraConst:
     HTTP_SERVER = 'http://fit69'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
+    METADATA_PATH = "/.autodirect/sw_regression/system/SONIC/MARS/metadata/"
 
     MYSQL_SERVER = '10.208.1.11'
     MYSQL_USER = 'sonic'
