@@ -72,6 +72,72 @@ vm_host_50
 vm_host_52
 vm_host_54
 
+[vms_0]
+VM0000 ansible_host=0.0.0.0
+VM0001 ansible_host=0.0.0.0
+VM0002 ansible_host=0.0.0.0
+VM0003 ansible_host=0.0.0.0
+VM0004 ansible_host=0.0.0.0
+VM0005 ansible_host=0.0.0.0
+VM0006 ansible_host=0.0.0.0
+VM0007 ansible_host=0.0.0.0
+VM0008 ansible_host=0.0.0.0
+VM0009 ansible_host=0.0.0.0
+VM0010 ansible_host=0.0.0.0
+VM0011 ansible_host=0.0.0.0
+VM0012 ansible_host=0.0.0.0
+VM0013 ansible_host=0.0.0.0
+VM0014 ansible_host=0.0.0.0
+VM0015 ansible_host=0.0.0.0
+VM0016 ansible_host=0.0.0.0
+VM0017 ansible_host=0.0.0.0
+VM0018 ansible_host=0.0.0.0
+VM0019 ansible_host=0.0.0.0
+VM0020 ansible_host=0.0.0.0
+VM0021 ansible_host=0.0.0.0
+VM0022 ansible_host=0.0.0.0
+VM0023 ansible_host=0.0.0.0
+VM0024 ansible_host=0.0.0.0
+VM0025 ansible_host=0.0.0.0
+VM0026 ansible_host=0.0.0.0
+VM0027 ansible_host=0.0.0.0
+VM0028 ansible_host=0.0.0.0
+VM0029 ansible_host=0.0.0.0
+VM0030 ansible_host=0.0.0.0
+VM0031 ansible_host=0.0.0.0
+VM0032 ansible_host=0.0.0.0
+VM0033 ansible_host=0.0.0.0
+VM0034 ansible_host=0.0.0.0
+VM0035 ansible_host=0.0.0.0
+VM0036 ansible_host=0.0.0.0
+VM0037 ansible_host=0.0.0.0
+VM0038 ansible_host=0.0.0.0
+VM0039 ansible_host=0.0.0.0
+VM0040 ansible_host=0.0.0.0
+VM0041 ansible_host=0.0.0.0
+VM0042 ansible_host=0.0.0.0
+VM0043 ansible_host=0.0.0.0
+VM0044 ansible_host=0.0.0.0
+VM0045 ansible_host=0.0.0.0
+VM0046 ansible_host=0.0.0.0
+VM0047 ansible_host=0.0.0.0
+VM0048 ansible_host=0.0.0.0
+VM0049 ansible_host=0.0.0.0
+VM0050 ansible_host=0.0.0.0
+VM0051 ansible_host=0.0.0.0
+VM0052 ansible_host=0.0.0.0
+VM0053 ansible_host=0.0.0.0
+VM0054 ansible_host=0.0.0.0
+VM0055 ansible_host=0.0.0.0
+VM0056 ansible_host=0.0.0.0
+VM0057 ansible_host=0.0.0.0
+VM0058 ansible_host=0.0.0.0
+VM0059 ansible_host=0.0.0.0
+VM0060 ansible_host=0.0.0.0
+VM0061 ansible_host=0.0.0.0
+VM0062 ansible_host=0.0.0.0
+VM0063 ansible_host=0.0.0.0
+
 [vms_1]
 VM0101 ansible_host=10.213.84.17
 VM0102 ansible_host=10.213.84.18
