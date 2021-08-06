@@ -15,7 +15,7 @@ logger = logging.getLogger()
     [
         (APP_INFO["name"], None, True),
         ("{}=={}".format(APP_INFO["name"], APP_INFO["normal2"]["version"]), APP_INFO["normal2"]["version"], False),
-        ("{}@{}".format(APP_INFO["name"], APP_INFO["normal1"]["digest"]), APP_INFO["normal1"]["version"], True),
+        ("{}@{}".format(APP_INFO["name"], APP_INFO["normal1"]["digest"]), APP_INFO["normal1"]["version"], False),
         ("{}=={} --force".format(APP_INFO["name"], APP_INFO["normal2"]["version"]), APP_INFO["normal2"]["version"], True),
     ],
 )
@@ -117,7 +117,7 @@ def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo
             verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version)
 
         with allure.step("Force uninstall app"):
-            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, True)
+            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, False)
 
     except Exception as err:
         raise AssertionError(err)
@@ -146,8 +146,8 @@ def test_app_install_from_tarball(engines, add_app_into_repo):
             SonicAppExtensionCli.enable_app(dut_engine, app_name)
             verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version)
 
-        with allure.step("Force uninstall app"):
-            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, True)
+        with allure.step("Uninstall app"):
+            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, False)
 
     except Exception as err:
         raise AssertionError(err)
