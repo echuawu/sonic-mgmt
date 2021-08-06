@@ -10,6 +10,7 @@ from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemplate
+from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
@@ -113,13 +114,16 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         'dut': [{'iface': interfaces.dut_ha_1, 'speed': '10G',
                  'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_1, '10G')},
                 {'iface': interfaces.dut_hb_2, 'speed': '10G',
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '10G')}]
+                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '10G')}
+                ],
+        'ha': [{'iface': 'dummy0', 'create': True, 'type': 'dummy'}]
     }
 
     # LAG/LACP config which will be used in test
     lag_lacp_config_dict = {
         'dut': [{'type': 'lacp', 'name': 'PortChannel0001', 'members': [interfaces.dut_ha_1]},
-                {'type': 'lacp', 'name': 'PortChannel0002', 'members': [interfaces.dut_hb_2]}],
+                {'type': 'lacp', 'name': 'PortChannel0002', 'members': [interfaces.dut_hb_2]}
+                ],
         'ha': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.ha_dut_1]}],
         'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_2]}]
     }
@@ -131,7 +135,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'vlan_id': 690, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 691, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 10, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
-                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]}
+                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]},
+                {'vlan_id': 2345, 'vlan_members': [{'PortChannel0002': 'trunk'}]}
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 690, 'vlan_members': [{interfaces.ha_dut_2: None}]},
@@ -140,7 +145,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{'bond0': None}]},
                {'vlan_id': 69, 'vlan_members': [{'bond0': None}]},
-               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]}, ]
+               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]},
+               {'vlan_id': 2345, 'vlan_members': [{'bond0': None}]}
+               ]
     }
 
     # IP config which will be used in test
@@ -151,19 +158,24 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'iface': 'Vlan690', 'ips': [('69.0.1.1', '24'), ('6900:1::1', '64')]},
                 {'iface': 'Vlan691', 'ips': [('69.1.0.1', '24'), ('6910::1', '64')]},
                 {'iface': 'Vlan50'.format(interfaces.dut_hb_1), 'ips': [(P4SamplingEntryConsts.duthb1_ip, '24')]},
-                {'iface': 'Vlan10', 'ips': [(P4SamplingEntryConsts.dutha2_ip, '24')]}
+                {'iface': 'Vlan10', 'ips': [(P4SamplingEntryConsts.dutha2_ip, '24')]},
+                {'iface': 'Loopback0', 'ips': [('10.1.0.32', '32')]}
                 ],
         'ha': [{'iface': '{}.40'.format(interfaces.ha_dut_2), 'ips': [('40.0.0.2', '24'), ('4000::2', '64')]},
                {'iface': '{}.10'.format(interfaces.ha_dut_2), 'ips': [(P4SamplingEntryConsts.hadut2_ip, '24')]},
-               {'iface': 'bond0', 'ips': [('30.0.0.2', '24'), ('3000::2', '64')]}],
+               {'iface': 'bond0', 'ips': [('30.0.0.2', '24'), ('3000::2', '64')]},
+               {'iface': 'dummy0', 'ips': [('10.1.1.32', '32')]}
+               ],
         'hb': [{'iface': 'bond0.40', 'ips': [('40.0.0.3', '24'), ('4000::3', '64')]},
                {'iface': 'bond0.69', 'ips': [('69.0.0.2', '24'), ('6900::2', '64')]},
                {'iface': '{}.50'.format(interfaces.hb_dut_1), 'ips': [(P4SamplingEntryConsts.hbdut1_ip, '24')]},
+               {'iface': 'bond0.2345', 'ips': [('23.45.0.2', '24')]}
                ]
     }
 
     # Static route config which will be used in test
     static_route_config_dict = {
+        'ha': [{'dst': '10.1.0.32', 'dst_mask': 32, 'via': ['30.0.0.1']}],
         'hb': [{'dst': '69.0.1.0', 'dst_mask': 24, 'via': ['69.0.0.1']},
                {'dst': '69.1.0.0', 'dst_mask': 24, 'via': ['69.0.0.1']}]
     }
@@ -176,6 +188,12 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 ]
     }
 
+    vxlan_config_dict = {
+        'dut': [{'vtep_name': 'vtep_76543', 'vtep_src_ip': '10.1.0.32', 'vni': 76543, 'vlan': 2345}],
+        'ha': [{'vtep_name': 'vtep_76543', 'vtep_src_ip': '10.1.1.32', 'vtep_dst_ip': '10.1.0.32', 'vni': 76543,
+                'vtep_ips': [('23.45.0.1', '24')]}]
+    }
+
     if run_config_only or full_flow_run:
         logger.info('Starting PushGate Common configuration')
         # TODO: temp solution, later the installation of the p4-sampling will be done during deploy image
@@ -186,6 +204,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         IpConfigTemplate.configuration(topology_obj, ip_config_dict)
         RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
         DhcpRelayConfigTemplate.configuration(topology_obj, dhcp_relay_config_dict)
+        if not upgrade_params.is_upgrade_required:
+            VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
         # add p4 sampling entries, need to check is the p4-sampling is installed or not
         if P4SamplingUtils.check_p4_sampling_installed(engines.dut):
             fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
@@ -223,6 +243,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
     if run_cleanup_only or full_flow_run:
         logger.info('Starting PushGate Common configuration cleanup')
+        if not upgrade_params.is_upgrade_required:
+            VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
         DhcpRelayConfigTemplate.cleanup(topology_obj, dhcp_relay_config_dict)
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
         IpConfigTemplate.cleanup(topology_obj, ip_config_dict)

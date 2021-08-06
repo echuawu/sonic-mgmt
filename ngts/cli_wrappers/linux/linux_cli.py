@@ -11,6 +11,7 @@ from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
 from ngts.cli_wrappers.linux.linux_ifconfig_clis import LinuxIfconfigCli
+from ngts.cli_wrappers.linux.linux_vxlan_clis import LinuxVxlanCli
 logger = logging.getLogger()
 
 
@@ -28,3 +29,4 @@ class LinuxCli:
         self.general = LinuxGeneralCli()
         self.dhcp = LinuxDhcpCli()
         self.ifconfig = LinuxIfconfigCli()
+        self.vxlan = LinuxVxlanCli()
