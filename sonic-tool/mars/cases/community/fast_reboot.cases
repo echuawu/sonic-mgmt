@@ -15,19 +15,6 @@
     </global>
 
     <case>
-        <ignore>
-            <condition_group>
-                <operand> OR </operand>
-                <condition>
-                    <!-- fast-reboot and warm-reboot are not supported on spectrum2 platforms yet-->
-                    <key> chip_type </key>
-                    <op> in </op>
-                    <value> ["spectrum2"] </value>
-                </condition>
-                <bug> 2447510 </bug>
-            </condition_group>
-        </ignore>
-
         <pre>
             <info> run linkstate/up.yml </info>
             <name> run linkstate/up.yml </name>
