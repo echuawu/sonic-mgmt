@@ -3,6 +3,8 @@
 platform_tests/test_auto_negotiation.py:
   - Platform:
     - 3800
+  - Redmine:
+    - 2696720
 
 # Ci_community
 vxlan/test_vnet_vxlan.py:
@@ -171,8 +173,9 @@ tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_
 
 tests/nightly/fec/test_fec.py::test_negative_fec:
   - Redmine:
-    - 2740606
+    - 2696717
 
 tests/nightly/fec:
   - Platform:
     - 4700
+    - 3420
