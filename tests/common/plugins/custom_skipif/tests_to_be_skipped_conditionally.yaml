@@ -3,8 +3,6 @@
 platform_tests/test_auto_negotiation.py:
   - Platform:
     - 3800
-  - Redmine:
-    - 2696720
 
 # Ci_community
 vxlan/test_vnet_vxlan.py:
@@ -54,7 +52,7 @@ platform_tests/test_sensors.py:
 # Nightly
 tests/nightly/auto_negotition:
   - Redmine:
-    - 2700007
+    - 2696720
     Platform:
     - 3700
     - 3420
