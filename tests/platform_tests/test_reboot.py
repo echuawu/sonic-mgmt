@@ -33,18 +33,6 @@ MAX_WAIT_TIME_FOR_INTERFACES = 300
 MAX_WAIT_TIME_FOR_REBOOT_CAUSE = 120
 
 
-@pytest.fixture(scope='function')
-def skip_if_spectrum2(duthosts, enum_rand_one_per_hwsku_hostname):
-    """
-    #TODO: remove this skip when fast reboot is supported by FW on SPC2
-    Fixture that skips test execution on SPC2 devices because there is no supported for fast-reboot by FW
-    """
-    duthost = duthosts[enum_rand_one_per_hwsku_hostname]
-    chip_type = get_chip_type(duthost)
-    if chip_type == "spectrum2":
-            pytest.skip("fast reboot test is not supported on SPC2")
-
-
 @pytest.fixture(scope="module", autouse=True)
 def teardown_module(duthosts, enum_rand_one_per_hwsku_hostname, conn_graph_facts, xcvr_skip_list):
     duthost = duthosts[enum_rand_one_per_hwsku_hostname]
@@ -151,7 +139,7 @@ def test_soft_reboot(duthosts, enum_rand_one_per_hwsku_hostname, localhost, conn
 
 
 def test_fast_reboot(duthosts, enum_rand_one_per_hwsku_hostname, localhost,
-                     conn_graph_facts, xcvr_skip_list, skip_if_spectrum2):
+                     conn_graph_facts, xcvr_skip_list):
     """
     @summary: This test case is to perform fast reboot and check platform status
     """
