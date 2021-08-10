@@ -84,7 +84,7 @@ class TestVLAN:
                           'receivers':
                               [
                                   {'receiver': 'hb', 'receive_args': {'interface': self.hb_dut_1,
-                                                                      'filter': self.get_test_basic_packet(self.vlan_30),
+                                                                      'filter': self.get_tcpdump_filter(self.vlan_30),
                                                                       'count': 3}}
             ]
             }
