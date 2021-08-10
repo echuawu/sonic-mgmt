@@ -169,11 +169,9 @@ tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_
   - Redmine:
     - 2638158
 
-tests/nightly/fec/test_fec.py::test_negative_fec:
+tests/nightly/fec:
   - Redmine:
     - 2696717
-
-tests/nightly/fec:
   - Platform:
     - 4700
     - 3420
