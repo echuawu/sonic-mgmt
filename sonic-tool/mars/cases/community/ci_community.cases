@@ -40,7 +40,7 @@
     <case>
         <info> LLDP Case </info>
         <name> lldp </name>
-        <tout> 900 </tout>
+        <tout> 1500 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts lldp/test_lldp.py </static_args>
@@ -84,7 +84,7 @@
     <case>
         <info> BGP Fact Case </info>
         <name> bgp_fact </name>
-        <tout> 1500 </tout>
+        <tout> 1800 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts bgp/test_bgp_fact.py </static_args>
@@ -95,7 +95,7 @@
     <case>
         <info> PFCWD config Case</info>
         <name> pfc_wd_config </name>
-        <tout> 1200  </tout>
+        <tout> 1800  </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pfcwd/test_pfc_config.py  </static_args>
@@ -106,7 +106,7 @@
     <case>
         <info> PFCWD All ports storm Case</info>
         <name> pfc_wd_ports_storm </name>
-        <tout> 1200 </tout>
+        <tout> 1800 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pfcwd/test_pfcwd_all_port_storm.py  </static_args>
@@ -149,7 +149,7 @@
     <case>
         <info> snmp_cpu  </info>
         <name> snmp_cpu </name>
-        <tout> 900 </tout>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts snmp/test_snmp_cpu.py </static_args>
