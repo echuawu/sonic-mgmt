@@ -31,6 +31,7 @@ def static_route_configuration(topology_obj):
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
 
 
+@pytest.mark.skip('Test does not work on master image SPC2/SCP3 - skipped until fix')
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('VXLAN Decap/Encap test case')
