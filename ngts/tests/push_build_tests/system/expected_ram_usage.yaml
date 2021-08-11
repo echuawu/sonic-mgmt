@@ -208,8 +208,8 @@ MSN3800: # Tigris
   sensord: 10
 # SPC3
 MSN4410: # Ocelot
-  total: 4000
-  sx_sdk: 1100
+  total: 4300
+  sx_sdk: 1400
   syncd: 100
   redis-server: 50
   snmpd: 20
@@ -218,7 +218,7 @@ MSN4410: # Ocelot
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 40
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
