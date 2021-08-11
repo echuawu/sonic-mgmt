@@ -13,3 +13,4 @@ ansible/files/sonic_lab_console_links.csv
 ansible/group_vars/vm_host/creds.yml
 ansible/templates/minigraph_device.j2
 tests/common/devices.py
+tests/common/plugins/custom_skipif/credentials.yaml
