@@ -1,0 +1,69 @@
+{
+  "default-testbed": {
+    "default-dut": {
+      "features": {
+        "lldp": true,
+        "database": true,
+        "bgp": true,
+        "teamd": true,
+        "syncd": true,
+        "swss": true,
+        "telemetry": true,
+        "snmp": true,
+        "radv": true,
+        "dhcp_relay": true,
+        "pmon": true,
+        "restapi": true,
+        "nat": true,
+        "sflow": true
+      },
+      "asic_services": {
+        "lldp": [
+          "lldp"
+        ],
+        "database": [
+          "database"
+        ],
+        "bgp": [
+          "bgp"
+        ],
+        "teamd": [
+          "teamd"
+        ],
+        "syncd": [
+          "syncd"
+        ],
+        "swss": [
+          "swss"
+        ],
+        "telemetry": [
+          "telemetry"
+        ],
+        "snmp": [
+          "snmp"
+        ],
+        "radv": [
+          "radv"
+        ],
+        "dhcp_relay": [
+          "dhcp_relay"
+        ],
+        "pmon": [
+          "pmon"
+        ],
+        "restapi": [
+          "restapi"
+        ],
+        "mgmt-framework": [
+          "mgmt-framework"
+        ],
+        "nat": [
+          "nat"
+        ],
+        "sflow": [
+          "sflow"
+        ]
+      }
+    }
+  }
+}
