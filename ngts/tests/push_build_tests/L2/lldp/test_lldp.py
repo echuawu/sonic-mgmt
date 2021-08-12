@@ -313,28 +313,32 @@ def verify_remote_device_id(topo_remote_device_id, lldp_remote_device_id):
 @pytest.mark.lldp
 @pytest.mark.push_gate
 @allure.title('test LLDP after disable on dut')
-def test_lldp_after_disable_on_dut(topology_obj, engines):
+def test_lldp_after_disable_on_dut(topology_obj, engines, cli_objects):
     """
     Verify LLDP is up after being disabled.
     Lldp should be disabled after a disabled command and should be up after enable in 30 sec or less
     :param topology_obj: topology object fixture
+    :param engines: setup engines fixture
+    :param cli_objects: setup cli_objects fixture
     :return: None, raise assertion error if lldp info doesn't match the expected output
     """
-    cli_object = topology_obj.players['dut']['cli']
-    cli_object.lldp.disable_lldp(engines.dut)
-    logger.info("Verify lldp is disabled in \"show_feature_status\"")
-    check_lldp_feature_status(engines.dut, cli_object, expected_res=r"lldp\s+disabled")
-    with allure.step("Expect test LLDP to fail after being disabled"):
-        try:
-            verify_lldp_info_for_dut_host_ports(topology_obj)
-            raise Exception("Test passed when expected to fail")
-        except AssertionError as e:
-            logger.info("Test failed as expected")
-    cli_object.lldp.enable_lldp(engines.dut)
-    logger.info("Verify LLDP service start")
-    check_lldp_feature_status(engines.dut, cli_object)
-    with allure.step("Expect test LLDP to pass after LLDP is enabled"):
-        retry_call(verify_lldp_info_for_dut_host_ports, fargs=[topology_obj], tries=4, delay=10, logger=logger)
+    try:
+        cli_objects.dut.lldp.disable_lldp(engines.dut)
+        logger.info("Verify lldp is disabled in \"show_feature_status\"")
+        check_lldp_feature_status(engines.dut, cli_objects.dut, expected_res=r"lldp\s+disabled")
+        with allure.step("Expect test LLDP to fail after being disabled"):
+            try:
+                verify_lldp_info_for_dut_host_ports(topology_obj)
+                raise Exception("Test passed when expected to fail")
+            except AssertionError as e:
+                logger.info("Test failed as expected")
+        cli_objects.dut.lldp.enable_lldp(engines.dut)
+        logger.info("Verify LLDP service start")
+        check_lldp_feature_status(engines.dut, cli_objects.dut)
+        with allure.step("Expect test LLDP to pass after LLDP is enabled"):
+            retry_call(verify_lldp_info_for_dut_host_ports, fargs=[topology_obj], tries=4, delay=10, logger=logger)
+    finally:
+        cli_objects.dut.lldp.enable_lldp(engines.dut)
 
 
 def check_lldp_feature_status(dut_engine, cli_object, expected_res=r"lldp\s+enabled"):
