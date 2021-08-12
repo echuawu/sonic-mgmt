@@ -133,6 +133,12 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
   - Redmine:
     - 2597848
 
+tests/push_build_tests/L3/crm/test_crm.py:
+  - Redmine:
+    - 2754297
+    Platform:
+    - 4410
+
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
