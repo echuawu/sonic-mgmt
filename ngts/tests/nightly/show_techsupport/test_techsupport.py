@@ -17,8 +17,23 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SDK_DUMP_DIR = '/var/log/mellanox/sdk-dumps'
 
 
+@pytest.fixture(autouse=False)
+def ignore_temp_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests
+    because of some expected bugs which causes exceptions in log
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "temp_log_analyzer_ignores.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)
+
+
 @allure.title('Tests that DumpMeNow dump contains all the expected dumps when fw stuck occurs')
-def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objects):
+def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objects, ignore_temp_loganalyzer_exceptions):
     duthost = engines.dut
     chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
 

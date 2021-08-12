@@ -1,0 +1,2 @@
+r, ".* ERR \/hostcfgd: Unexpected state value 'always_enabled' for feature .*"
+r, ".* ERR caclmgrd\[.*\]: :- initializeGlobalConfig: Sonic database config global file doesn't exist at .*"

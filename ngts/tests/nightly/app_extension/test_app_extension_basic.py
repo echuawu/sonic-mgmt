@@ -13,7 +13,7 @@ logger = logging.getLogger()
 
 @pytest.mark.app_ext
 @allure.title('Test repo management')
-def test_repo_management(engines):
+def test_repo_management(engines, ignore_temp_loganalyzer_exceptions):
     """
     This test case will check the functionality of package repository management
     Firstly, verify sonic-package-manager list, output is as follows:

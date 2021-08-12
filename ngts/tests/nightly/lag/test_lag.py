@@ -36,7 +36,8 @@ CHIP_LAG_MEMBERS_LIM = {
 
 
 @allure.title('LAG_LACP core functionality and reboot')
-def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, engines, cleanup_list, platform_params):
+def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces,
+                                        engines, cleanup_list, platform_params, ignore_temp_loganalyzer_exceptions):
     """
     This test case will check the base functionality of LAG/LACP feature.
     Config base configuration as in the picture below.
@@ -326,7 +327,7 @@ def test_lag_min_links(topology_obj, traffic_type, interfaces, engines, cleanup_
 
 
 @allure.title('LAG members scale Test')
-def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
+def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, ignore_temp_loganalyzer_exceptions):
     """
     This test case will check the configuration of 1 port channel with max number of members.
     :param topology_obj: topology object
