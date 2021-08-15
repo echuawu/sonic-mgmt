@@ -75,7 +75,7 @@ def ignore_techsupport_expected_loganalyzer_exceptions(loganalyzer):
         loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
-def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
+def test_techsupport_mellanox_sdk_dump(engines, loganalyzer, ignore_temp_loganalyzer_exceptions):
     duthost = engines.dut
 
     with allure.step('Copy to dut a script that triggers SDK health event'):
