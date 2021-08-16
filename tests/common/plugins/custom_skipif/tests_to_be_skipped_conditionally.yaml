@@ -113,6 +113,12 @@ tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   - Platform:
     - simx
 
+tests/push_build_tests/L2/lldp/test_lldp.py::test_lldp_after_disable_on_dut:
+  - Redmine:
+    - 2757282
+    Platform:
+    - 3700
+
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
   - Redmine:
     - 2597848
