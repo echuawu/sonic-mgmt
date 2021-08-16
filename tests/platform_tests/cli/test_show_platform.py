@@ -133,13 +133,8 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
                 tlv_code_lower_case = t1.group(2).strip().lower()
                 parsed_syseeprom[tlv_code_lower_case] = t1.group(4).strip()
 
-        tlv_code_onie_version = "0x29"
-        tlv_code_crc_32 = "0xfe"
         for field in expected_syseeprom_info_dict:
             pytest_assert(field.lower() in parsed_syseeprom, "Expected field '{}' not present in syseeprom on '{}'".format(field, duthost.hostname))
-            if field.lower() == tlv_code_onie_version or field.lower() == tlv_code_crc_32:
-                logging.info("{} is not static variable, skip check".format(field))
-                continue
             pytest_assert(parsed_syseeprom[field.lower()] == expected_syseeprom_info_dict[field],
                           "System EEPROM info is incorrect - for '{}', rcvd '{}', expected '{}' on '{}'".
                           format(field, parsed_syseeprom[field.lower()], expected_syseeprom_info_dict[field], duthost.hostname))
