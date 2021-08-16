@@ -78,5 +78,8 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_shutdown.cases </cases>
     </test>
-
+    
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_monitor.cases </cases>
+    </test>
 </DBDEF>
