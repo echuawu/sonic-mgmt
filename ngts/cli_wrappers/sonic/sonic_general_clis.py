@@ -460,24 +460,43 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                 config_db_json_file_name=config_db_json_file_name)
         config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.TYPE] =\
             ConfigDbJsonConst.TOR_ROUTER
-        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json)
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
 
     @staticmethod
-    def update_config_db_metadata_mgmt_ip(engine, setup_name, ip):
+    def update_config_db_metadata_mgmt_port(setup_name, config_db_json_file_name):
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+
+        config_db_json[ConfigDbJsonConst.MGMT_PORT] = json.loads(ConfigDbJsonConst.MGMT_PORT_VALUE)
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
+
+    @staticmethod
+    def update_config_db_hostname(setup_name, hostname, config_db_json_file_name):
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.HOSTNAME] = \
+            hostname
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
+
+    @staticmethod
+    def update_config_db_metadata_mgmt_ip(engine, setup_name, ip, file_name=SonicConst.CONFIG_DB_JSON):
         def _get_subnet_mask(ip, interfaces_ips_output):
             for elem in interfaces_ips_output:
                 if InfraConst.IP in elem:
                     if elem[InfraConst.IP] == ip:
                         return elem[InfraConst.MASK]
 
-        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name)
+        config_db_json = SonicGeneralCli.get_config_db(engine)
         mask = _get_subnet_mask(ip, SonicIpCli.get_interface_ips(engine, 'eth0'))
-        routes = SonicRouteCli.show_ip_route(engine, route_type='kernel')
-        default_gw = re.search(r'0\.0\.0\.0/0 \[0/0\] via (.*), eth0', routes)
+        routes = SonicRouteCli.show_ip_route(engine)
+        default_gw = re.search(r'0\.0\.0\.0\/0 \[.*\] via (.*), eth0', routes)
         config_db_json[ConfigDbJsonConst.MGMT_INTERFACE] =\
             json.loads(ConfigDbJsonConst.MGMT_INTERFACE_VALUE % (ip, mask, default_gw.group(1)))
 
-        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json, file_name=SonicConst.CONFIG_DB_JSON)
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json, file_name)
 
     @staticmethod
     def is_platform_supports_split_without_unmap(hwsku):
@@ -548,7 +567,7 @@ class SonicGeneralCli(GeneralCliCommon):
             json.dump(config_db_json, f, indent=4)
             f.write('\n')
         os.chmod(new_config_db_json_path, 0o777)
-        return "extended_config_db.json"
+        return file_name
 
     @staticmethod
     def install_wjh(dut_engine, wjh_deb_url):

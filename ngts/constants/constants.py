@@ -41,6 +41,7 @@ class InfraConst:
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
     METADATA_PATH = "/.autodirect/sw_regression/system/SONIC/MARS/metadata/"
+    HTTP_SERVER_MARS_TOPO_FOLDER_PATH = '{}{}'.format(HTTP_SERVER, MARS_TOPO_FOLDER_PATH)
 
     MYSQL_SERVER = '10.208.1.11'
     MYSQL_USER = 'sonic'
@@ -85,12 +86,15 @@ class ConfigDbJsonConst:
     DEVICE_METADATA = "DEVICE_METADATA"
     MGMT_INTERFACE = "MGMT_INTERFACE"
     MGMT_INTERFACE_VALUE = '''{"eth0|%s/%s": {"gwaddr": "%s"}}'''
+    MGMT_PORT = "MGMT_PORT"
+    MGMT_PORT_VALUE = '''{"eth0":{"admin_status": "up", "alias": "eth0"}}'''
     LOCALHOST = "localhost"
     TYPE = 'type'
     TOR_ROUTER = 'ToRRouter'
     HOSTNAME = "hostname"
     MAC = "mac"
     HWSKU = "hwsku"
+    ADMIN_STATUS = "admin_status"
 
 
 class IpIfaceAddrConst:
