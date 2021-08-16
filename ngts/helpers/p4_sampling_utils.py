@@ -491,7 +491,7 @@ class TrafficParams:
             src_port, sender = TrafficParams.get_port_table_traffic_sender_src_port(interfaces, topology_obj, port_entry_key)
             mirror_host_port, receiver = TrafficParams.get_port_table_traffic_mirror_receiver(interfaces, topology_obj,
                                                                                               port_entries[port_entry_key].action)
-            filter_template = TrafficParams.get_pkt_filter(port_entries[port_entry_key].action, True)
+            filter_template = TrafficParams.get_pkt_filter(port_entries[port_entry_key].action)
 
             port_traffic_params_list.append(
                 {
@@ -506,13 +506,12 @@ class TrafficParams:
         return port_traffic_params_list
 
     @staticmethod
-    def get_pkt_filter(entry_action_params, is_port=False):
+    def get_pkt_filter(entry_action_params):
         entry_action_param_list = entry_action_params.split()
         src_mac = entry_action_param_list[1]
         dst_mac = entry_action_param_list[2]
-        # TODO: there is a bug 2706940 for the port table entry, the src ip and dst ip is swapped
-        src_ip = entry_action_param_list[4] if is_port else entry_action_param_list[3]
-        dst_ip = entry_action_param_list[3] if is_port else entry_action_param_list[4]
+        src_ip = entry_action_param_list[3]
+        dst_ip = entry_action_param_list[4]
         vlan = entry_action_param_list[5]
         return 'vlan {} and src {} and dst {}'.format(vlan, src_ip, dst_ip)
 
