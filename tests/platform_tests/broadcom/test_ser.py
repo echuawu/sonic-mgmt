@@ -89,5 +89,3 @@ def test_ser(duthosts, rand_one_dut_hostname):
     rc = duthost.shell('python {}'.format(os.path.join(DUT_WORKING_DIR, SER_INJECTOR_FILE)), executable="/bin/bash")
     logger.info('Test complete with %s: ' % rc)
 
-    else:
-        pytest.skip('Skipping SER test for asic_type: %s' % asic_type)

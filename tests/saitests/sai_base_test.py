@@ -21,6 +21,7 @@ import ptf.testutils as testutils
 # Thrift interface base tests
 #
 ################################################################
+
 import switch_sai_thrift.switch_sai_rpc as switch_sai_rpc
 from thrift.transport import TSocket
 from thrift.transport import TTransport

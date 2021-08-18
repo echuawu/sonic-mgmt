@@ -22,7 +22,7 @@ from tests.common.platform.transceiver_utils import check_transceiver_basic
 from tests.common.platform.interface_utils import check_all_interface_information, get_port_map
 from tests.common.platform.daemon_utils import check_pmon_daemon_status
 from tests.common.platform.processes_utils import wait_critical_processes, check_critical_processes
-from tests.common.mellanox_data import get_chip_type
+
 
 pytestmark = [
     pytest.mark.disable_loganalyzer,
@@ -138,8 +138,7 @@ def test_soft_reboot(duthosts, enum_rand_one_per_hwsku_hostname, localhost, conn
     reboot_and_check(localhost, duthost, conn_graph_facts["device_conn"][duthost.hostname], xcvr_skip_list, reboot_type=REBOOT_TYPE_SOFT)
 
 
-def test_fast_reboot(duthosts, enum_rand_one_per_hwsku_hostname, localhost,
-                     conn_graph_facts, xcvr_skip_list):
+def test_fast_reboot(duthosts, enum_rand_one_per_hwsku_hostname, localhost, conn_graph_facts, xcvr_skip_list):
     """
     @summary: This test case is to perform fast reboot and check platform status
     """

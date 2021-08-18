@@ -25,6 +25,7 @@ EXAMPLES = '''
    sensors_facts: checks={{ sensors['Force10-S6000'] }}
  - name: Output of sensors information
    debug: var=vars['sensors']
+
 '''
 
 # Example of the source data

@@ -562,7 +562,7 @@ def sai_thrift_create_buffer_profile(client, pool_id, size, threshold, xoff_th, 
     attribute = sai_thrift_attribute_t(id=SAI_BUFFER_PROFILE_ATTR_POOL_ID ,
                                            value=attribute_value)
     buffer_attr_list.append(attribute)
-
+    
     attribute_value = sai_thrift_attribute_value_t(u32=size)
     attribute = sai_thrift_attribute_t(id=SAI_BUFFER_PROFILE_ATTR_BUFFER_SIZE ,
                                            value=attribute_value)
