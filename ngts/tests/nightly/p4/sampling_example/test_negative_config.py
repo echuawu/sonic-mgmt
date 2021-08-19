@@ -18,6 +18,7 @@ FLOW_TABLE_NAME = P4SamplingConsts.FLOW_TABLE_NAME
 ACTION_NAME = P4SamplingConsts.ACTION_NAME
 
 
+@pytest.mark.build
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
 @pytest.mark.p4_sampling
 class TestNegativeConfig:
@@ -594,6 +595,7 @@ class TestNegativeConfig:
         engine.run_cmd('sudo config portchannel add {}'.format(lag_port))
 
 
+@pytest.mark.build
 def test_p4_sampling_not_support_on_spc1(engines):
     with allure.step(
             'Verify {} not support on SPC1'.format(P4SamplingConsts.APP_NAME)):

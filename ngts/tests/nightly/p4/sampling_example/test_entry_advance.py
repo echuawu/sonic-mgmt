@@ -16,6 +16,7 @@ TRAFFIC_INTERVAL = P4SamplingConsts.TRAFFIC_INTERVAL
 DPB_ERR_MSG = "ERR: Can not dynamic breakout*"
 
 
+@pytest.mark.build
 @pytest.mark.usefixtures('p4_sampling_entries')
 class TestEntryTraffic:
     @pytest.fixture(scope='class')

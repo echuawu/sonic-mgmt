@@ -21,6 +21,7 @@ CHKSUM_MASK = '0xffff'
 P4_SAMPLING_ENTRY_PRIO_MAX = 126
 
 
+@pytest.mark.build
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
 class TestEntryScaling:
     @pytest.fixture

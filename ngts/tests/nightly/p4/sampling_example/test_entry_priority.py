@@ -51,6 +51,7 @@ def same_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac,
     fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, table_param_data)
 
 
+@pytest.mark.build
 @allure.title('Test when different entries with different priority can match with same traffic, '
               'the entry with high priority will hit. ')
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
@@ -74,6 +75,7 @@ def test_entries_with_different_priority(engines, different_priority_entries, to
                                  flow_hit_indices)
 
 
+@pytest.mark.build
 @allure.title('Test when different entries with same priority can match with same traffic, '
               'only one entry will hit, and the entry is randomly selected.')
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
