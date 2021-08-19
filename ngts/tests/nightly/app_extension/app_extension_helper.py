@@ -73,6 +73,21 @@ def verify_add_app_to_repo(dut_engine, app_name, repo_name, desc="N/A", version=
         assert False, "{} is not in the package list:{}".format(app_name, app_package_repo_dict)
 
 
+def retry_verify_app_container_up(dut_engine, app_name):
+    """
+    Verify with retries that docker is up
+    :param dut_engine: ssh engine object
+    :param app_name: app package name
+    :Return None, or raise exception  if app info not match all
+    """
+    def verify_app_container_up(dut_engine, app_name):
+        status = GeneralCliCommon.get_container_status(dut_engine, app_name)
+        assert status, "{} container is not up, container status is None".format(app_name)
+        assert "Up" in status, "expected status is Up, actual is {}".format(status)
+    retry_call(verify_app_container_up, fargs=[dut_engine, app_name],
+               tries=10, delay=5, logger=logger)
+
+
 def verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version):
     """
     Verify app container is up and status in repo is installed
@@ -81,13 +96,7 @@ def verify_app_container_up_and_repo_status_installed(dut_engine, app_name, vers
     :Return None, or raise exception  if app info not match all
 
     """
-    def verify_app_container_up(dut_engine, app_name):
-        status = GeneralCliCommon.get_container_status(dut_engine, app_name)
-        assert status, "{} container is not up, container status is None".format(app_name)
-        assert "Up" in status, "expected status is Up, actual is {}".format(status)
-
-    retry_call(verify_app_container_up, fargs=[dut_engine, app_name],
-               tries=10, delay=5, logger=logger)
+    retry_verify_app_container_up(dut_engine, app_name)
     app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
     if app_name in app_package_repo_dict:
         app_info = app_package_repo_dict[app_name]

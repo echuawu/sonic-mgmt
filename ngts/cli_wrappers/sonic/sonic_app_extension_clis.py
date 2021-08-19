@@ -28,9 +28,11 @@ class SonicAppExtensionCli:
         engine.run_cmd('sudo sonic-package-manager repository remove {}'.format(app_name), validate=True)
 
     @staticmethod
-    def install_app(engine, app_name, version=""):
+    def install_app(engine, app_name, version="", from_repository=''):
         if version:
             engine.run_cmd('sudo sonic-package-manager install {}=={} -y'.format(app_name, version), validate=True)
+        elif from_repository:
+            engine.run_cmd('sudo sonic-package-manager install --from-repository {} -y'.format(from_repository), validate=True)
         else:
             engine.run_cmd('sudo sonic-package-manager install {} -y'.format(app_name), validate=True)
 

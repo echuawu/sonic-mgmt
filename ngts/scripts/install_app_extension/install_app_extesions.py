@@ -5,7 +5,8 @@ import allure
 import json
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.constants.constants import AppExtensionInstallationConstants
-from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
+from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed, \
+    retry_verify_app_container_up
 from ngts.scripts.install_app_extension.app_extension_info import AppExtensionInfo
 
 
@@ -93,10 +94,18 @@ class AppExtensionInstaller():
             format(app_ext_obj.app_name, app_ext_obj.version)
         with allure.step(log_install_app_ext_version):
             logger.info(log_install_app_ext_version)
-            SonicAppExtensionCli.install_app(self.dut_engine, app_ext_obj.app_name, app_ext_obj.version)
+            SonicAppExtensionCli.install_app(
+                self.dut_engine, app_name=app_ext_obj.app_name,
+                from_repository='{}:{}'.format(app_ext_obj.repository, app_ext_obj.version))
 
     def enable_app_ext(self, app_ext_obj):
         log_enable_ext_app = 'Enabling app extension {} on the dut'.format(app_ext_obj.app_name)
+        with allure.step(log_enable_ext_app):
+            logger.info(log_enable_ext_app)
+            SonicAppExtensionCli.enable_app(self.dut_engine, app_ext_obj.app_name)
+
+    def disable_app_ext(self, app_ext_obj):
+        log_enable_ext_app = 'Disabling app extension {} on the dut'.format(app_ext_obj.app_name)
         with allure.step(log_enable_ext_app):
             logger.info(log_enable_ext_app)
             SonicAppExtensionCli.enable_app(self.dut_engine, app_ext_obj.app_name)
@@ -105,7 +114,11 @@ class AppExtensionInstaller():
         log_check_app_ext = 'Checking app extension {} on the dut'.format(app_ext_obj.app_name)
         with allure.step(log_check_app_ext):
             logger.info(log_check_app_ext)
-            verify_app_container_up_and_repo_status_installed(self.dut_engine, app_ext_obj.app_name, app_ext_obj.version)
+            if 'lastrc' in app_ext_obj.version:
+                retry_verify_app_container_up(self.dut_engine, app_ext_obj.app_name)
+            else:
+                verify_app_container_up_and_repo_status_installed(self.dut_engine, app_ext_obj.app_name,
+                                                                  app_ext_obj.version)
 
     def is_sdk_version_app_extension_matches_sonic(self, app_ext_obj):
         log_check_app_ext_sdk = 'Checking syncd sdk version {} matches app extension {} sdk version on the dut'.\
@@ -130,7 +143,8 @@ class AppExtensionInstaller():
         log_uninstall_app_ext = 'Uninstalling app extension {} on the dut'.format(app_ext_obj.app_name)
         with allure.step(log_uninstall_app_ext):
             logger.info(log_uninstall_app_ext)
-            SonicAppExtensionCli.uninstall_app(self.dut_engine, app_ext_obj.app_name, is_force=True)
+            self.disable_app_ext(app_ext_obj)
+            SonicAppExtensionCli.uninstall_app(self.dut_engine, app_ext_obj.app_name)
 
     def remove_repository_app_ext(self, app_ext_obj):
         log_remove_repository_app_ext = 'Remove repository app extension {} on the dut'.format(app_ext_obj.app_name)
