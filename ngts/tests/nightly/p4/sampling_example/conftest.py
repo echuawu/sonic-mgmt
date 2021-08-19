@@ -43,10 +43,10 @@ def ignore_expected_loganalyzer_exceptions(loganalyzer):
         loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
-# TODO: after add function to install the app in the mars orchestration, need to disable this fixture
-@pytest.fixture(scope='package', autouse=True)
+@pytest.fixture(scope='package', autouse=False)
 def install_sampling_pipline(topology_obj):
     """
+    This fixture will be used for local debug, change the autouse to True when need to install the p4-sampling in script.
     Fixture used to install the p4-sampling app before run the testcase, and uninstall it after the testcase
     :param topology_obj: topology object fixture
     """

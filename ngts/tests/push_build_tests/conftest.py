@@ -188,8 +188,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
     if run_config_only or full_flow_run:
         logger.info('Starting PushGate Common configuration')
-        # TODO: temp solution, later the installation of the p4-sampling will be done during deploy image
-        fixture_helper.install_p4_sampling(engines.dut)
         InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
         LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
         VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
@@ -245,8 +243,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
         if P4SamplingUtils.check_p4_sampling_installed(engines.dut):
             fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, p4_sampling_table_params)
-        # TODO: temp solution, later the installation of the p4-sampling will be done during deploy image
-        fixture_helper.uninstall_p4_sampling(engines.dut)
         logger.info('Doing config save after cleanup')
         cli_object.general.save_configuration(engines.dut)
         logger.info('PushGate Common cleanup completed')

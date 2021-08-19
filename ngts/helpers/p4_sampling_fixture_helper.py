@@ -36,20 +36,12 @@ def skipping_p4_sampling_test_case(engine_dut):
         pytest.skip("Skipping p4-sampling test cases as p4-sampling is not installed.")
 
 
-def skip_all_p4_sampling():
-    # TODO: remove this function after 2687189 fixed
-    """Skipping p4-sampling test cases until the master support it. Bug SW #2687189"""
-    return True
-
-
 def install_p4_sampling(engine_dut):
     """
     install p4-sampling app
     :param engine_dut: dut ssh engine object
     :return: None
     """
-    if skip_all_p4_sampling():
-        return
     with allure.step('Check if the repository of the {} added and if it is Installed '.format(APP_NAME)):
         app_list = SonicAppExtensionCli.parse_app_package_list_dict(engine_dut)
         if APP_NAME in app_list:
@@ -82,8 +74,6 @@ def uninstall_p4_sampling(engine_dut):
     :param engine_dut: dut ssh engine object
     :return: None
     """
-    if skip_all_p4_sampling():
-        return
     with allure.step('Disable {}'.format(APP_NAME)):
         SonicGeneralCli.set_feature_state(engine_dut, APP_NAME, 'disabled')
     with allure.step('Uninstall {}'.format(APP_NAME)):
