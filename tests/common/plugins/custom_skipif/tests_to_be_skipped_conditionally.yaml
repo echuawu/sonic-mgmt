@@ -49,13 +49,6 @@ platform_tests/api/test_sfp.py:
   - GitHub:
       - https://github.com/Azure/sonic-mgmt/issues/3886
 
-# Sensors
-platform_tests/test_sensors.py:
-  - Redmine:
-    - 2430822
-    Platform:
-    - msn4
-
 ########## Canonical ##########
 # Nightly
 tests/nightly/auto_negotition:
