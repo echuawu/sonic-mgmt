@@ -89,3 +89,23 @@ class SonicVlanCli(VlanCliCommon):
         :return: command output
         """
         return engine.run_cmd("show vlan config")
+
+    @staticmethod
+    def shutdown_vlan(engine, vlan):
+        """
+        This method is to shutdown vlan
+        :param engine: ssh engine object
+        :param vlan: vlan ID
+        :return: command output
+        """
+        return engine.run_cmd("sudo ip link set dev Vlan{} down".format(vlan))
+
+    @staticmethod
+    def startup_vlan(engine, vlan):
+        """
+        This method is to startup vlan
+        :param engine: ssh engine object
+        :param vlan: vlan ID
+        :return: command output
+        """
+        return engine.run_cmd("sudo ip link set dev Vlan{} up".format(vlan))

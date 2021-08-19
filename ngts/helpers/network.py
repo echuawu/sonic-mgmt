@@ -1,4 +1,4 @@
-import netaddr
+from netaddr import EUI
 import ipaddress
 
 
@@ -6,7 +6,7 @@ def generate_mac(num):
     """ Generate list of MAC addresses in format XX:XX:XX:XX:XX:XX """
     mac_list = list()
     for mac_postfix in range(1, num + 1):
-        mac_list.append(str(netaddr.EUI(mac_postfix)).replace("-", ":"))
+        mac_list.append(str(EUI(mac_postfix)).replace("-", ":"))
     return mac_list
 
 
@@ -57,3 +57,19 @@ def get_bpf_filter_for_ipv6_address(ipv6_address, offset, base_proto='ip6', is_f
     tcpdump_filter += ' and {}[{}:{}] == 0x{}'.format(base_proto, offset + 14, two_bytes_size, ipv6_address_long_part8)
 
     return tcpdump_filter
+
+
+def gen_new_mac_based_old_mac(mac):
+    """
+    This method is to generate one different mac base on the given mac by changing the last two hex
+    :param mac: mac address
+    e.g.:
+        original mac: 0c:42:a1:88:0a:01, is changed to new mac: 0c:42:a1:88:0a:02
+    :return: new mac
+    """
+
+    mac = EUI(mac)
+    new_mac_int = int(mac) + 1
+    new_mac = str(EUI(new_mac_int)).replace("-", ":")
+
+    return new_mac
