@@ -80,14 +80,13 @@ def _parse_args():
     parser.add_argument("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
                                                  " Example: http://fit69.mtl.labs.mlnx/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
                         dest="onyx_image_url", default=None)
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--wjh-deb-url", help="Specify url to WJH debian package",
+    parser.add_argument("--wjh-deb-url", help="Specify url to WJH debian package",
                         dest="wjh_deb_url", default="")
-    group.add_argument("--app_extension_dict_path",
+    parser.add_argument("--app_extension_dict_path",
                        help="Specify path with json data of app extensions"
                             " Content of file: '{\"lc-manager\":\"harbor.mellanox.com/sonic-lc-manager/lc-manager:0.0.6\","
                             "\"p4-sampling\":\"harbor.mellanox.com/sonic-p4/p4-sampling:0.2.0-004\"}' ",
-                       dest="app_extension_dict_path", default=None)
+                       dest="app_extension_dict_path", default="")
 
     return parser.parse_args()
 
@@ -538,12 +537,20 @@ def install_supported_app_extensions(ansible_path, mgmt_docker_engine, setup_nam
         mgmt_docker_engine.run(cmd)
 
 
+def validate_args(args):
+    if args.deploy_only_target == 'yes' and not args.target_version:
+        raise Exception('Argument "target_version" must be provided when "deploy_only_target" flag is set to "yes".'
+                        ' Please provide a target version.')
+    if args.wjh_deb_url and args.app_extension_dict_path:
+        raise Exception('Argument wjh_deb_url or app_extension_dict_path should be provided, you provided both')
+
+
 def main():
 
     logger.info("Deploy SONiC testing topology and upgrade switch")
 
     args = _parse_args()
-
+    validate_args(args)
     workspace_path = args.workspace_path
     repo_name = args.repo_name
     repo_path = os.path.join(workspace_path, repo_name)
