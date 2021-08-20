@@ -115,8 +115,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                  'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_1, '10G')},
                 {'iface': interfaces.dut_hb_2, 'speed': '10G',
                  'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '10G')}
-                ],
-        'ha': [{'iface': 'dummy0', 'create': True, 'type': 'dummy'}]
+                ]
     }
 
     # LAG/LACP config which will be used in test
@@ -135,8 +134,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'vlan_id': 690, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 691, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 10, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
-                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]},
-                {'vlan_id': 2345, 'vlan_members': [{'PortChannel0002': 'trunk'}]}
+                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]}
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 690, 'vlan_members': [{interfaces.ha_dut_2: None}]},
@@ -145,8 +143,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{'bond0': None}]},
                {'vlan_id': 69, 'vlan_members': [{'bond0': None}]},
-               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]},
-               {'vlan_id': 2345, 'vlan_members': [{'bond0': None}]}
+               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]}
                ]
     }
 
@@ -163,19 +160,16 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 ],
         'ha': [{'iface': '{}.40'.format(interfaces.ha_dut_2), 'ips': [('40.0.0.2', '24'), ('4000::2', '64')]},
                {'iface': '{}.10'.format(interfaces.ha_dut_2), 'ips': [(P4SamplingEntryConsts.hadut2_ip, '24')]},
-               {'iface': 'bond0', 'ips': [('30.0.0.2', '24'), ('3000::2', '64')]},
-               {'iface': 'dummy0', 'ips': [('10.1.1.32', '32')]}
+               {'iface': 'bond0', 'ips': [('30.0.0.2', '24'), ('3000::2', '64')]}
                ],
         'hb': [{'iface': 'bond0.40', 'ips': [('40.0.0.3', '24'), ('4000::3', '64')]},
                {'iface': 'bond0.69', 'ips': [('69.0.0.2', '24'), ('6900::2', '64')]},
-               {'iface': '{}.50'.format(interfaces.hb_dut_1), 'ips': [(P4SamplingEntryConsts.hbdut1_ip, '24')]},
-               {'iface': 'bond0.2345', 'ips': [('23.45.0.2', '24')]}
+               {'iface': '{}.50'.format(interfaces.hb_dut_1), 'ips': [(P4SamplingEntryConsts.hbdut1_ip, '24')]}
                ]
     }
 
     # Static route config which will be used in test
     static_route_config_dict = {
-        'ha': [{'dst': '10.1.0.32', 'dst_mask': 32, 'via': ['30.0.0.1']}],
         'hb': [{'dst': '69.0.1.0', 'dst_mask': 24, 'via': ['69.0.0.1']},
                {'dst': '69.1.0.0', 'dst_mask': 24, 'via': ['69.0.0.1']}]
     }
@@ -189,9 +183,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     }
 
     vxlan_config_dict = {
-        'dut': [{'vtep_name': 'vtep_76543', 'vtep_src_ip': '10.1.0.32', 'vni': 76543, 'vlan': 2345}],
-        'ha': [{'vtep_name': 'vtep_76543', 'vtep_src_ip': '10.1.1.32', 'vtep_dst_ip': '10.1.0.32', 'vni': 76543,
-                'vtep_ips': [('23.45.0.1', '24')]}]
+        'dut': [{'vtep_name': 'vtep_76543', 'vtep_src_ip': '10.1.0.32', 'vni': 76543, 'vlan': 69}]
     }
 
     if run_config_only or full_flow_run:
