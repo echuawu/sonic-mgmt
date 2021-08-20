@@ -49,6 +49,12 @@ platform_tests/api/test_sfp.py:
   - GitHub:
       - https://github.com/Azure/sonic-mgmt/issues/3886
 
+# bgp
+bgp/test_bgp_gr_helper.py:
+  - Redmine:
+    - 2710060
+
+
 ########## Canonical ##########
 # Nightly
 tests/nightly/auto_negotition:
