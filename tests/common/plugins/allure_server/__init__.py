@@ -5,10 +5,15 @@ import requests
 import base64
 import re
 import subprocess
+import sys
+import allure
+import pytest
+import copy
 
 logger = logging.getLogger()
 
 ALLURE_REPORT_URL = 'allure_report_url'
+PYTEST_RUN_CMD = 'pytest_run_cmd'
 
 
 def pytest_addoption(parser):
@@ -77,12 +82,14 @@ def get_setup_session_info(session):
     platform = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
     hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
     asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
+    pytest_run_cmd_args = session.config.cache.get('pytest_run_cmd', None)
 
     result = {
         "Version": version.findall(output)[0] if version.search(output) else "",
         "Platform": platform.findall(output)[0] if platform.search(output) else "",
         "HwSKU": hwsku.findall(output)[0] if hwsku.search(output) else "",
-        "ASIC": asic.findall(output)[0] if asic.search(output) else ""
+        "ASIC": asic.findall(output)[0] if asic.search(output) else "",
+        "PyTest_args": pytest_run_cmd_args
     }
 
     return result
@@ -114,6 +121,87 @@ def get_time_stamp_str():
     current_time = time.time()
     current_time_without_dot = str(current_time).replace('.', '')
     return current_time_without_dot
+
+
+@pytest.fixture(autouse=True, scope='session')
+def ptest_session_run_cmd(request):
+    """
+    Fixture which return pytest run command for full pytest session(similar to command provided by user)
+    :param request: pytest buildin
+    :return: string with pytest run command
+    """
+    pytest_run_cmd = get_pytest_run_cmd(request)
+    request.session.config.cache.set(PYTEST_RUN_CMD, pytest_run_cmd)
+
+    yield
+
+
+@pytest.fixture(autouse=True)
+def ptest_run_cmd(request):
+    """
+    Fixture which return pytest run command for specific test case
+    :param request: pytest buildin
+    :return: string with pytest run command
+    """
+    pytest_run_cmd = get_pytest_run_cmd(request, get_current_test_run_cmd=True)
+    allure.attach(pytest_run_cmd, PYTEST_RUN_CMD, allure.attachment_type.TEXT)
+
+    yield
+
+
+def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
+    """
+    This method gets pytest run command and based on it - it can return original pytest run command or
+    build command for run only specific test case
+    :param request: pytest buildin
+    :param get_current_test_run_cmd: if True - will return command for run specific test only(by default return
+    original pytest run cmd)
+    :return: string with pytest run command
+    """
+    pytest_cmd_line_args = copy.deepcopy(sys.argv)
+    nodeid = request.node.nodeid
+    path_to_current_test = nodeid.split('::')[0]
+    path_to_current_test_list = path_to_current_test.split('/')
+
+    new_test_path = None
+    test_path_args_index = None
+
+    for arg in pytest_cmd_line_args:
+        # Fix for -k argument
+        k_arg = '-k='
+        if k_arg in arg:
+            k_arg_value = arg.split(k_arg)[1]
+            pytest_cmd_line_args[pytest_cmd_line_args.index(arg)] = '{}"{}"'.format(k_arg, k_arg_value)
+
+        # Fix for --inventory
+        inv_arg = '--inventory='
+        if inv_arg in arg:
+            inv_arg_value = arg.split(inv_arg)[1]
+            pytest_cmd_line_args[pytest_cmd_line_args.index(arg)] = '{}"{}"'.format(inv_arg, inv_arg_value)
+
+        # Fix for --allure_server_addr
+        allure_serv_arg = '--allure_server_addr='
+        if allure_serv_arg in arg:
+            allure_serv_arg_value = arg.split(allure_serv_arg)[1]
+            pytest_cmd_line_args[pytest_cmd_line_args.index(arg)] = '{}"{}"'.format(allure_serv_arg,
+                                                                                    allure_serv_arg_value)
+
+        # If need pytest run command for specific test only - then building args with path to test case
+        if get_current_test_run_cmd:
+            for i in range(len(path_to_current_test_list)):
+                path = '/'.join(path_to_current_test_list[:-i])
+                if path in arg:
+                    if path != '':
+                        test_path_args_index = pytest_cmd_line_args.index(arg)
+                        new_test_path = ''.join([arg.split(path)[0], path, nodeid.split(path)[1]])
+                        break
+
+    if new_test_path:
+        pytest_cmd_line_args[test_path_args_index] = new_test_path
+
+    cmd = ' '.join(pytest_cmd_line_args)
+
+    return cmd
 
 
 class AllureServer:
