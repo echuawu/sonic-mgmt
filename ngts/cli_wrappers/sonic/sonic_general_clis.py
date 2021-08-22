@@ -84,6 +84,12 @@ class SonicGeneralCli(GeneralCliCommon):
         return output
 
     @staticmethod
+    def get_image_sonic_version(engine):
+        output = engine.run_cmd('sudo show boot')
+        current_image = re.search(r"Current:\s*SONiC-OS-([\d|\w]*)\..*", output, re.IGNORECASE).group(1)
+        return current_image
+
+    @staticmethod
     def set_default_image(engine, image_binary, delimiter='-'):
         output = engine.run_cmd('sudo sonic{}installer set{}default {}'.format(delimiter, delimiter, image_binary),
                                 validate=True)
@@ -436,23 +442,49 @@ class SonicGeneralCli(GeneralCliCommon):
     def apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku):
         shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
-        switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
-        dut_engine.run_cmd(
-            'sudo curl {}/{} -o {}'.format(shared_path, SonicConst.PORT_CONFIG_INI, switch_config_ini_path))
-
+        SonicGeneralCli.upload_port_config_ini(dut_engine, platform, hwsku, shared_path)
         SonicGeneralCli.upload_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku, shared_path)
 
         dut_engine.reload(['sudo reboot'])
 
     @staticmethod
+    def upload_port_config_ini(dut_engine, platform, hwsku, shared_path):
+        switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
+        dut_engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path,
+                                                          SonicConst.PORT_CONFIG_INI,
+                                                          switch_config_ini_path))
+
+    @staticmethod
     def upload_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku, shared_path):
-        config_db_file = SonicConst.CONFIG_DB_JSON
-        if SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku):
-            config_db_file = SonicGeneralCli.update_config_db_file(topology_obj, setup_name, dut_engine,
-                                                                   cli_object, hwsku)
-        config_db_file = SonicGeneralCli.update_config_db_metadata_router(setup_name, config_db_file)
+        config_db_file = SonicGeneralCli.get_updated_config_db(topology_obj, setup_name, dut_engine, cli_object, hwsku)
         dut_engine.run_cmd(
             'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH))
+
+    @staticmethod
+    def get_updated_config_db(topology_obj, setup_name, dut_engine, cli_object, hwsku):
+        config_db_file_name = "{}_config_db.json".format(SonicGeneralCli.get_image_sonic_version(dut_engine))
+        base_config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name)
+        SonicGeneralCli.create_extended_config_db_file(setup_name, base_config_db_json,
+                                                       file_name=config_db_file_name)
+        SonicGeneralCli.update_config_db_metadata_router(setup_name, config_db_file_name)
+        SonicGeneralCli.update_config_db_features(setup_name, dut_engine, hwsku, config_db_file_name)
+        if SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku):
+            SonicGeneralCli.update_config_db_breakout_cfg(topology_obj, setup_name, dut_engine,
+                                                          cli_object, hwsku, config_db_file_name)
+        return config_db_file_name
+
+    @staticmethod
+    def update_config_db_features(setup_name, dut_engine, hwsku, config_db_json_file_name):
+        init_config_db_json = SonicGeneralCli.get_init_config_db_json_obj(dut_engine, hwsku)
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+        image_supported_features = init_config_db_json[ConfigDbJsonConst.FEATURE]
+        current_features = config_db_json[ConfigDbJsonConst.FEATURE]
+        for feature, feature_properties in image_supported_features.items():
+            if feature not in current_features:
+                config_db_json[ConfigDbJsonConst.FEATURE][feature] = feature_properties
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
 
     @staticmethod
     def update_config_db_metadata_router(setup_name, config_db_json_file_name):
@@ -507,14 +539,15 @@ class SonicGeneralCli(GeneralCliCommon):
         return True
 
     @staticmethod
-    def update_config_db_file(topology_obj, setup_name, dut_engine, cli_object, hwsku):
-        config_db_file = SonicConst.CONFIG_DB_JSON
+    def update_config_db_breakout_cfg(topology_obj, setup_name, dut_engine,
+                                      cli_object, hwsku, config_db_json_file_name):
         init_config_db_json = SonicGeneralCli.get_init_config_db_json_obj(dut_engine, hwsku)
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name, config_db_json_file_name)
         if init_config_db_json.get("BREAKOUT_CFG"):
-            config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name)
-            config_db_file = SonicGeneralCli.update_breakout_cfg(topology_obj, setup_name, dut_engine,
-                                                                 cli_object, init_config_db_json, config_db_json)
-        return config_db_file
+            config_db_json = SonicGeneralCli.update_breakout_cfg(topology_obj, dut_engine, cli_object,
+                                                                 init_config_db_json, config_db_json)
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
 
     @staticmethod
     def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
@@ -532,12 +565,11 @@ class SonicGeneralCli(GeneralCliCommon):
         return init_config_db_json
 
     @staticmethod
-    def update_breakout_cfg(topology_obj, setup_name, dut_engine, cli_object,
+    def update_breakout_cfg(topology_obj, dut_engine, cli_object,
                             init_config_db_json, config_db_json):
         """
         This function updates the config_sb.json file with BREAKOUT_CFG section
         :param topology_obj: a topology object fixture
-        :param setup_name: i.e, sonic_anaconda_r-anaconda-51
         :param dut_engine: an ssh engine of the dut
         :param cli_object: a cli obj of the dut
         :param init_config_db_json: a json object of the initial config_db.json file on the dut
@@ -554,7 +586,7 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                                     split_num,
                                                                                     parsed_platform_json_by_breakout_modes)
         config_db_json["BREAKOUT_CFG"] = breakout_cfg_dict
-        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json)
+        return config_db_json
 
     @staticmethod
     def create_extended_config_db_file(setup_name, config_db_json, file_name=SonicConst.EXTENDED_CONFIG_DB_PATH):
