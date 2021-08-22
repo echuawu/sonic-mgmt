@@ -40,6 +40,7 @@ def test_configure_preset_on_dut(topology_obj, setup_name, platform_params, pres
 
     with allure.step("Copy the updated {} to switch".format(config_db_file)):
         logger.info("Copy the updated {} to switch".format(config_db_file))
+        dut_engine.run_cmd('sudo dhclient')
         dut_engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path, config_db_file,
                                                           SonicConst.CONFIG_DB_JSON_PATH))
 
