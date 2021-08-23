@@ -54,6 +54,14 @@ bgp/test_bgp_gr_helper.py:
   - Redmine:
     - 2710060
 
+# drop_packets
+drop_packets/test_drop_counters.py::test_not_expected_vlan_tag_drop:
+  - Redmine:
+    - 2779863
+drop_packets/test_drop_counters.py::test_ip_pkt_with_expired_ttl:
+  - Redmine:
+    - 2779864
+
 
 ########## Canonical ##########
 # Nightly
