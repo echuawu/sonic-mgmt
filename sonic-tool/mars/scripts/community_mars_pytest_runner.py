@@ -149,10 +149,10 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         allure_proj = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=False)
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
-        cmd = "py.test {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
+        cmd = "py.test {SCRIPTS} --inventory \"../ansible/inventory, ../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} --allure_server_project_id={ALLURE_PROJ}"
+               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} --allure_server_project_id {ALLURE_PROJ}"
         cmd = cmd.format(SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
                          SONIC_TOPO=self.sonic_topo,
