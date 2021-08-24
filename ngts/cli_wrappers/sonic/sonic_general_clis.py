@@ -468,6 +468,8 @@ class SonicGeneralCli(GeneralCliCommon):
                                                        file_name=config_db_file_name)
         SonicGeneralCli.update_config_db_metadata_router(setup_name, config_db_file_name)
         SonicGeneralCli.update_config_db_features(setup_name, dut_engine, hwsku, config_db_file_name)
+        SonicGeneralCli.update_config_db_feature_config(setup_name, "database", "auto_restart",
+                                                        "always_enabled", config_db_file_name)
         if SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku):
             SonicGeneralCli.update_config_db_breakout_cfg(topology_obj, setup_name, dut_engine,
                                                           cli_object, hwsku, config_db_file_name)
@@ -510,6 +512,15 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                 config_db_json_file_name=config_db_json_file_name)
         config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.HOSTNAME] = \
             hostname
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
+
+    @staticmethod
+    def update_config_db_feature_config(setup_name, feature_name, feature_config_key, feature_config_value,
+                                        config_db_json_file_name):
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+        config_db_json[ConfigDbJsonConst.FEATURE][feature_name][feature_config_key] = feature_config_value
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
                                                               file_name=config_db_json_file_name)
 
