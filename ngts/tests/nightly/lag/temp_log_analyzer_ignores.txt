@@ -1,7 +1,7 @@
 r, ".* ERR \/hostcfgd: Unexpected state value 'always_enabled' for feature .*"
 r, ".* ERR caclmgrd\[.*\]: :- initializeGlobalConfig: Sonic database config global file doesn't exist at .*"
 r, ".* WARNING syncd#SDK: \[LAG\.WARNING\] \[sx_lag_port_group_get\] incomplete logport list retrieving.*"
-r, ".* WARNING syncd#SDK: \[.*\] mlnx_sai_switch\.c\[.*]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet"
+r, ".* WARNING syncd#SDK:.* \[.*] mlnx_sai_switch.c\[.*\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet.*"
 r, ".* ERR teamd#tlm_teamd: :- get_dump: Can't get dump for LAG 'PortChannel\d+'.*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access failed \(.*\)"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock"
