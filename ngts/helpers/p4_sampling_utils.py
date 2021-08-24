@@ -15,7 +15,6 @@ APP_NAME = P4SamplingConsts.APP_NAME
 PORT_TABLE_NAME = P4SamplingConsts.PORT_TABLE_NAME
 FLOW_TABLE_NAME = P4SamplingConsts.FLOW_TABLE_NAME
 ACTION_NAME = P4SamplingConsts.ACTION_NAME
-COUNTER_REFRESH_INTERVAL = 5  # TODO: the interval hasn't been finalized by design team, it need be changed after desgin team change it.(maybe it will be changed to 1s)
 TRAFFIC_INTERVAL = P4SamplingConsts.TRAFFIC_INTERVAL
 
 
@@ -316,7 +315,7 @@ class P4SamplingUtils:
         :return: None
         """
 
-        time.sleep(COUNTER_REFRESH_INTERVAL)
+        time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
         hit_counters = P4SamplingCli.show_and_parse_table_counters(
             engine, table_name)
         for entry_key in entry_keys:

@@ -492,6 +492,7 @@ class P4SamplingConsts:
     FLOW_TABLE_NAME = 'table_flow_sampling'
     ACTION_NAME = 'DoMirror'
     TRAFFIC_INTERVAL = 0.2
+    COUNTER_REFRESH_INTERVAL = 10
 
 
 class LoganalyzerConsts:

@@ -10,8 +10,6 @@ from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 import time
 
-COUNTER_REFRESH_INTERVAL = 5
-
 
 @pytest.fixture(scope='function', autouse=False)
 def different_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac,
@@ -343,7 +341,7 @@ def get_hit_entry_list(engine_dut, table_name, entries, expect_count):
     hit_indices = []
     entry_keys = list(entries.keys())
     entry_count = len(entry_keys)
-    time.sleep(COUNTER_REFRESH_INTERVAL)
+    time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
     hit_counters = P4SamplingCli.show_and_parse_table_counters(engine_dut, table_name)
     for i in range(entry_count):
         entry_key = entry_keys[i]
