@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 pytestmark = [
     pytest.mark.disable_loganalyzer,
-    pytest.mark.pretest,
     pytest.mark.topology('util') #special marker
 ]
 
