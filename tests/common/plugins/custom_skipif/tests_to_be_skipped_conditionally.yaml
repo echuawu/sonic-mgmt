@@ -4,11 +4,6 @@ platform_tests/test_auto_negotiation.py:
   - Platform:
     - 3800
 
-# Ci_community
-vxlan/test_vnet_vxlan.py:
-  - Redmine:
-    - 2413591
-
 # ecmp
 ecmp/test_fgnhg.py:
   - Redmine:
@@ -39,7 +34,7 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
 
 platform_tests/test_cpu_memory_usage.py:
   - Redmine:
-    - 2716519
+    - 2769629
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
   - GitHub:
@@ -165,17 +160,9 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/static_route/test_static_route.py:
-  - Redmine:
-    - 2705262
-
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
     - simx
-
-tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage:
-  - Redmine:
-    - 2716189
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   - Redmine:
