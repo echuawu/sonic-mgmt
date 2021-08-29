@@ -86,7 +86,7 @@ class SonicGeneralCli(GeneralCliCommon):
     @staticmethod
     def get_image_sonic_version(engine):
         output = engine.run_cmd('sudo show boot')
-        current_image = re.search(r"Current:\s*SONiC-OS-([\d|\w]*)\..*", output, re.IGNORECASE).group(1)
+        current_image = re.search(r"Current:\s*SONiC-OS-([\d|\w|\-]*)\..*", output, re.IGNORECASE).group(1)
         return current_image
 
     @staticmethod
