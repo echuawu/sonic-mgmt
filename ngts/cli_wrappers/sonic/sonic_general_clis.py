@@ -20,7 +20,7 @@ from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from infra.tools.connection_tools.onie_engine import OnieEngine
 from infra.tools.exceptions.real_issue import RealIssue
-from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst
+from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, AppExtensionInstallationConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -186,6 +186,16 @@ class SonicGeneralCli(GeneralCliCommon):
     @staticmethod
     @retry(Exception, tries=15, delay=10)
     def verify_dockers_are_up(engine, dockers_list=None):
+        """
+        Verifying the dockers are in up state during a specific time interval
+        :param engine: ssh engine object
+        :param dockers_list: list of dockers to check
+        :return: None, raise error in case of unexpected result
+        """
+        SonicGeneralCli._verify_dockers_are_up(engine, dockers_list)
+
+    @staticmethod
+    def _verify_dockers_are_up(engine, dockers_list):
         """
         Verifying the dockers are in up state
         :param engine: ssh engine object
@@ -617,9 +627,16 @@ class SonicGeneralCli(GeneralCliCommon):
         wjh_package_local_name = '/home/admin/wjh.deb'
         dut_engine.run_cmd('sudo curl {} -o {}'.format(wjh_deb_url, wjh_package_local_name))
         dut_engine.run_cmd('sudo dpkg -i {}'.format(wjh_package_local_name), validate=True)
+        logger.info('Sleep {} after what-just-happened installation'.format(InfraConst.SLEEP_AFTER_WJH_INSTALLATION))
+        time.sleep(InfraConst.SLEEP_AFTER_WJH_INSTALLATION)
         SonicGeneralCli.set_feature_state(dut_engine, 'what-just-happened', 'enabled')
         SonicGeneralCli.save_configuration(dut_engine)
         dut_engine.run_cmd('sudo rm -f {}'.format(wjh_package_local_name))
+        retry_call(SonicGeneralCli._verify_dockers_are_up,
+                   fargs=[dut_engine, [AppExtensionInstallationConstants.WJH_APP_NAME]],
+                   tries=24,
+                   delay=10,
+                   logger=logger)
 
     @staticmethod
     def execute_command_in_docker(dut_engine, docker, command):

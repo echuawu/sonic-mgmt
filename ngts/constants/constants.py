@@ -51,6 +51,7 @@ class InfraConst:
     NGTS_PATH_PYTEST = '/ngts_venv/bin/pytest'
     SLEEP_BEFORE_RRBOOT = 5
     SLEEP_AFTER_RRBOOT = 35
+    SLEEP_AFTER_WJH_INSTALLATION = 100
     IP = 'ip'
     MASK = 'mask'
 
