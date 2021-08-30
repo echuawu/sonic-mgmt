@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CASEDEF>
+    <global>
+        <Test>
+            <info> Static Route Test </info>
+            <name> static_route </name>
+            <owner></owner>
+            <pre></pre>
+            <post></post>
+        </Test>
+        <Case>
+            <tags> ROUTES </tags>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
+            <tout> 3600 </tout>
+        </Case>
+    </global>
+
+    <case>
+        <ignore>
+            <ignore_by_tag> TAG_ISSU_DISABLED </ignore_by_tag>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
+        <info> Static Route Case </info>
+        <name> static_route </name>
+        <tout> 3600 </tout>
+        <cmd>
+            <params>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts route/test_static_route.py </static_args>
+            </params>
+        </cmd>
+    </case>
+</CASEDEF>

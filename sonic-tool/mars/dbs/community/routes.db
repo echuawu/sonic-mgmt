@@ -60,5 +60,8 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/route_perf.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/static_route.cases </cases>
+    </test>
 
 </DBDEF>
