@@ -1,5 +1,5 @@
 r, ".* ERR mlxfwmanager: LIBMVPD: MVPD_READ4 failed on offset:.*"
-r, ".* ERR /container: docker cmd: kill for sflow failed .*"
+r, ".* ERR \/container: docker cmd: kill for .* failed .*"
 r, ".* ERR pmon#thermalctld: Caught exception while running thermal policy .*"
 r, ".* ERR (caclmgrd|\/hostcfgd).*: :- poll_descriptors: readData error: Unable to read redis reply.*"
 r, ".* INFO hostcfgd.*:     raise ConnectionError.*"
