@@ -44,291 +44,287 @@ platform_tests/api/test_sfp.py:
   - GitHub:
       - https://github.com/Azure/sonic-mgmt/issues/3886
 
-tests/platform_tests/api/test_chassis.py::TestChassisApi::test_get_presence:
+platform_tests/api/test_chassis.py::TestChassisApi::test_components:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis.py::TestChassisApi::test_get_supervisor_slot:
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_presence:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis.py::TestChassisApi::test_get_my_slot:
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_supervisor_slot:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis.py::TestChassisApi::test_fan_drawers:
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_my_slot:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis.py::TestChassisApi::test_status_led:
+platform_tests/api/test_chassis.py::TestChassisApi::test_fan_drawers:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_fans_target_speed:
+platform_tests/api/test_chassis.py::TestChassisApi::test_status_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis_fans.py::TestChassisFans::test_set_fans_speed:
+platform_tests/api/test_chassis_fans.py::TestChassisFans::test_set_fans_speed:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis_fans.py::TestChassisFans::test_set_fans_led:
+platform_tests/api/test_chassis_fans.py::TestChassisFans::test_set_fans_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_model:
+platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_serial:
+platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu.py::TestPsuApi::test_get_status:
+platform_tests/api/test_psu.py::TestPsuApi::test_get_status:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu.py::TestPsuApi::test_power:
+platform_tests/api/test_psu.py::TestPsuApi::test_power:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu.py::TestPsuApi::test_led:
+platform_tests/api/test_psu.py::TestPsuApi::test_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu.py::TestPsuApi::test_master_led:
+platform_tests/api/test_psu.py::TestPsuApi::test_master_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_model:
+platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_serial:
+platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_fans_target_speed:
+platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_fans_target_speed:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu_fans.py::TestPsuFans::test_set_fans_speed:
+platform_tests/api/test_psu_fans.py::TestPsuFans::test_set_fans_speed:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_psu_fans.py::TestPsuFans::test_set_fans_led:
+platform_tests/api/test_psu_fans.py::TestPsuFans::test_set_fans_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_model:
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_serial:
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_status:
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_status:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_set_fan_drawers_led:
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_set_fan_drawers_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_maximum_consumed_power:
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_maximum_consumed_power:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_model:
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_serial:
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_target_speed:
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_speed:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_speed:
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_led:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_led:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_name:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_name:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_model:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_serial:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_status:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_status:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_position_in_parent:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_position_in_parent:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_reset_status:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_reset_status:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_rx_los:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_rx_los:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_fault:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_fault:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_temperature:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_temperature:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_voltage:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_voltage:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_bias:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_bias:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_rx_power:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_rx_power:
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_power:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_power:
+platform_tests/api/test_sfp.py::TestSfpApi::test_tx_disable:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_tx_disable:
+platform_tests/api/test_sfp.py::TestSfpApi::test_tx_disable_channel:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_tx_disable_channel:
+platform_tests/api/test_sfp.py::TestSfpApi::test_power_override:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_power_override:
+platform_tests/api/test_sfp.py::TestSfpApi::test_thermals:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_sfp.py::TestSfpApi::test_thermals:
+platform_tests/api/test_component.py::TestComponentApi::test_get_name:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_name:
+platform_tests/api/test_component.py::TestComponentApi::test_get_presence:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_presence:
+platform_tests/api/test_component.py::TestComponentApi::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_model:
+platform_tests/api/test_component.py::TestComponentApi::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_serial:
+platform_tests/api/test_component.py::TestComponentApi::test_get_status:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_status:
+platform_tests/api/test_component.py::TestComponentApi::test_get_position_in_parent:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_position_in_parent:
+platform_tests/api/test_component.py::TestComponentApi::test_is_replaceable:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_is_replaceable:
+platform_tests/api/test_component.py::TestComponentApi::test_get_description:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_description:
+platform_tests/api/test_component.py::TestComponentApi::test_get_firmware_version:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_firmware_version:
+platform_tests/api/test_component.py::TestComponentApi::test_get_available_firmware_version:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_available_firmware_version:
+platform_tests/api/test_component.py::TestComponentApi::test_get_firmware_update_notification:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_get_firmware_update_notification:
+platform_tests/api/test_component.py::TestComponentApi::test_install_firmware:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_install_firmware:
+platform_tests/api/test_component.py::TestComponentApi::test_update_firmware:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_component.py::TestComponentApi::test_update_firmware:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_presence:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_presence:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_model:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_model:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_serial:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_serial:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_status:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_status:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_temperature:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_temperature:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_minimum_recorded:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_minimum_recorded:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_maximum_recorded:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_maximum_recorded:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_low_threshold:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_low_threshold:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_high_threshold:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_high_threshold:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_low_critical_threshold:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_low_critical_threshold:
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_high_critical_threshold:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_get_high_critical_threshold:
+platform_tests/api/test_thermal.py::TestThermalApi::test_set_low_threshold:
   - Platform:
     - x86_64-mlnx_msn
 
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_set_low_threshold:
-  - Platform:
-    - x86_64-mlnx_msn
-
-tests/platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
+platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
   - Platform:
     - x86_64-mlnx_msn
 
@@ -339,8 +335,8 @@ bgp/test_bgp_gr_helper.py:
 
 # drop_packets
 drop_packets/test_drop_counters.py::test_ip_pkt_with_expired_ttl:
-  - Redmine:
-    - 2779864
+  - Platform:
+    - x86_64-mlnx_msn
 
 
 ########## Canonical ##########
