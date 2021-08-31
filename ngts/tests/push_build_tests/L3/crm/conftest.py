@@ -204,3 +204,17 @@ def disable_rsyslog_ratelimit(env):
         env.dut_engine.run_cmd(cmd_uncomment_interval)
         env.dut_engine.run_cmd(cmd_uncomment_burst)
         env.dut_engine.run_cmd(cmd_restart_rsyslogd)
+
+
+@pytest.fixture(autouse=False, scope="function")
+def ignore_expected_loganalyzer_exceptions(loganalyzer):
+    """
+    Expanding the ignore list of the loganalyzer for part of crm tests.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "crm_loganalyzer_ignore.txt")))
+        loganalyzer.ignore_regex.extend(ignore_regex_list)

@@ -28,7 +28,7 @@ from crm_helper import (
 @pytest.mark.push_gate
 @pytest.mark.parametrize('ip_ver,dst,mask', [('4', '2.2.2.0', 24), ('6', '2001::', 126)], ids=['ipv4', 'ipv6'])
 @allure.title('Test CRM route counters')
-def test_crm_route(env, cleanup, ip_ver, dst, mask):
+def test_crm_route(env, cleanup, ip_ver, dst, mask, ignore_expected_loganalyzer_exceptions):
     """
     Test doing verification of used and available CRM counters for the following resources:
     ipv4_route
@@ -65,7 +65,7 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask):
 @pytest.mark.parametrize("ip_ver,neighbor,neigh_mac_addr", [("4", "2.2.2.2", "11:22:33:44:55:66"),
                                                             ("6", "2001::1", "11:22:33:44:55:66")])
 @allure.title('Test CRM neighbor and nexthop counters')
-def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr):
+def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr, ignore_expected_loganalyzer_exceptions):
     """
     Test doing verification of used and available CRM counters for the following resources:
     ipv4_nexthop
@@ -114,7 +114,7 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('Test CRM nexthop and nexthop group counters')
-def test_crm_nexthop_group_and_member(env, cleanup):
+def test_crm_nexthop_group_and_member(env, cleanup, ignore_expected_loganalyzer_exceptions):
     """
     Test doing verification of used and available CRM counters for the following resources:
     nexthop_group_member
@@ -219,7 +219,7 @@ def test_crm_fdb_entry(env, cleanup, interfaces):
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('Test CRM ACL counters')
-def test_crm_acl(env, cleanup):
+def test_crm_acl(env, cleanup, ignore_expected_loganalyzer_exceptions):
     """
     Test doing verification of used and available CRM counters for the following resources:
     acl_entry

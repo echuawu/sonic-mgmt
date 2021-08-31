@@ -1,0 +1,1 @@
+r, ".* ERR swss#orchagent: :- removeLag: Failed to remove ref count.*\d+.*LAG PortChannel.*"
