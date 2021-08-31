@@ -35,6 +35,8 @@
       - root['DEVICE_METADATA']['localhost']['buffer_model']
       - root['FEATURE']['what-just-happened']
       - root['FEATURE']['restapi']
+    ignored_items:
+      - root['XCVRD_LOG']
     values_changed:
       - root['VERSIONS']['DATABASE']['VERSION']
   "master":
