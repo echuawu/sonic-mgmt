@@ -44,6 +44,10 @@ platform_tests/api/test_sfp.py:
   - GitHub:
       - https://github.com/Azure/sonic-mgmt/issues/3886
 
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
+  - Platform:
+    - x86_64-mlnx_msn
+
 platform_tests/api/test_chassis.py::TestChassisApi::test_components:
   - Platform:
     - x86_64-mlnx_msn
@@ -332,12 +336,6 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
 bgp/test_bgp_gr_helper.py:
   - Redmine:
     - 2710060
-
-# drop_packets
-drop_packets/test_drop_counters.py::test_ip_pkt_with_expired_ttl:
-  - Platform:
-    - x86_64-mlnx_msn
-
 
 ########## Canonical ##########
 # Nightly
