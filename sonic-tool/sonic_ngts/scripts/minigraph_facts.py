@@ -119,6 +119,7 @@ def generate_minigraph_facts(hostname):
     minigraph_facts["minigraph_portchannels"] = {}
     minigraph_facts["minigraph_devices"] = {}
     minigraph_facts["minigraph_neighbors"] = {}
+    minigraph_facts["minigraph_device_metadata"] = {"device_type": config_db_json["DEVICE_METADATA"]["localhost"]["type"]}
 
     return minigraph_facts
 

@@ -5,21 +5,46 @@
 - hosts: sonic
   gather_facts: no
   tasks:
-    - name: Wait until all critical services are started
-      shell: bash -c 'docker ps | grep {{ item }}'
-      register: result
-      until: result.rc == 0
-      with_items:
-        - swss
-        - syncd
-        - bgp
-        - teamd
-        - pmon
-        - lldp
-        - snmp
-        - dhcp_relay
-      retries: 10
-      delay: 30
+    - name: Gathering minigraph facts about the device
+      minigraph_facts: host={{ inventory_hostname }}
+      tags: always
+
+    - block:
+      - name: Wait until all critical services are started not LeafRouter(expected ToRRouter)
+        shell: bash -c 'docker ps | grep {{ item }}'
+        register: result
+        until: result.rc == 0
+        with_items:
+          - swss
+          - syncd
+          - bgp
+          - teamd
+          - pmon
+          - lldp
+          - snmp
+          - dhcp_relay
+        retries: 10
+        delay: 30
+
+      when: (minigraph_device_metadata["device_type"] != "LeafRouter")
+
+    - block:
+      - name: Wait until all critical services are started LeafRouter
+        shell: bash -c 'docker ps | grep {{ item }}'
+        register: result
+        until: result.rc == 0
+        with_items:
+          - swss
+          - syncd
+          - bgp
+          - teamd
+          - pmon
+          - lldp
+          - snmp
+        retries: 10
+        delay: 30
+
+      when: (minigraph_device_metadata["device_type"] == "LeafRouter")
 
     - block:
 
@@ -39,11 +64,6 @@
       shell: ssh-keygen -R {{ inventory_hostname }}
       delegate_to: localhost
       ignore_errors: yes
-
-    - name: Gathering minigraph facts about the device
-      minigraph_facts: host={{ inventory_hostname }}
-      tags: always
-
 
     - block:
 

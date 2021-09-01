@@ -203,7 +203,18 @@ class SonicGeneralCli(GeneralCliCommon):
         :return: None, raise error in case of unexpected result
         """
         if dockers_list is None:
-            dockers_list = SonicConst.DOCKERS_LIST
+            dockers_list = SonicConst.DOCKERS_LIST_LEAF
+
+            # Try to get extended docker list for DUT type ToRRouter
+            try:
+                config_db = SonicGeneralCli.get_config_db(engine)
+                if config_db['DEVICE_METADATA']['localhost']['type'] == 'ToRRouter':
+                    dockers_list = SonicConst.DOCKERS_LIST_TOR
+            except json.JSONDecodeError:
+                logger.warning('Can not get device type from config_db.json. Unable to parse config_db.json file')
+            except KeyError:
+                logger.warning('Can not get device type from config_db.json. Key does not exist')
+
         for docker in dockers_list:
             try:
                 engine.run_cmd('docker ps | grep {}'.format(docker), validate=True)

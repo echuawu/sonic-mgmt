@@ -17,7 +17,6 @@
         - pmon
         - lldp
         - snmp
-        - dhcp_relay
       retries: 10
       delay: 30
 
