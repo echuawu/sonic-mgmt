@@ -15,6 +15,7 @@ from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
 from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.helpers.network import gen_new_mac_based_old_mac
+from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
 
 logger = logging.getLogger()
 
@@ -295,3 +296,57 @@ def test_arp_gratuitous_with_arp_update(engines, players, pre_test_interface_dat
 
     except Exception as err:
         raise AssertionError(err)
+
+
+@allure.title('test arp proxy')
+def test_arp_proxy(engines, players, interfaces, pre_test_interface_data):
+    """
+    Verify arp behavior when arp proxy is disable/enable in one l2 domain
+    1. Disable arp proxy in vlan 40
+    2. Host A sends arp request to Host B
+    3. Verify Host B reply the arp request
+    4. Verify host A's mac and ip doesn't exist on DUT's arp table
+    5. Enable arp proxy in vlan 40
+    6. Host A sends arp request to Host B
+    7. Verify Dut reply the arp request, and host A's mac and ip exists on DUT's arp table
+    8. Recover the arp proxy to the default value by disabling it
+    :param engines: engines fixture
+    :param players: players fixture
+    :param interfaces: interfaces fixture
+    :param pre_test_interface_data: pre_test_interface_data fixture
+    """
+    try:
+        with allure.step('Get test interface data'):
+            interface_data = copy.deepcopy(pre_test_interface_data["vlan"])
+            logger.info("interface test data  is: {}".format(interface_data))
+        with allure.step('Disable arp proxy and check arp behavior'):
+            with allure.step('Disable arp proxy'):
+                SonicVlanCli.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
+            with allure.step(
+                    "Host A Send a broadcast arp request to host B, and Host B reply it"):
+                host_b_ip = "40.0.0.10"
+                host_b_mac = SonicMacCli.get_mac_address_for_interface(engines.hb, interfaces.hb_dut_1)
+                dut_mac = interface_data["dut_mac"]
+                interface_data["dut_ip"] = host_b_ip
+                interface_data["dut_mac"] = host_b_mac
+                arp_request_traffic_validation(players=players, interface_data=interface_data,
+                                               dst_mac="FF:FF:FF:FF:FF:FF",
+                                               receive_packet_count=1)
+            with allure.step("Verify DUT not add Host's IP and MAC into the ARP table"):
+                retry_call(verify_arp_entry_not_in_arp_table, fargs=[engines.dut, interface_data["host_ip"]], tries=3,
+                           delay=10,
+                           logger=logger)
+
+        with allure.step('Enable arp proxy and check arp behavior'):
+            with allure.step('Enable arp proxy'):
+                SonicVlanCli.enable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
+            with allure.step(
+                    "Host A Send a broadcast arp request to host B, and DUT reply it"):
+                interface_data["dut_mac"] = dut_mac
+                send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data)
+
+    except Exception as err:
+        raise AssertionError(err)
+    finally:
+        with allure.step('Recover the default config of arp proxy by disabing arp proxy'):
+            SonicVlanCli.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])

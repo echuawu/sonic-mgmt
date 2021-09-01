@@ -109,3 +109,23 @@ class SonicVlanCli(VlanCliCommon):
         :return: command output
         """
         return engine.run_cmd("sudo ip link set dev Vlan{} up".format(vlan))
+
+    @staticmethod
+    def disable_vlan_arp_proxy(engine, vlan):
+        """
+        This method is to disable arp proxy in vlan
+        :param engine: ssh engine object
+        :param vlan: vlan ID
+        :return: command output
+        """
+        return engine.run_cmd("sudo config vlan proxy_arp {} disabled".format(vlan), validate=True)
+
+    @staticmethod
+    def enable_vlan_arp_proxy(engine, vlan):
+        """
+        This method is to enable arp proxy in vlan
+        :param engine: ssh engine object
+        :param vlan: vlan ID
+        :return: command output
+        """
+        return engine.run_cmd("sudo config vlan proxy_arp {} enabled".format(vlan), validate=True)

@@ -41,9 +41,12 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
 
     # VLAN config which will be used in test
     vlan_config_dict = {
-        'dut': [{'vlan_id': 40, 'vlan_members': [{interfaces.dut_ha_2: 'access'}]},
+        'dut': [{'vlan_id': 40, 'vlan_members': [{interfaces.dut_ha_2: 'access'},
+                                                 {interfaces.dut_hb_1: 'access'}]},
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]},
+               ],
+        'hb': [{'vlan_id': 40, 'vlan_members': [{interfaces.hb_dut_1: None}]},
                ]
     }
 
@@ -56,7 +59,8 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
         'ha': [{'iface': '{}'.format(interfaces.ha_dut_2), 'ips': [('40.0.0.2', '24')]},
                {'iface': interfaces.ha_dut_1, 'ips': [('30.0.0.2', '24')]},
                ],
-        'hb': [{'iface': "bond0", 'ips': [('50.0.0.2', '24')]}]
+        'hb': [{'iface': "bond0", 'ips': [('50.0.0.2', '24')]},
+               {'iface': interfaces.hb_dut_1, 'ips': [('40.0.0.10', '24')]}]
     }
 
     LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
