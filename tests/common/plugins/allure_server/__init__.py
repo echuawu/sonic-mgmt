@@ -5,10 +5,15 @@ import requests
 import base64
 import re
 import subprocess
+import sys
+import allure
+import pytest
+import copy
 
 logger = logging.getLogger()
 
 ALLURE_REPORT_URL = 'allure_report_url'
+PYTEST_RUN_CMD = 'pytest_run_cmd'
 
 
 def pytest_addoption(parser):
@@ -77,12 +82,14 @@ def get_setup_session_info(session):
     platform = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
     hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
     asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
+    pytest_run_cmd_args = session.config.cache.get(PYTEST_RUN_CMD, None)
 
     result = {
         "Version": version.findall(output)[0] if version.search(output) else "",
         "Platform": platform.findall(output)[0] if platform.search(output) else "",
         "HwSKU": hwsku.findall(output)[0] if hwsku.search(output) else "",
-        "ASIC": asic.findall(output)[0] if asic.search(output) else ""
+        "ASIC": asic.findall(output)[0] if asic.search(output) else "",
+        "PyTest_args": pytest_run_cmd_args
     }
 
     return result
@@ -114,6 +121,72 @@ def get_time_stamp_str():
     current_time = time.time()
     current_time_without_dot = str(current_time).replace('.', '')
     return current_time_without_dot
+
+
+@pytest.fixture(autouse=True, scope='session')
+def cache_pytest_session_run_cmd(request):
+    """
+    Fixture which save pytest run command(similar to command provided by user) to pytest cache to be accessible from
+    other methods
+    :param request: pytest buildin
+    """
+    pytest_run_cmd = get_pytest_run_cmd(request)
+    request.session.config.cache.set(PYTEST_RUN_CMD, pytest_run_cmd)
+
+    yield
+
+
+@pytest.fixture(name="pytest_run_test_cmd", autouse=True)
+def attach_pytest_specific_test_run_cmd_to_allure_report(request):
+    """
+    Fixture which attach pytest run command string for specific test case into allure report
+    :param request: pytest buildin
+    """
+    pytest_run_cmd = get_pytest_run_cmd(request, get_current_test_run_cmd=True)
+    allure.attach(pytest_run_cmd, PYTEST_RUN_CMD, allure.attachment_type.TEXT)
+
+    yield
+
+
+def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
+    """
+    This method gets pytest run command and based on it - it can return original pytest run command or
+    build command for run only specific test case
+    :param request: pytest buildin
+    :param get_current_test_run_cmd: if True - will return command for run specific test only(by default return
+    original pytest run cmd)
+    :return: string with pytest run command
+    """
+    pytest_cmd_line_args = copy.deepcopy(sys.argv)
+    new_test_path = None
+    test_path_args_index = None
+
+    for arg in pytest_cmd_line_args:
+
+        for specific_arg in ['-k=', '--inventory=', '--allure_server_addr=']:
+            if specific_arg in arg:
+                specific_arg_value = arg.split(specific_arg)[1]
+                pytest_cmd_line_args[pytest_cmd_line_args.index(arg)] = '{}"{}"'.format(specific_arg,
+                                                                                        specific_arg_value)
+
+        if get_current_test_run_cmd:
+            # If need pytest run command for specific test only - then building args with path to test case
+            nodeid_test_path = request.node.nodeid.split('::')[0]
+            path_to_test_dir = request.config.inifile.dirname
+
+            full_path_to_test = os.path.join(path_to_test_dir, nodeid_test_path)
+            if os.path.exists(full_path_to_test):
+                if arg in full_path_to_test:
+                    test_path_args_index = pytest_cmd_line_args.index(arg)
+                    new_test_path = os.path.join(path_to_test_dir, request.node.nodeid)
+
+    if new_test_path:
+        # Replace original path to test by path to specific test only
+        pytest_cmd_line_args[test_path_args_index] = new_test_path
+
+    cmd = ' '.join(pytest_cmd_line_args)
+
+    return cmd
 
 
 class AllureServer:

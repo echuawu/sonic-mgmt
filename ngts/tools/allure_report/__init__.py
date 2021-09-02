@@ -9,7 +9,8 @@ community_plugins_path = '/tests/common/plugins/'
 full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
 sys.path.append(full_path_to_community_plugins)
 
-from allure_server import pytest_addoption, pytest_sessionfinish, pytest_terminal_summary  # noqa: E402
+from allure_server import pytest_addoption, pytest_sessionfinish, pytest_terminal_summary, \
+    cache_pytest_session_run_cmd, attach_pytest_specific_test_run_cmd_to_allure_report  # noqa: E402
 
 
 def pytest_sessionstart(session):
