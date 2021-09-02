@@ -183,7 +183,7 @@ def test_crm_nexthop_group_and_member(env, cleanup, ignore_expected_loganalyzer_
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('Test CRM FDB counters')
-def test_crm_fdb_entry(env, cleanup, interfaces):
+def test_crm_fdb_entry(env, cleanup, interfaces, ignore_expected_loganalyzer_exceptions):
     """
     Test doing verification of used and available CRM counters for the following resources:
     fdb_entry
@@ -195,7 +195,8 @@ def test_crm_fdb_entry(env, cleanup, interfaces):
 
     fdb_used, fdb_available = get_main_crm_stat(env, fdb_resource)
     with allure.step('Adding FDB config'):
-        env.sonic_cli.mac.generate_fdb_config(1, vlan_id, iface, "SET")
+        fdb_conf_set = env.sonic_cli.mac.generate_fdb_config(1, vlan_id, iface, "SET")
+        SwssContainer.apply_config(env.dut_engine, fdb_conf_set)
     cleanup.append((env.dut_engine.run_cmd, fdb_clear_cmd))
 
     with allure.step('Verify CRM {} counters'.format(fdb_resource)):
@@ -205,7 +206,8 @@ def test_crm_fdb_entry(env, cleanup, interfaces):
         )
 
     with allure.step('Removing FDB config'):
-        env.sonic_cli.mac.generate_fdb_config(1, vlan_id, iface, "DEL")
+        fdb_conf_del = env.sonic_cli.mac.generate_fdb_config(1, vlan_id, iface, "DEL")
+        SwssContainer.apply_config(env.dut_engine, fdb_conf_del)
 
     cleanup.pop()
 
