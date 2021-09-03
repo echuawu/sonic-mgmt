@@ -56,11 +56,7 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
                 {'iface': interfaces.dut_ha_1, 'ips': [('30.0.0.1', '24')]},
                 {'iface': 'PortChannel0002', 'ips': [('50.0.0.1', '24')]}
                 ],
-        'ha': [{'iface': '{}'.format(interfaces.ha_dut_2), 'ips': [('40.0.0.2', '24')]},
-               {'iface': interfaces.ha_dut_1, 'ips': [('30.0.0.2', '24')]},
-               ],
-        'hb': [{'iface': "bond0", 'ips': [('50.0.0.2', '24')]},
-               {'iface': interfaces.hb_dut_1, 'ips': [('40.0.0.10', '24')]}]
+        'hb': [{'iface': interfaces.hb_dut_1, 'ips': [('40.0.0.10', '24')]}]
     }
 
     LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
