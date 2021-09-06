@@ -183,12 +183,19 @@ def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets):
     return False
 
 
-def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
+def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None,
+                comparable_pkt=None, skip_counter_check=False):
     # send packet
     send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"])
     # verify packet is dropped
     exp_pkt = expected_packet_mask(pkt)
     testutils.verify_no_packet_any(ptfadapter, exp_pkt, ports=sniff_ports)
+
+    # Some test cases will not increase the drop counter consistently on certain platforms
+    if skip_counter_check:
+        logger.info("Skipping counter check")
+        return None
+
     # verify wjh table
     if comparable_pkt:
         pkt = comparable_pkt
@@ -196,12 +203,19 @@ def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
         pytest.fail("Could not find drop on WJH table. packet: {}".format(pkt))
 
 
-def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
+def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
+                skip_counter_check=False):
     num_packets = random.randint(2,100)
     send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"], num_packets=num_packets)
     # verify packet is dropped
     exp_pkt = expected_packet_mask(pkt)
     testutils.verify_no_packet_any(ptfadapter, exp_pkt, ports=sniff_ports)
+
+    # Some test cases will not increase the drop counter consistently on certain platforms
+    if skip_counter_check:
+        logger.info("Skipping counter check")
+        return None
+
     # verify wjh table
     if comparable_pkt:
         pkt = comparable_pkt
@@ -213,16 +227,19 @@ def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
 def do_test(duthosts, rand_one_dut_hostname):
     duthost = duthosts[rand_one_dut_hostname]
 
-    def do_wjh_test(discard_group, pkt, ptfadapter, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None):
+    def do_wjh_test(discard_group, pkt, ptfadapter, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
+                    skip_counter_check=False):
         try:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('raw') != -1):
-                do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports, comparable_pkt)
+                do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports,
+                            comparable_pkt, skip_counter_check=skip_counter_check)
         finally:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('aggregate') != -1):
                 # a temporary check. there is a problem with IP header absent in aggregate
                 # TODO: remove this check when issue is fixed
                 if 'IP' in pkt or 'IPv6' in pkt:
-                    do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports, comparable_pkt)
+                    do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports,
+                                comparable_pkt, skip_counter_check=skip_counter_check)
 
     return do_wjh_test
 
