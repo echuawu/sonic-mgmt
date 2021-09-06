@@ -1,3 +1,4 @@
+import re
 import allure
 import logging
 import pytest
@@ -75,8 +76,8 @@ def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name,
     expected_error_msgs = {
         "invalid_manifest": "Failed to install {}=={}: \"name\" is a required field but it is missing".format(
             APP_INFO["name"], APP_INFO["invalid_manifest"]["version"]),
-        "missing_dependency": "Failed to install {}=={}: Package {} requires missing-dependency150.0.0 but it is not "
-                              "installed".format(APP_INFO["name"], APP_INFO["missing_dependency"]["version"], APP_INFO["name"]),
+        "missing_dependency": "Failed to install {}.*{}.*missing-dependency.*it is not installed".format(
+            APP_INFO["name"], APP_INFO["missing_dependency"]["version"], APP_INFO["name"]),
         "package_conflict": "Failed to install {}=={}: Package {} conflicts with syncd>0.0.0 but version".format(
             APP_INFO["name"], APP_INFO["package_conflict"]["version"], APP_INFO["name"])
     }
@@ -87,7 +88,8 @@ def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name,
             output = dut_engine.run_cmd("sudo sonic-package-manager install -y {}=={}".format(app_name, version))
             expected_error_msg = expected_error_msgs[abnormal_type]
             logger.info("Excepted message is {}, actual message is {}".format(expected_error_msg, output))
-            assert expected_error_msg == output or expected_error_msg in output, "install app with abnormal package fail"
+            msg_pattern = re.compile(expected_error_msg)
+            assert msg_pattern.match(output), "install app with abnormal package fail"
 
     except Exception as err:
         raise AssertionError(err)
@@ -109,8 +111,9 @@ def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo
     try:
         with allure.step("Install app with {}, version={}".format(app_name, version)):
             output = dut_engine.run_cmd("sudo sonic-package-manager install -y {}={} --force".format(app_name, version))
-            expected_msg = "ignoring error Package {} requires missing-dependency150.0.0 but it is not installed".format(app_name)
-            assert expected_msg in output, "Force install app failed"
+            expected_msg = ".*ignoring error Package {} requires missing-dependency.*but it is not installed.*".format(app_name)
+            msg_pattern = re.compile(expected_msg)
+            assert msg_pattern.match(output), "Force install app failed"
             verify_app_container_status_none(dut_engine, app_name)
             logger.info("Enable feature of {}".format(app_name))
             SonicAppExtensionCli.enable_app(dut_engine, app_name)
