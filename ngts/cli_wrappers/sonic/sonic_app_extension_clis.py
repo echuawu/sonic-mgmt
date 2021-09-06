@@ -1,6 +1,5 @@
 import logging
 
-from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 

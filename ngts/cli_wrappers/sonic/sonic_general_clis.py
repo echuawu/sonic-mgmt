@@ -26,6 +26,9 @@ from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_al
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
+from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
+from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+
 
 logger = logging.getLogger()
 
@@ -298,6 +301,8 @@ class SonicGeneralCli(GeneralCliCommon):
 
         with allure.step("Validate dockers are up"):
             SonicGeneralCli.verify_dockers_are_up(dut_engine)
+        with allure.step("Validate app extensions are up"):
+            SonicGeneralCli.verify_installed_extensions_running(dut_engine)
 
     @staticmethod
     def deploy_sonic(dut_engine, image_path, is_skipping_migrating_package=False):
@@ -794,3 +799,19 @@ class SonicGeneralCli(GeneralCliCommon):
             base_image = None
 
         return base_image, target_image
+
+    @staticmethod
+    def verify_installed_extensions_running(dut_engine):
+        """
+        Verify installed mellanox app_extension to image exist in docker ps output
+        :param dut_engine: ssh engines
+        :return: None if successful, otherwise Exception
+        """
+        if SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
+            installed_mellanox_ext = get_installed_mellanox_extensions(dut_engine)
+            if installed_mellanox_ext:
+                retry_call(SonicGeneralCli._verify_dockers_are_up,
+                           fargs=[dut_engine, installed_mellanox_ext],
+                           tries=24,
+                           delay=10,
+                           logger=logger)

@@ -7,6 +7,7 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from dateutil.parser import parse as time_parse
+from ngts.constants.constants import AppExtensionInstallationConstants
 from retry.api import retry_call
 
 
@@ -355,3 +356,14 @@ def app_cleanup(dut_engine, app_name):
     # remove app from repo
     if app_name in SonicAppExtensionCli.parse_app_package_list_dict(dut_engine):
         SonicAppExtensionCli.remove_repository(dut_engine, app_name)
+
+
+def get_installed_mellanox_extensions(dut_engine):
+    """
+    Returns list of mellanox application extensions, installed to image
+    :param dut_engine:  ssh engines
+    :return: list of app extension names
+    """
+    app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
+    return [app_name for app_name in app_package_repo_dict
+            if app_name in AppExtensionInstallationConstants.APPLICATION_LIST]
