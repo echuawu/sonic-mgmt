@@ -6,13 +6,16 @@ from ngts.cli_util.cli_constants import SonicConstant
 from ngts.constants.constants import SonicConst
 
 
-def get_breakout_mode_configured_speed(breakout_mode):
+def get_breakout_mode_supported_speed_list(breakout_mode):
     """
     this function will return the speed that will be configured on the port be the breakout mode.
     :param breakout_mode: i,e. '4x25G[10G,1G]'
     :return: return 25G
     """
-    return re.search(r"\dx(\d+G)\[[\d+G,]+\]|\dx(\d+G)", breakout_mode).group(1)
+    support_speed_list = []
+    support_speed_list.append(re.search(r"\dx(\d+G)", breakout_mode).group(1))
+    support_speed_list.extend(re.search(r"\dx(\d+G)\[([\d+G,]+)\]", breakout_mode).group(2).split(','))
+    return support_speed_list
 
 
 def get_breakout_mode_by_speed_conf(breakout_modes_list, port_speed):
@@ -22,8 +25,8 @@ def get_breakout_mode_by_speed_conf(breakout_modes_list, port_speed):
     :return: the breakout mode that configures the port_speed, in this case '4x25G[10G,1G]'
     """
     for breakout_mode in breakout_modes_list:
-        brk_mode_configured_speed = get_breakout_mode_configured_speed(breakout_mode)
-        if brk_mode_configured_speed == port_speed:
+        brk_mode_configured_speed = get_breakout_mode_supported_speed_list(breakout_mode)
+        if port_speed in brk_mode_configured_speed:
             return breakout_mode
     raise Exception("Didn't find breakout mode that configured speed: {} in breakout_modes_list: {}"
                     .format(port_speed, breakout_modes_list))
