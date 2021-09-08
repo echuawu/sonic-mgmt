@@ -126,6 +126,11 @@ class AutonegCommandConstants:
     }
 
 
+class DefaultCredentialConstants:
+    OTHER_SONIC_USER = "admin"
+    OTHER_SONIC_PASSWORD_LIST = ["password"]
+
+
 SPC = {
     '25GBASE-CR': ['10G', '25G'],
     '50GBASE-CR2': ['50G'],

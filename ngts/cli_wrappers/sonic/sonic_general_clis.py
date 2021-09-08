@@ -19,8 +19,10 @@ from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from infra.tools.connection_tools.onie_engine import OnieEngine
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.exceptions.real_issue import RealIssue
-from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, AppExtensionInstallationConstants
+from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
+    AppExtensionInstallationConstants, DefaultCredentialConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -31,6 +33,7 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 
 
 logger = logging.getLogger()
+DUMMY_COMMAND = 'echo dummy_command'
 
 
 class OnieInstallationError(Exception):
@@ -454,11 +457,11 @@ class SonicGeneralCli(GeneralCliCommon):
         switch_in_onie = False
         dut_engine = topology_obj.players['dut']['engine']
         SonicGeneralCli.check_is_alive_and_revive(topology_obj)
-        dummy_command = 'echo dummy_command'
         try:
             # Checking if device is in sonic
-            dut_engine.run_cmd(dummy_command, validate=True)
+            dut_engine.run_cmd(DUMMY_COMMAND, validate=True)
         except netmiko.ssh_exception.NetmikoAuthenticationException:
+            SonicGeneralCli.if_other_credentials_used_set_boot_order_onie(dut_engine)
             logger.info('Login to onie succeed!')
             SonicGeneralCli.check_onie_mode_and_set_install(dut_engine.ip)
             switch_in_onie = True
@@ -815,3 +818,34 @@ class SonicGeneralCli(GeneralCliCommon):
                            tries=24,
                            delay=10,
                            logger=logger)
+
+    @staticmethod
+    def is_dummy_command_succeed(engine):
+        try:
+            engine.run_cmd(DUMMY_COMMAND, validate=True)
+            logger.info('login with credentials username: {} ,password:{} succeed!'.
+                        format(engine.username, engine.password))
+            return True
+        except netmiko.ssh_exception.NetmikoAuthenticationException:
+            logger.info('login with credentials username: {} ,password:{} did not succeed!'.
+                        format(engine.username, engine.password))
+            return False
+
+    @staticmethod
+    def if_other_credentials_used_set_boot_order_onie(dut_engine):
+        engine = SonicGeneralCli.get_sonic_engine_try_different_passwords(dut_engine)
+        if engine:
+            with allure.step("Other credentials used then default"):
+                logger.info('Other credentials used then default')
+                with allure.step('Setting boot order to onie'):
+                    SonicGeneralCli.set_next_boot_entry_to_onie(engine)
+                with allure.step('Rebooting the switch'):
+                    engine.reload(['sudo reboot'], wait_after_ping=25, ssh_after_reload=False)
+
+    @staticmethod
+    def get_sonic_engine_try_different_passwords(dut_engine):
+        for password in DefaultCredentialConstants.OTHER_SONIC_PASSWORD_LIST:
+            engine = LinuxSshEngine(
+                dut_engine.ip, username=DefaultCredentialConstants.OTHER_SONIC_USER, password=password)
+            if SonicGeneralCli.is_dummy_command_succeed(engine):
+                return engine
