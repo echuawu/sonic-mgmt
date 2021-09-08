@@ -8,6 +8,8 @@ from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
 from ngts.helpers.arp_helper import INTERFACE_TYPE_LIST, \
     clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted
 from ngts.cli_wrappers.common.ip_clis_common import IpCliCommon
+from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
+from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 
 
 @pytest.fixture(autouse=True)
@@ -33,6 +35,12 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
     :param topology_obj: topology object fixture
     :param interfaces: topology object fixture
     """
+    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_hb_2])
+    interfaces_config_dict = {
+        'dut': [{'iface': interfaces.dut_hb_2, 'speed': '10G',
+                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '10G')}
+                ]
+    }
     # LAG/LACP config which will be used in test
     lag_lacp_config_dict = {
         'dut': [{'type': 'lacp', 'name': 'PortChannel0002', 'members': [interfaces.dut_hb_2]}],
@@ -58,7 +66,7 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
                 ],
         'hb': [{'iface': interfaces.hb_dut_1, 'ips': [('40.0.0.10', '24')]}]
     }
-
+    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
     LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
     VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
@@ -68,6 +76,7 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
     LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
+    InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
 
 
 @pytest.fixture(scope='module', autouse=True)
