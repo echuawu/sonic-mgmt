@@ -519,3 +519,6 @@ class AppExtensionInstallationConstants:
         WJH_APP_NAME,
         LC_MANAGER
     ]
+    APP_EXTENSION_PROJECT_MAPPING = {'sonic-wjh': WJH_APP_NAME,
+                                     'p4-sampling': P4SamplingConsts.APP_NAME,
+                                     'sonic-lc-manager': LC_MANAGER}

@@ -30,10 +30,7 @@ def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_p
 class AppExtensionInstaller():
     def __init__(self, dut_engine, app_extension_dict_path):
         self.dut_engine = dut_engine
-        if app_extension_dict_path:
-            self.app_extension_dict = self._json_load_app_extension_info(app_extension_dict_path)
-        else:
-            self.app_extension_dict = self.get_latest_applications()
+        self.app_extension_dict = self.set_app_extension_dict(app_extension_dict_path)
         self.is_app_extension_present_in_application_list()
         self.syncd_sdk_version = self.get_sdk_version(AppExtensionInstallationConstants.SYNCD_DOCKER)
 
@@ -41,11 +38,11 @@ class AppExtensionInstaller():
         # TODO add implementation for latest applications fetch
         pytest.skip('Skipping. Fetching latest implementation of app extension is not yet implemented.')
 
-    @staticmethod
-    def _json_load_app_extension_info(app_extension_dict_path):
+    def set_app_extension_dict(self, app_extension_dict_path):
         try:
             with open(app_extension_dict_path, 'r') as f:
-                return json.load(f)
+                app_extension_dict = json.load(f)
+                return self.map_project_to_application_name(app_extension_dict)
         except json.decoder.JSONDecodeError as e:
             logger.error('Please check the content of provided json file: {}'.format(app_extension_dict_path))
             raise e
@@ -56,6 +53,18 @@ class AppExtensionInstaller():
                 raise AppExtensionError(
                     'App extension name "{}" is not defined in APPLICATION_LIST {}. Please check '
                     ' provided json file'.format(app_ext, AppExtensionInstallationConstants.APPLICATION_LIST))
+
+    def map_project_to_application_name(self, app_extension_dict):
+        for app_ext_project, app_name in AppExtensionInstallationConstants.APP_EXTENSION_PROJECT_MAPPING.items():
+            if app_ext_project in app_extension_dict:
+                self.replace_project_name_to_application_name(app_extension_dict, app_ext_project, app_name)
+        return app_extension_dict
+
+    @staticmethod
+    def replace_project_name_to_application_name(app_extension_dict, app_ext_project, app_name):
+        repository_url = app_extension_dict[app_ext_project]
+        del app_extension_dict[app_ext_project]
+        app_extension_dict[app_name] = repository_url
 
     def get_supported_app_ext_objects(self):
         application_obj_list = []
