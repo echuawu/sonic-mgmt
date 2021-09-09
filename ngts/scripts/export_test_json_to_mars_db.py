@@ -4,6 +4,7 @@ import sys
 import json
 import argparse
 import logging
+import time
 
 path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
@@ -12,6 +13,9 @@ sys.path.append(sonic_mgmt_path)
 from ngts.tools.mars_test_cases_results.Write_to_db import MarsConnectDB  # noqa: E402
 from ngts.tools.mars_test_cases_results.mars_json_handler import JsonHandler  # noqa: E402
 from ngts.constants.constants import InfraConst  # noqa: E402
+
+sys.path.append(sonic_mgmt_path + "/sonic-tool")
+from sonic_ngts.infra.mars.mars import get_mars_session_resource  # noqa: E402
 
 logger = logging.getLogger()
 
@@ -50,11 +54,25 @@ def write_json_into_mars_db(json_file_path):
 def export_json_to_mars_db(session_id, mars_key_id):
     json_file_path = os.path.join(InfraConst.METADATA_PATH, session_id, "{}_mars_sql_data.json".format(mars_key_id))
     if os.path.exists(json_file_path):
-        logger.info('Exporting json data at file: {} to MARS SQL DB'.format(json_file_path))
-        write_json_into_mars_db(json_file_path)
-        logger.info("Data was exported successfully!")
+        if is_mars_session_still_running(session_id):
+            logger.info('Exporting json data at file: {} to MARS SQL DB'.format(json_file_path))
+            write_json_into_mars_db(json_file_path)
+            logger.info("Data was exported successfully!")
     else:
         logger.warning("Json file: {} doesn't exist - No data was exported".format(json_file_path))
+
+
+def is_mars_session_still_running(session_id):
+    """
+    While a mars session is still running the session end time is always updated to the current time.
+    if a session has finished it's end time will remain permanent.
+    :param session_id: session id, e.g. 123456
+    :return: True if mars session is still running
+    """
+    session_endtime_text_1 = get_mars_session_resource(session_id).find("ENDTIME").text
+    time.sleep(1)
+    session_endtime_text_2 = get_mars_session_resource(session_id).find("ENDTIME").text
+    return session_endtime_text_1 != session_endtime_text_2
 
 
 if __name__ == "__main__":
