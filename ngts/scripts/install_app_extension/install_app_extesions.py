@@ -39,6 +39,8 @@ class AppExtensionInstaller():
         pytest.skip('Skipping. Fetching latest implementation of app extension is not yet implemented.')
 
     def set_app_extension_dict(self, app_extension_dict_path):
+        if not app_extension_dict_path:
+            pytest.skip('Skipping. app_extension_dict_path is not provided')
         try:
             with open(app_extension_dict_path, 'r') as f:
                 app_extension_dict = json.load(f)
