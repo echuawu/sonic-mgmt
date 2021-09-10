@@ -116,10 +116,10 @@ class AppExtensionInstaller():
             SonicAppExtensionCli.enable_app(self.dut_engine, app_ext_obj.app_name)
 
     def disable_app_ext(self, app_ext_obj):
-        log_enable_ext_app = 'Disabling app extension {} on the dut'.format(app_ext_obj.app_name)
-        with allure.step(log_enable_ext_app):
-            logger.info(log_enable_ext_app)
-            SonicAppExtensionCli.enable_app(self.dut_engine, app_ext_obj.app_name)
+        log_disable_ext_app = 'Disabling app extension {} on the dut'.format(app_ext_obj.app_name)
+        with allure.step(log_disable_ext_app):
+            logger.info(log_disable_ext_app)
+            SonicAppExtensionCli.disable_app(self.dut_engine, app_ext_obj.app_name)
 
     def check_app_extension_status(self, app_ext_obj):
         log_check_app_ext = 'Checking app extension {} on the dut'.format(app_ext_obj.app_name)
