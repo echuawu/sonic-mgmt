@@ -238,7 +238,9 @@ class SonicCrmCli:
         return first table in string type and rest output in string type
         """
         empty_line = ""
-        split_output = output.splitlines()[1:]
+        split_output = output.splitlines()
+        if split_output.index(empty_line) == 0:
+            split_output = output.splitlines()[1:]
         if empty_line in split_output:
             first_table_end_index = split_output.index(empty_line)
             first_table = split_output[:first_table_end_index]
