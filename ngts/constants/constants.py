@@ -199,18 +199,15 @@ class FecConstants:
             PORT_SPLIT_NUM_1: {'10G': ['CR'],
                                '25G': ['CR'],
                                '40G': ['CR4'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
+                               '50G': ['CR2']
                                },
             PORT_SPLIT_NUM_2: {'10G': ['CR'],
                                '25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
+                               '50G': ['CR2']
                                },
             PORT_SPLIT_NUM_4: {'10G': ['CR'],
                                '25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
+                               '50G': ['CR2']
                                }
         },
         SonicConst.FEC_RS_MODE: {
