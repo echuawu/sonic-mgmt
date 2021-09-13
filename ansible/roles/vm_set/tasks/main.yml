@@ -172,8 +172,15 @@
         key: "{{ ansible_user }}"
         split: ":"
     - set_fact:
-        home_path: "/images"
-    - debug: msg="{{ home_path }}"
+        home_path: "{{ getent_passwd[ansible_user][4] }}"
+      when: home_path is not defined
+
+    # root_path is supposed to be absolute path.
+    - set_fact:
+        root_path: "{{ home_path + '/' + root_path }}"
+      when: "not '{{ root_path }}'.startswith('/')"
+
+    - debug: msg="home_path = {{ home_path }} root_path = {{ root_path }}"
 
 - name: Require veos or SONiC VMs by default
   set_fact:
@@ -257,6 +264,18 @@
     - name: Generate vm list of target VMs
       set_fact: VM_targets={{ VM_hosts | filter_vm_targets(topology['VMs'], VM_base) | sort }}
       when: topology['VMs'] is defined
+
+    - name: Set fallback default value for VM_targets
+      set_fact: VM_targets={{ [] }}
+      when: VM_targets is not defined
+
+    - name: Set vm configuration properties when configuration is defined
+      set_fact: vm_properties="{{ configuration | expand_properties(configuration_properties) }}"
+      when: configuration is defined
+
+    - name: Set vm configuration properties when configuration is not defined
+      set_fact: vm_properties={}
+      when: configuration is not defined
 
     - name: Stop VMs
       include_tasks: stop.yml
