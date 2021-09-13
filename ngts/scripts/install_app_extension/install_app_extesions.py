@@ -4,7 +4,7 @@ import logging
 import allure
 import json
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
-from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.constants.constants import AppExtensionInstallationConstants, P4SamplingConsts
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed, \
     retry_verify_app_container_up
 from ngts.scripts.install_app_extension.app_extension_info import AppExtensionInfo
@@ -88,6 +88,12 @@ class AppExtensionInstaller():
         self.install_app_ext(app_ext_obj)
         self.enable_app_ext(app_ext_obj)
         self.check_app_extension_status(app_ext_obj)
+        self.check_app_ext_sdk_version(app_ext_obj)
+
+    def check_app_ext_sdk_version(self, app_ext_obj):
+        if not app_ext_obj.is_sx_sdk_version_present():
+            logger.warning('Skipping checking of sdk_version for {}'.format(P4SamplingConsts.APP_NAME))
+            return
         app_ext_obj.set_sdk_version(self.get_sdk_version(app_ext_obj.app_name))
         if not self.is_sdk_version_app_extension_matches_sonic(app_ext_obj):
             raise AppExtensionError('App ext {} sdk {} does not match sonic sdk {}'.format(

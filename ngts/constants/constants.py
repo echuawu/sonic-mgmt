@@ -519,3 +519,4 @@ class AppExtensionInstallationConstants:
     APP_EXTENSION_PROJECT_MAPPING = {'sonic-wjh': WJH_APP_NAME,
                                      'p4-sampling': P4SamplingConsts.APP_NAME,
                                      'sonic-lc-manager': LC_MANAGER}
+    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME]

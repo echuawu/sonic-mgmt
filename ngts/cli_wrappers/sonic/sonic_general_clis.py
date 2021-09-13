@@ -815,7 +815,7 @@ class SonicGeneralCli(GeneralCliCommon):
             if installed_mellanox_ext:
                 retry_call(SonicGeneralCli._verify_dockers_are_up,
                            fargs=[dut_engine, installed_mellanox_ext],
-                           tries=24,
+                           tries=36,
                            delay=10,
                            logger=logger)
 

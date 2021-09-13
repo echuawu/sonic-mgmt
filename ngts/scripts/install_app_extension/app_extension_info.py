@@ -1,3 +1,5 @@
+from ngts.constants.constants import AppExtensionInstallationConstants
+
 
 class AppExtensionInfo():
     def __init__(self, app_name, app_info=None):
@@ -25,3 +27,8 @@ class AppExtensionInfo():
 
     def set_sdk_version(self, sdk_version):
         self.sdk_version = sdk_version
+
+    def is_sx_sdk_version_present(self):
+        if self.app_name in AppExtensionInstallationConstants.APPS_WHERE_SX_SDK_NOT_PRESENT:
+            return False
+        return True
