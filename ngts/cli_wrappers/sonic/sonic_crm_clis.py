@@ -192,9 +192,9 @@ class SonicCrmCli:
         :param engine: ssh engine object
         """
         output = engine.run_cmd("crm show thresholds all")
-        result = generic_sonic_output_parser(output, headers_ofset=1,
-                                             len_ofset=2,
-                                             data_ofset_from_start=3,
+        result = generic_sonic_output_parser(output, headers_ofset=0,
+                                             len_ofset=1,
+                                             data_ofset_from_start=2,
                                              data_ofset_from_end=-1,
                                              column_ofset=2,
                                              output_key='Resource Name')
