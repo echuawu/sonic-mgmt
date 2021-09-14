@@ -218,13 +218,16 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 with allure.step('Performing sonic to sonic upgrade'):
                     logger.info('Performing sonic to sonic upgrade')
                     SonicGeneralCli.deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
-                                                 wjh_deb_url=upgrade_params.wjh_deb_url, deploy_type='sonic')
+                                                 deploy_type='sonic')
                 with allure.step('Copying config_db.json from target version'):
                     engines.dut.copy_file(source_file='config_db.json',
                                           dest_file=POST_UPGRADE_CONFIG.format(engines.dut.ip),
                                           file_system=SonicConst.SONIC_CONFIG_FOLDER, overwrite_file=True,
                                           verify_file=False,
                                           direction='get')
+                with allure.step("Installing wjh deb url"):
+                    dut_engine = topology_obj.players['dut']['engine']
+                    SonicGeneralCli.install_wjh(dut_engine, upgrade_params.wjh_deb_url)
 
     if run_test_only or full_flow_run:
         yield
