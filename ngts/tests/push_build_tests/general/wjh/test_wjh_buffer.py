@@ -26,9 +26,9 @@ table_parser_info = {
             'column_ofset': 1,
             'output_key': '#'
             },
-    'agg': {'headers_ofset': 3,
-            'len_ofset': 4,
-            'data_ofset_from_start': 5,
+    'agg': {'headers_ofset': 2,
+            'len_ofset': 3,
+            'data_ofset_from_start': 4,
             'column_ofset': 1,
             'output_key': '#'
             }
