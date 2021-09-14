@@ -145,8 +145,7 @@ class P4SamplingUtils:
         """
 
         P4SamplingUtils.verify_cli_table_entry(engine, table_name, entries, expected_match)
-        # TODO: uncomment it after Redmine ticket #2682842 fixed
-        # P4SamplingUtils.verify_p4nspect_table_entry(engine, table_name, entries, expected_match)
+        P4SamplingUtils.verify_p4nspect_table_entry(engine, table_name, entries, expected_match)
         engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
 
     @staticmethod
@@ -191,12 +190,10 @@ class P4SamplingUtils:
             entries_added_p4nspect = get_p4nspect_query_parsed(engine, table_name.replace('-', '_'))
             with allure.step('Verify added entries'):
                 for entry_key in entries.keys():
-                    if table_name == 'table_port_sampling':
-                        # TODO: 2654868 there is a bug for the flow table, so only check the port table now
-                        if expected_match:
-                            assert entry_key in entries_added_p4nspect.keys()
-                        else:
-                            assert entry_key not in entries_added_p4nspect.keys()
+                    if expected_match:
+                        assert entry_key in entries_added_p4nspect.keys()
+                    else:
+                        assert entry_key not in entries_added_p4nspect.keys()
 
     @staticmethod
     def send_recv_port_table_traffic(topology_obj, port_traffic_params_list, count, expect_mirror_count):

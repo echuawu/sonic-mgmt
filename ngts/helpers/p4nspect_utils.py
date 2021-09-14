@@ -11,18 +11,63 @@ def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_
     :return: List of dictionary. Example: [{'key': 'Ethernet60 0xff/0xff', 'action': 'DoMirror', 'counters': 0, 'bytes':0}, ...],
                                           [{'key': '200.100.100.8 100.100.100.100 0x11, ', 'action': 'DoMirror', 'counters':0, 'bytes':0}, ...]
     the output of the cli command:
-     ┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼
-     │                                        TABLE: control_in_port.table_flow_sampling                                       │
-     ┼─────┼────────────────────────────────────────────────────────────────┼──────────┼──────────────────────┼────────────────┼
-     │ IDX │                KEYS (Key | Value | Mask | Type)                │  ACTION  │       COUNTERS       │ DEBUG-COUNTERS │
-     ┼─────┼────────────────────────────────────────────────────────────────┼──────────┼──────────────────────┼────────────────┼
-     │  0  │    headers.ip.ipv4.src_addr     100.100.100.8   None   exact   │ DoMirror │ Bytes: 0, Packets: 0 │                │
-     │     │    headers.ip.ipv4.dst_addr    100.100.100.100  None   exact   │          │                      │                │
-     │     │    headers.ip.ipv4.protocol          0x11       None   exact   │          │                      │                │
-     │     │      headers.tcp.src_port            0x7b       None   exact   │          │                      │                │
-     │     │      headers.tcp.dst_port           0x1c8       None   exact   │          │                      │                │
-     │     │  headers.ip.ipv4.hdr_checksum        0x43       0x21  ternary  │          │                      │                │
-     ┼─────┼────────────────────────────────────────────────────────────────┼──────────┼──────────────────────┼────────────────┼
+    ┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼
+    │                                                               TABLE: control_in_port.table_port_sampling                                                              │
+    ┼─────┼──────┼───┼─────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │ IDX │ PRIO │ A │           KEYS (Key | Value | Mask | Type)          │              ACTION             │            COUNTERS (Name | Type | Items | Value)            │
+    ┼─────┼──────┼───┼─────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │  0  │  2   │ A │    std_meta.ingress_port     0x1            exact   │             DoMirror            │  control_in_port.dc_port_sampling  DIRECT  Pkts/Bts  (0, 0)  │
+    │     │      │   │  headers.ipv4.hdr_checksum  0x100  0xffff  ternary  │  label_port         0x20        │                                                              │
+    │     │      │   │                                                     │   src_mac    00:34:da:16:68:00  │                                                              │
+    │     │      │   │                                                     │   dst_mac    00:42:a1:17:e6:fd  │                                                              │
+    │     │      │   │                                                     │    src_ip         10.0.1.1      │                                                              │
+    │     │      │   │                                                     │    dst_ip         10.0.1.2      │                                                              │
+    │     │      │   │                                                     │     vlan            0x28        │                                                              │
+    │     │      │   │                                                     │   is_trunc          0x1         │                                                              │
+    │     │      │   │                                                     │  trunc_size        0x12c        │                                                              │
+    ┼─────┼──────┼───┼─────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │  1  │  2   │ A │     std_meta.ingress_port    0x20           exact   │             DoMirror            │  control_in_port.dc_port_sampling  DIRECT  Pkts/Bts  (0, 0)  │
+    │     │      │   │   headers.ipv4.hdr_checksum  0x1   0xffff  ternary  │  label_port         0x1         │                                                              │
+    │     │      │   │                                                     │   src_mac    00:34:da:16:68:00  │                                                              │
+    │     │      │   │                                                     │   dst_mac    00:42:a1:4b:0b:6c  │                                                              │
+    │     │      │   │                                                     │    src_ip         50.0.0.1      │                                                              │
+    │     │      │   │                                                     │    dst_ip         50.0.0.2      │                                                              │
+    │     │      │   │                                                     │     vlan            0x28        │                                                              │
+    │     │      │   │                                                     │   is_trunc          0x1         │                                                              │
+    │     │      │   │                                                     │  trunc_size        0x12c        │                                                              │
+    ┼─────┼──────┼───┼─────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │ 999 │  1   │ A │                                                     │             NoAction            │                                                              │
+    │     │      │   │                                                     │                                 │                                                              │
+    ┼─────┼──────┼───┼─────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+
+    ┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼
+    │                                                                TABLE: control_in_port.table_flow_sampling                                                                │
+    ┼─────┼──────┼───┼────────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │ IDX │ PRIO │ A │            KEYS (Key | Value | Mask | Type)            │              ACTION             │            COUNTERS (Name | Type | Items | Value)            │
+    ┼─────┼──────┼───┼────────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │  0  │  2   │ A │    headers.ipv4.src_addr    10.0.1.2           exact   │             DoMirror            │  control_in_port.dc_flow_sampling  DIRECT  Pkts/Bts  (0, 0)  │
+    │     │      │   │    headers.ipv4.dst_addr    50.0.1.1           exact   │  label_port         0x1         │                                                              │
+    │     │      │   │    headers.ipv4.protocol      TCP              exact   │   src_mac    00:34:da:16:68:00  │                                                              │
+    │     │      │   │     headers.tcp.src_port       20              exact   │   dst_mac    00:42:a1:4b:0b:6c  │                                                              │
+    │     │      │   │     headers.tcp.dst_port       80              exact   │    src_ip         50.0.0.1      │                                                              │
+    │     │      │   │  headers.ipv4.hdr_checksum   0x100    0xffff  ternary  │    dst_ip         50.0.0.2      │                                                              │
+    │     │      │   │                                                        │     vlan            0x32        │                                                              │
+    │     │      │   │                                                        │   is_trunc          0x1         │                                                              │
+    │     │      │   │                                                        │  trunc_size        0x12c        │                                                              │
+    ┼─────┼──────┼───┼────────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │  1  │  2   │ A │    headers.ipv4.src_addr    50.0.0.2           exact   │             DoMirror            │  control_in_port.dc_flow_sampling  DIRECT  Pkts/Bts  (0, 0)  │
+    │     │      │   │    headers.ipv4.dst_addr    10.0.0.1           exact   │  label_port         0x20        │                                                              │
+    │     │      │   │    headers.ipv4.protocol      TCP              exact   │   src_mac    00:34:da:16:68:00  │                                                              │
+    │     │      │   │     headers.tcp.src_port       20              exact   │   dst_mac    00:42:a1:17:e6:fd  │                                                              │
+    │     │      │   │     headers.tcp.dst_port       80              exact   │    src_ip         10.0.1.1      │                                                              │
+    │     │      │   │  headers.ipv4.hdr_checksum    0x1     0xffff  ternary  │    dst_ip         10.0.1.2      │                                                              │
+    │     │      │   │                                                        │     vlan            0x32        │                                                              │
+    │     │      │   │                                                        │   is_trunc          0x1         │                                                              │
+    │     │      │   │                                                        │  trunc_size        0x12c        │                                                              │
+    ┼─────┼──────┼───┼────────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
+    │ 999 │  1   │ A │                                                        │             NoAction            │                                                              │
+    │     │      │   │                                                        │                                 │                                                              │
+    ┼─────┼──────┼───┼────────────────────────────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────────────────────────────────┼
     """
 
     docker_env_p4c_config = "P4NSPECT_P4C_CONFIG=/devtools/sampling.json"
@@ -38,110 +83,148 @@ def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_
     if not output:
         return {}
     lines = output.splitlines()
-    entry_spliter = lines[2]
-    content_column_spliter = '│'
-    entry_spliter_indexs = get_entry_spliter_indexs(lines, entry_spliter)
-    entry_spliter_count = len(entry_spliter_indexs)
+    entry_splitter = lines[2]
+    content_column_splitter = '│'
+    entry_splitter_indices = get_entry_splitter_indices(lines, entry_splitter)
+    entry_splitter_count = len(entry_splitter_indices)
     ret = {}
     port_configs = get_port_configs(engine)
-    for i in range(1, entry_spliter_count - 1):
-        entry_start_index = entry_spliter_indexs[i]
-        entry_end_index = entry_spliter_indexs[i + 1]
-        parse_entry_content(engine, lines[entry_start_index + 1:entry_end_index], content_column_spliter, ret, port_configs)
+    for i in range(1, entry_splitter_count - 1):
+        entry_start_index = entry_splitter_indices[i]
+        entry_end_index = entry_splitter_indices[i + 1]
+        parse_entry_content(lines[entry_start_index + 1:entry_end_index], content_column_splitter, ret, port_configs)
     return ret
 
 
-def get_entry_spliter_indexs(lines, spliter):
+def get_entry_splitter_indices(lines, splitter):
     """
-    get all the entry spliter indices, the real content of the entry content start from the second spliter
+    get all the entry splitter indices, the real content of the entry content start from the second splitter
     :param lines: the lines of output content of p4nspect
-    :param spliter: the entry spliter
-    :return: list of entry spliter index.
+    :param splitter: the entry splitter
+    :return: list of entry splitter index.
     """
     indices = []
     for i in range(len(lines)):
-        if lines[i] == spliter:
+        if lines[i] == splitter:
             indices.append(i)
     return indices
 
 
-def parse_entry_content(engine, lines, content_column_spliter, ret, port_configs):
+def parse_entry_content(entry_content_lines, content_column_splitter, ret, port_configs):
     """
-    get the entry content, and add the content into the dictionary
-    :param engine: ssh engine object
-    :param lines: the content of one entry shown in the p4nspect
-    :param content_column_spliter: column spliter
-    :param ret: the dictionary
+    get the entry content, and add the content into the dictionary, the key is the entry key,
+    the value of the dictionary include the entry action, entry priority, and entry counters
+    :param entry_content_lines: the content of one entry shown in the p4nspect
+    :param content_column_splitter: column splitter
+    :param ret: the dictionary which will be updated
     :return: None
     """
     key_list = []
-    for i in range(len(lines)):
-        line = lines[i].strip(' ' + content_column_spliter)
-        if i == 0:
-            line_content = line.split(content_column_spliter)
-            action = line_content[2].strip()
-            bytes_packets = line_content[3].strip().split(',')
-            bytes = bytes_packets[0].split(':')[1].strip()
-            packets = bytes_packets[1].split(':')[1].strip()
-            debug_counters = line_content[-1].strip()
-            key_list.append(get_key_value(engine, line_content[1], port_configs))
-        else:
-            key_list.append(get_key_value(engine, line, port_configs))
+    action_list = []
+    byte_count = 0
+    packet_count = 0
+    priority = 0
+    for i in range(len(entry_content_lines)):
+        entry_content_line = entry_content_lines[i].strip(content_column_splitter)
+        line_content = entry_content_line.split(content_column_splitter)
+        line_pri_content = line_content[1].strip()
+        line_key_content = line_content[3].strip()
+        line_action_content = line_content[4].strip()
+        line_counter_content = line_content[5].strip()
+        if line_pri_content:
+            priority = line_pri_content
+        if line_counter_content:
+            bytes_packets = ''.join(line_counter_content.split()[-2:]).strip('(').strip(')').split(',')
+            byte_count = bytes_packets[1]
+            packet_count = bytes_packets[0]
+        if line_key_content:
+            key_list.append(get_key_value(line_key_content, port_configs))
+        if line_action_content:
+            if i == 0:
+                action_list.append(line_action_content)
+            else:
+                action_list.append(get_action_value(line_action_content, port_configs))
+
     keys = " ".join(key_list)
     values = DottedDict()
-    values.action = action
-    values.bytes = bytes
-    values.packets = packets
-    values.debug_counters = debug_counters
-    ret[keys] = values
+    values.action = " ".join(action_list)
+    values.byte_count = byte_count
+    values.packet_count = packet_count
+    values.priority = priority
+    if keys:
+        ret[keys] = values
 
 
-def get_key_value(engine, key_line_content, port_configs):
+def get_key_value(line_key_content, port_configs):
     """
     get key value
-    :param engine: ssh engine object
-    :param key_line_content: the key value in 1 line content
+    :param line_key_content: the key content, example: std_meta.ingress_port, headers.ipv4.hdr_checksum
+    :param port_configs: port config get from the config_db.json
     :return: the key value
     """
-    key_content = key_line_content.split()
-    if key_content[-1] == "exact":
-        return convert_key_value(engine, key_content[0], key_content[1], port_configs)
-    elif key_content[-1] == "ternary":
-        return "/".join([convert_key_value(engine, key_content[0], key_content[1], port_configs),
-                         convert_key_value(engine, key_content[0], key_content[2], port_configs)])
+    key_content_list = line_key_content.split()
+    key_name = key_content_list[0].split('.')[-1]
+    key_value = key_content_list[1]
+    key_type = key_content_list[-1]
+    key_mask = key_content_list[2]
+    if key_type == "exact":
+        return format_value_with_name(key_name, key_value, port_configs)
+    elif key_type == "ternary":
+        return "/".join([format_value_with_name(key_name, key_value, port_configs),
+                         format_value_with_name(key_name, key_mask, port_configs)])
 
 
-def convert_key_value(engine, key_name, key_value, port_configs):
+def get_action_value(line_action_content, port_configs):
     """
-    convert key value, for the ingress, the value should be converted from lable port to physical port, and some key
-    value should be converted from hex to int
-    :param engine: ssh engine object
-    :param key_name: the full key name in the p4nspect
-    :param key_value: the key value
-    :return: the converted key value
+    :param line_action_content: action param content, example: label_port         0x1,  src_ip         50.0.0.1
+    :param port_configs: port config get from the config_db.json
+    :return: the action param value
     """
-    key_name = key_name.split(".")[-1]
-    if key_name == 'ingress_port':
-        return convert_label_port_to_physical(engine, key_value, port_configs)
-    if key_name == 'hdr_checksum':
-        return "{:#06x}".format(int(key_value, 16))
-    elif key_name == 'protocol' or key_name == 'src_port' or key_name == 'dst_port':
-        return "{}".format(int(key_value, 16))
-    return key_value
+    action_content_list = line_action_content.split()
+    action_name = action_content_list[0]
+    action_value = action_content_list[1]
+    return format_value_with_name(action_name, action_value, port_configs)
 
 
-def convert_label_port_to_physical(engine, label_port, port_configs):
+def format_value_with_name(name, value, port_configs):
+    """
+    Format the value according to the name. do some special process for the specific name
+    :param name:  name of the value
+    :param value: the origin value to be formatted
+    :param port_configs: port config get from the config_db.json
+    :return: the format value
+    """
+    hex_key_list = ['vlan', 'is_trunc', 'trunc_size']
+    port_key_list = ['ingress_port', 'label_port']
+    if name in port_key_list:
+        return convert_label_port_to_physical(value, port_configs)
+    if name == 'hdr_checksum':
+        return "{:#06x}".format(int(value, 16))
+    elif name == 'protocol':
+        return convert_protocol_value(value)
+    elif name in hex_key_list:
+        return "{}".format(int(value, 16))
+    return "{}".format(value)
+
+
+def convert_label_port_to_physical(label_port, port_configs):
     """
     convert label_port port to physical port
-    :param engine: ssh engine object
-    :param label_port: lable port value
+    :param label_port: label port value
+    :param port_configs: port config get from the config_db.json
     :return: physical port
     """
     for port in port_configs.keys():
         port_config = port_configs.get(port)
-        if port_config.get('index') == label_port:
+        if port_config.get('index') == "{}".format(int(label_port, 16)):
             return port
     return label_port
+
+
+def convert_protocol_value(protocol):
+    if protocol == "TCP":
+        return '6'
+    return protocol
 
 
 def get_port_configs(engine):
