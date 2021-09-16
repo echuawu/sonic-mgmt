@@ -16,18 +16,23 @@
 #      - root['VLAN']['Vlan690']['vlanid']                 <<< Line which is allowed to be removed after upgrade
 #    values_changed:                                       <<< List with allowed changed lines after upgrade
 #      - root['FEATURE']['what-just-happened']['state']    <<< Line which is allowed to be changed after upgrade
-
+# After upgrade the sonic image, during the image initialization, the hostcfgd service will be started, and during the
+# hostcfgd service starting, it will do "KdumpCfg load ...", and then sonic-kdump-config is called, at this time, the
+#'KDUMP' is written to the config_db.json file. when we copy the config_db.json file after the upgrade, we can not
+# make sure 'KDUMP' has been written to the config_db.json, so add root['KDUMP'] to the ignore item.
 "201911":
   "202012":
     dictionary_item_added:
       []
     ignored_items:
-      []
+      - root['KDUMP']
     values_changed:
       []
   "master":
     dictionary_item_added:
       []
+    ignored_items:
+      - root['KDUMP']
 "202012":
   "202012":
     dictionary_item_added:
