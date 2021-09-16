@@ -596,10 +596,15 @@ class TestNegativeConfig:
 
 
 @pytest.mark.build
-def test_p4_sampling_not_support_on_spc1(engines):
+def test_p4_sampling_not_support_on_spc1(engines, table_params):
     with allure.step(
             'Verify {} not support on SPC1'.format(P4SamplingConsts.APP_NAME)):
-        # TODO: the error msg has not defined, need to update it later
-        expect_error_msg = "Error"
-        verify_show_cmd(engines.dut.run_cmd('sudo config feature state {} enabled'.format(P4SamplingConsts.APP_NAME)),
+        expect_error_msg = "feature is not supported on device type"
+        SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+        flow_entry = table_params.flow_entry
+        flow_entry_key = list(flow_entry.keys())[0]
+        params = flow_entry[flow_entry_key]
+        flow_table_entry_params = 'key {} action {} {} priority {}'.format(flow_entry_key, ACTION_NAME, params.action,
+                                                                           params.priority)
+        verify_show_cmd(P4SamplingCli.add_entry_to_table(engines.dut, FLOW_TABLE_NAME, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
