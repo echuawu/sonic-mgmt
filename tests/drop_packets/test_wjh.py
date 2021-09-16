@@ -473,7 +473,7 @@ def test_l1_agg_port_up(duthost):
 
     duthost.command("config interface startup {}".format(port))
     try:
-        if not wait_until(60, 5, check_if_port_is_active, duthost, port):
+        if not wait_until(80, 5, check_if_port_is_active, duthost, port):
             pytest.fail("Could not start up {} port.\nAborting.".format(port))
         table = get_agg_table_output(duthost, command="show what-just-happened poll layer-1 --aggregate")
         entry = verify_l1_agg_drop_exists(table, port, 'Up')
