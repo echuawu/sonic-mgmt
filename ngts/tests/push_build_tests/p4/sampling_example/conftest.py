@@ -14,10 +14,10 @@ logger = logging.getLogger()
 APP_NAME = P4SamplingConsts.APP_NAME
 
 
-@pytest.fixture(scope="package", autouse=False)
+@pytest.fixture(scope="package", autouse=True)
 def skipping_p4_sampling_test_case_for_spc1(platform_params):
     """
-    If platform is SPC1, skip all testcases except test_p4_sampling_not_support_on_spc1
+    If platform is SPC1, skip all test cases except test_p4_sampling_not_support_on_spc1
     :param platform_params: platform_params fixture
     """
     fixture_helper.skipping_p4_sampling_test_case_for_spc1(platform_params)

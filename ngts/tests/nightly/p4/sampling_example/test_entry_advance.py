@@ -287,7 +287,7 @@ class TestEntryTraffic:
         """
         logger.info("Clear the entry counters before send traffic")
         P4SamplingCli.clear_all_table_counters(engine_dut)
-        time.sleep(COUNTER_REFRESH_INTERVAL)
+        time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
         pkt_count = int(1 / P4SamplingConsts.TRAFFIC_INTERVAL)
         P4SamplingUtils.verify_entry_counter(engine_dut, PORT_TABLE_NAME, port_entry_keys, pkt_count)
         P4SamplingUtils.verify_entry_counter(engine_dut, FLOW_TABLE_NAME, flow_entry_keys, pkt_count)
@@ -304,7 +304,7 @@ class TestEntryTraffic:
         logger.info("Clear the entry counters before send traffic")
         P4SamplingCli.clear_table_counters(engine_dut, PORT_TABLE_NAME)
         P4SamplingCli.clear_table_counters(engine_dut, FLOW_TABLE_NAME)
-        time.sleep(COUNTER_REFRESH_INTERVAL)
+        time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
         pkt_count = 0
         P4SamplingUtils.verify_entry_counter(engine_dut, PORT_TABLE_NAME, port_entry_keys, pkt_count)
         P4SamplingUtils.verify_entry_counter(engine_dut, FLOW_TABLE_NAME, flow_entry_keys, pkt_count)

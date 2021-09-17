@@ -7,6 +7,7 @@ from dotted_dict import DottedDict
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
+import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 logger = logging.getLogger()
 
 pytestmark = [
@@ -134,7 +135,7 @@ class TestNegativeConfig:
         with allure.step('Verify add, delete and show command for the table_port_sampling'):
             expect_error_msg_list = ['Error: Invalid value for "key": Illegal key keyword \\S+. Use "key" keyword',
                                      'Error: Invalid value for "<key_port>": Illegal port \\S+. '
-                                     'Only physical ports are supported',
+                                     'Only physical.*ports are supported',
                                      'Error: Invalid value for "<key_checksum_value/key_checksum_mask>": '
                                      'Illegal key_checksum_value/key_checksum_mask \\S+. Value/mask are 2 Hex Bytes']
 
@@ -158,7 +159,7 @@ class TestNegativeConfig:
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
             expect_delete_error_msg_list = ['Error: Missing argument "key"',
                                             'Error: Invalid value for "<key_port>": Illegal port \\S+. '
-                                            'Only physical ports are supported',
+                                            'Only physical.*ports are supported',
                                             'Error: Missing argument "<key_checksum_value/key_checksum_mask>"']
 
             port_table_key_param_list = ["", "key {}".format(table_params.port_key.split()[1]),
@@ -237,9 +238,9 @@ class TestNegativeConfig:
                                      'Error: Invalid value for "<action_name>": Illegal action_name \\S+. '
                                      'Only "DoMirror" action is supported',
                                      'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. '
-                                     'Only physical ports are supported',
+                                     'Only physical.*ports are supported',
                                      'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. '
-                                     'Only physical ports are supported',
+                                     'Only physical.*ports are supported',
                                      'Error: Invalid value for "<l3_mirror_dmac>": Invalid MAC address \\S+',
                                      'Error: Invalid value for "<l3_mirror_dip>": Invalid IPv4 address \\S+',
                                      'Error: Invalid value for "<l3_mirror_truc_size>": \\S+ is not a valid integer',
@@ -289,9 +290,9 @@ class TestNegativeConfig:
                                      'Error: Invalid value for "<action_name>": Illegal action_name \\S+. '
                                      'Only "DoMirror" action is supported',
                                      'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. '
-                                     'Only physical ports are supported',
+                                     'Only physical.*ports are supported',
                                      'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. '
-                                     'Only physical ports are supported',
+                                     'Only physical.*ports are supported',
                                      'Error: Invalid value for "<l3_mirror_dmac>": Invalid MAC address \\S+',
                                      'Error: Invalid value for "<l3_mirror_dip>": Invalid IPv4 address \\S+',
                                      'Error: Invalid value for "<l3_mirror_truc_size>": \\S+ is not a valid integer',
@@ -543,7 +544,7 @@ class TestNegativeConfig:
         """
 
         for port in [lag_port, topology_obj.ports['dut-lb-splt4-p1-1']]:
-            expect_error_msg = 'Error: Invalid value for "<key_port>": Illegal port \\S+. Only physical ports are supported'
+            expect_error_msg = 'Error: Invalid value for "<key_port>": Illegal port \\S+. Only physical.*ports are supported'
             port_key = ' '.join([port, table_params.port_key.split()[1]])
             port_table_entry_params = "key {} action {} {} priority {}".format(port_key, ACTION_NAME,
                                                                                table_params.port_action_param,
@@ -555,7 +556,7 @@ class TestNegativeConfig:
                     expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
             expect_error_msg = 'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. ' \
-                               'Only physical ports are supported'
+                               'Only physical.*ports are supported'
             port_action_param = ' ' .join(
                 [port] + table_params.port_action_param.split()[1:])
             port_table_entry_params = "key {} action {} {} priority {}".format(table_params.port_key, ACTION_NAME,
@@ -568,7 +569,7 @@ class TestNegativeConfig:
                     expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
             expect_error_msg = 'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. ' \
-                               'Only physical ports are supported'
+                               'Only physical.*ports are supported'
             flow_action_param = ' '.join(
                 [port] + table_params.flow_action_param.split()[1:])
             flow_table_entry_params = "key {} action {} {} priority {}".format(table_params.flow_key, ACTION_NAME,
@@ -596,7 +597,9 @@ class TestNegativeConfig:
 
 
 @pytest.mark.build
-def test_p4_sampling_not_support_on_spc1(engines, table_params):
+def test_p4_sampling_not_support_on_spc1(engines, table_params, platform_params):
+    if fixture_helper.is_p4_sampling_supported(platform_params):
+        pytest.skip("Skip it due to the device is not SPC1")
     with allure.step(
             'Verify {} not support on SPC1'.format(P4SamplingConsts.APP_NAME)):
         expect_error_msg = "feature is not supported on device type"

@@ -197,7 +197,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
         # add p4 sampling entries, need to check is the p4-sampling is installed or not
-        if P4SamplingUtils.check_p4_sampling_installed(engines.dut):
+        if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
+                fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
         logger.info('PushGate Common configuration completed')
 
@@ -244,7 +245,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
         LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
         InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
-        if P4SamplingUtils.check_p4_sampling_installed(engines.dut):
+        if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
+                fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, p4_sampling_table_params)
         logger.info('Doing config save after cleanup')
         cli_object.general.save_configuration(engines.dut)

@@ -18,12 +18,21 @@ FLOW_TABLE_NAME = P4SamplingConsts.FLOW_TABLE_NAME
 ACTION_NAME = P4SamplingConsts.ACTION_NAME
 
 
+def is_p4_sampling_supported(platform_params):
+    """
+    If platform is SPC1,p4-sampling dose not support
+    :param platform_params: platform_params fixture
+    :return: True is supported, else False
+    """
+    return 'SN2' not in platform_params.hwsku
+
+
 def skipping_p4_sampling_test_case_for_spc1(platform_params):
     """
-    If platform is SPC1, skip all testcases except test_p4_sampling_not_support_on_spc1
+    If platform is SPC1, skip all test cases except test_p4_sampling_not_support_on_spc1
     :param platform_params: platform_params fixture
     """
-    if 'SN2' in platform_params.hwsku:
+    if not is_p4_sampling_supported(platform_params):
         pytest.skip("Skipping p4-sampling test cases as SPC1 does not support it")
 
 
