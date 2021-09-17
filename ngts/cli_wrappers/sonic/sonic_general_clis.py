@@ -722,9 +722,11 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                                     parse_by_breakout_modes)
         else:
             for port_name, port_dict in platform_json_obj["interfaces"].items():
+                port_start_index = int(re.search(r'Ethernet(.*)', port_name).group(1))
                 lanes = port_dict[SonicConstant.LANES].split(",")
                 breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].keys())))
-                breakout_ports = ["Ethernet{}".format(lane) for lane in lanes]
+                lane_count = len(lanes)
+                breakout_ports = ["Ethernet{}".format(port_start_index + i) for i in range(lane_count)]
                 for port in breakout_ports:
                     if port in topology_obj.players_all_ports['dut']:
                         if parse_by_breakout_modes:
