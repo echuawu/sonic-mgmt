@@ -262,18 +262,7 @@ class TestEntryScaling:
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))
-        # TODO: this is a bug for the image, after the reboot, need to wait for 180 secs before install p4-sampling
-        self.wait_until_dut_ready(engine_dut)
         self.verify_p4_sampling_up(engine_dut)
-
-    def wait_until_dut_ready(self, engine_dut):
-        uptime = self.get_uptime(engine_dut)
-        # to avoid dead loop
-        i = 1
-        while uptime < 3 and i < 18:
-            time.sleep(10)
-            i += 1
-            uptime = self.get_uptime(engine_dut)
 
     @staticmethod
     @retry(Exception, tries=10, delay=10)
