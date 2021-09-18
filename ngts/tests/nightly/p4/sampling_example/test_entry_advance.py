@@ -167,6 +167,7 @@ class TestEntryTraffic:
             self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
             self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
 
+    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
     @allure.title('Test upgrade and downgrade p4-sampling app')
     def test_upgrade_p4_sampling(self, engines, table_params, topology_obj, interfaces):
         current_version = SonicAppExtensionCli.get_installed_app_version(engines.dut, P4SamplingConsts.APP_NAME)
