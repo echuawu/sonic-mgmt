@@ -57,9 +57,9 @@ pytest_plugins = ('tests.common.plugins.ptfadapter',
                   'tests.common.plugins.custom_fixtures',
                   'tests.common.dualtor',
                   'tests.vxlan',
+                  'tests.decap',
                   'tests.common.plugins.allure_server',
                   'tests.common.plugins.mars_test_cases_results')
-
 
 def pytest_addoption(parser):
     parser.addoption("--testbed", action="store", default=None, help="testbed name")
