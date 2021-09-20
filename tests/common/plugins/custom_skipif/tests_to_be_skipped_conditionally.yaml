@@ -4,6 +4,11 @@ platform_tests/test_auto_negotiation.py:
   - Platform:
     - 3800
 
+# SFP using ethtool
+platform_tests/mellanox/test_check_sfp_using_ethtool.py:
+  - Redmine:
+      - 2801079
+
 # ecmp
 ecmp/test_fgnhg.py:
   - Redmine:
