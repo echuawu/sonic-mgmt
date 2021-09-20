@@ -62,11 +62,12 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    report_url = config.cache.get(ALLURE_REPORT_URL, None)
-    if report_url:
-        logger.info('Allure report URL: {}'.format(report_url))
-    else:
-        logger.info('Can not get Allure report URL. Please check logs')
+    if config.option.allure_server_addr:
+        report_url = config.cache.get(ALLURE_REPORT_URL, None)
+        if report_url:
+            logger.info('Allure report URL: {}'.format(report_url))
+        else:
+            logger.info('Can not get Allure report URL. Please check logs')
 
 
 def get_setup_session_info(session):
