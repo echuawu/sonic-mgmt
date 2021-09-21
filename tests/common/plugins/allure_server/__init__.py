@@ -173,7 +173,12 @@ def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
         if get_current_test_run_cmd:
             # If need pytest run command for specific test only - then building args with path to test case
             nodeid_test_path = request.node.nodeid.split('::')[0]
-            path_to_test_dir = request.config.inifile.dirname
+            try:
+                path_to_test_dir = request.config.inifile.dirname
+            except AttributeError:
+                logger.warning('Can not get pytest run command for specific test case, pytest session run cmd will be '
+                               'attached to Allure report')
+                continue
 
             full_path_to_test = os.path.join(path_to_test_dir, nodeid_test_path)
             if os.path.exists(full_path_to_test):
