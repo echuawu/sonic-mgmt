@@ -51,10 +51,6 @@
         </Case>
     </global>
     <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_traffic_shift.cases </cases>
-    </test>
-
-    <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_allow_list.cases </cases>
     </test>
 
@@ -88,5 +84,9 @@
     
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_monitor.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_traffic_shift.cases </cases>
     </test>
 </DBDEF>
