@@ -7,6 +7,12 @@ class PytestConst:
 
 
 class SonicConst:
+    PORT_SPLIT_NUM_1 = 1
+    PORT_SPLIT_NUM_2 = 2
+    PORT_SPLIT_NUM_4 = 4
+    PORT_LANE_NUM_1 = 1
+    PORT_LANE_NUM_2 = 2
+    PORT_LANE_NUM_4 = 4
     FEC_RS_MODE = 'rs'
     FEC_FC_MODE = 'fc'
     FEC_NONE_MODE = 'none'
@@ -131,305 +137,307 @@ class DefaultCredentialConstants:
     OTHER_SONIC_PASSWORD_LIST = ["password"]
 
 
-SPC = {
-    '25GBASE-CR': ['10G', '25G'],
-    '50GBASE-CR2': ['50G'],
-    '40GBASE-CR4': ['40G'],
-    '100GBASE-CR4': ['100G'],
-    'SR': ['10G', '25G'],
-    'SR2': ['50G'],
-    'SR4': ['40G', '100G'],
-    'LR': ['10G'],
-    'LR4': ['40G', '100G'],
-    'KR': ['10G', '25G'],
-    'KR2': ['20G', '50G'],
-    'KR4': ['40G', '56G', '100G'],
-    'CAUI': ['100G'],
-    'GMII': ['1G'],
-    'SFI': ['10G'],
-    'XLAUI': ['40G'],
-    'CAUI4': ['100G'],
-    'XAUI': ['10G'],
-    'XFI': ['10G']
-}
-SPC2_3 = {
-    '1000BASE-CX': ['1G'],
-    '25GBASE-CR': ['1G', '10G', '25G'],
-    '50GBASE-CR': ['50G'],
-    '50GBASE-CR2': ['50G'],
-    '40GBASE-CR4': ['40G'],
-    '100GBASE-CR2': ['100G'],
-    '100GBASE-CR4': ['100G'],
-    '200GBASE-CR4': ['200G'],
-    '400GBASE-CR8': ['400G'],
-    'CR': ['1G', '10G', '25G', '50G'],
-    'CR2': ['50G', '100G'],
-    'CR4': ['40G', '100G', '200G', '400G'],
-    'SR': ['1G', '10G', '25G', '50G'],
-    'SR2': ['50G', '100G'],
-    'SR4': ['40G', '100G', '200G', '400G'],
-    'LR': ['1G', '10G', '25G', '50G'],
-    'LR4': ['40G', '100G', '200G', '400G'],
-    'KR': ['1G', '10G', '25G', '50G'],
-    'KR2': ['50G', '100G'],
-    'KR4': ['40G', '100G', '200G', '400G'],
-    'CAUI': ['100G'],
-    'GMII': ['1G'],
-    'SFI': ['10G'],
-    'XLAUI': ['40G'],
-    'CAUI4': ['100G'],
-    'XFI': ['10G']
-}
-
-
 class PlatformConstants:
     ANACONDA = "SN3700"
+    ANACONDA_C = "SN3700C"
+    LIONFISH = "SN3420"
     TIGRIS = "SN3800"
     LIGER = "SN4600"
     LEOPARD = "SN4700"
+    TIGON = "SN4600C"
+    OCELOT = "SN4410"
+
+
+class InterfacesTypeConstants:
+    INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC = {
+        SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
+        SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+        SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']},
+    }
+    INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC2 = {
+        PlatformConstants.LIONFISH: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']}
+        },
+        PlatformConstants.ANACONDA_C: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']}
+        },
+        PlatformConstants.TIGRIS: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']}
+        },
+        PlatformConstants.ANACONDA: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G']}
+        }
+    }
+    INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC3 = {
+        PlatformConstants.OCELOT: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G']}
+        },
+        PlatformConstants.LEOPARD: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G']}
+        },
+        PlatformConstants.LIGER: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G']}
+        },
+        PlatformConstants.TIGON: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']}
+        }
+
+    }
 
 
 class FecConstants:
-    PORT_SPLIT_NUM_1 = 1
-    PORT_SPLIT_NUM_2 = 2
-    PORT_SPLIT_NUM_4 = 4
-
     FEC_MODES_SPC_SPEED_SUPPORT = {
         SonicConst.FEC_FC_MODE: {
-            PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                               '25G': ['CR'],
-                               '40G': ['CR4'],
-                               '50G': ['CR2']
-                               },
-            PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                               '25G': ['CR'],
-                               '50G': ['CR2']
-                               },
-            PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                               '25G': ['CR'],
-                               '50G': ['CR2']
-                               }
+            SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                          '25G': ['CR'],
+                                          '40G': ['CR4'],
+                                          '50G': ['CR2']
+                                          },
+            SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                          '25G': ['CR'],
+                                          '50G': ['CR2']
+                                          },
+            SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                          '25G': ['CR'],
+                                          '50G': ['CR2']
+                                          }
         },
         SonicConst.FEC_RS_MODE: {
-            PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
-                               },
-            PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
-                               },
-            PORT_SPLIT_NUM_4: {'25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
-                               },
+            SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                          '50G': ['CR2'],
+                                          '100G': ['CR4']
+                                          },
+            SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                          '50G': ['CR2'],
+                                          '100G': ['CR4']
+                                          },
+            SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                          '50G': ['CR2'],
+                                          '100G': ['CR4']
+                                          },
         },
         SonicConst.FEC_NONE_MODE: {
-            PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                               '25G': ['CR'],
-                               '40G': ['CR4'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
-                               },
-            PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                               '25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
-                               },
-            PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                               '25G': ['CR'],
-                               '50G': ['CR2'],
-                               '100G': ['CR4']
-                               }
+            SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                          '25G': ['CR'],
+                                          '40G': ['CR4'],
+                                          '50G': ['CR2'],
+                                          '100G': ['CR4']
+                                          },
+            SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                          '25G': ['CR'],
+                                          '50G': ['CR2'],
+                                          '100G': ['CR4']
+                                          },
+            SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                          '25G': ['CR'],
+                                          '50G': ['CR2'],
+                                          '100G': ['CR4']
+                                          }
         }
     }
     FEC_MODES_SPC2_SPEED_SUPPORT = {
         PlatformConstants.ANACONDA: {
             SonicConst.FEC_FC_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              }
             },
             SonicConst.FEC_RS_MODE: {
-                PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4'],
-                                   '200G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'25G': ['CR'],
-                                   '50G': ['CR'],
-                                   },
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4'],
+                                              '200G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              },
             },
             SonicConst.FEC_NONE_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR']
+                                              }
             }
         },
         PlatformConstants.TIGRIS: {
             SonicConst.FEC_FC_MODE: {
-                PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {
                     '25G': ['CR'],
                     '50G': ['CR2']
                 }
             },
             SonicConst.FEC_RS_MODE: {
-                PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   },
-                PORT_SPLIT_NUM_4: {'25G': ['CR'],
-                                   '50G': ['CR'],
-                                   },
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              },
             },
             SonicConst.FEC_NONE_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'1G': ['CR'],
-                                   '10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'1G': ['CR'],
+                                              '10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR']
+                                              }
             }
         }
     }
     FEC_MODES_SPC3_SPEED_SUPPORT = {
         PlatformConstants.LIGER: {
             SonicConst.FEC_FC_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              }
             },
             SonicConst.FEC_RS_MODE: {
-                PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4'],
-                                   },
-                PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   },
-                PORT_SPLIT_NUM_4: {'25G': ['CR'],
-                                   },
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4'],
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              },
             },
             SonicConst.FEC_NONE_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'1G': ['CR'],
-                                   '10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'1G': ['CR'],
+                                              '10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR']
+                                              }
             }
         },
         PlatformConstants.LEOPARD: {
             SonicConst.FEC_FC_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              }
             },
             SonicConst.FEC_RS_MODE: {
-                PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4'],
-                                   '200G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR2'],
-                                   '200G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_4: {'25G': ['CR'],
-                                   '50G': ['CR'],
-                                   '100G': ['CR2']
-                                   },
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4'],
+                                              '200G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR2'],
+                                              '200G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR2']
+                                              },
             },
             SonicConst.FEC_NONE_MODE: {
-                PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2'],
-                                   '100G': ['CR4']
-                                   },
-                PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '40G': ['CR4'],
-                                   '50G': ['CR2']
-                                   },
-                PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                                   '25G': ['CR'],
-                                   '50G': ['CR2']
-                                   }
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              }
             }
         }
     }
