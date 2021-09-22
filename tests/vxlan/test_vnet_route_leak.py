@@ -166,8 +166,6 @@ def get_leaked_routes(duthost):
     return leaked_routes
 
 
-# remove disable_loganalyzer mark after #2369709 is fixed
-@pytest.mark.disable_loganalyzer
 def test_vnet_route_leak(configure_dut, duthosts, rand_one_dut_hostname):
     """
     Test case for VNET route leak check

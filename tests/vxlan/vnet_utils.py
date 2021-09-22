@@ -108,13 +108,13 @@ def apply_dut_config_files(duthost, vnet_test_params):
         config_files = [DUT_VNET_INTF_JSON, DUT_VNET_NBR_JSON, DUT_VNET_CONF_JSON]
         for config in config_files:
             duthost.shell("sonic-cfggen -j {} --write-to-db".format(config))
-            sleep(10)
+            sleep(3)
 
         duthost.shell("docker cp {} swss:/vnet.route.json".format(DUT_VNET_ROUTE_JSON))
         duthost.shell("docker cp {} swss:/vnet.switch.json".format(DUT_VNET_SWITCH_JSON))
         duthost.shell("docker exec swss sh -c \"swssconfig /vnet.switch.json\"")
         duthost.shell("docker exec swss sh -c \"swssconfig /vnet.route.json\"")
-        sleep(60)
+        sleep(3)
     else:
         logger.info("Skip applying config files on DUT")
 
