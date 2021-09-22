@@ -478,7 +478,7 @@ def get_lags_scale_configuration(number_of_lags):
     for index in range(number_of_lags):
         lag_name = '{}{}'.format(base_lag_name, str(int(base_lag_index) + index))
         lag_config_list.append({'type': 'lacp', 'name': lag_name, 'members': []})
-        lag_expected_info.append((r'{PORTCHANNEL}.*{PORTCHANNEL_STATUS}.*N/A'
+        lag_expected_info.append((r'{PORTCHANNEL}.*{PORTCHANNEL_STATUS}.*(N/A|.*)'
                                   .format(PORTCHANNEL=lag_name,
                                           PORTCHANNEL_STATUS='Dw'), True))
         lag_ipv4_address = base_ipv4 + index
