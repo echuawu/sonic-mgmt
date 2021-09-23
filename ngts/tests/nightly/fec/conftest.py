@@ -6,12 +6,30 @@ from retry.api import retry_call
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
 from ngts.constants.constants import AutonegCommandConstants, SonicConst
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+
 
 logger = logging.getLogger()
 
 
 # list of tested protocols
 FEC_MODE_LIST = [SonicConst.FEC_RS_MODE, SonicConst.FEC_FC_MODE, SonicConst.FEC_NONE_MODE]
+
+
+@pytest.fixture(scope='module', autouse=True)
+def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_params):
+    """
+    Pytest fixture which will clean all fec configuration leftover from the dut
+
+    """
+
+    yield
+
+    logger.info('Starting FEC configuration cleanup')
+    SonicGeneralCli.apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name,
+                                       platform_params.platform, platform_params.hwsku)
+
+    logger.info('FEC cleanup completed')
 
 
 @pytest.fixture(autouse=True)
