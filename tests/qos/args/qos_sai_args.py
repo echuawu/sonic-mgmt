@@ -24,7 +24,7 @@ def add_qos_sai_args(parser):
         "--qos_swap_syncd",
         action="store",
         type=bool,
-        default=False,
+        default=True,
         help="Swap syncd container with syncd-rpc container",
     )
 
