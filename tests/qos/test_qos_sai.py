@@ -732,7 +732,6 @@ class TestQosSai(QosSaiBase):
             "pkts_num_leak_out": dutQosConfig["param"][portSpeedCableLength]["pkts_num_leak_out"],
             "pkts_num_fill_min": qosConfig[queueProfile]["pkts_num_fill_min"],
             "pkts_num_trig_drp": triggerDrop,
-            "packet_size": qosConfig[queueProfile]["packet_size"],
             "cell_size": qosConfig[queueProfile]["cell_size"],
             "hwsku":dutTestParams['hwsku']
         })
