@@ -67,13 +67,6 @@
  <case>
     <name> FEC tests </name>
     <info> </info>
-    <ignore>
-        <condition>
-            <key> sonic_branch </key>
-            <op> in </op>
-            <value> ["202012"] </value>
-        </condition>
-    </ignore>
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fec --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
@@ -84,13 +77,6 @@
   <case>
     <name> Auto negotiation </name>
     <info> </info>
-    <ignore>
-        <condition>
-            <key> sonic_branch </key>
-            <op> in </op>
-            <value> ["202012"] </value>
-        </condition>
-      </ignore>
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/auto_negotition --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
