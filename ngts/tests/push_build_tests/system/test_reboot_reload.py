@@ -39,7 +39,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, pr
     :param validation_type: validation type - which will be executed
     """
     try:
-        test_reboot_reload = TestRebootReload(topology_obj, interfaces, engines, pre_app_ext)
+        test_reboot_reload = RebootReload(topology_obj, interfaces, engines, pre_app_ext)
         if re.search('simx', platform_params.setup_name):
             if validation_type in ['reboot', 'config reload -y']:
                 test_reboot_reload.push_gate_reboot_simx_test_runner(request, validation_type)
@@ -52,7 +52,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, pr
         raise AssertionError(err)
 
 
-class TestRebootReload:
+class RebootReload:
 
     def __init__(self, topology_obj, interfaces, engines, pre_app_ext):
         self.topology_obj = topology_obj
