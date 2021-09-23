@@ -499,7 +499,7 @@ class P4SamplingConsts:
     APP_NAME = 'p4-sampling'
     REPOSITORY = 'urm.nvidia.com/sw-nbu-sws-sonic-docker/p4-sampling'
     VERSION = '0.2.0-012'
-    UPGRADE_TARGET_VERSION = '0.2.0-015'
+    UPGRADE_TARGET_VERSION = '0.2.0-19'
     CONTTROL_IN_PORT = 'control_in_port'
     PORT_TABLE_NAME = 'table_port_sampling'
     FLOW_TABLE_NAME = 'table_flow_sampling'
