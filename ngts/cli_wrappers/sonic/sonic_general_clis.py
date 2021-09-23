@@ -313,6 +313,7 @@ class SonicGeneralCli(GeneralCliCommon):
         delimiter = SonicGeneralCli.get_installer_delimiter(dut_engine)
 
         with allure.step('Deploying image via SONiC'):
+            SonicGeneralCli.configure_dhclient_if_simx(dut_engine)
             with allure.step('Copying image to dut'):
                 SonicGeneralCli.download_file_from_http_url(dut_engine, image_path, tmp_target_path)
 
@@ -332,6 +333,11 @@ class SonicGeneralCli(GeneralCliCommon):
                 delimiter = SonicGeneralCli.get_installer_delimiter(dut_engine)
                 image_list = SonicGeneralCli.get_sonic_image_list(dut_engine, delimiter)
                 assert 'Current: {}'.format(image_binary) in image_list
+
+    @staticmethod
+    def configure_dhclient_if_simx(dut_engine):
+        if 'simx' in dut_engine.run_cmd("hostname"):
+            dut_engine.run_cmd('sudo dhclient', validate=True)
 
     @staticmethod
     def deploy_onie(dut_engine, image_path, in_onie=False):
