@@ -26,7 +26,7 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
 
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize('validation_type', validation_types)
-def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, pre_app_ext, platform_params, validation_type):
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params, validation_type):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -39,7 +39,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, pr
     :param validation_type: validation type - which will be executed
     """
     try:
-        test_reboot_reload = RebootReload(topology_obj, interfaces, engines, pre_app_ext)
+        test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
         if re.search('simx', platform_params.setup_name):
             if validation_type in ['reboot', 'config reload -y']:
                 test_reboot_reload.push_gate_reboot_simx_test_runner(request, validation_type)
@@ -54,7 +54,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, pr
 
 class RebootReload:
 
-    def __init__(self, topology_obj, interfaces, engines, pre_app_ext):
+    def __init__(self, topology_obj, interfaces, engines, shared_params):
         self.topology_obj = topology_obj
         self.dut_engine = engines.dut
         self.cli_object = self.topology_obj.players['dut']['cli']
@@ -63,7 +63,9 @@ class RebootReload:
         self.dut_vlan40_int_ip = '40.0.0.1'
         self.dut_port_channel_ip = '30.0.0.1'
         self.hb_vlan40_ip = '40.0.0.3'
-        self.is_support_app_ext, self.app_name, self.version, _ = pre_app_ext
+        self.is_support_app_ext = shared_params.app_ext_is_app_ext_supported
+        self.app_name = shared_params.app_ext_app_name
+        self.version = shared_params.app_ext_version
 
     @pytest.fixture(autouse=True)
     def ignore_expected_loganalyzer_exceptions(self, loganalyzer):

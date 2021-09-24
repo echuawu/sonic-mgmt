@@ -51,22 +51,17 @@ def run_cleanup_only(request):
     return request.config.getoption(PytestConst.run_cleanup_only_arg)
 
 
-@pytest.fixture(scope="session")
-def pre_app_ext(engines):
-    is_support_app_ext = SonicAppExtensionCli.verify_version_support_app_ext(engines.dut)
+def get_app_ext_info(engine):
+    is_support_app_ext = SonicAppExtensionCli.verify_version_support_app_ext(engine)
     app_name = APP_INFO["name"]
     app_repository_name = APP_INFO["repository"]
     version = APP_INFO["shut_down"]["version"]
-    dut_engine = engines.dut
-
-    yield is_support_app_ext, app_name, version, app_repository_name
-    if is_support_app_ext:
-        app_cleanup(dut_engine, app_name)
+    return is_support_app_ext, app_name, version, app_repository_name
 
 
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
-                            run_config_only, run_test_only, run_cleanup_only, pre_app_ext, p4_sampling_table_params):
+                            run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -77,13 +72,16 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     :param run_config_only: test run mode run_config_only
     :param run_test_only: test run mode run_test_only
     :param run_cleanup_only: test run mode run_cleanup_only
-    :param pre_app_ext: pre_app_ext fixture
     :param p4_sampling_table_params: p4_sampling_table_params fixture
+    :param shared_params: fixture which provide dictionary which can be shared between tests
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
 
     cli_object = topology_obj.players['dut']['cli']
+
+    # Check if app_ext supported and get app name, repo, version
+    shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = get_app_ext_info(engines.dut)
 
     if run_config_only or full_flow_run:
         if upgrade_params.is_upgrade_required:
@@ -95,16 +93,20 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                              hwsku=platform_params.hwsku, deploy_type='onie',
                                              reboot_after_install=reboot_after_install)
 
+            with allure.step('Check that APP Extension supported on base version'):
+                shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
+                    get_app_ext_info(engines.dut)
+
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
             retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
                        logger=logger)
 
-    # Install app here in order to test migrating app from base image to target image
-    is_support_app_ext, app_name, version, app_repository_name = pre_app_ext
-    if is_support_app_ext:
-        with allure.step("Install app {}".format(app_name)):
-            install_app(engines.dut, app_name, app_repository_name, version)
+        # Install app here in order to test migrating app from base image to target image
+        if shared_params.app_ext_is_app_ext_supported:
+            with allure.step("Install app {}".format(app_name)):
+                install_app(engines.dut, app_name, app_repository_name, version)
+
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
                                                                                           interfaces.dut_hb_2])
@@ -227,8 +229,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                           verify_file=False,
                                           direction='get')
                 with allure.step("Installing wjh deb url"):
-                    dut_engine = topology_obj.players['dut']['engine']
-                    SonicGeneralCli.install_wjh(dut_engine, upgrade_params.wjh_deb_url)
+                    if upgrade_params.wjh_deb_url:
+                        dut_engine = topology_obj.players['dut']['engine']
+                        SonicGeneralCli.install_wjh(dut_engine, upgrade_params.wjh_deb_url)
 
     if run_test_only or full_flow_run:
         yield
@@ -248,6 +251,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
                 fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, p4_sampling_table_params)
+        if shared_params.app_ext_is_app_ext_supported:
+            app_cleanup(engines.dut, app_name)
         logger.info('Doing config save after cleanup')
         cli_object.general.save_configuration(engines.dut)
         logger.info('PushGate Common cleanup completed')

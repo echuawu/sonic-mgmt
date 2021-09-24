@@ -20,6 +20,7 @@ from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.constants.constants import SonicConst, PytestConst
 from ngts.tools.infra import get_platform_info
+from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 
 logger = logging.getLogger()
 
@@ -209,6 +210,17 @@ def upgrade_params(base_version, target_version, wjh_deb_url):
     else:
         logger.info('Either one or all the upgrade arguments is missing, skipping the upgrade flow')
     return upgrade_data
+
+
+@pytest.fixture(scope="session")
+def shared_params():
+    shared_dict = DottedDict()
+    shared_dict.app_ext_is_app_ext_supported = False
+    shared_dict.app_ext_app_name = APP_INFO["name"]
+    shared_dict.app_ext_app_repository_name = APP_INFO["repository"]
+    shared_dict.app_ext_version = APP_INFO["shut_down"]["version"]
+
+    return shared_dict
 
 
 @pytest.fixture(scope="session")
