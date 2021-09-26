@@ -356,6 +356,7 @@ tests/nightly/auto_negotition/test_auto_neg.py:
     - 2801854
     Platform:
     - 4600
+    - 4600c
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
@@ -450,6 +451,12 @@ tests/nightly/fec:
     - 4410
   - Branch:
     - 202012
+  - Redmine:
+    - 2801854
+    Platform:
+    - 4600
+    - 4600c
+
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   - Redmine:

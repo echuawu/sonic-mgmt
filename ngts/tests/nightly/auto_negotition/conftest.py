@@ -19,9 +19,9 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
     2: [('Ethernet12', 'Ethernet16')],
     4: [('Ethernet20', 'Ethernet24')]}
     """
-    tested_lb_dict = {1: [],
-                      2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])]
+    tested_lb_dict = {1: []
                       }
+    update_split_2_if_possible(topology_obj, tested_lb_dict)
     update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
 
     split_mode = 1
@@ -50,10 +50,23 @@ def update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested
     for example, parsing of platform.json file for panther will not return speeds option for port with split 4,
     because this breakout mode is not supported on panther
     """
-    split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
-    mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
-    if mutual_speeds:
-        tested_lb_dict.update({4: [split_4_lb]})
+    if topology_obj.ports.get('dut-lb-splt4-p1-1') and topology_obj.ports.get('dut-lb-splt4-p2-1'):
+        split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
+        mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
+        if mutual_speeds:
+            tested_lb_dict.update({4: [split_4_lb]})
+
+
+def update_split_2_if_possible(topology_obj, tested_lb_dict):
+    """
+    :param topology_obj: topology object fixture
+    :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
+    :return: Update loopback with split 2 configuration only in cases were there is such a loopback in setup
+    (some simx setups don't have split ports as part of the configuration)
+    """
+    if topology_obj.ports.get('dut-lb-splt2-p1-1') and topology_obj.ports.get('dut-lb-splt2-p2-1'):
+        split_2_lb = (topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])
+        tested_lb_dict.update({2: [split_2_lb]})
 
 
 @pytest.fixture(scope='session')

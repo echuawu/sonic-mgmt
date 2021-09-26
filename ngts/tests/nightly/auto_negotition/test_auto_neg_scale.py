@@ -8,7 +8,7 @@ logger = logging.getLogger()
 
 
 @pytest.fixture(autouse=True, scope='session')
-def tested_lb_all_dict(topology_obj, interfaces):
+def tested_lb_all_dict(topology_obj, engines, interfaces):
     """
     This function return a dictionary with all the switch ports for each split mode.
     :param topology_obj: topology fixture object
@@ -23,14 +23,16 @@ def tested_lb_all_dict(topology_obj, interfaces):
         ('Ethernet22', 'Ethernet26'), ('Ethernet23', 'Ethernet27')]}
     """
     tested_lb_dict = {
-        1: [],
-        2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1']),
-            (topology_obj.ports['dut-lb-splt2-p1-2'], topology_obj.ports['dut-lb-splt2-p2-2'])],
-        4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1']),
-            (topology_obj.ports['dut-lb-splt4-p1-2'], topology_obj.ports['dut-lb-splt4-p2-2']),
-            (topology_obj.ports['dut-lb-splt4-p1-3'], topology_obj.ports['dut-lb-splt4-p2-3']),
-            (topology_obj.ports['dut-lb-splt4-p1-4'], topology_obj.ports['dut-lb-splt4-p2-4'])]
+        1: []
     }
+    if 'simx' not in engines.dut.run_cmd("hostname"):
+        tested_lb_dict.update({2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1']),
+                                   (topology_obj.ports['dut-lb-splt2-p1-2'], topology_obj.ports['dut-lb-splt2-p2-2'])],
+                               4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1']),
+                                   (topology_obj.ports['dut-lb-splt4-p1-2'], topology_obj.ports['dut-lb-splt4-p2-2']),
+                                   (topology_obj.ports['dut-lb-splt4-p1-3'], topology_obj.ports['dut-lb-splt4-p2-3']),
+                                   (topology_obj.ports['dut-lb-splt4-p1-4'], topology_obj.ports['dut-lb-splt4-p2-4'])]
+                               })
     for lb in get_dut_loopbacks(topology_obj):
         tested_lb_dict[1].append(lb)
     tested_lb_dict[1].append((interfaces.dut_ha_1, interfaces.ha_dut_1))

@@ -77,8 +77,9 @@ class AutoNegBase:
 
     def get_custom_expected_conf_res(self, port, all_adv_speeds):
         expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int)
-        expected_type = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
-                                          self.interfaces_types_dict).pop()
+        matched_types = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
+                                          types_dict=self.interfaces_types_dict)
+        expected_type = max(matched_types, key=get_interface_cable_width)
         expected_width = get_interface_cable_width(expected_type)
         return expected_speed, expected_type, expected_width
 
@@ -276,9 +277,7 @@ class AutoNegBase:
         dut_interfaces_speeds = \
             self.cli_objects.dut.interface.get_interfaces_speed(self.engines.dut,
                                                                 interfaces_list=[self.interfaces.dut_ha_1])
-        ha_interfaces_speeds = \
-            self.cli_objects.ha.interface.get_interfaces_speed(self.engines.ha,
-                                                               interfaces_list=[self.interfaces.ha_dut_1])
+        ha_interfaces_speeds = {self.interfaces.ha_dut_1: dut_interfaces_speeds[self.interfaces.dut_ha_1]}
         return dut_interfaces_speeds, ha_interfaces_speeds
 
     def disable_auto_neg_on_peer_ports(self, conf, cleanup_list):
