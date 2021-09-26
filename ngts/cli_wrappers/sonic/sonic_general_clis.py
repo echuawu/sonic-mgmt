@@ -306,6 +306,7 @@ class SonicGeneralCli(GeneralCliCommon):
             SonicGeneralCli.verify_dockers_are_up(dut_engine)
         with allure.step("Validate app extensions are up"):
             SonicGeneralCli.verify_installed_extensions_running(dut_engine)
+        SonicGeneralCli.configure_dhclient_if_simx(dut_engine)
 
     @staticmethod
     def deploy_sonic(dut_engine, image_path, is_skipping_migrating_package=False):
@@ -337,7 +338,8 @@ class SonicGeneralCli(GeneralCliCommon):
     @staticmethod
     def configure_dhclient_if_simx(dut_engine):
         if 'simx' in dut_engine.run_cmd("hostname"):
-            dut_engine.run_cmd('sudo dhclient', validate=True)
+            with allure.step('Configure dhclient on simx dut'):
+                dut_engine.run_cmd('sudo dhclient', validate=True)
 
     @staticmethod
     def deploy_onie(dut_engine, image_path, in_onie=False):
