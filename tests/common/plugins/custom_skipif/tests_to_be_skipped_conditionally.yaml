@@ -347,9 +347,12 @@ bgp/test_bgp_gr_helper.py:
 ########## Canonical ##########
 # Nightly
 
-tests/nightly/auto_negotition/test_auto_neg.py:
+tests/nightly/auto_negotition:
   - Platform:
     - 4700
+    - 3800
+
+tests/nightly/auto_negotition/test_auto_neg.py:
   - Branch:
     - 202012
   - Redmine:
