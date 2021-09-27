@@ -29,6 +29,7 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+from ngts.helpers.config_db_utils import save_config_db_json
 
 
 logger = logging.getLogger()
@@ -114,8 +115,11 @@ class SonicGeneralCli(GeneralCliCommon):
         engine.run_cmd('sudo config load -y {}'.format(config_file), validate=True)
 
     @staticmethod
-    def reload_configuration(engine):
-        engine.run_cmd('sudo config reload -y', validate=True)
+    def reload_configuration(engine, force=False):
+        cmd = 'sudo config reload -y'
+        if force:
+            cmd += ' -f'
+        engine.run_cmd(cmd, validate=True)
 
     @staticmethod
     def save_configuration(engine):
@@ -856,3 +860,17 @@ class SonicGeneralCli(GeneralCliCommon):
                 dut_engine.ip, username=DefaultCredentialConstants.OTHER_SONIC_USER, password=password)
             if SonicGeneralCli.is_dummy_command_succeed(engine):
                 return engine
+
+    @staticmethod
+    def update_config_db_docker_routing_config_mode(engine, mode='split', remove_docker_routing_config_mode=False):
+        config_db = SonicGeneralCli.get_config_db(engine)
+        config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
+
+        if remove_docker_routing_config_mode:
+            config_db_localhost.pop('docker_routing_config_mode', None)
+        else:
+            config_db_localhost.update({'docker_routing_config_mode': mode})
+
+        save_config_db_json(engine, config_db)
+        SonicGeneralCli.reload_configuration(engine)
+        SonicGeneralCli.verify_dockers_are_up(engine)

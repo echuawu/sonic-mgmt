@@ -1,6 +1,7 @@
 import pytest
 import logging
 import allure
+import os
 
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
@@ -11,6 +12,7 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
+from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
@@ -21,9 +23,11 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
+from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
+FRR_CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger()
 
 
@@ -97,6 +101,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
                     get_app_ext_info(engines.dut)
 
+        with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
+            SonicGeneralCli.update_config_db_docker_routing_config_mode(engines.dut)
+
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
             retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
@@ -136,16 +143,19 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'vlan_id': 690, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 691, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 10, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
-                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]}
+                {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]},
+                {'vlan_id': 100, 'vlan_members': [{'PortChannel0002': 'trunk'}, {interfaces.dut_ha_2: 'trunk'}]},
+                {'vlan_id': 101, 'vlan_members': [{'PortChannel0002': 'trunk'}, {interfaces.dut_ha_2: 'trunk'}]}
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 690, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 691, 'vlan_members': [{interfaces.ha_dut_2: None}]},
-               {'vlan_id': 10, 'vlan_members': [{interfaces.ha_dut_2: None}]},
+               {'vlan_id': 10, 'vlan_members': [{interfaces.ha_dut_2: None}]}
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{'bond0': None}]},
                {'vlan_id': 69, 'vlan_members': [{'bond0': None}]},
-               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]}
+               {'vlan_id': 50, 'vlan_members': [{interfaces.hb_dut_1: None}]},
+               {'vlan_id': 101, 'vlan_members': [{'bond0': None}]}
                ]
     }
 
@@ -158,7 +168,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'iface': 'Vlan691', 'ips': [('69.1.0.1', '24'), ('6910::1', '64')]},
                 {'iface': 'Vlan50'.format(interfaces.dut_hb_1), 'ips': [(P4SamplingEntryConsts.duthb1_ip, '24')]},
                 {'iface': 'Vlan10', 'ips': [(P4SamplingEntryConsts.dutha2_ip, '24')]},
-                {'iface': 'Loopback0', 'ips': [('10.1.0.32', '32')]}
+                {'iface': 'Loopback0', 'ips': [('10.1.0.32', '32')]},
+                {'iface': 'Vlan100', 'ips': [('100.0.0.1', '24'), ('100::1', '64')]},
+                {'iface': 'Vlan101', 'ips': [('101.0.0.1', '24'), ('101::1', '64')]}
                 ],
         'ha': [{'iface': '{}.40'.format(interfaces.ha_dut_2), 'ips': [('40.0.0.2', '24'), ('4000::2', '64')]},
                {'iface': '{}.10'.format(interfaces.ha_dut_2), 'ips': [(P4SamplingEntryConsts.hadut2_ip, '24')]},
@@ -166,7 +178,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                ],
         'hb': [{'iface': 'bond0.40', 'ips': [('40.0.0.3', '24'), ('4000::3', '64')]},
                {'iface': 'bond0.69', 'ips': [('69.0.0.2', '24'), ('6900::2', '64')]},
-               {'iface': '{}.50'.format(interfaces.hb_dut_1), 'ips': [(P4SamplingEntryConsts.hbdut1_ip, '24')]}
+               {'iface': '{}.50'.format(interfaces.hb_dut_1), 'ips': [(P4SamplingEntryConsts.hbdut1_ip, '24')]},
+               {'iface': 'bond0.101', 'ips': [('101.0.0.3', '24'), ('101::3', '64')]}
                ]
     }
 
@@ -183,9 +196,32 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 {'vlan_id': 691, 'dhcp_servers': ['69.0.0.2', '6900::2']}
                 ]
     }
-
+    """
+    TODO: once EVPN-VXLAN will be supported - need to change line:
+    FROM: 'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
+    TO:   'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32', 'evpn_nvo': 'nvo',
+    For now if add 'evpn_nvo': 'nvo' - VXLAN decap test will fail
+    """
     vxlan_config_dict = {
-        'dut': [{'vtep_name': 'vtep_76543', 'vtep_src_ip': '10.1.0.32', 'vni': 76543, 'vlan': 69}]
+        'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
+                 'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}]
+                 }
+                ],
+        'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
+                'vtep_ips': [('100.0.0.2', '24'), ('100::2', '64')]},
+               {'vtep_name': 'vtep_500101', 'vtep_src_ip': '30.0.0.2', 'vni': 500101,
+                'vtep_ips': [('101.0.0.2', '24'), ('101::2', '64')]}],
+        'hb': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '40.0.0.3', 'vni': 500100,
+                'vtep_ips': [('100.0.0.3', '24'), ('100::3', '24')]}]
+    }
+
+    frr_config_dict = {
+        'dut': {'configuration': {'config_name': 'dut_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
+                'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']},
+        'ha': {'configuration': {'config_name': 'ha_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
+               'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']},
+        'hb': {'configuration': {'config_name': 'hb_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
+               'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']}
     }
 
     if run_config_only or full_flow_run:
@@ -198,6 +234,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         DhcpRelayConfigTemplate.configuration(topology_obj, dhcp_relay_config_dict)
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
+            FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
         # add p4 sampling entries, need to check is the p4-sampling is installed or not
         if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
                 fixture_helper.is_p4_sampling_supported(platform_params):
@@ -241,6 +278,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     if run_cleanup_only or full_flow_run:
         logger.info('Starting PushGate Common configuration cleanup')
         if not upgrade_params.is_upgrade_required:
+            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
         DhcpRelayConfigTemplate.cleanup(topology_obj, dhcp_relay_config_dict)
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
@@ -255,6 +293,11 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
             app_cleanup(engines.dut, app_name)
         logger.info('Doing config save after cleanup')
         cli_object.general.save_configuration(engines.dut)
+
+        with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
+            SonicGeneralCli.update_config_db_docker_routing_config_mode(engines.dut,
+                                                                        remove_docker_routing_config_mode=True)
+
         logger.info('PushGate Common cleanup completed')
 
     if skip_tests:
@@ -281,6 +324,8 @@ def log_debug_info(dut_engine):
     SonicVlanCli.show_vlan_config(dut_engine)
     SonicRouteCli.show_ip_route(dut_engine)
     SonicRouteCli.show_ip_route(dut_engine, ipv6=True)
+    SonicVxlanCli.show_vxlan_tunnel(dut_engine)
+    SonicVxlanCli.show_vxlan_vlanvnimap(dut_engine)
     logger.info('Finished debug prints')
 
 

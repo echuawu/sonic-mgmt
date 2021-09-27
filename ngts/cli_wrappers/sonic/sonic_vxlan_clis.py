@@ -18,7 +18,12 @@ class SonicVxlanCli(VxlanCliCommon):
         """
         vtep_name = vxlan_info['vtep_name']
         SonicVxlanCli.add_vtep(engine, vtep_name, vxlan_info['vtep_src_ip'])
-        SonicVxlanCli.add_vtep_mapping_to_vlan_vni(engine, vtep_name, vxlan_info['vlan'], vxlan_info['vni'])
+        if vxlan_info.get('evpn_nvo'):
+            SonicVxlanCli.add_evpn_nvo_vxlan_mapping(engine, vtep_name, vxlan_info['evpn_nvo'])
+        for tunnel in vxlan_info['tunnels']:
+            vlan = tunnel['vlan']
+            vni = tunnel['vni']
+            SonicVxlanCli.add_vtep_mapping_to_vlan_vni(engine, vtep_name, vlan, vni)
 
     @staticmethod
     def delete_vxlan(engine, vxlan_info):
@@ -30,7 +35,12 @@ class SonicVxlanCli(VxlanCliCommon):
         :return: command output
         """
         vtep_name = vxlan_info['vtep_name']
-        SonicVxlanCli.del_vtep_mapping_to_vlan_vni(engine, vtep_name, vxlan_info['vlan'], vxlan_info['vni'])
+        for tunnel in vxlan_info['tunnels']:
+            vlan = tunnel['vlan']
+            vni = tunnel['vni']
+            SonicVxlanCli.del_vtep_mapping_to_vlan_vni(engine, vtep_name, vlan, vni)
+        if vxlan_info.get('evpn_nvo'):
+            SonicVxlanCli.del_evpn_nvo_vxlan_mapping(engine, vxlan_info['evpn_nvo'])
         SonicVxlanCli.del_vtep(engine, vtep_name)
 
     @staticmethod
@@ -53,6 +63,27 @@ class SonicVxlanCli(VxlanCliCommon):
         :return: command output
         """
         return engine.run_cmd('sudo config vxlan del {}'.format(vtep_name))
+
+    @staticmethod
+    def add_evpn_nvo_vxlan_mapping(engine, vtep_name, evpn_nvo):
+        """
+        Method which adding mapping for EVPN_NVO to VXLAN tunnel on SONiC dut
+        :param engine: ssh engine object
+        :param vtep_name: VTEP name
+        :param evpn_nvo: evpn nvo name
+        :return: command output
+        """
+        return engine.run_cmd('sudo config vxlan evpn_nvo add {} {}'.format(evpn_nvo, vtep_name))
+
+    @staticmethod
+    def del_evpn_nvo_vxlan_mapping(engine, evpn_nvo):
+        """
+        Method which removing mapping for EVPN_NVO to VXLAN tunnel from SONiC dut
+        :param engine: ssh engine object
+        :param evpn_nvo: evpn nvo name
+        :return: command output
+        """
+        return engine.run_cmd('sudo config vxlan evpn_nvo del {}'.format(evpn_nvo))
 
     @staticmethod
     def add_vtep_mapping_to_vlan_vni(engine, vtep_name, vlan, vni):
@@ -85,7 +116,7 @@ class SonicVxlanCli(VxlanCliCommon):
         :param engine: ssh engine object
         :return: dictionary with parsed output from command
         """
-        vxlan_tunnel_output = engine.run_cmd('sudo show vxlan tunnel')
+        vxlan_tunnel_output = SonicVxlanCli.show_vxlan_tunnel(engine)
         vxlan_tunnel_dict = generic_sonic_output_parser(vxlan_tunnel_output,
                                                         headers_ofset=0,
                                                         len_ofset=1,
@@ -94,6 +125,15 @@ class SonicVxlanCli(VxlanCliCommon):
                                                         column_ofset=2,
                                                         output_key='vxlan tunnel name')
         return vxlan_tunnel_dict
+
+    @staticmethod
+    def show_vxlan_tunnel(engine):
+        """
+        Method which gets VXLAN tunnel info from command "show vxlan tunnel"
+        :param engine: ssh engine object
+        :return: command output
+        """
+        return engine.run_cmd('sudo show vxlan tunnel')
 
     @staticmethod
     def check_vxlan_tunnels(engine, expected_tunnels_info_list):

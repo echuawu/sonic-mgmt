@@ -12,6 +12,7 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
 from ngts.cli_wrappers.linux.linux_ifconfig_clis import LinuxIfconfigCli
 from ngts.cli_wrappers.linux.linux_vxlan_clis import LinuxVxlanCli
+from ngts.cli_wrappers.linux.linux_frr_cli import LinuxFrrCli
 logger = logging.getLogger()
 
 
@@ -30,3 +31,4 @@ class LinuxCli:
         self.dhcp = LinuxDhcpCli()
         self.ifconfig = LinuxIfconfigCli()
         self.vxlan = LinuxVxlanCli()
+        self.frr = LinuxFrrCli()

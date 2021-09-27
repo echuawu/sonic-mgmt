@@ -29,7 +29,7 @@ def test_vxlan_decap(engines, players, cli_objects, upgrade_params):
     3. Send VXLAN VNI 76543 encapsulated traffic from HA and check that traffic arrived to HB without VXLAN header
 
                                             dut
-                                        -------------------------------
+                                       -------------------------------
              ha                        | Loopback0 10.1.0.32/32      |                                  hb
       ---------------------------      |                             |               ----------------------------
       | bond0 30.0.0.2/24       |------| PortChannel0001 30.0.0.1/24 |               |                          |
@@ -47,14 +47,15 @@ def test_vxlan_decap(engines, players, cli_objects, upgrade_params):
     vni = '76543'
     loopback_ip = '10.1.0.32'
 
-    with allure.step('Checking that VXLAN tunnel configured'):
-        expected_tunnel_info = {'vxlan tunnel name': 'vtep_{}'.format(vni),
-                                'source ip': loopback_ip,
-                                'destination ip': '',
-                                'tunnel map name': 'map_{}_Vlan{}'.format(vni, vlan),
-                                'tunnel map mapping(vni -> vlan)': '{} -> Vlan{}'.format(vni, vlan)}
-
-        cli_objects.dut.vxlan.check_vxlan_tunnels(engines.dut, expected_tunnels_info_list=[expected_tunnel_info])
+    # TODO: temporary removed, once EVPN VXLAN support implemented - need to uncomment and fix
+    # with allure.step('Checking that VXLAN tunnel configured'):
+    #     expected_tunnel_info = {'vxlan tunnel name': 'vtep101032',
+    #                             'source ip': loopback_ip,
+    #                             'destination ip': '',
+    #                             'tunnel map name': 'map_{}_Vlan{}'.format(vni, vlan),
+    #                             'tunnel map mapping(vni -> vlan)': '{} -> Vlan{}'.format(vni, vlan)}
+    #
+    #     cli_objects.dut.vxlan.check_vxlan_tunnels(engines.dut, expected_tunnels_info_list=[expected_tunnel_info])
 
     with allure.step('Checking VLAN {} mapping to VNI {}'.format(vlan, vni)):
         cli_objects.dut.vxlan.check_vxlan_vlanvnimap(engines.dut, vlan_vni_map_list=[(vlan, vni)])

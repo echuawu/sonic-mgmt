@@ -1,5 +1,4 @@
 import logging
-import allure
 
 from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 from ngts.cli_wrappers.sonic.sonic_lag_lacp_clis import SonicLagLacpCli
@@ -16,6 +15,7 @@ from ngts.cli_wrappers.sonic.sonic_ifconfig_clis import SonicIfconfigCli
 from ngts.cli_wrappers.sonic.sonic_crm_clis import SonicCrmCli
 from ngts.cli_wrappers.sonic.sonic_acl_clis import SonicAclCli
 from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
+from ngts.cli_wrappers.sonic.sonic_frr_cli import SonicFrrCli
 
 logger = logging.getLogger()
 
@@ -37,3 +37,4 @@ class SonicCli:
         self.crm = SonicCrmCli()
         self.acl = SonicAclCli()
         self.vxlan = SonicVxlanCli()
+        self.frr = SonicFrrCli()
