@@ -13,6 +13,7 @@ from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts, FecConstants
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
+from ngts.helpers.interface_helpers import get_lb_mutual_speed
 
 
 logger = logging.getLogger()
@@ -124,6 +125,7 @@ class TestFec:
         split_mode = 1
         conf = {}
         dut_host_port = self.interfaces.dut_ha_1
+        host_dut_port = self.interfaces.ha_dut_1
         port_supported_fec_modes = self.fec_capability_for_dut_ports[dut_host_port]
         mode_to_configure_on_host = random.choice(port_supported_fec_modes)
         modes_to_configure_on_dut = set(port_supported_fec_modes)
@@ -137,7 +139,8 @@ class TestFec:
 
         for fec_mode in modes_to_configure_on_dut:
             with allure.step("Configure mismatched FEC mode: {} on dut port: {}".format(fec_mode, dut_host_port)):
-                self.configure_fec_on_dut_host_port(conf, fec_mode, split_mode, dut_host_port, cleanup_list)
+                self.configure_fec_on_dut_host_port(conf, fec_mode, split_mode,
+                                                    dut_host_port, host_dut_port, cleanup_list)
                 conf[dut_host_port][AutonegCommandConstants.OPER] = "down"
 
             with allure.step("Verify link is down with mismatched FEC modes"):
@@ -148,7 +151,7 @@ class TestFec:
         with allure.step("Configure matched FEC mode: {} on dut port: {}".format(mode_to_configure_on_host,
                                                                                  dut_host_port)):
             self.configure_fec_on_dut_host_port(conf, mode_to_configure_on_host,
-                                                split_mode, dut_host_port,
+                                                split_mode, dut_host_port, host_dut_port,
                                                 cleanup_list)
 
         with allure.step("Verify FEC on dut - host connectivity is UP after correct FEC configuration"):
@@ -280,13 +283,15 @@ class TestFec:
         split_mode = 1
         for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
             dut_host_port = tested_dut_host_conn_dict["dut_port"]
-            self.configure_fec_on_dut_host_port(conf, fec_mode, split_mode, dut_host_port, cleanup_list)
+            host_dut_port = tested_dut_host_conn_dict["host_port"]
+            self.configure_fec_on_dut_host_port(conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list)
         return conf
 
-    def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, cleanup_list):
+    def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list):
         fec_mode_supported_speeds = set(self.fec_modes_speed_support[fec_mode][split_mode].keys())
-        port_supported_speeds = self.split_mode_supported_speeds[dut_host_port][split_mode]
-        mutual_speeds_option = list(fec_mode_supported_speeds.intersection(port_supported_speeds))
+        ports_supported_speeds = get_lb_mutual_speed([dut_host_port, host_dut_port], split_mode,
+                                                     self.split_mode_supported_speeds)
+        mutual_speeds_option = list(fec_mode_supported_speeds.intersection(ports_supported_speeds))
         speed = random.choice(mutual_speeds_option)
         interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
         self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, interface_type, cleanup_list)
