@@ -3,6 +3,7 @@
 import lxml.etree as ET
 import yaml
 import os
+import logging
 import traceback
 import ipaddr as ipaddress
 from operator import itemgetter
@@ -12,13 +13,17 @@ from natsort import natsorted
 
 try:
     from ansible.module_utils.port_utils import get_port_alias_to_name_map
-    from ansible.module_utils.debug_utils import create_debug_file, print_debug_msg
+    from ansible.module_utils.debug_utils import config_module_logging
 except ImportError:
     # Add parent dir for using outside Ansible
     import sys
     sys.path.append('..')
     from module_utils.port_utils import get_port_alias_to_name_map
-    from module_utils.debug_utils import create_debug_file, print_debug_msg
+    from module_utils.debug_utils import config_module_logging
+
+
+config_module_logging('conn_graph_facts')
+
 
 DOCUMENTATION='''
 module: conn_graph_facts.py
@@ -163,8 +168,12 @@ class Parse_Lab_Graph():
                     deviceinfo[hostname] = {}
                     hwsku = dev.attrib['HwSku']
                     devtype = dev.attrib['Type']
+                    card_type = "Linecard"
+                    if 'CardType' in dev.attrib:
+                        card_type = dev.attrib['CardType']
                     deviceinfo[hostname]['HwSku'] = hwsku
                     deviceinfo[hostname]['Type'] = devtype
+                    deviceinfo[hostname]['CardType'] = card_type
                     self.links[hostname] = {}
         devicel2info = {}
         devicel3s = self.root.find(self.dpgtag).findall('DevicesL3Info')
@@ -259,8 +268,8 @@ class Parse_Lab_Graph():
                     for pdulink in allpdulinks:
                         start_dev = pdulink.attrib['StartDevice']
                         end_dev = pdulink.attrib['EndDevice']
-                        print_debug_msg(debug_fname, "pdulink {}".format(pdulink.attrib))
-                        print_debug_msg(debug_fname, "self.pdulinks {}".format(self.pdulinks))
+                        logging.debug("pdulink {}".format(pdulink.attrib))
+                        logging.debug("self.pdulinks {}".format(self.pdulinks))
                         if start_dev:
                             if start_dev not in self.pdulinks:
                                 self.pdulinks.update({start_dev : {}})
@@ -420,13 +429,13 @@ def find_graph(hostnames, part=False):
 
     # Finding the graph file contains all duts from hostnames,
     for fn in file_list:
-        print_debug_msg(debug_fname, "Looking at conn graph file: %s for hosts %s" % (fn, hostnames))
+        logging.debug("Looking at conn graph file: %s for hosts %s" % (fn, hostnames))
         filename = os.path.join(LAB_GRAPHFILE_PATH, fn)
         lab_graph = Parse_Lab_Graph(filename)
         lab_graph.parse_graph()
-        print_debug_msg(debug_fname, "For file %s, got hostnames %s" % (fn, lab_graph.devices))
+        logging.debug("For file %s, got hostnames %s" % (fn, lab_graph.devices))
         if lab_graph.contains_hosts(hostnames, part):
-            print_debug_msg(debug_fname, ("Returning lab graph from conn graph file: %s for hosts %s" % (fn, hostnames)))
+            logging.debug("Returning lab graph from conn graph file: %s for hosts %s" % (fn, hostnames))
             return lab_graph
     # Fallback to return an empty connection graph, this is
     # needed to bridge the kvm test needs. The KVM test needs
@@ -455,7 +464,6 @@ def build_results(lab_graph, hostnames, ignore_error=False):
     Refactor code for building json results.
     Code is refactored because same logic is needed in devutil
     """
-    global debug_fname
     device_info = {}
     device_conn = {}
     device_port_vlans = {}
@@ -486,7 +494,7 @@ def build_results(lab_graph, hostnames, ignore_error=False):
                 device_vlan_map_list[hostname] = {}
 
                 port_name_list_sorted = get_port_name_list(hostname, dev['HwSku'])
-                print_debug_msg(debug_fname, "For %s with hwsku %s, port_name_list is %s" % (hostname, dev['HwSku'], port_name_list_sorted))
+                logging.debug("For %s with hwsku %s, port_name_list is %s" % (hostname, dev['HwSku'], port_name_list_sorted))
                 for a_host_vlan in host_vlan["VlanList"]:
                     # Get the corresponding port for this vlan from the port vlan list for this hostname
                     found_port_for_vlan = False
@@ -526,8 +534,6 @@ def main():
         supports_check_mode=True
     )
     m_args = module.params
-    global debug_fname
-    debug_fname = create_debug_file("/tmp/conn_graph_debug.txt")
 
     anchor = m_args['anchor']
     if m_args['hosts']:
