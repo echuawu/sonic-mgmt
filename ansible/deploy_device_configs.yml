@@ -1,10 +1,6 @@
 - name: Set specific HWSKU device configs
   set_fact:
     device_configs:
-      Mellanox-SN2700-D48C8:
-        port_config:
-          src: "roles/sonicv2/files/ssw/Mellanox-SN2700-D48C8/port_config.ini"
-          dest: "/usr/share/sonic/device/x86_64-mlnx_msn2700-r0/Mellanox-SN2700-D48C8/port_config.ini"
       arc-switch1038:
         port_config:
            src: "roles/sonicv2/files/ssw/ACS-MSN3700/port_config1038.ini"
@@ -12,11 +8,9 @@
         sai_xml:
            src: "roles/sonicv2/files/ssw/ACS-MSN3700/sai_3700_1038.xml"
            dest: "/usr/share/sonic/device/x86_64-mlnx_msn3700-r0/ACS-MSN3700/sai_3700.xml"
-      r-tigon-04:
-        port_config:
-           src: "roles/sonicv2/files/mlnx/hwsku/r-tigon-04/port_config.ini"
-           dest: "/usr/share/sonic/device/x86_64-mlnx_msn4600c-r0/Mellanox-SN4600C-D112C8/port_config.ini"
-
+        hwsku_json:
+          src: "roles/sonicv2/files/ssw/ACS-MSN3700/hwsku_1038.json"
+          dest: "/usr/share/sonic/device/x86_64-mlnx_msn3700-r0/ACS-MSN3700/hwsku.json"
 - name: Find specific configs if defined for this dut
   set_fact:
     dut_configs: "{{ item.value }}"
