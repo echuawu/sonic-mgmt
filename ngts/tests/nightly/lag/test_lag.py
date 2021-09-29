@@ -19,6 +19,7 @@ from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.conftest import cleanup_last_config_in_stack
+from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list
 
 logger = logging.getLogger()
 PORTCHANNEL_NAME = 'PortChannel1111'
@@ -129,7 +130,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces,
 
         with allure.step('STEP4: Reboot dut'):
             dut_cli.general.save_configuration(engines.dut)
-            reboot_type = random.choice(['reboot', 'fast-reboot', 'warm-reboot'])
+            reboot_type = random.choice(get_supported_reboot_reload_types_list(platform=platform_params.platform))
             if re.search('simx', platform_params.setup_name):
                 reboot_type = 'reboot'
             dut_cli.general.reboot_flow(engines.dut, reboot_type=reboot_type, topology_obj=topology_obj)

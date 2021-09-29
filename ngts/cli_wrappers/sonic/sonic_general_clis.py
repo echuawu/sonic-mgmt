@@ -1,7 +1,6 @@
 import re
 import allure
 import logging
-import random
 import time
 import pexpect
 import netmiko
@@ -127,7 +126,7 @@ class SonicGeneralCli(GeneralCliCommon):
         engine.run_cmd('sudo curl {} -o {}'.format(url, target_file_path), validate=True)
 
     @staticmethod
-    def reboot_flow(engine, reboot_type='', ports_list=None, topology_obj=None, wait_after_ping=45):
+    def reboot_flow(engine, reboot_type='reboot', ports_list=None, topology_obj=None, wait_after_ping=45):
         """
         Rebooting switch by given way(reboot, fast-reboot, warm-reboot) and validate dockers and ports state
         :param engine: ssh engine object
@@ -139,8 +138,6 @@ class SonicGeneralCli(GeneralCliCommon):
         """
         if not (ports_list or topology_obj):
             raise Exception('ports_list or topology_obj must be passed to reboot_flow method')
-        if not reboot_type:
-            reboot_type = random.choice(['reboot', 'fast-reboot', 'warm-reboot'])
         if not ports_list:
             ports_list = topology_obj.players_all_ports['dut']
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):

@@ -12,6 +12,7 @@ from infra.tools.validations.traffic_validations.ping.ping_runner import PingChe
 from ngts.constants.constants import PytestConst, SonicConst
 from dateutil.parser import parse as time_parse
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
+from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list
 
 
 logger = logging.getLogger()
@@ -46,6 +47,10 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, sh
             else:
                 logger.info("Validation Type: {} is not supported on SIMX".format(validation_type))
         else:
+            supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
+            if validation_type not in supported_reboot_reload_list:
+                pytest.skip('Reboot by cmd: {} not supported on current platform: {}'.format(validation_type,
+                                                                                             platform_params.platform))
             test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
 
     except Exception as err:
