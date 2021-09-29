@@ -348,13 +348,13 @@ bgp/test_bgp_gr_helper.py:
 # Nightly
 
 tests/nightly/auto_negotition:
+  - Branch:
+    - 202012
   - Platform:
     - 4700
     - 3800
 
 tests/nightly/auto_negotition/test_auto_neg.py:
-  - Branch:
-    - 202012
   - Redmine:
     - 2801854
     Platform:
@@ -413,6 +413,12 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
     - 202012
 
 # PushGate
+tests/push_build_tests/L2/vxlan/test_vxlan.py:
+  - Redmine:
+    - 2804440
+    Platform:
+    - simx
+
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   - Platform:
     - simx
