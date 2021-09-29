@@ -351,6 +351,7 @@ tests/nightly/auto_negotition:
   - Branch:
     - 202012
   - Platform:
+    - simx
     - 4700
     - 3800
 
@@ -466,6 +467,7 @@ tests/nightly/fec:
     - 4700
     - 3420
     - 4410
+    - simx
   - Branch:
     - 202012
   - Redmine:
