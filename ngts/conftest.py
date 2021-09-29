@@ -21,6 +21,7 @@ from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.constants.constants import SonicConst, PytestConst
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 logger = logging.getLogger()
 
@@ -152,8 +153,7 @@ def dut_mac(engines):
     :return: dut mac address
     """
     logger.info('Getting DUT mac address')
-    config_db_json = engines.dut.run_cmd(cmd='cat {}'.format(SonicConst.CONFIG_DB_JSON_PATH), print_output=False)
-    config_db = json.loads(config_db_json)
+    config_db = SonicGeneralCli.get_config_db(engines.dut)
     dut_mac = config_db.get('DEVICE_METADATA').get('localhost').get('mac')
     logger.info('DUT mac address is: {}'.format(dut_mac))
     return dut_mac

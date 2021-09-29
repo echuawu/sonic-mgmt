@@ -109,7 +109,6 @@ def test_dhcp_relay_few_dhcp_servers(topology_obj, interfaces):
         raise AssertionError(err)
 
 
-@pytest.mark.skip('Feature was not implemented yet in SONiC')
 @allure.title('Test DHCP6 Relay scale')
 def test_dhcp6_relay_few_dhcp_servers(topology_obj, interfaces):
     """

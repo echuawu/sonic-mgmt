@@ -170,10 +170,9 @@ class TestDHCP6Relay:
 
         self.base_packet = LinuxDhcpCli.ipv6_base_pkt
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.push_gate
-    @pytest.mark.build
+    # @pytest.mark.push_gate
+    # @pytest.mark.build
     def test_basic_dhcp6_relay(self):
         """
         Test checks DHCPv6 Relay basic functionality. We perform DHCP6 request on 2 different VLAN ifaces
@@ -212,9 +211,8 @@ class TestDHCP6Relay:
         finally:
             LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcp6_relay_remove_dhcp_server(self):
         """
         Test verifies that after DHCPv6 relay settings removal, client can not get IPv6 address from DHCPv6
@@ -265,9 +263,8 @@ class TestDHCP6Relay:
             LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
             self.engines.dut.run_cmd_set(cleanup_engine.commands_list)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcp6_relay_client_message(self):
         """
         Test checks that DHCP6 message from DHCP6 client forwarded to DHCP6 server from relay as Relay-FWD message
@@ -300,9 +297,8 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcp6_relay_relay_reply_message(self):
         """
         Test checks that Relay-Replay message from server to DHCP6 relay received by relay and correctly forwarded to
@@ -346,9 +342,8 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcp6_relay_relay_agent_message(self):
         """
         Test checks that DHCPv6 Relay can forward Relay-FWD messages from another relay servers. Check that
@@ -427,9 +422,8 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcpv6_relay_client_request_with_empty_payload(self):
         """
         Test checks tha message from DHCP6 client with empty payload correctly forwarded by DHCP6 relay to server
@@ -461,9 +455,8 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcpv6_relay_client_request_with_malformed_payload(self):
         """
         Test checks that message with malformed payload correctly forwarded by DHCP6 relay to DHCP6 server
@@ -496,9 +489,8 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
-    @pytest.mark.build
+    # @pytest.mark.build
     def test_dhcp6_relay_client_renew_request_from_global_ip(self):
         """
         Test checks that DHCP message from client with src addr from global range and dst addr of DHCPv6 server are
@@ -534,7 +526,6 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
 
-    @pytest.mark.skip('Feature was not implemented yet in SONiC')
     @pytest.mark.dhcp6_relay
     def test_dhcp6_relay_multiple_dhcp_servers(self, configure_additional_dhcp_server):
         """
