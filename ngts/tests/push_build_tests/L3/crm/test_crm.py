@@ -5,8 +5,6 @@ import time
 from retry.api import retry_call
 from ngts.cli_util.sonic_docker_utils import SwssContainer
 from crm_helper import (
-    MAX_CRM_UPDATE_TIME,
-    APPLY_CFG_MAX_UPDATE_TIME,
     ACL_TABLE_NAME,
 )
 from crm_helper import (
@@ -46,7 +44,7 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask, ignore_expected_loganalyzer_
     with allure.step('Verify CRM {} counters'.format(crm_resource)):
         retry_call(
             verify_counters, fargs=[env, crm_resource, used + 1, '==', available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.pop()
 
@@ -56,7 +54,7 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask, ignore_expected_loganalyzer_
     with allure.step('Verify CRM {} counters'.format(crm_resource)):
         retry_call(
             verify_counters, fargs=[env, crm_resource, used, '==', available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
 
@@ -87,12 +85,12 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
         retry_call(
             verify_counters, fargs=[env, nexthop_resource, nexthop_used + 1, '>=', nexthop_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(neighbor_resource)):
         retry_call(
             verify_counters, fargs=[env, neighbor_resource, neighbor_used + 1, '>=', neighbor_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.pop()
 
@@ -102,12 +100,12 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
         retry_call(
             verify_counters, fargs=[env, nexthop_resource, nexthop_used, '==', nexthop_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(neighbor_resource)):
         retry_call(
             verify_counters, fargs=[env, neighbor_resource, neighbor_used, '==', neighbor_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
 
@@ -154,12 +152,12 @@ def test_crm_nexthop_group_and_member(env, cleanup, ignore_expected_loganalyzer_
     with allure.step('Verify CRM nexthop_group_member counters'):
         retry_call(
             verify_counters, fargs=[env, group_member_res, group_member_used + 2, '==', group_member_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM nexthop_group counters'):
         retry_call(
             verify_counters, fargs=[env, group_res, group_used + 1, '==', group_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
     with allure.step('Delete routes'.format(dst_ip, mask, neigh_40)):
@@ -171,12 +169,12 @@ def test_crm_nexthop_group_and_member(env, cleanup, ignore_expected_loganalyzer_
     with allure.step('Verify CRM nexthop_group_member counters'):
         retry_call(
             verify_counters, fargs=[env, group_member_res, group_member_used, '==', group_member_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM nexthop_group counters'):
         retry_call(
             verify_counters, fargs=[env, group_res, group_used, '==', group_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
 
@@ -202,7 +200,7 @@ def test_crm_fdb_entry(env, cleanup, interfaces, ignore_expected_loganalyzer_exc
     with allure.step('Verify CRM {} counters'.format(fdb_resource)):
         retry_call(
             verify_counters, fargs=[env, fdb_resource, fdb_used + 1, '==', fdb_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
     with allure.step('Removing FDB config'):
@@ -214,7 +212,7 @@ def test_crm_fdb_entry(env, cleanup, interfaces, ignore_expected_loganalyzer_exc
     with allure.step('Verify CRM {} counters'.format(fdb_resource)):
         retry_call(
             verify_counters, fargs=[env, fdb_resource, fdb_used, '==', fdb_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
 
@@ -236,7 +234,7 @@ def test_crm_acl(env, cleanup, ignore_expected_loganalyzer_exceptions):
 
     with allure.step('Wait until CRM ACL table will be created'):
         retry_call(
-            ensure_crm_acl_table_not_empty, fargs=[env, ], tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            ensure_crm_acl_table_not_empty, fargs=[env, ], tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
     acl_entry_used, acl_entry_available = get_acl_crm_stat(env, acl_entry_resource)
@@ -248,12 +246,12 @@ def test_crm_acl(env, cleanup, ignore_expected_loganalyzer_exceptions):
     with allure.step('Verify CRM {} counters'.format(acl_entry_resource)):
         retry_call(
             verify_counters, fargs=[env, acl_entry_resource, acl_entry_used + 2, '==', acl_entry_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(acl_counter_resource)):
         retry_call(
             verify_counters, fargs=[env, acl_counter_resource, acl_counter_used + 2, '==', acl_counter_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
     with allure.step('Remove one entry from ACL config'):
@@ -262,12 +260,12 @@ def test_crm_acl(env, cleanup, ignore_expected_loganalyzer_exceptions):
     with allure.step('Verify CRM {} counters'.format(acl_entry_resource)):
         retry_call(
             verify_counters, fargs=[env, acl_entry_resource, acl_entry_used, '==', acl_entry_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(acl_counter_resource)):
         retry_call(
             verify_counters, fargs=[env, acl_counter_resource, acl_counter_used, '==', acl_counter_available],
-            tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
 
@@ -286,7 +284,7 @@ def test_crm_thresholds_neighbors(env, cleanup, loganalyzer_log_folder, map_res_
         neigh_cfg_add = th_apply_neighbor_config(env, ip_ver, start_ip, env.vlan_iface_40)
         neigh_cfg_del = set_op_del(neigh_cfg_add)
         cleanup.append((SwssContainer.apply_config, env.dut_engine, neigh_cfg_del))
-        cleanup.append((time.sleep, MAX_CRM_UPDATE_TIME))
+        cleanup.append((time.sleep, env.MAX_CRM_UPDATE_TIME))
 
     neigh_used, neigh_available = get_main_crm_stat(env, "ipv{}_neighbor".format(ip_ver))
     with allure.step("Verify thresholds {}".format("ipv{}_neighbor".format(ip_ver))):
@@ -384,7 +382,7 @@ def test_crm_thresholds_acl(env, cleanup, loganalyzer_log_folder, map_res_to_thr
         apply_acl_config(env, entry_num=1)
     with allure.step('Wait until CRM ACL table will be created'):
         retry_call(
-            ensure_crm_acl_table_not_empty, fargs=[env, ], tries=MAX_CRM_UPDATE_TIME, delay=1, logger=None
+            ensure_crm_acl_table_not_empty, fargs=[env, ], tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
     _, acl_entry_available = get_acl_crm_stat(env, acl_entry_resource)
@@ -400,11 +398,11 @@ def test_crm_thresholds_acl(env, cleanup, loganalyzer_log_folder, map_res_to_thr
     with allure.step("Verify 'ACL' counters incremented"):
         retry_call(
             verify_counters, fargs=[env, acl_entry_resource, required_acl_entries, '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
         retry_call(
             verify_counters, fargs=[env, acl_counter_resource, required_acl_entries, '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
 
     acl_used, acl_available = get_acl_crm_stat(env, acl_entry_resource)

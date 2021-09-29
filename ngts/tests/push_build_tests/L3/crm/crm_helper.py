@@ -17,8 +17,6 @@ from ngts.cli_util.sonic_docker_utils import SwssContainer
 from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 
 
-MAX_CRM_UPDATE_TIME = 15
-APPLY_CFG_MAX_UPDATE_TIME = 30
 AVAILABLE_TOLERANCE = 0.02
 MIN_RESOURCE_PERCENTAGE = 0.01
 EXPECT_EXCEEDED = ".* THRESHOLD_EXCEEDED .*"
@@ -290,7 +288,7 @@ def verify_thresholds(env, test_name, la_log_folder, **kwargs):
         with loganalyzer:
             env.dut_engine.run_cmd(cmd)
             # Make sure CRM counters updated
-            time.sleep(MAX_CRM_UPDATE_TIME)
+            time.sleep(env.MAX_CRM_UPDATE_TIME)
         # Create folder which was remove by LA,as verification performed in loop
         os.makedirs(la_log_folder, exist_ok=True)
 
@@ -342,7 +340,7 @@ def th_apply_neighbor_config(env, ip_ver, start_ip, vlan_iface):
     with allure.step("Verify 'ipv{ip_ver}_neighbor' and 'ipv{ip_ver}_nexthop' counter incremented".format(ip_ver=ip_ver)):
         retry_call(
             verify_counters, fargs=[env, "ipv{}_neighbor".format(ip_ver), required_ip_neigh, '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
 
     return neigh_cfg_add
@@ -363,17 +361,17 @@ def th_apply_nexthop_group_member(env, ip_ver, start_ip, neigh_cfg_json):
     with allure.step("Verify 'ipv{}_route' counter incremented".format(ip_ver)):
         retry_call(
             verify_counters, fargs=[env, "ipv{}_route".format(ip_ver), required_ip_route, '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
     with allure.step("Verify 'nexthop_group' counter incremented"):
         retry_call(
             verify_counters, fargs=[env, "nexthop_group", nexthop_group_stat + required_ip_route, '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
     with allure.step("Verify 'nexthop_group_member' counter incremented"):
         retry_call(
             verify_counters, fargs=[env, 'nexthop_group_member', (nexthop_group_member_stat + (required_ip_route * 2)), '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
 
     return nexthop_group_member_add
@@ -391,7 +389,7 @@ def th_apply_fdb_config(env, fdb_entry_res):
     with allure.step('Verify \'{}\' counter incremented'.format(fdb_entry_res)):
         retry_call(
             verify_counters, fargs=[env, fdb_entry_res, required_fdb_entries, '>='],
-            tries=APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
         )
 
     return fdb_conf_set

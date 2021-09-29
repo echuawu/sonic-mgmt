@@ -2,16 +2,14 @@ import allure
 import pytest
 import logging
 import os
-
 from retry.api import retry_call
 from ngts.cli_wrappers.linux.linux_arp_cache_cli import LinuxARPCache
-
 
 logger = logging.getLogger()
 
 
 @pytest.fixture(scope='module')
-def env(topology_obj, platform_params):
+def env(topology_obj, setup_name, platform_params):
     """ Fixture which contains DUT - engine and CLI objects """
     class Collector:
         pass
@@ -25,6 +23,11 @@ def env(topology_obj, platform_params):
     Collector.dst_ip = '2.2.2.0'
     Collector.mask = 24
     Collector.platform_params = platform_params
+    Collector.MAX_CRM_UPDATE_TIME = 15
+    Collector.APPLY_CFG_MAX_UPDATE_TIME = 30
+    if 'simx' in setup_name:
+        Collector.MAX_CRM_UPDATE_TIME = 60
+        Collector.APPLY_CFG_MAX_UPDATE_TIME = 90
     yield Collector
 
 
