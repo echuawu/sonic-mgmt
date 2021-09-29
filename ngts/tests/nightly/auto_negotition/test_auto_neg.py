@@ -27,7 +27,8 @@ class TestAutoNeg(AutoNegBase):
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
 
-    def test_auto_neg_conf(self, cleanup_list, ignore_expected_loganalyzer_reboot_exceptions):
+    def test_auto_neg_conf(self, cleanup_list, ignore_expected_loganalyzer_reboot_exceptions,
+                           skip_if_active_optical_cable):
         """
         check 1#:
         This test case will set on loopbacks with/without splits,
@@ -87,7 +88,7 @@ class TestAutoNeg(AutoNegBase):
                                          conf, cleanup_list, mode='disabled')
             self.verify_auto_neg_configuration(conf_backup)
 
-    def test_auto_neg_toggle_peer_port(self, cleanup_list):
+    def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable):
         """
         configuring default/costume auto neg on the dut port connected to host
         while toggling a port connected to the host

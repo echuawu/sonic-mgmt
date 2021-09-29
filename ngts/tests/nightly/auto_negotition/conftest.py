@@ -3,6 +3,7 @@ import pytest
 import os
 import re
 import random
+from retry.api import retry_call
 
 from ngts.constants.constants import InterfacesTypeConstants
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
@@ -208,6 +209,28 @@ def ignore_auto_neg_expected_loganalyzer_exceptions(loganalyzer):
             loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                "negative_auto_neg_log_analyzer_ignores.txt")))
         loganalyzer.ignore_regex.extend(ignore_regex_list)
+
+
+@pytest.fixture(scope='function')
+def skip_if_active_optical_cable(topology_obj, engines):
+    """
+    Fixture that skips test execution in case setup has Active Optical Cable
+    """
+    cables_output = retry_call(check_cable_compliance_info_updated_for_all_port,
+                               fargs=[topology_obj, engines], tries=12, delay=10, logger=logger)
+    if re.search(r"Active\s+Optical\s+Cable", cables_output, re.IGNORECASE):
+        pytest.skip("This test is not supported because setup has Active Optical Cable")
+
+
+def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
+    ports = topology_obj.players_all_ports['dut']
+    logger.info("Verify cable compliance info is updated for all ports")
+    compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
+    for port in ports:
+        if not re.search("{}: SFP EEPROM detected".format(port), compliance_info):
+            raise AssertionError("Cable Information for port {} is not Loaded by"
+                                 " \"show interfaces transceiver eeprom\" cmd".format(port))
+    return compliance_info
 
 
 def get_speeds_in_Gb_str_format(speeds_list):
