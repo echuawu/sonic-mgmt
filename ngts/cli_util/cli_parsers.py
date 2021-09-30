@@ -147,8 +147,8 @@ def show_vlan_brief_parser(output):
     ip_addr_index = 1
     vlan_port_index = 2
     vlan_port_mode_index = 3
-    dhcp_server_index = 4
-    proxy_arp_index = 5
+    proxy_arp_index = 4
+    dhcp_server_index = 5
 
     # Read data without headers
     data_lines = output.splitlines()[data_line_index:]
