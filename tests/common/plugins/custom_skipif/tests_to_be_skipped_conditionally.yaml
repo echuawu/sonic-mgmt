@@ -412,6 +412,8 @@ tests/nightly/static_route/test_static_route.py:
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
     - 202012
+  - Redmine:
+    - 2807922
 
 # PushGate
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
@@ -441,6 +443,10 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
   - Branch:
     - 202012
+  - Redmine:
+    - 2807922
+    - 2807917
+    - 2807631
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
