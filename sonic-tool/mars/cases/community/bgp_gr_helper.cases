@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <condition>
+                <!-- Test not stable on these topologies due to VMs performance. Remove this ignore, when 2807150 will be done -->
+                <key> topology </key>
+                <op> in </op>
+                <value> ["t1-lag", "t1-64-lag"] </value>
+            </condition>
+        </ignore>
         <info> BGP Graceful Restart Case </info>
         <name> bgp_gr_helper </name>
         <tout> 1800 </tout>

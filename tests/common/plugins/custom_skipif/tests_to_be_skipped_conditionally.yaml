@@ -340,9 +340,9 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
     - x86_64-mlnx_msn
 
 # bgp
-bgp/test_bgp_gr_helper.py:
+bgp/test_bgp_allw_list.py::test_default_allow_list_postconfig:
   - Redmine:
-    - 2710060
+    - 2807150
 
 ########## Canonical ##########
 # Nightly
