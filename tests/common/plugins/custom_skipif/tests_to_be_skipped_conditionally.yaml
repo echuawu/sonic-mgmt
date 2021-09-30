@@ -5,6 +5,8 @@ platform_tests/test_auto_negotiation.py:
     - 3800
   - Branch:
     - 202012
+  - Redmine:
+    - 2807603
 
 # SFP using ethtool
 platform_tests/mellanox/test_check_sfp_using_ethtool.py:
@@ -343,6 +345,32 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
 bgp/test_bgp_allw_list.py::test_default_allow_list_postconfig:
   - Redmine:
     - 2807150
+
+# pfc_wd_wb
+pfcwd/test_pfcwd_warm_reboot.py::test_pfcwd_wb:
+  - Redmine:
+    - 2803036
+
+# portstat
+portstat/test_portstat.py:
+  - Redmine:
+    - 2807511
+    Branch:
+    - 202106
+
+# drop_packets
+drop_packets/test_drop_counters.py:
+  - Redmine:
+    - 2807511
+    Branch:
+    - 202106
+
+# vlan
+vlan/test_vlan.py:
+  - Redmine:
+    - 2795580
+    Branch:
+    - 202106
 
 ########## Canonical ##########
 # Nightly
