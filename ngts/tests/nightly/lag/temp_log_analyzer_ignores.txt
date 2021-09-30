@@ -5,3 +5,5 @@ r, ".* WARNING syncd#SDK:.* \[.*] mlnx_sai_switch.c\[.*\]- event_thread_func: sx
 r, ".* ERR teamd#tlm_teamd: :- get_dump: Can't get dump for LAG 'PortChannel\d+'.*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access failed \(.*\)"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock"
+r, ".* ERR pmon#syseepromd: Failed to load platform-specific eeprom from deprecated plugin.*"
+r, ".* WARNING pmon#syseepromd: Failed to load platform-specific eeprom from sonic_platform package due to KeyError.*"

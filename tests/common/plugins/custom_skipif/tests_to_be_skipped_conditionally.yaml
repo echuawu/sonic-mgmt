@@ -449,6 +449,12 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Redmine:
     - 2807922
 
+tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
+  - Redmine:
+    - 2682609
+    Platform:
+    - simx
+
 # PushGate
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   - Redmine:
@@ -516,8 +522,12 @@ tests/nightly/fec:
     - 4600
     - 4600c
 
-
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   - Redmine:
     - 2729657
 
+tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
+  - Redmine:
+    - 2807063
+    Platform:
+    - simx
