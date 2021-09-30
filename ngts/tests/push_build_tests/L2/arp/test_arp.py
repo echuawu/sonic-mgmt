@@ -25,7 +25,7 @@ def test_dut_reply_arp_response(engines, players, interfaces, arp_request_type):
     :param interfaces: interfaces fixture
     :param arp_request_type: arp request type: broadcast or unicast
     """
-    interface_data = {"host_ip": "30.0.0.2", "dut_ip": "30.0.0.1", "host_interface": "bond0",
+    interface_data = {"host_ip": "30.0.0.20", "dut_ip": "30.0.0.1", "host_interface": "bond0",
                       "dut_interface": "PortChannel0001",
                       "host_mac": SonicMacCli.get_mac_address_for_interface(engines.ha, interfaces.ha_dut_1),
                       "dut_mac": SonicMacCli.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_1),
