@@ -346,6 +346,12 @@ bgp/test_bgp_allw_list.py::test_default_allow_list_postconfig:
   - Redmine:
     - 2807150
 
+bgp/test_traffic_shift.py:
+  - Redmine:
+    - 2807511
+    Branch:
+    - 202106
+
 # pfc_wd_wb
 pfcwd/test_pfcwd_warm_reboot.py::test_pfcwd_wb:
   - Redmine:
