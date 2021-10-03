@@ -467,6 +467,24 @@ def deploy_minigprah(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, rec
 
 
 @separate_logger
+def install_required_packages(ansible_path, sonic_topo, mgmt_docker_engine, setup_name):
+    """
+    This method will check and install required packages on DUT
+    """
+    logger.info("Check and install required packages on DUT")
+    cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} /ngts_venv/bin/pytest --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
+          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results" \
+          " {sonic_mgmt_dir}ngts/scripts/extend_python_packges/extend_python_packages.py".\
+        format(sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name)
+
+    with mgmt_docker_engine.cd(ansible_path):
+        logger.info("Running CMD: {}".format(cmd))
+        extend_python_packages_result = mgmt_docker_engine.run(cmd, warn=True)
+        if extend_python_packages_result.failed:
+            logger.error('Installation of required packages failed.')
+
+
+@separate_logger
 def post_install_check(ansible_path, mgmt_docker_engine, dut_name, sonic_topo):
     """
     Method which doing post install checks: check ports status, check dockers status, etc.
@@ -626,6 +644,9 @@ def main():
         install_supported_app_extensions(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
                                          setup_name=args.setup_name, app_extension_dict_path=args.app_extension_dict_path,
                                          dut_name=args.dut_name)
+
+    install_required_packages(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
+                              sonic_topo=args.sonic_topo, setup_name=args.setup_name)
 
 
 if __name__ == "__main__":
