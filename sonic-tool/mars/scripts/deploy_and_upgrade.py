@@ -609,6 +609,10 @@ def main():
                   sonic_topo=args.sonic_topo, setup_name=args.setup_name,
                   image_url=base_version_url, upgrade_type=args.upgrade_type, dut_name=args.dut_name)
 
+    time.sleep(30)
+    install_required_packages(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
+                              sonic_topo=args.sonic_topo, setup_name=args.setup_name)
+
     # Community only steps
     if args.sonic_topo != 'ptf-any':
         if args.deploy_fanout == 'yes':
@@ -644,10 +648,6 @@ def main():
         install_supported_app_extensions(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
                                          setup_name=args.setup_name, app_extension_dict_path=args.app_extension_dict_path,
                                          dut_name=args.dut_name)
-
-    install_required_packages(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                              sonic_topo=args.sonic_topo, setup_name=args.setup_name)
-
 
 if __name__ == "__main__":
     main()
