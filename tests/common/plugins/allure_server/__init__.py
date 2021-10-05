@@ -9,6 +9,7 @@ import sys
 import allure
 import pytest
 import copy
+import socket
 
 logger = logging.getLogger()
 
@@ -84,16 +85,26 @@ def get_setup_session_info(session):
     hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
     asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
     pytest_run_cmd_args = session.config.cache.get(PYTEST_RUN_CMD, None)
+    host_executor_ip = get_test_executor_host_ip_address()
 
     result = {
         "Version": version.findall(output)[0] if version.search(output) else "",
         "Platform": platform.findall(output)[0] if platform.search(output) else "",
         "HwSKU": hwsku.findall(output)[0] if hwsku.search(output) else "",
-        "ASIC": asic.findall(output)[0] if asic.search(output) else "",
-        "PyTest_args": pytest_run_cmd_args
+        "Executor_IP": host_executor_ip,
+        "PyTest_args": pytest_run_cmd_args,
+        "ASIC": asic.findall(output)[0] if asic.search(output) else ""
     }
 
     return result
+
+
+def get_test_executor_host_ip_address():
+    ip_index = 0
+    dummy_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    dummy_socket.connect(("8.8.8.8", 80))
+    host_ip = dummy_socket.getsockname()[ip_index]
+    return host_ip
 
 
 def export_session_info_to_allure(session_info_dict, allure_report_dir):
@@ -161,8 +172,13 @@ def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
     pytest_cmd_line_args = copy.deepcopy(sys.argv)
     new_test_path = None
     test_path_args_index = None
+    allure_server_project_id_index = None
 
     for arg in pytest_cmd_line_args:
+
+        if '--allure_server_project_id' in arg:
+            allure_server_project_id_index = pytest_cmd_line_args.index(arg)
+            continue
 
         for specific_arg in ['-k=', '--inventory=', '--allure_server_addr=']:
             if specific_arg in arg:
@@ -189,6 +205,10 @@ def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
     if new_test_path:
         # Replace original path to test by path to specific test only
         pytest_cmd_line_args[test_path_args_index] = new_test_path
+
+    if allure_server_project_id_index:
+        # Remove --allure_server_project_id argument from arguments to prevent flood in allure history
+        pytest_cmd_line_args.pop(allure_server_project_id_index)
 
     cmd = ' '.join(pytest_cmd_line_args)
 
