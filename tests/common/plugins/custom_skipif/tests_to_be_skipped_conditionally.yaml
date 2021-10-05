@@ -388,8 +388,11 @@ tests/nightly/auto_negotition:
     - simx
     - 4700
     - 3800
+    - 4410
 
 tests/nightly/auto_negotition/test_auto_neg.py:
+  - Redmine:
+    - 2811306
   - Redmine:
     - 2801854
     Platform:
@@ -402,15 +405,16 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
   - Redmine:
-    - 2800494
+    - 2813693
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_types:
   - Redmine:
-    - 2800494
+    - 2813693
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   - Redmine:
     - 2696717
+    - 2813773
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
   - GitHub:
@@ -516,6 +520,8 @@ tests/nightly/fec:
     - simx
   - Branch:
     - 202012
+  - Redmine:
+    - 2811306
   - Redmine:
     - 2801854
     Platform:
