@@ -2,6 +2,7 @@ import pytest
 import logging
 import allure
 import os
+import time
 
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
@@ -336,6 +337,7 @@ def install_app(dut_engine, app_name, app_repository_name, version):
         with allure.step("Install {}, verison=".format(app_name, version)):
             SonicAppExtensionCli.add_repository(dut_engine, app_name, app_repository_name, version=version)
             SonicAppExtensionCli.install_app(dut_engine, app_name)
+            time.sleep(2)  # TODO remove when the bug will fixed 2813629
         with allure.step("Enable app and save config"):
             SonicAppExtensionCli.enable_app(dut_engine, app_name)
     except Exception as err:
