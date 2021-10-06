@@ -388,6 +388,9 @@ tests/nightly/auto_negotition:
     - simx
     - 4700
     - 3800
+  - Redmine:
+    - 2813851
+    Platform:
     - 4410
 
 tests/nightly/auto_negotition/test_auto_neg.py:
