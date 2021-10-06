@@ -395,3 +395,14 @@ class SonicInterfaceCli(InterfaceCliCommon):
         fec_options_list_string = re.search(r"Error:\s+\'fec\s+not\s+in\s+(\[.*\])!", output).group(1)
         fec_options_list = ast.literal_eval(fec_options_list_string)
         return fec_options_list
+
+    @staticmethod
+    def get_active_phy_port(engines):
+        intf_status = SonicInterfaceCli.parse_interfaces_status(engines.dut)
+        for interface in intf_status.keys():
+            if (intf_status[interface]['Oper'] == 'up' and
+                intf_status[interface]['Admin'] == 'up' and
+                    interface.startswith('Ethernet')):
+
+                return interface
+        return None
