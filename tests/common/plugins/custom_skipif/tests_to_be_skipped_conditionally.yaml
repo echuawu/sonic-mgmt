@@ -507,6 +507,10 @@ tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_versi
   - Redmine:
     - 2626014
 
+tests/push_build_tests/app_extension/test_app_ext_status.py:
+  - Redmine:
+    - https://github.com/Azure/sonic-buildimage/issues/8619
+
 tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_support_on_spc1:
   - Redmine:
     - 2638158
