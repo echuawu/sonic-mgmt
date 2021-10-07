@@ -3,7 +3,7 @@ import pytest
 import os
 import time
 
-from .loganalyzer import LogAnalyzer
+from .loganalyzer import LogAnalyzer, LogAnalyzerError
 from ngts.constants.constants import LoganalyzerConsts
 
 
@@ -19,6 +19,9 @@ def pytest_addoption(parser):
 
 @pytest.fixture(autouse=True)
 def loganalyzer(topology_obj, request, loganalyzer_log_folder):
+
+    request.session.config.cache.set('is_loganalyzer_failed', False)
+
     if request.config.getoption("--disable_loganalyzer") or "disable_loganalyzer" in request.keywords:
         logger.info("Log analyzer is disabled")
         yield
@@ -49,7 +52,11 @@ def loganalyzer(topology_obj, request, loganalyzer_log_folder):
     # Skip LogAnalyzer if case is skipped
     if "rep_call" in request.node.__dict__ and request.node.rep_call.skipped:
         return
-    loganalyzer.analyze(marker)
+    try:
+        loganalyzer.analyze(marker)
+    except LogAnalyzerError as err:
+        request.session.config.cache.set('is_loganalyzer_failed', True)
+        raise err
 
 
 @pytest.fixture(autouse=True)
