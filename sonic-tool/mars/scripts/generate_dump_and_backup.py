@@ -9,6 +9,7 @@ generate dump and back up the dump for later analysis.
 # Builtin libs
 import argparse
 import os
+import subprocess
 
 # Third-party libs
 from fabric import Config
@@ -49,8 +50,14 @@ def main():
                      connect_kwargs={"password": dut_device.USERS[0].PASSWORD})
 
     logger.info("Generating dump on sonic")
-    res = dut.sudo("generate_dump -s '%s'" % args.since)
-    dump_file = res.stdout.strip().splitlines()[-1]
+    generate_dump_cmd = "sudo generate_dump -s '%s'" % args.since
+    cmd_run = 'sshpass -p {} ssh {}@{} -o StrictHostKeyChecking=no "{}"'.format(
+        dut_device.USERS[0].PASSWORD, dut_device.USERS[0].USERNAME, dut_device.BASE_IP, generate_dump_cmd)
+
+    process = subprocess.Popen(cmd_run, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, unused_err = process.communicate()
+
+    dump_file = output.splitlines()[-1]
     logger.info("Generated dump %s on DUT" % dump_file)
 
     hostname = dut.run("hostname").stdout.strip()
