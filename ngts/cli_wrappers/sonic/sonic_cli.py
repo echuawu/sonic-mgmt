@@ -16,6 +16,7 @@ from ngts.cli_wrappers.sonic.sonic_crm_clis import SonicCrmCli
 from ngts.cli_wrappers.sonic.sonic_acl_clis import SonicAclCli
 from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
 from ngts.cli_wrappers.sonic.sonic_frr_cli import SonicFrrCli
+from ngts.cli_wrappers.sonic.sonic_bgp_clis import SonicBgpCli
 
 logger = logging.getLogger()
 
@@ -38,3 +39,4 @@ class SonicCli:
         self.acl = SonicAclCli()
         self.vxlan = SonicVxlanCli()
         self.frr = SonicFrrCli()
+        self.bgp = SonicBgpCli()

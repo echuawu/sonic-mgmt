@@ -4,6 +4,7 @@ import logging
 import allure
 import json
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+from ngts.cli_wrappers.sonic.sonic_bgp_clis import SonicBgpCli
 from ngts.constants.constants import AppExtensionInstallationConstants, P4SamplingConsts
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed, \
     retry_verify_app_container_up
@@ -77,10 +78,17 @@ class AppExtensionInstaller():
 
     def install_supported_app_extensions(self):
         log_build_supports_app_ext = 'Build supports app extension'
-        with allure.step(log_build_supports_app_ext):
-            logger.info(log_build_supports_app_ext)
-            for app_ext_obj in self.get_supported_app_ext_objects():
-                self.install_application(app_ext_obj)
+
+        SonicBgpCli.shutdown_bgp_all(self.dut_engine)
+        try:
+            with allure.step(log_build_supports_app_ext):
+                logger.info(log_build_supports_app_ext)
+                for app_ext_obj in self.get_supported_app_ext_objects():
+                    self.install_application(app_ext_obj)
+        except Exception as err:
+            raise err
+        finally:
+            SonicBgpCli.startup_bgp_all(self.dut_engine)
 
     def install_application(self, app_ext_obj):
         self.remove_app_extension(app_ext_obj)
