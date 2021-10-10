@@ -59,6 +59,7 @@ pytest_plugins = ('tests.common.plugins.ptfadapter',
                   'tests.vxlan',
                   'tests.decap',
                   'tests.common.plugins.allure_server',
+                  'tests.common.plugins.conditional_mark',
                   'tests.common.plugins.mars_test_cases_results')
 
 def pytest_addoption(parser):

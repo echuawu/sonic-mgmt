@@ -5,7 +5,11 @@
             "xon": "{{ buffer_xon.stdout }}",
             "dynamic_th": "{{ pfc_test_dynamic_th }}",
             "xoff": "{{ buffer_xoff.stdout }}",
+{% if sonic_qos_db_fv_reference_with_table == 'true' %}
             "pool": "[{{ buffer_pool_id }}]",
+{% else %}
+            "pool": "{{ buffer_pool_id }}",
+{% endif %}
             "size": "{{ buffer_headroom.stdout }}"
         }
     },
