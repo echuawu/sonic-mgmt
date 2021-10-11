@@ -168,9 +168,9 @@ def separate_logger(func):
                     allure_urls.append(re.search(allure_url_regex, line).group(1))
         return allure_urls
 
-    def log_allure_urls(allure_urls):
-        if allure_urls:
-            logger.info('Allure report URLS: {}'.format(allure_urls))
+    def log_allure_urls(allure_urls, method_name):
+        for report in allure_urls:
+            logger.info('Allure report URL for {}: {}'.format(method_name, report))
 
 
     def wrapper(*args, **kwargs):
@@ -191,7 +191,7 @@ def separate_logger(func):
             raise Exception(err)
         finally:
             logger.info('#' * 100)
-            log_allure_urls(get_allure_url(std_data_filename))
+            log_allure_urls(get_allure_url(std_data_filename), method_name)
             logger.info('Finished run for method: {}'.format(method_name))
             logger.info('#' * 100)
 
