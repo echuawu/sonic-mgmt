@@ -100,3 +100,17 @@ def dut_hb_2_mac(engines, cli_objects, topology_obj):
     Pytest fixture which are returning mac address for link: dut-hb-2
     """
     return cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, topology_obj.ports['dut-hb-2'])
+
+
+@pytest.fixture(scope='session', autouse=True)
+def simx_disable_counters(is_simx, engines, cli_objects, topology_obj):
+    """
+    Pytest fixture which disable counters on SIMX workaround for issue: https://redmine.mellanox.com/issues/2807805
+    """
+    if is_simx:
+        counterpoll_status_dict = cli_objects.dut.counterpoll.parse_counterpoll_show(engines.dut)
+        for counter, value in counterpoll_status_dict.items():
+            if value['Status'] == 'enable':
+                cli_objects.dut.counterpoll.disable_counterpoll(engines.dut)
+                cli_objects.dut.general.reload_flow(engines.dut, topology_obj=topology_obj, reload_force=True)
+                break

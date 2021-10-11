@@ -149,7 +149,7 @@ class SonicGeneralCli(GeneralCliCommon):
             SonicGeneralCli.port_reload_reboot_checks(engine, ports_list)
 
     @staticmethod
-    def reload_flow(engine, ports_list=None, topology_obj=None):
+    def reload_flow(engine, ports_list=None, topology_obj=None, reload_force=False):
         """
         Reloading switch and validate dockers and ports state
         :param engine: ssh engine object
@@ -163,7 +163,7 @@ class SonicGeneralCli(GeneralCliCommon):
             ports_list = topology_obj.players_all_ports['dut']
         with allure.step('Reloading dut'):
             logger.info("Reloading dut")
-            SonicGeneralCli.reload_configuration(engine)
+            SonicGeneralCli.reload_configuration(engine, reload_force)
             SonicGeneralCli.port_reload_reboot_checks(engine, ports_list)
 
     @staticmethod

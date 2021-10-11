@@ -14,6 +14,7 @@ from ngts.cli_wrappers.linux.linux_ifconfig_clis import LinuxIfconfigCli
 from ngts.cli_wrappers.linux.linux_vxlan_clis import LinuxVxlanCli
 from ngts.cli_wrappers.linux.linux_frr_cli import LinuxFrrCli
 from ngts.cli_wrappers.linux.linux_bgp_clis import LinuxBgpCli
+from ngts.cli_wrappers.linux.linux_counterpoll_clis import LinuxCounterpollCli
 logger = logging.getLogger()
 
 
@@ -34,3 +35,4 @@ class LinuxCli:
         self.vxlan = LinuxVxlanCli()
         self.frr = LinuxFrrCli()
         self.bgp = LinuxBgpCli()
+        self.counterpoll = LinuxCounterpollCli()

@@ -228,6 +228,14 @@ def players(topology_obj):
     return topology_obj.players
 
 
+@pytest.fixture(scope="session")
+def is_simx(platform_params):
+    is_simx_setup = False
+    if re.search('simx', platform_params.setup_name):
+        is_simx_setup = True
+    return is_simx_setup
+
+
 def cleanup_last_config_in_stack(cleanup_list):
     """
     Execute the last function in the cleanup stack
