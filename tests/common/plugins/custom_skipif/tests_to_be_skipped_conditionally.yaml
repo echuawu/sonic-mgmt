@@ -523,6 +523,14 @@ tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   - Redmine:
     - 2800494
 
+tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
+  - Platform:
+    - 2201
+
+tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
+  - Platform:
+    - 2201
+
 tests/nightly/fec:
   - Platform:
     - 4700

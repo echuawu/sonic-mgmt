@@ -140,12 +140,20 @@ def get_interface_cable_width(type_string):
         return 1
 
 
-def speed_string_to_int(speed):
+def speed_string_to_int_in_mb(speed):
     """
-    :param speed: a speed string i.e, '25G'
-    :return: speed int value, i.e., 25
+    :param speed: a speed string i.e, '25G', '100M'
+    :return: speed int value in megabits, i.e., 25000, 100
     """
-    return int(re.search(r'(\d+)G', speed).group(1))
+    match_gig = re.search(r'(\d+)G', speed)
+    match_mb = re.search(r'(\d+)M', speed)
+    if match_gig:
+        speed_int = int(match_gig.group(1)) * 1000
+    elif match_mb:
+        speed_int = int(match_mb.group(1))
+    else:
+        raise Exception('Can not match speed in Mbits/Gbits from: {}'.format(speed))
+    return speed_int
 
 
 def get_matched_types(lane_number, speed_list, types_dict):
@@ -172,13 +180,13 @@ def get_matched_types(lane_number, speed_list, types_dict):
     return matched_types
 
 
-def convert_speeds_to_kb_format(speeds_list):
+def convert_speeds_to_mb_format(speeds_list):
     """
     :param speeds_list: a list of speeds,  ['40G', '10G', '50G']
     :return: return a string of speeds configuration in string list format, i.e, '40000,10000,50000'
     """
-    speeds_in_kb_format = list(map(lambda speed: str(speed_string_to_int(speed) * 1000), speeds_list))
-    return ",".join(speeds_in_kb_format)
+    speeds_in_mb_format = list(map(lambda speed: str(speed_string_to_int_in_mb(speed)), speeds_list))
+    return ",".join(speeds_in_mb_format)
 
 
 @pytest.fixture(autouse=False)

@@ -8,7 +8,6 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, compare_actual_and_expected, save_configuration
-from ngts.helpers.interface_helpers import get_lb_mutual_speed
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts, FecConstants
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
@@ -17,12 +16,6 @@ from ngts.helpers.interface_helpers import get_lb_mutual_speed
 
 
 logger = logging.getLogger()
-
-
-FEC_MODES_SPEED_SUPPORT_FOR_2705016 = {
-    SonicConst.FEC_RS_MODE: {'100G'},
-    SonicConst.FEC_NONE_MODE: {'50G', '100G'}
-}
 
 
 class TestFec:
@@ -62,11 +55,30 @@ class TestFec:
         else:
             raise AssertionError("Chip type {} is unrecognized".format(self.chip_type))
 
-    def test_fec_capabilities(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
+    def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
         with allure.step("Configure FEC on dut loopbacks"):
             logger.info("Configure FEC on dut loopbacks")
             dut_lb_conf = self.configure_fec(self.tested_lb_dict, cleanup_list)
 
+        with allure.step("Verify FEC on dut loopbacks"):
+            self.verify_fec_configuration(dut_lb_conf)
+
+        tested_ports = list(dut_lb_conf.keys())
+        reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
+
+        with allure.step("Verify FEC on dut loopbacks"):
+            self.verify_fec_configuration(dut_lb_conf)
+
+        with allure.step("Cleaning FEC configuration and verify port state was restored"):
+            logger.info("Cleanup Configuration")
+            cleanup(cleanup_list)
+            self.update_conf(dut_lb_conf)
+
+        with allure.step("Verify FEC on dut loopbacks"):
+            logger.info("Verify FEC on dut loopbacks returned to default configuration")
+            self.verify_fec_configuration(dut_lb_conf)
+
+    def test_fec_capabilities_hosts_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
         with allure.step("Configure FEC on dut - host connectivities"):
             logger.info("Configure FEC on host - dut connectivities")
             self.configure_fec_mode_on_host(cleanup_list)
@@ -77,9 +89,6 @@ class TestFec:
             logger.info("Configure IP on dut - host connectivities for traffic validation")
             ip_conf = self.set_peer_port_ip_conf(cleanup_list)
 
-        with allure.step("Verify FEC on dut loopbacks"):
-            self.verify_fec_configuration(dut_lb_conf)
-
         with allure.step("Verify FEC on dut - host connectivities"):
             logger.info("Verify FEC on dut - host connectivities")
             self.verify_fec_configuration(dut_host_conf)
@@ -89,12 +98,8 @@ class TestFec:
         with allure.step("Verify traffic on dut - host connectivities"):
             self.validate_traffic(ip_conf)
 
-        tested_ports = list(dut_lb_conf.keys())
-        tested_ports += list(dut_host_conf.keys())
+        tested_ports = list(dut_host_conf.keys())
         reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
-
-        with allure.step("Verify FEC on dut loopbacks"):
-            self.verify_fec_configuration(dut_lb_conf)
 
         with allure.step("Verify FEC on dut - host connectivities"):
             logger.info("Verify FEC on dut - host connectivities")
@@ -108,12 +113,7 @@ class TestFec:
         with allure.step("Cleaning FEC configuration and verify port state was restored"):
             logger.info("Cleanup Configuration")
             cleanup(cleanup_list)
-            self.update_conf(dut_lb_conf)
             self.update_conf(dut_host_conf)
-
-        with allure.step("Verify FEC on dut loopbacks"):
-            logger.info("Verify FEC on dut loopbacks returned to default configuration")
-            self.verify_fec_configuration(dut_lb_conf)
 
         with allure.step("Verify FEC on dut - host connectivities"):
             logger.info("Verify FEC on dut - host connectivities returned to default configuration")

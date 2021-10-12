@@ -7,7 +7,7 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_speeds_in_Gb_str_format, get_interface_cable_width, \
-    get_matched_types, speed_string_to_int, convert_speeds_to_kb_format
+    get_matched_types, speed_string_to_int_in_mb, convert_speeds_to_mb_format
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
 from ngts.tests.nightly.conftest import compare_actual_and_expected
@@ -50,7 +50,7 @@ class AutoNegBase:
             for split_mode, lb_list in tested_lb_dict.items():
                 for lb in lb_list:
                     lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
-                    mutual_speed_in_subset = min(lb_mutual_speeds, key=speed_string_to_int)
+                    mutual_speed_in_subset = min(lb_mutual_speeds, key=speed_string_to_int_in_mb)
                     all_adv_speeds = []
                     all_adv_types = []
                     for port in lb:
@@ -63,7 +63,7 @@ class AutoNegBase:
                         all_adv_speeds.append(adv_speeds)
                         all_adv_types.append(adv_types)
                         speed = mutual_speed_in_subset
-                        adv_speeds = convert_speeds_to_kb_format(adv_speeds)
+                        adv_speeds = convert_speeds_to_mb_format(adv_speeds)
                         interface_type = get_matched_types(self.ports_lanes_dict[port], [speed],
                                                            self.interfaces_types_dict).pop()
                         cable_type = interface_type
@@ -76,7 +76,7 @@ class AutoNegBase:
             return conf
 
     def get_custom_expected_conf_res(self, port, all_adv_speeds):
-        expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int)
+        expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int_in_mb)
         matched_types = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
                                           types_dict=self.interfaces_types_dict)
         expected_type = max(matched_types, key=get_interface_cable_width)
@@ -103,7 +103,7 @@ class AutoNegBase:
         return conf
 
     def get_default_expected_conf_res(self, lb, lb_mutual_speeds):
-        expected_speed = max(lb_mutual_speeds, key=speed_string_to_int)
+        expected_speed = max(lb_mutual_speeds, key=speed_string_to_int_in_mb)
         matched_types = get_matched_types(self.ports_lanes_dict[lb[0]], [expected_speed],
                                           types_dict=self.interfaces_types_dict)
         expected_interface_type = max(matched_types, key=get_interface_cable_width)
@@ -462,7 +462,7 @@ class AutoNegBase:
             for split_mode, lb_list in tested_lb_dict.items():
                 for lb in lb_list:
                     lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
-                    min_speed = min(lb_mutual_speeds, key=speed_string_to_int)
+                    min_speed = min(lb_mutual_speeds, key=speed_string_to_int_in_mb)
                     min_type = get_matched_types(self.ports_lanes_dict[lb[0]], [min_speed],
                                                  types_dict=self.interfaces_types_dict).pop()
                     width = get_interface_cable_width(min_type)

@@ -5,7 +5,7 @@ import pytest
 from retry.api import retry_call
 
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
-from ngts.tests.nightly.auto_negotition.conftest import convert_speeds_to_kb_format, get_matched_types, \
+from ngts.tests.nightly.auto_negotition.conftest import convert_speeds_to_mb_format, get_matched_types, \
     get_interface_cable_width
 from ngts.tests.nightly.auto_negotition.auto_neg_common import AutoNegBase
 from ngts.tests.nightly.conftest import cleanup
@@ -109,8 +109,8 @@ class TestAutoNegNegative(AutoNegBase):
         port_1_adv_speed, port_2_adv_speed = [lb_mutual_speeds[0:rand_idx], lb_mutual_speeds[rand_idx:]]
         tested_lb_dict = {split_mode: [lb]}
         conf = self.generate_default_conf(tested_lb_dict)
-        conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = convert_speeds_to_kb_format(port_1_adv_speed)
-        conf[lb[1]][AutonegCommandConstants.ADV_SPEED] = convert_speeds_to_kb_format(port_2_adv_speed)
+        conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = convert_speeds_to_mb_format(port_1_adv_speed)
+        conf[lb[1]][AutonegCommandConstants.ADV_SPEED] = convert_speeds_to_mb_format(port_2_adv_speed)
         return conf
 
     def verify_auto_neg_failure_scenario(self, lb, conf, cleanup_list):
@@ -141,7 +141,7 @@ class TestAutoNegNegative(AutoNegBase):
         :param split_mode_supported_speeds: a dictionary with available speed for each breakout mode on all setup ports
         :return: a list of speeds which are not supported by the port, i.e,
         """
-        return convert_speeds_to_kb_format(set(split_mode_supported_speeds[port][1]).difference(supported_speeds))
+        return convert_speeds_to_mb_format(set(split_mode_supported_speeds[port][1]).difference(supported_speeds))
 
     def test_negative_config_interface_type(self):
         """
@@ -220,6 +220,6 @@ class TestAutoNegNegative(AutoNegBase):
                                             types_dict=self.interfaces_types_dict)
         max_type = max(lb_mutual_types, key=get_interface_cable_width)
         conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = \
-            convert_speeds_to_kb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
+            convert_speeds_to_mb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
         conf[lb[0]][AutonegCommandConstants.ADV_TYPES] = max_type
         return conf
