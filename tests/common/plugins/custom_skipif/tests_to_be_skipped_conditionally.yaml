@@ -41,6 +41,10 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
     - 2010
     - 2100
 
+platform_tests/fw_utility/test_fwutil.py:
+  - Platform:
+    - msn4
+
 platform_tests/test_cpu_memory_usage.py:
   - Redmine:
     - 2769629
