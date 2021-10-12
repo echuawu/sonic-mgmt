@@ -33,20 +33,17 @@ protocols = {
 }
 
 
-def parse_wjh_table(table):
+def parse_table(table_lines):
     entries = []
     headers = []
     header_lines_num = 2
-    table_lines = table.splitlines()
-    if not table_lines:
-        return table_lines
 
     # check separators index
     for sep_index in range(len(table_lines)):
         if table_lines[sep_index][0] == '-':
             break
 
-    separators = re.split(r'\s{2,}', table.splitlines()[sep_index])[0].split()  # separators between headers and content
+    separators = re.split(r'\s{2,}', table_lines[sep_index])[0].split()  # separators between headers and content
     headers_line = table_lines[0]
     start = 0
     # separate headers by table separators
@@ -58,7 +55,7 @@ def parse_wjh_table(table):
     if table_lines[1].strip() == "Group":
         headers[11] = headers[11] + " Group"
         header_lines_num = 3
-    output_lines = table.splitlines()[header_lines_num:]  # Skip the header lines in output
+    output_lines = table_lines[header_lines_num:]  # Skip the header lines in output
 
     for line in output_lines:
         # if the previous line was too long and has splitted to 2 lines
@@ -94,6 +91,23 @@ def parse_wjh_table(table):
         entries.append(entry)
     return entries
 
+
+def parse_wjh_table(table):
+    table_lines = table.splitlines()
+    if not table_lines:
+        return table_lines
+    if "" in table_lines:
+        second_table_index = table_lines.index("")
+        first_table = table_lines[:second_table_index]
+        second_table = table_lines[second_table_index + 2:]
+        second_entries = parse_table(second_table)
+    else:
+        first_table = table_lines
+        second_entries = []
+
+    first_entries = parse_table(first_table)
+    entries = [first_entries, second_entries]
+    return entries
 
 def check_for_daemon_error(stderr_lines):
     if not stderr_lines:
@@ -165,26 +179,48 @@ def check_if_entry_exists(table, pkt):
     return entries
 
 
-def verify_drop_on_wjh_raw_table(duthost, pkt, discard_group):
-    table = get_raw_table_output(duthost)
-    entries = check_if_entry_exists(table, pkt)
+def verify_drop_on_wjh_rule_table(pkt_entry, rules_table, drop_information):
+    INGRESS_RULE = u'SIP: 20.0.0.0/255.255.255.0 ETHERTYPE: 0x800/0xffff COUNTER_ID ='
+    EGRESS_RULE = u'DIP: 192.168.144.0/255.255.255.0 ETHERTYPE: 0x800/0xffff COUNTER_ID ='
+
+    if drop_information == "OUTDATAACL":
+        rule = EGRESS_RULE
+    else:
+        rule = INGRESS_RULE
+
+    for rule_entry in rules_table:
+        if rule_entry['Rule'].startswith(rule):
+            if rule_entry['#'] == pkt_entry['#']:
+                return True
+    return False
+
+
+def verify_drop_on_wjh_raw_table(duthost, pkt, discard_group, drop_information=None):
+    table = get_raw_table_output(duthost, command="show what-just-happened poll {}".format(discard_group.lower()))
+    entries = check_if_entry_exists(table[0], pkt)
+
     for entry in entries:
         if discard_group == entry['Drop Group']:
+            if discard_group == 'ACL':
+                return verify_drop_on_wjh_rule_table(entry, table[1], drop_information)
             return True
     return False
 
 
-def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets):
-    table = get_agg_table_output(duthost)
-    entries = check_if_entry_exists(table, pkt)
+def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets, discard_group, drop_information=None):
+    table = get_agg_table_output(duthost, command="show what-just-happened poll {} --aggregate".format(discard_group.lower()))
+    entries = check_if_entry_exists(table[0], pkt)
+
     for entry in entries:
         if int(entry['Count']) == num_packets:
+            if discard_group == 'ACL':
+                return verify_drop_on_wjh_rule_table(entry, table[1], drop_information)
             return True
     return False
 
 
 def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None,
-                comparable_pkt=None, skip_counter_check=False):
+                comparable_pkt=None, skip_counter_check=False, drop_information=None):
     # send packet
     send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"])
     # verify packet is dropped
@@ -199,12 +235,12 @@ def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
     # verify wjh table
     if comparable_pkt:
         pkt = comparable_pkt
-    if not verify_drop_on_wjh_raw_table(duthost, pkt, discard_group):
+    if not verify_drop_on_wjh_raw_table(duthost, pkt, discard_group, drop_information):
         pytest.fail("Could not find drop on WJH table. packet: {}".format(pkt))
 
 
 def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
-                skip_counter_check=False):
+                skip_counter_check=False, drop_information=None):
     num_packets = random.randint(2,100)
     send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"], num_packets=num_packets)
     # verify packet is dropped
@@ -219,7 +255,7 @@ def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
     # verify wjh table
     if comparable_pkt:
         pkt = comparable_pkt
-    if not verify_drop_on_agg_wjh_table(duthost, pkt, num_packets):
+    if not verify_drop_on_agg_wjh_table(duthost, pkt, num_packets, discard_group, drop_information):
         pytest.fail("Could not find drop on aggregation WJH table. packet: {}".format(pkt))
 
 
@@ -228,18 +264,18 @@ def do_test(duthosts, rand_one_dut_hostname):
     duthost = duthosts[rand_one_dut_hostname]
 
     def do_wjh_test(discard_group, pkt, ptfadapter, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
-                    skip_counter_check=False):
+                    skip_counter_check=False, drop_information=None):
         try:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('raw') != -1):
                 do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports,
-                            comparable_pkt, skip_counter_check=skip_counter_check)
+                            comparable_pkt, skip_counter_check=skip_counter_check, drop_information=drop_information)
         finally:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('aggregate') != -1):
                 # a temporary check. there is a problem with IP header absent in aggregate
                 # TODO: remove this check when issue is fixed
                 if 'IP' in pkt or 'IPv6' in pkt:
                     do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports,
-                                comparable_pkt, skip_counter_check=skip_counter_check)
+                                comparable_pkt, skip_counter_check=skip_counter_check, drop_information=drop_information)
 
     return do_wjh_test
 
