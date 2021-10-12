@@ -392,7 +392,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
 
 
 @allure.title('LAGs scale Test')
-def test_lags_scale(topology_obj, engines, cleanup_list):
+def test_lags_scale(topology_obj, engines, cleanup_list, ignore_temp_loganalyzer_exceptions):
     """
     This test case will check the configuration of maximum number of port channels with ipv4&ipv6 addresses.
     :param topology_obj: topology object
