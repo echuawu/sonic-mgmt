@@ -103,14 +103,15 @@ def dut_hb_2_mac(engines, cli_objects, topology_obj):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def simx_disable_counters(is_simx, engines, cli_objects, topology_obj):
+def simx_disable_counters(is_simx, engines, cli_objects, topology_obj, sonic_version):
     """
     Pytest fixture which disable counters on SIMX workaround for issue: https://redmine.mellanox.com/issues/2807805
     """
     if is_simx:
-        counterpoll_status_dict = cli_objects.dut.counterpoll.parse_counterpoll_show(engines.dut)
-        for counter, value in counterpoll_status_dict.items():
-            if value['Status'] == 'enable':
-                cli_objects.dut.counterpoll.disable_counterpoll(engines.dut)
-                cli_objects.dut.general.reload_flow(engines.dut, topology_obj=topology_obj, reload_force=True)
-                break
+        if '202012' not in sonic_version:
+            counterpoll_status_dict = cli_objects.dut.counterpoll.parse_counterpoll_show(engines.dut)
+            for counter, value in counterpoll_status_dict.items():
+                if value['Status'] == 'enable':
+                    cli_objects.dut.counterpoll.disable_counterpoll(engines.dut)
+                    cli_objects.dut.general.reload_flow(engines.dut, topology_obj=topology_obj, reload_force=True)
+                    break
