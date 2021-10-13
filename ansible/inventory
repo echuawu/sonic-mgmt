@@ -20,6 +20,11 @@ r-spider-05-ptf-any ansible_host=r-spider-05  sonic_version=v2  sonic_hwsku=ACS-
 r-spider-05 ansible_host=r-spider-05  sonic_version=v2  sonic_hwsku=ACS-MSN2410             serial_console="ssh -l rcon:7021 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23 base_mac=B8:59:9F:68:7F:80 serial=MT1921X01546 model=MSN2410-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2019.11-5.2.0019-9600', '0x22': u'MSN2410-CB2FO', '0x23': u'MT1921X01546', '0x21': u'MSN2410', '0x26': u'17', '0x24': u'B8:59:9F:68:7F:80', '0x25': u'05/21/2019 09:40:30', '0xfe': u'0x5F44C155', '0x2b': u'Mellanox', '0x2a': u'128'}"
 
 # MTR canonical testbed r-panther-simx-23 topologies
+r-moose-simx-161-ptf-any ansible_host=r-moose-simx-161  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r640-06 12001" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-161 ansible_host=r-moose-simx-161  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r640-06 12001" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+
+# MTR canonical testbed r-panther-simx-23 topologies
 r-panther-simx-23-ptf-any ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-panther-simx-23 ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
@@ -525,6 +530,9 @@ r-spider-05
 
 r-panther-simx-23-ptf-any
 r-panther-simx-23
+
+r-moose-simx-161-ptf-any
+r-moose-simx-161
 
 r-panther-simx-18-ptf-any
 r-panther-simx-18
