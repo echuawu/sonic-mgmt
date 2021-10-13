@@ -28,9 +28,22 @@ class IpCliCommon(IpCliInterface):
         return engine.run_cmd("sudo ip neigh {} {} lladdr {} dev {}".format(action, neighbor, neigh_mac_addr, dev))
 
     @staticmethod
+    def add_ip_neigh_list(engine, neighbor_list, neigh_mac_addr_list, dev, action="replace"):
+        """
+        This method adds neighbors entries to the ARP table
+        :param engine: ssh engine object
+        :param neighbor_list: neighbors IP addresses
+        :param neigh_mac_addr_list: neighbors MAC addresses
+        :param dev: interface to which neighbour is attached
+        :param action: it includes replace or add, the two both can add ip neigh, replace can replace old neigh
+        """
+        for index, _ in enumerate(neighbor_list):
+            IpCliCommon.add_ip_neigh(engine, neighbor_list[index], neigh_mac_addr_list[index], dev, action)
+
+    @staticmethod
     def del_ip_neigh(engine, neighbor, neigh_mac_addr, dev):
         """
-        This method adds an neighbor entry to the ARP table
+        This method delete an neighbor entry to the ARP table
         :param engine: ssh engine object
         :param neighbor: neighbor IP address
         :param neigh_mac_addr: neighbor MAC address
@@ -38,6 +51,18 @@ class IpCliCommon(IpCliInterface):
         :return: command output
         """
         return engine.run_cmd("sudo ip neigh del {} lladdr {} dev {}".format(neighbor, neigh_mac_addr, dev))
+
+    @staticmethod
+    def del_ip_neigh_list(engine, neighbor_list, neigh_mac_addr_list, dev):
+        """
+        This method delete neighbors entry to the ARP table
+        :param engine: ssh engine object
+        :param neighbor_list: neighbors IP addresses
+        :param neigh_mac_addr_list: neighbors MAC addresses
+        :param dev: interface to which neighbour is attached
+        """
+        for index, _ in enumerate(neighbor_list):
+            IpCliCommon.del_ip_neigh(engine, neighbor_list[index], neigh_mac_addr_list[index], dev)
 
     @staticmethod
     def del_static_neigh(engine):

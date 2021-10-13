@@ -21,6 +21,10 @@ from crm_helper import (
     th_apply_fdb_config,
 )
 
+IPV4_NEIGHBOR_LIST = ["2.2.2.{}".format(i) for i in range(10)]
+IPV6_NEIGHBOR_LIST = ["2001::{}".format(i) for i in range(10)]
+NEIGH_MAC_ADDR_LIST = ["11:22:33:44:55:6{}".format(i) for i in range(10)]
+
 
 @pytest.mark.build
 @pytest.mark.push_gate
@@ -60,10 +64,10 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask, ignore_expected_loganalyzer_
 
 @pytest.mark.build
 @pytest.mark.push_gate
-@pytest.mark.parametrize("ip_ver,neighbor,neigh_mac_addr", [("4", "2.2.2.2", "11:22:33:44:55:66"),
-                                                            ("6", "2001::1", "11:22:33:44:55:66")])
+@pytest.mark.parametrize("ip_ver,neighbor_list,neigh_mac_addr_list", [("4", IPV4_NEIGHBOR_LIST, NEIGH_MAC_ADDR_LIST),
+                                                                      ("6", IPV6_NEIGHBOR_LIST, NEIGH_MAC_ADDR_LIST)])
 @allure.title('Test CRM neighbor and nexthop counters')
-def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr, ignore_expected_loganalyzer_exceptions):
+def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor_list, neigh_mac_addr_list, ignore_expected_loganalyzer_exceptions):
     """
     Test doing verification of used and available CRM counters for the following resources:
     ipv4_nexthop
@@ -78,33 +82,35 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor, neigh_mac_addr
     nexthop_used, nexthop_available = get_main_crm_stat(env, nexthop_resource)
     neighbor_used, neighbor_available = get_main_crm_stat(env, neighbor_resource)
 
-    with allure.step('Add neighbor: {} {} {}'.format(neighbor, neigh_mac_addr, vlan_iface)):
-        env.sonic_cli.ip.add_ip_neigh(env.dut_engine, neighbor, neigh_mac_addr, vlan_iface)
+    with allure.step('Add {} neighbors to {}'.format(len(neighbor_list), vlan_iface)):
+        env.sonic_cli.ip.add_ip_neigh_list(env.dut_engine, neighbor_list, neigh_mac_addr_list, vlan_iface)
 
-    cleanup.append((env.sonic_cli.ip.add_ip_neigh, env.dut_engine, neighbor, neigh_mac_addr, vlan_iface))
+    cleanup.append((env.sonic_cli.ip.del_ip_neigh_list, env.dut_engine, neighbor_list, neigh_mac_addr_list, vlan_iface))
+    # check that all ip neighbors were added
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
         retry_call(
-            verify_counters, fargs=[env, nexthop_resource, nexthop_used + 1, '>=', nexthop_available],
+            verify_counters, fargs=[env, nexthop_resource, nexthop_used + len(neighbor_list), '>=', nexthop_available],
             tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(neighbor_resource)):
         retry_call(
-            verify_counters, fargs=[env, neighbor_resource, neighbor_used + 1, '>=', neighbor_available],
+            verify_counters, fargs=[env, neighbor_resource, neighbor_used + len(neighbor_list), '>=', neighbor_available],
             tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.pop()
 
-    with allure.step('Remove neighbor: {} {} {}'.format(neighbor, neigh_mac_addr, vlan_iface)):
-        env.sonic_cli.ip.del_ip_neigh(env.dut_engine, neighbor, neigh_mac_addr, vlan_iface)
-
+    with allure.step('Remove {} neighbors from {}'.format(len(neighbor_list), vlan_iface)):
+        env.sonic_cli.ip.del_ip_neigh_list(env.dut_engine, neighbor_list, neigh_mac_addr_list, vlan_iface)
+    # Check that at least (len(neighbor_list)-2) ip neighbors were deleted.
+    # In some cases an unexpected background traffic might cause the addition of unexpected neighbors.
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
         retry_call(
-            verify_counters, fargs=[env, nexthop_resource, nexthop_used, '==', nexthop_available],
+            verify_counters, fargs=[env, nexthop_resource, nexthop_used + 2, '<=', nexthop_available],
             tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     with allure.step('Verify CRM {} counters'.format(neighbor_resource)):
         retry_call(
-            verify_counters, fargs=[env, neighbor_resource, neighbor_used, '==', neighbor_available],
+            verify_counters, fargs=[env, neighbor_resource, neighbor_used + 2, '<=', neighbor_available],
             tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
 
