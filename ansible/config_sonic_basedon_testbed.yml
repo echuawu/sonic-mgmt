@@ -36,6 +36,12 @@
   tasks:
 
   - block:
+    - name: Deploy specific device configuration files
+      include: deploy_device_configs.yml
+      vars:
+        dut_hwsku: "{{ hwsku }}"
+        dut_hostname: "{{ inventory_hostname }}"
+
     - name: set default testbed file
       set_fact:
         testbed_file: testbed.csv
