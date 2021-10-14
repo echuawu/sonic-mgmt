@@ -2,15 +2,11 @@ import time
 import pytest
 import allure
 import logging
-import json
 from infra.tools.validations.traffic_validations.iperf.iperf_runner import IperfChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
-from ngts.config_templates.ip_config_template import IpConfigTemplate
-from ngts.constants.constants import SonicConst
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
-from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
@@ -36,41 +32,42 @@ table_parser_info = {
 
 
 @pytest.fixture(scope='module', autouse=True)
-def check_global_configuration(engines):
+def check_global_configuration(engines, check_feature_enabled):
     """
     An autouse fixture to check the global configurations of WJH.
     :param engines: engines fixture
+    :param check_feature_enabled: check_feature_enabled fixture
     """
-    config_db = SonicGeneralCli.get_config_db(engines.dut)
-    wjh = config_db.get('WJH', {})
+    global_config = engines.dut.run_cmd('show what-just-happened configuration global')
+    wjh_global = generic_sonic_output_parser(global_config)[0]
     try:
         with allure.step('Validating debug mode in WJH'):
-            wjh_global = wjh.get('global')
-            if wjh_global.get('mode') != 'debug':
+            if wjh_global.get('Mode') != 'debug':
                 pytest.fail("Debug mode is not enabled. Skipping test.")
     except Exception as e:
         pytest.fail("Could not fetch global configuration information.")
 
 
 @pytest.fixture(scope='module', autouse=True)
-def get_channel_configuration(engines):
+def get_channel_configuration(engines, check_feature_enabled):
     """
     An autouse fixture to check the channel configurations of WJH.
     :param engines: engines fixture
+    :param check_feature_enabled: check_feature_enabled fixture
     """
-    pytest.CHANNEL_CONF = SonicGeneralCli.get_config_db(engines.dut).get('WJH_CHANNEL', {})
+    channels_config = engines.dut.run_cmd('show what-just-happened configuration channels')
+    pytest.CHANNEL_CONF = generic_sonic_output_parser(channels_config, output_key="Channel")
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='module')
 def check_feature_enabled(engines):
     """
     An autouse fixture to check if WJH fixture is enabled
     :param engines: engines fixture
     """
     with allure.step('Valdating WJH feature is installed and enabled on the DUT'):
-        config_db = SonicGeneralCli.get_config_db(engines.dut)
-        features = config_db.get('FEATURE', {})
-        if 'what-just-happened' not in features or features['what-just-happened']['state'] != 'enabled':
+        features = SonicGeneralCli.show_and_parse_feature_status(engines.dut)
+        if 'what-just-happened' not in features or features['what-just-happened']['State'] != 'enabled':
             pytest.skip("what-just-happened feature is not available. Skipping the test.")
 
 
@@ -88,7 +85,7 @@ def check_if_channel_enabled(cli_object, engines, channel, channel_type):
 
     if channel not in pytest.CHANNEL_CONF:
         pytest.fail("{} channel is not confiugred on WJH.".format(channel))
-    if channel_type not in pytest.CHANNEL_CONF[channel]['type']:
+    if channel_type not in pytest.CHANNEL_CONF[channel]['Type']:
         pytest.fail("{} {} channel type is not confiugred on WJH.".format(channel, channel_type))
 
 

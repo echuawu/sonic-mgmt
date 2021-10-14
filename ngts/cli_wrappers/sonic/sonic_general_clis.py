@@ -57,6 +57,16 @@ class SonicGeneralCli(GeneralCliCommon):
         return engine.run_cmd('show feature status')
 
     @staticmethod
+    def show_and_parse_feature_status(engine):
+        """
+        This method show feature status on the sonic switch
+        :param engine: ssh engine object
+        :return: command output
+        """
+        output_content = SonicGeneralCli.show_feature_status(engine)
+        return generic_sonic_output_parser(output_content, output_key="Feature")
+
+    @staticmethod
     def set_feature_state(engine, feature_name, state):
         """
         This method to set feature state on the sonic switch
