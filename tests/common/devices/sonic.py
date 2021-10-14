@@ -289,11 +289,11 @@ class SonicHost(AnsibleHostBase):
         E.g. 202106, 202012, ...
              if the release is master, then return none
         """
-
-        output = self.command("sonic-cfggen -y /etc/sonic/sonic_version.yml -v release")
+        # TODO: this is  WA, need to revert after https://github.com/Azure/sonic-buildimage/pull/6356 is merged to 202106
+        output = self.command("sonic-cfggen -y /etc/sonic/sonic_version.yml -v build_version")
         if len(output['stdout_lines']) == 0:
             return 'none'
-        return output["stdout_lines"][0].strip()
+        return output["stdout_lines"][0].split('.')[0].strip()
 
     def _get_kernel_version(self):
         """
