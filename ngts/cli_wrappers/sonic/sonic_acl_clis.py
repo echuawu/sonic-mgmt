@@ -29,7 +29,7 @@ class SonicAclCli:
         :param tbl_type: ACL table type [L3, MIRROR, MIRROR_DSCP, etc.]
         :return: command output
         """
-        cmd = 'config acl remove table {}'.format(tbl_name)
+        cmd = 'sudo config acl remove table {}'.format(tbl_name)
 
         return engine.run_cmd(cmd)
 

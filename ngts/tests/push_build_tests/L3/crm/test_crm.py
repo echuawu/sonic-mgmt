@@ -274,6 +274,7 @@ def test_crm_acl(env, cleanup, ignore_expected_loganalyzer_exceptions):
             tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
     cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
+    cleanup.append((env.sonic_cli.acl.remove_table, env.dut_engine, ACL_TABLE_NAME))
 
 
 @pytest.mark.parametrize('ip_ver,start_ip', [('4', '2.2.2.0'), ('6', '2001::')], ids=['ipv4', 'ipv6'])
