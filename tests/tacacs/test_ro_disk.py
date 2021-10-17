@@ -2,7 +2,6 @@ import pytest
 import crypt
 import json
 import logging
-import time
 from pkg_resources import parse_version
 
 from tests.common.utilities import wait_until
@@ -65,7 +64,7 @@ def do_reboot(duthost, localhost, dutip, rw_user, rw_pass):
     wait(wait_time, msg="Wait {} seconds for system to be stable.".format(wait_time))
 
 
-def test_ro_disk(localhost, duthosts, enum_rand_one_per_hwsku_hostname, creds_all_duts, test_tacacs):
+def test_ro_disk(localhost, duthosts, enum_rand_one_per_hwsku_hostname, creds_all_duts, check_tacacs):
     """test tacacs rw user
     """
     duthost = duthosts[enum_rand_one_per_hwsku_hostname]
