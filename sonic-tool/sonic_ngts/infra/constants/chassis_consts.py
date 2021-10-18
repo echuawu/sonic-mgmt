@@ -1,5 +1,6 @@
 
 class ChassisConst:
+    ALLIGATOR = 'alligator'
     ANACONDA = 'anaconda'
     TIGRIS = 'tigris'
     LIONFISH = 'lionfish'
@@ -49,6 +50,11 @@ class ChassisConst:
                            'port_number':  22,
                            'chip_type': "SPC"
                            }
+
+    MAIN_FRU_DIC[ALLIGATOR] = {'fru': ['2201'],
+                               'port_number':  52,
+                               'chip_type': "SPC"
+                               }
 
     MAIN_FRU_DIC[ANACONDA] = {'fru': ['3700', '3700C'],
                               'port_number':  32,

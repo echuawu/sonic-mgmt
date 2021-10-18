@@ -102,6 +102,7 @@
       <Device Hostname="r-tigris-22" HwSku="ACS-MSN3800" Type="DevSonic"/>
       <Device Hostname="r-ocelot-07" HwSku="ACS-MSN4410" Type="DevSonic"/>
       <Device Hostname="r-tigon-17" HwSku="ACS-MSN4600C" Type="DevSonic"/>
+      <Device Hostname="r-alligator-04" HwSku="ACS-MSN2201" Type="DevSonic" />
     </Devices>
     <DeviceInterfaceLinks>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1007" EndPort="ethernet 1/1" StartDevice="arc-switch1038" StartPort="Ethernet0"/>
