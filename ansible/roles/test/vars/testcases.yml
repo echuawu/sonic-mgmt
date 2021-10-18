@@ -356,7 +356,3 @@ testcases:
     read_mac:
       filename: read_mac_metadata.yml
       topologies: [t0, t1, t1-lag]
-
-    port_mirroring:
-      filename: test_port_mirroring.py
-      topologies: [t0]
