@@ -440,10 +440,6 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_break
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
-tests/nightly/lag:
-  - Platform:
-    - 3800
-
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
     - simx

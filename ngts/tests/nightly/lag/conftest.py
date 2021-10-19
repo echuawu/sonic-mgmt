@@ -71,21 +71,6 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
     with allure.step('Check that links are in UP state'.format(ports_list)):
         retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10, logger=logger)
 
-    # variable below required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
-                                                                                          interfaces.dut_hb_1,
-                                                                                          interfaces.dut_hb_2])
-
-    # Interfaces config which will be used in test
-    interfaces_config_dict = {
-        'dut': [{'iface': interfaces.dut_hb_1,
-                 'speed': '1G',
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_1, '1G')},
-                {'iface': interfaces.dut_hb_2,
-                 'speed': '1G',
-                 'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '1G')}]
-    }
-
     # LAG/LACP config which will be used in test
     lag_lacp_config_dict = {
         'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_1]},
@@ -107,7 +92,6 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
     }
 
     logger.info('Starting Lag LACP Test Common configuration')
-    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
     LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
     VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
@@ -119,7 +103,6 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
     LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
-    InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
 
     dut_cli.general.save_configuration(engines.dut)
     # to prevent advertising the same mac on an interfaces,

@@ -351,16 +351,22 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
         member_interfaces = all_interfaces[:min(max_lag_members, len(all_interfaces))]
 
         with allure.step('Set same speed to all interfaces'):
-            dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces)
-            interfaces_config_list = []
-            for interface in all_interfaces:
-                interfaces_config_list.append({'iface': interface,
-                                               'speed': '10G',
-                                               'original_speed': dut_original_interfaces_speeds.get(interface, '10G')})
-            interfaces_config_dict = {
-                'dut': interfaces_config_list
-            }
-            add_interface_conf(topology_obj, interfaces_config_dict, cleanup_list)
+            dut_orig_ifaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces)
+            # Get minimal supported speed
+            min_speed = '{}G'.format(min([int(speed.strip('G')) for speed in dut_orig_ifaces_speeds.values()]))
+            # Get speed for all members and if it's not similar - set all ports to minimal supported speed
+            members_speed = {}
+            [members_speed.update({iface: dut_orig_ifaces_speeds[iface]}) for iface in member_interfaces]
+            if not all(x == list(members_speed.values())[0] for x in list(members_speed.values())):
+                interfaces_config_list = []
+                for interface in all_interfaces:
+                    interfaces_config_list.append({'iface': interface,
+                                                   'speed': min_speed,
+                                                   'original_speed': dut_orig_ifaces_speeds.get(interface, min_speed)})
+                interfaces_config_dict = {
+                    'dut': interfaces_config_list
+                }
+                add_interface_conf(topology_obj, interfaces_config_dict, cleanup_list)
 
         with allure.step('Create PortChannel with all ports as members'):
             lag_config_dict = {
