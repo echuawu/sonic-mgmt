@@ -95,7 +95,7 @@ def parse_table(table_lines):
 def parse_wjh_table(table):
     table_lines = table.splitlines()
     if not table_lines:
-        return table_lines
+        return [table_lines]
     if "" in table_lines:
         second_table_index = table_lines.index("")
         first_table = table_lines[:second_table_index]
