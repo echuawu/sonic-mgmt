@@ -7,6 +7,28 @@
 #  syncd: 70             <<< RAM usage expected by process syncd
 
 # SPC1
+MSN2201: # Alligator
+  total: 3500
+  sx_sdk: 900
+  syncd: 100
+  redis-server: 50
+  snmpd: 20
+  zebra: 30
+  bgpd: 30
+  bgpcfgd: 30
+  bgpmon: 20
+  fpmsyncd: 5
+  orchagent: 20
+  ntpd: 5
+  neighsyncd: 5
+  vlanmgrd: 5
+  intfmgrd: 5
+  portmgrd: 5
+  buffermgrd: 5
+  vrfmgrd: 5
+  nbrmgrd: 5
+  vxlanmgrd: 5
+  sensord: 10
 MSN2010: # Boxer
   total: 3500
   sx_sdk: 900
