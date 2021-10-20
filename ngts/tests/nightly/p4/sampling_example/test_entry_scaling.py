@@ -258,7 +258,7 @@ class TestEntryScaling:
 
     def do_cold_reboot(self, engine_dut, topology_obj):
         start_time = datetime.now()
-        SonicGeneralCli.reboot_flow(engine_dut, 'reboot', topology_obj=topology_obj)
+        SonicGeneralCli.reboot_reload_flow(engine_dut, topology_obj=topology_obj)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))

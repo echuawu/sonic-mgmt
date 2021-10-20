@@ -140,6 +140,16 @@ class SonicGeneralCli(GeneralCliCommon):
         engine.run_cmd('sudo curl {} -o {}'.format(url, target_file_path), validate=True)
 
     @staticmethod
+    def reboot_reload_flow(engine, r_type='reboot', ports_list=None, topology_obj=None, wait_after_ping=45, reload_force=False):
+        """
+        Wrapper for reboot and reload methods - which executes appropriate method based on reboot/reload type
+        """
+        if r_type == 'config reload -y':
+            SonicGeneralCli.reload_flow(engine, ports_list, topology_obj, reload_force)
+        else:
+            SonicGeneralCli.reboot_flow(engine, r_type, ports_list, topology_obj, wait_after_ping)
+
+    @staticmethod
     def reboot_flow(engine, reboot_type='reboot', ports_list=None, topology_obj=None, wait_after_ping=45):
         """
         Rebooting switch by given way(reboot, fast-reboot, warm-reboot) and validate dockers and ports state
@@ -165,6 +175,7 @@ class SonicGeneralCli(GeneralCliCommon):
         :param engine: ssh engine object
         :param ports_list: list of the ports to check status after reboot
         :param topology_obj: topology object
+        :param reload_force: provide if want to do reload with -f flag(force)
         :return: None, raise error in case of unexpected result
         """
         if not (ports_list or topology_obj):

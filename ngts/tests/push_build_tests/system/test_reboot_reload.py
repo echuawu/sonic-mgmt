@@ -112,7 +112,8 @@ class RebootReload:
         with allure.step('Starting background validation for data plane traffic'):
             data_plane_checker = self.start_data_plane_validation(validation_type, allowed_data_loss_time)
 
-        self.do_reboot_or_reload_action(action=validation_type)
+        self.cli_object.general.reboot_reload_flow(self.dut_engine, r_type=validation_type,
+                                                   topology_obj=self.topology_obj)
 
         try:
             with allure.step('Checking control plane traffic loss'):
@@ -173,7 +174,8 @@ class RebootReload:
         with allure.step('Starting background validation for control plane traffic'):
             control_plane_checker = self.start_control_plane_validation(validation_type, allowed_control_loss_time)
 
-        self.do_reboot_or_reload_action(action=validation_type)
+        self.cli_object.general.reboot_reload_flow(self.dut_engine, r_type=validation_type,
+                                                   topology_obj=self.topology_obj)
 
         try:
             with allure.step('Checking control plane traffic loss'):
@@ -243,17 +245,6 @@ class RebootReload:
         logger.info('Starting background validation for data plane traffic')
         data_plane_checker.run_background_validation()
         return data_plane_checker
-
-    def do_reboot_or_reload_action(self, action):
-        if 'reload' in action:
-            with allure.step('Reloading the DUT config using cmd: "config reload -y"'):
-                self.cli_object.general.reload_configuration(self.dut_engine)
-            self.cli_object.general.verify_dockers_are_up(self.dut_engine)
-            self.cli_object.general.check_link_state(self.dut_engine, ifaces=self.topology_obj.players_all_ports['dut'])
-        else:
-            with allure.step('Rebooting the DUT using reboot cmd: "sudo {}"'.format(action)):
-                self.cli_object.general.reboot_flow(self.dut_engine, reboot_type=action, topology_obj=self.topology_obj,
-                                                    wait_after_ping=0)
 
     @staticmethod
     def do_func_validations(request):

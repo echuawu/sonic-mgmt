@@ -58,7 +58,7 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
     #     assert number_of_sdk_error_after == pre_stuck_dumps + 1
 
     with allure.step('Rebooting the system - necessary to restart the iRISCs'):
-        cli_objects.dut.general.reboot_flow(engines.dut, reboot_type='reboot', topology_obj=topology_obj)
+        cli_objects.dut.general.reboot_reload_flow(engines.dut, topology_obj=topology_obj)
 
 
 @pytest.fixture(autouse=True)

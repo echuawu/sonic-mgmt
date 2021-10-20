@@ -135,7 +135,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces,
             reboot_type = random.choice(get_supported_reboot_reload_types_list(platform=platform_params.platform))
             if re.search('simx', platform_params.setup_name):
                 reboot_type = 'reboot'
-            dut_cli.general.reboot_flow(engines.dut, reboot_type=reboot_type, topology_obj=topology_obj)
+            dut_cli.general.reboot_reload_flow(engines.dut, r_type=reboot_type, topology_obj=topology_obj)
 
         with allure.step('STEP5: Validate port channel status and send traffic'):
             verify_port_channel_status_with_retry(dut_cli,

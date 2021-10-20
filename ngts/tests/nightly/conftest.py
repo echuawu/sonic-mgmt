@@ -70,7 +70,7 @@ def save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, r
     with allure.step('Save configuration and reboot with type: {}'.format(reboot_type)):
         save_configuration(dut_engine, cli_object, cleanup_list)
         logger.info("Reload switch with reboot type: {}".format(reboot_type))
-        cli_object.general.reboot_flow(dut_engine, reboot_type=reboot_type, ports_list=ports)
+        cli_object.general.reboot_reload_flow(dut_engine, r_type=reboot_type, ports_list=ports)
 
 
 def save_configuration(dut_engine, cli_object, cleanup_list):

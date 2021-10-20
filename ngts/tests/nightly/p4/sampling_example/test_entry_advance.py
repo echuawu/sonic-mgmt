@@ -61,7 +61,7 @@ class TestEntryTraffic:
         with allure.step("Remove all entries from the config db"):
             entries_config_removed = json_file_helper.remove_key_from_config_db(engines.dut, P4_SAMPLING_KEY)
         with allure.step("Reload config"):
-            SonicGeneralCli.reboot_flow(engines.dut, 'config reload -y', topology_obj=topology_obj)
+            SonicGeneralCli.reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
         with allure.step("Enable p4-sampling"):
             SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify that the entries has been removed"):
@@ -74,7 +74,7 @@ class TestEntryTraffic:
         with allure.step("Add all entries back to config db"):
             json_file_helper.add_content_to_config_db(engines.dut, entries_config_removed, P4_SAMPLING_KEY)
         with allure.step("Reload config"):
-            SonicGeneralCli.reboot_flow(engines.dut, 'config reload -y', topology_obj=topology_obj)
+            SonicGeneralCli.reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
         with allure.step("Enable p4-sampling"):
             SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify that the entries has been added back"):

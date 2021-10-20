@@ -183,7 +183,7 @@ class CoppBase:
 
         logger.info('Reboot Switch')
         self.dut_cli_object.general.save_configuration(self.dut_engine)
-        self.dut_cli_object.general.reboot_flow(self.dut_engine, topology_obj=self.topology)
+        self.dut_cli_object.general.reboot_reload_flow(self.dut_engine, topology_obj=self.topology)
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
             get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
 
@@ -203,7 +203,7 @@ class CoppBase:
         """
         logger.info('Reboot Switch')
         self.dut_cli_object.general.save_configuration(self.dut_engine)
-        self.dut_cli_object.general.reboot_flow(self.dut_engine, reboot_type='reboot', topology_obj=self.topology)
+        self.dut_cli_object.general.reboot_reload_flow(self.dut_engine, topology_obj=self.topology)
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
             get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
 

@@ -122,7 +122,7 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
     [SONiC – Design] Bug SW #2597709: [Community #7261][Functional]Static route incorrect,
     PortChannel is not set to the specified one. | Assignee: David Z. | Status: Assigned
     """
-    dut_cli.general.reboot_flow(engines.dut, reboot_type='reboot', topology_obj=topology_obj)
+    dut_cli.general.reboot_reload_flow(engines.dut, topology_obj=topology_obj)
 
     logger.info('Lag LACP Test Common cleanup completed')
 
