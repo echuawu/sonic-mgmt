@@ -567,8 +567,11 @@ def config_speed_dependency(topology_obj, cleanup_list):
     :param cleanup_list: list with functions to cleanup
     """
     duthb2 = topology_obj.ports['dut-hb-2']
+    dut_engine = topology_obj.players['dut']['engine']
+    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(dut_engine, [duthb2])
     interfaces_config_dict = {
-        'dut': [{'iface': duthb2, 'speed': '10G', 'original_speed': '1G'}]
+        'dut': [{'iface': duthb2, 'speed': '1G',
+                 'original_speed': dut_original_interfaces_speeds[duthb2]}]
     }
     add_interface_conf(topology_obj, interfaces_config_dict, cleanup_list)
 
