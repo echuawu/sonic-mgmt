@@ -3,8 +3,6 @@ import os
 import logging
 import pytest
 
-from ngts.tools.infra import create_result_dir
-
 logger = logging.getLogger()
 
 
@@ -29,10 +27,7 @@ def duration(request):
 
 
 @pytest.mark.disable_loganalyzer
-def test_store_techsupport_on_not_success(topology_obj, setup_name, session_id_arg, duration):
-    with allure.step("Create folder for the dump if it doesn't exist"):
-        folder_path = create_result_dir(setup_name, session_id_arg, suffix_path_name="")
-
+def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder):
     with allure.step('Generating a sysdump'):
         dut_cli_object = topology_obj.players['dut']['cli']
         dut_engine = topology_obj.players['dut']['engine']
@@ -40,9 +35,9 @@ def test_store_techsupport_on_not_success(topology_obj, setup_name, session_id_a
         logger.info("Dump was created at: {}".format(tar_file))
         tarball_file_name = str(tar_file.replace('/var/dump/', ''))
 
-    with allure.step('Copy dump: {} to log folder {}'.format(tarball_file_name, folder_path)):
-        dest_file = folder_path + '/sysdump_' + tarball_file_name
-        logger.info('Copy dump {} to log folder {}'.format(tar_file, folder_path))
+    with allure.step('Copy dump: {} to log folder {}'.format(tarball_file_name, dumps_folder)):
+        dest_file = dumps_folder + '/sysdump_' + tarball_file_name
+        logger.info('Copy dump {} to log folder {}'.format(tar_file, dumps_folder))
         dut_engine.copy_file(source_file=tar_file,
                              dest_file=dest_file,
                              file_system='/',
