@@ -113,7 +113,7 @@ class RebootReload:
             data_plane_checker = self.start_data_plane_validation(validation_type, allowed_data_loss_time)
 
         self.cli_object.general.reboot_reload_flow(self.dut_engine, r_type=validation_type,
-                                                   topology_obj=self.topology_obj)
+                                                   topology_obj=self.topology_obj, wait_after_ping=0)
 
         try:
             with allure.step('Checking control plane traffic loss'):
@@ -175,7 +175,7 @@ class RebootReload:
             control_plane_checker = self.start_control_plane_validation(validation_type, allowed_control_loss_time)
 
         self.cli_object.general.reboot_reload_flow(self.dut_engine, r_type=validation_type,
-                                                   topology_obj=self.topology_obj)
+                                                   topology_obj=self.topology_obj, wait_after_ping=0)
 
         try:
             with allure.step('Checking control plane traffic loss'):
