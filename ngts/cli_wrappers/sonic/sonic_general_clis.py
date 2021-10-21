@@ -884,6 +884,12 @@ class SonicGeneralCli(GeneralCliCommon):
 
     @staticmethod
     def update_config_db_docker_routing_config_mode(engine, mode='split', remove_docker_routing_config_mode=False):
+        # TODO: --------------------------Start Add debug info for wjh--------------------------
+        logger.info("Get the sonic-package-manager list")
+        SonicAppExtensionCli.show_app_list(engine)
+        logger.info("Get the intalled feature status")
+        SonicGeneralCli.show_feature_status(engine)
+        # TODO: --------------------------Finihsed Add debug info for wjh------------------------
         config_db = SonicGeneralCli.get_config_db(engine)
         config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
 
@@ -895,3 +901,9 @@ class SonicGeneralCli(GeneralCliCommon):
         save_config_db_json(engine, config_db)
         SonicGeneralCli.reload_configuration(engine)
         SonicGeneralCli.verify_dockers_are_up(engine)
+        # TODO: --------------------------Start Add debug info for wjh--------------------------
+        logger.info("Get the sonic-package-manager list")
+        SonicAppExtensionCli.show_app_list(engine)
+        logger.info("Get the intalled feature status")
+        SonicGeneralCli.show_feature_status(engine)
+        # TODO: --------------------------Finihsed Add debug info for wjh------------------------

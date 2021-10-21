@@ -86,7 +86,12 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
     # Check if app_ext supported and get app name, repo, version
     shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = get_app_ext_info(engines.dut)
-
+    # TODO: --------------------------Start Add debug info for wjh--------------------------
+    logger.info("Get the sonic-package-manager list")
+    SonicAppExtensionCli.show_app_list(engines.dut)
+    logger.info("Get the intalled feature status")
+    SonicGeneralCli.show_feature_status(engines.dut)
+    # TODO: --------------------------Finihsed Add debug info for wjh------------------------
     if run_config_only or full_flow_run:
         if upgrade_params.is_upgrade_required:
             with allure.step('Installing base version from ONIE'):
@@ -113,7 +118,12 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if shared_params.app_ext_is_app_ext_supported:
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, app_name, app_repository_name, version)
-
+    # TODO: --------------------------Start Add debug info for wjh--------------------------
+    logger.info("Get the sonic-package-manager list")
+    SonicAppExtensionCli.show_app_list(engines.dut)
+    logger.info("Get the intalled feature status")
+    SonicGeneralCli.show_feature_status(engines.dut)
+    # TODO: --------------------------Finihsed Add debug info for wjh------------------------
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
                                                                                           interfaces.dut_hb_2])
