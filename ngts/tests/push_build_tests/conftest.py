@@ -214,15 +214,16 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     """
     vxlan_config_dict = {
         'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
-                 'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}]
+                 'tunnels': [{'vni': 76543, 'vlan': 69}]  # , {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}
                  }
                 ],
-        'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
-                'vtep_ips': [('100.0.0.2', '24'), ('100::2', '64')]},
-               {'vtep_name': 'vtep_500101', 'vtep_src_ip': '30.0.0.2', 'vni': 500101,
-                'vtep_ips': [('101.0.0.2', '24'), ('101::2', '64')]}],
-        'hb': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '40.0.0.3', 'vni': 500100,
-                'vtep_ips': [('100.0.0.3', '24'), ('100::3', '24')]}]
+        # TODO: Enable VNI 500100 and 500101 configuration once EVPN-VXLAN will be supported
+        # 'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
+        #         'vtep_ips': [('100.0.0.2', '24'), ('100::2', '64')]},
+        #        {'vtep_name': 'vtep_500101', 'vtep_src_ip': '30.0.0.2', 'vni': 500101,
+        #         'vtep_ips': [('101.0.0.2', '24'), ('101::2', '64')]}],
+        # 'hb': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '40.0.0.3', 'vni': 500100,
+        #         'vtep_ips': [('100.0.0.3', '24'), ('100::3', '24')]}]
     }
 
     frr_config_dict = {
