@@ -2,13 +2,29 @@ import logging
 import pytest
 import os
 import re
-import random
 from retry.api import retry_call
 
 from ngts.constants.constants import InterfacesTypeConstants
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
 from ngts.helpers.interface_helpers import get_lb_mutual_speed
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger()
+
+
+@pytest.fixture(scope='module', autouse=True)
+def auto_neg_configuration(topology_obj, setup_name, engines, cli_objects, platform_params):
+    """
+    Pytest fixture which will clean all fec configuration leftover from the dut
+
+    """
+
+    yield
+
+    logger.info('Starting Auto Neg configuration cleanup')
+    SonicGeneralCli.apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name,
+                                       platform_params.platform, platform_params.hwsku)
+
+    logger.info('Auto Neg cleanup completed')
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -26,9 +42,15 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
     update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
 
     split_mode = 1
-    tested_lb_dict[split_mode].append(random.choice(get_dut_loopbacks(topology_obj)))
+    dut_lbs = get_dut_loopbacks(topology_obj)
+    tested_lb_dict[split_mode].append(get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds))
     logger.info("Tests will run on the following ports :\n{}".format(tested_lb_dict))
     return tested_lb_dict
+
+
+def get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds):
+    return max(dut_lbs, key=lambda lb: speed_string_to_int_in_mb(max(get_lb_mutual_speed(lb, 1, split_mode_supported_speeds),
+                                                                     key=speed_string_to_int_in_mb)))
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -123,21 +145,24 @@ def cleanup_list():
     cleanup(cleanup_list)
 
 
-def get_interface_cable_width(type_string):
+def get_interface_cable_width(type_string, expected_speed=None):
     """
     :param type_string: a interface type string 'CR'
+    :param expected_speed: if the expected speed is 400G the width of the cable will be 8,
+                           although the cable type will be CR4 - this is a sonic limitation
     :return: int width  value, i.e, '1'
     more examples,
     'CR' -> 1
     'CR2' -> 2
     'CR4' -> 4
     """
+    width = 1
     match = re.search(r"\w+(\d+)", type_string)
     if match:
-        width = match.group(1)
-        return int(width)
-    else:
-        return 1
+        width = int(match.group(1))
+    if expected_speed == '400G':
+        width = 8
+    return width
 
 
 def speed_string_to_int_in_mb(speed):
@@ -217,6 +242,20 @@ def ignore_auto_neg_expected_loganalyzer_exceptions(loganalyzer):
             loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                "negative_auto_neg_log_analyzer_ignores.txt")))
         loganalyzer.ignore_regex.extend(ignore_regex_list)
+
+
+@pytest.fixture(autouse=False)
+def expected_auto_neg_loganalyzer_exceptions(loganalyzer):
+    """
+    expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if loganalyzer:
+        expected_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "expected_negative_auto_neg_logs.txt")))
+        loganalyzer.expect_regex.extend(expected_regex_list)
 
 
 @pytest.fixture(scope='function')

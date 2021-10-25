@@ -11,3 +11,6 @@ r, ".* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+.*interf
 r, ".* ERR swss#orchagent: :- setPortAutoNeg: Failed to set AutoNeg \d+ to port pid:\d+.*"
 r, ".* ERR swss#orchagent: :- handleSaiSetStatus: Encountered failure in set operation, exiting orchagent.*"
 r, ".* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[.*\] configuration doesn't match mask for \d+ lanes.*"
+r, ".* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_SPEED: \d+.*"
+r, ".* ERR swss#orchagent: :- handleSaiSetStatus: Encountered SAI_STATUS_INVALID_ATTR_VALUE_0 in set operation.*"
+r, ".* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ speed from \d+ to \d+.*"

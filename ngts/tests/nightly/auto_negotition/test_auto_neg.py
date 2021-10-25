@@ -1,6 +1,7 @@
 import logging
 import allure
 import pytest
+from retry.api import retry_call
 from copy import deepcopy
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_width, \
     get_matched_types
@@ -26,6 +27,9 @@ class TestAutoNeg(AutoNegBase):
         self.ports_lanes_dict = ports_lanes_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
+        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
+        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut],
+                                   tries=6, delay=10)
 
     def test_auto_neg_conf(self, cleanup_list, ignore_expected_loganalyzer_reboot_exceptions,
                            skip_if_active_optical_cable):
@@ -88,7 +92,8 @@ class TestAutoNeg(AutoNegBase):
                                          conf, cleanup_list, mode='disabled')
             self.verify_auto_neg_configuration(conf_backup)
 
-    def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable):
+    def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable,
+                                       ignore_auto_neg_expected_loganalyzer_exceptions):
         """
         configuring default/costume auto neg on the dut port connected to host
         while toggling a port connected to the host

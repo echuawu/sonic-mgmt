@@ -39,6 +39,9 @@ class TestAutoNegNegative(AutoNegBase):
         self.ports_lanes_dict = ports_lanes_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
+        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
+        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut],
+                                   tries=6, delay=10)
 
     def test_negative_config_interface_autoneg(self):
         """
@@ -195,11 +198,13 @@ class TestAutoNegNegative(AutoNegBase):
         conf[lb[1]][AutonegCommandConstants.ADV_TYPES] = ",".join(port_2_adv_type)
         return conf
 
-    def test_negative_advertised_speed_type_mismatch(self, ignore_auto_neg_expected_loganalyzer_exceptions,
+    def test_negative_advertised_speed_type_mismatch(self, expected_auto_neg_loganalyzer_exceptions,
+                                                     ignore_auto_neg_expected_loganalyzer_exceptions,
                                                      cleanup_list):
         """
         Verify error in log when configuring mismatch type and speed, like 'CR4' and '10G',
-        Verify port state is down when speed and type doesn't match.
+        Verify port state is up when speed and type doesn't match,
+        and configuration is not applied because of SAI recognize it as invalid configuration.
 
         :param ignore_auto_neg_expected_loganalyzer_exceptions: expand the logger analyzer errors before the test run
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
@@ -211,15 +216,35 @@ class TestAutoNegNegative(AutoNegBase):
         tested_lb_dict = {1: [lb]}
         conf = self.get_mismatch_speed_type_conf(lb, split_mode, tested_lb_dict)
         logger.info("verify auto-negotiation fails in case of mismatch advertised types and speeds")
-        self.verify_auto_neg_failure_scenario(lb, conf, cleanup_list)
+        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, conf.keys(),
+                                     conf, cleanup_list, mode='disabled')
+        self.auto_neg_checker(tested_lb_dict, conf, cleanup_list)
 
     def get_mismatch_speed_type_conf(self, lb, split_mode, tested_lb_dict):
+        """
+        return configuration with mismatch type and speed, like 'CR4' and '10G',
+        and configuration is not applied because of SAI recognize it as invalid configuration.
+        so the expected spped, type and width should be the default values configured
+        :param lb: a tuple of ports, i.e ('Ethernet4', 'Ethernet8')
+        :param split_mode: the port split mode, i.e, 1/2/4
+        :param tested_lb_dict: the tested lb dict, i.e, {1: [lb]}
+        :return: a dictionary with auto neg configuration for the ports
+        """
         conf = self.generate_default_conf(tested_lb_dict)
+        conf_min_speed = conf[lb[0]][AutonegCommandConstants.SPEED]
+        min_speed_matched_type = get_matched_types(self.ports_lanes_dict[lb[0]], [conf_min_speed],
+                                                   types_dict=self.interfaces_types_dict).pop()
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
         lb_mutual_types = get_matched_types(self.ports_lanes_dict[lb[0]], lb_mutual_speeds,
                                             types_dict=self.interfaces_types_dict)
         max_type = max(lb_mutual_types, key=get_interface_cable_width)
+        if min_speed_matched_type == max_type:
+            pytest.skip("This test is not supported")
         conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = \
             convert_speeds_to_mb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
         conf[lb[0]][AutonegCommandConstants.ADV_TYPES] = max_type
+        for port, port_conf_dir in conf.items():
+            conf[port]['expected_speed'] = conf[port][AutonegCommandConstants.SPEED]
+            conf[port]['expected_type'] = conf[port][AutonegCommandConstants.TYPE]
+            conf[port]['expected_width'] = conf[port][AutonegCommandConstants.WIDTH]
         return conf

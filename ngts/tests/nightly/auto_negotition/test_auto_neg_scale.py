@@ -1,5 +1,6 @@
 import pytest
 import logging
+from retry.api import retry_call
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.tests.nightly.auto_negotition.auto_neg_common import AutoNegBase
@@ -57,6 +58,9 @@ class TestAutoNegScale(AutoNegBase):
         self.ports_lanes_dict = ports_lanes_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
+        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
+        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut],
+                                   tries=6, delay=10)
 
     def test_scale(self, cleanup_list):
         """

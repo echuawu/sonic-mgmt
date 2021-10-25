@@ -411,7 +411,6 @@ tests/nightly/auto_negotition:
     - 202012
   - Platform:
     - simx
-    - 4700
     - 3800
 
 tests/nightly/auto_negotition/test_auto_neg.py:
@@ -424,10 +423,6 @@ tests/nightly/auto_negotition/test_auto_neg.py:
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
     - 2686798
-
-tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
-  - Redmine:
-    - 2813773
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
   - GitHub:

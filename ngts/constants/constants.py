@@ -193,12 +193,12 @@ class InterfacesTypeConstants:
         PlatformTypesConstants.FILTERED_PLATFORM_OCELOT: {
             SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
             SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
-            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G']}
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G', '400G']}
         },
         PlatformTypesConstants.FILTERED_PLATFORM_LEOPARD: {
             SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
             SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
-            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G']}
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G', '400G']}
         },
         PlatformTypesConstants.FILTERED_PLATFORM_LIGER: {
             SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},

@@ -71,9 +71,36 @@ class AutoNegBase:
                         conf[port] = self.build_custom_conf(speed, adv_speeds, cable_type, adv_types, width)
                     expected_speed, expected_type, expected_width = self.get_custom_expected_conf_res(lb[0],
                                                                                                       all_adv_speeds)
+
+                    self.update_port_adv_type(conf, port, expected_speed, expected_type)
                     conf = self.update_custom_expected_conf(conf, lb, expected_speed, expected_type, expected_width)
             logger.debug("Generated subset configuration is: {}".format(conf))
             return conf
+
+    def get_all_supported_types(self):
+        """
+        This function is used to get all the interface types supported on the dut
+        :return: a list of all the interface types supported, i.e, ['CR','CR2','CR4']
+        """
+        all_types = []
+        for supported_type_dict in self.interfaces_types_dict.values():
+            all_types += list(supported_type_dict.keys())
+        return all_types
+
+    def get_expected_adv_types(self, adv_types):
+        """
+        when an interface is configured to advertise all the interface types supported on the dut,
+        on the show commands instead of the actual configuration, i.e.
+        'CR,CR2,CR4' in case of configuration 'sudo config interface advertised-types <interface> CR,CR2,CR4'
+        interface Adv Types on show will be 'all'
+        :param adv_types: the interface types configured on the interface
+        :return: 'all' if adv_types in case adv_types is all the interface types supported on the dut,
+        otherwise, return adv_types
+        """
+        all_types = self.get_all_supported_types()
+        if set(all_types) == set(adv_types):
+            return "all"
+        return self.get_types_in_string_format(adv_types)
 
     def get_custom_expected_conf_res(self, port, all_adv_speeds):
         expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int_in_mb)
@@ -82,6 +109,27 @@ class AutoNegBase:
         expected_type = max(matched_types, key=get_interface_cable_width)
         expected_width = get_interface_cable_width(expected_type)
         return expected_speed, expected_type, expected_width
+
+    def update_port_adv_type(self, conf, port, expected_speed, expected_type):
+        """
+        this function is used to accurately predict width on ports.
+        it is possible that a port can support 100G with 4 lanes and with 2 lanes.
+        if both CR2 and CR4 are enabled on port, width can be either 2 or 4.
+        to avoid such ambiguity, we remove from advertised type that support speed
+        expected speed.
+        :param conf: dictionary with all the ports auto neg configuration
+        :param port: i.e, Ethernet0
+        :param expected_speed: i.e, 100G
+        :param expected_type: i.e, CR2
+        :return: none
+        """
+        matched_types = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
+                                          types_dict=self.interfaces_types_dict)
+        port_conf_adv_types = set(conf[port][AutonegCommandConstants.ADV_TYPES].split(','))
+        matched_types.remove(expected_type)
+        if matched_types:
+            port_conf_adv_types = port_conf_adv_types.difference(matched_types)
+        conf[port][AutonegCommandConstants.ADV_TYPES] = self.get_expected_adv_types(port_conf_adv_types)
 
     def build_custom_conf(self, speed, adv_speeds, cable_type, adv_types, width):
         port_custom_conf = {
@@ -107,18 +155,17 @@ class AutoNegBase:
         matched_types = get_matched_types(self.ports_lanes_dict[lb[0]], [expected_speed],
                                           types_dict=self.interfaces_types_dict)
         expected_interface_type = max(matched_types, key=get_interface_cable_width)
-        expected_width = get_interface_cable_width(expected_interface_type)
+        expected_width = get_interface_cable_width(expected_interface_type, expected_speed)
         return expected_speed, expected_interface_type, expected_width
 
-    @staticmethod
-    def build_default_conf(min_speed, min_type, width, expected_speed, expected_type, expected_width):
+    def build_default_conf(self, min_speed, min_type, width, expected_speed, expected_type, expected_width):
         port_default_conf = {
             AutonegCommandConstants.AUTONEG_MODE: 'disabled',
             AutonegCommandConstants.SPEED: min_speed,
             AutonegCommandConstants.ADV_SPEED: 'all',
             AutonegCommandConstants.TYPE: min_type,
             AutonegCommandConstants.WIDTH: width,
-            AutonegCommandConstants.ADV_TYPES: 'all',
+            AutonegCommandConstants.ADV_TYPES: self.get_types_in_string_format(self.get_all_supported_types()),
             AutonegCommandConstants.OPER: "up",
             AutonegCommandConstants.ADMIN: "up",
             'expected_speed': expected_speed,
@@ -165,9 +212,6 @@ class AutoNegBase:
         """
         with allure.step('Verify speed, advertised speed, type, advertised type, state and width on ports: {}'
                          .format(list(conf.keys()))):
-            ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
-            pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf,
-                                  fargs=[self.engines.dut], tries=6, delay=10)
             for port, port_conf_dict in conf.items():
                 retry_call(self.verify_autoneg_status_cmd_output_for_port, fargs=[self.engines.dut,
                                                                                   self.cli_objects.dut,
@@ -177,7 +221,7 @@ class AutoNegBase:
                 retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[self.engines.dut,
                                                                                   self.cli_objects.dut,
                                                                                   port, port_conf_dict,
-                                                                                  ports_aliases_dict, pci_conf],
+                                                                                  self.ports_aliases_dict, self.pci_conf],
                            tries=12, delay=10, logger=logger)
 
     def verify_autoneg_status_cmd_output_for_port(self, dut_engine, cli_object, port, port_conf_dict,
@@ -235,8 +279,8 @@ class AutoNegBase:
         base_speed = base_interfaces_speeds[port]
         matched_types = get_matched_types(self.ports_lanes_dict[port], [base_speed], self.interfaces_types_dict)
         base_type = max(matched_types, key=get_interface_cable_width)
-        cleanup_list.append((cli_object.interface.set_interface_speed, (engine, port, base_speed)))
         cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, base_type)))
+        cleanup_list.append((cli_object.interface.set_interface_speed, (engine, port, base_speed)))
         cleanup_list.append((cli_object.interface.config_advertised_speeds, (engine, port, 'all')))
         cleanup_list.append((cli_object.interface.config_advertised_interface_types, (engine, port, 'all')))
 
