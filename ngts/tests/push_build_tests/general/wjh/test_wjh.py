@@ -17,14 +17,16 @@ logger = logging.getLogger()
 
 table_parser_info = {
     'raw': {'headers_ofset': 0,
+            'header_len': 2,
             'len_ofset': 2,
             'data_ofset_from_start': 3,
             'column_ofset': 1,
             'output_key': '#'
             },
-    'agg': {'headers_ofset': 3,
-            'len_ofset': 4,
-            'data_ofset_from_start': 5,
+    'agg': {'headers_ofset': 2,
+            'header_len': 1,
+            'len_ofset': 3,
+            'data_ofset_from_start': 4,
             'column_ofset': 1,
             'output_key': '#'
             }
@@ -96,7 +98,8 @@ def get_parsed_table(dut, cmd, table_type):
                                         len_ofset=parser['len_ofset'],
                                         data_ofset_from_start=parser['data_ofset_from_start'],
                                         column_ofset=parser['column_ofset'],
-                                        output_key=parser['output_key'])
+                                        output_key=parser['output_key'],
+                                        header_line_number=parser['header_len'])
     return table
 
 
