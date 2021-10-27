@@ -24,6 +24,7 @@ import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
+from ngts.scripts.install_app_extension.install_app_extesions import test_install_all_supported_app_extensions
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -65,7 +66,8 @@ def get_app_ext_info(engine):
 
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
-                            run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params):
+                            run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params,
+                            app_extension_dict_path):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -78,6 +80,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     :param run_cleanup_only: test run mode run_cleanup_only
     :param p4_sampling_table_params: p4_sampling_table_params fixture
     :param shared_params: fixture which provide dictionary which can be shared between tests
+    :param app_extension_dict_path: app_extension_dict_path
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
@@ -280,6 +283,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                     if upgrade_params.wjh_deb_url:
                         dut_engine = topology_obj.players['dut']['engine']
                         SonicGeneralCli.install_wjh(dut_engine, upgrade_params.wjh_deb_url)
+                    else:
+                        test_install_all_supported_app_extensions(topology_obj, app_extension_dict_path)
 
     if run_test_only or full_flow_run:
         yield

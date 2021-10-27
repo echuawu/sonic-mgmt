@@ -68,9 +68,9 @@ def compare_dut_configs(base_config, target_config, base_ver, target_ver, allowe
     target_branch = None
 
     for base in allowed_diff_keys.keys():
-        if '{}.'.format(base) in base_ver:
+        if '{}'.format(base) in base_ver:
             for target in allowed_diff_keys[base].keys():
-                if '{}.'.format(target) in target_ver:
+                if '{}'.format(target) in target_ver:
                     base_branch = base
                     target_branch = target
                     break

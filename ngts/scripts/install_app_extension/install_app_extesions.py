@@ -9,6 +9,7 @@ from ngts.constants.constants import AppExtensionInstallationConstants, P4Sampli
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed, \
     retry_verify_app_container_up
 from ngts.scripts.install_app_extension.app_extension_info import AppExtensionInfo
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -24,6 +25,7 @@ def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_p
     if SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
         app_ext_installer = AppExtensionInstaller(dut_engine, app_extension_dict_path)
         app_ext_installer.install_supported_app_extensions()
+        SonicGeneralCli.save_configuration(dut_engine)
     else:
         pytest.skip('The image does not support app extension')
 
