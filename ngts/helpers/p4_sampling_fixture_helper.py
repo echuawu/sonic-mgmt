@@ -143,15 +143,7 @@ def add_p4_sampling_entries(engines, table_params):
     :param table_params: table_params fixture object
     """
     SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
-    with allure.step('Verify entries count in table {} and {} after install the {}'.format(PORT_TABLE_NAME,
-                                                                                           FLOW_TABLE_NAME,
-                                                                                           APP_NAME)):
-        port_table_entries_pre = P4SamplingCli.show_and_parse_table_entries(
-            engines.dut, PORT_TABLE_NAME)
-        flow_table_entries_pre = P4SamplingCli.show_and_parse_table_entries(
-            engines.dut, FLOW_TABLE_NAME)
-        assert len(port_table_entries_pre) == 0
-        assert len(flow_table_entries_pre) == 0
+
     port_entry = table_params.port_entry
     with allure.step('Add {} entries for {}'.format(len(port_entry.keys()), PORT_TABLE_NAME)):
         for key in port_entry.keys():

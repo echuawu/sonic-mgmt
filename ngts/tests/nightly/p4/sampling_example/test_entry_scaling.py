@@ -73,25 +73,22 @@ class TestEntryScaling:
         with allure.step("Add {} entries for port table and {} entries for flow table with cli command and "
                          "check execution time".format(count, count)):
             self.add_multiple_entries(engines.dut, port_params, flow_params)
-        # TODO: remove slep after the bug is fixed
-        # 2684913: [Functional] [p4-sampling] | install the p4-sampling, then add entries, then send traffic with script, *IMMEDIATELY WITHOUT ANY DELAY* the traffic can not be mirrored
-        time.sleep(10)
+        try:
+            with allure.step("Verify cpu and ram usage after the entries added"):
+                self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
 
-        with allure.step("Verify cpu and ram usage after the entries added"):
-            self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
+            with allure.step("Check entries are added correctly and traffic can be mirrored correctly"):
+                self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
-        with allure.step("Check entries are added correctly and traffic can be mirrored correctly"):
-            self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
-
-        with allure.step("Save configuration before reboot"):
-            SonicGeneralCli.save_configuration(engines.dut)
-        with allure.step("Do cold reboot and verify the execution time"):
-            self.do_cold_reboot(engines.dut, topology_obj)
-        with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
-            self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
-
-        with allure.step("Remove all entries and verify the execution time"):
-            self.remove_all_entries(engines.dut, port_params, flow_params)
+            with allure.step("Save configuration before reboot"):
+                SonicGeneralCli.save_configuration(engines.dut)
+            with allure.step("Do cold reboot and verify the execution time"):
+                self.do_cold_reboot(engines.dut, topology_obj)
+            with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
+                self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
+        finally:
+            with allure.step("Remove all entries and verify the execution time"):
+                self.remove_all_entries(engines.dut, port_params, flow_params)
         with allure.step("Check entries are removed "):
             P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
             P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
