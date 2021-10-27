@@ -119,7 +119,7 @@ def check_for_daemon_error(stderr_lines):
             Please check if SDK version in WJH and Syncd containers is the same.".format(err))
 
 
-def get_raw_table_output(duthost, command="show what-just-happened"):
+def get_raw_tables_output(duthost, command="show what-just-happened"):
     stdout = duthost.command(command)
     check_for_daemon_error(stdout['stderr_lines'])
     if stdout['rc'] != SUCCESS_CODE:
@@ -128,7 +128,7 @@ def get_raw_table_output(duthost, command="show what-just-happened"):
     return table_output
 
 
-def get_agg_table_output(duthost, command="show what-just-happened poll --aggregate"):
+def get_agg_tables_output(duthost, command="show what-just-happened poll --aggregate"):
     stdout = duthost.command(command)
     check_for_daemon_error(stdout['stderr_lines'])
     if stdout['rc'] != SUCCESS_CODE:
@@ -196,25 +196,25 @@ def verify_drop_on_wjh_rule_table(pkt_entry, rules_table, drop_information):
 
 
 def verify_drop_on_wjh_raw_table(duthost, pkt, discard_group, drop_information=None):
-    table = get_raw_table_output(duthost, command="show what-just-happened poll {}".format(discard_group.lower()))
-    entries = check_if_entry_exists(table[0], pkt)
+    tables = get_raw_tables_output(duthost, command="show what-just-happened poll {}".format(discard_group.lower()))
+    entries = check_if_entry_exists(tables[0], pkt)
 
     for entry in entries:
         if discard_group == entry['Drop Group']:
             if discard_group == 'ACL':
-                return verify_drop_on_wjh_rule_table(entry, table[1], drop_information)
+                return verify_drop_on_wjh_rule_table(entry, tables[1], drop_information)
             return True
     return False
 
 
 def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets, discard_group, drop_information=None):
-    table = get_agg_table_output(duthost, command="show what-just-happened poll {} --aggregate".format(discard_group.lower()))
-    entries = check_if_entry_exists(table[0], pkt)
+    tables = get_agg_tables_output(duthost, command="show what-just-happened poll {} --aggregate".format(discard_group.lower()))
+    entries = check_if_entry_exists(tables[0], pkt)
 
     for entry in entries:
         if int(entry['Count']) == num_packets:
             if discard_group == 'ACL':
-                return verify_drop_on_wjh_rule_table(entry, table[1], drop_information)
+                return verify_drop_on_wjh_rule_table(entry, tables[1], drop_information)
             return True
     return False
 
@@ -480,7 +480,7 @@ def test_l1_raw_drop(duthost):
     duthost.command("config interface shutdown {}".format(port))
 
     try:
-        table = get_raw_table_output(duthost, "show what-just-happened poll layer-1")
+        table = get_raw_tables_output(duthost, "show what-just-happened poll layer-1")[0]
         if not verify_l1_raw_drop_exists(table, port):
             pytest.fail("Could not find L1 drop on WJH table.")
     finally:
@@ -511,7 +511,7 @@ def test_l1_agg_port_up(duthost):
     try:
         if not wait_until(80, 5, check_if_port_is_active, duthost, port):
             pytest.fail("Could not start up {} port.\nAborting.".format(port))
-        table = get_agg_table_output(duthost, command="show what-just-happened poll layer-1 --aggregate")
+        table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
         entry = verify_l1_agg_drop_exists(table, port, 'Up')
         if entry['Down Reason - Recommended Action'] != 'N/A':
             pytest.fail("Could not find L1 drop on WJH aggregated table.")
@@ -525,7 +525,7 @@ def test_l1_agg_port_down(duthost):
 
     duthost.command("config interface shutdown {}".format(port))
     try:
-        table = get_agg_table_output(duthost, command="show what-just-happened poll layer-1 --aggregate")
+        table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
         entry = verify_l1_agg_drop_exists(table, port, 'Down')
         if entry['Down Reason - Recommended Action'] != 'Port admin down - Validate port configuration':
             pytest.fail("Could not find L1 drop on WJH aggregated table.")
@@ -543,7 +543,7 @@ def test_l1_agg_fanout_port_down(duthost, fanouthosts):
     fanout.shutdown(fanout_port)
     wait(15, 'Wait for fanout port to shutdown')
     try:
-        table = get_agg_table_output(duthost, command="show what-just-happened poll layer-1 --aggregate")
+        table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
         entry = verify_l1_agg_drop_exists(table, port, 'Down')
         # TODO: need to uncomment the down reason check after SDK bug #2373739 will be fixed.
         # if entry['Down Reason - Recommended Action'] != 'Auto-negotiation failure - Set port speed manually, disable auto-negotiation':
