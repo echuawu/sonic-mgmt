@@ -84,19 +84,25 @@ class AppExtensionInstaller():
             with allure.step(log_build_supports_app_ext):
                 logger.info(log_build_supports_app_ext)
                 for app_ext_obj in self.get_supported_app_ext_objects():
-                    self.install_application(app_ext_obj)
+                    if self.is_applicattion_installed(app_ext_obj):
+                        logger.info(
+                            'Skipping installation for {} since it is already installed'.format(app_ext_obj.app_name))
+                    else:
+                        self.install_application(app_ext_obj)
         except Exception as err:
             raise err
         finally:
             SonicBgpCli.startup_bgp_all(self.dut_engine)
 
     def install_application(self, app_ext_obj):
-        self.remove_app_extension(app_ext_obj)
         self.add_app_ext_repo(app_ext_obj)
         self.install_app_ext(app_ext_obj)
         self.enable_app_ext(app_ext_obj)
         self.check_app_extension_status(app_ext_obj)
         self.check_app_ext_sdk_version(app_ext_obj)
+
+    def is_applicattion_installed(self, app_ext_obj):
+        return app_ext_obj.app_name in SonicAppExtensionCli.show_app_list(self.dut_engine)
 
     def check_app_ext_sdk_version(self, app_ext_obj):
         if not app_ext_obj.is_sx_sdk_version_present():
@@ -155,27 +161,6 @@ class AppExtensionInstaller():
     def get_sdk_version(self, docker_name):
         return self.dut_engine.run_cmd(AppExtensionInstallationConstants.CMD_GET_SDK_VERSION.format(docker_name),
                                        validate=True)
-
-    def remove_app_extension(self, app_ext_obj):
-        log_is_app_ext_installed = 'Checking if {} app ext already installed'.format(app_ext_obj.app_name)
-        with allure.step(log_is_app_ext_installed):
-            logger.info(log_is_app_ext_installed)
-            if app_ext_obj.app_name in SonicAppExtensionCli.show_app_list(self.dut_engine):
-                self.uninstall_app_ext(app_ext_obj)
-                self.remove_repository_app_ext(app_ext_obj)
-
-    def uninstall_app_ext(self, app_ext_obj):
-        log_uninstall_app_ext = 'Uninstalling app extension {} on the dut'.format(app_ext_obj.app_name)
-        with allure.step(log_uninstall_app_ext):
-            logger.info(log_uninstall_app_ext)
-            self.disable_app_ext(app_ext_obj)
-            SonicAppExtensionCli.uninstall_app(self.dut_engine, app_ext_obj.app_name)
-
-    def remove_repository_app_ext(self, app_ext_obj):
-        log_remove_repository_app_ext = 'Remove repository app extension {} on the dut'.format(app_ext_obj.app_name)
-        with allure.step(log_remove_repository_app_ext):
-            logger.info(log_remove_repository_app_ext)
-            SonicAppExtensionCli.remove_repository(self.dut_engine, app_ext_obj.app_name)
 
 
 class AppExtensionError(Exception):
