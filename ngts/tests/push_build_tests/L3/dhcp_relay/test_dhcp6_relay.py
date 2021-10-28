@@ -1,6 +1,8 @@
 import allure
 import logging
 import pytest
+import time
+import os
 
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
 from ngts.cli_wrappers.linux.linux_ip_clis import LinuxIpCli
@@ -185,8 +187,9 @@ class TestDHCP6Relay:
             vlans_parsed_data = show_vlan_brief_parser(vlans_output)
             assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_main_vlan]['dhcp_servers'], \
                 'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_main_vlan)
-            assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_second_vlan]['dhcp_servers'], \
-                'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_second_vlan)
+            # TODO: uncomment code below once https://redmine.mellanox.com/issues/2821847 will be fixed
+            # assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_second_vlan]['dhcp_servers'], \
+            #     'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_second_vlan)
 
         try:
             with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
@@ -198,14 +201,15 @@ class TestDHCP6Relay:
                                            dhclient_iface=self.dhclient_main_iface,
                                            expected_ip=self.expected_main_vlan_ip)
 
-            with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
-                    self.dhclient_second_iface)):
-                logger.info('Getting IPv6 address from second DHCP client VLAN iface: {}'.format(
-                    self.dhclient_main_iface))
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_second_iface),
-                                           dhclient_iface=self.dhclient_second_iface,
-                                           expected_ip=self.expected_second_vlan_ip)
+            # TODO: uncomment code below once https://redmine.mellanox.com/issues/2821847 will be fixed
+            # with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
+            #         self.dhclient_second_iface)):
+            #     logger.info('Getting IPv6 address from second DHCP client VLAN iface: {}'.format(
+            #         self.dhclient_main_iface))
+            #     verify_dhcp6_client_output(engine=self.engines.ha,
+            #                                dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_second_iface),
+            #                                dhclient_iface=self.dhclient_second_iface,
+            #                                expected_ip=self.expected_second_vlan_ip)
         except BaseException as err:
             raise AssertionError(err)
         finally:
@@ -224,6 +228,7 @@ class TestDHCP6Relay:
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv4'.format(self.dhclient_main_vlan)):
                 SonicDhcpRelayCli.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '69.0.0.2')
                 SonicDhcpRelayCli.add_dhcp_relay(cleanup_engine, self.dhclient_main_vlan, '69.0.0.2')
+                time.sleep(10)  # need to sleep 10 sec due to DHCP docker restart which took ~5 sec
 
             with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
                     self.dhclient_main_iface)):
@@ -245,17 +250,18 @@ class TestDHCP6Relay:
                                            dhclient_iface=self.dhclient_main_iface,
                                            expected_ip=None)
 
-            with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_second_vlan)):
-                SonicDhcpRelayCli.del_dhcp_relay(self.engines.dut, self.dhclient_second_vlan, '6900::2')
-                SonicDhcpRelayCli.add_dhcp_relay(cleanup_engine, self.dhclient_second_vlan, '6900::2')
-
-            with allure.step('Trying to GET IPv6 address from DHCP server when DHCP relay settings removed, '
-                             'iface: {}'.format(self.dhclient_second_iface)):
-                logger.info('Trying to get IPv6 address - when IPv6 relay settings removed - second dhcp client vlan')
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_second_iface),
-                                           dhclient_iface=self.dhclient_second_iface,
-                                           expected_ip=None)
+            # TODO: uncomment code below once https://redmine.mellanox.com/issues/2821847 will be fixed
+            # with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_second_vlan)):
+            #     SonicDhcpRelayCli.del_dhcp_relay(self.engines.dut, self.dhclient_second_vlan, '6900::2')
+            #     SonicDhcpRelayCli.add_dhcp_relay(cleanup_engine, self.dhclient_second_vlan, '6900::2')
+            #
+            # with allure.step('Trying to GET IPv6 address from DHCP server when DHCP relay settings removed, '
+            #                  'iface: {}'.format(self.dhclient_second_iface)):
+            #     logger.info('Trying to get IPv6 address - when IPv6 relay settings removed - second dhcp client vlan')
+            #     verify_dhcp6_client_output(engine=self.engines.ha,
+            #                                dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_second_iface),
+            #                                dhclient_iface=self.dhclient_second_iface,
+            #                                expected_ip=None)
 
         except BaseException as err:
             raise AssertionError(err)
@@ -457,11 +463,25 @@ class TestDHCP6Relay:
 
     @pytest.mark.dhcp6_relay
     @pytest.mark.build
-    def test_dhcpv6_relay_client_request_with_malformed_payload(self):
+    def test_dhcpv6_relay_client_request_with_malformed_payload(self, loganalyzer):
         """
-        Test checks that message with malformed payload correctly forwarded by DHCP6 relay to DHCP6 server
+        Test checks that message with malformed payload not forwarded by DHCP6 relay to DHCP6 server
+        :param loganalyzer: lognalyzer fixture
         :return: raise exception in case of failure
         """
+        if loganalyzer:
+            ignore_regex_list = \
+                loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                   '..', '..', '..', '..',
+                                                                   'tools', 'loganalyzer',
+                                                                   'reboot_loganalyzer_ignore.txt')))
+            loganalyzer.ignore_regex.extend(ignore_regex_list)
+            ignoreRegex = [
+                r'.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.',
+                r'.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\smessage\srepeated\s\d+\stimes:\s\[\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
+            ]
+            loganalyzer.ignore_regex.extend(ignoreRegex)
+
         dhcp_request_pkt_raw_payload = self.base_packet.format(dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
                                                                src_ip=self.dhclient_main_iface_linklocal_ipv6,
                                                                dst_ip=LinuxDhcpCli.dhcpv6_reserved_dst_ip,
@@ -471,8 +491,8 @@ class TestDHCP6Relay:
             'Raw("test string here")'
 
         try:
-            with allure.step('Validating that DHCPv6 request message with malformed payload encapsulated '
-                             'in relay-forward packet and forwarded to DHCP6 server'):
+            with allure.step('Validating that DHCPv6 request message with malformed payload not encapsulated '
+                             'in relay-forward packet and not forwarded to DHCP6 server'):
 
                 validation = {'sender': 'ha', 'send_args': {'interface': self.dhclient_main_iface,
                                                             'packets': dhcp_request_pkt_raw_payload,
@@ -481,7 +501,7 @@ class TestDHCP6Relay:
                                   [
                                       {'receiver': 'hb', 'receive_args': {'interface': self.dhcp_server_iface,
                                                                           'filter': self.tcpdump_relay_forward_message_filter,
-                                                                          'count': 3}}
+                                                                          'count': 0}}
                 ]
                 }
                 logger.info('Sending DHCP request message from client with malformed payload')

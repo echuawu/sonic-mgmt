@@ -490,7 +490,9 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
   - Branch:
     - 202012
   - Redmine:
-    - 2821847
+    - 2838163
+    Branch:
+      - master
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
