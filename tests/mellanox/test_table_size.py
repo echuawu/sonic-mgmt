@@ -35,7 +35,7 @@ def reboot_dut(dut, localhost):
     localhost.wait_for(host=dut.hostname, port=22, state="started", delay=10, timeout=300)
 
     logging.info("Wait until system is stable")
-    wait_until(300, 30, dut.critical_services_fully_started)
+    wait_until(300, 30, 0, dut.critical_services_fully_started)
 
     logging.info("Wait some extra time")
     time.sleep(120)
