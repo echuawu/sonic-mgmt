@@ -1394,8 +1394,10 @@ class ReloadTest(BaseTest):
         self.ptf_sniffer = "/root/ptftests/advanced_reboot_sniffer.py"
         sniffer_command = ["python", self.ptf_sniffer, "-f", "'{}'".format(sniff_filter), "-p",\
         capture_pcap, "-l", capture_log, "-t" , str(wait)]
-        subprocess.call(["rm", "-rf", capture_pcap]) # remove old capture
-        subprocess.call(sniffer_command)
+        p = subprocess.Popen(["rm", "-rf", capture_pcap]) # remove old capture
+        p.wait()
+        p = subprocess.Popen(sniffer_command)
+        p.wait()
         self.packets = scapyall.rdpcap(capture_pcap)
         self.log("Number of all packets captured: {}".format(len(self.packets)))
 
