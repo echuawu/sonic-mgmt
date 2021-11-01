@@ -174,7 +174,7 @@ class OnieComponent(FwComponent):
         localhost.wait_for(host=hostname, port=22, state='started', delay=10, timeout=300)
 
         logger.info("Wait until system is stable")
-        wait_until(300, 30, duthost.critical_services_fully_started)
+        wait_until(300, 30, 0, duthost.critical_services_fully_started)
 
         logger.info("Wait until system init is done")
         time.sleep(30)
@@ -380,7 +380,7 @@ class SsdComponent(FwComponent):
         localhost.wait_for(host=hostname, port=22, state='started', delay=10, timeout=300)
 
         logger.info("Wait until system is stable")
-        wait_until(300, 30, duthost.critical_services_fully_started)
+        wait_until(300, 30, 0, duthost.critical_services_fully_started)
 
         logger.info("Wait until system init is done")
         time.sleep(30)
@@ -517,7 +517,7 @@ class BiosComponent(FwComponent):
         localhost.wait_for(host=hostname, port=22, state='started', delay=10, timeout=300)
 
         logger.info("Wait until system is stable")
-        wait_until(300, 30, duthost.critical_services_fully_started)
+        wait_until(300, 30, 0, duthost.critical_services_fully_started)
 
         logger.info("Wait until system init is done")
         time.sleep(30)
@@ -739,7 +739,7 @@ class CpldComponent(FwComponent):
         localhost.wait_for(host=hostname, port=22, state='started', delay=10, timeout=300)
 
         logger.info("Wait until system is stable")
-        wait_until(300, 30, duthost.critical_services_fully_started)
+        wait_until(300, 30, 0, duthost.critical_services_fully_started)
 
         logger.info("Wait until system init is done")
         time.sleep(30)
@@ -769,7 +769,7 @@ class CpldComponent(FwComponent):
         localhost.wait_for(host=hostname, port=22, state='started', delay=10, timeout=300)
 
         logger.info("Wait until system is stable")
-        wait_until(300, 30, duthost.critical_services_fully_started)
+        wait_until(300, 30, 0, duthost.critical_services_fully_started)
 
         logger.info("Wait until system init is done")
         time.sleep(30)
@@ -915,7 +915,7 @@ def reboot_to_image(request, image_version):
     localhost.wait_for(host=hostname, port=22, state='started', delay=10, timeout=300)
 
     logger.info("Wait until system is stable")
-    wait_until(300, 30, duthost.critical_services_fully_started)
+    wait_until(300, 30, 0, duthost.critical_services_fully_started)
 
     logger.info("Wait until system init is done")
     time.sleep(30)
