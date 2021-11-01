@@ -236,7 +236,7 @@ def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
     if comparable_pkt:
         pkt = comparable_pkt
     if not verify_drop_on_wjh_raw_table(duthost, pkt, discard_group, drop_information):
-        pytest.fail("Could not find drop on WJH table. packet: {}".format(pkt))
+        pytest.fail("Could not find drop on WJH table. packet: {}".format(pkt.command()))
 
 
 def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
@@ -256,7 +256,7 @@ def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
     if comparable_pkt:
         pkt = comparable_pkt
     if not verify_drop_on_agg_wjh_table(duthost, pkt, num_packets, discard_group, drop_information):
-        pytest.fail("Could not find drop on aggregation WJH table. packet: {}".format(pkt))
+        pytest.fail("Could not find drop on aggregation WJH table. packet: {}".format(pkt.command()))
 
 
 @pytest.fixture(scope='module')
