@@ -196,7 +196,10 @@ def verify_drop_on_wjh_rule_table(pkt_entry, rules_table, drop_information):
 
 
 def verify_drop_on_wjh_raw_table(duthost, pkt, discard_group, drop_information=None):
-    tables = get_raw_tables_output(duthost, command="show what-just-happened poll {}".format(discard_group.lower()))
+    if discard_group in ["ACL"]:
+        tables = get_raw_tables_output(duthost, command="show what-just-happened poll {}".format(discard_group.lower()))
+    else:
+        tables = get_raw_tables_output(duthost)
     entries = check_if_entry_exists(tables[0], pkt)
 
     for entry in entries:
@@ -208,7 +211,11 @@ def verify_drop_on_wjh_raw_table(duthost, pkt, discard_group, drop_information=N
 
 
 def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets, discard_group, drop_information=None):
-    tables = get_agg_tables_output(duthost, command="show what-just-happened poll {} --aggregate".format(discard_group.lower()))
+    if discard_group in ["ACL"]:
+        tables = get_agg_tables_output(duthost, command="show what-just-happened poll {} --aggregate".format(
+            discard_group.lower()))
+    else:
+        tables = get_agg_tables_output(duthost)
     entries = check_if_entry_exists(tables[0], pkt)
 
     for entry in entries:
