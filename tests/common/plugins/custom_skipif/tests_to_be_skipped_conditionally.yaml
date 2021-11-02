@@ -49,14 +49,6 @@ platform_tests/test_cpu_memory_usage.py:
   - Redmine:
     - 2769629
 
-platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/3886
-
-platform_tests/api/test_sfp.py:
-  - GitHub:
-      - https://github.com/Azure/sonic-mgmt/issues/3886
-
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
   - Platform:
     - x86_64-mlnx_msn
