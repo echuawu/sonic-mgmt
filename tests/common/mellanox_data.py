@@ -5,10 +5,6 @@ SPC2_HWSKUS = ["ACS-MSN3700", "ACS-MSN3700C", "ACS-MSN3800", "Mellanox-SN3800-D1
 SPC3_HWSKUS = ["ACS-MSN4700", "ACS-MSN4600C", "ACS-MSN4410", "ACS-MSN4600"]
 SWITCH_HWSKUS = SPC1_HWSKUS + SPC2_HWSKUS + SPC3_HWSKUS
 
-PSU_CAPABILITIES = [
-    ['psu{}_curr', 'psu{}_curr_in', 'psu{}_power', 'psu{}_power_in', 'psu{}_volt', 'psu{}_volt_in', 'psu{}_volt_out'],
-    ['psu{}_curr', 'psu{}_curr_in', 'psu{}_power', 'psu{}_power_in', 'psu{}_volt', 'psu{}_volt_out2']
-]
 SWITCH_MODELS = {
     "x86_64-mlnx_msn2201-r0": {
         "chip_type": "spectrum1",
@@ -74,8 +70,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[0]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -126,8 +121,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[0]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 0
@@ -175,8 +169,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[0]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -315,8 +308,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -374,8 +366,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -429,8 +420,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -484,8 +474,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -539,8 +528,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -594,8 +582,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -649,8 +636,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
@@ -704,8 +690,7 @@ SWITCH_MODELS = {
         },
         "psus": {
             "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
+            "hot_swappable": True
         },
         "cpu_pack": {
             "number": 1
