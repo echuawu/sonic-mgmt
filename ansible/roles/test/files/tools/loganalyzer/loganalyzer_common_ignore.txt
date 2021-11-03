@@ -54,3 +54,5 @@ r, ".* WARNING syncd#SDK:.*Not implemented object type SAI_OBJECT_TYPE_INSEG_ENT
 r, ".* ERR swss#orchagent:.*Failed to get availability for object_type.*"
 r, ".* ERR dhcp_relay#dhcrelay\[\d+\]: send_packet6: Network is unreachable.*"
 r, ".* ERR dhcp_relay#dhcrelay\[\d+\]: message repeated \d+ times: \[ send_packet6: Network is unreachable\].*"
+r, ".* ERR swss#orchagent: :- removeLag: Failed to remove LAG PortChannel.* it is still in VLAN"
+r, ".* ERR kernel:.*PortChannel.*: Device Ethernet.* is up. Set it down before adding it as a team port"
