@@ -28,8 +28,7 @@ def main():
     sonic_release = None
     sonic_qos_db_fv_reference_with_table = false
     try:
-        # TODO: this is  WA, need to revert after https://github.com/Azure/sonic-buildimage/pull/6356 is merged to 202106
-        process = subprocess.Popen(['sonic-cfggen', '-y', '/etc/sonic/sonic_version.yml', '-v', 'build_version'],
+        process = subprocess.Popen(['sonic-cfggen', '-y', '/etc/sonic/sonic_version.yml', '-v', 'release'],
                 stdout=subprocess.PIPE, stdin=subprocess.PIPE)
         self.stdout, stderr = process.communicate()
         ret_code = process.returncode
