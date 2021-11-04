@@ -1,21 +1,15 @@
 import argparse
 import logging
-import signal
 
 import scapy.all as scapyall
 
 
 class Sniffer(object):
-    def __init__(self, filter=None, timeout=60, pcap='/tmp/capture.pcap'):
+    def __init__(self, filter=None, timeout=60):
         self.filter = filter
         self.timeout = timeout
         self.packets = []
         self.socket = None
-        self.pcap_path = pcap
-        signal.signal(signal.SIGINT, self.catch_signals)
-
-    def catch_signals(self, signum, frame):
-        self.save_pcap()
 
     def sniff(self):
         logging.debug("scapy sniffer started: filter={}, timeout={}".format(self.filter, self.timeout))
@@ -28,12 +22,12 @@ class Sniffer(object):
     def process_pkt(self, pkt):
         self.packets.append(pkt)
 
-    def save_pcap(self):
+    def save_pcap(self, pcap_path):
         if not self.packets:
-            logging.warning("No packets were captured")
+            logging.warn("No packets were captured")
 
-        scapyall.wrpcap(self.pcap_path, self.packets)
-        logging.debug("Pcap file dumped to {}".format(self.pcap_path))
+        scapyall.wrpcap(pcap_path, self.packets)
+        logging.debug("Pcap file dumped to {}".format(pcap_path))
 
 
 def main():
@@ -76,12 +70,11 @@ def main():
         level=logging.DEBUG
     )
 
-    sniffer = Sniffer(filter=args.filter, timeout=args.timeout, pcap=args.pcap)
+    sniffer = Sniffer(filter=args.filter, timeout=args.timeout)
     sniffer.sniff()
     if sniffer.socket:
         sniffer.socket.close()
-    sniffer.save_pcap()
-
+    sniffer.save_pcap(args.pcap)
 
 if __name__ == '__main__':
     main()
