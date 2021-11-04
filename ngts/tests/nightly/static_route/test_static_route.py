@@ -165,6 +165,7 @@ def static_route_configuration(topology_obj, engines, interfaces, platform_param
     engines.dut.reload(['sudo reboot'])
 
 
+@pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
 @allure.title('Test Scale Static Route')
 def test_scale_static_route(engines, players, interfaces, static_route_configuration):

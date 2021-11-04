@@ -47,6 +47,7 @@ class TestEntryTraffic:
             P4SamplingUtils.stop_background_traffic(port_table_scapy_senders)
             P4SamplingUtils.stop_background_traffic(flow_table_scapy_senders)
 
+    @pytest.mark.reboot_reload
     @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
     @allure.title('Test disable p4-sampling, change the config db file, and re-enable it, the entries can be changed.')
     def test_enable_disable_p4_sampling(self, topology_obj, engines, interfaces, table_params):

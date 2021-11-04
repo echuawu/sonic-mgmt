@@ -25,6 +25,7 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
                               }
 
 
+@pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize('validation_type', validation_types)
 def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params, validation_type):

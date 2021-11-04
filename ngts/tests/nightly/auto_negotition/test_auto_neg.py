@@ -1,6 +1,6 @@
 import logging
 import allure
-
+import pytest
 from copy import deepcopy
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_width, \
     get_matched_types
@@ -13,6 +13,7 @@ logger = logging.getLogger()
 
 class TestAutoNeg(TestAutoNegBase):
 
+    @pytest.mark.reboot_reload
     def test_auto_neg_conf(self, cleanup_list, ignore_expected_loganalyzer_reboot_exceptions,
                            skip_if_active_optical_cable):
         """

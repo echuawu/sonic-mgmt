@@ -5,6 +5,7 @@ import ipaddress
 import time
 import random
 from retry.api import retry_call
+import pytest
 
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
@@ -38,6 +39,7 @@ CHIP_LAG_MEMBERS_LIM = {
 }
 
 
+@pytest.mark.reboot_reload
 @allure.title('LAG_LACP core functionality and reboot')
 def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces,
                                         engines, cleanup_list, platform_params, ignore_temp_loganalyzer_exceptions):
@@ -185,6 +187,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces,
         raise AssertionError(err)
 
 
+@pytest.mark.reboot_reload
 @allure.title('Test port cannot be added to LAG')
 def test_port_cannot_be_added_to_lag(topology_obj, traffic_type, interfaces, engines,
                                      cleanup_list, ignore_temp_loganalyzer_exceptions):
@@ -238,6 +241,7 @@ def test_port_cannot_be_added_to_lag(topology_obj, traffic_type, interfaces, eng
         raise AssertionError(err)
 
 
+@pytest.mark.reboot_reload
 @allure.title('LAG min-links Test')
 def test_lag_min_links(topology_obj, traffic_type, interfaces, engines, cleanup_list):
     """
@@ -330,6 +334,7 @@ def test_lag_min_links(topology_obj, traffic_type, interfaces, engines, cleanup_
         raise AssertionError(err)
 
 
+@pytest.mark.reboot_reload
 @allure.title('LAG members scale Test')
 def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, ignore_temp_loganalyzer_exceptions):
     """
@@ -399,6 +404,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
         raise AssertionError(err)
 
 
+@pytest.mark.reboot_reload
 @allure.title('LAGs scale Test')
 def test_lags_scale(topology_obj, engines, cleanup_list, ignore_temp_loganalyzer_exceptions):
     """

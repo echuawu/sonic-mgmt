@@ -60,6 +60,7 @@ def protocol_for_reboot_flow():
     return protocol_for_reboot_flow
 
 
+@pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
 @allure.title('CoPP Policer test case')
 @pytest.mark.parametrize("protocol", PROTOCOLS_LIST)

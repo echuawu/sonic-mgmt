@@ -8,6 +8,7 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger()
 
 
+@pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
 @allure.title('Apply Sonic Basic Configuration')
 def test_apply_basic_conf(topology_obj, setup_name, platform_params):

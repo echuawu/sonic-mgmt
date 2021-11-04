@@ -55,6 +55,7 @@ class TestFec:
         else:
             raise AssertionError("Chip type {} is unrecognized".format(self.chip_type))
 
+    @pytest.mark.reboot_reload
     def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
         with allure.step("Configure FEC on dut loopbacks"):
             logger.info("Configure FEC on dut loopbacks")
@@ -78,6 +79,7 @@ class TestFec:
             logger.info("Verify FEC on dut loopbacks returned to default configuration")
             self.verify_fec_configuration(dut_lb_conf)
 
+    @pytest.mark.reboot_reload
     def test_fec_capabilities_hosts_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
         with allure.step("Configure FEC on dut - host connectivities"):
             logger.info("Configure FEC on host - dut connectivities")

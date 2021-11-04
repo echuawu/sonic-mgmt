@@ -84,16 +84,19 @@ class SonicInterfaceCli(InterfaceCliCommon):
         return engine.run_cmd("sudo show interfaces status")
 
     @staticmethod
-    def parse_interfaces_status(engine):
+    def parse_interfaces_status(engine, headers_ofset=0, len_ofset=1, data_ofset_from_start=2):
         """
         Method which getting parsed interfaces status
         :param engine: ssh engine object
+        :param headers_ofset: Line number in which we have headers
+        :param len_ofset: Line number from which we can find len for all fields, in example above it is line 2
+        :param data_ofset_from_start: Line number from which we will start parsing data and fill dictionary with results
         :return: dictionary, example: {'Ethernet0': {'Lanes': '0,1,2,3,4,5,6,7', 'Speed': '100G', 'MTU': '9100',
         'FEC': 'N/A', 'Alias': 'etp1', 'Vlan': 'routed', 'Oper': 'up', 'Admin': 'up', 'Type': 'QSFP28 or later',
         'Asym PFC': 'N/A'}, 'Ethernet8': {'Lanes'.......
         """
         ifaces_status = SonicInterfaceCli.show_interfaces_status(engine)
-        return generic_sonic_output_parser(ifaces_status, headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
+        return generic_sonic_output_parser(ifaces_status, headers_ofset=headers_ofset, len_ofset=len_ofset, data_ofset_from_start=data_ofset_from_start,
                                            data_ofset_from_end=None, column_ofset=2, output_key='Interface')
 
     @staticmethod

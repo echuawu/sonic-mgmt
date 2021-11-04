@@ -52,6 +52,7 @@ class TestEntryScaling:
             expected_ram_usage_dict = expected_ram_usage_dict[platform]
         return expected_ram_usage_dict
 
+    @pytest.mark.reboot_reload
     @allure.title('Test 500 entries added for each table')
     @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
     def test_scaling_entries(self, topology_obj, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):

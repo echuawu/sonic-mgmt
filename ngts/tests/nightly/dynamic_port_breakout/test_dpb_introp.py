@@ -12,6 +12,7 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import get_ports_list_fro
     send_ping_and_verify_results, build_remove_dpb_conf
 
 
+@pytest.mark.reboot_reload
 @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
 @allure.title('Dynamic Port Breakout with Dependencies')
 def test_dpb_configuration_interop(topology_obj, dut_engine, cli_object, ports_breakout_modes, tested_modes_lb_conf,
