@@ -5,7 +5,7 @@ import os
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.ip_config_template import IpConfigTemplate
-from ngts.cli_wrappers.linux.linux_route_clis import LinuxRouteCli
+from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
 
 
 logger = logging.getLogger()
@@ -28,16 +28,12 @@ def ignore_expected_loganalyzer_exceptions(loganalyzer):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def copp_configuration(topology_obj, engines, interfaces):
+def copp_configuration(topology_obj, engines, interfaces, cli_objects):
     """
     Pytest fixture which are doing configuration for test case based on copp config
     :param topology_obj: topology object fixture
     """
     logger.info('Starting CoPP Common configuration')
-
-    host_cli_object = topology_obj.players['ha']['cli']
-
-    dut_cli_object = topology_obj.players['dut']['cli']
 
     with allure.step('Check that link in UP state'):
         retry_call(SonicInterfaceCli.check_ports_status,
@@ -53,7 +49,7 @@ def copp_configuration(topology_obj, engines, interfaces):
     }
 
     logger.info('Disable periodic lldp traffic')
-    host_cli_object.general.stop_service(engines.ha, 'lldpad')
+    cli_objects.ha.general.stop_service(engines.ha, 'lldpad')
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
 
     logger.info('CoPP Common configuration completed')
@@ -62,9 +58,22 @@ def copp_configuration(topology_obj, engines, interfaces):
 
     logger.info('Starting CoPP Common configuration cleanup')
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    host_cli_object.general.start_service(engines.ha, 'lldpad')
+    cli_objects.ha.general.start_service(engines.ha, 'lldpad')
 
-    dut_cli_object.general.load_configuration(engines.dut, CONFIG_DB_COPP_CONFIG)
-    dut_cli_object.general.save_configuration(engines.dut)
+    cli_objects.dut.general.load_configuration(engines.dut, CONFIG_DB_COPP_CONFIG)
+    cli_objects.dut.general.save_configuration(engines.dut)
 
     logger.info('CoPP Common cleanup completed')
+
+# TODO the flow counters feature not merged yet
+# @pytest.fixture(scope='module', autouse=True)
+# def flowcnt_trap_configuration(engines):
+#     """
+#     Pytest fixture which are doing configuration for test case based on flow counters config
+#     :param engines: engines fixture
+#     """
+#     SonicCounterpollCli.enable_flowcnt_trap(engines.dut)
+#
+#     yield
+#
+#     SonicCounterpollCli.disable_flowcnt_trap(engines.dut)

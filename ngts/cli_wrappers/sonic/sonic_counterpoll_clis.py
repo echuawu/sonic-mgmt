@@ -51,3 +51,34 @@ class SonicCounterpollCli(CounterpollCliCommon):
                                                             column_ofset=2,
                                                             output_key='Type')
         return counterpoll_show_dict
+
+    @staticmethod
+    def enable_flowcnt_trap(engine):
+        """
+        Run command "counterpoll flowcnt-trap enable" on SONIC
+        :param engine: ssh engine object
+        :return: cmd output
+        """
+        cmd = 'sudo counterpoll flowcnt-trap enable'
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def disable_flowcnt_trap(engine):
+        """
+        Run command "counterpoll flowcnt-trap disable" on SONIC
+        :param engine: ssh engine object
+        :return: cmd output
+        """
+        cmd = 'sudo counterpoll flowcnt-trap disable'
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def set_trap_interval(engine, interval):
+        """
+        Run command "counterpoll flowcnt-trap interval <time_in_msec>" on SONIC
+        :param engine: ssh engine object
+        :param interval: polling interval for trap flow counters
+        :return: cmd output
+        """
+        cmd = 'sudo counterpoll flowcnt-trap interval {}'.format(interval)
+        return engine.run_cmd(cmd)
