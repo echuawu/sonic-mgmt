@@ -19,8 +19,8 @@ def disable_analyzer_for_mellanox(duthost):
         loganalyzer.load_common_config()
 
         loganalyzer.ignore_regex.append("kernel.*Eeprom query failed*")
-        # TODO: this is a WA, need to remove it after https://github.com/Azure/sonic-buildimage/issues/7163 is merged
-        loganalyzer.ignore_regex.append(".*Receive PMPE error event on module.*")
+        # Ignore PMPE error https://github.com/Azure/sonic-buildimage/issues/7163
+        loganalyzer.ignore_regex.append(r".*ERR pmon#xcvrd: Receive PMPE error event on module.*")
         marker = loganalyzer.init()
     yield
 
