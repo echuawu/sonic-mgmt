@@ -9,3 +9,4 @@ r, ".* ERR pmon#syseepromd: Failed to load platform-specific eeprom from depreca
 r, ".* WARNING pmon#syseepromd: Failed to load platform-specific eeprom from sonic_platform package due to KeyError.*"
 r, ".* ERR \/hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*"
 r, ".* ERR \/hostcfgd: error returned by select.*"
+r, ".* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*"
