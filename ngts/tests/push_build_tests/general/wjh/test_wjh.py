@@ -123,10 +123,10 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
                                                                                           interfaces.dut_hb_2,
                                                                                           interfaces.dut_ha_2,
                                                                                           interfaces.dut_hb_1])
-    with allure.step('Configuring dut_ha_2 speed to be 10G, and dut_hb_2 to be 25G'):
+    with allure.step('Configuring dut_ha_2 speed to be 1G, and dut_hb_2 to be 25G'):
         interfaces_config_dict = {
-            'dut': [{'iface': interfaces.dut_ha_2, 'speed': '10G',
-                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '10G')},
+            'dut': [{'iface': interfaces.dut_ha_2, 'speed': '1G',
+                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '1G')},
                     {'iface': interfaces.dut_hb_2, 'speed': '25G',
                      'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
                     ]
@@ -254,7 +254,7 @@ def test_buffer_tail_drop(engines, topology_obj, players, interfaces, wjh_buffer
     |         |         |           |            |         |
     |         |         |           |            |         |
     |         |---------| TD        |------------|         |
-    |_________|   10G   |___________|    25G     |_________|
+    |_________|   1G    |___________|    25G     |_________|
 
     """
 

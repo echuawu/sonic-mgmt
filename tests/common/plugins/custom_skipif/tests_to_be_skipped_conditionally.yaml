@@ -460,5 +460,5 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     - simx
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer_tail_drop:
-  - Redmine:
-    - 2805704
+  - Platform:
+    - 3800
