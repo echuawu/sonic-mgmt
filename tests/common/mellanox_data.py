@@ -6,7 +6,7 @@ SPC3_HWSKUS = ["ACS-MSN4700", "ACS-MSN4600C", "ACS-MSN4410", "ACS-MSN4600"]
 SWITCH_HWSKUS = SPC1_HWSKUS + SPC2_HWSKUS + SPC3_HWSKUS
 
 SWITCH_MODELS = {
-    "x86_64-mlnx_msn2201-r0": {
+    "x86_64-nvidia_sn2201-r0": {
         "chip_type": "spectrum1",
         "reboot": {
             "cold_reboot": True,
