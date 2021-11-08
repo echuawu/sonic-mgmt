@@ -5,13 +5,6 @@ platform_tests/test_auto_negotiation.py:
     - 3800
   - Branch:
     - 202012
-  - Redmine:
-    - 2807603
-
-# SFP using ethtool
-platform_tests/mellanox/test_check_sfp_using_ethtool.py:
-  - Redmine:
-      - 2801079
 
 # ecmp
 ecmp/test_fgnhg.py:
@@ -44,10 +37,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
 platform_tests/fw_utility/test_fwutil.py:
   - Platform:
     - msn4
-
-platform_tests/test_cpu_memory_usage.py:
-  - Redmine:
-    - 2769629
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
   - Platform:
@@ -342,38 +331,6 @@ bgp/test_bgp_allw_list.py::test_default_allow_list_postconfig:
   - Redmine:
     - 2807150
 
-bgp/test_traffic_shift.py:
-  - Redmine:
-    - 2807511
-    Branch:
-    - 202106
-
-# pfc_wd_wb
-pfcwd/test_pfcwd_warm_reboot.py::test_pfcwd_wb:
-  - Redmine:
-    - 2803036
-
-# portstat
-portstat/test_portstat.py:
-  - Redmine:
-    - 2807511
-    Branch:
-    - 202106
-
-# drop_packets
-drop_packets/test_drop_counters.py:
-  - Redmine:
-    - 2807511
-    Branch:
-    - 202106
-
-# vlan
-vlan/test_vlan.py:
-  - Redmine:
-    - 2795580
-    Branch:
-    - 202106
-
 ########## Canonical ##########
 # Nightly
 
@@ -384,14 +341,8 @@ tests/nightly/auto_negotition:
     - simx
     - 4700
     - 3800
-  - Redmine:
-    - 2813851
-    Platform:
-    - 4410
 
 tests/nightly/auto_negotition/test_auto_neg.py:
-  - Redmine:
-    - 2811306
   - Redmine:
     - 2801854
     Platform:
@@ -402,17 +353,8 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
   - Redmine:
     - 2686798
 
-tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
-  - Redmine:
-    - 2813693
-
-tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_types:
-  - Redmine:
-    - 2813693
-
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   - Redmine:
-    - 2696717
     - 2813773
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
@@ -421,7 +363,6 @@ tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_i
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_remove_dpb_configuration_interop:
   - GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/6630
     - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_breakout_unbreakable_ports:
@@ -435,8 +376,6 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_break
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
     - simx
-  - Redmine:
-    - 2704837
 
 tests/nightly/static_route/test_static_route.py:
   - Platform:
@@ -464,12 +403,6 @@ tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
     - simx
     - 2201
 
-tests/push_build_tests/L2/lldp/test_lldp.py::test_lldp_after_disable_on_dut:
-  - Redmine:
-    - 2757282
-    Platform:
-    - 3700
-
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
@@ -494,22 +427,6 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
   - Redmine:
     - 2637874
 
-tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_version:
-  - Redmine:
-    - 2626014
-
-tests/push_build_tests/app_extension/test_app_ext_status.py:
-  - GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/8619
-
-tests/nightly/p4/sampling_example/test_negative_config.py::test_p4_sampling_not_support_on_spc1:
-  - Redmine:
-    - 2638158
-
-tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
-  - Redmine:
-    - 2800494
-
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   - Platform:
     - 2201
@@ -526,8 +443,6 @@ tests/nightly/fec:
     - simx
   - Branch:
     - 202012
-  - Redmine:
-    - 2811306
   - Redmine:
     - 2801854
     Platform:
