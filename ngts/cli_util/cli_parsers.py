@@ -57,21 +57,21 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
 
     result_dict = {}
     result_list = []
-    last_output_key_value = ""
+    last_line_key = ""
     for line in data:
         base_position = 0
-        internal_result = {}
+        line_dict = {}
         for column_len in column_lens:
             new_position = base_position + len(column_len)
             header_name = get_column_header_name(
                 headers_lines, base_position, new_position)
-            internal_result[header_name] = line[base_position:new_position].strip()
+            line_dict[header_name] = line[base_position:new_position].strip()
             base_position = new_position + column_ofset
         if output_key:
-            last_output_key_value = update_result_dict(
-                internal_result, output_key, last_output_key_value, result_dict)
+            last_line_key = update_result_dict(
+                line_dict, output_key, last_line_key, result_dict)
         else:
-            result_list.append(internal_result)
+            result_list.append(line_dict)
 
     if output_key:
         return result_dict
@@ -100,32 +100,29 @@ def get_column_header_name(headers_lines, base_position, new_position):
     return header_name
 
 
-def update_result_dict(internal_result, output_key,
-                       last_output_key_value, result_dict):
+def update_result_dict(line_dict, key_name, last_line_key, result_dict):
     """
     update the result dict
-    :param internal_result: dict format value of one line in the return of the show command
-    :param output_key: the output key of the result dict, it is one of the column header name
-    :param last_output_key_value: the key value used in the previous line.
+    :param line_dict: dict format value of one line in the return of the show command
+    :param key_name: the output key of the result dict, it is one of the column header name
+    :param last_line_key: the key value used in the previous line.
     :param result_dict: the result dict which need to be updated
     :return: the output key value
     """
-    if internal_result[output_key]:
+    if line_dict[key_name]:
         # if the corresponding column value is not empty, then it should be the
         # first line of the value
-        output_key_value = internal_result[output_key]
-        result_dict[output_key_value] = internal_result
+        line_key = line_dict[key_name]
+        result_dict[line_key] = line_dict
     else:
         # if the corresponding column value is empty, then it should be not
         # first line of the value
-        output_key_value = last_output_key_value
-        internal_result[output_key] = output_key_value
-        if isinstance(result_dict[output_key_value], dict):
-            result_dict[output_key_value] = [
-                result_dict[output_key_value], internal_result]
-        else:
-            result_dict[output_key_value].append(internal_result)
-    return output_key_value
+        last_line_dict = result_dict[last_line_key]
+        line_key = last_line_key
+
+        for key in last_line_dict.keys():
+            last_line_dict[key] = " ".join([last_line_dict[key], line_dict[key]])
+    return line_key
 
 
 def show_vlan_brief_parser(output):
