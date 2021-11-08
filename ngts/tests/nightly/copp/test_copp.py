@@ -639,6 +639,7 @@ class SNMPTest(CoppBase):
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
+        self.trap_name = 'ip2me'
         logger.info("The tested protocol SNMP have too big default value for burst, "
                     "can't be tested on canonical systems. "
                     "Will be tested the value {} instead"
@@ -660,7 +661,6 @@ class SNMPTest(CoppBase):
                                  'value="192.168.2.150.config")]))'
                      }
         chosen_packet = random.choice(list(snmp_dict.keys()))
-        self.trap_name = 'ip2me'
 
         with allure.step('SNMP - Create "{}" validation'.format(chosen_packet)):
             snmp_pkt = 'Ether(src="{}", dst="{}")/IP(dst="192.168.1.1")/UDP(sport=161)/' + snmp_dict[chosen_packet]
@@ -686,6 +686,7 @@ class IP2METest(CoppBase):
         self.default_cir = 6000
         self.default_cbs = 1000
         self.user_limit = 600
+        self.trap_name = 'ip2me'
         logger.info("The tested protocol IP2ME have too big default value for burst, "
                     "can't be tested on canonical systems. "
                     "Will be tested the value {} instead"
@@ -699,7 +700,6 @@ class IP2METest(CoppBase):
         :param pps: packets rate value
         :param times: packets number
         """
-        self.trap_name = 'ip2me'
         with allure.step('IP2ME - Create validation (with simple IP packet and right destination ip)'):
             ip2me_pkt = 'Ether(src="{}", dst="{}")/IP(dst="192.168.1.1")'
             self.validation = {'sender': self.sender,
@@ -724,6 +724,7 @@ class SSHTest(CoppBase):
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
+        self.trap_name = 'ssh'
 
 # -------------------------------------------------------------------------------
 
@@ -733,7 +734,6 @@ class SSHTest(CoppBase):
         :param pps: packets rate value
         :param times: packets number
         """
-        self.trap_name = 'ssh'
         with allure.step('SSH - Create validation (with simple TCP packet and destination port 22)'):
             ssh_pkt = 'Ether(dst="{}")/IP(dst="192.168.1.1", src="192.168.1.2")/TCP(dport=22, sport=22)'
             self.validation = {'sender': self.sender,
@@ -760,6 +760,7 @@ class LLDPTest(CoppBase):
         self.user_limit = 1000
         # noise from origin lldp traffic. if disable LLDP, the traffic will not be moved to cpu/counters
         self.flowcnt_deviation = 0.15
+        self.trap_name = 'lldp'
 
 # -------------------------------------------------------------------------------
 
@@ -769,7 +770,6 @@ class LLDPTest(CoppBase):
         :param pps: packets rate value
         :param times: packets number
         """
-        self.trap_name = 'lldp'
         with allure.step('LLDP - Create validation (simple ETH packet with fixed d_mac and type)'):
             lldp_pkt = 'Ether(dst="01:80:c2:00:00:0e", src="{}", type=0x88cc)'
             self.validation = {'sender': self.sender,
@@ -794,6 +794,7 @@ class LACPTest(CoppBase):
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
+        self.trap_name = 'lacp'
 
 # -------------------------------------------------------------------------------
 
@@ -803,7 +804,6 @@ class LACPTest(CoppBase):
         :param pps: packets rate value
         :param times: packets number
         """
-        self.trap_name = 'lacp'
         with allure.step('LACP - Create validation (simple ETH packet with fixed dst_mac and type)'):
             lacp_pkt = 'Ether(dst="01:80:c2:00:00:02", src="{}", type=0x8809)/(chr(0x01)*50)'
             self.validation = {'sender': self.sender,
