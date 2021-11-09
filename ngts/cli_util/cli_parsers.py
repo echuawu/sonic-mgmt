@@ -121,7 +121,8 @@ def update_result_dict(line_dict, key_name, last_line_key, result_dict):
         line_key = last_line_key
 
         for key in last_line_dict.keys():
-            last_line_dict[key] = " ".join([last_line_dict[key], line_dict[key]])
+            if line_dict[key]:
+                last_line_dict[key] = " ".join([last_line_dict[key], line_dict[key]])
     return line_key
 
 
