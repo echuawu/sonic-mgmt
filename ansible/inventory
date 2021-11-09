@@ -1,7 +1,7 @@
 [sonic_latest]
 # MTR canonical testbed r-alligator-04 topologies
-r-alligator-04-ptf-any ansible_host=r-alligator-04  sonic_version=v2  sonic_hwsku=ACS-MSN2201             serial_console="ssh -l rcon:7047 10.208.0.44" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18  base_mac=90:0a:84:1e:86:80 serial=N/A model=N/A syseeprom_info="{}"
-r-alligator-04 ansible_host=r-alligator-04  sonic_version=v2  sonic_hwsku=ACS-MSN2201             serial_console="ssh -l rcon:7047 10.208.0.44" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18  base_mac=90:0a:84:1e:86:80 serial=N/A model=N/A syseeprom_info="{}"
+r-alligator-04-ptf-any ansible_host=r-alligator-04  sonic_version=v2  sonic_hwsku=ACS-MSN2201             serial_console="ssh -l rcon:7047 10.208.0.44" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18  base_mac=90:0a:84:1e:86:80 serial=MT2139200003 model=MSN2201-CB2FO syseeprom_info="{}"
+r-alligator-04 ansible_host=r-alligator-04  sonic_version=v2  sonic_hwsku=ACS-MSN2201             serial_console="ssh -l rcon:7047 10.208.0.44" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18  base_mac=90:0a:84:1e:86:80 serial=MT2139200003 model=MSN2201-CB2FO syseeprom_info="{}"
 # MLNX Lab
 
 #  MTR canonical testbeds
