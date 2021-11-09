@@ -22,12 +22,30 @@ def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_p
     :param app_extension_dict_path: path to app extension dict
     """
     dut_engine = topology_obj.players['dut']['engine']
-    if SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
+    skip_reason = install_all_supported_app_extensions(dut_engine, app_extension_dict_path)
+    if skip_reason:
+        pytest.skip(skip_reason)
+
+
+def install_all_supported_app_extensions(dut_engine, app_extension_dict_path):
+    """
+    This function will perform installation of app extensions
+    :param dut_engine: dut engine object
+    :param app_extension_dict_path: path to app extension dict
+    :return: return the skip reason if the test need to be skipped, else return None
+    """
+    skip_reason = ""
+    if not app_extension_dict_path:
+        logger.info("app_extension_dict_path is not provided, skip the installing the app extensions")
+        skip_reason = 'app_extension_dict_path is not provided'
+    elif SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
         app_ext_installer = AppExtensionInstaller(dut_engine, app_extension_dict_path)
         app_ext_installer.install_supported_app_extensions()
         SonicGeneralCli.save_configuration(dut_engine)
     else:
-        pytest.skip('The image does not support app extension')
+        logger.info("The image does not support app extension")
+        skip_reason = 'The image does not support app extension'
+    return skip_reason
 
 
 class AppExtensionInstaller():
@@ -42,8 +60,6 @@ class AppExtensionInstaller():
         pytest.skip('Skipping. Fetching latest implementation of app extension is not yet implemented.')
 
     def set_app_extension_dict(self, app_extension_dict_path):
-        if not app_extension_dict_path:
-            pytest.skip('Skipping. app_extension_dict_path is not provided')
         try:
             with open(app_extension_dict_path, 'r') as f:
                 app_extension_dict = json.load(f)

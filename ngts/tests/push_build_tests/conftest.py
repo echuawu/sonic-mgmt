@@ -24,7 +24,7 @@ import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
-from ngts.scripts.install_app_extension.install_app_extesions import test_install_all_supported_app_extensions
+from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -89,12 +89,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
     # Check if app_ext supported and get app name, repo, version
     shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = get_app_ext_info(engines.dut)
-    # TODO: --------------------------Start Add debug info for wjh--------------------------
-    logger.info("Get the sonic-package-manager list")
-    SonicAppExtensionCli.show_app_list(engines.dut)
-    logger.info("Get the intalled feature status")
-    SonicGeneralCli.show_feature_status(engines.dut)
-    # TODO: --------------------------Finihsed Add debug info for wjh------------------------
     if run_config_only or full_flow_run:
         if upgrade_params.is_upgrade_required:
             with allure.step('Installing base version from ONIE'):
@@ -121,12 +115,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if shared_params.app_ext_is_app_ext_supported:
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, app_name, app_repository_name, version)
-    # TODO: --------------------------Start Add debug info for wjh--------------------------
-    logger.info("Get the sonic-package-manager list")
-    SonicAppExtensionCli.show_app_list(engines.dut)
-    logger.info("Get the intalled feature status")
-    SonicGeneralCli.show_feature_status(engines.dut)
-    # TODO: --------------------------Finihsed Add debug info for wjh------------------------
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
                                                                                           interfaces.dut_hb_2])
@@ -281,10 +269,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                           direction='get')
                 with allure.step("Installing wjh deb url"):
                     if upgrade_params.wjh_deb_url:
-                        dut_engine = topology_obj.players['dut']['engine']
-                        SonicGeneralCli.install_wjh(dut_engine, upgrade_params.wjh_deb_url)
+                        SonicGeneralCli.install_wjh(engines.dut, upgrade_params.wjh_deb_url)
                     else:
-                        test_install_all_supported_app_extensions(topology_obj, app_extension_dict_path)
+                        install_all_supported_app_extensions(engines.dut, app_extension_dict_path)
 
     if run_test_only or full_flow_run:
         yield
