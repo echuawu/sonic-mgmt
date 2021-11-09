@@ -490,6 +490,7 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
     - 2838163
     Branch:
       - master
+      - HEAD # Ignore also on CI versions
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
