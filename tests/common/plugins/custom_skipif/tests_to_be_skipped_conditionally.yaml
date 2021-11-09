@@ -6,6 +6,11 @@ platform_tests/test_auto_negotiation.py:
   - Branch:
     - 202012
 
+# SFP util
+platform_tests/sfp/test_sfputil.py:
+  - Platform:
+    - 2201
+
 # ecmp
 ecmp/test_fgnhg.py:
   - Redmine:
@@ -29,6 +34,81 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     - msn4
 
 # Platform
+# Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
+platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
+  - Redmine:
+    - 2854587
+    Platform:
+    - 2201
+
+platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
+  - Redmine:
+    - 2854107
+    Platform:
+    - 2201
+
+# Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
+platform_tests/test_reboot.py:
+  - Redmine:
+    - 2854587
+    Platform:
+    - 2201
+
+platform_tests/api/test_watchdog.py:
+  - Redmine:
+    - 2854506
+    Platform:
+    - 2201
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
+  - Redmine:
+    - 2854506
+    Platform:
+    - 2201
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
+  - Platform:
+    - 2201
+
+platform_tests/api/test_psu.py::TestPsuApi::test_fans:
+  - Platform:
+    - 2201
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
+  - Platform:
+    - 2201
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
+  - Redmine:
+    - 2854443
+    Platform:
+    - 2201
+
+platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
+  - Redmine:
+    - 2854443
+    Platform:
+    - 2201
+
+platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_name:
+  - Redmine:
+    - 2854443
+    Platform:
+    - 2201
+
+platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
+  - Redmine:
+    - 2854467
+    Platform:
+    - 2201
+
+# Test failed because "systemctl is-system-running" returns "degraded"
+platform_tests/test_reload_config.py:
+  - Redmine:
+    - 2854554
+    Platform:
+    - 2201
+
 platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
   - Platform:
     - 2010
@@ -423,6 +503,10 @@ tests/nightly/auto_negotition/test_auto_neg.py:
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
     - 2686798
+
+tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg:
+  - Platform:
+    - 2201
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
   - GitHub:
