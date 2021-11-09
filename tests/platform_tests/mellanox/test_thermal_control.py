@@ -49,12 +49,12 @@ def test_dynamic_minimum_table(duthosts, rand_one_dut_hostname, mocker_factory):
         logger.info('Expect minimum cooling level is {}'.format(expect_minimum_cooling_level))
         mocker.mock_min_table(temperature, trust_state)
         assert wait_until(THERMAL_CONTROL_TEST_WAIT_TIME,
-                          THERMAL_CONTROL_TEST_CHECK_INTERVAL,
-                          0,
-                          check_cooling_level_larger_than_minimum,
-                          duthost,
-                          expect_minimum_cooling_level), \
-            'Cooling level is less than minimum allowed {}'.format(expect_minimum_cooling_level)
+                        THERMAL_CONTROL_TEST_CHECK_INTERVAL,
+                        0,
+                        check_cooling_level_larger_than_minimum,
+                        duthost,
+                        expect_minimum_cooling_level), \
+                        'Cooling level is less than minimum allowed {}'.format(expect_minimum_cooling_level)
 
         temperature = random.randint(0, max_temperature)
         logger.info('Testing with temperature={}, trust_state={}'.format(temperature, not trust_state))
@@ -62,21 +62,21 @@ def test_dynamic_minimum_table(duthosts, rand_one_dut_hostname, mocker_factory):
         logger.info('Expect minimum cooling level is {}'.format(expect_minimum_cooling_level))
         mocker.mock_min_table(temperature, not trust_state)
         assert wait_until(THERMAL_CONTROL_TEST_WAIT_TIME,
-                          THERMAL_CONTROL_TEST_CHECK_INTERVAL,
-                          0,
-                          check_cooling_level_larger_than_minimum,
-                          duthost,
-                          expect_minimum_cooling_level), \
-            'Cooling level is less than minimum allowed {}'.format(expect_minimum_cooling_level)
+                        THERMAL_CONTROL_TEST_CHECK_INTERVAL,
+                        0,
+                        check_cooling_level_larger_than_minimum,
+                        duthost,
+                        expect_minimum_cooling_level), \
+                        'Cooling level is less than minimum allowed {}'.format(expect_minimum_cooling_level)
     else:
         # minimum table is not defined yet, check that the default cooling level is 6
         assert wait_until(THERMAL_CONTROL_TEST_WAIT_TIME,
-                          THERMAL_CONTROL_TEST_CHECK_INTERVAL,
-                          0,
-                          check_cooling_level_larger_than_minimum,
-                          duthost,
-                          6), \
-            'Cooling level is less than minimum allowed {}'.format(6)
+                        THERMAL_CONTROL_TEST_CHECK_INTERVAL,
+                        0,
+                        check_cooling_level_larger_than_minimum,
+                        duthost,
+                        6), \
+                        'Cooling level is less than minimum allowed {}'.format(6)
 
 
 @pytest.mark.disable_loganalyzer
