@@ -177,7 +177,10 @@ def speed_string_to_int_in_mb(speed):
     elif match_mb:
         speed_int = int(match_mb.group(1))
     else:
-        raise Exception('Can not match speed in Mbits/Gbits from: {}'.format(speed))
+        try:
+            speed_int = int(speed)
+        except ValueError:
+            raise Exception('Can not match speed in Mbits/Gbits from: {}'.format(speed))
     return speed_int
 
 
