@@ -55,5 +55,7 @@ def get_branch_from_version(version_output):
     :return: string with branch name, example: '202012'
     """
     image_ver = re.search(r'SONiC\sSoftware\sVersion:\s(.*)', version_output, re.IGNORECASE).group(1)
-    branch = re.search(r'SONiC\.(.*)\.', image_ver, re.IGNORECASE).group(1)
+    # image_ver = SONiC.202012.175-84b565937_Internal
+    branch_index = 1
+    branch = image_ver.split('.')[branch_index]
     return branch
