@@ -483,6 +483,14 @@ bgp/test_bgp_allw_list.py::test_default_allow_list_postconfig:
   - Redmine:
     - 2807150
 
+# mgmtvrf
+mvrf/test_mgmtvrf.py:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/3589
+    - Platform:
+      - x86_64-mlnx_msn2700-r0
+      - x86_64-mlnx_msn3700-r0
+
 ########## Canonical ##########
 # Nightly
 
