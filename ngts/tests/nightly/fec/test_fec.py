@@ -357,6 +357,7 @@ class TestFec:
 
     def update_port_fec_conf_dict(self, conf, port, speed, tested_fec_mode, interface_type, cleanup_list):
         self.set_speed_fec_cleanup(port, cleanup_list)
+        self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, 'none')
         self.cli_objects.dut.interface.set_interface_speed(self.engines.dut, port, speed)
         self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, interface_type)
         self.cli_objects.dut.interface.configure_interface_fec(self.engines.dut, port, tested_fec_mode)
@@ -388,11 +389,13 @@ class TestFec:
         base_speed = self.dut_ports_basic_speeds_configuration[port]
         base_fec = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.FEC]
         base_interface_type = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE]
+        cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (self.engines.dut, port,
+                                                                                    'none')))
         cleanup_list.append((self.cli_objects.dut.interface.set_interface_speed, (self.engines.dut, port, base_speed)))
-        cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (self.engines.dut,
-                                                                                      port, base_fec)))
         cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (self.engines.dut, port,
                                                                                     base_interface_type)))
+        cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (self.engines.dut,
+                                                                                      port, base_fec)))
 
     def update_conf(self, conf):
         for port, port_conf in conf.items():

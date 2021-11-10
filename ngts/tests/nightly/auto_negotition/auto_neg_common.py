@@ -279,8 +279,9 @@ class AutoNegBase:
         base_speed = base_interfaces_speeds[port]
         matched_types = get_matched_types(self.ports_lanes_dict[port], [base_speed], self.interfaces_types_dict)
         base_type = max(matched_types, key=get_interface_cable_width)
-        cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, base_type)))
+        cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, 'none')))
         cleanup_list.append((cli_object.interface.set_interface_speed, (engine, port, base_speed)))
+        cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, base_type)))
         cleanup_list.append((cli_object.interface.config_advertised_speeds, (engine, port, 'all')))
         cleanup_list.append((cli_object.interface.config_advertised_interface_types, (engine, port, 'all')))
 
@@ -449,6 +450,9 @@ class AutoNegBase:
             for port, port_conf_dict in conf.items():
                 if set_cleanup:
                     self.set_speed_type_cleanup(port, engine, cli_object, base_interfaces_speeds, cleanup_list)
+                logger.info("Configure type to none on {}".format(port))
+                cli_object.interface.\
+                    config_interface_type(engine, port, 'none')
                 logger.info("Configure speed on {}".format(port))
                 cli_object.interface.\
                     set_interface_speed(engine, port, port_conf_dict[AutonegCommandConstants.SPEED])
