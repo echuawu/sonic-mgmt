@@ -54,6 +54,19 @@ platform_tests/test_reboot.py:
     Platform:
     - 2201
 
+platform_tests/cli/test_show_platform.py::test_show_platform_fan:
+  - Redmine:
+    - 2829184
+    Platform:
+    - 2201
+
+# Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
+platform_tests/test_sequential_restart.py::test_restart_swss:
+  - Redmine:
+    - 2854587
+    Platform:
+    - 2201
+
 platform_tests/api/test_watchdog.py:
   - Redmine:
     - 2854506
@@ -66,12 +79,22 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
     Platform:
     - 2201
 
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
+  - Redmine:
+    - 2854374
+    Platform:
+    - 2201
+
 platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
-  - Platform:
+  - Redmine:
+    - 2829184
+    Platform:
     - 2201
 
 platform_tests/api/test_psu.py::TestPsuApi::test_fans:
-  - Platform:
+  - Redmine:
+    - 2829184
+    Platform:
     - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
@@ -500,20 +523,17 @@ tests/nightly/auto_negotition:
   - Platform:
     - simx
     - 3800
+
+tests/nightly/auto_negotition/test_auto_neg.py:
   - Redmine:
     - 2801854
     Platform:
     - 4600
     - 4600c
 
-
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
     - 2686798
-
-tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg:
-  - Platform:
-    - 2201
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
   - GitHub:
@@ -585,6 +605,12 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   - Redmine:
     - 2637874
+
+tests/nightly/fec/test_fec.py:
+  - Redmine:
+    - 2855810
+    Platform:
+    - 2201
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   - Platform:
