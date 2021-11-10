@@ -500,13 +500,12 @@ tests/nightly/auto_negotition:
   - Platform:
     - simx
     - 3800
-
-tests/nightly/auto_negotition/test_auto_neg.py:
   - Redmine:
     - 2801854
     Platform:
     - 4600
     - 4600c
+
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
