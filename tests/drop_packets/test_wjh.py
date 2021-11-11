@@ -462,12 +462,18 @@ def get_active_port(duthost):
     pytest.skip("Could not find port in active state. Skipping the test.")
 
 
-def get_inactive_phy_port(duthost):
+def get_inactive_phy_port(duthost, fanouthosts):
     intf_facts = duthost.interface_facts()['ansible_facts']['ansible_interface_facts']
 
-    for port in intf_facts.keys():
-        if (not intf_facts[port]['active'] and port.startswith('Ethernet')):
-            return port
+    for port in sorted(intf_facts.keys()):
+        if not port.startswith('Ethernet') or intf_facts[port]['active']:
+            continue
+
+        fanout, fanout_port = fanout_switch_port_lookup(fanouthosts, duthost.hostname, port)
+        if not fanout or not fanout_port:
+            continue
+
+        return port
 
     pytest.skip("Could not find port in Down state. Skipping the test.")
 
@@ -509,10 +515,10 @@ def verify_l1_agg_drop_exists(table, port, state):
     return entry
 
 
-def test_l1_agg_port_up(duthost):
+def test_l1_agg_port_up(duthost, fanouthosts):
     check_if_l1_enabled('aggregate')
 
-    port = get_inactive_phy_port(duthost)
+    port = get_inactive_phy_port(duthost, fanouthosts)
 
     duthost.command("config interface startup {}".format(port))
     try:
