@@ -42,3 +42,4 @@ r, ".* ERR (swss#portsyncd|teamd#teamsyncd):.*netlink reports an error=-33 on re
 r, ".* ERR systemd-udevd.*: could not read from '\/sys\/module\/acpi_cpufreq\/initstate': No such device.*"
 r, ".* (ERR|WARNING) syncd#(SAI|SDK):.*Shared memory of the.*already exists,\s*destroying it and re-creating.*"
 r, ".* ERR swss#orchagent:.*removeLag: Failed to remove (ref count 1|non-empty) LAG PortChannel.*"
+r, ".* ERR \/hostcfgd:.*error returned by select.*"
