@@ -266,8 +266,12 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
             self.engines.dut.run_cmd_set(cleanup_engine.commands_list)
+            verify_dhcp6_client_output(engine=self.engines.ha,
+                                       dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                       dhclient_iface=self.dhclient_main_iface,
+                                       expected_ip=self.expected_main_vlan_ip)
+            LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
 
     @pytest.mark.dhcp6_relay
     @pytest.mark.build
