@@ -87,7 +87,7 @@ class TestAutoNegNegative(AutoNegBase):
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """
-        split_mode = 2
+        split_mode = 1
         first_lb = 0
         lb = self.tested_lb_dict[split_mode][first_lb]
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
