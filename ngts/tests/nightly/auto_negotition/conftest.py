@@ -27,7 +27,7 @@ def auto_neg_configuration(topology_obj, setup_name, engines, cli_objects, platf
     logger.info('Auto Neg cleanup completed')
 
 
-@pytest.fixture(autouse=True, scope='session')
+@pytest.fixture(scope='session')
 def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_speeds):
     """
     :param topology_obj: topology object fixture
@@ -53,7 +53,7 @@ def get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds):
                                                                      key=speed_string_to_int_in_mb)))
 
 
-@pytest.fixture(autouse=True, scope='session')
+@pytest.fixture(scope='session')
 def ports_lanes_dict(engines, interfaces, cli_objects):
     ports_lanes_dict = {}
     interfaces_status = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
@@ -104,7 +104,7 @@ def tested_dut_host_lb_dict(topology_obj, interfaces, interfaces_types_dict, spl
     return tested_dut_host_lb_dict
 
 
-@pytest.fixture(autouse=True, scope='session')
+@pytest.fixture(scope='session')
 def interfaces_types_dict(platform_params, chip_type):
     """
 
@@ -291,3 +291,38 @@ def get_speeds_in_Gb_str_format(speeds_list):
         speeds_list = sorted(speeds_list, key=lambda speed_str: int(speed_str))
         speeds_in_str_format = list(map(lambda speed: "{}G".format(int(int(speed) / 1000)), speeds_list))
         return ",".join(speeds_in_str_format)
+
+
+@pytest.fixture(scope='session')
+def tested_lb_all_dict(topology_obj, engines, interfaces):
+    """
+    This function return a dictionary with all the switch ports for each split mode.
+    :param topology_obj: topology fixture object
+    :param interfaces: a dictionary with dut <-> hosts interfaces
+    :return: a dictionary with all the switch ports for each split mode., i.e,
+
+    {1: [('Ethernet4', 'Ethernet8'), ('Ethernet36', 'Ethernet40'), ('Ethernet48', 'Ethernet44'),
+         ('Ethernet52', 'Ethernet56'), ('Ethernet32', 'enp4s0f0'), ('Ethernet60', 'enp4s0f1'),
+         ('Ethernet0', 'enp6s0f0'), ('Ethernet28', 'enp6s0f1')],
+    2: [('Ethernet12', 'Ethernet16'), ('Ethernet14', 'Ethernet18')],
+    4: [('Ethernet20', 'Ethernet24'), ('Ethernet21', 'Ethernet25'),
+        ('Ethernet22', 'Ethernet26'), ('Ethernet23', 'Ethernet27')]}
+    """
+    tested_lb_dict = {
+        1: []
+    }
+    if 'simx' not in engines.dut.run_cmd("hostname"):
+        tested_lb_dict.update({2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1']),
+                                   (topology_obj.ports['dut-lb-splt2-p1-2'], topology_obj.ports['dut-lb-splt2-p2-2'])],
+                               4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1']),
+                                   (topology_obj.ports['dut-lb-splt4-p1-2'], topology_obj.ports['dut-lb-splt4-p2-2']),
+                                   (topology_obj.ports['dut-lb-splt4-p1-3'], topology_obj.ports['dut-lb-splt4-p2-3']),
+                                   (topology_obj.ports['dut-lb-splt4-p1-4'], topology_obj.ports['dut-lb-splt4-p2-4'])]
+                               })
+    for lb in get_dut_loopbacks(topology_obj):
+        tested_lb_dict[1].append(lb)
+    tested_lb_dict[1].append((interfaces.dut_ha_1, interfaces.ha_dut_1))
+    tested_lb_dict[1].append((interfaces.dut_ha_2, interfaces.ha_dut_2))
+    tested_lb_dict[1].append((interfaces.dut_hb_1, interfaces.hb_dut_1))
+    tested_lb_dict[1].append((interfaces.dut_hb_2, interfaces.hb_dut_2))
+    return tested_lb_dict

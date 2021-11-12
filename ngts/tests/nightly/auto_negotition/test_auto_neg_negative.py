@@ -1,4 +1,3 @@
-import re
 import random
 import logging
 import pytest
@@ -7,7 +6,7 @@ from retry.api import retry_call
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.tests.nightly.auto_negotition.conftest import convert_speeds_to_mb_format, get_matched_types, \
     get_interface_cable_width
-from ngts.tests.nightly.auto_negotition.auto_neg_common import AutoNegBase
+from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
 from ngts.tests.nightly.conftest import cleanup
 from ngts.helpers.interface_helpers import get_lb_mutual_speed
 from ngts.constants.constants import AutonegCommandConstants
@@ -18,30 +17,16 @@ ALL_CABLE_TYPES = {'CR', 'CR2', 'CR4', 'SR', 'SR2', 'SR4', 'LR',
                    'LR4', 'KR', 'KR2', 'KR4', 'CAUI', 'GMII',
                    'SFI', 'XLAUI', 'CAUI4', 'XAUI', 'XFI'}
 
-INVALID_AUTO_NEG_MODE = r"enable"
+INVALID_SPEED = '30G'
+INVALID_INTERFACE_NAME = "EthernetX"
+INVALID_AUTO_NEG_MODE = "enable"
 INVALID_PORT_ERR_REGEX = r"Invalid\s+port"
 INVALID_SPEED_ERR_REGEX = r"Invalid\s+speed\s+specified"
 INVALID_AUTO_NEG_MODE_ERR_REGEX = r'Error:\s+Invalid\s+value\s+for\s+"<mode>":\s+invalid choice:' \
                                   r'\s+enable.\s\(choose\s+from\s+enabled,\s+disabled\)'
 
 
-class TestAutoNegNegative(AutoNegBase):
-
-    @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, engines, cli_objects,
-              interfaces, tested_lb_dict, ports_lanes_dict,
-              split_mode_supported_speeds, interfaces_types_dict, platform_params):
-        self.topology_obj = topology_obj
-        self.engines = engines
-        self.interfaces = interfaces
-        self.cli_objects = cli_objects
-        self.tested_lb_dict = tested_lb_dict
-        self.ports_lanes_dict = ports_lanes_dict
-        self.split_mode_supported_speeds = split_mode_supported_speeds
-        self.interfaces_types_dict = interfaces_types_dict
-        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
-        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut],
-                                   tries=6, delay=10)
+class TestAutoNegNegative(TestAutoNegBase):
 
     def test_negative_config_interface_autoneg(self):
         """
@@ -59,21 +44,10 @@ class TestAutoNegNegative(AutoNegBase):
         logger.info("Verify the command return error if given invalid interface_name")
         output = \
             self.cli_objects.dut.interface.config_auto_negotiation_mode(self.engines.dut,
-                                                                        self.get_invalid_interface(self.topology_obj),
+                                                                        INVALID_INTERFACE_NAME,
                                                                         "enabled")
 
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
-
-    @staticmethod
-    def get_invalid_interface(topology_obj):
-        """
-        :param topology_obj: a topology fixture
-        :return: an interface that does not exist on dut, i.e, Ethernet61
-        """
-        ports = topology_obj.players_all_ports['dut']
-        port_num = list(map(lambda port: int(re.search(r"Ethernet(\d+)", port).group(1)), ports))
-        max_port = max(port_num)
-        return "Ethernet{}".format(max_port + 1)
 
     def test_negative_config_advertised_speeds(self, ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list):
         """
@@ -93,13 +67,12 @@ class TestAutoNegNegative(AutoNegBase):
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
 
         logger.info("Verify the command return error if given invalid speed list")
-        invalid_speed = self.get_invalid_speed(lb[0], lb_mutual_speeds, self.split_mode_supported_speeds)
-        output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut, lb[0], invalid_speed)
+        output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut, lb[0], INVALID_SPEED)
         verify_show_cmd(output, [(INVALID_SPEED_ERR_REGEX, True)])
 
         logger.info("Verify the command return error if given invalid interface name")
         output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut,
-                                                                         self.get_invalid_interface(self.topology_obj),
+                                                                         INVALID_INTERFACE_NAME,
                                                                          "all")
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
@@ -136,16 +109,6 @@ class TestAutoNegNegative(AutoNegBase):
         retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[self.engines.dut, lb],
                    tries=6, delay=10, logger=logger)
 
-    @staticmethod
-    def get_invalid_speed(port, supported_speeds, split_mode_supported_speeds):
-        """
-        :param port: an interface on dut , i.e, Ethernet60
-        :param supported_speeds: a list of port supported speeds
-        :param split_mode_supported_speeds: a dictionary with available speed for each breakout mode on all setup ports
-        :return: a list of speeds which are not supported by the port, i.e,
-        """
-        return convert_speeds_to_mb_format(set(split_mode_supported_speeds[port][1]).difference(supported_speeds))
-
     def test_negative_config_interface_type(self):
         """
         Test command "config interface type <interface_name> <interface_type>".
@@ -159,7 +122,7 @@ class TestAutoNegNegative(AutoNegBase):
         for supported_types_dict in self.interfaces_types_dict.values():
             types_supported_on_dut += supported_types_dict.keys()
         output = self.cli_objects.dut.interface.config_interface_type(self.engines.dut,
-                                                                      self.get_invalid_interface(self.topology_obj),
+                                                                      INVALID_INTERFACE_NAME,
                                                                       random.choice(types_supported_on_dut))
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
@@ -178,8 +141,7 @@ class TestAutoNegNegative(AutoNegBase):
         lb = self.tested_lb_dict[split_mode][first_lb]
         logger.info("Verify the command return error if given invalid interface name")
         output = self.cli_objects.dut.interface.config_advertised_interface_types(self.engines.dut,
-                                                                                  self.get_invalid_interface(
-                                                                                      self.topology_obj),
+                                                                                  INVALID_INTERFACE_NAME,
                                                                                   "all")
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)

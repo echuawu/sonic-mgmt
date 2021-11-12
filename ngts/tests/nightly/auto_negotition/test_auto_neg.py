@@ -1,35 +1,17 @@
 import logging
 import allure
-import pytest
-from retry.api import retry_call
+
 from copy import deepcopy
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_width, \
     get_matched_types
 from ngts.constants.constants import AutonegCommandConstants
-from ngts.tests.nightly.auto_negotition.auto_neg_common import AutoNegBase
+from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
 from ngts.tests.nightly.conftest import reboot_reload_random
 
 logger = logging.getLogger()
 
 
-class TestAutoNeg(AutoNegBase):
-
-    @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, engines, cli_objects,
-              interfaces, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
-              split_mode_supported_speeds, interfaces_types_dict, platform_params):
-        self.topology_obj = topology_obj
-        self.engines = engines
-        self.interfaces = interfaces
-        self.cli_objects = cli_objects
-        self.tested_lb_dict = tested_lb_dict
-        self.tested_dut_host_lb_dict = tested_dut_host_lb_dict
-        self.ports_lanes_dict = ports_lanes_dict
-        self.split_mode_supported_speeds = split_mode_supported_speeds
-        self.interfaces_types_dict = interfaces_types_dict
-        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
-        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut],
-                                   tries=6, delay=10)
+class TestAutoNeg(TestAutoNegBase):
 
     def test_auto_neg_conf(self, cleanup_list, ignore_expected_loganalyzer_reboot_exceptions,
                            skip_if_active_optical_cable):

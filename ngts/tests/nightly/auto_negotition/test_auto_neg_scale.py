@@ -1,66 +1,12 @@
-import pytest
 import logging
-from retry.api import retry_call
+
 from ngts.constants.constants import AutonegCommandConstants
-from ngts.tests.nightly.conftest import get_dut_loopbacks
-from ngts.tests.nightly.auto_negotition.auto_neg_common import AutoNegBase
+from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
 
 logger = logging.getLogger()
 
 
-@pytest.fixture(autouse=True, scope='session')
-def tested_lb_all_dict(topology_obj, engines, interfaces):
-    """
-    This function return a dictionary with all the switch ports for each split mode.
-    :param topology_obj: topology fixture object
-    :param interfaces: a dictionary with dut <-> hosts interfaces
-    :return: a dictionary with all the switch ports for each split mode., i.e,
-
-    {1: [('Ethernet4', 'Ethernet8'), ('Ethernet36', 'Ethernet40'), ('Ethernet48', 'Ethernet44'),
-         ('Ethernet52', 'Ethernet56'), ('Ethernet32', 'enp4s0f0'), ('Ethernet60', 'enp4s0f1'),
-         ('Ethernet0', 'enp6s0f0'), ('Ethernet28', 'enp6s0f1')],
-    2: [('Ethernet12', 'Ethernet16'), ('Ethernet14', 'Ethernet18')],
-    4: [('Ethernet20', 'Ethernet24'), ('Ethernet21', 'Ethernet25'),
-        ('Ethernet22', 'Ethernet26'), ('Ethernet23', 'Ethernet27')]}
-    """
-    tested_lb_dict = {
-        1: []
-    }
-    if 'simx' not in engines.dut.run_cmd("hostname"):
-        tested_lb_dict.update({2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1']),
-                                   (topology_obj.ports['dut-lb-splt2-p1-2'], topology_obj.ports['dut-lb-splt2-p2-2'])],
-                               4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1']),
-                                   (topology_obj.ports['dut-lb-splt4-p1-2'], topology_obj.ports['dut-lb-splt4-p2-2']),
-                                   (topology_obj.ports['dut-lb-splt4-p1-3'], topology_obj.ports['dut-lb-splt4-p2-3']),
-                                   (topology_obj.ports['dut-lb-splt4-p1-4'], topology_obj.ports['dut-lb-splt4-p2-4'])]
-                               })
-    for lb in get_dut_loopbacks(topology_obj):
-        tested_lb_dict[1].append(lb)
-    tested_lb_dict[1].append((interfaces.dut_ha_1, interfaces.ha_dut_1))
-    tested_lb_dict[1].append((interfaces.dut_ha_2, interfaces.ha_dut_2))
-    tested_lb_dict[1].append((interfaces.dut_hb_1, interfaces.hb_dut_1))
-    tested_lb_dict[1].append((interfaces.dut_hb_2, interfaces.hb_dut_2))
-    return tested_lb_dict
-
-
-class TestAutoNegScale(AutoNegBase):
-
-    @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, engines, cli_objects,
-              interfaces, ports_lanes_dict,
-              split_mode_supported_speeds, interfaces_types_dict,
-              platform_params, tested_lb_all_dict):
-        self.topology_obj = topology_obj
-        self.engines = engines
-        self.interfaces = interfaces
-        self.cli_objects = cli_objects
-        self.tested_lb_all_dict = tested_lb_all_dict
-        self.ports_lanes_dict = ports_lanes_dict
-        self.split_mode_supported_speeds = split_mode_supported_speeds
-        self.interfaces_types_dict = interfaces_types_dict
-        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
-        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut],
-                                   tries=6, delay=10)
+class TestAutoNegScale(TestAutoNegBase):
 
     def test_scale(self, cleanup_list):
         """
