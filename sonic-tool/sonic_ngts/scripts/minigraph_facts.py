@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 from ansible.module_utils.basic import *
 import traceback
-import urllib
 import re
 import json
+import sys
+
+if sys.version_info[0] == 3:
+    # Python 3
+    from urllib.request import urlopen
+    unicode = bytes
+else:
+    # Python 2
+    from urllib import urlopen
 
 '''
 ---
@@ -57,7 +65,7 @@ def str_hook(obj):
 
 
 def read_config_db_json(base_path, setup_name):
-    config_db_http_response = urllib.urlopen(base_path + "/" + setup_name + "/config_db.json")
+    config_db_http_response = urlopen(base_path + "/" + setup_name + "/config_db.json")
     config_db_json = json.loads(config_db_http_response.read(), object_pairs_hook=str_hook)
     return config_db_json
 
@@ -75,8 +83,9 @@ def get_config_db_json_from_hostname(hostname):
     if 'ptf-any' in hostname:
         hostname = hostname.strip('ptf-any')
 
-    setups_list_http_page_html_response = urllib.urlopen(http_topo_base_path)
+    setups_list_http_page_html_response = urlopen(http_topo_base_path)
     for html_line in setups_list_http_page_html_response:
+        html_line = html_line.decode('ascii')
         # Add CI setups to list, if will not find regular setup - then will iterate over CI setups list
         if 'CI_sonic_SPC' in html_line:
             ci_setups.append(re.search(r'href="(\S*)\/"', html_line).groups()[0])
