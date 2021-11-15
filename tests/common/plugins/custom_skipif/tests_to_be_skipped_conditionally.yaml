@@ -8,7 +8,9 @@ platform_tests/test_auto_negotiation.py:
 
 # SFP util
 platform_tests/sfp/test_sfputil.py:
-  - Platform:
+  - Redmine:
+    - 2850655
+    Platform:
     - 2201
 
 # ecmp
@@ -37,20 +39,20 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
   - Redmine:
-    - 2854587
+    - 2829184
     Platform:
     - 2201
 
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   - Redmine:
-    - 2854107
+    - 2819530
     Platform:
     - 2201
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_reboot.py:
   - Redmine:
-    - 2854587
+    - 2829184
     Platform:
     - 2201
 
@@ -69,25 +71,19 @@ platform_tests/test_sequential_restart.py::test_restart_swss:
 
 platform_tests/api/test_watchdog.py:
   - Redmine:
-    - 2854506
+    - 2821986
     Platform:
     - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
   - Redmine:
-    - 2854506
+    - 2821986
     Platform:
     - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
   - Redmine:
     - 2854374
-    Platform:
-    - 2201
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
-  - Redmine:
-    - 2829184
     Platform:
     - 2201
 
@@ -98,7 +94,9 @@ platform_tests/api/test_psu.py::TestPsuApi::test_fans:
     - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
-  - Platform:
+  - Redmine:
+    - 2850655
+    Platform:
     - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
