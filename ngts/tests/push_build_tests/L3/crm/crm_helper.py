@@ -389,7 +389,7 @@ def th_apply_fdb_config(env, fdb_entry_res):
     with allure.step('Verify \'{}\' counter incremented'.format(fdb_entry_res)):
         retry_call(
             verify_counters, fargs=[env, fdb_entry_res, required_fdb_entries, '>='],
-            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=2, logger=None
+            tries=env.APPLY_CFG_MAX_UPDATE_TIME, delay=3, logger=None
         )
 
     return fdb_conf_set
