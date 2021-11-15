@@ -61,7 +61,10 @@ class TestAutoNegNegative(TestAutoNegBase):
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """
-        split_mode = 1
+        split_mode = 2
+        if not self.tested_lb_dict.get(split_mode):
+            pytest.skip("Test is skipped because the test could only run on loopback that is split,"
+                        " the dut does not have such loopback")
         first_lb = 0
         lb = self.tested_lb_dict[split_mode][first_lb]
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
