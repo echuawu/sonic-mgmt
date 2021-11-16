@@ -35,6 +35,11 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     - msn3
     - msn4
 
+# wjh
+drop_packets/test_wjh.py::test_l1_agg_port_up:
+  - Redmine:
+    - 2854037
+
 # Platform
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
