@@ -18,7 +18,7 @@ logger = logging.getLogger()
 class TestAutoNegBase:
 
     @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, engines, cli_objects, tested_lb_all_dict,
+    def setup(self, topology_obj, engines, cli_objects,
               interfaces, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
               split_mode_supported_speeds, interfaces_types_dict, platform_params):
         self.topology_obj = topology_obj
@@ -26,21 +26,12 @@ class TestAutoNegBase:
         self.interfaces = interfaces
         self.cli_objects = cli_objects
         self.tested_lb_dict = tested_lb_dict
-        self.tested_lb_all_dict = tested_lb_all_dict
         self.tested_dut_host_lb_dict = tested_dut_host_lb_dict
         self.ports_lanes_dict = ports_lanes_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
         self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
-        self.get_pci_conf()
-
-    def get_pci_conf(self):
-        """
-        Get path to PCI conf
-        :return: string, example: '/dev/mst/mt53100_pciconf0'
-        """
-        self.pci_conf = retry_call(self.cli_objects.dut.chassis.get_pci_conf, fargs=[self.engines.dut], tries=6,
-                                   delay=10)
+        self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf(self.engines.dut)
 
     def generate_subset_conf(self, tested_lb_dict):
         """

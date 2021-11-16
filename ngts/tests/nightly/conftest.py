@@ -124,12 +124,31 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     """
     platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
     split_mode_supported_speeds = SonicGeneralCli.parse_platform_json(topology_obj, platform_json_info)
+
+    # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
+    convert_100_to_100m_speed(split_mode_supported_speeds)
+
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
         for port in host_ports:
             split_mode_supported_speeds[port] = \
                 {1: host_cli.interface.parse_show_interface_ethtool_status(host_engine, port)["supported speeds"]}
     return split_mode_supported_speeds
+
+
+def convert_100_to_100m_speed(split_mode_supported_speeds):
+    """
+    Convert value 100 which we get from platform.json on DUT to 100M - which is used by the test
+    :param split_mode_supported_speeds: dictionary, result of parsing platform.json file
+    :return:
+    """
+    original_value = '100'
+    new_value = '100M'
+    split_mode = 1
+    for iface, split_info in split_mode_supported_speeds.items():
+        if original_value in split_info[split_mode]:
+            split_mode_supported_speeds[iface][split_mode].remove(original_value)
+            split_mode_supported_speeds[iface][split_mode].add(new_value)
 
 
 def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_list):

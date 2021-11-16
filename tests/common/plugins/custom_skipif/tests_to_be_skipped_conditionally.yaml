@@ -611,12 +611,6 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
   - Redmine:
     - 2637874
 
-tests/nightly/fec/test_fec.py:
-  - Redmine:
-    - 2855810
-    Platform:
-    - 2201
-
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   - Platform:
     - 2201

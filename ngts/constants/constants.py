@@ -124,12 +124,12 @@ class AutonegCommandConstants:
     FEC = "FEC"
     WIDTH = "Width"
     REGEX_PARSE_EXPRESSION_FOR_MLXLINK = {
-        ADMIN: ("State\s*:\s*(\w*)", "Active", "up", "down"),
-        OPER: ("Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down"),
-        SPEED: ("Speed\s*:\s*(\d+G)", None, None, None),
-        WIDTH: ("Width\s*:\s*(\d+)x", None, None, None),
-        FEC: ("FEC\s*:\s*(.*)", "No FEC", "none", None),
-        AUTONEG_MODE: ("Auto Negotiation\s*:\s*(\w*)", "ON", "enabled", "disabled")
+        ADMIN: (r"State\s*:\s*(\w*)", "Active", "up", "down"),
+        OPER: (r"Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down"),
+        SPEED: (r"Speed\s*:\s*(?:BaseT)?(\d*M|\d*G)", None, None, None),
+        WIDTH: (r"Width\s*:\s*(\d+)x", None, None, None),
+        FEC: (r"FEC\s*:\s*(.*)", "No FEC", "none", None),
+        AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*)", "ON", "enabled", "disabled")
     }
 
 
@@ -139,6 +139,7 @@ class DefaultCredentialConstants:
 
 
 class PlatformTypesConstants:
+    FILTERED_PLATFORM_ALLIGATOR = 'SN2201'
     FILTERED_PLATFORM_ANACONDA = "SN3700"
     FILTERED_PLATFORM_ANACONDA_C = "SN3700C"
     FILTERED_PLATFORM_LIONFISH = "SN3420"
@@ -148,6 +149,7 @@ class PlatformTypesConstants:
     FILTERED_PLATFORM_TIGON = "SN4600C"
     FILTERED_PLATFORM_OCELOT = "SN4410"
 
+    PLATFORM_ALLIGATOR = 'x86_64-nvidia_sn2201-r0'
     PLATFORM_ANACONDA = 'x86_64-mlnx_msn3700-r0'
     PLATFORM_ANACONDA_C = 'x86_64-mlnx_msn3700c-r0'
     PLATFORM_BOXER = 'x86_64-mlnx_msn2010-r0'
@@ -163,9 +165,16 @@ class PlatformTypesConstants:
 
 class InterfacesTypeConstants:
     INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC = {
-        SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
-        SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
-        SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']},
+        PlatformTypesConstants.FILTERED_PLATFORM_ALLIGATOR: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['100M', '1G', '10G', '25G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']}
+        },
+        'default': {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']},
+        }
     }
     INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC2 = {
         PlatformTypesConstants.FILTERED_PLATFORM_LIONFISH: {

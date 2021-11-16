@@ -92,21 +92,24 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds):
     4: [('Ethernet20', 'Ethernet24')]}
     """
     lb_list_in_split_mode_1 = random.sample(get_dut_loopbacks(topology_obj), k=3)
-    split_2_lb = (topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])
-    split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
+    split_2_lb = get_split_loopbacks_set(topology_obj, split_mode=2)
+    split_4_lb = get_split_loopbacks_set(topology_obj, split_mode=4)
+
     tested_lb_dict = {
         1: {
             SonicConst.FEC_RS_MODE: [lb_list_in_split_mode_1[0]],
             SonicConst.FEC_FC_MODE: [lb_list_in_split_mode_1[1]],
-            SonicConst.FEC_NONE_MODE: [lb_list_in_split_mode_1[2]],
-        },
-        2: {
-            random.choice(FEC_MODE_LIST): [split_2_lb]
+            SonicConst.FEC_NONE_MODE: [lb_list_in_split_mode_1[2]]
         }
     }
-    mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
-    if mutual_speeds:
-        tested_lb_dict[4] = {random.choice(FEC_MODE_LIST): [split_4_lb]}
+
+    if split_2_lb:
+        tested_lb_dict[2] = {random.choice(FEC_MODE_LIST): [split_2_lb]}
+    if split_4_lb:
+        mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
+        if mutual_speeds:
+            tested_lb_dict[4] = {random.choice(FEC_MODE_LIST): [split_4_lb]}
+
     return tested_lb_dict
 
 
@@ -121,21 +124,38 @@ def tested_lb_dict_for_bug_2705016_flow(topology_obj, split_mode_supported_speed
     """
     modes_checked_in_bug_2705016_flow = [SonicConst.FEC_RS_MODE, SonicConst.FEC_NONE_MODE]
     lb_list_in_split_mode_1 = random.sample(get_dut_loopbacks(topology_obj), k=4)
-    split_2_lb = (topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])
-    split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
+    split_2_lb = get_split_loopbacks_set(topology_obj, split_mode=2)
+    split_4_lb = get_split_loopbacks_set(topology_obj, split_mode=4)
+
     tested_lb_dict = {
         1: {
             SonicConst.FEC_RS_MODE: [lb_list_in_split_mode_1[0], lb_list_in_split_mode_1[1]],
-            SonicConst.FEC_NONE_MODE: [lb_list_in_split_mode_1[2], lb_list_in_split_mode_1[3]],
-        },
-        2: {
-            random.choice(modes_checked_in_bug_2705016_flow): [split_2_lb]
+            SonicConst.FEC_NONE_MODE: [lb_list_in_split_mode_1[2], lb_list_in_split_mode_1[3]]
         }
     }
-    mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
-    if mutual_speeds:
-        tested_lb_dict[4] = {random.choice(modes_checked_in_bug_2705016_flow): [split_4_lb]}
+
+    if split_2_lb:
+        tested_lb_dict[2] = {random.choice(modes_checked_in_bug_2705016_flow): [split_2_lb]}
+    if split_4_lb:
+        mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
+        if mutual_speeds:
+            tested_lb_dict[4] = {random.choice(modes_checked_in_bug_2705016_flow): [split_4_lb]}
+
     return tested_lb_dict
+
+
+def get_split_loopbacks_set(topology_obj, split_mode):
+    """
+    Get set with loopbacks which have split by split_mode
+    :param topology_obj: topology_obj fixture
+    :param split_mode: split mode, could be 2, 4, 8
+    :return: example: ('Ethernet0', 'Ethernet1')
+    """
+    split_lb = ()
+    if topology_obj.ports.get(f'dut-lb-splt{split_mode}-p1-1'):
+        split_lb = (topology_obj.ports[f'dut-lb-splt{split_mode}-p1-1'],
+                    topology_obj.ports[f'dut-lb-splt{split_mode}-p2-1'])
+    return split_lb
 
 
 @pytest.fixture(autouse=True, scope='session')
