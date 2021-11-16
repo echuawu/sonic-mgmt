@@ -138,6 +138,13 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
 platform_tests/fw_utility/test_fwutil.py:
   - Platform:
     - msn4
+  - Redmine:
+    - 2859637
+    - 2859641
+    - 2859644
+    - 2859647
+    Platform:
+    - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
   - Platform:
