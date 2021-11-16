@@ -376,7 +376,7 @@
           "category": "Clean env",
           "node": "SONIC_LITE",
           "parameters": {
-            "cmd": "if [[ -d \"\\${nfs_dir}\" ]] ; then find \\${nfs_dir}/* -maxdepth 0 ! -name 'LOGS' -exec rm -rf {} +; fi"
+            "cmd": "if [[ -d ${nfs_dir} ]] ; then find ${nfs_dir}/* -maxdepth 0 ! -name 'LOGS' -exec rm -rf {} +; fi"
           },
           "skip": false,
           "finally": true,
