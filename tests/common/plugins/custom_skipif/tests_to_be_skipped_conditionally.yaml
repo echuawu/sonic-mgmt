@@ -41,6 +41,12 @@ drop_packets/test_wjh.py::test_l1_agg_port_up:
     - 2854037
 
 # Platform
+platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
+  - Redmine:
+    - 2860420
+    Platform:
+    - 2201
+
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
   - Redmine:
@@ -541,6 +547,13 @@ tests/nightly/auto_negotition/test_auto_neg.py:
     - 4600
     - 4600c
 
+# Test use command "show interfaces transceiver eeprom" which is not supported yet
+tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg:
+  - Redmine:
+    - 2850655
+    Platform:
+    - 2201
+
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
     - 2686798
@@ -564,6 +577,12 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_break
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
     - simx
+
+tests/nightly/lag/test_lag.py::test_lag_members_scale:
+  - Redmine:
+    - 2828966
+    Platform:
+    - 2201
 
 tests/nightly/static_route/test_static_route.py:
   - Platform:
@@ -637,6 +656,10 @@ tests/nightly/fec:
     Platform:
     - 4600
     - 4600c
+  - Redmine:
+    - 2855810
+    Platform:
+    - 2201
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   - Redmine:
