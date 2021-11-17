@@ -139,7 +139,8 @@ class TestAutoNegNegative(TestAutoNegBase):
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """
-        split_mode = random.choice([2, 1])
+        possible_split_modes = [1, 2] if self.tested_lb_dict.get(2) else [1]
+        split_mode = random.choice(possible_split_modes)
         first_lb = 0
         lb = self.tested_lb_dict[split_mode][first_lb]
         logger.info("Verify the command return error if given invalid interface name")
