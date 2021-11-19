@@ -899,18 +899,15 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/23" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet88"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/24" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet92"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/25" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet96"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/26/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet100"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/26/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet104"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/27/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet106"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/27/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet108"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/28/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet110"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/28/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet112"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/29/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet114"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/29/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet116"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/30/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet120"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/30/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet122"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet124"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet126"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/27/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet104"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/27/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet106"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/28/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet108"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/28/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet110"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/29/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/29/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet114"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/30/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet116"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet120"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet124"/>
 
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-3700c-02" EndPort="ethernet 1/1" StartDevice="mtbc-3700c-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-3700c-02" EndPort="ethernet 1/2" StartDevice="mtbc-3700c-01" StartPort="Ethernet4"/>
