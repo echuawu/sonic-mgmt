@@ -554,6 +554,10 @@ tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg:
     Platform:
     - 2201
 
+tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
+  - Redmine:
+    - 2859972
+
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
     - 2686798
