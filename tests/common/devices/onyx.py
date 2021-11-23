@@ -89,7 +89,7 @@ class OnyxHost(AnsibleHostBase):
         logger.debug('Get supported speeds for port {} from onyx: {}'.format(interface_name, out))
         if not out:
             return None
-
+        
         # The output should be something like: "Supported speeds:1G 10G 25G 50G"
         speeds = out.split(':')[-1].split()
         return list(set([x.split('G')[0] + '000' for x in speeds]))
