@@ -134,6 +134,18 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
     Platform:
     - 2201
 
+platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
+  - Branch:
+    - 201811
+    - 201911
+    - 202012
+
+platform_tests/api/test_psu.py::TestPsuApi::test_get_serial:
+  - Branch:
+    - 201811
+    - 201911
+    - 202012
+
 # Test failed because "systemctl is-system-running" returns "degraded"
 platform_tests/test_reload_config.py:
   - Redmine:
