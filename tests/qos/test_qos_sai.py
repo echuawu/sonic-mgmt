@@ -738,8 +738,13 @@ class TestQosSai(QosSaiBase):
             "cell_size": qosConfig["wm_pg_headroom"]["cell_size"],
             "hwsku":dutTestParams['hwsku']
         })
+
+        if "pkts_num_egr_mem" in qosConfig.keys():
+            testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
+
         if "pkts_num_margin" in qosConfig["wm_pg_headroom"].keys():
             testParams["pkts_num_margin"] = qosConfig["wm_pg_headroom"]["pkts_num_margin"]
+
         self.runPtfTest(
             ptfhost, testCase="sai_qos_tests.PGHeadroomWatermarkTest",
             testParams=testParams

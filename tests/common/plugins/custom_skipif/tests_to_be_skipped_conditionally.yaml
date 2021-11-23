@@ -1,4 +1,9 @@
 ########## Community ##########
+# vlan
+  vlan/test_vlan.py:
+    - Redmine:
+        - 2866332
+
 # Autoneg
 platform_tests/test_auto_negotiation.py:
   - Platform:
