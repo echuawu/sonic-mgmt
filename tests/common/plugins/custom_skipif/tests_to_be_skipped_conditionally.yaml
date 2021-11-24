@@ -40,6 +40,17 @@ drop_packets/test_wjh.py::test_l1_agg_port_up:
   - Redmine:
     - 2854037
 
+# SONiC can't enable loop-back filter feature
+# Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
+# Default SONiC behavior is to forward the traffic, so loop-back filter does not triggers for IP packets.
+# All router interfaces has attribute "sx_interface_attributes_t.loopback_enable" - enabled.
+# To enable loop-back filter drops - need to disable that attribute when create RIF.
+# To do this can be used SAI attribute SAI_ROUTER_INTERFACE_ATTR_LOOPBACK_PACKET_ACTION, which is not exposed to SONiC
+drop_packets/test_wjh.py::test_loopback_filter:
+  - Platform:
+    - x86_64-mlnx_msn
+    - x86_64-nvidia
+
 # Platform
 platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
   - Redmine:
