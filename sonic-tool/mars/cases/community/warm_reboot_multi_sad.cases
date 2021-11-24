@@ -9,8 +9,8 @@
         </Test>
         <Case>
             <tags> WARM_REBOOT_MULTI_SAD </tags>
-            <wrapper> run_ansible_playbook.py </wrapper>
-            <tout> 3600 </tout>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
+            <tout> 7200 </tout>
         </Case>
     </global>
 
@@ -24,32 +24,14 @@
             </condition>
         </ignore>
 
-        <pre>
-            <info> run linkstate/up.yml </info>
-            <name> run linkstate/up.yml </name>
-            <tout> 300 </tout>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --raw_args "\'-i linkstate/testbed_inv.py -e target_host=[[conf:extra_info.dut_name]]-fastreboot linkstate/up.yml -e lab_admin_pass=3tango -e fanout_listener=\"scripts/mlnx/fanout_listener.py\"\'" </static_args>
-            </params>
-        </pre>
-
         <info> Warm_Reboot_Multi_Sad Case </info>
         <name> warm_reboot_multi_sad </name>
-        <tout> 12600 </tout>
+        <tout> 24000 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --raw_args "\'test_sonic.yml -i inventory --limit [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_name=[[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] -e testbed_type=[[conf:extra_info.topology]] -e testcase_name=warm-reboot-multi-sad -e reboot_limit=1 [[conf:extra_info.verbosity]]\'" </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_advanced_reboot.py::test_warm_reboot_multi_sad  </static_args>
              </params>
         </cmd>
-
-        <post>
-            <info> run linkstate/down.yml </info>
-            <name> run linkstate/down.yml </name>
-            <tout> 300 </tout>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --raw_args "\'-i linkstate/testbed_inv.py -e target_host=[[conf:extra_info.dut_name]]-fastreboot linkstate/down.yml -e lab_admin_pass=3tango\'" </static_args>
-            </params>
-        </post>
 
     </case>
 
