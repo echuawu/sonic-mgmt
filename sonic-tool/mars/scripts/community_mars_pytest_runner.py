@@ -152,7 +152,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         cmd = "py.test {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} --allure_server_project_id={ALLURE_PROJ}"
+               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} --allure_server_project_id={ALLURE_PROJ} --skip_sanity"
         cmd = cmd.format(SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
                          SONIC_TOPO=self.sonic_topo,
