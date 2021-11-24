@@ -17,6 +17,7 @@ import contextlib
 import subprocess
 import traceback
 import logging
+import requests
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import shutil
 import json
@@ -87,6 +88,8 @@ def _parse_args():
                             " Content of file: '{\"lc-manager\":\"harbor.mellanox.com/sonic-lc-manager/lc-manager:0.0.6\","
                             "\"p4-sampling\":\"harbor.mellanox.com/sonic-p4/p4-sampling:0.2.0-004\"}' ",
                        dest="app_extension_dict_path", default="")
+    parser.add_argument("--additional-apps", help="Specify url to WJH debian package or JSON data of app extensions",
+                        dest="additional_apps", default="")
 
     return parser.parse_args()
 
@@ -561,6 +564,31 @@ def validate_args(args):
                         ' Please provide a target version.')
     if args.wjh_deb_url and args.app_extension_dict_path:
         raise Exception('Argument wjh_deb_url or app_extension_dict_path should be provided, you provided both')
+    if (args.additional_apps and args.wjh_deb_url) or (args.additional_apps and args.app_extension_dict_path):
+        raise Exception('Argument additional_apps can not be used with wjh_deb_url or app_extension_dict_path')
+
+
+def is_additional_apps_argument_is_deb_package(additional_apps_argument):
+    is_deb_package = False
+    path = additional_apps_argument
+    try:
+        if os.path.islink(additional_apps_argument):
+            path = os.readlink(additional_apps_argument)
+        if path.endswith('.deb'):
+            is_deb_package = True
+    except OSError:
+        pass
+    return is_deb_package
+
+
+def is_additional_apps_argument_is_app_ext_dict(additional_apps_argument):
+    is_app_ext_dict = False
+    try:
+        requests.get('{}/{}'.format(constants.HTTTP_SERVER_FIT69, additional_apps_argument)).json()
+        is_app_ext_dict = True
+    except json.decoder.JSONDecodeError:
+        pass
+    return is_app_ext_dict
 
 
 def main():
@@ -641,13 +669,22 @@ def main():
         reboot_validation(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, reboot=args.reboot,
                           dut_name=args.dut_name, sonic_topo=args.sonic_topo)
 
+    if args.additional_apps:
+        if is_additional_apps_argument_is_deb_package(args.additional_apps):
+            args.wjh_deb_url = '{}{}'.format(constants.HTTTP_SERVER_FIT69, args.additional_apps)
+        elif is_additional_apps_argument_is_app_ext_dict(args.additional_apps):
+            args.app_extension_dict_path = args.additional_apps
+
     if args.wjh_deb_url:
         install_wjh(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
                     sonic_topo=args.sonic_topo, wjh_deb_url=args.wjh_deb_url)
-    else:
+
+    if args.app_extension_dict_path:
         install_supported_app_extensions(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                                         setup_name=args.setup_name, app_extension_dict_path=args.app_extension_dict_path,
+                                         setup_name=args.setup_name,
+                                         app_extension_dict_path=args.app_extension_dict_path,
                                          dut_name=args.dut_name)
+
 
 if __name__ == "__main__":
     main()
