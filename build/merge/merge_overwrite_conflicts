@@ -25,3 +25,8 @@ ansible/testbed.csv
 ansible/vars/docker_registry.yml
 tests/common/devices.py
 tests/common/plugins/custom_skipif/credentials.yaml
+tests/common/plugins/allure_server/__init__.py
+tests/common/plugins/custom_skipif/CustomSkipIf.py
+tests/common/plugins/custom_skipif/Platform.py
+tests/common/plugins/custom_skipif/GitHub.py
+tests/common/plugins/custom_skipif/credentials.yaml
