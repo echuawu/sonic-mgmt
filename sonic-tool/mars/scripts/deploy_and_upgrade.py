@@ -358,52 +358,23 @@ def deploy_fanout(ansible_path, mgmt_docker_engine, topo, setup_name, onyx_image
         logger.info("Running CMD: {}".format(cmd))
         return mgmt_docker_engine.run(cmd)
 
+
 @separate_logger
 def recover_topology(ansible_path, mgmt_docker_engine, hypervisor_engine, dut_name, sonic_topo):
     """
-    Method which doing recover for VMs and topo in case of community setup
+    Method which add cEOS dockers and topo in case of community setup
     """
-    logger.info("Recover VMs in case there are VMs down or crashed")
-    with mgmt_docker_engine.cd(ansible_path):
-        header_line = mgmt_docker_engine.run("head -n 1 ./testbed.csv").stdout.strip()
-        headers = header_line.split(',')
-        server_index = headers.index('server')
-        vms_number = mgmt_docker_engine.run(
-            "grep {SWITCH}-{TOPO}, ./testbed.csv | cut -f{SERVER_INDEX} -d',' | grep -o -E [0-9]+"
-            .format(SWITCH=dut_name, TOPO=sonic_topo, SERVER_INDEX=server_index + 1)).stdout.strip()
-        vms_ping_res = mgmt_docker_engine.run("ansible -m ping -i veos vms_{}".format(vms_number), warn=True)
-    if vms_ping_res.failed:
-        down_vms = []
-        for line in vms_ping_res.stdout.splitlines():
-            if "UNREACHABLE" in line:
-                try:
-                    down_vm = re.search("VM[0-9]+", line).group(0)
-                    down_vms.append(down_vm)
-                except AttributeError as e:
-                    logger.error("Unable to extract VM name from line: %s" % line)
-                    logger.error("Exception: %s" + repr(e))
-
-        hypervisor_engine.run("virsh list")
-        for vm in down_vms:
-            hypervisor_engine.run("virsh destroy {}".format(vm), warn=True)
-        hypervisor_engine.run("virsh list")
-
-        with mgmt_docker_engine.cd(ansible_path):
-            cmd = "./testbed-cli.sh start-vms server_{} vault".format(vms_number)
-            logger.info("Running CMD: {}".format(cmd))
-            mgmt_docker_engine.run(cmd)
-
-    logger.info("Continue preparing topology for SONiC testing")
+    logger.info("Preparing topology for SONiC testing")
     with mgmt_docker_engine.cd(ansible_path):
         logger.info("Remove all topologies. This may increase a chance to deploy a new one successful")
         for topology in constants.TOPO_ARRAY:
             logger.info("Remove topo {}".format(topology))
-            cmd = "./testbed-cli.sh remove-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name, TOPO=topology)
+            cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name, TOPO=topology)
             logger.info("Running CMD: {}".format(cmd))
             mgmt_docker_engine.run(cmd, warn=True)
 
         logger.info("Add topology")
-        cmd = "./testbed-cli.sh add-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name, TOPO=sonic_topo)
+        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name, TOPO=sonic_topo)
         logger.info("Running CMD: {}".format(cmd))
         mgmt_docker_engine.run(cmd)
 
