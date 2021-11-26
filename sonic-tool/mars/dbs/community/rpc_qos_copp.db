@@ -4,16 +4,24 @@
 		<!-- parameters passed to setup steps commands-->
 		<default_params_type> basic_setup_step_params </default_params_type>
 		<DB>
-			<info> PFC_ASYM </info>
+			<info> RPC_QOS_COPP </info>
 			<owner> SONiC </owner>
 			<group> SONiC </group>
 
 			<!-- OPTIONAL TAGS -->
-			<tags> PFC_ASYM </tags>
+			<tags> RPC_QOS_COPP </tags>
+			<ignore>
+                		<condition>
+					<key> run_rpc_image </key>
+					<op> == </op>
+					<value>  no </value>
+				</condition>
+			</ignore>
 
 			<!-- pre db commands - executed once before DB run -->
 			<pre>
 			</pre>
+
 
             <pre>
                 <info> check configured topology </info>
@@ -23,7 +31,7 @@
                 <ignore_pre_fail> True </ignore_pre_fail>
                 <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
                 <params>
-                    <exec> test [[conf:extra_info.topology]] = t0 </exec>
+                    <exec> test [[conf:extra_info.topology]] = ptf32 </exec>
                 </params>
 
                 <on_failure>
@@ -43,7 +51,7 @@
                         <name> add required topology </name>
                         <tout> 1800 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh add-topo [[conf:extra_info.dut_name]]-t0 vault </exec>
+                            <exec> ./testbed-cli.sh add-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
@@ -53,12 +61,13 @@
                         <name> deploy minigraph of required topology </name>
                         <tout> 1200 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-t0 lab vault </exec>
+                            <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-ptf32 lab vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                 </on_failure>
             </pre>
+
 
             <post>
                 <info> check configured topology </info>
@@ -66,7 +75,7 @@
                 <name> check configured topology </name>
                 <tout> 30 </tout>
                 <params>
-                    <exec> test [[conf:extra_info.topology]] = t0 </exec>
+                    <exec> test [[conf:extra_info.topology]] = ptf32 </exec>
                 </params>
 
                 <on_failure>
@@ -76,7 +85,7 @@
                         <name> remove required topology </name>
                         <tout> 300 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh remove-topo [[conf:extra_info.dut_name]]-t0 vault </exec>
+                            <exec> ./testbed-cli.sh remove-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
@@ -111,13 +120,25 @@
 			<!-- OPTIONAL TAGS -->
 			<!--<tags> TAG NAME</tags>-->
 			<pre></pre>
-			<ignore></ignore>
+			<ignore>
+				<condition>
+					<key> run_rpc_image </key>
+					<op> == </op>
+					<value>  no </value>
+				</condition>
+			</ignore>
 			<post></post>
 		</Case>
 	</global>
 
     <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/pfc_asym.cases </cases>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/qos.cases </cases>
     </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/copp.cases </cases>
+    </test>
+
+
 
 </DBDEF>

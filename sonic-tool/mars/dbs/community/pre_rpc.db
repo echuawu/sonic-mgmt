@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DBDEF>
+	<global>
+		<!-- parameters passed to setup steps commands-->
+		<default_params_type> basic_setup_step_params </default_params_type>
+		<DB>
+			<info> PRE RPC test </info>
+			<owner> SONiC </owner>
+			<group> SONiC </group>
+
+			<!-- OPTIONAL TAGS -->
+			<tags> PRE RPC </tags>
+
+			<!-- pre db commands - executed once before DB run -->
+			<pre>
+			</pre>
+
+			<post>
+            </post>
+
+		</DB>
+		<Test>
+			<pre></pre>
+			<post></post>
+		</Test>
+		<Case>
+			<!-- OPTIONAL TAGS -->
+			<!--<tags> TAG NAME</tags>-->
+			<pre></pre>
+			<ignore>
+				<condition>
+					<key> run_rpc_image </key>
+					<op> == </op>
+					<value>  no </value>
+				</condition>
+			</ignore>
+			<post></post>
+		</Case>
+	</global>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/pre_rpc.cases </cases>
+    </test>
+
+
+
+</DBDEF>
