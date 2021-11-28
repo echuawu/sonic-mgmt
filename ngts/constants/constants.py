@@ -78,6 +78,10 @@ class LinuxConsts:
     linux = 'linux'
 
 
+class OnieConsts:
+    ONIE_VERSION = '2021.05-5.3.0006'
+
+
 class TopologyConsts:
     engine = 'engine'
     players = 'players'
