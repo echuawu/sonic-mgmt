@@ -80,6 +80,7 @@ class LinuxConsts:
 
 class OnieConsts:
     ONIE_VERSION = '2021.05-5.3.0006'
+    ALLIGATOR_ONIE_VERSION_SYMBOL = 'nvidia_sn2201'
 
 
 class TopologyConsts:

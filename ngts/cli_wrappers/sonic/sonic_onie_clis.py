@@ -131,4 +131,5 @@ class SonicOnieCli:
 
     def required_onie_version_installed(self):
         onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
-        return OnieConsts.ONIE_VERSION in onie_version_output
+        return (OnieConsts.ONIE_VERSION in onie_version_output) or \
+               (OnieConsts.ALLIGATOR_ONIE_VERSION_SYMBOL in onie_version_output)
