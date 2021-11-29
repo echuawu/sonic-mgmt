@@ -454,6 +454,7 @@ class SonicGeneralCli(GeneralCliCommon):
         SonicGeneralCli.create_extended_config_db_file(setup_name, base_config_db_json,
                                                        file_name=config_db_file_name)
         SonicGeneralCli.update_config_db_metadata_router(setup_name, config_db_file_name)
+        SonicGeneralCli.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
         SonicGeneralCli.update_config_db_features(setup_name, dut_engine, hwsku, config_db_file_name)
         SonicGeneralCli.update_config_db_feature_config(setup_name, "database", "auto_restart",
                                                         "always_enabled", config_db_file_name)
