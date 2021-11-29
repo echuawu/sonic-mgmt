@@ -35,6 +35,11 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     - msn3
     - msn4
 
+# copp
+copp/test_copp.py::TestCOPP::test_counter:
+  - Redmine:
+    - 2863613
+
 # wjh
 drop_packets/test_wjh.py::test_l1_agg_port_up:
   - Redmine:
