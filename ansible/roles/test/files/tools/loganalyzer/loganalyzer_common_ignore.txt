@@ -64,3 +64,6 @@ r, ".* ERR swss#orchagent: :- removeLag: Failed to remove LAG PortChannel.* it i
 r, ".* ERR kernel:.*PortChannel.*: Device Ethernet.* is up. Set it down before adding it as a team port"
 r, ".* ERR \/hostcfgd: sudo systemctl disable cpu-report.service - failed: return code - 1, output:#012None"
 r, ".* ERR \/hostcfgd: Feature 'cpu-report.service' failed to be stopped and disabled"
+r, ".* ERR swss#orchagent: :- objectTypeGetAvailability: attr SAI_\w+_ENTRY_ATTR_PACKET_ACTION is not resource type"
+r, ".* ERR swss#orchagent: :- getResAvailableCounters: Failed to get availability for object_type \d+ , rv:-\d+"
+r, ".* ERR .* Failed to write 0 to file \/var\/run\/hw-management\/led\/led_\w+_\w+_delay_\w+ - PermissionError\(13, 'Permission denied'\)"
