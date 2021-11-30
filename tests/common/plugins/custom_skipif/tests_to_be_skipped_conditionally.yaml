@@ -669,6 +669,12 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
       - master
       - HEAD # Ignore also on CI versions
 
+tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route:
+  - Redmine:
+    - 2859779
+    Branch:
+      - master
+
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
     - simx
