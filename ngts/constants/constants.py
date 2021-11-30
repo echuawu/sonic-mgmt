@@ -47,6 +47,7 @@ class SonicConst:
 
 class InfraConst:
     HTTP_SERVER = 'http://fit69'
+    HTTTP_SERVER_FIT16 = 'http://r-fit16-clone.mtr.labs.mlnx'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
     METADATA_PATH = "/.autodirect/sw_regression/system/SONIC/MARS/metadata/"
@@ -76,11 +77,6 @@ class LinuxConsts:
     FEC_AUTO_MODE = 'auto'
     error_exit_code = 1
     linux = 'linux'
-
-
-class OnieConsts:
-    ONIE_VERSION = '2021.05-5.3.0006'
-    ALLIGATOR_ONIE_VERSION_SYMBOL = 'nvidia_sn2201'
 
 
 class TopologyConsts:
@@ -145,14 +141,14 @@ class DefaultCredentialConstants:
 
 class PlatformTypesConstants:
     FILTERED_PLATFORM_ALLIGATOR = 'SN2201'
-    FILTERED_PLATFORM_ANACONDA = "SN3700"
-    FILTERED_PLATFORM_ANACONDA_C = "SN3700C"
-    FILTERED_PLATFORM_LIONFISH = "SN3420"
-    FILTERED_PLATFORM_TIGRIS = "SN3800"
-    FILTERED_PLATFORM_LIGER = "SN4600"
-    FILTERED_PLATFORM_LEOPARD = "SN4700"
-    FILTERED_PLATFORM_TIGON = "SN4600C"
-    FILTERED_PLATFORM_OCELOT = "SN4410"
+    FILTERED_PLATFORM_ANACONDA = "MSN3700"
+    FILTERED_PLATFORM_ANACONDA_C = "MSN3700C"
+    FILTERED_PLATFORM_LIONFISH = "MSN3420"
+    FILTERED_PLATFORM_TIGRIS = "MSN3800"
+    FILTERED_PLATFORM_LIGER = "MSN4600"
+    FILTERED_PLATFORM_LEOPARD = "MSN4700"
+    FILTERED_PLATFORM_TIGON = "MSN4600C"
+    FILTERED_PLATFORM_OCELOT = "MSN4410"
 
     PLATFORM_ALLIGATOR = 'x86_64-nvidia_sn2201-r0'
     PLATFORM_ANACONDA = 'x86_64-mlnx_msn3700-r0'

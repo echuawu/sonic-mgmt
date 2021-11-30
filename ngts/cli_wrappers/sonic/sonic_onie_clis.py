@@ -4,14 +4,18 @@ import allure
 import pexpect
 from retry.api import retry_call
 
-from ngts.constants.constants import OnieConsts
 from infra.tools.connection_tools.onie_engine import OnieEngine
-from ngts.constants.constants import InfraConst
+from ngts.constants.constants import InfraConst, PlatformTypesConstants
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+from ngts.helpers.json_file_helper import extract_fw_data
 
 logger = logging.getLogger()
 
-ONIE_UPDATER_URL = f'http://10.208.1.55/onie_only/{OnieConsts.ONIE_VERSION}/9600/onie-updater-x86_64-mlnx_x86-r0'
+BASE_ONIE_UPDATER_URL = InfraConst.HTTTP_SERVER_FIT16 + '/onie_only/{}/9600/onie-updater-x86_64-mlnx_x86-r0'
+SPECIAL_ONIE_UPDATER_URL = {
+    PlatformTypesConstants.FILTERED_PLATFORM_ALLIGATOR:
+        InfraConst.HTTTP_SERVER_FIT16 + '/onie_only/sn2201/{}/115200/onie-updater-x86_64-nvidia_sn2201-r0'
+}
 DEFAULT_PROMPT = ["ONIE:.+ #", pexpect.EOF]
 
 
@@ -25,9 +29,12 @@ class SonicOnieCli:
     """
     This class defines methods over Onie
     """
-    def __init__(self, host_ip):
+    def __init__(self, host_ip, fw_pkg_path=None, platform_params=None):
         self.ip = host_ip
         self.engine = None
+        self.latest_onie_version = None
+        self.fw_pkg_path = fw_pkg_path
+        self.platform_params = platform_params
         self.create_engine()
 
     def create_engine(self, create_force=False):
@@ -117,19 +124,47 @@ class SonicOnieCli:
         return stdout
 
     def update_onie(self):
-        if not self.required_onie_version_installed():
-            with allure.step(f"Install required ONIE version {OnieConsts.ONIE_VERSION}-9600"):
+        if self.required_onie_installation():
+            with allure.step(f"Install required ONIE version {self.latest_onie_version}"):
                 logger.info(
-                    f'Switch have not required ONIE version {OnieConsts.ONIE_VERSION}-9600, ONIE will be updated')
+                    f'Switch have not required ONIE version {self.latest_onie_version}, ONIE will be updated')
                 self.confirm_onie_boot_mode_update()
                 # restore engine after reboot
                 self.create_engine(True)
-                self.run_cmd_set([f'onie-self-update {ONIE_UPDATER_URL}'])
+                onie_updater_url = SPECIAL_ONIE_UPDATER_URL.get(self.platform_params.filtered_platform.upper(),
+                                                                BASE_ONIE_UPDATER_URL)
+                onie_updater_url = onie_updater_url.\
+                    format(self.cut_console_baud_rate_from_onie_version(self.latest_onie_version))
+                self.run_cmd_set([f'onie-self-update {onie_updater_url}'])
                 self.post_reboot_delay()
-        else:
-            logger.info(f'Switch already installed with required ONIE version {OnieConsts.ONIE_VERSION}-9600')
 
-    def required_onie_version_installed(self):
+    @staticmethod
+    def cut_console_baud_rate_from_onie_version(onie_version):
+        """
+        Cut console baud rate(9600 or 115200) from onie version
+        :param onie_version:
+        :return: onie version without baud rate
+        """
+        return '-'.join(onie_version.split('-')[:-1])
+
+    def required_onie_installation(self):
         onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
-        return (OnieConsts.ONIE_VERSION in onie_version_output) or \
-               (OnieConsts.ALLIGATOR_ONIE_VERSION_SYMBOL in onie_version_output)
+        self.get_latest_onie_version()
+        return (self.latest_onie_version is not None) and \
+               (self.latest_onie_version not in onie_version_output)
+
+    def get_latest_onie_version(self):
+        if self.fw_pkg_path is None:
+            logger.warning("No firmware package file path specified.")
+        else:
+            logger.warning(f"Get latest ONIE version from specified file {self.fw_pkg_path}")
+            fw_data = extract_fw_data(self.fw_pkg_path)
+            if self.platform_params.filtered_platform.upper() in fw_data["chassis"]:
+                onie_info_list = fw_data["chassis"][self.platform_params.filtered_platform.upper()]["component"]["ONIE"]
+                for onie_version_info in onie_info_list:
+                    if "onie-latest" in onie_version_info["firmware"]:
+                        self.latest_onie_version = onie_version_info["version"]
+                        break
+            else:
+                logger.warning(f"The specified platform {self.platform_params.filtered_platform.upper()} not in the"
+                               f" provided firmware package file {self.fw_pkg_path}")

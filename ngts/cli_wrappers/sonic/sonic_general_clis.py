@@ -273,7 +273,7 @@ class SonicGeneralCli(GeneralCliCommon):
             return output.splitlines()[-1]
 
     @staticmethod
-    def do_installation(topology_obj, dut_engine, image_path, deploy_type):
+    def do_installation(topology_obj, dut_engine, image_path, deploy_type, fw_pkg_path, platform_params):
         with allure.step('Preparing switch for installation'):
             in_onie = SonicGeneralCli.prepare_for_installation(topology_obj)
 
@@ -284,19 +284,20 @@ class SonicGeneralCli(GeneralCliCommon):
             SonicGeneralCli.deploy_sonic(dut_engine, image_path)
 
         if deploy_type == 'onie':
-            SonicGeneralCli.deploy_onie(dut_engine, image_path, in_onie)
+            SonicGeneralCli.deploy_onie(dut_engine, image_path, in_onie, fw_pkg_path, platform_params)
 
     @staticmethod
     def deploy_image(topology_obj, image_path, apply_base_config=False, setup_name=None,
-                     platform=None, hwsku=None,
-                     wjh_deb_url=None, deploy_type='sonic', reboot_after_install=None):
+                     platform_params=None, wjh_deb_url=None, deploy_type='sonic',
+                     reboot_after_install=None, fw_pkg_path=None):
         dut_engine = topology_obj.players['dut']['engine']
         cli_object = topology_obj.players['dut']['cli']
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
             with allure.step("Trying to install sonic image"):
-                SonicGeneralCli.do_installation(topology_obj, dut_engine, image_path, deploy_type)
+                SonicGeneralCli.do_installation(topology_obj, dut_engine, image_path, deploy_type,
+                                                fw_pkg_path, platform_params)
         except OnieInstallationError:
             with allure.step("Catched exception OnieInstallationError during install. Perform reboot and trying again"):
                 logger.error('Catched exception OnieInstallationError during install. Perform reboot and trying again')
@@ -311,7 +312,7 @@ class SonicGeneralCli(GeneralCliCommon):
 
         if apply_base_config:
             with allure.step("Apply port_config.ini and config_db.json"):
-                SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku)
+                SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform_params)
 
         if wjh_deb_url:
             with allure.step("Installing wjh deb url"):
@@ -357,13 +358,13 @@ class SonicGeneralCli(GeneralCliCommon):
                 dut_engine.run_cmd('sudo dhclient', validate=True)
 
     @staticmethod
-    def deploy_onie(dut_engine, image_path, in_onie=False):
+    def deploy_onie(dut_engine, image_path, in_onie=False, fw_pkg_path=None, platform_params=None):
         if not in_onie:
             with allure.step('Setting boot order to onie'):
                 SonicGeneralCli.set_next_boot_entry_to_onie(dut_engine)
             with allure.step('Rebooting the switch'):
                 dut_engine.reload(['sudo reboot'], wait_after_ping=25, ssh_after_reload=False)
-        SonicOnieCli(dut_engine.ip).update_onie()
+        SonicOnieCli(dut_engine.ip, fw_pkg_path, platform_params).update_onie()
         SonicGeneralCli.install_image_onie(dut_engine.ip, image_path)
 
     @staticmethod
@@ -426,7 +427,9 @@ class SonicGeneralCli(GeneralCliCommon):
         return switch_in_onie
 
     @staticmethod
-    def apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform, hwsku):
+    def apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform_params):
+        platform = platform_params['platform']
+        hwsku = platform_params['hwsku']
         shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
         SonicGeneralCli.upload_port_config_ini(dut_engine, platform, hwsku, shared_path)

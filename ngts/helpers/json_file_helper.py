@@ -1,6 +1,9 @@
+import os
+import tarfile
 import json
 import re
 import logging
+import errno
 from ngts.constants.constants import SonicConst
 from ngts.helpers.config_db_utils import save_config_db_json
 
@@ -67,3 +70,21 @@ def add_content_to_config_db(engine_dut, content, key):
     config_db_json = get_config_db(engine_dut)
     config_db_json[key] = content
     save_config_db_json(engine_dut, config_db_json)
+
+
+def extract_fw_data(fw_pkg_path):
+    """
+    Extract fw data from updated-fw.tar.gz file
+    :param fw_pkg_path: the path to tar.gz file (like /auto/sw_system_project/sonic/platform_fw/updated-fw.tar.gz)
+    :return: fw_data in dictionary
+    """
+    try:
+        os.mkdir("/tmp/firmware")
+    except OSError as e:
+        # if already exists, thats fine
+        assert e.errno == errno.EEXIST, e
+    with tarfile.open(fw_pkg_path, "r:gz") as f:
+        f.extractall("/tmp/firmware/")
+        with open('/tmp/firmware/firmware.json', 'r') as fw:
+            fw_data = json.load(fw)
+            return fw_data

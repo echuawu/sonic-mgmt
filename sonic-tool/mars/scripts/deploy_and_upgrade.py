@@ -393,9 +393,11 @@ def install_image(ansible_path, mgmt_docker_engine, sonic_topo, image_url, setup
     cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} {ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
           " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results" \
           " --base_version={base_version} --deploy_type={deploy_type} --disable_loganalyzer {apply_base_config} " \
+          " --fw_pkg_path={sonic_mgmt_dir}/{updated_fw_tar_path}" \
           " {sonic_mgmt_dir}/ngts/scripts/sonic_deploy/test_sonic_deploy_image.py".\
         format(ngts_pytest=constants.NGTS_PATH_PYTEST, sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name,
-               base_version=image_url, deploy_type=upgrade_type, apply_base_config=apply_base_config)
+               base_version=image_url, deploy_type=upgrade_type, apply_base_config=apply_base_config,
+               updated_fw_tar_path=constants.UPDATED_FW_TAR_PATH)
     with mgmt_docker_engine.cd(ansible_path):
         logger.info("Running CMD: {}".format(cmd))
         mgmt_docker_engine.run(cmd)

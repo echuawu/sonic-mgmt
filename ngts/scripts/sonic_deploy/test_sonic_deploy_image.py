@@ -9,7 +9,7 @@ logger = logging.getLogger()
 
 @allure.title('Deploy sonic image')
 def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_version, wjh_deb_url, deploy_type, apply_base_config,
-                            reboot_after_install, is_shutdown_bgp):
+                            reboot_after_install, is_shutdown_bgp, fw_pkg_path):
     """
     This script will deploy sonic image on the dut.
     :param topology_obj: topology object fixture
@@ -21,6 +21,7 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
     :param apply_base_config: apply_base_config fixture
     :param reboot_after_install: reboot_after_install fixture
     :param is_shutdown_bgp: shutdown bgp flag, True or False
+    :param fw_pkg_path: fw_pkg_path fixture
     :return: raise assertion error in case of script failure
     """
     try:
@@ -29,8 +30,8 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
             dut_engine = topology_obj.players['dut']['engine']
             dut_engine.run_cmd('sudo config bgp shutdown all', validate=True)
         SonicGeneralCli.deploy_image(topology_obj, base_version, apply_base_config=apply_base_config, setup_name=setup_name,
-                                     platform=platform_params['platform'], hwsku=platform_params['hwsku'],
-                                     wjh_deb_url=wjh_deb_url, deploy_type=deploy_type, reboot_after_install=reboot_after_install)
+                                     platform_params=platform_params, wjh_deb_url=wjh_deb_url, deploy_type=deploy_type,
+                                     reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
     except Exception as err:
         raise AssertionError(err)
     finally:

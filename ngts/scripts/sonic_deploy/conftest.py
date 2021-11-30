@@ -29,14 +29,17 @@ def pytest_addoption(parser):
     logger.info('Parsing is shutdown bgp ')
     parser.addoption('--is_shutdown_bgp', action='store_true', required=False, default=False,
                      help='For sonic install, need shutdown bgp, or it can not access the external IP')
+    logger.info('Parsing fw_pkg')
+    parser.addoption('--fw_pkg_path', action='store', required=False, default=None,
+                     help='firmware package file path')
 
 
 @pytest.fixture(scope="module")
 def deploy_type(request):
     """
-    Method for getting base version from pytest arguments
+    Method for getting deploy type from pytest arguments
     :param request: pytest builtin
-    :return: setup name
+    :return: deploy type
     """
     return request.config.getoption('--deploy_type')
 
@@ -46,7 +49,7 @@ def apply_base_config(request):
     """
     Method for getting base version from pytest arguments
     :param request: pytest builtin
-    :return: setup name
+    :return: apply base config flag
     """
     return request.config.getoption('--apply_base_config')
 
@@ -54,7 +57,7 @@ def apply_base_config(request):
 @pytest.fixture(scope="module")
 def reboot_after_install(request):
     """
-    Method for getting base version from pytest arguments
+    Method for getting reboot after install flag pytest arguments
     :param request: pytest builtin
     :return: whether to do reboot after installation to overcome swss docker in exited state
     """
@@ -69,3 +72,13 @@ def is_shutdown_bgp(request):
     :return: True or False
     """
     return request.config.getoption('--is_shutdown_bgp')
+
+
+@pytest.fixture(scope="module")
+def fw_pkg_path(request):
+    """
+    Method for getting firmware package file path from pytest arguments
+    :param request: pytest builtin
+    :return: path to firmware package
+    """
+    return request.config.getoption('--fw_pkg_path')

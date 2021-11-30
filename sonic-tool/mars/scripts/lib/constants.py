@@ -9,6 +9,7 @@ NGTS_DEVICE_ID = "NGTS"
 DUT_DEVICE_ID = "DUT"
 FANOUT_DEVICE_ID = "FANOUT"
 SONIC_MGMT_DIR = '/root/mars/workspace/sonic-mgmt/'
+UPDATED_FW_TAR_PATH = 'tests/platform_tests/fwutil/updated-fw.tar.gz'
 HTTTP_SERVER_FIT69 = 'http://fit69.mtl.labs.mlnx'
 
 DOCKER_SONIC_MGMT_IMAGE_NAME = "docker-sonic-mgmt"
