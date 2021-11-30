@@ -71,10 +71,20 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
     - 2201
 
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/4784
   - Redmine:
     - 2819530
     Platform:
     - 2201
+
+platform_tests/test_platform_info.py::test_thermal_control_psu_absence:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/4784
+
+platform_tests/test_reboot.py::test_power_off_reboot:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/4784
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_reboot.py:
