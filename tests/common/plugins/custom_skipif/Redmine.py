@@ -44,7 +44,7 @@ def get_issues_status(issues_list):
     """
     # TODO: use credentials from dedicated user
     redmine_api_url = 'https://redmine.mellanox.com/issues/mars_statuses.json'
-    api_key = 'd6aa7057988319833df6a491c6f41cd8f7758e14'
+    api_key = '590fab44410de0fbacccff5c9f41bf4eb12f1165'
     headers = {
         'Content-Type': "application/json",
         'X-Redmine-API-Key': api_key
