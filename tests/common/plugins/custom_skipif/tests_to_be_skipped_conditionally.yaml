@@ -13,6 +13,12 @@ platform_tests/sfp/test_sfputil.py:
     Platform:
     - 2201
 
+platform_tests/test_sensors.py::test_sensors:
+  - Redmine:
+    - 2815265
+    Branch:
+    - master
+
 # ecmp
 ecmp/test_fgnhg.py:
   - Redmine:
@@ -66,6 +72,8 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
   - Redmine:
+    - 2875108
+  - Redmine:
     - 2829184
     Platform:
     - 2201
@@ -101,6 +109,8 @@ platform_tests/cli/test_show_platform.py::test_show_platform_fan:
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_sequential_restart.py::test_restart_swss:
+  - Redmine:
+    - 2875108
   - Redmine:
     - 2854587
     Platform:
@@ -138,9 +148,24 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
   - Redmine:
+    - 2877294
+    Platform:
+    - 2100
+    Branch:
+    - master
+  - Redmine:
     - 2854443
     Platform:
     - 2201
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_system_eeprom_info:
+  - Redmine:
+    - 2877330
+    Platform:
+    - 4600
+    Branch:
+    - master
+
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
   - Redmine:
@@ -174,6 +199,8 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_serial:
 
 # Test failed because "systemctl is-system-running" returns "degraded"
 platform_tests/test_reload_config.py:
+  - Redmine:
+    - 2875108
   - Redmine:
     - 2854554
     Platform:
@@ -631,6 +658,10 @@ tests/nightly/static_route/test_static_route.py:
     - simx
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
+  - Redmine:
+    - 2838163
+    Branch:
+    - master
   - Branch:
     - 202012
 
@@ -716,6 +747,10 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
     - simx
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
+  - Redmine:
+    - 2876984
+    Branch:
+    - master
   - Platform:
     - simx
 

@@ -67,3 +67,6 @@ r, ".* ERR \/hostcfgd: Feature 'cpu-report.service' failed to be stopped and dis
 r, ".* ERR swss#orchagent: :- objectTypeGetAvailability: attr SAI_\w+_ENTRY_ATTR_PACKET_ACTION is not resource type"
 r, ".* ERR swss#orchagent: :- getResAvailableCounters: Failed to get availability for object_type \d+ , rv:-\d+"
 r, ".* ERR .* Failed to write 0 to file \/var\/run\/hw-management\/led\/led_\w+_\w+_delay_\w+ - PermissionError\(13, 'Permission denied'\)"
+r, ".* ERR sonic-clear: failed to import plugin clear.plugins.dhcp-relay: No module named 'show.plugins.dhcprelay'.*"
+r, ".* ERR syncd#SDK: :- setQueueCounterList: Queue RID oid:.* can't provide the statistic"
+r, ".* ERR swss#buffermgrd: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error: command:.*"
