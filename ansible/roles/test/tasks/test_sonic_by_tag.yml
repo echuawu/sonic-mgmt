@@ -178,10 +178,6 @@
   include_tasks: neighbour-mac-noptf.yml
   tags: neighbour_mac_noptf
 
-- name: Test QoS using SAI thrift
-  include: qos_sai.yml
-  tags: qos
-
 - name: CRM test
   include_tasks: crm.yml
   tags: crm
