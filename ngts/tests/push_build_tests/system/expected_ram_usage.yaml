@@ -11,10 +11,10 @@ MSN2201: # Alligator
   total: 3500
   sx_sdk: 900
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -33,10 +33,10 @@ MSN2010: # Boxer
   total: 3500
   sx_sdk: 900
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -55,9 +55,9 @@ MSN2100: # Bulldog
   total: 3000
   sx_sdk: 500
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
+  zebra: 60
   bgpd: 40
   bgpcfgd: 30
   bgpmon: 20
@@ -77,10 +77,10 @@ MSN2410: # Spider
   total: 3000
   sx_sdk: 500
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -99,10 +99,10 @@ SN2700: # Panther
   total: 3000
   sx_sdk: 500
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -121,10 +121,10 @@ MSN2700: # Simx Panther
   total: 3000
   sx_sdk: 500
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -144,10 +144,10 @@ MSN3420: # Lionfish
   total: 4000
   sx_sdk: 1000
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -166,10 +166,10 @@ MSN3700: # Anaconda
   total: 4000
   sx_sdk: 1000
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -188,10 +188,10 @@ MSN3700C: # Anaconda C
   total: 4000
   sx_sdk: 1000
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -210,10 +210,10 @@ MSN3800: # Tigris
   total: 4000
   sx_sdk: 1000
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -233,10 +233,10 @@ MSN4410: # Ocelot
   total: 4300
   sx_sdk: 1400
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -255,10 +255,10 @@ MSN4600: # Liger
   total: 4000
   sx_sdk: 1100
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -277,10 +277,10 @@ MSN4600C: # Tigon
   total: 4000
   sx_sdk: 1100
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
@@ -299,10 +299,10 @@ MSN4700: # Leopard
   total: 4000
   sx_sdk: 1100
   syncd: 100
-  redis-server: 50
+  redis-server: 70
   snmpd: 20
-  zebra: 30
-  bgpd: 30
+  zebra: 60
+  bgpd: 50
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
