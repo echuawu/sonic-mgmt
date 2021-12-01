@@ -145,7 +145,7 @@ def load_remove_allow_list(duthosts, setup, rand_one_dut_hostname, request):
     namespace = setup['tor1_namespace']
     duthost.copy(content=json.dumps(ALLOW_LIST, indent=3), dest=ALLOW_LIST_PREFIX_JSON_FILE)
     duthost.shell('sonic-cfggen {} -j {} -w'.format('-n ' + namespace if namespace else '', ALLOW_LIST_PREFIX_JSON_FILE))
-    time.sleep(30)
+    time.sleep(3)
 
     yield request.param
 
@@ -154,7 +154,6 @@ def load_remove_allow_list(duthosts, setup, rand_one_dut_hostname, request):
         duthost.shell('sonic-db-cli {} CONFIG_DB del "{}"'.format('-n ' + namespace if namespace else '', key))
 
     duthost.shell('rm -rf {}'.format(ALLOW_LIST_PREFIX_JSON_FILE))
-    time.sleep(100)
 
 
 @pytest.fixture(scope='module')
@@ -199,7 +198,7 @@ def prepare_eos_routes(setup, ptfhost, build_routes, nbrhosts, tbinfo):
             update_routes('announce', ptfhost.mgmt_ip, tor1_exabgp_port, route)
         else:
             update_routes('announce', ptfhost.mgmt_ip, tor1_exabgp_port_v6, route)
-    time.sleep(30)
+    time.sleep(3)
 
     yield
 
