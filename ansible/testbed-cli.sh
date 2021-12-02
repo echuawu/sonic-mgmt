@@ -635,6 +635,11 @@ then
   usage
 fi
 
+if [[ $vm_type == "veos" ]]; then
+  echo "The VMs usage is deprecated on our setups, please use flag '-k ceos' in script to use dockers instead."
+  exit 1
+fi
+
 subcmd=$1
 shift
 case "${subcmd}" in
