@@ -69,6 +69,14 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
     Platform:
     - 2201
 
+platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
+  - Redmine:
+    - 2878776
+    Platform:
+    - 4600
+    Branch:
+    - master
+
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
   - Redmine:
@@ -78,6 +86,14 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
     Platform:
     - 2201
 
+platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
+  - Branch:
+    - master
+    Platform:
+    - 4600
+    Redmine:
+    - 2878715
+    - 2878776
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/4784
@@ -106,6 +122,14 @@ platform_tests/cli/test_show_platform.py::test_show_platform_fan:
     - 2829184
     Platform:
     - 2201
+
+platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
+  - Redmine:
+    - 2879089
+    Platform:
+    - 2010
+    Branch:
+    - master
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_sequential_restart.py::test_restart_swss:
@@ -169,6 +193,12 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_system_eeprom_info:
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
   - Redmine:
+    - 2877294
+    Platform:
+    - 2100
+    Branch:
+    - master
+  - Redmine:
     - 2854443
     Platform:
     - 2201
@@ -180,6 +210,12 @@ platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_name:
     - 2201
 
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
+  - Redmine:
+    - 2878776
+    Branch:
+    - master
+    Platform:
+    - 4600
   - Redmine:
     - 2854467
     Platform:
