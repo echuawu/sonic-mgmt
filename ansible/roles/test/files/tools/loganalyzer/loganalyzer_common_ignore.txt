@@ -70,3 +70,4 @@ r, ".* ERR .* Failed to write 0 to file \/var\/run\/hw-management\/led\/led_\w+_
 r, ".* ERR sonic-clear: failed to import plugin clear.plugins.dhcp-relay: No module named 'show.plugins.dhcprelay'.*"
 r, ".* ERR syncd#SDK: :- setQueueCounterList: Queue RID oid:.* can't provide the statistic"
 r, ".* ERR swss#buffermgrd: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error: command:.*"
+r, ".* ERR swss#buffermgrd: :- guard: RedisReply catches system_error: command.*Lua redis\(\) command arguments must be strings or integers : Input\/output error.*"
