@@ -24,9 +24,9 @@
 
 
             <pre>
-                <info> check configured topology </info>
+                <info> ptf32 topology checker </info>
                 <type> reg_exec_cmd </type>
-                <name> check configured topology </name>
+                <name> ptf32 topology checker </name>
                 <tout> 30 </tout>
                 <ignore_pre_fail> True </ignore_pre_fail>
                 <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
@@ -36,29 +36,29 @@
 
                 <on_failure>
                     <cmd>
-                        <info> remove configured topology </info>
+                        <info> remove original  topology </info>
                         <type> reg_exec_cmd </type>
-                        <name> remove configured topology </name>
+                        <name> remove original topology </name>
                         <tout> 300 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh remove-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
+                            <exec> ./testbed-cli.sh -k ceos remove-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
-                        <info> add required topology </info>
+                        <info> add ptf-32 topology </info>
                         <type> reg_exec_cmd </type>
-                        <name> add required topology </name>
+                        <name> add ptf-32 topology </name>
                         <tout> 1800 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh add-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
+                            <exec> ./testbed-cli.sh -k ceos add-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
-                        <info> deploy minigraph of required topology </info>
+                        <info> deploy minigraph of ptf-32 topology </info>
                         <type> reg_exec_cmd </type>
-                        <name> deploy minigraph of required topology </name>
+                        <name> deploy minigraph of ptf-32  topology </name>
                         <tout> 1200 </tout>
                         <params>
                             <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-ptf32 lab vault </exec>
@@ -70,9 +70,9 @@
 
 
             <post>
-                <info> check configured topology </info>
+                <info> original topology checker </info>
                 <type> reg_exec_cmd </type>
-                <name> check configured topology </name>
+                <name> original topology checker </name>
                 <tout> 30 </tout>
                 <params>
                     <exec> test [[conf:extra_info.topology]] = ptf32 </exec>
@@ -80,29 +80,29 @@
 
                 <on_failure>
                     <cmd>
-                        <info> remove required topology </info>
+                        <info> remove ptf-32 topology </info>
                         <type> reg_exec_cmd </type>
-                        <name> remove required topology </name>
+                        <name> remove ptf-32 topology </name>
                         <tout> 300 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh remove-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
+                            <exec> ./testbed-cli.sh -k ceos remove-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
-                        <info> add configured topology </info>
+                        <info> restore original topology </info>
                         <type> reg_exec_cmd </type>
-                        <name> add configured topology </name>
+                        <name> restore original topology </name>
                         <tout> 1800 </tout>
                         <params>
-                            <exec> ./testbed-cli.sh add-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
+                            <exec> ./testbed-cli.sh -k ceos add-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
                     <cmd>
-                        <info> deploy minigraph of configured topology </info>
+                        <info> deploy minigraph of original topology </info>
                         <type> reg_exec_cmd </type>
-                        <name> deploy minigraph of configured topology </name>
+                        <name> deploy minigraph of original topology </name>
                         <tout> 1200 </tout>
                         <params>
                             <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] lab vault </exec>
