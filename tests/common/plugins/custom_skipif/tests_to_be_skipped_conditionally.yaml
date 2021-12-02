@@ -599,18 +599,16 @@ mvrf/test_mgmtvrf.py:
 # Nightly
 
 tests/nightly/auto_negotition:
-  - Branch:
-    - 202012
-  - Platform:
-    - simx
-    - 3800
-
-tests/nightly/auto_negotition/test_auto_neg.py:
   - Redmine:
     - 2801854
     Platform:
     - 4600
     - 4600c
+  - Branch:
+    - 202012
+  - Platform:
+    - simx
+    - 3800
 
 # Test use command "show interfaces transceiver eeprom" which is not supported yet
 tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg:
