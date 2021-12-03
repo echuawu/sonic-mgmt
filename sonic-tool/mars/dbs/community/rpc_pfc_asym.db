@@ -30,10 +30,10 @@
                 <ignore_pre_fail> True </ignore_pre_fail>
                 <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
                 <params>
-                    <exec> test [[conf:extra_info.topology]] = t0 </exec>
+                    <exec> test [[conf:extra_info.topology]] != t0 </exec>
                 </params>
 
-                <on_failure>
+                <on_success>
                     <cmd>
                         <info> remove original topology </info>
                         <type> reg_exec_cmd </type>
@@ -64,7 +64,7 @@
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
-                </on_failure>
+                </on_success>
             </pre>
 
             <post>
@@ -73,10 +73,10 @@
                 <name> original topology checker </name>
                 <tout> 30 </tout>
                 <params>
-                    <exec> test [[conf:extra_info.topology]] = t0 </exec>
+                    <exec> test [[conf:extra_info.topology]] != t0 </exec>
                 </params>
 
-                <on_failure>
+                <on_success>
                     <cmd>
                         <info> remove t0 topology </info>
                         <type> reg_exec_cmd </type>
@@ -107,7 +107,7 @@
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
                         </params>
                     </cmd>
-                </on_failure>
+                </on_success>
             </post>
 		</DB>
 		<Test>
