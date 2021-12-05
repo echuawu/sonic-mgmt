@@ -33,6 +33,9 @@ tacacs_jit_user: test_jituser
 tacacs_jit_user_passwd: '123456'
 tacacs_jit_user_membership: netuser
 
+# tacacs grous
+tacacs_group: 'testlab'
+
 # snmp servers
 snmp_servers: ['10.0.0.9']
 
