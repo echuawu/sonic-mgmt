@@ -22,8 +22,6 @@ def test_apply_basic_conf(topology_obj, setup_name, platform_params):
     try:
         dut_engine = topology_obj.players['dut']['engine']
         cli_object = topology_obj.players['dut']['cli']
-        SonicGeneralCli.verify_dockers_are_up(dut_engine,
-                                              dockers_list=['swss', 'syncd', 'teamd', 'pmon'])
         with allure.step("Apply port_config.ini and config_db.json"):
                 SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform_params)
     except Exception as err:
