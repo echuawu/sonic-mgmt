@@ -1,3 +1,6 @@
+import copy
+
+
 class PytestConst:
     run_config_only_arg = '--run_config_only'
     run_test_only_arg = '--run_test_only'
@@ -275,7 +278,7 @@ class FecConstants:
         }
     }
     FEC_MODES_SPC2_SPEED_SUPPORT = {
-        PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA: {
+        PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA_C: {
             SonicConst.FEC_FC_MODE: {
                 SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
                                               '25G': ['CR'],
@@ -364,6 +367,12 @@ class FecConstants:
             }
         }
     }
+
+    FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA] = \
+        copy.deepcopy(FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA_C])
+    FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA][SonicConst.FEC_RS_MODE][SonicConst.PORT_SPLIT_NUM_1]['100G'] = ['CR2']
+    FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA][SonicConst.FEC_RS_MODE][SonicConst.PORT_SPLIT_NUM_2]['50G'] = ['CR']
+
     FEC_MODES_SPC3_SPEED_SUPPORT = {
         PlatformTypesConstants.FILTERED_PLATFORM_LIGER: {
             SonicConst.FEC_FC_MODE: {
