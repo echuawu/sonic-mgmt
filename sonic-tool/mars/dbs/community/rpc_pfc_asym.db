@@ -38,7 +38,7 @@
                         <info> remove original topology </info>
                         <type> reg_exec_cmd </type>
                         <name> remove original topology </name>
-                        <tout> 300 </tout>
+                        <tout> 600 </tout>
                         <params>
                             <exec> ./testbed-cli.sh -k ceos remove-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
@@ -81,7 +81,7 @@
                         <info> remove t0 topology </info>
                         <type> reg_exec_cmd </type>
                         <name> remove t0 topology </name>
-                        <tout> 300 </tout>
+                        <tout> 600 </tout>
                         <params>
                             <exec> ./testbed-cli.sh -k ceos remove-topo [[conf:extra_info.dut_name]]-t0 vault </exec>
                             <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
