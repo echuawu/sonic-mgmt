@@ -8,17 +8,17 @@
 
 # SPC1
 MSN2201: # Alligator
-  total: 3500
+  total: 4000
   sx_sdk: 900
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 45
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -30,17 +30,17 @@ MSN2201: # Alligator
   vxlanmgrd: 5
   sensord: 10
 MSN2010: # Boxer
-  total: 3500
+  total: 4000
   sx_sdk: 900
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 20
+  orchagent: 45
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -52,17 +52,17 @@ MSN2010: # Boxer
   vxlanmgrd: 5
   sensord: 10
 MSN2100: # Bulldog
-  total: 3000
+  total: 3500
   sx_sdk: 500
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 40
+  zebra: 85
+  bgpd: 65
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -74,17 +74,17 @@ MSN2100: # Bulldog
   vxlanmgrd: 5
   sensord: 10
 MSN2410: # Spider
-  total: 3000
+  total: 3500
   sx_sdk: 500
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -96,17 +96,17 @@ MSN2410: # Spider
   vxlanmgrd: 5
   sensord: 10
 SN2700: # Panther
-  total: 3000
+  total: 3500
   sx_sdk: 500
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -118,17 +118,17 @@ SN2700: # Panther
   vxlanmgrd: 5
   sensord: 10
 MSN2700: # Simx Panther
-  total: 3000
+  total: 3500
   sx_sdk: 500
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -141,17 +141,17 @@ MSN2700: # Simx Panther
   sensord: 10
 # SPC2
 MSN3420: # Lionfish
-  total: 4000
+  total: 4500
   sx_sdk: 1000
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -163,17 +163,17 @@ MSN3420: # Lionfish
   vxlanmgrd: 5
   sensord: 10
 MSN3700: # Anaconda
-  total: 4000
+  total: 4500
   sx_sdk: 1000
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -185,17 +185,17 @@ MSN3700: # Anaconda
   vxlanmgrd: 5
   sensord: 10
 MSN3700C: # Anaconda C
-  total: 4000
+  total: 4500
   sx_sdk: 1000
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -207,17 +207,17 @@ MSN3700C: # Anaconda C
   vxlanmgrd: 5
   sensord: 10
 MSN3800: # Tigris
-  total: 4000
+  total: 4500
   sx_sdk: 1000
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -230,17 +230,17 @@ MSN3800: # Tigris
   sensord: 10
 # SPC3
 MSN4410: # Ocelot
-  total: 4300
+  total: 4800
   sx_sdk: 1400
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 40
+  orchagent: 65
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -252,17 +252,17 @@ MSN4410: # Ocelot
   vxlanmgrd: 5
   sensord: 10
 MSN4600: # Liger
-  total: 4000
+  total: 4500
   sx_sdk: 1100
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -274,17 +274,17 @@ MSN4600: # Liger
   vxlanmgrd: 5
   sensord: 10
 MSN4600C: # Tigon
-  total: 4000
+  total: 4500
   sx_sdk: 1100
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
@@ -296,17 +296,17 @@ MSN4600C: # Tigon
   vxlanmgrd: 5
   sensord: 10
 MSN4700: # Leopard
-  total: 4000
+  total: 4500
   sx_sdk: 1100
   syncd: 100
   redis-server: 70
   snmpd: 20
-  zebra: 60
-  bgpd: 50
+  zebra: 85
+  bgpd: 75
   bgpcfgd: 30
   bgpmon: 20
   fpmsyncd: 5
-  orchagent: 30
+  orchagent: 55
   ntpd: 5
   neighsyncd: 5
   vlanmgrd: 5
