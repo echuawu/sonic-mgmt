@@ -95,9 +95,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 logger.info('Deploying via ONIE or call manufacture script with arg onie')
                 reboot_after_install = True if '201911' in upgrade_params.base_version else None
                 SonicGeneralCli.deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
-                                             setup_name=platform_params.setup_name, platform=platform_params.platform,
-                                             hwsku=platform_params.hwsku, deploy_type='onie',
-                                             reboot_after_install=reboot_after_install)
+                                             setup_name=platform_params.setup_name, platform_params=platform_params,
+                                             deploy_type='onie', reboot_after_install=reboot_after_install)
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
