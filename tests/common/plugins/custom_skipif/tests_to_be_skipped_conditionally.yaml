@@ -631,6 +631,13 @@ mvrf/test_mgmtvrf.py:
       - x86_64-mlnx_msn2700-r0
       - x86_64-mlnx_msn3700-r0
 
+# sflow
+sflow/test_sflow.py:
+  - Redmine:
+    - 2886064
+    Branch:
+    - master
+
 ########## Canonical ##########
 # Nightly
 
