@@ -3,6 +3,7 @@ import logging
 import random
 import allure
 import re
+from retry import retry
 from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
@@ -57,12 +58,9 @@ class TestFec:
 
     @pytest.mark.reboot_reload
     def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
-        with allure.step("Configure FEC on dut loopbacks"):
-            logger.info("Configure FEC on dut loopbacks")
-            dut_lb_conf = self.configure_fec(self.tested_lb_dict, cleanup_list)
-
-        with allure.step("Verify FEC on dut loopbacks"):
-            self.verify_fec_configuration(dut_lb_conf)
+        with allure.step("Configure and verify FEC with all speed options on dut loopbacks"):
+            logger.info("Configure and verify FEC with all speed options on dut loopbacks")
+            dut_lb_conf = self.check_all_speeds_with_fec(self.tested_lb_dict, cleanup_list)
 
         tested_ports = list(dut_lb_conf.keys())
         reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
@@ -81,24 +79,18 @@ class TestFec:
 
     @pytest.mark.reboot_reload
     def test_fec_capabilities_hosts_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
-        with allure.step("Configure FEC on dut - host connectivities"):
-            logger.info("Configure FEC on host - dut connectivities")
-            self.configure_fec_mode_on_host(cleanup_list)
-            logger.info("Configure FEC on dut - host connectivities")
-            dut_host_conf = self.configure_fec_on_dut_host_ports(cleanup_list)
 
         with allure.step("Configure IP on dut - host connectivities for traffic validation"):
             logger.info("Configure IP on dut - host connectivities for traffic validation")
             ip_conf = self.set_peer_port_ip_conf(cleanup_list)
 
-        with allure.step("Verify FEC on dut - host connectivities"):
-            logger.info("Verify FEC on dut - host connectivities")
-            self.verify_fec_configuration(dut_host_conf)
-            logger.info("Verify FEC on host - dut connectivities")
-            self.verify_fec_configuration_on_host(dut_host_conf)
+        with allure.step("Configure FEC on host - dut connectivities"):
+                logger.info("Configure FEC on host - dut connectivities")
+                self.configure_fec_mode_on_host(cleanup_list)
 
-        with allure.step("Verify traffic on dut - host connectivities"):
-            self.validate_traffic(ip_conf)
+        with allure.step("Configure and verify FEC with all speed options on dut - host ports"):
+            logger.info("Configure and verify FEC with all speed options on dut - host ports")
+            dut_host_conf = self.check_all_speeds_with_fec_on_host_ports(ip_conf, cleanup_list)
 
         tested_ports = list(dut_host_conf.keys())
         reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
@@ -238,7 +230,7 @@ class TestFec:
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: None
         """
-        ip_conf = []
+        ip_conf = {}
         ip_template = '{ip_prefix}.{ip_prefix}.{ip_prefix}.{ip_index}'
         ip_index = 1
         ip_prefix = 20
@@ -254,10 +246,12 @@ class TestFec:
                                                                            '24')]}]
             ip_index += 1
             ip_prefix += 10
-            ip_conf.append({"sender": tested_dut_host_conn_dict['host'],
-                            "src": tested_dut_host_conn_dict["host_port"],
-                            "dst": tested_dut_host_conn_dict["dut_port"],
-                            "dst_ip": dst_ip})
+            ip_conf[tested_dut_host_conn_dict["dut_port"]] = {
+                "sender": tested_dut_host_conn_dict['host'],
+                "src": tested_dut_host_conn_dict["host_port"],
+                "dst": tested_dut_host_conn_dict["dut_port"],
+                "dst_ip": dst_ip
+            }
             cleanup_list.append((IpConfigTemplate.cleanup, (self.topology_obj, ip_config_dict,)))
             IpConfigTemplate.configuration(self.topology_obj, ip_config_dict)
         return ip_conf
@@ -273,12 +267,45 @@ class TestFec:
                         self.update_port_fec_conf_dict(conf, port, speed, fec_mode, interface_type, cleanup_list)
         return conf
 
+    def check_all_speeds_with_fec(self, tested_lb_dict, cleanup_list):
+        conf = {}
+        for split_mode, fec_mode_tested_lb_dict in tested_lb_dict.items():
+            for fec_mode, lb_list in fec_mode_tested_lb_dict.items():
+                dut_lb_conf = {}
+                lb = lb_list.pop()
+                speed_options = self.get_lb_speeds_option_for_fec_mode(lb, split_mode,
+                                                                       fec_mode, self.fec_modes_speed_support)
+                random.shuffle(speed_options)
+                for speed in speed_options:
+                    with allure.step(f"Configure FEC mode: {fec_mode} with speed: {speed} on loopback: {lb}"):
+                        self.configure_fec_speed_on_ports(dut_lb_conf, lb, split_mode, speed, fec_mode, cleanup_list)
+                    with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on loopback: {lb}"):
+                        self.verify_fec_configuration(dut_lb_conf)
+                conf.update(dut_lb_conf)
+                self.set_cleanup_of_latest_config(lb, cleanup_list)
+        return conf
+
+    def configure_fec_speed_on_ports(self, dut_lb_conf, ports, split_mode, speed, fec_mode, cleanup_list):
+        interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
+        for port in ports:
+            self.update_port_fec_conf_dict(dut_lb_conf, port, speed,
+                                           fec_mode, interface_type,
+                                           cleanup_list, set_cleanup=False)
+
+    def set_cleanup_of_latest_config(self, lb, cleanup_list):
+        for port in lb:
+            self.set_speed_fec_cleanup(port, cleanup_list)
+
     def get_lb_speed_conf_for_fec_mode(self, lb, split_mode, fec_mode, fec_modes_speed_support):
+        mutual_speeds_option = self.get_lb_speeds_option_for_fec_mode(lb, split_mode, fec_mode, fec_modes_speed_support)
+        speed = random.choice(mutual_speeds_option)
+        return speed
+
+    def get_lb_speeds_option_for_fec_mode(self, lb, split_mode, fec_mode, fec_modes_speed_support):
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
         fec_mode_supported_speeds = set(fec_modes_speed_support[fec_mode][split_mode].keys())
         mutual_speeds_option = list(fec_mode_supported_speeds.intersection(lb_mutual_speeds))
-        speed = random.choice(mutual_speeds_option)
-        return speed
+        return mutual_speeds_option
 
     def configure_fec_on_dut_host_ports(self, cleanup_list):
         conf = {}
@@ -289,11 +316,51 @@ class TestFec:
             self.configure_fec_on_dut_host_port(conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list)
         return conf
 
-    def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list):
+    def check_all_speeds_with_fec_on_host_ports(self, ip_conf, cleanup_list):
+        conf = {}
+        split_mode = 1
+        for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
+            dut_host_port = tested_dut_host_conn_dict["dut_port"]
+            host_dut_port = tested_dut_host_conn_dict["host_port"]
+            dut_host_conf = {}
+            speed_options = self.get_dut_host_port_speeds_option_for_fec_mode(fec_mode, split_mode,
+                                                                              dut_host_port, host_dut_port)
+            random.shuffle(speed_options)
+            for speed in speed_options:
+                self.configure_and_verify_fec_speed_on_hosts_ports(tested_dut_host_conn_dict, dut_host_conf, ip_conf,
+                                                                   split_mode, speed, fec_mode, cleanup_list)
+            self.set_cleanup_of_latest_config([dut_host_port], cleanup_list)
+            conf.update(dut_host_conf)
+        return conf
+
+    def configure_and_verify_fec_speed_on_hosts_ports(self, tested_dut_host_conn_dict, dut_host_conf, ip_conf,
+                                                      split_mode, speed, fec_mode, cleanup_list):
+        dut_host_port = tested_dut_host_conn_dict["dut_port"]
+        host_dut_port = tested_dut_host_conn_dict["host_port"]
+        cli_object = tested_dut_host_conn_dict["cli"]
+        engine = tested_dut_host_conn_dict["engine"]
+        with allure.step(f"Configure FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}"):
+            logger.info(f"Configure FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}")
+            self.configure_fec_speed_on_ports(dut_host_conf, [dut_host_port], split_mode, speed, fec_mode, cleanup_list)
+        with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}"):
+            logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}")
+            self.verify_fec_configuration(dut_host_conf)
+        with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}"):
+            logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}")
+            self.verify_fec_configuration_on_host_port(dut_host_conf[dut_host_port], cli_object, engine, host_dut_port)
+        with allure.step("Verify traffic on dut - host connectivity"):
+            traffic_validation = ip_conf[dut_host_port]
+            self.validate_traffic_on_dut_host_ports(traffic_validation)
+
+    def get_dut_host_port_speeds_option_for_fec_mode(self, fec_mode, split_mode, dut_host_port, host_dut_port):
         fec_mode_supported_speeds = set(self.fec_modes_speed_support[fec_mode][split_mode].keys())
         ports_supported_speeds = get_lb_mutual_speed([dut_host_port, host_dut_port], split_mode,
                                                      self.split_mode_supported_speeds)
         mutual_speeds_option = list(fec_mode_supported_speeds.intersection(ports_supported_speeds))
+        return mutual_speeds_option
+
+    def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list):
+        mutual_speeds_option = self.get_dut_host_port_speeds_option_for_fec_mode(fec_mode, split_mode, dut_host_port, host_dut_port)
         speed = random.choice(mutual_speeds_option)
         interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
         self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, interface_type, cleanup_list)
@@ -325,10 +392,9 @@ class TestFec:
             interface = tested_dut_host_conn_dict["host_port"]
             dut_port = tested_dut_host_conn_dict["dut_port"]
             expected_conf = conf[dut_port]
-            retry_call(self.verify_fec_configuration_on_host_port,
-                       fargs=[expected_conf, cli_object, engine, interface],
-                       tries=6, delay=10, logger=logger)
+            self.verify_fec_configuration_on_host_port(expected_conf, cli_object, engine, interface)
 
+    @retry(Exception, tries=6, delay=10)
     def verify_fec_configuration_on_host_port(self, expected_conf, cli_object, engine, interface):
         actual_speed = cli_object.interface.parse_show_interface_ethtool_status(engine, interface)["speed"]
         actual_fec_mode = cli_object.interface.parse_interface_fec(engine, interface)[LinuxConsts.ACTIVE_FEC]
@@ -345,20 +411,25 @@ class TestFec:
         :param interfaces: dut <-> hosts interfaces fixture
         :return: raise assertion errors in case of validation errors
         """
-        for traffic_validation in ip_conf:
-            with allure.step('send ping from {} to {}'.format(traffic_validation["src"],
-                                                              traffic_validation["dst"])):
-                validation = {'sender': traffic_validation["sender"],
-                              'args': {'interface': traffic_validation["src"],
-                                       'count': 3,
-                                       'dst': traffic_validation["dst_ip"]}}
-                ping = PingChecker(self.topology_obj.players, validation)
-                logger.info('Sending 3 untagged packets from {} to {}'.format(traffic_validation["src"],
-                                                                              traffic_validation["dst"]))
-                ping.run_validation()
+        for dut_host_port, traffic_validation in ip_conf.items():
+            self.validate_traffic_on_dut_host_ports(traffic_validation)
 
-    def update_port_fec_conf_dict(self, conf, port, speed, tested_fec_mode, interface_type, cleanup_list):
-        self.set_speed_fec_cleanup(port, cleanup_list)
+    def validate_traffic_on_dut_host_ports(self, traffic_validation):
+        with allure.step('send ping from {} to {}'.format(traffic_validation["src"],
+                                                          traffic_validation["dst"])):
+            validation = {'sender': traffic_validation["sender"],
+                          'args': {'interface': traffic_validation["src"],
+                                   'count': 3,
+                                   'dst': traffic_validation["dst_ip"]}}
+            ping = PingChecker(self.topology_obj.players, validation)
+            logger.info('Sending 3 untagged packets from {} to {}'.format(traffic_validation["src"],
+                                                                          traffic_validation["dst"]))
+            ping.run_validation()
+
+    def update_port_fec_conf_dict(self, conf, port, speed, tested_fec_mode,
+                                  interface_type, cleanup_list, set_cleanup=True):
+        if set_cleanup:
+            self.set_speed_fec_cleanup(port, cleanup_list)
         self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, 'none')
         self.cli_objects.dut.interface.set_interface_speed(self.engines.dut, port, speed)
         self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, interface_type)
