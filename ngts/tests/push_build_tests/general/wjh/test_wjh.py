@@ -7,6 +7,7 @@ from infra.tools.validations.traffic_validations.scapy.scapy_runner import Scapy
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
+from ngts.config_templates.wjh_buffer_config_template import WjhBufferConfigTemplate
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
@@ -15,21 +16,43 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 pytest.CHANNEL_CONF = None
 logger = logging.getLogger()
 
+drop_reason_dict = {"tail_drop": "Tail drop - Monitor network congestion",
+                    "buffer_congestion": "Port TC Congestion Threshold Crossed - Monitor",
+                    "buffer_latency": "Packet Latency Threshold Crossed - Monitor network"}
+
 table_parser_info = {
-    'raw': {'headers_ofset': 0,
-            'header_len': 2,
-            'len_ofset': 2,
-            'data_ofset_from_start': 3,
-            'column_ofset': 1,
-            'output_key': '#'
-            },
-    'agg': {'headers_ofset': 2,
-            'header_len': 1,
-            'len_ofset': 3,
-            'data_ofset_from_start': 4,
-            'column_ofset': 1,
-            'output_key': '#'
-            }
+    'raw':
+        {'headers_ofset': 0,
+         'header_len': 2,
+         'len_ofset': 2,
+         'data_ofset_from_start': 3,
+         'column_ofset': 1,
+         'output_key': '#'
+         },
+    'raw_buffer_info':
+        {'headers_ofset': 1,
+         'header_len': 1,
+         'len_ofset': 2,
+         'data_ofset_from_start': 3,
+         'column_ofset': 1,
+         'output_key': '#'
+         },
+    'agg':
+        {'headers_ofset': 2,
+         'header_len': 1,
+         'len_ofset': 3,
+         'data_ofset_from_start': 4,
+         'column_ofset': 1,
+         'output_key': '#'
+         },
+    'agg_buffer_info':
+        {'headers_ofset': 1,
+         'header_len': 1,
+         'len_ofset': 2,
+         'data_ofset_from_start': 3,
+         'column_ofset': 1,
+         'output_key': '#'
+         }
 }
 
 
@@ -123,7 +146,8 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
                                                                                           interfaces.dut_hb_2,
                                                                                           interfaces.dut_ha_2,
                                                                                           interfaces.dut_hb_1])
-    with allure.step('Configuring dut_ha_2 speed to be 1G, and dut_hb_2 to be 25G'):
+    with allure.step("Configuring dut_ha_2 speed to be 1G, and dut_hb_2 to be 25G \
+                      Configuring port dut_ha_2, pg 0, congestion threshold = 10%, latency threshold = 100ns"):
         interfaces_config_dict = {
             'dut': [{'iface': interfaces.dut_ha_2, 'speed': '1G',
                      'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '1G')},
@@ -131,9 +155,15 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
                      'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
                     ]
         }
+        thresholds_config_dict = {
+            'dut': [{'iface': interfaces.dut_ha_2, 'queue_type': 'queue', 'index': '0', 'threshold': 10},
+                    {'iface': interfaces.dut_ha_2, 'queue_type': 'latency', 'index': '0', 'threshold': 100}
+                    ]
+        }
 
     logger.info('Starting WJH Buffer configuration')
     InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
+    WjhBufferConfigTemplate.configuration(topology_obj, thresholds_config_dict)
     logger.info('WJH Buffer configuration completed')
 
     with allure.step('Doing config save'):
@@ -142,6 +172,7 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
 
     yield
 
+    WjhBufferConfigTemplate.cleanup(topology_obj, thresholds_config_dict)
     InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
     logger.info('Doing config save after cleanup')
     cli_object.general.save_configuration(engines.dut)
@@ -151,6 +182,7 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
 def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac):
     """
     A function that checks if an entry with variables exists in the recieved table
+    If found, the entry is returned as well
     :param table: a table made of dictionary
     :param interface: the interface name
     :param dst_ip: dst ip
@@ -160,6 +192,8 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
     :param dst_mac: dst mac
     :param src_mac: src mac
     """
+    entry = []
+    result = {'result': False, 'entry': None}
     for key in table:
         entry = table[key]
         # If entry is a list, it means that the message is longer then one line,
@@ -175,9 +209,11 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
             entry['dMAC'] == dst_mac and
             entry['sMAC'] == src_mac and
                 entry['Drop reason - Recommended action'] in drop_reason):
-            return True
+                result['result'] = True
+                result['entry'] = entry
+                break
 
-    return False
+    return result
 
 
 def validate_wjh_table(engines, cmd, table_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac):
@@ -197,8 +233,103 @@ def validate_wjh_table(engines, cmd, table_type, interface, dst_ip, src_ip, prot
     table = get_parsed_table(engines.dut, cmd, table_type)
     result = check_if_entry_exists(table, interface, dst_ip,
                                    src_ip, proto, drop_reason, dst_mac, src_mac)
-    if result is not True:
+    if not result['result']:
         pytest.fail("Could not find drop in WJH {} table".format(table_type))
+
+
+def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, drop_reason):
+    """
+    A function that checks the WJH buffer tables (raw/agg + second page)
+    :param engines: engines fixture
+    :param cmd: command to execute on DUT
+    :param table_types: table types
+    :param interfaces: interfaces
+    :param dst_ip: dst ip
+    :param src_ip: src ip
+    :param proto: protocol
+    :param drop_reason_message: drop reason message
+    :param dst_mac: dst mac
+    :param src_mac: src mac
+    :param drop_reason: drop reason
+    """
+    output = engines.dut.run_cmd(cmd)
+    split_tables = output.split("Buffer Info")
+    parsed_tables = []
+
+    for table_type, table in zip(table_types, split_tables):
+        parser = table_parser_info[table_type]
+        parsed_table = generic_sonic_output_parser(table, headers_ofset=parser['headers_ofset'],
+                                                   len_ofset=parser['len_ofset'],
+                                                   data_ofset_from_start=parser['data_ofset_from_start'],
+                                                   column_ofset=parser['column_ofset'],
+                                                   output_key=parser['output_key'],
+                                                   header_line_number=parser['header_len'])
+        parsed_tables.append(parsed_table)
+
+    result = check_if_entry_exists(parsed_tables[0], interface, dst_ip,
+                                   src_ip, proto, drop_reason_message, dst_mac, src_mac)
+    if not result['result']:
+        pytest.fail("Could not find drop in WJH {} table".format(table_type[0]))
+
+    check_buffer_info_table(parsed_tables[1], result['entry'], drop_reason, table_types[0])
+
+
+def check_buffer_info_table(table, entry, drop_reason, table_type):
+    """
+    A function that checks the WJH buffer info table
+    :param table: buffer info table
+    :param entry: entry which found on raw/agg table
+    :param drop_reason: drop reason
+    :param table_type: table type (raw/agg)
+    """
+    index = entry['#']
+    entry_found = False
+
+    tc_id = "N/A"
+    tc_usage = "N/A"
+    latency = "N/A"
+    tc_watermark = "N/A"
+    latency_watermark = "N/A"
+
+    for key in table:
+        entry = table[key]
+        # If entry is a list, it means that the message is longer then one line,
+        # but all rest of info is in the first entry
+        if isinstance(entry, list):
+            entry = entry[0]
+        if (entry['#'] == index):
+            tc_id = entry['TC ID']
+            tc_usage = entry['TC Usage [KB]']
+            latency = entry['Latency [nanoseconds]']
+            tc_watermark = entry['TC Watermark [KB]']
+            latency_watermark = entry['Latency Watermark [nanoseconds]']
+            entry_found = True
+            break
+
+    if not entry_found:
+        pytest.fail("Buffer info table does not contain the entry found on raw/agg table.")
+
+    if (table_type == 'raw'):
+        if drop_reason in ['tail_drop', 'buffer_congestion']:
+            if (tc_id == '0' and tc_usage != "N/A" and int(tc_usage) > 0 and latency == "N/A" and
+                    tc_watermark == "N/A" and latency_watermark == "N/A"):
+                return
+        elif drop_reason == 'buffer_latency':
+            if (tc_id == '0' and tc_usage != "N/A" and int(tc_usage) > 0 and latency != "N/A" and
+                    int(latency) > 0 and tc_watermark == "N/A" and latency_watermark == "N/A"):
+                return
+
+    elif (table_type == 'agg'):
+        if drop_reason in ['tail_drop', 'buffer_congestion']:
+            if (tc_id == '0' and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
+                    int(tc_watermark) > 0 and latency_watermark == "N/A"):
+                return
+        elif (drop_reason == "buffer_latency"):
+            if (tc_id == '0' and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
+                    int(tc_watermark) > 0 and latency_watermark != "N/A" and int(latency_watermark) > 0):
+                return
+
+    pytest.fail("Buffer info table is wrong, tc_id = {}, tc_usage = {}, latency = {}, tc_watermark = {}, latency_watermark = {}".format(tc_id, tc_usage, latency, tc_watermark, latency_watermark))
 
 
 def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac, command):
@@ -218,6 +349,29 @@ def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, s
     check_if_channel_enabled(cli_object, engines, channel, channel_type)
 
     retry_call(validate_wjh_table, fargs=[engines, command, 'raw', interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
+               tries=3, delay=3, logger=logger)
+
+
+def do_buffer_raw_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, command, drop_reason):
+    """
+    A function that checks the WJH feature with raw channel type
+    :param engines: engines fixture
+    :param cli_object: cli_object
+    :param channel: channel
+    :param channel_types: channel types
+    :param interface: the interface name
+    :param dst_ip: dst ip
+    :param src_ip: src ip
+    :param proto: protocol
+    :param drop_reason_message: drop reason message
+    :param dst_mac: dst mac
+    :param src_mac: src mac
+    :param command: raw command
+    :param drop_reason: drop reason
+    """
+    check_if_channel_enabled(cli_object, engines, channel, channel_types[0])
+
+    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, drop_reason],
                tries=3, delay=3, logger=logger)
 
 
@@ -241,11 +395,35 @@ def do_agg_test(engines, cli_object, channel, channel_type, interface, dst_ip, s
                tries=3, delay=3, logger=logger)
 
 
+def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, command, drop_reason):
+    """
+    A function that checks the WJH feature with aggregated channel type
+    :param engines: engines fixture
+    :param cli_object: cli_object
+    :param channel: channel
+    :param channel_types: channel types
+    :param interface: the interface name
+    :param dst_ip: dst ip
+    :param src_ip: src ip
+    :param proto: protocol
+    :param drop_reason_message: drop reason message
+    :param dst_mac: dst mac
+    :param src_mac: src mac
+    :param command: raw command
+    :param drop_reason: drop reason
+    """
+    check_if_channel_enabled(cli_object, engines, channel, channel_types[0])
+
+    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, drop_reason],
+               tries=3, delay=3, logger=logger)
+
+
 @pytest.mark.wjh
 @pytest.mark.build
 @pytest.mark.push_gate
+@pytest.mark.parametrize("drop_reason", drop_reason_dict.keys())
 @allure.title('WJH Buffer test case')
-def test_buffer_tail_drop(engines, topology_obj, players, interfaces, wjh_buffer_configuration, ha_dut_2_mac, hb_dut_2_mac):
+def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buffer_configuration, ha_dut_2_mac, hb_dut_2_mac):
     """
     This test will configure the DUT and hosts to generate buffer drops
 
@@ -289,20 +467,20 @@ def test_buffer_tail_drop(engines, topology_obj, players, interfaces, wjh_buffer
     ha_ip = '40.0.0.2'
     hb_ip = '40.0.0.3'
     proto = 'udp'
-    drop_reason_message = 'Tail drop - Monitor network congestion'
+    drop_reason_message = drop_reason_dict[drop_reason]
 
     cli_object = topology_obj.players['dut']['cli']
     with allure.step('Validating WJH raw table output'):
-        do_raw_test(engines=engines, cli_object=cli_object, channel='buffer', channel_type='raw', interface=interfaces.dut_hb_2, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason=drop_reason_message,
-                    dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer')
+        do_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer', channel_types=['raw', 'raw_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
+                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer', drop_reason=drop_reason)
 
     with allure.step('Sending iPerf traffic'):
         logger.info('Sending iPerf traffic')
         IperfChecker(players, validation).run_validation()
 
     with allure.step('Validating WJH aggregated table output'):
-        do_agg_test(engines=engines, cli_object=cli_object, channel='buffer', channel_type='aggregate', interface=interfaces.dut_hb_2, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason=drop_reason_message,
-                    dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer --aggregate')
+        do_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer', channel_types=['agg', 'agg_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
+                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason)
 
 
 @pytest.mark.wjh
