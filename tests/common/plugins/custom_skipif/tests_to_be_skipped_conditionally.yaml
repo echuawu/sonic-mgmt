@@ -6,6 +6,20 @@ platform_tests/test_auto_negotiation.py:
   - Branch:
     - 202012
 
+# fast reboot
+platform_tests/test_advanced_reboot.py::test_fast_reboot:
+  - Redmine:
+    - 2886337
+    Branch:
+    - master
+
+# warm reboot
+platform_tests/test_advanced_reboot.py::test_warm_reboot:
+  - Redmine:
+    - 2886337
+    Branch:
+    - master
+
 # SFP util
 platform_tests/sfp/test_sfputil.py:
   - Redmine:
