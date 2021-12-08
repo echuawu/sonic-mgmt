@@ -104,7 +104,10 @@ class VlanPort(object):
 
     @staticmethod
     def iface_exists(iface_name):
-        iface = VlanPort.ifconfig("ifconfig -a %s" % iface_name)
+        try:
+            iface = VlanPort.ifconfig("ifconfig -a %s" % iface_name)
+        except Exception:
+            iface = None
         return bool(iface)
 
     @staticmethod
