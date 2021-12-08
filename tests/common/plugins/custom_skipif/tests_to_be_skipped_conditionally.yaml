@@ -634,7 +634,7 @@ mvrf/test_mgmtvrf.py:
 # sflow
 sflow/test_sflow.py:
   - Redmine:
-    - 2886064
+    - 2886553
     Branch:
     - master
 
