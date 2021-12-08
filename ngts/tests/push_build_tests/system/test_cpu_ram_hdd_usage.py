@@ -26,6 +26,9 @@ class TestCpuRamHddUsage:
         self.platform = self.platform_params.hwsku.split('-')[platform_index]
         self.setup_name = platform_params.setup_name
         self.sonic_ver = sonic_version
+        self.default_branch = "master"
+        branch_index = 1
+        self.current_branch = sonic_version.split(".")[branch_index]
 
     @pytest.mark.parametrize('partition_usage', partitions_and_expected_usage)
     def test_hdd_usage(self, request, partition_usage):
@@ -74,7 +77,8 @@ class TestCpuRamHddUsage:
 
         with open(expected_cpu_usage_file_path) as raw_cpu_data:
             expected_cpu_usage_dict = yaml.load(raw_cpu_data, Loader=yaml.FullLoader)
-        expected_cpu_usage_dict = expected_cpu_usage_dict[self.platform]
+        branch = self.current_branch if self.current_branch in expected_cpu_usage_dict.keys() else self.default_branch
+        expected_cpu_usage_dict = expected_cpu_usage_dict[branch][self.platform]
 
         total_cpu_usage = 0
         cpu_usage_per_process = {}
@@ -134,7 +138,8 @@ class TestCpuRamHddUsage:
 
         with open(expected_ram_usage_file_path) as raw_ram_data:
             expected_ram_usage_dict = yaml.load(raw_ram_data, Loader=yaml.FullLoader)
-        expected_ram_usage_dict = expected_ram_usage_dict[self.platform]
+        branch = self.current_branch if self.current_branch in expected_ram_usage_dict.keys() else self.default_branch
+        expected_ram_usage_dict = expected_ram_usage_dict[branch][self.platform]
 
         assertions_list = []
         total_ram_size_mb = 0
