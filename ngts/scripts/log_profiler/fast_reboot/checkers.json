@@ -1,0 +1,66 @@
+{
+    "ASIC_RESET_TIME": {
+        "check_type": "elapsed_time_between_two_patterns",
+        "first_pattern": "ready for reset",
+        "second_pattern": "ready after reset",
+        "file_to_parse": "syslog",
+        "debug_hint": "Reset the ASIC execution time is longer than expected",
+        "word_pattern_offset": "N/A"
+    },
+    "CREATE_SWITCH_TIME": {
+        "check_type": "elapsed_time_between_two_patterns",
+        "first_pattern": "SAI_SWITCH_ATTR_INIT_SWITCH",
+        "second_pattern": "SAI_STATUS_SUCCESS|SAI_SWITCH_ATTR_SRC_MAC_ADDRESS",
+        "file_to_parse": "sairedis",
+        "debug_hint": "Create switch function execution time is longer than expected",
+        "word_pattern_offset": "N/A"
+    },
+    "HOST_IF_CREATION_TIME": {
+        "check_type": "elapsed_time_between_first_to_last_one_pattern",
+        "first_pattern": "Ethernet",
+        "second_pattern": "N/A",
+        "file_to_parse": "sairedis",
+        "debug_hint": "Host interfaces creation execution time is longer than expected",
+        "word_pattern_offset": "N/A"
+    },
+    "SKU_VALIDATION": {
+        "check_type": "presence",
+        "first_pattern": "removePort",
+        "second_pattern": "N/A",
+        "file_to_parse": "syslog",
+        "debug_hint": "Some ports were removed, check the SKU SAI profile for wrong configuration",
+        "word_pattern_offset": "N/A"
+    },
+    "PORTS_STATE_ADMIN_TO_OPER_TIME": {
+        "check_type": "elapsed_time_between_two_patterns_iterate",
+        "first_pattern": "Set ADMIN_STATE",
+        "second_pattern": "sx_netdev_handle_pude_event",
+        "file_to_parse": "syslog",
+        "debug_hint": "Link up time is too long",
+        "word_pattern_offset": "12"
+    },
+    "PHY_PORTS_UP_TO_LAGS_UP_TIME": {
+        "check_type": "elapsed_time_between_first_to_last_two_patterns",
+        "first_pattern": "sx_netdev_handle_pude_event",
+        "second_pattern": "setDistributionOnLagMember",
+        "file_to_parse": "syslog",
+        "debug_hint": "LAG up time after physical ports went up is too long",
+        "word_pattern_offset": "N/A"
+    },
+    "NEIGHBOR_ENTRIES_CREATION_TIME": {
+        "check_type": "elapsed_time_between_first_to_last_one_pattern",
+        "first_pattern": "mlnx_create_neighbor_entry",
+        "second_pattern": "N/A",
+        "file_to_parse": "syslog",
+        "debug_hint": "Neighbors creation execution time is longer than expected",
+        "word_pattern_offset": "N/A"
+    },
+    "FDB_ENTRIES_CREATION_TIME": {
+        "check_type": "elapsed_time_between_first_to_last_one_pattern",
+        "first_pattern": "mlnx_create_fdb_entry",
+        "second_pattern": "N/A",
+        "file_to_parse": "syslog",
+        "debug_hint": "FDB entries creation execution time is longer than expected",
+        "word_pattern_offset": "N/A"
+    }
+}

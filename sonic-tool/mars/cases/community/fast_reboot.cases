@@ -25,4 +25,17 @@
         </cmd>
     </case>
 
+    <case>
+        <info> Fast_Reboot_Log_Profiler </info>
+        <name> fast_reboot_profiler  </name>
+        <tout> 600 </tout>
+        <type> reg_exec_cmd </type>
+        <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
+        <cmd>
+            <params>
+                <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --test_files=fast_reboot --syslog_start_line=/sbin/kexec --sairedis_start_line=INIT_VIEW --showlocals\'"</static_args>
+            </params>
+        </cmd>
+    </case>
+
 </CASEDEF>

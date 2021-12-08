@@ -1,0 +1,62 @@
+{
+    "MSN2700": {
+        "ASIC_RESET_TIME": "2.05",
+        "CREATE_SWITCH_TIME": "14.85",
+        "HOST_IF_CREATION_TIME": "4.1",
+        "SKU_VALIDATION": "0",
+        "PORTS_STATE_ADMIN_TO_OPER_TIME": "2.4",
+        "PHY_PORTS_UP_TO_LAGS_UP_TIME": "6.75",
+        "NEIGHBOR_ENTRIES_CREATION_TIME": "17",
+        "FDB_ENTRIES_CREATION_TIME": "1.45"
+    },
+    "MSN3700": {
+        "ASIC_RESET_TIME": "1.6",
+        "CREATE_SWITCH_TIME": "6.25",
+        "HOST_IF_CREATION_TIME": "1.33",
+        "SKU_VALIDATION": "0",
+        "PORTS_STATE_ADMIN_TO_OPER_TIME": "12.5",
+        "PHY_PORTS_UP_TO_LAGS_UP_TIME": "4.73",
+        "NEIGHBOR_ENTRIES_CREATION_TIME": "14",
+        "FDB_ENTRIES_CREATION_TIME": "0.7"
+    },
+    "MSN3800": {
+        "ASIC_RESET_TIME": "2.15",
+        "CREATE_SWITCH_TIME": "18.9",
+        "HOST_IF_CREATION_TIME": "2.9",
+        "SKU_VALIDATION": "0",
+        "PORTS_STATE_ADMIN_TO_OPER_TIME": "7.85",
+        "PHY_PORTS_UP_TO_LAGS_UP_TIME": "2.95",
+        "NEIGHBOR_ENTRIES_CREATION_TIME": "12.15",
+        "FDB_ENTRIES_CREATION_TIME": "0.75"
+    },
+    "MSN4600C": {
+        "ASIC_RESET_TIME": "2.8",
+        "CREATE_SWITCH_TIME": "18.45",
+        "HOST_IF_CREATION_TIME": "3",
+        "SKU_VALIDATION": "0",
+        "PORTS_STATE_ADMIN_TO_OPER_TIME": "10",
+        "PHY_PORTS_UP_TO_LAGS_UP_TIME": "7.88",
+        "NEIGHBOR_ENTRIES_CREATION_TIME": "20.5",
+        "FDB_ENTRIES_CREATION_TIME": "0.77"
+    },
+    "MSN4700": {
+        "ASIC_RESET_TIME": "2.75",
+        "CREATE_SWITCH_TIME": "11.76",
+        "HOST_IF_CREATION_TIME": "0.76",
+        "SKU_VALIDATION": "0",
+        "PORTS_STATE_ADMIN_TO_OPER_TIME": "6.8",
+        "PHY_PORTS_UP_TO_LAGS_UP_TIME": "5.62",
+        "NEIGHBOR_ENTRIES_CREATION_TIME": "11.15",
+        "FDB_ENTRIES_CREATION_TIME": "0.68"
+    },
+    "DEFAULT": {
+        "ASIC_RESET_TIME": "100",
+        "CREATE_SWITCH_TIME": "100",
+        "HOST_IF_CREATION_TIME": "100",
+        "SKU_VALIDATION": "100",
+        "PORTS_STATE_ADMIN_TO_OPER_TIME": "100",
+        "PHY_PORTS_UP_TO_LAGS_UP_TIME": "100",
+        "NEIGHBOR_ENTRIES_CREATION_TIME": "100",
+        "FDB_ENTRIES_CREATION_TIME": "100"
+    }
+}
