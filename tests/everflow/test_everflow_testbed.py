@@ -567,6 +567,20 @@ class TestEverflowV4EgressAclIngressMirror(EverflowIPv4Tests):
 
 
 class TestEverflowV4EgressAclEgressMirror(EverflowIPv4Tests):
+    @pytest.fixture(scope="class", autouse=True)
+    def enable_bgp(self, duthosts, rand_one_dut_hostname):
+        """
+        Workaround for Egress test - we need to have BGP up - in other case test will fail
+        """
+        duthost = duthosts[rand_one_dut_hostname]
+        duthost.command("sudo config bgp startup all")
+        time.sleep(60)
+
+        yield
+
+        duthost.command("sudo config bgp shutdown all")
+        time.sleep(60)
+
     def acl_stage(self):
         return "egress"
 
