@@ -20,7 +20,7 @@
         <tout> 5000 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo ptf32 --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -k=\"not testQosSaiDwrr and not testQosSaiDwrrWeightChange\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts qos/test_qos_sai.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo ptf32 --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -k=\"not testQosSaiDwrr and not testQosSaiDwrrWeightChange\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --qos_swap_syncd=False\'" --test-scripts qos/test_qos_sai.py </static_args>
              </params>
         </cmd>
     </case>
