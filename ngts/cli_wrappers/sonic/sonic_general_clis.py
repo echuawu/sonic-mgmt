@@ -29,6 +29,7 @@ from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
+from ngts.cli_wrappers.sonic.sonic_qos_clis import SonicQosCli
 
 
 logger = logging.getLogger()
@@ -313,6 +314,12 @@ class SonicGeneralCli(GeneralCliCommon):
         if apply_base_config:
             with allure.step("Apply port_config.ini and config_db.json"):
                 SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform_params)
+            with allure.step("Apply qos and dynamic buffer"):
+                # Once master and 202106 support the feature, will remove the version check
+                if "202012" == SonicGeneralCli.get_image_sonic_version(dut_engine):
+                    SonicQosCli.reload_qos(dut_engine)
+                    SonicGeneralCli.save_configuration(dut_engine)
+                    SonicGeneralCli.reboot_reload_flow(dut_engine, r_type='config reload -y', topology_obj=topology_obj)
 
         if wjh_deb_url:
             with allure.step("Installing wjh deb url"):
@@ -461,6 +468,8 @@ class SonicGeneralCli(GeneralCliCommon):
         SonicGeneralCli.update_config_db_features(setup_name, dut_engine, hwsku, config_db_file_name)
         SonicGeneralCli.update_config_db_feature_config(setup_name, "database", "auto_restart",
                                                         "always_enabled", config_db_file_name)
+        default_mtu = "9100"
+        SonicGeneralCli.update_config_db_port_mtu_config(setup_name, default_mtu, config_db_file_name)
         if SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku):
             SonicGeneralCli.update_config_db_breakout_cfg(topology_obj, setup_name, dut_engine,
                                                           cli_object, hwsku, config_db_file_name)
@@ -512,6 +521,15 @@ class SonicGeneralCli(GeneralCliCommon):
         config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
                                                                 config_db_json_file_name=config_db_json_file_name)
         config_db_json[ConfigDbJsonConst.FEATURE][feature_name][feature_config_key] = feature_config_value
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
+
+    @staticmethod
+    def update_config_db_port_mtu_config(setup_name, mtu, config_db_json_file_name):
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+        for k, _ in config_db_json[ConfigDbJsonConst.PORT].items():
+            config_db_json[ConfigDbJsonConst.PORT][k]["mtu"] = mtu
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
                                                               file_name=config_db_json_file_name)
 
