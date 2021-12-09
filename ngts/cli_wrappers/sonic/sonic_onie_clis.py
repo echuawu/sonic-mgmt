@@ -41,8 +41,8 @@ class SonicOnieCli:
         if self.engine is None or create_force:
             self.engine = OnieEngine(self.ip, 'root').create_engine()
             retry_call(self.get_pexpect_entry,
-                       fargs=[['#']],
-                       tries=3,
+                       fargs=[['#'], 60],
+                       tries=5,
                        delay=5,
                        logger=logger)
             self.engine.timeout = 10
