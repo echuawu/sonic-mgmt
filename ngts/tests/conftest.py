@@ -11,6 +11,7 @@ from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.constants.constants import PytestConst
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -115,3 +116,27 @@ def simx_disable_counters(is_simx, engines, cli_objects, topology_obj, sonic_ver
                     cli_objects.dut.counterpoll.disable_counterpoll(engines.dut)
                     cli_objects.dut.general.reload_flow(engines.dut, topology_obj=topology_obj, reload_force=True)
                     break
+
+
+@pytest.fixture(scope='session')
+def run_config_only(request):
+    """
+    Method for get run_config_only from pytest arguments
+    """
+    return request.config.getoption(PytestConst.run_config_only_arg)
+
+
+@pytest.fixture(scope='session')
+def run_test_only(request):
+    """
+    Method for get run_test_only from pytest arguments
+    """
+    return request.config.getoption(PytestConst.run_test_only_arg)
+
+
+@pytest.fixture(scope='session')
+def run_cleanup_only(request):
+    """
+    Method for get run_cleanup_only from pytest arguments
+    """
+    return request.config.getoption(PytestConst.run_cleanup_only_arg)

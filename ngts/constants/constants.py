@@ -558,3 +558,13 @@ class AppExtensionInstallationConstants:
                                      'p4-sampling': P4SamplingConsts.APP_NAME,
                                      'sonic-lc-manager': LC_MANAGER}
     APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME]
+
+
+class P4ExamplesConsts:
+    REPO_NAME = "harbor.mellanox.com/sonic-p4/p4-examples"
+    APP_NAME = 'p4-examples'
+    APP_VERSION = '0.0.2'
+    NO_EXAMPLE = "NO_EXAMPLE"
+    VXLAN_BM_FEATURE_NAME = "VXLAN_BM"
+    VXLAN_BM_ENCAP_TABLE = "p4-vxlan-bm-overlay-router"
+    VXLAN_BM_DECAP_TABLE = "p4-vxlan-bm-tenant-forward"

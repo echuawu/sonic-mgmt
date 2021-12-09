@@ -1,5 +1,9 @@
+import json
+import ipaddress
+import logging
 from dotted_dict import DottedDict
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+FEATURE_P4C_JSON_MAP = {"VXLAN_BM": "vxlan_bm.json"}
 
 
 def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_in_port"):
@@ -194,14 +198,17 @@ def format_value_with_name(name, value, port_configs):
     :param port_configs: port config get from the config_db.json
     :return: the format value
     """
-    hex_key_list = ['vlan', 'is_trunc', 'trunc_size']
-    port_key_list = ['ingress_port', 'label_port']
+    hex_key_list = ['vlan', 'is_trunc', 'trunc_size', 'vni']
+    ipv4_key_list = ['underlay_dip']
+    port_key_list = ['ingress_port', 'label_port', 'pbs_port']
     if name in port_key_list:
         return convert_label_port_to_physical(value, port_configs)
     if name == 'hdr_checksum':
         return "{:#06x}".format(int(value, 16))
     elif name == 'protocol':
         return convert_protocol_value(value)
+    elif name in ipv4_key_list:
+        return convert_hex_to_ipv4_addr(value)
     elif name in hex_key_list:
         return "{}".format(int(value, 16))
     return "{}".format(value)
@@ -227,7 +234,266 @@ def convert_protocol_value(protocol):
     return protocol
 
 
+def convert_hex_to_ipv4_addr(ipv4_address_hex):
+    """
+    Converts hex string to an IPv4 address
+    :param ipv4_address_hex: the hex string value
+    :return: A dot-notation IPv4 address, Example::print(hex_to_ipv4_addr('0x1'))  # Will print 0.0.0.1
+    """
+    hex_base = 16
+    ipv4_address_hex_max_len = 8
+    if ipv4_address_hex.startswith('0x'):
+        ipv4_address_hex = ipv4_address_hex[2:]  # Remove '0x' prefix
+
+    if len(ipv4_address_hex) > ipv4_address_hex_max_len:
+        raise ValueError("The input ipv4 address hex value is not correct, the length should not be more than 8")
+
+    return str(ipaddress.IPv4Address(int(ipv4_address_hex.zfill(ipv4_address_hex_max_len), hex_base)))
+
+
 def get_port_configs(engine):
     config_db = SonicGeneralCli.get_config_db(engine)
     port_configs = config_db.get('PORT')
     return port_configs
+
+
+def get_p4nspect_query_json(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+    """
+    get the output of the p4nspect query
+    :param engine: ssh engine object
+    :param docker_name: the docker name in which the p4nspect will be executed
+    :param feature_name: feature name in the docker
+    :param table_name: table name
+    :param controlblock_name: controlblock name
+    :return: the output of p4nspect query command in json format,
+            Examples: the list count depends on the table count, if table name is specified, then only one element in
+            the list. inside each element, 1st element is table name info, 2nd element is default entry info, from 3rd,
+            they are user added entries info
+            [
+                [
+                    {
+                        "TABLE": "control_in_port.table_overlay_router"
+                    },
+                    {
+                        "IDX": 0,
+                        "PRIO": "LOWEST",
+                        "A": "A",
+                        "KEYS (Key | Value | Mask | Type)": [],
+                        "ACTION": {
+                            "name": "NoAction",
+                            "params": {}
+                        },
+                        "COUNTERS (Name | Type | Items | Value)": [
+                            {
+                                "Name": "p4nspect_debug_counter[0]",
+                                "Type": "DEBUG",
+                                "Items": "Pkts/Bts",
+                                "Value": [
+                                    32,
+                                    7864
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "IDX": 1,
+                        "PRIO": "2",
+                        "A": "A",
+                        "KEYS (Key | Value | Mask | Type)": [
+                            {
+                                "Key": "headers.ipv4.dst_addr",
+                                "Value": "192.168.1.3",
+                                "Mask": "",
+                                "Type": "exact"
+                            }
+                        ],
+                        "ACTION": {
+                            "name": "tunnel_encap",
+                            "params": {
+                                "underlay_dip": "0x2020202",
+                                "vni": "0x6"
+                            }
+                        },
+                        "COUNTERS (Name | Type | Items | Value)": [
+                            {
+                                "Name": "p4nspect_debug_counter[1]",
+                                "Type": "DEBUG",
+                                "Items": "Pkts/Bts",
+                                "Value": [
+                                    0,
+                                    0
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "IDX": 2,
+                        "PRIO": "2",
+                        "A": "A",
+                        "KEYS (Key | Value | Mask | Type)": [
+                            {
+                                "Key": "headers.ipv4.dst_addr",
+                                "Value": "193.168.1.4",
+                                "Mask": "",
+                                "Type": "exact"
+                            }
+                        ],
+                        "ACTION": {
+                            "name": "tunnel_encap",
+                            "params": {
+                                "underlay_dip": "0x3030303",
+                                "vni": "0x8"
+                            }
+                        },
+                        "COUNTERS (Name | Type | Items | Value)": [
+                            {
+                                "Name": "p4nspect_debug_counter[2]",
+                                "Type": "DEBUG",
+                                "Items": "Pkts/Bts",
+                                "Value": [
+                                    0,
+                                    0
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            ]
+    """
+    p4nspect_cmd = "p4nspect --json query "
+    cmd = get_p4nspect_full_cmd(docker_name, feature_name, p4nspect_cmd, table_name, controlblock_name)
+    output = engine.run_cmd(cmd)
+    return json.loads(output)
+
+
+def get_p4nspect_query_json_parsed(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+    """
+    get the output of the p4nspect query
+    :param engine: ssh engine object
+    :param docker_name: the docker name in which the p4nspect will be executed
+    :param feature_name: feature name in the docker
+    :param table_name: table name
+    :param controlblock_name:controlblock name
+    :return: Dictionary of entries get from the sdk Examples:
+                                                    if table_name is given:{"192.168.1.3": {"action": "tunnel_encap",
+                                                                               "underlay_dip": "2.2.2.2",
+                                                                                "vni": "6"}}
+                                                    if table_name is not given:
+                                                    {
+                                                        "control_in_port.table_overlay_router":
+                                                            {"192.168.1.3": {"action": "tunnel_encap",
+                                                                                   "underlay_dip": "2.2.2.2",
+                                                                                    "vni": "6"}
+                                                            }
+                                                    }
+    """
+    ret = {}
+    tables_content = get_p4nspect_query_json(engine, docker_name=docker_name, feature_name=feature_name,
+                                             table_name=table_name)
+    for table_content in tables_content:
+        controlblock, table, entry_dict = parse_entry_in_one_table(engine, table_content)
+        if table == table_name:
+            return entry_dict
+        ret[".".join([controlblock, table])] = entry_dict
+    return ret
+
+
+def parse_entry_in_one_table(engine, table_content):
+    """
+    parse the one table content in the output of the p4nspect --json query
+    :param engine: ssh engine object
+    :param table_content: table content in the output of the p4nspect --json query
+    :return: Dictionary of entries for the table Examples: {"192.168.1.3": {"action": "tunnel_encap",
+                                                                               "underlay_dip": "2.2.2.2",
+                                                                                "vni": "6"}}
+    """
+    table_name_index = 0
+    default_entry_index = 1
+    entry_dict = {}
+    port_configs = get_port_configs(engine)
+    for i, entry in enumerate(table_content):
+        if i == table_name_index:
+            full_table_name = table_content[table_name_index]["TABLE"]
+            controlblock_name = full_table_name.split(".")[0]
+            table_name = full_table_name.split(".")[1]
+            continue
+        if i == default_entry_index:
+            continue
+        key = entry["KEYS (Key | Value | Mask | Type)"][0]["Value"]
+        values = {}
+        action_name = entry["ACTION"]['name']
+        values['action'] = action_name
+        action_param = entry["ACTION"]['params']
+        for param_key, param_value in action_param.items():
+            values[param_key] = format_value_with_name(param_key, param_value, port_configs)
+        values['priority'] = entry["PRIO"]
+        for counter in entry["COUNTERS (Name | Type | Items | Value)"]:
+            counter_value = counter["Value"]
+            values['byte_count'] = counter_value[1]
+            values['packet_count'] = counter_value[0]
+        entry_dict[key] = values
+    return controlblock_name, table_name, entry_dict
+
+
+def attach_counters(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+    """
+    Attach counter for a table
+    :param engine: ssh engine object
+    :param docker_name: the docker name in which the p4nspect will be executed
+    :param feature_name: the p4 examples feature name
+    :param table_name: the table name
+    :param controlblock_name:
+    """
+    p4nspect_cmd = "p4nspect debug-counters attach"
+    cmd = get_p4nspect_full_cmd(docker_name, feature_name, p4nspect_cmd, table_name, controlblock_name)
+    return engine.run_cmd(cmd)
+
+
+def detach_counters(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+    """
+    Detach the counters for the specified table
+    :param engine: ssh engine object
+    :param docker_name: the docker name in which the p4nspect will be executed
+    :param feature_name: the p4 examples feature name
+    :param table_name: the table name
+    :param controlblock_name:
+    """
+    p4nspect_cmd = "p4nspect debug-counters detach"
+    cmd = get_p4nspect_full_cmd(docker_name, feature_name, p4nspect_cmd, table_name, controlblock_name)
+    return engine.run_cmd(cmd)
+
+
+def clear_counters(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+    """
+    Clear counters for the specified counter
+    :param engine: ssh engine object
+    :param docker_name: the docker name in which the p4nspect will be executed
+    :param feature_name: the p4 examples feature name
+    :param table_name: the table name
+    """
+    p4nspect_cmd = "p4nspect debug-counters reset"
+    cmd = get_p4nspect_full_cmd(docker_name, feature_name, p4nspect_cmd, table_name, controlblock_name)
+    return engine.run_cmd(cmd)
+
+
+def get_p4nspect_full_cmd(docker_name, feature_name, p4nspect_cmd, table_name="", controlblock_name=""):
+    """
+    Get the full p4nspect cmd
+    :param docker_name: the docker name in which the p4nspect will be executed
+    :param feature_name: the p4 examples feature name
+    :param p4nspect_cmd: the basic p4nspect command
+    :param table_name: the table name
+    :param controlblock_name: control block names
+    :return: the command string
+    """
+    try:
+        json_file = FEATURE_P4C_JSON_MAP[feature_name]
+    except KeyError:
+        logging.error(f"feature name {feature_name} is not supported")
+        raise KeyError(f"feature name {feature_name} is not supported")
+    docker_env_p4c_config = f"P4NSPECT_P4C_CONFIG=/devtools/{json_file}"
+    if table_name:
+        p4nspect_cmd = "{} --tables {}".format(p4nspect_cmd, table_name)
+    if controlblock_name:
+        p4nspect_cmd = "{} --controlblocks {}".format(p4nspect_cmd, controlblock_name)
+    return "docker exec -e {} {} {}".format(docker_env_p4c_config, docker_name, p4nspect_cmd)
