@@ -79,9 +79,7 @@ def run_step(name, ci_tools) {
         //copy sonic_devops build
         ci_tools.run_sh("mkdir -p ${env.nfs_dir}/sonic_devops/build")
         ci_tools.run_sh("chmod 777 ${env.nfs_dir}/sonic_devops/build")
-        def build_branch_block = ["GERRIT_BRANCH":env.GERRIT_BRANCH]
-        print build_branch_block
-        ci_tools.block_same_params_build(build_branch_block)
+
 
     } catch (Throwable ex) {
         ci_tools.set_error_in_env(ex, "devops", name)
