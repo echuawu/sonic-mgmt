@@ -21,95 +21,26 @@
 			<!-- pre db commands - executed once before DB run -->
 			<pre>
 			</pre>
-
-
             <pre>
-                <info> ptf32 topology checker </info>
-                <type> reg_exec_cmd </type>
-                <name> ptf32 topology checker </name>
-                <tout> 30 </tout>
-                <ignore_pre_fail> True </ignore_pre_fail>
+                <type> reg_exec_func </type>
+                <name> deploy ptf32 topo </name>
+                <mars_cmd_func> run_on_stm </mars_cmd_func>
                 <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
+                <tout> 2400 </tout>
                 <params>
-                    <exec> test [[conf:extra_info.topology]] != ptf32 </exec>
+                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/rpc_check_and_set_topology.py </cmd>
+                    <cmd_params> --topo [[conf:topology_file]]  --dut-name [[conf:extra_info.dut_name]] --current_topo [[conf:extra_info.topology]] --expected_topo ptf32 --workspace-path /root/mars/workspace  </cmd_params>
                 </params>
-
-                <on_success>
-                    <cmd>
-                        <info> remove original  topology </info>
-                        <type> reg_exec_cmd </type>
-                        <name> remove original topology </name>
-                        <tout> 600 </tout>
-                        <params>
-                            <exec> ./testbed-cli.sh -k ceos remove-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
-                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
-                        </params>
-                    </cmd>
-                    <cmd>
-                        <info> add ptf-32 topology </info>
-                        <type> reg_exec_cmd </type>
-                        <name> add ptf-32 topology </name>
-                        <tout> 1800 </tout>
-                        <params>
-                            <exec> ./testbed-cli.sh -k ceos add-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
-                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
-                        </params>
-                    </cmd>
-                    <cmd>
-                        <info> deploy minigraph of ptf-32 topology </info>
-                        <type> reg_exec_cmd </type>
-                        <name> deploy minigraph of ptf-32  topology </name>
-                        <tout> 1200 </tout>
-                        <params>
-                            <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-ptf32 lab vault </exec>
-                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
-                        </params>
-                    </cmd>
-                </on_success>
             </pre>
-
-
             <post>
-                <info> original topology checker </info>
-                <type> reg_exec_cmd </type>
-                <name> original topology checker </name>
-                <tout> 30 </tout>
+                <type> reg_exec_func </type>
+                <name> restore original topo </name>
+                <mars_cmd_func> run_on_stm </mars_cmd_func>
+                <tout> 2400 </tout>
                 <params>
-                    <exec> test [[conf:extra_info.topology]] != ptf32 </exec>
+                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/rpc_check_and_set_topology.py </cmd>
+                    <cmd_params> --topo [[conf:topology_file]]  --dut-name [[conf:extra_info.dut_name]] --current_topo ptf32 --expected_topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace  </cmd_params>
                 </params>
-
-                <on_success>
-                    <cmd>
-                        <info> remove ptf-32 topology </info>
-                        <type> reg_exec_cmd </type>
-                        <name> remove ptf-32 topology </name>
-                        <tout> 600 </tout>
-                        <params>
-                            <exec> ./testbed-cli.sh -k ceos remove-topo [[conf:extra_info.dut_name]]-ptf32 vault </exec>
-                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
-                        </params>
-                    </cmd>
-                    <cmd>
-                        <info> restore original topology </info>
-                        <type> reg_exec_cmd </type>
-                        <name> restore original topology </name>
-                        <tout> 1800 </tout>
-                        <params>
-                            <exec> ./testbed-cli.sh -k ceos add-topo [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] vault </exec>
-                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
-                        </params>
-                    </cmd>
-                    <cmd>
-                        <info> deploy minigraph of original topology </info>
-                        <type> reg_exec_cmd </type>
-                        <name> deploy minigraph of original topology </name>
-                        <tout> 1200 </tout>
-                        <params>
-                            <exec> ./testbed-cli.sh deploy-mg [[conf:extra_info.dut_name]]-[[conf:extra_info.topology]] lab vault </exec>
-                            <cmd_workdir> /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]]/ansible </cmd_workdir>
-                        </params>
-                    </cmd>
-                </on_success>
             </post>
 		</DB>
 		<Test>
