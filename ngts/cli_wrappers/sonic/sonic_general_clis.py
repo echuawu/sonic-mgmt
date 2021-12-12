@@ -625,6 +625,14 @@ class SonicGeneralCli(GeneralCliCommon):
         return dut_engine.run_cmd('docker exec -i {} {}'.format(docker, command))
 
     @staticmethod
+    def copy_to_docker(dut_engine, docker, src_path_on_host, dst_path_in_docker):
+        return dut_engine.run_cmd('docker cp {} {}:{}'.format(src_path_on_host, docker, dst_path_in_docker))
+
+    @staticmethod
+    def copy_from_docker(dut_engine, docker, dst_path_on_host, src_path_in_docker):
+        return dut_engine.run_cmd('docker cp {}:{} {}'.format(docker, src_path_in_docker, dst_path_on_host))
+
+    @staticmethod
     def get_warm_reboot_status(dut_engine):
         return dut_engine.run_cmd('systemctl is-active warmboot-finalizer')
 

@@ -40,3 +40,53 @@ class GeneralCliCommon(GeneralCliInterface):
         if app_container_info:
             app_container_status = eval(app_container_info)["Status"]
         return app_container_status
+
+    @staticmethod
+    def mv(engine, src_path, dst_path, flags=''):
+        return engine.run_cmd(f'mv {flags} {src_path} {dst_path}')
+
+    @staticmethod
+    def cp(engine, src_path, dst_path, flags=''):
+        return engine.run_cmd(f'cp {flags} {src_path} {dst_path}')
+
+    @staticmethod
+    def rm(engine, path, flags=''):
+        return engine.run_cmd(f'rm {flags} {path}')
+
+    @staticmethod
+    def mkdir(engine, path, flags=''):
+        return engine.run_cmd(f'mkdir {flags} {path}')
+
+    @staticmethod
+    def which(engine, path):
+        return engine.run_cmd(f'which {path}')
+
+    @staticmethod
+    def sed(engine, path, script, flags=''):
+        return engine.run_cmd(f"sed {flags} '{script}' {path}")
+
+    @staticmethod
+    def chmod_by_mode(engine, path, mode, flags=''):
+        return engine.run_cmd(f'chmod {flags} {mode} {path}')
+
+    @staticmethod
+    def chmod_by_ref_file(engine, path, ref_path, flags=''):
+        return engine.run_cmd(f'chmod {flags} --reference={ref_path} {path}')
+
+    @staticmethod
+    def chown_by_user(engine, path, user, group='', flags=''):
+        if group:
+            group = f':{group}'
+        return engine.run_cmd(f'chown {flags} {user}{group} {path}')
+
+    @staticmethod
+    def chown_by_ref_file(engine, path, ref_path, flags=''):
+        return engine.run_cmd(f'chown {flags} --reference={ref_path} {path}')
+
+    @staticmethod
+    def apt_update(engine, flags=''):
+        return engine.run_cmd(f'apt {flags} update', validate=True)
+
+    @staticmethod
+    def apt_install(engine, package, flags=''):
+        return engine.run_cmd(f'apt {flags} install {package}', validate=True)
