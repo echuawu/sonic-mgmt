@@ -3,9 +3,9 @@ import os
 import logging
 import pytest
 import random
+import re
 from retry.api import retry_call
 
-from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
@@ -24,10 +24,11 @@ def traffic_type():
 
 
 @pytest.fixture(autouse=True)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
+def ignore_expected_loganalyzer_exceptions(loganalyzer, platform_params):
     """
     expanding the ignore list of the loganalyzer for these tests because of reboot.
     :param loganalyzer: loganalyzer utility fixture
+    :param platform_params: platform_params fixture
     :return: None
     """
     if loganalyzer:
@@ -39,6 +40,12 @@ def ignore_expected_loganalyzer_exceptions(loganalyzer):
         ignoreRegex = [
             ".*ERR.*hostcfgd: \'sudo systemctl stop macsec.service\' failed. RC: 5, output: None.*"
         ]
+
+        if re.search('simx', platform_params.setup_name):
+            ignoreRegex.append(".* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due "
+                               "to FileNotFoundError\(2, 'No such file or directory'\)")
+            ignoreRegex.append(".* ERR watchdogutil: Failed to get watchdog module")
+
         loganalyzer.ignore_regex.extend(ignoreRegex)
 
 

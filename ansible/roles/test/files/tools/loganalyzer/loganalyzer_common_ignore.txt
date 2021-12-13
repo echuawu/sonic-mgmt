@@ -72,3 +72,5 @@ r, ".* ERR syncd#SDK: :- setQueueCounterList: Queue RID oid:.* can't provide the
 r, ".* ERR swss#buffermgrd: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error: command:.*"
 r, ".* ERR swss#buffermgrd: :- guard: RedisReply catches system_error: command.*Lua redis\(\) command arguments must be strings or integers : Input\/output error.*"
 r, ".* ERR pmon#psud\[.*\]: Failed to read from file \/var\/run\/hw-management.* - FileNotFoundError\(2, 'No such file or directory'\).*"
+r, ".* INFO systemd\[\d+\]: Stopping Kernel crash dump capture service"
+r, ".* WARNING syncd#SDK: \[SX_FW_DBG.WARNING\] FW dump me is not supported for SPC4"

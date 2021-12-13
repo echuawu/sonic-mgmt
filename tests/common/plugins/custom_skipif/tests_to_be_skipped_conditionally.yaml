@@ -707,6 +707,10 @@ tests/nightly/lag/test_lag.py::test_lag_members_scale:
     - 2828966
     Platform:
     - 2201
+  - Redmine:
+    - 2890871
+    Platform:
+    - 5600
 
 tests/nightly/static_route/test_static_route.py:
   - Platform:
