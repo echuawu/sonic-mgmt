@@ -14,6 +14,7 @@ from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
 from ngts.helpers.interface_helpers import get_lb_mutual_speed
+from ngts.tests.push_build_tests.L2.lldp.test_lldp import verify_lldp_neighbor_info_for_sonic_port
 
 
 logger = logging.getLogger()
@@ -27,13 +28,16 @@ class TestFec:
               fec_capability_for_dut_ports, dut_ports_number_dict,
               split_mode_supported_speeds, tested_dut_to_host_conn,
               dut_ports_default_speeds_configuration, dut_ports_default_mlxlink_configuration, chip_type,
-              platform_params):
+              platform_params, dut_ports_interconnects):
         self.topology_obj = topology_obj
         self.chip_type = chip_type
-        self.platform = platform_params.filtered_platform
+        self.platform_params = platform_params
+        self.dut_ports_interconnects = dut_ports_interconnects
         self.interfaces = interfaces
         self.engines = engines
         self.cli_objects = cli_objects
+        self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface(self.engines.dut, "eth0")
+        self.dut_hostname = self.cli_objects.dut.chassis.get_hostname(self.engines.dut)
         self.tested_lb_dict = tested_lb_dict
         self.tested_lb_dict_for_bug_2705016_flow = tested_lb_dict_for_bug_2705016_flow
         self.tested_dut_to_host_conn = tested_dut_to_host_conn
@@ -50,9 +54,9 @@ class TestFec:
         if self.chip_type == "SPC":
             return FecConstants.FEC_MODES_SPC_SPEED_SUPPORT
         elif self.chip_type == "SPC2":
-            return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[self.platform.upper()]
+            return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[self.platform_params.filtered_platform.upper()]
         elif self.chip_type == "SPC3":
-            return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[self.platform.upper()]
+            return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[self.platform_params.filtered_platform.upper()]
         else:
             raise AssertionError("Chip type {} is unrecognized".format(self.chip_type))
 
@@ -488,8 +492,11 @@ class TestFec:
             for port, port_conf_dict in conf.items():
                 retry_call(self.verify_interfaces_status_cmd_output_for_port, fargs=[port, port_conf_dict],
                            tries=6, delay=10, logger=logger)
-                retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[port, port_conf_dict],
-                           tries=6, delay=10, logger=logger)
+                if "simx" not in self.platform_params.setup_name:
+                    retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[port, port_conf_dict],
+                               tries=6, delay=10, logger=logger)
+                retry_call(self.verify_interfaces_status_on_lldp_table, fargs=[port],
+                           tries=3, delay=10, logger=logger)
 
     def verify_mlxlink_status_cmd_output_for_port(self, port, port_conf_dict):
         port_number = self.dut_ports_number_dict[port]
@@ -506,6 +513,13 @@ class TestFec:
             interface_status_actual_conf = self.cli_objects.dut.interface.parse_interfaces_status(self.engines.dut)[port]
             self.compare_actual_and_expected_fec_output(expected_conf=port_conf_dict,
                                                         actual_conf=interface_status_actual_conf)
+
+    def verify_interfaces_status_on_lldp_table(self, port):
+        with allure.step(f'Verify LLDP neighbor info on port: {port} with show lldp neighbor command'):
+            logger.info(f'Verify LLDP neighbor info on port: {port} with show lldp neighbor command')
+            lldp_info = self.cli_objects.dut.lldp.parse_lldp_info_for_specific_interface(self.engines.dut, port)
+            port_neighbor = self.dut_ports_interconnects[port]
+            verify_lldp_neighbor_info_for_sonic_port(port, lldp_info, self.dut_hostname, self.dut_mac, port_neighbor)
 
     @staticmethod
     def compare_actual_and_expected_fec_output(expected_conf, actual_conf):
