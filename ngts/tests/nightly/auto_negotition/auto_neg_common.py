@@ -466,19 +466,14 @@ class TestAutoNegBase:
             for port, port_conf_dict in conf.items():
                 if set_cleanup:
                     self.set_speed_type_cleanup(port, engine, cli_object, base_interfaces_speeds, cleanup_list)
-                logger.info("Configure type to none on {}".format(port))
                 cli_object.interface.\
                     config_interface_type(engine, port, 'none')
-                logger.info("Configure speed on {}".format(port))
                 cli_object.interface.\
                     set_interface_speed(engine, port, port_conf_dict[AutonegCommandConstants.SPEED])
-                logger.info("Configure type on {}".format(port))
                 cli_object.interface.\
                     config_interface_type(engine, port, port_conf_dict[AutonegCommandConstants.TYPE])
-                logger.info("Configure advertised speeds on {}".format(port))
                 cli_object.interface.\
                     config_advertised_speeds(engine, port, port_conf_dict[AutonegCommandConstants.ADV_SPEED])
-                logger.info("Configure advertised types on {}".format(port))
                 cli_object.interface.\
                     config_advertised_interface_types(engine, port, port_conf_dict[AutonegCommandConstants.ADV_TYPES])
 

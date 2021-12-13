@@ -156,6 +156,9 @@ class TestAutoNegNegative(TestAutoNegBase):
         self.verify_auto_neg_failure_scenario(lb, conf, cleanup_list)
 
     def get_mismatch_type_conf(self, split_mode, lb, lb_mutual_types):
+        if len(lb_mutual_types) <= 1:
+            pytest.skip(f"This test is not supported because lb {lb} doesn't support more than 1 interface type, "
+                        f"supported interfaces type on lb are: {lb_mutual_types}")
         rand_idx = random.choice(range(1, len(lb_mutual_types)))
         port_1_adv_type, port_2_adv_type = [lb_mutual_types[0:rand_idx], lb_mutual_types[rand_idx:]]
         tested_lb_dict = {split_mode: [lb]}

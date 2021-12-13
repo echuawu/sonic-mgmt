@@ -184,6 +184,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
         ports_status = SonicInterfaceCli.parse_interfaces_status(engine)
 
         for port in ports_list:
+            assert ports_status.get(port), \
+                f"show interfaces status doesn't return status of port {port}, check the dockers status"
             assert ports_status[port]['Oper'] == expected_status,\
                 'Interface {} in unexpected state, expected is {}'.format(port, expected_status)
 

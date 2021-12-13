@@ -264,14 +264,19 @@ def expected_auto_neg_loganalyzer_exceptions(loganalyzer):
 
 
 @pytest.fixture(scope='function')
-def skip_if_active_optical_cable(topology_obj, engines):
+def skip_if_active_optical_cable(cable_compliance_info):
     """
     Fixture that skips test execution in case setup has Active Optical Cable
     """
+    if re.search(r"Active\s+Optical\s+Cable", cable_compliance_info, re.IGNORECASE):
+        pytest.skip("This test is not supported because setup has Active Optical Cable")
+
+
+@pytest.fixture(autouse=True, scope='session')
+def cable_compliance_info(topology_obj, engines):
     cables_output = retry_call(check_cable_compliance_info_updated_for_all_port,
                                fargs=[topology_obj, engines], tries=12, delay=10, logger=logger)
-    if re.search(r"Active\s+Optical\s+Cable", cables_output, re.IGNORECASE):
-        pytest.skip("This test is not supported because setup has Active Optical Cable")
+    return cables_output
 
 
 def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):

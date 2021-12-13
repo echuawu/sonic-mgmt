@@ -501,7 +501,7 @@ class TestFec:
     def verify_mlxlink_status_cmd_output_for_port(self, port, port_conf_dict):
         port_number = self.dut_ports_number_dict[port]
         with allure.step('Verify FEC configuration on port: {} with mlxlink command'.format(port)):
-            logger.info("Verify FEC status based on mlxlink command")
+            logger.info('Verify FEC configuration on port: {} with mlxlink command'.format(port))
             mlxlink_actual_conf = self.cli_objects.dut.interface.parse_port_mlxlink_status(self.engines.dut,
                                                                                            self.pci_conf,
                                                                                            port_number)
@@ -509,7 +509,7 @@ class TestFec:
 
     def verify_interfaces_status_cmd_output_for_port(self, port, port_conf_dict):
         with allure.step('Verify FEC configuration on port: {} with show interfaces command'.format(port)):
-            logger.info("Verify Fec status based on show interfaces status command")
+            logger.info('Verify FEC configuration on port: {} with show interfaces command'.format(port))
             interface_status_actual_conf = self.cli_objects.dut.interface.parse_interfaces_status(self.engines.dut)[port]
             self.compare_actual_and_expected_fec_output(expected_conf=port_conf_dict,
                                                         actual_conf=interface_status_actual_conf)
