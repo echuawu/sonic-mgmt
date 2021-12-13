@@ -61,7 +61,8 @@ class TestFec:
             raise AssertionError("Chip type {} is unrecognized".format(self.chip_type))
 
     @pytest.mark.reboot_reload
-    def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
+    def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions,
+                                             cleanup_list, skip_if_active_optical_cable):
         with allure.step("Configure and verify FEC with all speed options on dut loopbacks"):
             logger.info("Configure and verify FEC with all speed options on dut loopbacks")
             dut_lb_conf = self.check_all_speeds_with_fec(self.tested_lb_dict, cleanup_list)
@@ -82,7 +83,8 @@ class TestFec:
             self.verify_fec_configuration(dut_lb_conf)
 
     @pytest.mark.reboot_reload
-    def test_fec_capabilities_hosts_ports(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
+    def test_fec_capabilities_hosts_ports(self, ignore_expected_loganalyzer_reboot_exceptions,
+                                          cleanup_list, skip_if_active_optical_cable):
 
         with allure.step("Configure IP on dut - host connectivities for traffic validation"):
             logger.info("Configure IP on dut - host connectivities for traffic validation")
@@ -119,7 +121,8 @@ class TestFec:
             logger.info("Verify FEC on host - dut connectivities returned to default configuration")
             self.verify_fec_configuration_on_host(dut_host_conf)
 
-    def test_negative_fec(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
+    def test_negative_fec(self, ignore_expected_loganalyzer_reboot_exceptions,
+                          cleanup_list, skip_if_active_optical_cable):
         split_mode = 1
         conf = {}
         dut_host_port = self.interfaces.dut_ha_1
@@ -158,7 +161,8 @@ class TestFec:
                        fargs=[conf[dut_host_port], self.cli_objects.ha, self.engines.ha, self.interfaces.ha_dut_1],
                        tries=6, delay=10, logger=logger)
 
-    def test_fec_bug_2705016(self, ignore_expected_loganalyzer_reboot_exceptions, cleanup_list):
+    def test_fec_bug_2705016(self, ignore_expected_loganalyzer_reboot_exceptions,
+                             cleanup_list, skip_if_active_optical_cable):
         reboot_type = 'warm-reboot'
         tested_ports = get_tested_lb_dict_tested_ports(self.tested_lb_dict_for_bug_2705016_flow)
         ports_for_toggle_flow, ports_for_disable_enable_flow = \

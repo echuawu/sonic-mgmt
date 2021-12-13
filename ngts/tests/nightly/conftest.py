@@ -4,7 +4,7 @@ import allure
 import pytest
 import logging
 
-from ngts.constants.constants import SonicConst
+from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers import json_file_helper as json_file_helper
 
@@ -173,3 +173,30 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
             cli_object.general.reload_flow(dut_engine, ports_list=ports)
         else:
             save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)
+
+
+@pytest.fixture()
+def skip_if_active_optical_cable(cable_compliance_info):
+    """
+    Fixture that skips test execution in case setup has Active Optical Cable
+    """
+    if re.search(r"Active\s+Optical\s+Cable", cable_compliance_info, re.IGNORECASE):
+        pytest.skip("This test is not supported because setup has Active Optical Cable")
+
+
+@pytest.fixture(scope='session')
+def cable_compliance_info(topology_obj, engines):
+    cables_output = retry_call(check_cable_compliance_info_updated_for_all_port,
+                               fargs=[topology_obj, engines], tries=12, delay=10, logger=logger)
+    return cables_output
+
+
+def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
+    ports = topology_obj.players_all_ports['dut']
+    logger.info("Verify cable compliance info is updated for all ports")
+    compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
+    for port in ports:
+        if not re.search("{}: SFP EEPROM detected".format(port), compliance_info):
+            raise AssertionError("Cable Information for port {} is not Loaded by"
+                                 " \"show interfaces transceiver eeprom\" cmd".format(port))
+    return compliance_info

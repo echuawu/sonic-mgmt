@@ -1,6 +1,7 @@
 import random
 import logging
 import pytest
+import allure
 from retry.api import retry_call
 
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
@@ -35,21 +36,24 @@ class TestAutoNegNegative(TestAutoNegBase):
 
         :return: raise assertion error in case of failure
         """
-        logger.info("Verify the command return error if given invalid auto neg mode.")
-        output = \
-            self.cli_objects.dut.interface.config_auto_negotiation_mode(self.engines.dut, self.interfaces.dut_ha_1,
-                                                                        INVALID_AUTO_NEG_MODE)
-        verify_show_cmd(output, [(INVALID_AUTO_NEG_MODE_ERR_REGEX, True)])
+        with allure.step("Verify the command return error if given invalid auto neg mode"):
+            logger.info("Verify the command return error if given invalid auto neg mode.")
+            output = \
+                self.cli_objects.dut.interface.config_auto_negotiation_mode(self.engines.dut, self.interfaces.dut_ha_1,
+                                                                            INVALID_AUTO_NEG_MODE)
+            verify_show_cmd(output, [(INVALID_AUTO_NEG_MODE_ERR_REGEX, True)])
 
-        logger.info("Verify the command return error if given invalid interface_name")
-        output = \
-            self.cli_objects.dut.interface.config_auto_negotiation_mode(self.engines.dut,
-                                                                        INVALID_INTERFACE_NAME,
-                                                                        "enabled")
+        with allure.step("Verify the command return error if given invalid interface_name"):
+            logger.info("Verify the command return error if given invalid interface_name")
+            output = \
+                self.cli_objects.dut.interface.config_auto_negotiation_mode(self.engines.dut,
+                                                                            INVALID_INTERFACE_NAME,
+                                                                            "enabled")
 
-        verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
+            verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
-    def test_negative_config_advertised_speeds(self, ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list):
+    def test_negative_config_advertised_speeds(self, ignore_auto_neg_expected_loganalyzer_exceptions,
+                                               cleanup_list, skip_if_active_optical_cable):
         """
         Test command config interface advertised-speeds <interface_name> <speed_list>.
         Verify the command return error if given invalid interface name or speed list.
@@ -68,20 +72,20 @@ class TestAutoNegNegative(TestAutoNegBase):
         first_lb = 0
         lb = self.tested_lb_dict[split_mode][first_lb]
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
-
-        logger.info("Verify the command return error if given invalid speed list")
-        output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut, lb[0], INVALID_SPEED)
-        verify_show_cmd(output, [(INVALID_SPEED_ERR_REGEX, True)])
-
-        logger.info("Verify the command return error if given invalid interface name")
-        output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut,
-                                                                         INVALID_INTERFACE_NAME,
-                                                                         "all")
-        verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
-
-        logger.info("Verify auto-negotiation fails in case of mismatch advertised speeds")
-        conf = self.get_mismatch_speed_conf(split_mode, lb, lb_mutual_speeds)
-        self.verify_auto_neg_failure_scenario(lb, conf, cleanup_list)
+        with allure.step("Verify the command return error if given invalid speed list"):
+            logger.info("Verify the command return error if given invalid speed list")
+            output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut, lb[0], INVALID_SPEED)
+            verify_show_cmd(output, [(INVALID_SPEED_ERR_REGEX, True)])
+        with allure.step("Verify the command return error if given invalid interface name"):
+            logger.info("Verify the command return error if given invalid interface name")
+            output = self.cli_objects.dut.interface.config_advertised_speeds(self.engines.dut,
+                                                                             INVALID_INTERFACE_NAME,
+                                                                             "all")
+            verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
+        with allure.step("Verify auto-negotiation fails in case of mismatch advertised speeds"):
+            logger.info("Verify auto-negotiation fails in case of mismatch advertised speeds")
+            conf = self.get_mismatch_speed_conf(split_mode, lb, lb_mutual_speeds)
+            self.verify_auto_neg_failure_scenario(lb, conf, cleanup_list)
 
     def get_mismatch_speed_conf(self, split_mode, lb, lb_mutual_speeds):
         rand_idx = random.choice(range(1, len(lb_mutual_speeds)))
@@ -93,24 +97,33 @@ class TestAutoNegNegative(TestAutoNegBase):
         return conf
 
     def verify_auto_neg_failure_scenario(self, lb, conf, cleanup_list):
-        logger.info("Set auto negotiation mode to disabled on ports")
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, lb, conf, cleanup_list, mode='disabled')
         base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(self.engines.dut,
                                                                                      interfaces_list=conf.keys())
-        logger.info("Configure mismatch auto neg values")
-        self.configure_ports(self.engines.dut, self.cli_objects.dut, conf, base_interfaces_speeds, cleanup_list)
-        logger.info("Check ports are up while auto neg is disabled")
-        retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[self.engines.dut, lb], tries=3, delay=10,
-                   logger=logger)
-        logger.info("Enable auto neg on ports: {} and verify ports are down due to mismatch".format(lb))
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, ports_list=lb, conf=conf,
-                                     cleanup_list=cleanup_list, mode='enabled')
-        retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[self.engines.dut, lb, 'down'],
-                   tries=6, delay=10, logger=logger)
-        logger.info("Cleanup mismatch configuration and validate ports are up")
-        cleanup(cleanup_list)
-        retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[self.engines.dut, lb],
-                   tries=6, delay=10, logger=logger)
+        with allure.step("Set auto negotiation mode to disabled on ports"):
+            logger.info("Set auto negotiation mode to disabled on ports")
+            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, lb, conf,
+                                         cleanup_list, mode='disabled')
+        with allure.step("Configure mismatch auto neg values"):
+            logger.info("Configure mismatch auto neg values")
+            self.configure_ports(self.engines.dut, self.cli_objects.dut, conf, base_interfaces_speeds, cleanup_list)
+        with allure.step("Check ports are up while auto neg is disabled"):
+            logger.info("Check ports are up while auto neg is disabled")
+            retry_call(self.cli_objects.dut.interface.check_ports_status,
+                       fargs=[self.engines.dut, lb], tries=3, delay=10,
+                       logger=logger)
+        with allure.step("Enable auto neg on ports: {}".format(lb)):
+            logger.info("Enable auto neg on ports: {}".format(lb))
+            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, ports_list=lb, conf=conf,
+                                         cleanup_list=cleanup_list, mode='enabled')
+        with allure.step("verify ports are down due to mismatch"):
+            logger.info("verify ports are down due to mismatch")
+            retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[self.engines.dut, lb, 'down'],
+                       tries=6, delay=10, logger=logger)
+        with allure.step("Cleanup mismatch configuration and validate ports are up"):
+            logger.info("Cleanup mismatch configuration and validate ports are up")
+            cleanup(cleanup_list)
+            retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[self.engines.dut, lb],
+                       tries=6, delay=10, logger=logger)
 
     def test_negative_config_interface_type(self):
         """
@@ -129,7 +142,8 @@ class TestAutoNegNegative(TestAutoNegBase):
                                                                       random.choice(types_supported_on_dut))
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
-    def test_negative_config_advertised_types(self, ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list):
+    def test_negative_config_advertised_types(self, ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list,
+                                              skip_if_active_optical_cable):
         """
         Test command config interface advertised-types <interface_name> <interface_type_list>.
         Verify the command return error if given invalid interface name.
@@ -143,17 +157,19 @@ class TestAutoNegNegative(TestAutoNegBase):
         split_mode = random.choice(possible_split_modes)
         first_lb = 0
         lb = self.tested_lb_dict[split_mode][first_lb]
-        logger.info("Verify the command return error if given invalid interface name")
-        output = self.cli_objects.dut.interface.config_advertised_interface_types(self.engines.dut,
-                                                                                  INVALID_INTERFACE_NAME,
-                                                                                  "all")
-        verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
+        with allure.step("Verify the command return error if given invalid interface name"):
+            logger.info("Verify the command return error if given invalid interface name")
+            output = self.cli_objects.dut.interface.config_advertised_interface_types(self.engines.dut,
+                                                                                      INVALID_INTERFACE_NAME,
+                                                                                      "all")
+            verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
         lb_mutual_types = get_matched_types(self.ports_lanes_dict[lb[0]], lb_mutual_speeds,
                                             types_dict=self.interfaces_types_dict)
         conf = self.get_mismatch_type_conf(split_mode, lb, list(lb_mutual_types))
-        logger.info("verify auto-negotiation fails in case of mismatch advertised types")
-        self.verify_auto_neg_failure_scenario(lb, conf, cleanup_list)
+        with allure.step("verify auto-negotiation fails in case of mismatch advertised types"):
+            logger.info("verify auto-negotiation fails in case of mismatch advertised types")
+            self.verify_auto_neg_failure_scenario(lb, conf, cleanup_list)
 
     def get_mismatch_type_conf(self, split_mode, lb, lb_mutual_types):
         if len(lb_mutual_types) <= 1:
@@ -169,7 +185,7 @@ class TestAutoNegNegative(TestAutoNegBase):
 
     def test_negative_advertised_speed_type_mismatch(self, expected_auto_neg_loganalyzer_exceptions,
                                                      ignore_auto_neg_expected_loganalyzer_exceptions,
-                                                     cleanup_list):
+                                                     cleanup_list, skip_if_active_optical_cable):
         """
         Verify error in log when configuring mismatch type and speed, like 'CR4' and '10G',
         Verify port state is up when speed and type doesn't match,
