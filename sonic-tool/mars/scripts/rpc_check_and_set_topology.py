@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import re
 
 # Third-party libs
 from fabric import Config
@@ -28,6 +29,15 @@ def _parse_args():
     return parser.parse_args()
 
 
+def get_sonic_branch(duthost):
+    show_ver_output = duthost.run('show version').stdout
+    image_ver = re.search(r'SONiC\sSoftware\sVersion:\s(.*)', show_ver_output, re.IGNORECASE).group(1)
+    # image_ver = SONiC.202012.175-84b565937_Internal
+    branch_index = 1
+    branch = image_ver.split('.')[branch_index]
+    return branch
+
+
 if __name__ == "__main__":
     args = _parse_args()
 
@@ -44,9 +54,18 @@ if __name__ == "__main__":
 
     topo = parse_topology(args.topo)
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
+    sonic_dut_device = topo.get_device_by_topology_id(constants.DUT_DEVICE_ID)
+
     sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device.USERS[0].USERNAME,
                             config=Config(overrides={"run": {"echo": True}}),
                             connect_kwargs={"password": sonic_mgmt_device.USERS[0].PASSWORD})
+    sonic_dut = Connection(sonic_dut_device.BASE_IP, user=sonic_dut_device.USERS[0].USERNAME,
+                           config=Config(overrides={"run": {"echo": True}}),
+                           connect_kwargs={"password": sonic_dut_device.USERS[0].PASSWORD})
+
+    sonic_branch = get_sonic_branch(sonic_dut)
+    logger.info('SONiC branch is: {}'.format(sonic_branch))
+    ptf_tag = constants.BRANCH_PTF_MAPPING.get(sonic_branch, 'latest')
 
     try:
         with sonic_mgmt.cd(ansible_path):
@@ -59,11 +78,13 @@ if __name__ == "__main__":
 
     with sonic_mgmt.cd(ansible_path):
         logger.info("Add topology")
-        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name, TOPO=expected_topo)
+        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name,
+                                                                                                         TOPO=expected_topo,
+                                                                                                         PTF_TAG=ptf_tag)
         logger.info("Running CMD: {}".format(cmd))
         sonic_mgmt.run(cmd)
 
     with sonic_mgmt.cd(ansible_path):
-        cmd = " ./testbed-cli.sh deploy-mg {SWITCH}-{TOPO} lab vault ".format(SWITCH=dut_name, TOPO=expected_topo)
+        cmd = "./testbed-cli.sh deploy-mg {SWITCH}-{TOPO} lab vault".format(SWITCH=dut_name, TOPO=expected_topo)
         logger.info("Running CMD: {}".format(cmd))
         sonic_mgmt.run(cmd)

@@ -360,7 +360,7 @@ def deploy_fanout(ansible_path, mgmt_docker_engine, topo, setup_name, onyx_image
 
 
 @separate_logger
-def recover_topology(ansible_path, mgmt_docker_engine, hypervisor_engine, dut_name, sonic_topo):
+def recover_topology(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, ptf_tag):
     """
     Method which add cEOS dockers and topo in case of community setup
     """
@@ -374,9 +374,45 @@ def recover_topology(ansible_path, mgmt_docker_engine, hypervisor_engine, dut_na
             mgmt_docker_engine.run(cmd, warn=True)
 
         logger.info("Add topology")
-        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name, TOPO=sonic_topo)
+        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name,
+                                                                                                         TOPO=sonic_topo,
+                                                                                                         PTF_TAG=ptf_tag)
         logger.info("Running CMD: {}".format(cmd))
         mgmt_docker_engine.run(cmd)
+
+
+def get_sonic_branch(image_path):
+    """
+    Get image branch from path: /auto/sw_system_release/sonic/master.234-27a6641fb_Internal/Mellanox/sonic-mellanox.bin
+    :param image_path: example: /auto/sw_system_release/sonic/master.234-27a6641fb_Internal/Mellanox/sonic-mellanox.bin
+    :return: branch, example: master
+    """
+    branch_part_index = 1
+    branch_index = 0
+    real_path = os.path.realpath(image_path)
+    branch = real_path.split('/auto/sw_system_release/sonic/')[branch_part_index].split('.')[branch_index]
+    return branch
+
+
+def get_ptf_docker_tag(image_path):
+    """
+    Get PTF docker tag from SONiC image path
+    :param image_path: example: /auto/sw_system_release/sonic/master.234-27a6641fb_Internal/Mellanox/sonic-mellanox.bin
+    :return: ptf docker tag, example: '42007'
+    """
+    ptf_tag = 'latest'
+    try:
+        if is_url(image_path):
+            file_path_index = 3
+            image_path = '/' + '/'.join(image_path.split('/')[file_path_index:])
+        branch = get_sonic_branch(image_path)
+        logger.info('SONiC branch is: {}'.format(branch))
+        ptf_tag = constants.BRANCH_PTF_MAPPING.get(branch, 'latest')
+    except Exception as err:
+        logger.error('Can not get SONiC branch and PTF tag from path: {}, using "latest". Error: {}'.format(image_path,
+                                                                                                            err))
+
+    return ptf_tag
 
 
 @separate_logger
@@ -590,13 +626,17 @@ def main():
 
     image_urls = prepare_images(args.base_version, args.target_version, args.serve_files)
 
+    ptf_tag = get_ptf_docker_tag(args.base_version)
+    if args.target_version:
+        ptf_tag = get_ptf_docker_tag(args.target_version)
+
     if args.send_takeover_notification == 'yes':
         send_takeover_notification(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
                                    sonic_topo=args.sonic_topo, setup_name=args.setup_name)
 
     if args.upgrade_only and re.match(r"^(no|false)$", args.upgrade_only, re.I):
         recover_topology(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                         hypervisor_engine=hypervisor_engine, dut_name=args.dut_name, sonic_topo=args.sonic_topo)
+                         dut_name=args.dut_name, sonic_topo=args.sonic_topo, ptf_tag=ptf_tag)
 
     base_version_url = image_urls["base_version"]
     if args.deploy_only_target == 'yes':
