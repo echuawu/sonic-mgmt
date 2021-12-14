@@ -779,7 +779,6 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec:
   - Platform:
-    - 4700
     - 3420
     - 4410
     - simx
@@ -794,6 +793,12 @@ tests/nightly/fec:
     - 2855810
     Platform:
     - 2201
+  - Redmine:
+    - 2887900
+    Platform:
+    - 4700
+    - 3700
+
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   - Redmine:

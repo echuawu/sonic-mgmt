@@ -371,6 +371,7 @@ class FecConstants:
     FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA] = \
         copy.deepcopy(FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA_C])
     FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA][SonicConst.FEC_RS_MODE][SonicConst.PORT_SPLIT_NUM_1]['100G'] = ['CR2']
+    FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA][SonicConst.FEC_RS_MODE][SonicConst.PORT_SPLIT_NUM_1]['50G'] = ['CR']
     FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_ANACONDA][SonicConst.FEC_RS_MODE][SonicConst.PORT_SPLIT_NUM_2]['50G'] = ['CR']
 
     FEC_MODES_SPC3_SPEED_SUPPORT = {
@@ -438,12 +439,12 @@ class FecConstants:
             },
             SonicConst.FEC_RS_MODE: {
                 SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
-                                              '50G': ['CR2'],
-                                              '100G': ['CR4'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR2'],
                                               '200G': ['CR4']
                                               },
                 SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
-                                              '50G': ['CR2'],
+                                              '50G': ['CR'],
                                               '100G': ['CR2'],
                                               '200G': ['CR4']
                                               },
