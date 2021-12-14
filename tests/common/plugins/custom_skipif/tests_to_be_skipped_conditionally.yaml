@@ -85,9 +85,7 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
   - Redmine:
-    - 2878776
-    Platform:
-    - 4600
+    - 2885445
     Branch:
     - master
 
@@ -103,11 +101,19 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   - Branch:
     - master
+    Redmine:
+    - 2878715
+    - 2885445
+
+platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
+  - Branch:
+    - master
     Platform:
+    - 3700
     - 4600
     Redmine:
     - 2878715
-    - 2878776
+
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/4784
@@ -225,15 +231,9 @@ platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_name:
 
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
   - Redmine:
-    - 2878776
+    - 2885445
     Branch:
     - master
-    Platform:
-    - 4600
-  - Redmine:
-    - 2854467
-    Platform:
-    - 2201
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
   - Branch:
