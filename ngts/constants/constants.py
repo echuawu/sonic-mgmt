@@ -542,6 +542,16 @@ class LoganalyzerConsts:
     LOG_FILE_NAME = "syslog"
 
 
+class P4ExamplesConsts:
+    REPO_NAME = "harbor.mellanox.com/sonic-p4/p4-examples"
+    APP_NAME = 'p4-examples'
+    APP_VERSION = '0.5.0'
+    NO_EXAMPLE = "NO_EXAMPLE"
+    VXLAN_BM_FEATURE_NAME = "VXLAN_BM"
+    VXLAN_BM_ENCAP_TABLE = "p4-vxlan-bm-overlay-router"
+    VXLAN_BM_DECAP_TABLE = "p4-vxlan-bm-tenant-forward"
+
+
 class AppExtensionInstallationConstants:
     WJH_APP_NAME = 'what-just-happened'
     WJH_REPOSITORY = 'harbor.mellanox.com/sonic-wjh/docker-wjh'
@@ -552,19 +562,10 @@ class AppExtensionInstallationConstants:
     APPLICATION_LIST = [
         P4SamplingConsts.APP_NAME,
         WJH_APP_NAME,
-        LC_MANAGER
+        LC_MANAGER,
+        P4ExamplesConsts.APP_NAME
     ]
     APP_EXTENSION_PROJECT_MAPPING = {'sonic-wjh': WJH_APP_NAME,
                                      'p4-sampling': P4SamplingConsts.APP_NAME,
                                      'sonic-lc-manager': LC_MANAGER}
     APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME]
-
-
-class P4ExamplesConsts:
-    REPO_NAME = "harbor.mellanox.com/sonic-p4/p4-examples"
-    APP_NAME = 'p4-examples'
-    APP_VERSION = '0.0.2'
-    NO_EXAMPLE = "NO_EXAMPLE"
-    VXLAN_BM_FEATURE_NAME = "VXLAN_BM"
-    VXLAN_BM_ENCAP_TABLE = "p4-vxlan-bm-overlay-router"
-    VXLAN_BM_DECAP_TABLE = "p4-vxlan-bm-tenant-forward"
