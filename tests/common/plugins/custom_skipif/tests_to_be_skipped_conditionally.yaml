@@ -781,7 +781,6 @@ tests/nightly/fec:
   - Platform:
     - 3420
     - 4410
-    - simx
   - Branch:
     - 202012
   - Redmine:
