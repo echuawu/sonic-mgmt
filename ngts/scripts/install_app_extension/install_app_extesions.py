@@ -65,15 +65,15 @@ class AppExtensionInstaller():
                 app_extension_dict = json.load(f)
                 return self.map_project_to_application_name(app_extension_dict)
         except json.decoder.JSONDecodeError as e:
-            logger.error('Please check the content of provided json file: {}'.format(app_extension_dict_path))
+            logger.error(f'Please check the content of provided json file: {app_extension_dict_path}')
             raise e
 
     def is_app_extension_present_in_application_list(self):
         for app_ext in self.app_extension_dict:
             if app_ext not in AppExtensionInstallationConstants.APPLICATION_LIST:
                 raise AppExtensionError(
-                    'App extension name "{}" is not defined in APPLICATION_LIST {}. Please check '
-                    ' provided json file'.format(app_ext, AppExtensionInstallationConstants.APPLICATION_LIST))
+                    f'App extension name "{app_ext}" is not defined in APPLICATION_LIST '
+                    f'{AppExtensionInstallationConstants.APPLICATION_LIST}. Please check provided json file')
 
     def map_project_to_application_name(self, app_extension_dict):
         for app_ext_project, app_name in AppExtensionInstallationConstants.APP_EXTENSION_PROJECT_MAPPING.items():
@@ -102,65 +102,89 @@ class AppExtensionInstaller():
             with allure.step(log_build_supports_app_ext):
                 logger.info(log_build_supports_app_ext)
                 for app_ext_obj in self.get_supported_app_ext_objects():
-                    if self.is_applicattion_installed(app_ext_obj):
-                        logger.info(
-                            'Skipping installation for {} since it is already installed'.format(app_ext_obj.app_name))
-                    else:
-                        self.install_application(app_ext_obj)
+                    app_installed, requested_version = self.is_application_installed(app_ext_obj)
+                    if app_installed:
+                        if requested_version:
+                            logger.info(
+                                f'Skipping installation for {app_ext_obj.app_name} since it is already installed')
+                            continue
+                        else:
+                            logger.info(f"App {app_ext_obj.app_name} is installed with different "
+                                        f"version than the requested one")
+                            with allure.step(f"Uninstalling {app_ext_obj.app_name}, the version is not as requested"):
+                                self.uninstall_application(app_ext_obj)
+                    self.install_application(app_ext_obj)
         except Exception as err:
             raise err
         finally:
             SonicBgpCli.startup_bgp_all(self.dut_engine)
 
-    def install_application(self, app_ext_obj):
-        self.add_app_ext_repo(app_ext_obj)
-        self.install_app_ext(app_ext_obj)
-        self.enable_app_ext(app_ext_obj)
-        self.check_app_extension_status(app_ext_obj)
-        self.check_app_ext_sdk_version(app_ext_obj)
+    def uninstall_application(self, app_ext_obj):
+        log_uninstall_app_ext_version = f'Uninstalling app extension {app_ext_obj.app_name}'
+        with allure.step(log_uninstall_app_ext_version):
+            SonicAppExtensionCli.disable_app(self.dut_engine, app_ext_obj.app_name)
+            SonicAppExtensionCli.uninstall_app(self.dut_engine, app_name=app_ext_obj.app_name)
+            SonicAppExtensionCli.remove_repository(self.dut_engine, app_ext_obj.app_name)
 
-    def is_applicattion_installed(self, app_ext_obj):
-        return app_ext_obj.app_name in SonicAppExtensionCli.show_app_list(self.dut_engine)
+    def install_application(self, app_ext_obj):
+        log_install_app_ext_version = f'Installing app extension {app_ext_obj.app_name}'
+        with allure.step(log_install_app_ext_version):
+            self.add_app_ext_repo(app_ext_obj)
+            self.install_app_ext(app_ext_obj)
+            self.enable_app_ext(app_ext_obj)
+            self.check_app_extension_status(app_ext_obj)
+            self.check_app_ext_sdk_version(app_ext_obj)
+
+    def is_application_installed(self, app_ext_obj):
+        app_installed = False
+        requested_version = False
+        app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(self.dut_engine)
+        if app_ext_obj.app_name in app_package_repo_dict:
+            app_info = app_package_repo_dict[app_ext_obj.app_name]
+            if app_info["Status"] == 'Installed':
+                app_installed = True
+            if app_info["Version"] == app_ext_obj.version:
+                requested_version = True
+        return app_installed, requested_version
 
     def check_app_ext_sdk_version(self, app_ext_obj):
         if not app_ext_obj.is_sx_sdk_version_present():
-            logger.warning('Skipping checking of sdk_version for {}'.format(P4SamplingConsts.APP_NAME))
+            logger.warning(f'Skipping checking of sdk_version for {P4SamplingConsts.APP_NAME}')
             return
         app_ext_obj.set_sdk_version(self.get_sdk_version(app_ext_obj.app_name))
         if not self.is_sdk_version_app_extension_matches_sonic(app_ext_obj):
-            raise AppExtensionError('App ext {} sdk {} does not match sonic sdk {}'.format(
-                app_ext_obj.app_name, app_ext_obj.sdk_version,
-                self.syncd_sdk_version))
+            raise AppExtensionError(f'App ext {app_ext_obj.app_name} sdk {app_ext_obj.sdk_version} '
+                                    f'does not match sonic sdk {self.syncd_sdk_version}')
 
     def add_app_ext_repo(self, app_ext_obj):
-        log_add_app_ext_repo = 'Adding app extension repository {} on the dut'.format(app_ext_obj.repository)
+        log_add_app_ext_repo = f'Adding app extension repository {app_ext_obj.repository} on the dut'
         with allure.step(log_add_app_ext_repo):
             logger.info(log_add_app_ext_repo)
             SonicAppExtensionCli.add_repository(self.dut_engine, app_ext_obj.app_name, app_ext_obj.repository)
 
     def install_app_ext(self, app_ext_obj):
-        log_install_app_ext_version = 'Installing app extension {} version {} on the dut'.\
-            format(app_ext_obj.app_name, app_ext_obj.version)
+        log_install_app_ext_version = f'Installing app extension {app_ext_obj.app_name} ' \
+                                      f'version {app_ext_obj.version} on the dut'
         with allure.step(log_install_app_ext_version):
             logger.info(log_install_app_ext_version)
             SonicAppExtensionCli.install_app(
                 self.dut_engine, app_name=app_ext_obj.app_name,
-                from_repository='{}:{}'.format(app_ext_obj.repository, app_ext_obj.version))
+                from_repository=f'{app_ext_obj.repository}:{app_ext_obj.version}')
 
     def enable_app_ext(self, app_ext_obj):
-        log_enable_ext_app = 'Enabling app extension {} on the dut'.format(app_ext_obj.app_name)
+        log_enable_ext_app = f'Enabling app extension {app_ext_obj.app_name} on the dut'
         with allure.step(log_enable_ext_app):
             logger.info(log_enable_ext_app)
             SonicAppExtensionCli.enable_app(self.dut_engine, app_ext_obj.app_name)
 
     def disable_app_ext(self, app_ext_obj):
-        log_disable_ext_app = 'Disabling app extension {} on the dut'.format(app_ext_obj.app_name)
+        log_disable_ext_app = f'Disabling app extension {app_ext_obj.app_name} on the dut'
         with allure.step(log_disable_ext_app):
             logger.info(log_disable_ext_app)
             SonicAppExtensionCli.disable_app(self.dut_engine, app_ext_obj.app_name)
 
     def check_app_extension_status(self, app_ext_obj):
-        log_check_app_ext = 'Checking app extension {} on the dut'.format(app_ext_obj.app_name)
+        log_check_app_ext = f'Checking app extension {app_ext_obj.app_name} on the dut'
         with allure.step(log_check_app_ext):
             logger.info(log_check_app_ext)
             if 'lastrc' in app_ext_obj.version:
@@ -170,8 +194,8 @@ class AppExtensionInstaller():
                                                                   app_ext_obj.version)
 
     def is_sdk_version_app_extension_matches_sonic(self, app_ext_obj):
-        log_check_app_ext_sdk = 'Checking syncd sdk version {} matches app extension {} sdk version on the dut'.\
-            format(self.syncd_sdk_version, app_ext_obj.app_name)
+        log_check_app_ext_sdk = f'Checking syncd sdk version {self.syncd_sdk_version} matches app extension ' \
+                                f'{app_ext_obj.app_name} sdk version on the dut'
         with allure.step(log_check_app_ext_sdk):
             logger.info(log_check_app_ext_sdk)
             return self.syncd_sdk_version == app_ext_obj.sdk_version
