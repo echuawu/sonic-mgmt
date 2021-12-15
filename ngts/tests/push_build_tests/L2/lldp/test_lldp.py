@@ -13,7 +13,7 @@ logger = logging.getLogger()
 @pytest.mark.lldp
 @pytest.mark.push_gate
 @allure.title('test show LLDP table information')
-def test_show_lldp_table_output(topology_obj, engines):
+def test_show_lldp_table_output(topology_obj, engines, ignore_expected_loganalyzer_exceptions):
     """
     Compare the LLDP info in the "show lldp table" to the topology expected connectivity
     :param topology_obj: topology object fixture
@@ -381,7 +381,7 @@ def verify_lldp_info_for_dut_host_ports(topology_obj):
 @pytest.mark.lldp
 @pytest.mark.push_gate
 @allure.title('test LLDP after disable on host')
-def test_lldp_after_disable_on_host(topology_obj, engines, interfaces):
+def test_lldp_after_disable_on_host(topology_obj, engines, interfaces, ignore_expected_loganalyzer_exceptions):
     """
     :param topology_obj: topology object fixture
     :return: None, raise AssertionError in case of validation fails
@@ -412,7 +412,7 @@ def test_lldp_after_disable_on_host(topology_obj, engines, interfaces):
 @pytest.mark.lldp
 @pytest.mark.push_gate
 @allure.title('test LLDP when changing tx-interval on dut')
-def test_lldp_change_transmit_delay(topology_obj, engines):
+def test_lldp_change_transmit_delay(topology_obj, engines, ignore_expected_loganalyzer_exceptions):
     """
     this test changes the lldp transmit interval and
     verify lldp information update on neigbor host within the configuered interval.
