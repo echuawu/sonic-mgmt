@@ -353,7 +353,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
         max_lag_members = CHIP_LAG_MEMBERS_LIM[chip_type]
         all_interfaces = list(dut_cli.interface.parse_interfaces_status(engines.dut))
-        member_interfaces = all_interfaces[:min(max_lag_members, len(all_interfaces))]
+        member_interfaces = random.sample(all_interfaces, min(max_lag_members, len(all_interfaces)))
 
         with allure.step('Set same speed to all interfaces'):
             dut_orig_ifaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces)
@@ -386,16 +386,18 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
 
         with allure.step('Validate members status in PortChannel'):
             expected_ports_status_list = []
+            lag_status = 'Dw'
             for interface in member_interfaces:
                 if interface in [interfaces.dut_hb_1, interfaces.dut_hb_2]:
                     expected_ports_status_list.append((interface, 'S'))
+                    lag_status = 'Up'
                 else:
                     expected_ports_status_list.append((interface, 'D'))
 
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
-                                                  'Up',
+                                                  lag_status,
                                                   expected_ports_status_list,
                                                   tries=10)
         with allure.step('Validate dockers status'):

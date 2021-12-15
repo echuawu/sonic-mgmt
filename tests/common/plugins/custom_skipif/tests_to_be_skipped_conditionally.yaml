@@ -704,10 +704,6 @@ tests/nightly/lag/test_lag.py::test_lags_scale:
 
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   - Redmine:
-    - 2828966
-    Platform:
-    - 2201
-  - Redmine:
     - 2890871
     Platform:
     - 5600
