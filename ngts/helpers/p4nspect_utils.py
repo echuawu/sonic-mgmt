@@ -3,6 +3,9 @@ import ipaddress
 import logging
 from dotted_dict import DottedDict
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.constants.constants import P4ExamplesConsts
+
+
 FEATURE_P4C_JSON_MAP = {"VXLAN_BM": "vxlan_bm.json"}
 
 
@@ -257,7 +260,7 @@ def get_port_configs(engine):
     return port_configs
 
 
-def get_p4nspect_query_json(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+def get_p4nspect_query_json(engine, docker_name=P4ExamplesConsts.APP_NAME, feature_name="", table_name="", controlblock_name=""):
     """
     get the output of the p4nspect query
     :param engine: ssh engine object
@@ -366,7 +369,7 @@ def get_p4nspect_query_json(engine, docker_name="p4-examples", feature_name="", 
     return json.loads(output)
 
 
-def get_p4nspect_query_json_parsed(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+def get_p4nspect_query_json_parsed(engine, docker_name=P4ExamplesConsts.APP_NAME, feature_name="", table_name="", controlblock_name=""):
     """
     get the output of the p4nspect query
     :param engine: ssh engine object
@@ -435,7 +438,7 @@ def parse_entry_in_one_table(engine, table_content):
     return controlblock_name, table_name, entry_dict
 
 
-def attach_counters(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+def attach_counters(engine, docker_name=P4ExamplesConsts.APP_NAME, feature_name="", table_name="", controlblock_name=""):
     """
     Attach counter for a table
     :param engine: ssh engine object
@@ -449,7 +452,7 @@ def attach_counters(engine, docker_name="p4-examples", feature_name="", table_na
     return engine.run_cmd(cmd)
 
 
-def detach_counters(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+def detach_counters(engine, docker_name=P4ExamplesConsts.APP_NAME, feature_name="", table_name="", controlblock_name=""):
     """
     Detach the counters for the specified table
     :param engine: ssh engine object
@@ -463,7 +466,7 @@ def detach_counters(engine, docker_name="p4-examples", feature_name="", table_na
     return engine.run_cmd(cmd)
 
 
-def clear_counters(engine, docker_name="p4-examples", feature_name="", table_name="", controlblock_name=""):
+def clear_counters(engine, docker_name=P4ExamplesConsts.APP_NAME, feature_name="", table_name="", controlblock_name=""):
     """
     Clear counters for the specified counter
     :param engine: ssh engine object
