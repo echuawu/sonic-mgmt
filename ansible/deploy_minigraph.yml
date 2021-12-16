@@ -55,10 +55,10 @@
         - name: Reload minigraph.
           shell: config load_minigraph -y
 
-        - name: Enable dynamic buffer calculation
-          shell: "enable-dynamic-buffer.py"
+        #- name: Enable dynamic buffer calculation
+        #  shell: "enable-dynamic-buffer.py"
 
-        #- name: Save config.
-        #  shell: config save -y
+        - name: Save config.
+          shell: config save -y
 
       when: dut_minigraph is defined
