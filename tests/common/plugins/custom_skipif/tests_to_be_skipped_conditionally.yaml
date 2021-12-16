@@ -20,13 +20,6 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
     Branch:
     - master
 
-# SFP util
-platform_tests/sfp/test_sfputil.py:
-  - Redmine:
-    - 2850655
-    Platform:
-    - 2201
-
 platform_tests/test_sensors.py::test_sensors:
   - Redmine:
     - 2815265
@@ -59,11 +52,6 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
 copp/test_copp.py::TestCOPP::test_counter:
   - Redmine:
     - 2863613
-
-# wjh
-drop_packets/test_wjh.py::test_l1_agg_port_up:
-  - Redmine:
-    - 2854037
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
@@ -117,10 +105,6 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/4784
-  - Redmine:
-    - 2819530
-    Platform:
-    - 2201
 
 platform_tests/test_platform_info.py::test_thermal_control_psu_absence:
   - GitHub:
@@ -172,21 +156,9 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
     Platform:
     - 2201
 
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
-  - Redmine:
-    - 2854374
-    Platform:
-    - 2201
-
 platform_tests/api/test_psu.py::TestPsuApi::test_fans:
   - Redmine:
     - 2829184
-    Platform:
-    - 2201
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
-  - Redmine:
-    - 2850655
     Platform:
     - 2201
 
@@ -197,19 +169,6 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
     - 2100
     Branch:
     - master
-  - Redmine:
-    - 2854443
-    Platform:
-    - 2201
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_system_eeprom_info:
-  - Redmine:
-    - 2877330
-    Platform:
-    - 4600
-    Branch:
-    - master
-
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
   - Redmine:
@@ -218,16 +177,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
     - 2100
     Branch:
     - master
-  - Redmine:
-    - 2854443
-    Platform:
-    - 2201
-
-platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_name:
-  - Redmine:
-    - 2854443
-    Platform:
-    - 2201
 
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
   - Redmine:
@@ -632,11 +581,6 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
     - x86_64-mlnx_msn
     - x86_64-nvidia
 
-# bgp
-bgp/test_bgp_allw_list.py::test_default_allow_list_postconfig:
-  - Redmine:
-    - 2807150
-
 # mgmtvrf
 mvrf/test_mgmtvrf.py:
   - GitHub:
@@ -652,6 +596,13 @@ sflow/test_sflow.py:
     Branch:
     - master
 
+# pbh
+ecmp/inner_hashing:
+  - Branch:
+    - 202012
+    - 202106
+
+
 ########## Canonical ##########
 # Nightly
 
@@ -666,13 +617,6 @@ tests/nightly/auto_negotition:
   - Platform:
     - simx
     - 3800
-
-# Test use command "show interfaces transceiver eeprom" which is not supported yet
-tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg:
-  - Redmine:
-    - 2850655
-    Platform:
-    - 2201
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
   - Redmine:
@@ -754,12 +698,6 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
     Branch:
       - master
       - HEAD # Ignore also on CI versions
-
-tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route:
-  - Redmine:
-    - 2859779
-    Branch:
-      - master
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
