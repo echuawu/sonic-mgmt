@@ -10,3 +10,6 @@ r, ".* WARNING pmon#syseepromd: Failed to load platform-specific eeprom from son
 r, ".* ERR \/hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*"
 r, ".* ERR \/hostcfgd: error returned by select.*"
 r, ".* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*"
+r, ".* ERR kernel.*mlxsw_minimal.*HW semaphore is not released.*"
+r, ".* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*opcode.*opcode_mod.*"
+r, ".* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*"
