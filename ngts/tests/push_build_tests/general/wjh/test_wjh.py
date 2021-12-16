@@ -17,8 +17,8 @@ pytest.CHANNEL_CONF = None
 logger = logging.getLogger()
 
 drop_reason_dict = {"tail_drop": "Tail drop - Monitor network congestion",
-                    "buffer_congestion": "Port TC Congestion Threshold Crossed - Monitor",
-                    "buffer_latency": "Packet Latency Threshold Crossed - Monitor network"}
+                    "buffer_congestion": "Port TC Congestion Threshold Crossed - Monitor network congestion",
+                    "buffer_latency": "Packet Latency Threshold Crossed - Monitor network congestion"}
 
 table_parser_info = {
     'raw':
@@ -271,7 +271,8 @@ def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_
     if not result['result']:
         pytest.fail("Could not find drop in WJH {} table".format(table_type[0]))
 
-    check_buffer_info_table(parsed_tables[1], result['entry'], drop_reason, table_types[0])
+    if drop_reason in ['buffer_congestion', 'buffer_latency']:
+        check_buffer_info_table(parsed_tables[1], result['entry'], drop_reason, table_types[0])
 
 
 def check_buffer_info_table(table, entry, drop_reason, table_type):
@@ -310,7 +311,7 @@ def check_buffer_info_table(table, entry, drop_reason, table_type):
         pytest.fail("Buffer info table does not contain the entry found on raw/agg table.")
 
     if (table_type == 'raw'):
-        if drop_reason in ['tail_drop', 'buffer_congestion']:
+        if drop_reason == 'buffer_congestion':
             if (tc_id == '0' and tc_usage != "N/A" and int(tc_usage) > 0 and latency == "N/A" and
                     tc_watermark == "N/A" and latency_watermark == "N/A"):
                 return
@@ -320,7 +321,7 @@ def check_buffer_info_table(table, entry, drop_reason, table_type):
                 return
 
     elif (table_type == 'agg'):
-        if drop_reason in ['tail_drop', 'buffer_congestion']:
+        if drop_reason == 'buffer_congestion':
             if (tc_id == '0' and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
                     int(tc_watermark) > 0 and latency_watermark == "N/A"):
                 return
