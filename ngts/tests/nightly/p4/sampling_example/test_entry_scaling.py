@@ -24,33 +24,6 @@ P4_SAMPLING_ENTRY_PRIO_MAX = 126
 @pytest.mark.build
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
 class TestEntryScaling:
-    @pytest.fixture
-    def expected_cpu_usage_dict(self, testdir, platform_params):
-
-        current_folder = testdir.request.fspath.dirname
-        yaml_file_folder = os.path.dirname(os.path.dirname(os.path.dirname(current_folder)))
-        expected_cpu_usage_file = "push_build_tests/system/expected_cpu_usage.yaml"
-        expected_cpu_usage_file_path = os.path.join(yaml_file_folder, expected_cpu_usage_file)
-        platform_index = 1
-        platform = platform_params.hwsku.split('-')[platform_index]
-        with open(expected_cpu_usage_file_path) as raw_cpu_data:
-            expected_cpu_usage_dict = yaml.load(raw_cpu_data, Loader=yaml.FullLoader)
-        expected_cpu_usage_dict = expected_cpu_usage_dict[platform]
-        return expected_cpu_usage_dict
-
-    @pytest.fixture
-    def expected_ram_usage_dict(self, testdir, platform_params):
-
-        current_folder = testdir.request.fspath.dirname
-        yaml_file_folder = os.path.dirname(os.path.dirname(os.path.dirname(current_folder)))
-        expected_ram_usage_file = "push_build_tests/system/expected_ram_usage.yaml"
-        expected_ram_usage_file_path = os.path.join(yaml_file_folder, expected_ram_usage_file)
-        platform_index = 1
-        platform = platform_params.hwsku.split('-')[platform_index]
-        with open(expected_ram_usage_file_path) as raw_cpu_data:
-            expected_ram_usage_dict = yaml.load(raw_cpu_data, Loader=yaml.FullLoader)
-            expected_ram_usage_dict = expected_ram_usage_dict[platform]
-        return expected_ram_usage_dict
 
     @pytest.mark.reboot_reload
     @allure.title('Test 500 entries added for each table')

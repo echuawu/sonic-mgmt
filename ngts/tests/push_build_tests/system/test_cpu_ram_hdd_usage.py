@@ -1,8 +1,6 @@
 import logging
 import pytest
 import re
-import os
-import yaml
 import time
 
 from ngts.tools.mysql_api.mysql_api import DB
@@ -26,9 +24,6 @@ class TestCpuRamHddUsage:
         self.platform = self.platform_params.hwsku.split('-')[platform_index]
         self.setup_name = platform_params.setup_name
         self.sonic_ver = sonic_version
-        self.default_branch = "master"
-        branch_index = 1
-        self.current_branch = sonic_version.split(".")[branch_index]
 
     @pytest.mark.parametrize('partition_usage', partitions_and_expected_usage)
     def test_hdd_usage(self, request, partition_usage):
@@ -63,23 +58,16 @@ class TestCpuRamHddUsage:
 
     @pytest.mark.build
     @pytest.mark.push_gate
-    def test_cpu_usage(self, request, expected_cpu_usage_file='expected_cpu_usage.yaml'):
+    def test_cpu_usage(self, request, expected_cpu_usage_dict):
         """
         This tests checks CPU usage - total and per process
         Test doing command "top" - then parse output and check total cpu usage
         Also from "top" output test case find CPU usage for specific process
         If total CPU usage or by process CPU usage is bigger than expected - raise exception
         :param request: pytest build-in
-        :param expected_cpu_usage_file: path to yaml file with expected CPU usage
+        :param expected_cpu_usage_dict: expected_cpu_usage_dict fixture
         """
         timeout_between_attempts = 5
-        expected_cpu_usage_file_path = os.path.join(self.current_test_folder, expected_cpu_usage_file)
-
-        with open(expected_cpu_usage_file_path) as raw_cpu_data:
-            expected_cpu_usage_dict = yaml.load(raw_cpu_data, Loader=yaml.FullLoader)
-        branch = self.current_branch if self.current_branch in expected_cpu_usage_dict.keys() else self.default_branch
-        expected_cpu_usage_dict = expected_cpu_usage_dict[branch][self.platform]
-
         total_cpu_usage = 0
         cpu_usage_per_process = {}
         try:
@@ -123,7 +111,7 @@ class TestCpuRamHddUsage:
 
     @pytest.mark.build
     @pytest.mark.push_gate
-    def test_ram_usage(self, request, expected_ram_usage_file='expected_ram_usage.yaml'):
+    def test_ram_usage(self, request, expected_ram_usage_dict):
         """
         This tests checks RAM usage - total and per process
         Test doing command "top" - then parse output and check from it PIDs for running processes
@@ -132,14 +120,8 @@ class TestCpuRamHddUsage:
         sudo cat /proc/{PID}/smaps | grep Pss | awk '{Total+=$2} END {print Total/1024}
         If total RAM usage or by process RAM usage is bigger than expected - raise exception
         :param request: pytest build-in
-        :param expected_ram_usage_file: path to yaml file with expected RAM usage
+        :param expected_ram_usage_dict: expected_ram_usage_dict fixture
         """
-        expected_ram_usage_file_path = os.path.join(self.current_test_folder, expected_ram_usage_file)
-
-        with open(expected_ram_usage_file_path) as raw_ram_data:
-            expected_ram_usage_dict = yaml.load(raw_ram_data, Loader=yaml.FullLoader)
-        branch = self.current_branch if self.current_branch in expected_ram_usage_dict.keys() else self.default_branch
-        expected_ram_usage_dict = expected_ram_usage_dict[branch][self.platform]
 
         assertions_list = []
         total_ram_size_mb = 0

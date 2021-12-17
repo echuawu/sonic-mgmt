@@ -192,6 +192,18 @@ def sonic_version(engines):
 
 
 @pytest.fixture(scope='session')
+def sonic_branch(sonic_version):
+    """
+    Pytest fixture which are returning current SONiC branch
+    :param sonic_version: sonic image version, Example: SONiC.202012.175-84b565937_Internal
+    :return: the branch name
+    """
+
+    branch_index = 1
+    return sonic_version.split('.')[branch_index]
+
+
+@pytest.fixture(scope='session')
 def platform_params(show_platform_summary, setup_name):
     """
     Method for getting all platform related data

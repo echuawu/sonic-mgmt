@@ -7,6 +7,8 @@ Defines the methods and fixtures which will be used by pytest for only canonical
 """
 
 import pytest
+import os
+import yaml
 from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
@@ -140,3 +142,56 @@ def run_cleanup_only(request):
     Method for get run_cleanup_only from pytest arguments
     """
     return request.config.getoption(PytestConst.run_cleanup_only_arg)
+
+
+@pytest.fixture(scope='session')
+def expected_cpu_usage_dict(platform, sonic_branch):
+    """
+    Pytest fixture which used to return the expected cpu usage dictionary
+    :param platform: platform fixture
+    :param sonic_branch: sonic branch fixture
+    :return: expected cpu usage dictionary
+    """
+    expected_cpu_usage_file = "expected_cpu_usage.yaml"
+    return get_expected_cpu_or_ram_usage_dict(expected_cpu_usage_file, sonic_branch, platform)
+
+
+@pytest.fixture(scope='session')
+def expected_ram_usage_dict(platform, sonic_branch):
+    """
+    Pytest fixture which used to return the expected ram usage dictionary
+    :param platform: platform fixture
+    :param sonic_branch: sonic branch fixture
+    :return: expected ram usage dictionary
+    """
+    expected_ram_usage_file = "expected_ram_usage.yaml"
+    return get_expected_cpu_or_ram_usage_dict(expected_ram_usage_file, sonic_branch, platform)
+
+
+@pytest.fixture(scope='session')
+def platform(platform_params):
+    """
+    get the platform value from the hwsku
+    :param platform_params: platform_params fixture. Example of platform_params.hwsku: Mellanox-SN3800-D112C8
+    """
+    platform_index = 1
+    return platform_params.hwsku.split('-')[platform_index]
+
+
+def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_branch, platform):
+    """
+    Get the expected cpu or ram usage dictionary
+    :param expected_cpu_or_ram_usage_file: yaml file name
+    :param sonic_branch: sonic branch
+    :param platform: platform
+    :return: expected cpu or ram usage dictionary
+    """
+    file_folder = "push_build_tests/system/"
+    current_folder = os.path.dirname(__file__)
+    expected_cpu_or_ram_usage_file_path = os.path.join(current_folder, file_folder, expected_cpu_or_ram_usage_file)
+    with open(expected_cpu_or_ram_usage_file_path) as raw_data:
+        expected_cpu_or_ram_usage_dict = yaml.load(raw_data, Loader=yaml.FullLoader)
+    default_branch = "master"
+    branch = sonic_branch if sonic_branch in expected_cpu_or_ram_usage_dict.keys() else default_branch
+    expected_cpu_or_ram_usage_dict = expected_cpu_or_ram_usage_dict[branch][platform]
+    return expected_cpu_or_ram_usage_dict
