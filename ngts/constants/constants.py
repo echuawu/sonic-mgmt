@@ -545,7 +545,7 @@ class LoganalyzerConsts:
 
 class P4ExamplesConsts:
     REPO_NAME = "urm.nvidia.com/sw-nbu-sws-sonic-docker/p4-examples"
-    APP_NAME = 'sonic-p4-examples'
+    APP_NAME = 'p4-examples'
     APP_VERSION = '0.5.0'
     NO_EXAMPLE = "NO_EXAMPLE"
     VXLAN_BM_FEATURE_NAME = "VXLAN_BM"
@@ -568,5 +568,6 @@ class AppExtensionInstallationConstants:
     ]
     APP_EXTENSION_PROJECT_MAPPING = {'sonic-wjh': WJH_APP_NAME,
                                      'p4-sampling': P4SamplingConsts.APP_NAME,
-                                     'sonic-lc-manager': LC_MANAGER}
-    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME]
+                                     'sonic-lc-manager': LC_MANAGER,
+                                     'p4-examples': P4ExamplesConsts.APP_NAME}
+    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME, P4ExamplesConsts.APP_NAME]
