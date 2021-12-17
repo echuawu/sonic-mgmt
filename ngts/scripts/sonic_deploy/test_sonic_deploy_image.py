@@ -2,6 +2,7 @@
 import allure
 import logging
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from retry.api import retry_call
 
 
 logger = logging.getLogger()
@@ -29,11 +30,22 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
         if is_shutdown_bgp:
             dut_engine = topology_obj.players['dut']['engine']
             dut_engine.run_cmd('sudo config bgp shutdown all', validate=True)
-        SonicGeneralCli.deploy_image(topology_obj, base_version, apply_base_config=apply_base_config, setup_name=setup_name,
-                                     platform_params=platform_params, wjh_deb_url=wjh_deb_url, deploy_type=deploy_type,
-                                     reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
+            logger.info("Wait all bgp sessions are down")
+            retry_call(check_bgp_is_shutdown,
+                       fargs=[dut_engine],
+                       tries=6,
+                       delay=10,
+                       logger=logger)
+        SonicGeneralCli.deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
+                                     setup_name=setup_name, platform_params=platform_params, wjh_deb_url=wjh_deb_url,
+                                     deploy_type=deploy_type, reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
     except Exception as err:
         raise AssertionError(err)
     finally:
         if is_shutdown_bgp:
             dut_engine.run_cmd('sudo config bgp startup all', validate=True)
+
+
+def check_bgp_is_shutdown(dut_engine):
+    assert dut_engine.run_cmd("show ip route bgp") == "" and dut_engine.run_cmd("show ipv6 route bgp") == "", \
+        "Not all bgp sessions are down"
