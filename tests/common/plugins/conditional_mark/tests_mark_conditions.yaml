@@ -62,6 +62,13 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
   skip:
     reason: "Command not yet merged into sonic-utilites"
 
+everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_everflow_dscp_with_policer:
+  xfail:
+    strict: True
+    reason: "Skipping test since mirror with policer is not supported on Cisco 8000 platforms."
+    conditions:
+      - "asic_type=='cisco-8000'"
+
 platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_led:
    skip:
      reason: "On Cisco 8000 platform, fans do not have their own leds."
@@ -553,3 +560,15 @@ sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_be
     reason: "Cisco 8000 platform does not support DSCP PIPE Mode for IPinIP Tunnels"
     conditions:
       - "asic_type=='cisco-8000'"
+      
+drop_packets/test_drop_counters.py::test_dst_ip_link_local:
+  skip:
+    reason: "Cisco 8000 platform does not drop DIP linklocal packets in 202012 version"
+    conditions:
+      - "asic_type=='cisco-8000' and release in ['202012']"
+
+drop_packets/test_drop_counters.py::test_dst_ip_is_loopback_addr:
+  skip:
+    reason: "Cisco 8000 platform does not drop DIP loopback packets in 202012 version"
+    conditions:
+      - "asic_type=='cisco-8000' and release in ['202012']"
