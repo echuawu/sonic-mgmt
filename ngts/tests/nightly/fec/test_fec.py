@@ -10,7 +10,7 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, compare_actual_and_expected, save_configuration
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
-    LinuxConsts, FecConstants
+    LinuxConsts
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
 from ngts.helpers.interface_helpers import get_lb_mutual_speed
@@ -26,7 +26,7 @@ class TestFec:
     def setup(self, topology_obj, interfaces, engines, cli_objects,
               tested_lb_dict, tested_lb_dict_for_bug_2705016_flow, pci_conf,
               fec_capability_for_dut_ports, dut_ports_number_dict,
-              split_mode_supported_speeds, tested_dut_to_host_conn,
+              split_mode_supported_speeds, tested_dut_to_host_conn, fec_modes_speed_support,
               dut_ports_default_speeds_configuration, dut_ports_default_mlxlink_configuration, chip_type,
               platform_params, dut_ports_interconnects):
         self.topology_obj = topology_obj
@@ -35,6 +35,7 @@ class TestFec:
         self.dut_ports_interconnects = dut_ports_interconnects
         self.interfaces = interfaces
         self.engines = engines
+        self.is_simx = "simx" in platform_params.setup_name
         self.cli_objects = cli_objects
         self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface(self.engines.dut, "eth0")
         self.dut_hostname = self.cli_objects.dut.chassis.get_hostname(self.engines.dut)
@@ -45,20 +46,10 @@ class TestFec:
         self.fec_capability_for_dut_ports = fec_capability_for_dut_ports
         self.dut_ports_number_dict = dut_ports_number_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
-        self.fec_modes_speed_support = self.get_fec_modes_speed_support()
+        self.fec_modes_speed_support = fec_modes_speed_support
         # For Cleanup
         self.dut_ports_basic_speeds_configuration = dut_ports_default_speeds_configuration
         self.dut_ports_basic_mlxlink_configuration = dut_ports_default_mlxlink_configuration
-
-    def get_fec_modes_speed_support(self):
-        if self.chip_type == "SPC":
-            return FecConstants.FEC_MODES_SPC_SPEED_SUPPORT
-        elif self.chip_type == "SPC2":
-            return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[self.platform_params.filtered_platform.upper()]
-        elif self.chip_type == "SPC3":
-            return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[self.platform_params.filtered_platform.upper()]
-        else:
-            raise AssertionError("Chip type {} is unrecognized".format(self.chip_type))
 
     @pytest.mark.reboot_reload
     def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions,
@@ -68,7 +59,8 @@ class TestFec:
             dut_lb_conf = self.check_all_speeds_with_fec(self.tested_lb_dict, cleanup_list)
 
         tested_ports = list(dut_lb_conf.keys())
-        reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
+        reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut,
+                             tested_ports, cleanup_list, simx=self.is_simx)
 
         with allure.step("Verify FEC on dut loopbacks"):
             self.verify_fec_configuration(dut_lb_conf)
@@ -99,13 +91,15 @@ class TestFec:
             dut_host_conf = self.check_all_speeds_with_fec_on_host_ports(ip_conf, cleanup_list)
 
         tested_ports = list(dut_host_conf.keys())
-        reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports, cleanup_list)
+        reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports,
+                             cleanup_list, simx=self.is_simx)
 
         with allure.step("Verify FEC on dut - host connectivities"):
             logger.info("Verify FEC on dut - host connectivities")
-            self.verify_fec_configuration(dut_host_conf)
-            logger.info("Verify FEC on host - dut connectivities")
-            self.verify_fec_configuration_on_host(dut_host_conf)
+            self.verify_fec_configuration(dut_host_conf, lldp_checker=False)
+            if not self.is_simx:
+                logger.info("Verify FEC on host - dut connectivities")
+                self.verify_fec_configuration_on_host(dut_host_conf)
 
         with allure.step("Verify traffic on dut - host connectivities"):
             self.validate_traffic(ip_conf)
@@ -117,9 +111,10 @@ class TestFec:
 
         with allure.step("Verify FEC on dut - host connectivities"):
             logger.info("Verify FEC on dut - host connectivities returned to default configuration")
-            self.verify_fec_configuration(dut_host_conf)
-            logger.info("Verify FEC on host - dut connectivities returned to default configuration")
-            self.verify_fec_configuration_on_host(dut_host_conf)
+            self.verify_fec_configuration(dut_host_conf, lldp_checker=False)
+            if not self.is_simx:
+                logger.info("Verify FEC on host - dut connectivities returned to default configuration")
+                self.verify_fec_configuration_on_host(dut_host_conf)
 
     def test_negative_fec(self, ignore_expected_loganalyzer_reboot_exceptions,
                           cleanup_list, skip_if_active_optical_cable):
@@ -156,7 +151,7 @@ class TestFec:
                                                 cleanup_list)
 
         with allure.step("Verify FEC on dut - host connectivity is UP after correct FEC configuration"):
-            self.verify_fec_configuration(conf)
+            self.verify_fec_configuration(conf, lldp_checker=False)
             retry_call(self.verify_fec_configuration_on_host_port,
                        fargs=[conf[dut_host_port], self.cli_objects.ha, self.engines.ha, self.interfaces.ha_dut_1],
                        tries=6, delay=10, logger=logger)
@@ -352,10 +347,11 @@ class TestFec:
             self.configure_fec_speed_on_ports(dut_host_conf, [dut_host_port], split_mode, speed, fec_mode, cleanup_list)
         with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}"):
             logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}")
-            self.verify_fec_configuration(dut_host_conf)
-        with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}"):
-            logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}")
-            self.verify_fec_configuration_on_host_port(dut_host_conf[dut_host_port], cli_object, engine, host_dut_port)
+            self.verify_fec_configuration(dut_host_conf, lldp_checker=False)
+        if not self.is_simx:
+            with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}"):
+                logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}")
+                self.verify_fec_configuration_on_host_port(dut_host_conf[dut_host_port], cli_object, engine, host_dut_port)
         with allure.step("Verify traffic on dut - host connectivity"):
             traffic_validation = ip_conf[dut_host_port]
             self.validate_traffic_on_dut_host_ports(traffic_validation)
@@ -364,11 +360,14 @@ class TestFec:
         fec_mode_supported_speeds = set(self.fec_modes_speed_support[fec_mode][split_mode].keys())
         ports_supported_speeds = get_lb_mutual_speed([dut_host_port, host_dut_port], split_mode,
                                                      self.split_mode_supported_speeds)
+        if self.is_simx:
+            ports_supported_speeds = list(self.split_mode_supported_speeds[dut_host_port][split_mode])
         mutual_speeds_option = list(fec_mode_supported_speeds.intersection(ports_supported_speeds))
         return mutual_speeds_option
 
     def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list):
-        mutual_speeds_option = self.get_dut_host_port_speeds_option_for_fec_mode(fec_mode, split_mode, dut_host_port, host_dut_port)
+        mutual_speeds_option = self.get_dut_host_port_speeds_option_for_fec_mode(fec_mode, split_mode,
+                                                                                 dut_host_port, host_dut_port)
         speed = random.choice(mutual_speeds_option)
         interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
         self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, interface_type, cleanup_list)
@@ -487,9 +486,11 @@ class TestFec:
             conf[port][AutonegCommandConstants.FEC] = base_fec
             conf[port][AutonegCommandConstants.WIDTH] = base_width
 
-    def verify_fec_configuration(self, conf):
+    def verify_fec_configuration(self, conf, lldp_checker=True):
         """
         :param conf: a dictionary of the port auto negotiation configuration and expected outcome
+        :param lldp_checker: True if the fec validation should check lldp info for port,
+        False when fec validation is done on dut-host ports
         :return: raise Assertion error in case the configuration doesn't match the actual state on the switch
         """
         with allure.step('Verify FEC configuration on ports: {}'.format(list(conf.keys()))):
@@ -499,8 +500,9 @@ class TestFec:
                 if "simx" not in self.platform_params.setup_name:
                     retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[port, port_conf_dict],
                                tries=6, delay=10, logger=logger)
-                retry_call(self.verify_interfaces_status_on_lldp_table, fargs=[port],
-                           tries=3, delay=10, logger=logger)
+                if lldp_checker:
+                    retry_call(self.verify_interfaces_status_on_lldp_table, fargs=[port],
+                               tries=4, delay=10, logger=logger)
 
     def verify_mlxlink_status_cmd_output_for_port(self, port, port_conf_dict):
         port_number = self.dut_ports_number_dict[port]

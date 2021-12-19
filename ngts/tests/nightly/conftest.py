@@ -151,7 +151,7 @@ def convert_100_to_100m_speed(split_mode_supported_speeds):
             split_mode_supported_speeds[iface][split_mode].add(new_value)
 
 
-def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_list):
+def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_list, simx=False):
     """
     Do reload/or reboot by any given way (reboot, fast-reboot, warm-reboot) on dut
     :param topology_obj: topology_obj fixture
@@ -162,6 +162,8 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
     :return: raise assertion error in case reload/reboot failed
     """
     supported_reboot_modes = ['reload', 'warm-reboot', 'fast-reboot', 'reboot']
+    if simx:
+        supported_reboot_modes = ['reload', 'reboot']
     chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
     if chip_type == "SPC2":
         supported_reboot_modes.remove('fast-reboot')
@@ -185,9 +187,12 @@ def skip_if_active_optical_cable(cable_compliance_info):
 
 
 @pytest.fixture(scope='session')
-def cable_compliance_info(topology_obj, engines):
-    cables_output = retry_call(check_cable_compliance_info_updated_for_all_port,
-                               fargs=[topology_obj, engines], tries=12, delay=10, logger=logger)
+def cable_compliance_info(topology_obj, platform_params, engines):
+    if "simx" not in platform_params.setup_name:
+        cables_output = retry_call(check_cable_compliance_info_updated_for_all_port,
+                                   fargs=[topology_obj, engines], tries=12, delay=10, logger=logger)
+    else:
+        cables_output = "No cables info on simx setups"
     return cables_output
 
 
