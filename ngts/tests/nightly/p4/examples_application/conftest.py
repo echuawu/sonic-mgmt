@@ -15,7 +15,7 @@ def skipping_p4_examples_test_case(engines):
     try:
         verify_app_container_up_and_repo_status_installed(engines.dut, P4ExamplesConsts.APP_NAME, "")
     except Exception:
-        pytest.skip(f"Skipping {P4ExamplesConsts} test cases due to {P4ExamplesConsts} is not installed.")
+        pytest.skip(f"Skipping {P4ExamplesConsts} test cases due to {P4ExamplesConsts.APP_NAME} is not installed.")
 
 
 @pytest.fixture(scope='module')
