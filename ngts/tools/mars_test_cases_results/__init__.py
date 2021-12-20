@@ -3,6 +3,7 @@
 import os
 import json
 import logging
+import subprocess
 
 from ngts.constants.constants import InfraConst
 
@@ -87,7 +88,7 @@ def export_data(session_id, mars_key_id):
                                                                                                         MARS_KEY_ID=mars_key_id)
     try:
         logger.info("Exporting json tests data with command:\n{}".format(export_data_cmd))
-        os.popen(export_data_cmd)
+        subprocess.check_output(export_data_cmd, shell=True)
     except Exception as e:
         logger.warning("Error: {} has occured, test data might not be exported".format(e))
 

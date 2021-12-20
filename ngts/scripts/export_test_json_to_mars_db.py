@@ -72,6 +72,8 @@ def is_mars_session_still_running(session_id):
     session_endtime_text_1 = get_mars_session_resource(session_id).find("ENDTIME").text
     time.sleep(1)
     session_endtime_text_2 = get_mars_session_resource(session_id).find("ENDTIME").text
+    logger.info('Checking if the MARS session is running. ENDTIME1: {} ENDTIME2: {}'.format(session_endtime_text_1,
+                                                                                            session_endtime_text_2))
     return session_endtime_text_1 != session_endtime_text_2
 
 
