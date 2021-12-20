@@ -5,9 +5,9 @@ Analyze SONiC logs with defined checkers and expected results.
 Command example:
 
 PYTHONPATH=/devts:/root/mars/workspace/sonic-mgmt/ /ngts_venv/bin/pytest --setup_name=r-leopard-01_setup --rootdir=/root/mars/workspace/sonic-mgmt//ngts
--c /root/mars/workspace/sonic-mgmt//ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results
+ -c /root/mars/workspace/sonic-mgmt//ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results
 /root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py --test_files fast_reboot --syslog_start_line /sbin/kexec
- --sairedis_start_line INIT_VIEW
+ --sairedis_start_line INIT_VIEW /root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py
 
 This script is executed on the STM node. It establishes SSH connection to the DUT and gets the two latest 'syslog' and 'sairedis.rec'
 files output. Purpose is to check software components performance by calculating execution time between log prints timestamps.
@@ -238,12 +238,14 @@ def get_log_lines(log_file_name, log_start_pattern, dut):
     test_log_files = []
     dut_log_files = dut.run_cmd("ls -l " + log_file_path_dict[log_file_name], validate=True, print_output=False)
 
-    if (log_file_name + ".1" in dut_log_files):
-        test_log_files.append(log_file_name + ".1")
-    if (log_file_name in dut_log_files):
-        test_log_files.append(log_file_name)
+    log_file_suffix_list = ['.3.gz', '.2.gz', '.1', '']
+    for log_file_suffix in log_file_suffix_list:
+        if log_file_name + log_file_suffix in dut_log_files:
+            test_log_files.append(log_file_name + log_file_suffix)
+
     for log_file in test_log_files:
-        log = log + dut.run_cmd("sudo cat " + log_file_path_dict[log_file_name] + log_file, validate=True, print_output=False)
+        cmd = 'zcat' if 'gz' in log_file else 'cat'
+        log = log + dut.run_cmd("sudo " + cmd + " " + log_file_path_dict[log_file_name] + log_file, validate=True, print_output=False)
 
     log_lines = log.splitlines()
     log_start_offset = None
