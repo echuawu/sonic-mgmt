@@ -65,15 +65,21 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects):
 
     logger.info('CoPP Common cleanup completed')
 
-# TODO the flow counters feature not merged yet
-# @pytest.fixture(scope='module', autouse=True)
-# def flowcnt_trap_configuration(engines):
-#     """
-#     Pytest fixture which are doing configuration for test case based on flow counters config
-#     :param engines: engines fixture
-#     """
-#     SonicCounterpollCli.enable_flowcnt_trap(engines.dut)
-#
-#     yield
-#
-#     SonicCounterpollCli.disable_flowcnt_trap(engines.dut)
+
+@pytest.fixture(scope='module', autouse=True)
+def flowcnt_trap_configuration(engines, sonic_version):
+    """
+    Pytest fixture which are doing configuration for test case based on flow counters config
+    :param engines: engines fixture
+    """
+    if is_trap_counters_supported(sonic_version):
+        SonicCounterpollCli.enable_flowcnt_trap(engines.dut)
+
+    yield
+
+    if is_trap_counters_supported(sonic_version):
+        SonicCounterpollCli.disable_flowcnt_trap(engines.dut)
+
+
+def is_trap_counters_supported(sonic_version):
+    return 'master' in sonic_version

@@ -16,6 +16,7 @@ from infra.tools.validations.traffic_validations.scapy.scapy_runner import Scapy
 from ngts.cli_wrappers.sonic.sonic_flowcnt_clis import SonicFlowcntCli
 from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
 from ngts.common.checkers import verify_deviation
+from ngts.tests.nightly.copp.conftest import is_trap_counters_supported
 
 logger = logging.getLogger()
 
@@ -144,8 +145,8 @@ class CoppBase:
         self.short_interval = 1001
         self.long_interval = 20000
         self.interval_type = None
-        # TODO the flow counters feature not merged yet
-        # self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
+        if is_trap_counters_supported(self.sonic_version):
+            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
         self.removed_trap_ids = None
         self.flowcnt_deviation = 0.01
 
@@ -159,18 +160,18 @@ class CoppBase:
         :return: None, raise error in case of unexpected result
         """
         # check default burst and rate value
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Set short trap interval'):
-        #     self.set_counters_short_trap_interval()
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Set short trap interval'):
+                self.set_counters_short_trap_interval()
         with allure.step('Check functionality of default burst limit'):
             self.run_validation_flow(self.default_cbs, self.low_limit, 'burst')
         with allure.step('Check functionality of default rate limit'):
             self.run_validation_flow(self.default_cbs, self.default_cir)
 
         # check non default burst and rate limit value with reboot
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Set long trap interval'):
-        #     self.set_counters_long_trap_interval()
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Set long trap interval'):
+                self.set_counters_long_trap_interval()
         if protocol_for_reboot_flow.lower() == self.tested_protocol:
             self.run_validation_flow_with_reboot()
         else:
@@ -182,17 +183,17 @@ class CoppBase:
                 self.run_validation_flow(self.default_cbs, self.user_limit)
 
         # check restored default burst and rate value
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Set short trap interval'):
-        #     self.set_counters_short_trap_interval()
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Set short trap interval'):
+                self.set_counters_short_trap_interval()
         with allure.step('Check functionality of restored to default burst limit'):
             self.run_validation_flow(self.default_cbs, self.low_limit, 'burst')
         with allure.step('Check functionality of restored to default rate limit'):
             self.run_validation_flow(self.default_cbs, self.default_cir)
 
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Check interop between CoPP and flow counters'):
-        #     self.run_interop_flow()
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Check interop between CoPP and flow counters'):
+                self.run_interop_flow()
 
 # -------------------------------------------------------------------------------
 
@@ -204,24 +205,24 @@ class CoppBase:
         :return: None, raise error in case of unexpected result
         """
         # check default rate value
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Set short trap interval'):
-        #     self.change_flowcnt_trap_interval(self.short_interval)
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Set short trap interval'):
+                self.change_flowcnt_trap_interval(self.short_interval)
         with allure.step('Check functionality of default rate limit'):
             self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
 
         # check non default rate limit value with reboot
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Set long trap interval'):
-        #     self.change_flowcnt_trap_interval(self.long_interval)
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Set long trap interval'):
+                self.change_flowcnt_trap_interval(self.long_interval)
         if protocol_for_reboot_flow.lower() == self.tested_protocol:
             self.run_validation_flow_with_reboot_for_simx()
             with allure.step('Check functionality of default rate limit after reboot flow'):
                 self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
 
-        # TODO the flow counters feature not merged yet
-        # with allure.step('Check interop between CoPP and flow counters'):
-        #     self.run_interop_flow()
+        if is_trap_counters_supported(self.sonic_version):
+            with allure.step('Check interop between CoPP and flow counters'):
+                self.run_interop_flow()
 
 # -------------------------------------------------------------------------------
 
@@ -324,8 +325,8 @@ class CoppBase:
             logger.info('Tested traffic type is   BURST')
             self.create_burst_validation(cbs_value)
             pps = cbs_value
-        # TODO the flow counters feature not merged yet
-        # SonicFlowcntCli.clear_trap_counters(self.dut_engine)
+        if is_trap_counters_supported(self.sonic_version):
+            SonicFlowcntCli.clear_trap_counters(self.dut_engine)
         self.send_traffic()
         self.validate_results(pps)
 
@@ -421,8 +422,8 @@ class CoppBase:
                              .format(rx_ifconfig_pps, expected_pps)):
                 verify_deviation(rx_ifconfig_pps, expected_pps, 0.25)
 
-            # TODO the flow counters feature not merged yet
-            # self.validate_flowcnt_results(rx_ifconfig_count)
+            if is_trap_counters_supported(self.sonic_version):
+                self.validate_flowcnt_results(rx_ifconfig_count)
 
 # -------------------------------------------------------------------------------
 
