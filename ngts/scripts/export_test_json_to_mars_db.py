@@ -64,17 +64,20 @@ def export_json_to_mars_db(session_id, mars_key_id):
 
 def is_mars_session_still_running(session_id):
     """
-    While a mars session is still running the session end time is always updated to the current time.
-    if a session has finished it's end time will remain permanent.
+    Check that MARS session is running. In case when we can not get session status - assume that session is running
     :param session_id: session id, e.g. 123456
     :return: True if mars session is still running
     """
-    session_endtime_text_1 = get_mars_session_resource(session_id).find("ENDTIME").text
-    time.sleep(1)
-    session_endtime_text_2 = get_mars_session_resource(session_id).find("ENDTIME").text
-    logger.info('Checking if the MARS session is running. ENDTIME1: {} ENDTIME2: {}'.format(session_endtime_text_1,
-                                                                                            session_endtime_text_2))
-    return session_endtime_text_1 != session_endtime_text_2
+    is_running = False
+    try:
+        session_status = get_mars_session_resource(session_id).find("STATUS").text
+        if 'Running' in session_status:
+            is_running = True
+    except Exception as err:
+        logger.error('Can not get MARS session status, assume that session is running. Got error: {}'.format(err))
+        is_running = True
+
+    return is_running
 
 
 if __name__ == "__main__":
