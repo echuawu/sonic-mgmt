@@ -277,6 +277,8 @@ def fec_modes_speed_support(chip_type, platform_params):
         return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
     elif chip_type == "SPC3":
         return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
+    elif chip_type == "SPC4":
+        return FecConstants.FEC_MODES_SPC4_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
     else:
         raise AssertionError("Chip type {} is unrecognized".format(chip_type))
 
