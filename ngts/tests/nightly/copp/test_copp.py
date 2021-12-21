@@ -65,7 +65,8 @@ def protocol_for_reboot_flow():
 @pytest.mark.disable_loganalyzer
 @allure.title('CoPP Policer test case')
 @pytest.mark.parametrize("protocol", PROTOCOLS_LIST)
-def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params, sonic_version):
+def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params,
+                      sonic_version, is_trap_counters_supported):
     """
     Run CoPP Policer test case, which will check that the policer enforces the rate limit for protocols.
     The test flow:
@@ -100,6 +101,7 @@ def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform
         # CIR (committed information rate) - bandwidth limit set by the policer
         # CBS (committed burst size) - largest burst of packets allowed by the policer
         tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj, sonic_version)')
+        tested_protocol_obj.is_trap_counters_supported = is_trap_counters_supported
         if re.search('simx', platform_params.setup_name):
             tested_protocol_obj.copp_simx_test_runner(protocol_for_reboot_flow)
         else:
@@ -142,11 +144,11 @@ class CoppBase:
         self.low_limit = 150
         self.user_limit = None
         self.trap_name = None
+        self.is_trap_counters_supported = None
         self.short_interval = 1001
         self.long_interval = 20000
         self.interval_type = None
-        if is_trap_counters_supported(self.sonic_version):
-            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
+        self.init_trap_names = None
         self.removed_trap_ids = None
         self.flowcnt_deviation = 0.01
 
@@ -160,7 +162,8 @@ class CoppBase:
         :return: None, raise error in case of unexpected result
         """
         # check default burst and rate value
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
+            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
             with allure.step('Set short trap interval'):
                 self.set_counters_short_trap_interval()
         with allure.step('Check functionality of default burst limit'):
@@ -169,7 +172,7 @@ class CoppBase:
             self.run_validation_flow(self.default_cbs, self.default_cir)
 
         # check non default burst and rate limit value with reboot
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
             with allure.step('Set long trap interval'):
                 self.set_counters_long_trap_interval()
         if protocol_for_reboot_flow.lower() == self.tested_protocol:
@@ -183,7 +186,7 @@ class CoppBase:
                 self.run_validation_flow(self.default_cbs, self.user_limit)
 
         # check restored default burst and rate value
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
             with allure.step('Set short trap interval'):
                 self.set_counters_short_trap_interval()
         with allure.step('Check functionality of restored to default burst limit'):
@@ -191,7 +194,7 @@ class CoppBase:
         with allure.step('Check functionality of restored to default rate limit'):
             self.run_validation_flow(self.default_cbs, self.default_cir)
 
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
             with allure.step('Check interop between CoPP and flow counters'):
                 self.run_interop_flow()
 
@@ -205,14 +208,15 @@ class CoppBase:
         :return: None, raise error in case of unexpected result
         """
         # check default rate value
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
+            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
             with allure.step('Set short trap interval'):
                 self.change_flowcnt_trap_interval(self.short_interval)
         with allure.step('Check functionality of default rate limit'):
             self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
 
         # check non default rate limit value with reboot
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
             with allure.step('Set long trap interval'):
                 self.change_flowcnt_trap_interval(self.long_interval)
         if protocol_for_reboot_flow.lower() == self.tested_protocol:
@@ -220,7 +224,7 @@ class CoppBase:
             with allure.step('Check functionality of default rate limit after reboot flow'):
                 self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
 
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
             with allure.step('Check interop between CoPP and flow counters'):
                 self.run_interop_flow()
 
@@ -325,7 +329,7 @@ class CoppBase:
             logger.info('Tested traffic type is   BURST')
             self.create_burst_validation(cbs_value)
             pps = cbs_value
-        if is_trap_counters_supported(self.sonic_version):
+        if self.is_trap_counters_supported:
             SonicFlowcntCli.clear_trap_counters(self.dut_engine)
         self.send_traffic()
         self.validate_results(pps)
@@ -422,7 +426,7 @@ class CoppBase:
                              .format(rx_ifconfig_pps, expected_pps)):
                 verify_deviation(rx_ifconfig_pps, expected_pps, 0.25)
 
-            if is_trap_counters_supported(self.sonic_version):
+            if self.is_trap_counters_supported:
                 self.validate_flowcnt_results(rx_ifconfig_count)
 
 # -------------------------------------------------------------------------------

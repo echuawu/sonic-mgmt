@@ -66,20 +66,30 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects):
     logger.info('CoPP Common cleanup completed')
 
 
-@pytest.fixture(scope='module', autouse=True)
-def flowcnt_trap_configuration(engines, sonic_version):
+@pytest.fixture(scope='session', autouse=True)
+def is_trap_counters_supported(engines):
     """
-    Pytest fixture which are doing configuration for test case based on flow counters config
+    Pytest fixture which is veriies if Trap Counters supported on installed image
+    """
+    logger.info('Verify if Trap Counters supported on installed image')
+    try:
+        engines.dut.run_cmd('sudo counterpoll flowcnt-trap', validate=True)
+        return True
+    except BaseException:
+        logger.info('The Trap Counters does not supported on this image. All related validations will be skipped')
+        return False
+
+
+@pytest.fixture(scope='module', autouse=True)
+def flowcnt_trap_configuration(engines, is_trap_counters_supported):
+    """
+    Pytest fixture which is doing configuration for test case based on flow counters config
     :param engines: engines fixture
     """
-    if is_trap_counters_supported(sonic_version):
+    if is_trap_counters_supported:
         SonicCounterpollCli.enable_flowcnt_trap(engines.dut)
 
     yield
 
-    if is_trap_counters_supported(sonic_version):
+    if is_trap_counters_supported:
         SonicCounterpollCli.disable_flowcnt_trap(engines.dut)
-
-
-def is_trap_counters_supported(sonic_version):
-    return 'master' in sonic_version
