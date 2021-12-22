@@ -3,7 +3,7 @@ import pytest
 import os
 import time
 
-from .loganalyzer import LogAnalyzer, LogAnalyzerError
+from .loganalyzer import LogAnalyzer, LogAnalyzerError, DisableLogrotateCronContext
 from ngts.constants.constants import LoganalyzerConsts
 
 
@@ -31,10 +31,11 @@ def loganalyzer(topology_obj, request, loganalyzer_log_folder):
     dut_engine = topology_obj.players['dut']['engine']
     hostname = topology_obj.players['dut']['cli'].chassis.get_hostname(dut_engine)
 
-    # Force rotate logs
-    dut_engine.run_cmd(
-        "sudo /usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1"
-    )
+    with DisableLogrotateCronContext(dut_engine):
+        # Force rotate logs
+        dut_engine.run_cmd(
+            "sudo /usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1"
+        )
 
     loganalyzer = LogAnalyzer(dut_engine=dut_engine,
                               marker_prefix=request.node.name,

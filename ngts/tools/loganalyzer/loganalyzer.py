@@ -21,6 +21,51 @@ COMMON_EXPECT = join(split(__file__)[0], "loganalyzer_common_expect.txt")
 SYSLOG_TMP_FOLDER = "/tmp/syslog"
 
 
+class DisableLogrotateCronContext:
+    """
+    Context class to help disable logrotate cron task and restore it automatically.
+    """
+
+    def __init__(self, dut_engine):
+        """
+        Constructor of DisableLogrotateCronContext.
+        :param dut_engine: DUT object representing a SONiC switch under test.
+        """
+        self.dut_engine = dut_engine
+
+    def __enter__(self):
+        """
+        Disable logrotate cron task and make sure the running logrotate is stopped.
+        """
+        # Disable logrotate cron task
+        self.dut_engine.run_cmd("sudo sed -i 's/^/#/g' /etc/cron.d/logrotate")
+
+        logging.debug("Waiting for logrotate from previous cron task run to finish")
+        # Wait for logrotate from previous cron task run to finish
+        end = time.time() + 60
+        while time.time() < end:
+            # Verify for exception because self.ansible_host automatically handle command return codes
+            # and raise exception for none zero code
+            try:
+                out_put = self.dut_engine.run_cmd("pgrep -f logrotate")
+                if out_put == '':
+                    break
+                else:
+                    time.sleep(5)
+                    continue
+            except Exception:
+                break
+        else:
+            logging.error("Logrotate from previous task was not finished during 60 seconds")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Restore logrotate cron task.
+        """
+        # Enable logrotate cron task back
+        self.dut_engine.run_cmd("sudo sed -i 's/^#//g' /etc/cron.d/logrotate")
+
+
 class LogAnalyzerError(Exception):
     """Raised when loganalyzer found matches during analysis phase."""
 
@@ -230,33 +275,13 @@ class LogAnalyzer:
         else:
             start_string = self.start_marker
         logger.info('Marker = {}'.format(start_string))
-
-        try:
-            # Disable logrotate cron task
-            self.dut_engine.run_cmd("sudo sed -i 's/^/#/g' /etc/cron.d/logrotate")
-
-            logger.info("Waiting for logrotate from previous cron task run to finish")
-            # Wait for logrotate from previous cron task run to finish
-            end = time.time() + 60
-            while time.time() < end:
-                output = self.dut_engine.run_cmd("sudo pgrep -f logrotate")
-                if len(output.split()) != 1:
-                    time.sleep(5)
-                    continue
-                else:
-                    break
-            else:
-                logger.error("Logrotate from previous task was not finished during 60 seconds")
-
+        with DisableLogrotateCronContext(self.dut_engine):
             # Add end marker into DUT syslog
             self._add_end_marker(marker)
 
             # On DUT extract syslog files from /var/log/ and create one file by location - /tmp/syslog
             logger.info('Extract log on DUT into \'{}\''.format(self.extracted_syslog))
             self.extract_log(directory='/var/log', file_prefix='syslog', start_string=start_string, target_filename=self.extracted_syslog)
-        finally:
-            # Enable logrotate cron task back
-            self.dut_engine.run_cmd("sudo sed -i 's/^#//g' /etc/cron.d/logrotate")
 
         # Wait extracted file created
         attempt = 5
