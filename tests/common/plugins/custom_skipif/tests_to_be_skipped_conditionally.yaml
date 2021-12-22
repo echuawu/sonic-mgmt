@@ -759,6 +759,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
     - 3800
+    - simx
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   - Branch:
