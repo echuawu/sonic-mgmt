@@ -1,4 +1,11 @@
 ########## Community ##########
+# Fwutil
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
+  - Redmine:
+    - 2382365
+    Platform:
+    - 2100
+
 # Autoneg
 platform_tests/test_auto_negotiation.py:
   - Platform:
