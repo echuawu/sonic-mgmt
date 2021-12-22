@@ -102,18 +102,6 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
     Redmine:
     - 2878715
 
-platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/4784
-
-platform_tests/test_platform_info.py::test_thermal_control_psu_absence:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/4784
-
-platform_tests/test_reboot.py::test_power_off_reboot:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/4784
-
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_reboot.py:
   - Redmine:
