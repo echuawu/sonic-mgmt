@@ -74,3 +74,5 @@ r, ".* ERR swss#buffermgrd: :- guard: RedisReply catches system_error: command.*
 r, ".* ERR pmon#psud\[.*\]: Failed to read from file \/var\/run\/hw-management.* - FileNotFoundError\(2, 'No such file or directory'\).*"
 r, ".* INFO systemd\[\d+\]: Stopping Kernel crash dump capture service"
 r, ".* WARNING syncd#SDK: \[SX_FW_DBG.WARNING\] FW dump me is not supported for SPC4"
+r, ".* ERR pmon#psud: Failed to read from file /var/run/hw-management/power/psu\d_volt_out2_capability - FileNotFoundError\(2, \'No such file or directory\'\)"
+r, ".* ERR pmon#psud: Failed to read from file /var/run/hw-management/power/psu\d_volt_capability - FileNotFoundError\(2, \'No such file or directory\'\)"
