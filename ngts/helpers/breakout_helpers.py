@@ -85,7 +85,7 @@ def get_split_mode_supported_speeds(breakout_modes):
     2: {'40G', '10G', '25G', '50G'},
     4: {'10G', '25G'}}
     """
-    split_mode_supported_speeds = {1: set(), 2: set(), 4: set()}
+    split_mode_supported_speeds = {1: set(), 2: set(), 4: set(), 8: set()}
     breakout_port_by_modes = get_speed_option_by_breakout_modes(breakout_modes)
     for breakout_mode, supported_speeds_list in breakout_port_by_modes.items():
         breakout_num, _ = breakout_mode.split("x")
@@ -102,7 +102,7 @@ def get_split_mode_supported_breakout_modes(breakout_modes):
     2: {'2x50G[40G,25G,10G]'},
     4: {'4x25G[10G]'}
     """
-    split_mode_supported_breakout_modes = {1: set(), 2: set(), 4: set()}
+    split_mode_supported_breakout_modes = {1: set(), 2: set(), 4: set(), 8: set()}
     for breakout_mode in breakout_modes:
         breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
         if re.search(breakout_pattern, breakout_mode):
