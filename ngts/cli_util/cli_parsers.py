@@ -59,6 +59,8 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     result_list = []
     last_line_key = ""
     for line in data:
+        if line == '':
+            continue
         base_position = 0
         line_dict = {}
         for column_len in column_lens:
