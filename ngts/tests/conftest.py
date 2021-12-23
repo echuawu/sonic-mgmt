@@ -9,6 +9,7 @@ Defines the methods and fixtures which will be used by pytest for only canonical
 import pytest
 import os
 import yaml
+import re
 from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
@@ -195,3 +196,19 @@ def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_bra
     branch = sonic_branch if sonic_branch in expected_cpu_or_ram_usage_dict.keys() else default_branch
     expected_cpu_or_ram_usage_dict = expected_cpu_or_ram_usage_dict[branch][platform]
     return expected_cpu_or_ram_usage_dict
+
+
+@pytest.fixture(autouse=True)
+def ignore_simx_expected_loganalyzer_exceptions(loganalyzer, platform_params):
+    """
+    expanding the ignore list of the loganalyzer for these tests
+    because of some expected bugs which causes exceptions in log
+    :param loganalyzer: loganalyzer utility fixture
+    :return: None
+    """
+    if re.search('simx', platform_params.setup_name):
+        if loganalyzer:
+            ignore_regex_list = \
+                loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                   "temp_simx_log_analyzer_ignores.txt")))
+            loganalyzer.ignore_regex.extend(ignore_regex_list)

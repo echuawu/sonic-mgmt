@@ -1,0 +1,2 @@
+r, ".*ERR healthd: Failed to read from file \/var\/run\/hw-management\/led\/led_status_capability - FileNotFoundError.*No such file or directory.*"
+r, ".*ERR healthd: Failed to write.*file \/var\/run\/hw-management\/led\/led_status_green - FileNotFoundError.*No such file or directory.*"
