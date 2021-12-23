@@ -47,6 +47,10 @@ def _parse_args():
     parser.add_argument("--delete_container", nargs="?", dest="delete_container", default=False,
                         help="Force container removal and recreation, even if a docker container with the expected "
                              "image is already running.")
+    parser.add_argument("--send_takeover_notification", help="If set to True, the script will send a takeover "
+                                                             "notification to all the active terminals and wait for "
+                                                             "a predefined period before starting the deployment",
+                        dest="send_takeover_notification", default='no', choices=["yes", "no"])
     return parser.parse_args()
 
 
@@ -326,6 +330,9 @@ def main():
         logger.error("Something wrong with gathering basic facts. Please check the test server")
         sys.exit(1)
 
+    if args.send_takeover_notification == 'yes':
+        send_takeover_notification(topo)
+
     logger.info("Pull docker image to ensure that it is up to date")
     test_server.run("docker pull {}/{}:{}".format(registry_url, docker_name, docker_tag))
 
@@ -376,6 +383,32 @@ def get_docker_default_tag(docker_name):
     latest = "latest"
     default_list = {'docker-ngts': '1.2.70'}
     return default_list.get(docker_name, latest)
+
+def send_takeover_notification(topo):
+    wait_between_notf_to_regression_start = 3
+    players_to_be_notified = [constants.SONIC_MGMT_DEVICE_ID, constants.DUT_DEVICE_ID]
+    players_were_notified = False
+    for player in players_to_be_notified:
+        player_info = topo.get_device_by_topology_id(player)
+        try:
+            notify_player_users(player_info, wait_between_notf_to_regression_start)
+            players_were_notified = True
+        except Exception:
+            logger.warning("Unable to connect to {}:{}, in order to notify logged users about regression "
+                           "start".format(player, player_info.BASE_IP))
+    if players_were_notified:
+        logger.info("Sleeping for {} minutes".format(wait_between_notf_to_regression_start))
+        time.sleep(wait_between_notf_to_regression_start * 60)
+
+def notify_player_users(player_info, wait_between_notf_to_regression_start):
+    takeover_message = "Mars regression is taking over in {} minutes. Please save your work and logout".\
+        format(wait_between_notf_to_regression_start)
+    player_engine = Connection(player_info.BASE_IP, user=player_info.USERS[0].USERNAME,
+                               config=Config(overrides={"run": {"echo": True}}),
+                               connect_kwargs={"password": player_info.USERS[0].PASSWORD},
+                               connect_timeout=5)
+    logger.info("Sending takeover notification to:{}".format(player_info.BASE_IP))
+    player_engine.run('wall {}'.format(takeover_message))
 
 
 if __name__ == "__main__":

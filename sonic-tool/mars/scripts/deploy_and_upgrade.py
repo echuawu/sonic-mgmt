@@ -72,10 +72,6 @@ def _parse_args():
                         dest="deploy_only_target", help="If yes - then the installation of the base version will be "
                                                         "skipped and the target version will be installed instead of "
                                                         "the base.")
-    parser.add_argument("--send_takeover_notification", help="If set to True, the deployment script will send a takeover "
-                                                             "notification to all the active terminals and wait for "
-                                                             "a predefined period before starting the deployment",
-                        dest="send_takeover_notification", default='no', choices=["yes", "no"])
     parser.add_argument("--deploy_fanout", help="Specify whether to do fanout deployment. Default is 'no'",
                         choices=["no", "yes"], dest="deploy_fanout", default="no")
     parser.add_argument("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
@@ -438,25 +434,6 @@ def install_image(ansible_path, mgmt_docker_engine, sonic_topo, image_url, setup
         logger.info("Running CMD: {}".format(cmd))
         mgmt_docker_engine.run(cmd)
 
-
-@separate_logger
-def send_takeover_notification(ansible_path, sonic_topo, mgmt_docker_engine, setup_name):
-    """
-    This method will send a takeover notification to all active terminals
-    """
-    logger.info("Sending takeover notification to all active terminals")
-    cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} /ngts_venv/bin/pytest --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
-          " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results" \
-          " {sonic_mgmt_dir}ngts/scripts/regression_takeover_notification/send_takeover_notification.py".\
-        format(sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name)
-
-    with mgmt_docker_engine.cd(ansible_path):
-        logger.info("Running CMD: {}".format(cmd))
-        takeover_notification_result = mgmt_docker_engine.run(cmd, warn=True)
-        if takeover_notification_result.failed:
-            logger.error('Did not send a takeover notification.')
-
-
 @separate_logger
 def deploy_minigprah(ansible_path, mgmt_docker_engine, dut_name, sonic_topo, recover_by_reboot):
     """
@@ -629,10 +606,6 @@ def main():
     ptf_tag = get_ptf_docker_tag(args.base_version)
     if args.target_version:
         ptf_tag = get_ptf_docker_tag(args.target_version)
-
-    if args.send_takeover_notification == 'yes':
-        send_takeover_notification(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
-                                   sonic_topo=args.sonic_topo, setup_name=args.setup_name)
 
     if args.upgrade_only and re.match(r"^(no|false)$", args.upgrade_only, re.I):
         recover_topology(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine,
