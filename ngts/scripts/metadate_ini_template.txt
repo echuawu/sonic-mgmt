@@ -1,0 +1,9 @@
+; Firmware files
+[firmware]
+BURN={{cpld_burn}}
+REFRESH={{cpld_refresh}}
+; Component versions
+[version]
+{% for idx, cpld in cplds -%}
+CPLD{{idx}}={{cpld}}
+{% endfor %}
