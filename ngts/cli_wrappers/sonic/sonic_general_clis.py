@@ -319,7 +319,6 @@ class SonicGeneralCli(GeneralCliCommon):
                 if "202012" == SonicGeneralCli.get_image_sonic_version(dut_engine):
                     SonicQosCli.reload_qos(dut_engine)
                     SonicGeneralCli.save_configuration(dut_engine)
-                    SonicGeneralCli.reboot_reload_flow(dut_engine, r_type='config reload -y', topology_obj=topology_obj)
 
         if wjh_deb_url:
             with allure.step("Installing wjh deb url"):
