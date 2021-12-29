@@ -145,6 +145,18 @@ platform_tests/api/test_watchdog.py:
     Platform:
     - 2201
 
+platform_tests/api/test_watchdog.py::test_arm_different_timeout_smaller:
+  - Redmine:
+    - 2910642
+    Platform:
+    - 2700
+
+platform_tests/api/test_watchdog.py::test_arm_different_timeout_greater:
+  - Redmine:
+    - 2910642
+    Platform:
+    - 2700
+
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
   - Redmine:
     - 2821986
