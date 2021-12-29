@@ -2,7 +2,7 @@
     "MSN2700": {
         "ASIC_RESET_TIME": "2.05",
         "CREATE_SWITCH_TIME": "14.85",
-        "HOST_IF_CREATION_TIME": "4.1",
+        "HOST_IF_CREATION_TIME": "4.35",
         "SKU_VALIDATION": "0",
         "PORTS_STATE_ADMIN_TO_OPER_TIME": "2.4",
         "PHY_PORTS_UP_TO_LAGS_UP_TIME": "6.75",
