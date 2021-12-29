@@ -220,6 +220,7 @@ def elapsed_time_between_two_patterns_iterate(check_type, first_pattern, second_
                 time_diff = second_pattern_time_stamp - first_pattern_time_stamp
                 if time_diff.total_seconds() > expected_result:
                     test_fail_elements.append("Test {} failed with result: {}, Expected result is: {}, Shared word: {}, Reason: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test]), shared_word, debug_hint))
+                    two_patterns_match = True
                     break
                 else:
                     test_pass_elements.append("Test {} passed with result: {}, Expected result is: {}, Shared word: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test]), shared_word))
