@@ -71,6 +71,20 @@ drop_packets/test_wjh.py::test_loopback_filter:
     - x86_64-mlnx_msn
     - x86_64-nvidia
 
+drop_packets/test_wjh.py::test_acl_drop:
+  - Branch:
+    - 202012
+
+drop_packets/test_wjh.py::test_acl_egress_drop:
+  - Branch:
+    - 202012
+
+drop_packets/test_wjh.py::test_fid_miss:
+  - Redmine:
+    - 2912116
+    Branch:
+    - 202012
+
 # Platform
 platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
   - Redmine:
