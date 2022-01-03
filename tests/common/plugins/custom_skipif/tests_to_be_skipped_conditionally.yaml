@@ -55,6 +55,25 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     - msn3
     - msn4
 
+everflow/test_everflow_testbed.py:
+  - Redmine:
+    - 2908222
+    Branch:
+    - 202012
+
+# dhcp_relay
+dhcp_relay/test_dhcp_relay.py:
+  - Redmine:
+    - 2908222
+    Branch:
+    - 202012
+
+dhcp_relay/test_dhcpv6_relay.py:
+  - Redmine:
+    - 2908222
+    Branch:
+    - 202012
+
 # copp
 copp/test_copp.py::TestCOPP::test_counter:
   - Redmine:
@@ -86,6 +105,12 @@ drop_packets/test_wjh.py::test_fid_miss:
     - 202012
 
 # Platform
+platform_tests/link_flap/test_link_flap.py:
+  - Redmine:
+    - 2908222
+    Branch:
+    - 202012
+
 platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
   - Redmine:
     - 2860420
