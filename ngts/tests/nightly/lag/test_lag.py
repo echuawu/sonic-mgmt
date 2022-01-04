@@ -21,6 +21,7 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.conftest import cleanup_last_config_in_stack
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list
+from ngts.tests.nightly.auto_negotition.conftest import speed_string_to_int_in_mb
 
 logger = logging.getLogger()
 PORTCHANNEL_NAME = 'PortChannel1111'
@@ -352,19 +353,24 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
 
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
         max_lag_members = CHIP_LAG_MEMBERS_LIM[chip_type]
-        all_interfaces = list(dut_cli.interface.parse_interfaces_status(engines.dut))
-        member_interfaces = random.sample(all_interfaces, min(max_lag_members, len(all_interfaces)))
+        all_ifaces_info = dut_cli.interface.parse_interfaces_status(engines.dut)
+        # We need to create bond on ifaces with the same type, choose list with ifaces with the same type
+        interfaces_types_dict = get_interfaces_by_type_dict(all_ifaces_info)
+        test_ifaces_type = get_ifaces_type_which_has_bigger_ifaces_list(interfaces_types_dict)
+        all_interfaces_with_same_type = interfaces_types_dict[test_ifaces_type]
+        member_interfaces = random.sample(all_interfaces_with_same_type, min(max_lag_members,
+                                                                             len(all_interfaces_with_same_type)))
 
         with allure.step('Set same speed to all interfaces'):
-            dut_orig_ifaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces)
+            dut_orig_ifaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces_with_same_type)
             # Get minimal supported speed
-            min_speed = '{}G'.format(min([int(speed.strip('G')) for speed in dut_orig_ifaces_speeds.values()]))
+            min_speed = min([speed_string_to_int_in_mb(speed) for speed in dut_orig_ifaces_speeds.values()])
             # Get speed for all members and if it's not similar - set all ports to minimal supported speed
             members_speed = {}
             [members_speed.update({iface: dut_orig_ifaces_speeds[iface]}) for iface in member_interfaces]
             if not all(x == list(members_speed.values())[0] for x in list(members_speed.values())):
                 interfaces_config_list = []
-                for interface in all_interfaces:
+                for interface in all_interfaces_with_same_type:
                     interfaces_config_list.append({'iface': interface,
                                                    'speed': min_speed,
                                                    'original_speed': dut_orig_ifaces_speeds.get(interface, min_speed)})
@@ -380,8 +386,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list, igno
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
 
         with allure.step('Check that all interfaces in Up state'.format()):
-            ports_list = member_interfaces + [PORTCHANNEL_NAME]
-            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=20, delay=15,
+            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, member_interfaces], tries=20, delay=15,
                        logger=logger)
 
         with allure.step('Validate members status in PortChannel'):
@@ -856,3 +861,39 @@ def config_bond_type_lag(topology_obj, interfaces, cleanup_list):
     # add original IP and Vlan configs
     VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
+
+
+def get_interfaces_by_type_dict(interfaces_info):
+    """
+    Get dictionary with lists of RJ45 interfaces and rest QSFP interfaces
+    :param interfaces_info: parsed output from "show interfaces status" command
+    :return: dictionary
+    """
+    rg45_type = 'RJ45'
+    qsfp_type = 'QSFP'
+    interfaces_types_dict = {rg45_type: [], qsfp_type: []}
+
+    for interface in interfaces_info:
+        if interfaces_info[interface]['Type'] == rg45_type:
+            interfaces_types_dict[rg45_type].append(interface)
+        else:
+            interfaces_types_dict[qsfp_type].append(interface)
+
+    return interfaces_types_dict
+
+
+def get_ifaces_type_which_has_bigger_ifaces_list(interfaces_types_dict):
+    """
+    Get type of interface which has bigger number of interfaces
+    :param interfaces_types_dict: dict, example: {'RJ45': ['Ethernet0', 'Ethernet1'], 'QSFP': ['Ethernet2']}
+    :return: str, interface type which have bigger list of interfaces
+    """
+    num_of_ifaces = 0
+    ifaces_type = None
+
+    for iface_type in interfaces_types_dict:
+        if len(interfaces_types_dict[iface_type]) > num_of_ifaces:
+            num_of_ifaces = len(interfaces_types_dict[iface_type])
+            ifaces_type = iface_type
+
+    return ifaces_type

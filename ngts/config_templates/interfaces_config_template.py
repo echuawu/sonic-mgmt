@@ -32,7 +32,7 @@ class InterfaceConfigTemplate:
                         cli_object.interface.add_interface(stub_engine, iface, if_type)
                         cli_object.interface.enable_interface(stub_engine, iface)
                     if speed:
-                        cli_object.interface.set_interface_speed(stub_engine, iface, speed)
+                        cli_object.interface.set_interface_speed(stub_engine, iface, str(speed))
                     if mtu:
                         cli_object.interface.set_interface_mtu(stub_engine, iface, mtu)
                     if dynamic_port_breakout:
@@ -63,7 +63,7 @@ class InterfaceConfigTemplate:
                     original_mtu = interface_info.get('original_mtu')
                     dynamic_port_breakout = interface_info.get('dpb')
                     if original_speed:
-                        cli_object.interface.set_interface_speed(stub_engine, iface, original_speed)
+                        cli_object.interface.set_interface_speed(stub_engine, iface, str(original_speed))
                     if original_mtu:
                         cli_object.interface.set_interface_mtu(stub_engine, iface, original_mtu)
                     if interface_info.get('create'):
