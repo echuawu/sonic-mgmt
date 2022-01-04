@@ -120,6 +120,12 @@ platform_tests/link_flap/test_link_flap.py:
     Branch:
     - 202012
 
+platform_tests/test_port_toggle.py:
+  - Redmine:
+    - 2908222
+    Branch:
+    - 202012
+
 platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
   - Redmine:
     - 2860420
