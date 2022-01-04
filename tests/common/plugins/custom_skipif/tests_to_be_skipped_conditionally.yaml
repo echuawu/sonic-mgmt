@@ -33,6 +33,15 @@ platform_tests/test_sensors.py::test_sensors:
     Branch:
     - master
 
+# pfc_asym(RPC)
+pfc_asym/test_pfc_asym.py::test_pfc_asym_off_tx_pfc:
+  - Redmine:
+    - 2918636
+
+pfc_asym/test_pfc_asym.py::test_pfc_asym_on_tx_pfc:
+  - Redmine:
+    - 2918636
+
 # ecmp
 ecmp/test_fgnhg.py:
   - Redmine:
