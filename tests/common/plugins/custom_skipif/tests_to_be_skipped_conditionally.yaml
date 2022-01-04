@@ -70,6 +70,12 @@ everflow/test_everflow_testbed.py:
     Branch:
     - 202012
 
+everflow/test_everflow_ipv6.py:
+  - Redmine:
+    - 2908222
+    Branch:
+    - 202012
+
 # dhcp_relay
 dhcp_relay/test_dhcp_relay.py:
   - Redmine:
