@@ -37,7 +37,6 @@ DECAP_TABLE_NAME = "table_tenant_forward"
 REBOOT_LIST = ["reboot", "config reload -y"]
 ENCAP_TABLE_ACTION = "tunnel_encap"
 DECAP_TABLE_ACTION = "do_forward"
-VXLAN_TUNNEL_NAME = "tunnel1"
 TUNNEL_SRC_IP = "1.1.1.1"
 
 
@@ -130,10 +129,8 @@ def p4_vxlan_bm_configuration(topology_obj, engines, interfaces):
     :param engines: engines fixture
     :param interfaces: interfaces fixture
     """
-    dut_engine = engines.dut
     ha_engine = engines.ha
     hb_engine = engines.hb
-    base_config_db = '{"VNET": {"Vnet1": {"vxlan_tunnel": "tunnel1","vni": "1"}}}'
 
     ip_config_dict = {
         'dut': [{'iface': interfaces.dut_ha_1, 'ips': [(DUT_HA_1_IP, '24')]},
@@ -160,8 +157,6 @@ def p4_vxlan_bm_configuration(topology_obj, engines, interfaces):
     }
 
     logger.info('Starting P4 VXLAN BM configuration')
-    dut_engine.run_cmd(f"sudo config vxlan add {VXLAN_TUNNEL_NAME} {TUNNEL_SRC_IP}")
-    dut_engine.run_cmd(f'sonic-cfggen -a {json.dumps(base_config_db)} --write-to-db')
     ha_engine.run_cmd(f"sudo ip link add name {HA_DUT_1_VXLAN_NAME} type vxlan id {HA_DUT_1_VXLAN_ID} "
                       f"dev {interfaces.ha_dut_1} remote {TUNNEL_SRC_IP} dstport 4789")
     ha_engine.run_cmd(f"sudo ip link set {HA_DUT_1_VXLAN_NAME} up")
@@ -177,8 +172,6 @@ def p4_vxlan_bm_configuration(topology_obj, engines, interfaces):
     logger.info('Starting P4 Sampling configuration cleanup')
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    dut_engine.run_cmd('redis-cli -n 4 HDEL "VNET|Vnet1" "vni" "vxlan_tunnel"')
-    dut_engine.run_cmd(f"sudo config vxlan del {VXLAN_TUNNEL_NAME}")
     ha_engine.run_cmd(f"sudo ip link delete name {HA_DUT_1_VXLAN_NAME}")
     hb_engine.run_cmd(f"sudo ip link delete name {HB_DUT_2_VXLAN_NAME}")
     logger.info('P4 Sampling cleanup completed')

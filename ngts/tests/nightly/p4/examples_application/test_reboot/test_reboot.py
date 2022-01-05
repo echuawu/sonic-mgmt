@@ -16,6 +16,7 @@ REBOOT_LIST = ["reboot", "config reload -y"]
 @pytest.mark.build
 @pytest.mark.p4_examples
 @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
+@pytest.mark.usefixtures('ignore_loganalyzer_exceptions_withbugs')
 def test_p4_examples_reboot(request, engines, topology_obj):
     """
     reboot and then run all p4_examples test case which need to be verified after reboot

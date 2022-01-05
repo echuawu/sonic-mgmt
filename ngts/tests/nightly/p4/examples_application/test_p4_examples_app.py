@@ -11,12 +11,14 @@ logger = logging.getLogger()
 
 @pytest.mark.build
 @pytest.mark.p4_examples
+@pytest.mark.usefixtures('ignore_loganalyzer_exceptions_withbugs')
 def test_p4_examples_feature_state(engines, p4_example_default_feature):
     """
     Run the p4_examples_feature_state test
     :param engines: engines fixture
     :param p4_example_default_feature: p4_example_default_feature fixture
     """
+    current_version = SonicAppExtensionCli.get_installed_app_version(engines.dut, P4ExamplesConsts.APP_NAME)
     with allure.step(f"Stop feature {P4ExamplesConsts.APP_NAME} in the p4 examples app"):
         P4ExamplesCli.stop_p4_example_feature(engines.dut)
     with allure.step("Check the feature started is stopped"):
@@ -29,7 +31,7 @@ def test_p4_examples_feature_state(engines, p4_example_default_feature):
         SonicAppExtensionCli.disable_app(engines.dut, P4ExamplesConsts.APP_NAME)
         SonicAppExtensionCli.uninstall_app(engines.dut, P4ExamplesConsts.APP_NAME)
     with allure.step("Re-install the P4 examples App"):
-        SonicAppExtensionCli.install_app(engines.dut, P4ExamplesConsts.APP_NAME)
+        SonicAppExtensionCli.install_app(engines.dut, P4ExamplesConsts.APP_NAME, version=f'{current_version}')
         SonicAppExtensionCli.enable_app(engines.dut, P4ExamplesConsts.APP_NAME)
     with allure.step("Check the feature is stopped after app is re-installed"):
         verify_running_feature(engines.dut, P4ExamplesConsts.NO_EXAMPLE)
