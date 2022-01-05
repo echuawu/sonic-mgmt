@@ -26,7 +26,7 @@
                 <name> deploy ptf32 topo </name>
                 <mars_cmd_func> run_on_stm </mars_cmd_func>
                 <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
-                <tout> 2400 </tout>
+                <tout> 3000 </tout>
                 <params>
                     <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/rpc_check_and_set_topology.py </cmd>
                     <cmd_params> --topo [[conf:topology_file]]  --dut-name [[conf:extra_info.dut_name]] --current_topo [[conf:extra_info.topology]] --expected_topo ptf32 --workspace-path /root/mars/workspace  </cmd_params>
@@ -36,7 +36,7 @@
                 <type> reg_exec_func </type>
                 <name> restore original topo </name>
                 <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <tout> 2400 </tout>
+                <tout> 3000 </tout>
                 <params>
                     <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/rpc_check_and_set_topology.py </cmd>
                     <cmd_params> --topo [[conf:topology_file]]  --dut-name [[conf:extra_info.dut_name]] --current_topo ptf32 --expected_topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace  </cmd_params>
