@@ -1,3 +1,4 @@
+
 import pytest
 import ptf.packet as scapy
 import ptf.testutils as testutils
@@ -427,7 +428,7 @@ def test_vlan_tc5_untagged_unicast(ptfadapter, work_vlan_ports_list, vlan_intfs_
         if len(ports_for_test) < 2:
             continue
 
-        #take two untagged ports for test
+        #take two tagged ports for test
         src_port = ports_for_test[0]
         dst_port = ports_for_test[-1]
 
