@@ -4,3 +4,4 @@ r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access status failed \(.
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: HW semaphore is not released.*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Cmd exec failed \(.*\).*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048 sfp9: Eeprom query failed.*"
+r, ".* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM.*"
