@@ -18,6 +18,7 @@ from dotted_dict import DottedDict
 from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
+from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import SonicConst, PytestConst
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
@@ -121,6 +122,7 @@ def topology_obj(setup_name):
     """
     logger.debug('Creating topology object')
     topology = get_topology_by_setup_name(setup_name, slow_cli=False)
+    update_nos_type(topology)
     update_topology_with_cli_class(topology)
     yield topology
     logger.debug('Cleaning-up the topology object')
@@ -128,11 +130,25 @@ def topology_obj(setup_name):
         player_attributes['engine'].disconnect()
 
 
+def update_nos_type(topology):
+    """
+    This method will be deleted ones relevant attributes will be added in noga (CLI_TYPE)
+    """
+    sub_group = topology[0]['dut']['attributes'].noga_query_data['attributes']['Common']['sub_group']
+    cli_type = "SONIC"
+    if sub_group == "MLNX_OS_V2":
+        cli_type = "NVUE"
+    topology[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = cli_type
+
+
 def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
-            player_info['cli'] = SonicCli(topology)
+            if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
+                player_info['cli'] = NvueCli()
+            else:
+                player_info['cli'] = SonicCli(topology)
         else:
             player_info['cli'] = LinuxCli()
 
@@ -211,7 +227,7 @@ def platform_params(show_platform_summary, setup_name):
     """
     platform_data = DottedDict()
     platform_data.platform = show_platform_summary['platform']
-    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4})", show_platform_summary['platform'], re.IGNORECASE).group(1)
+    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4}|mqm\d{4})", show_platform_summary['platform'], re.IGNORECASE).group(1)
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name
     platform_data.asic_type = show_platform_summary["asic_type"]
