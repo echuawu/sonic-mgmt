@@ -18,3 +18,4 @@ r, ".* ERR teamd#tlm_teamd: :- process_add_queue: Can't connect to teamd after .
 r, ".* ERR syncd#SDK: :- updateSupportedBufferPoolCounters: BUFFER_POOL_WATERMARK_STAT_COUNTER: counter SAI_BUFFER_POOL_STAT_XOFF_ROOM_WATERMARK_BYTES is not supported on buffer pool .*, rv: SAI_STATUS_NOT_IMPLEMENTED"
 r, ".* INFO kernel: .* teamd.*: segfault at b0 ip .* sp .* error 4 in libteam.*"
 r, ".* ERR snmp#snmpd.*: ioctl \d+ returned -1.*"
+r, ".* ERR pmon#sensord: Error getting sensor data: mlxsw.*: Kernel interface error.*"
