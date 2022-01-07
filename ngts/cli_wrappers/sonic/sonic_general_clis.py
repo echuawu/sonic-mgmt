@@ -865,6 +865,7 @@ class SonicGeneralCli(GeneralCliCommon):
 
     @staticmethod
     def update_config_db_docker_routing_config_mode(engine, mode='split', remove_docker_routing_config_mode=False):
+        SonicGeneralCli.save_configuration(engine)
         config_db = SonicGeneralCli.get_config_db(engine)
         config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
 

@@ -12,7 +12,7 @@ VXLAN_TUNNEL_NAME = "tunnel1"
 TUNNEL_SRC_IP = "1.1.1.1"
 
 
-@pytest.fixture(scope="package", autouse=False)
+@pytest.fixture(scope="session", autouse=False)
 def skipping_p4_examples_test_case_for_spc1(platform_params):
     """
     If platform is SPC1, skip all p4 examples test cases
@@ -31,7 +31,7 @@ def is_p4_examples_supported(platform_params):
     return 'SN2' not in platform_params.hwsku
 
 
-@pytest.fixture(scope="package", autouse=False)
+@pytest.fixture(scope="session", autouse=False)
 def skipping_p4_examples_test_case(engines, skipping_p4_examples_test_case_for_spc1):
     """
     If p4-examples is not installed, skipping all p4-examples test cases execution
@@ -44,7 +44,7 @@ def skipping_p4_examples_test_case(engines, skipping_p4_examples_test_case_for_s
         pytest.skip(f"Skipping {P4ExamplesConsts} test cases due to {P4ExamplesConsts.APP_NAME} is not installed.")
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def p4_example_default_feature():
     """
     Return the feature which will be started by default after the installation
@@ -53,7 +53,7 @@ def p4_example_default_feature():
     return P4ExamplesConsts.VXLAN_BM_FEATURE_NAME
 
 
-@pytest.fixture(scope='package', autouse=True)
+@pytest.fixture(scope='module', autouse=True)
 def p4_examples_config(engines, skipping_p4_examples_test_case, run_test_only):
     """
     Fixture used to configure the vxlan on sonic switch which will be used to enable the vxlan_bm feature
