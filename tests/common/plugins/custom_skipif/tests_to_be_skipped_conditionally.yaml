@@ -782,6 +782,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
       - master
       - 202111
       - HEAD # Ignore also on CI versions
+  - Redmine:
+    - 2923657
+    Branch:
+      - fix-thermal-202012
+      - HEAD
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
