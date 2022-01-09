@@ -165,28 +165,59 @@ def cleanup_list():
     :return: None
     """
     cleanup_list = []
+    logger.info("------------------TEST START HERE------------------")
     yield cleanup_list
-    logger.info("------------------test teardown------------------")
+    logger.info("------------------TEST TEARDOWN------------------")
     cleanup(cleanup_list)
 
 
-def set_dpb_conf(topology_obj, dut_engine, cli_object, ports_breakout_modes, cleanup_list, conf, force=False):
-    interfaces_config_dict = {'dut': []}
+def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, conf, original_speed_conf, force=False):
+    """
+    configure DPB conf and return ports expected status after DPB had been applied.
+    :param dut_engine: ssh engine
+    :param cli_object: cli object
+    :param ports_breakout_modes: a dictionary with information about ports breakout options
+                                i.e.,
+                                    {'Ethernet0':
+                                        {'index': ['1'],
+                                        'lanes': ['0'],
+                                        'breakout_modes': ['1x25G[10G,1G]'],
+                                        'breakout_port_by_modes': {'1x25G[10G,1G]': {'Ethernet0': '25G'}},
+                                        'speeds_by_modes': {'1x25G[10G,1G]': ['10G', '1G', '25G']},
+                                        'default_breakout_mode': '1x25G[10G,1G]'},
+                                    'Ethernet4': ...}
+    :param cleanup_list: a list of functions for test cleanup
+    :param conf: a dictionary of DPB configuration that need to be applied
+    i.e,
+    {'4x25G[10G,1G]': ['Ethernet192']}
+    breakout mode '4x25G[10G,1G]' should be aplied on ports ['Ethernet192']
+    :param original_speed_conf: original speed on ports that should be restored after DPB configuration has been removed
+    :param force: True if DPB command should use -f flag, False otherwise
+    :return: dictionary with ports status after DPB configuration had been applied
+    {'Ethernet192': '25G',
+    'Ethernet193': '25G',
+    'Ethernet194': '25G',
+    'Ethernet195': '25G', ...}
+    """
     breakout_ports_conf = {}
+    original_ports_list = []
     remove_conf = build_remove_dpb_conf(conf, ports_breakout_modes)
     for breakout_mode, ports_list in conf.items():
+        original_ports_list += ports_list
         for port in ports_list:
-            #         interfaces_config_dict['dut'].append({'iface': port,
-            #                                               'dpb': {'breakout_mode': breakout_mode,
-            #                                                       'original_breakout_mode':
-            #                                                           ports_breakout_modes[port][
-            #                                                               'default_breakout_mode']}})
             breakout_ports_conf.update(ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode])
-    # cleanup_list.append((InterfaceConfigTemplate.cleanup, (topology_obj, interfaces_config_dict,)))
 
-    cleanup_list.append((cli_object.interface.configure_dpb_on_ports, (dut_engine, remove_conf, False, True)))
+    set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf)
     cli_object.interface.configure_dpb_on_ports(dut_engine, conf, force=force)
+    cli_object.interface.enable_interfaces(dut_engine, breakout_ports_conf.keys())
     return breakout_ports_conf
+
+
+def set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf):
+    cleanup_list.append((cli_object.interface.configure_dpb_on_ports, (dut_engine, remove_conf, False, True)))
+    cleanup_list.append((cli_object.interface.enable_interfaces, (dut_engine, original_ports_list)))
+    original_speed_conf_subset = {key: original_speed_conf[key] for key in original_ports_list}
+    cleanup_list.append((cli_object.interface.set_interfaces_speed, (dut_engine, original_speed_conf_subset)))
 
 
 def is_splittable(ports_breakout_modes, port_name):
@@ -227,8 +258,9 @@ def verify_port_speed(dut_engine, cli_object, breakout_ports_conf):
     :return: raise assertion error in case configured speed is not as expected
     """
     interfaces_list = list(breakout_ports_conf.keys())
-    actual_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, interfaces_list)
-    compare_actual_and_expected_speeds(breakout_ports_conf, actual_speed_conf)
+    with allure.step(f'Verify interfaces {interfaces_list} speed configuration'):
+        actual_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, interfaces_list)
+        compare_actual_and_expected_speeds(breakout_ports_conf, actual_speed_conf)
 
 
 def compare_actual_and_expected_speeds(expected_speeds_dict, actual_speeds_dict):
@@ -276,15 +308,18 @@ def verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf):
         verify_show_cmd(cmd_output, [(r"{}\s+".format(port), False) for port in all_breakout_ports])
 
 
-def send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list):
+def send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list, ports_ip_conf=None):
     """
+    Function is disabled due to open issue -
+    https://github.com/Azure/sonic-buildimage/issues/5947
+    TODO: once issue https://github.com/Azure/sonic-buildimage/issues/5947 has been resolved - function can be uncomment
     :param lb_list: a dictionary of the tested configuration,
     i.e breakout mode and ports list which breakout mode will be applied on
     [('Ethernet212', 'Ethernet216'), ('Ethernet228', 'Ethernet232')]
     :return: raise assertion error in case ping failed
     """
-    ports_ip_conf = set_ip_conf_for_ping(topology_obj, cleanup_list, lb_list)
-    send_ping_and_validate_result(dut_engine, lb_list, ports_ip_conf)
+    # ports_ip_conf = set_ip_conf_for_ping(topology_obj, cleanup_list, lb_list) if not ports_ip_conf else ports_ip_conf
+    # ping_validation(dut_engine, lb_list, ports_ip_conf)
 
 
 def set_ip_conf_for_ping(topology_obj, cleanup_list, lb_list):
@@ -294,7 +329,13 @@ def set_ip_conf_for_ping(topology_obj, cleanup_list, lb_list):
     return ports_ip_conf
 
 
-def send_ping_and_validate_result(dut_engine, lb_list, ports_ip_conf):
+def ping_validation(dut_engine, lb_list, ports_ip_conf):
+    """
+    :param dut_engine: an ssh engine
+    :param lb_list: a list of tuples of ports connected as loopback
+    :param ports_ip_conf: ports ip configuration
+    :return: ping result
+    """
     for lb in lb_list:
         with allure.step('Send ping validation between ports: {}'.format(lb)):
             src_port = lb[0]

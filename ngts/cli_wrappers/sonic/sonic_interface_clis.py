@@ -1,6 +1,7 @@
 import re
 import logging
 import ast
+import time
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from ngts.constants.constants import AutonegCommandConstants, SonicConst
@@ -27,6 +28,17 @@ class SonicInterfaceCli(InterfaceCliCommon):
         :return: command output
         """
         return engine.run_cmd("sudo config interface startup {}".format(interface))
+
+    @staticmethod
+    def enable_interfaces(engine, interfaces_list):
+        """
+        This method enables a list of network interfaces
+        :param engine: ssh engine object
+        :param interfaces_list: a list of interfaces which should be enabled, example: ["Ethernet0", "Ethernet4"]
+        :return: command output
+        """
+        for interface in interfaces_list:
+            SonicInterfaceCli.enable_interface(engine, interface)
 
     @staticmethod
     def disable_interface(engine, interface):
@@ -193,6 +205,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
         for breakout_mode, ports_list in conf.items():
             for port in ports_list:
                 self.configure_dpb_on_port(engine, port, breakout_mode, expect_error, force)
+                time.sleep(10)  # TODO: this is a workaround for issue https://redmine.mellanox.com/issues/2927327 -
+                # TODO: please remove sleep statment after bug had been resolved
 
     @staticmethod
     def configure_dpb_on_port(engine, port, breakout_mode, expect_error=False, force=False):

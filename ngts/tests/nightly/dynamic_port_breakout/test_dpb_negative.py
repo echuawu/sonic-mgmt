@@ -8,140 +8,138 @@ from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_optio
     set_dpb_conf, verify_port_speed_and_status, verify_no_breakout
 
 
-@pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@allure.title('Dynamic Port Breakout negative test: breakout on unbreakable port')
-def test_breakout_unbreakable_ports(topology_obj, dut_engine, cli_object,
-                                    ports_breakout_modes, tested_modes_lb_conf):
-    """
-    try break a unbreakable port and validate the breakout failed.
-    :return:  raise assertion error if expected output is not matched
-    """
-    try:
-        breakout_mode, lb = random.choice(list(tested_modes_lb_conf.items()))
-        unsplittable_ports_list = get_unsplittable_ports_list(topology_obj, ports_breakout_modes)
-        if len(unsplittable_ports_list) == 0:
-            raise AssertionError("Setup has no unsplittable ports to test on,"
-                                 "please had this platform to ignore list for this test")
-        unsplittable_port = [random.choice(unsplittable_ports_list)]
-        with allure.step('Verify breakout mode: {} on unsplittable port: {} Fails'
-                         .format(breakout_mode, unsplittable_port)):
-            verify_negative_breakout_configuration(dut_engine, cli_object, unsplittable_port, breakout_mode)
-    except Exception as e:
-        raise e
+class TestDPBNegative:
 
+    @pytest.fixture(autouse=True)
+    def setup(self, topology_obj, engines,
+              cli_objects, ports_breakout_modes,
+              dut_ports_default_speeds_configuration, tested_modes_lb_conf):
+        self.topology_obj = topology_obj
+        self.dut_engine = engines.dut
+        self.cli_object = cli_objects.dut
+        self.ports_breakout_modes = ports_breakout_modes
+        self.dut_ports_default_speeds_configuration = dut_ports_default_speeds_configuration
+        self.tested_modes_lb_conf = tested_modes_lb_conf
 
-@pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@allure.title('Dynamic Port Breakout negative test: unsupported breakout mode')
-def test_unsupported_breakout_mode(topology_obj, dut_engine, cli_object, tested_modes_lb_conf,
-                                   ports_breakout_modes, cleanup_list):
-    """
-    This test case will set unsupported breakout mode on a port,
-    then will verify that wrong configuration is not applied,
-    and check link-state (split port are up and there’s no traffic loss)
-    :return: raise assertion error if expected output is not matched
-    """
-    try:
-        breakout_mode, lb = random.choice(list(tested_modes_lb_conf.items()))
-        mutual_breakout_modes = get_mutual_breakout_modes(ports_breakout_modes, lb)
-        unsupported_breakout_mode = random.choice(list(all_breakout_options.difference(set(mutual_breakout_modes))))
+    @allure.title('Dynamic Port Breakout negative test: breakout on unbreakable port')
+    def test_breakout_unbreakable_ports(self):
+        """
+        try break a unbreakable port and validate the breakout failed.
+        :return:  raise assertion error if expected output is not matched
+        """
+        try:
+            breakout_mode, lb = random.choice(list(self.tested_modes_lb_conf.items()))
+            unsplittable_ports_list = self.get_unsplittable_ports_list()
+            if len(unsplittable_ports_list) == 0:
+                pytest.skip("Setup has no unsplittable ports to test breakout on - test is ignored")
+            unsplittable_port = [random.choice(unsplittable_ports_list)]
+            with allure.step(f'Verify breakout mode: {breakout_mode} on unsplittable port: {unsplittable_port} Fails'):
+                self.verify_negative_breakout_configuration(unsplittable_port, breakout_mode)
+        except Exception as e:
+            raise e
 
-        with allure.step('Verify unsupported breakout mode {} on ports {} fails as expected'
-                         .format(unsupported_breakout_mode, lb)):
-            verify_negative_breakout_configuration(dut_engine, cli_object, lb, unsupported_breakout_mode)
-        send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list=[lb])
-    except Exception as e:
-        raise e
+    @allure.title('Dynamic Port Breakout negative test: unsupported breakout mode')
+    def test_unsupported_breakout_mode(self, cleanup_list):
+        """
+        This test case will set unsupported breakout mode on a port,
+        then will verify that wrong configuration is not applied,
+        and check link-state (split port are up and there’s no traffic loss)
+        :return: raise assertion error if expected output is not matched
+        """
+        try:
+            breakout_mode, lb = random.choice(list(self.tested_modes_lb_conf.items()))
+            mutual_breakout_modes = get_mutual_breakout_modes(self.ports_breakout_modes, lb)
+            unsupported_breakout_mode = random.choice(list(all_breakout_options.difference(set(mutual_breakout_modes))))
+            with allure.step(f'Verify unsupported breakout mode {unsupported_breakout_mode} '
+                             f'on ports {lb} fails as expected'):
+                self.verify_negative_breakout_configuration(lb, unsupported_breakout_mode)
+            send_ping_and_verify_results(self.topology_obj, self.dut_engine, cleanup_list, lb_list=[lb])
+        except Exception as e:
+            raise e
 
+    @allure.title('Dynamic Port Breakout negative test: Wrong breakout removal from breakout port')
+    def test_ports_breakout_after_wrong_removal(self, cleanup_list):
+        """
+        configure breakout on loopback than try to unbreak the loopback
+        by configure unbreakout mode on the wrong ports.
+        see if ports are still up after wrong removal tryout,
+        then check that correct removal succeeded.
+        :return: Raise assertion error if validation failed
+        """
+        breakout_mode, lb = random.choice(list(self.tested_modes_lb_conf.items()))
+        unbreakout_port_mode = self.ports_breakout_modes[lb[0]]['default_breakout_mode']
+        with allure.step(f'Configure breakout mode: {breakout_mode} on loopback: {lb}'):
+            breakout_ports_conf = set_dpb_conf(self.dut_engine, self.cli_object,
+                                               self.ports_breakout_modes,
+                                               cleanup_list=cleanup_list,
+                                               conf={breakout_mode: lb},
+                                               original_speed_conf=self.dut_ports_default_speeds_configuration)
+        ports_list_after_breakout = list(breakout_ports_conf.keys())
 
-@pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
-@allure.title('Dynamic Port Breakout negative test: Wrong breakout removal from breakout port')
-def test_ports_breakout_after_wrong_removal(topology_obj, dut_engine, cli_object, ports_breakout_modes,
-                                            cleanup_list, tested_modes_lb_conf):
-    """
-    configure breakout on loopback than try to unbreak the loopback
-    by configure unbreakout mode on the wrong ports.
-    see if ports are still up after wrong removal tryout,
-    then check that correct removal succeeded.
-    :return: Raise assertion error if validation failed
-    """
+        with allure.step(f'Verify ports {ports_list_after_breakout} are up after breakout'):
+            verify_port_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
 
-    breakout_mode, lb = random.choice(list(tested_modes_lb_conf.items()))
-    with allure.step('Configure breakout mode: {} on loopback: {}'.format(breakout_mode, lb)):
-        breakout_ports_conf = set_dpb_conf(topology_obj, dut_engine, cli_object, ports_breakout_modes,
-                                           cleanup_list, conf={breakout_mode: lb})
-    ports_list_after_breakout = list(breakout_ports_conf.keys())
+        for port in lb:
+            breakout_port_list = self.get_breakout_ports(breakout_mode, port)
+            breakout_port_list.remove(port)
+            breakout_port = random.choice(breakout_port_list)
+            err_msg = rf"\[ERROR\] {breakout_port} interface is NOT present in BREAKOUT_CFG table of CONFIG DB"
+            with allure.step(f'Verify unbreak out with mode {unbreakout_port_mode} '
+                             f'on breakout port {breakout_port} failed as expected'):
+                self.verify_breakout_on_port_failed(breakout_port, unbreakout_port_mode, err_msg)
 
-    with allure.step('Verify ports {} are up after breakout'.format(ports_list_after_breakout)):
-        verify_port_speed_and_status(cli_object, dut_engine, breakout_ports_conf)
+        with allure.step(f'Verify ports {ports_list_after_breakout} are up after wrong breakout removal'):
+            retry_call(self.cli_object.interface.check_ports_status,
+                       fargs=[self.dut_engine, ports_list_after_breakout],
+                       tries=2, delay=2, logger=logger)
 
-    for port in lb:
-        breakout_port_list = get_breakout_ports(ports_breakout_modes, breakout_mode, port)
-        breakout_port_list.remove(port)
-        breakout_port = random.choice(breakout_port_list)
-        unbreakout_port_mode = ports_breakout_modes[port]['default_breakout_mode']
-        err_msg = r"\[ERROR\] {} interface is NOT present in BREAKOUT_CFG table of CONFIG DB".format(breakout_port)
-        with allure.step('Verify unbreak out with mode {} on breakout port {} failed as expected'
-                         .format(unbreakout_port_mode, breakout_port)):
-            verify_breakout_on_port_failed(dut_engine, cli_object, breakout_port, unbreakout_port_mode, err_msg)
+        with allure.step(f'Remove breakout from ports: {lb} with mode {unbreakout_port_mode}'):
+            cleanup(cleanup_list)
 
-    with allure.step('Verify ports {} are up after wrong breakout removal'.format(ports_list_after_breakout)):
-        retry_call(cli_object.interface.check_ports_status,
-                   fargs=[dut_engine, ports_list_after_breakout],
-                   tries=2, delay=2, logger=logger)
+        with allure.step('Verify breakout ports were removed correctly'):
+            verify_no_breakout(self.dut_engine, self.cli_object, self.ports_breakout_modes, conf={breakout_mode: lb})
 
-    with allure.step('Remove breakout from ports: {} with mode {}'.format(lb, unbreakout_port_mode)):
-        cleanup(cleanup_list)
+    def get_breakout_ports(self, breakout_mode, port):
+        """
+        :param breakout_mode: i.e., '4x50G[40G,25G,10G,1G]'
+        :param port: i.e, 'Ethernet8'
+        :return: a list of ports after breakout, i.e ['Ethernet8','Ethernet9','Ethernet10','Ethernet11']
+        """
+        return list(self.ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode].keys())
 
-    with allure.step('Verify breakout ports were removed correctly'):
-        verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf={breakout_mode: lb})
+    def verify_negative_breakout_configuration(self, ports_list, breakout_mode):
+        with allure.step(f'Get speed configuration of ports {ports_list} before breakout'):
+            pre_breakout_speed_conf = self.cli_object.interface.get_interfaces_speed(self.dut_engine, ports_list)
+        err_msg = r"\[ERROR\]\s+Target\s+mode\s+.*is\s+not\s+available\s+for\s+the\s+port\s+{}"
+        with allure.step(f'Verify breakout mode {breakout_mode} on ports {ports_list} fails as expected'):
+            for port in ports_list:
+                self.verify_breakout_on_port_failed(port, breakout_mode, err_msg.format(port))
+        with allure.step(f'Get speed configuration of ports {ports_list} after breakout'):
+            post_breakout_speed_conf = self.cli_object.interface.get_interfaces_speed(self.dut_engine, ports_list)
+        compare_actual_and_expected_speeds(pre_breakout_speed_conf, post_breakout_speed_conf)
 
+    def get_unsplittable_ports_list(self):
+        """
+        :return: a list of ports on dut which doesn't support any breakout mode
+        """
+        unsplittable_ports = []
+        for port_alias, port_name in self.topology_obj.ports.items():
+            if port_alias.startswith("dut") and "splt" not in port_alias and \
+                    not is_splittable(self.ports_breakout_modes, port_name):
+                unsplittable_ports.append(port_name)
+        return unsplittable_ports
 
-def get_breakout_ports(ports_breakout_modes, breakout_mode, port):
-    """
-    :param breakout_mode: i.e., '4x50G[40G,25G,10G,1G]'
-    :param port: i.e, 'Ethernet8'
-    :return: a list of ports after breakout, i.e ['Ethernet8','Ethernet9','Ethernet10','Ethernet11']
-    """
-    return list(ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode].keys())
-
-
-def verify_negative_breakout_configuration(dut_engine, cli_object, ports_list, breakout_mode):
-    with allure.step('Get speed configuration of ports {} before breakout'.format(ports_list)):
-        pre_breakout_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, ports_list)
-    err_msg = r"\[ERROR\]\s+Target\s+mode\s+.*is\s+not\s+available\s+for\s+the\s+port\s+{}"
-    with allure.step('Verify breakout mode {} on ports {} fails as expected'
-                     .format(breakout_mode, ports_list)):
-        for port in ports_list:
-            verify_breakout_on_port_failed(dut_engine, cli_object, port, breakout_mode, err_msg.format(port))
-    with allure.step('Get speed configuration of ports {} after breakout'.format(ports_list)):
-        post_breakout_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, ports_list)
-    compare_actual_and_expected_speeds(pre_breakout_speed_conf, post_breakout_speed_conf)
-
-
-def get_unsplittable_ports_list(topology_obj, ports_breakout_modes):
-    """
-    :return: a list of ports on dut which doesn't support any breakout mode
-    """
-    unsplittable_ports = []
-    for port_alias, port_name in topology_obj.ports.items():
-        if port_alias.startswith("dut") and "splt" not in port_alias and \
-                not is_splittable(ports_breakout_modes, port_name):
-            unsplittable_ports.append(port_name)
-    return unsplittable_ports
-
-
-def verify_breakout_on_port_failed(dut_engine, cli_object, port, breakout_mode, err_msg):
-    """
-    :param port: i.e, 'Ethernet8'
-    :param breakout_mode: i.e., '4x50G[40G,25G,10G,1G]'
-    :param err_msg: a regex expression
-    :return: raise error if error message was not in output after breakout
-    """
-    with allure.step('Verify breakout mode {} on port {} failed as expected with error message: {}'
-                     .format(breakout_mode, port, err_msg)):
-        output = cli_object.interface.configure_dpb_on_port(dut_engine, port, breakout_mode,
-                                                            expect_error=True, force=False)
-        if not re.search(err_msg, output, re.IGNORECASE):
-            raise AssertionError("Expected breakout mode {} on port {} "
-                                 "to failed with error msg {} but output {}".
-                                 format(breakout_mode, port, err_msg, output))
+    def verify_breakout_on_port_failed(self, port, breakout_mode, err_msg):
+        """
+        :param port: i.e, 'Ethernet8'
+        :param breakout_mode: i.e., '4x50G[40G,25G,10G,1G]'
+        :param err_msg: a regex expression
+        :return: raise error if error message was not in output after breakout
+        """
+        with allure.step(f'Verify breakout mode {breakout_mode} on port {port} '
+                         f'failed as expected with error message: {err_msg}'):
+            output = self.cli_object.interface.configure_dpb_on_port(self.dut_engine, port, breakout_mode,
+                                                                     expect_error=True, force=False)
+            if not re.search(err_msg, output, re.IGNORECASE):
+                raise AssertionError(f"Expected breakout mode {breakout_mode} on port {port} "
+                                     f"to failed with error msg: {err_msg}, actual output: {output}")

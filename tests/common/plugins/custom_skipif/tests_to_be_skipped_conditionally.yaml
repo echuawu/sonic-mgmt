@@ -708,21 +708,24 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
   - Redmine:
     - 2686798
 
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_dpb_configuration_interop:
-  - GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/5947
+tests/nightly/dynamic_port_breakout:
+  - Branch:
+    - 202012
+    - 202106
 
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py::test_remove_dpb_configuration_interop:
-  - GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/5947
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
+  - Redmine:
+    - 2927327
 
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_breakout_unbreakable_ports:
-  - Platform:
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_remove_dpb_configuration_interop:
+  - Redmine:
+    - 2927327
+
+tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
+  - Redmine:
+    - 2927259
+    Platform:
     - 3700
-
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py::test_unsupported_breakout_mode:
-  - GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/5947
 
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:

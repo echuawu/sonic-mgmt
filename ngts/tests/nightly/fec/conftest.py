@@ -191,12 +191,6 @@ def dut_ports_number_dict(topology_obj, engines, cli_objects):
 
 
 @pytest.fixture(autouse=True, scope='session')
-def dut_ports_default_speeds_configuration(topology_obj, engines, cli_objects):
-    ports = topology_obj.players_all_ports['dut']
-    return cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=ports)
-
-
-@pytest.fixture(autouse=True, scope='session')
 def dut_ports_default_mlxlink_configuration(platform_params, chip_type, engines, cli_objects, interfaces,
                                             tested_lb_dict, fec_modes_speed_support,
                                             tested_lb_dict_for_bug_2705016_flow, pci_conf, dut_ports_number_dict):

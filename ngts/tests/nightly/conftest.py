@@ -205,3 +205,9 @@ def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
             raise AssertionError("Cable Information for port {} is not Loaded by"
                                  " \"show interfaces transceiver eeprom\" cmd".format(port))
     return compliance_info
+
+
+@pytest.fixture(scope='session')
+def dut_ports_default_speeds_configuration(topology_obj, engines, cli_objects):
+    ports = topology_obj.players_all_ports['dut']
+    return cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=ports)
