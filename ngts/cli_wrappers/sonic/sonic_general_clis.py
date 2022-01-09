@@ -30,6 +30,7 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
 from ngts.cli_wrappers.sonic.sonic_qos_clis import SonicQosCli
+from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
 
 
 logger = logging.getLogger()
@@ -540,12 +541,28 @@ class SonicGeneralCli(GeneralCliCommon):
                     if elem[InfraConst.IP] == ip:
                         return elem[InfraConst.MASK]
 
+        def _get_default_gw():
+            def _get_by_iproute():
+                routes = SonicRouteCli.show_ip_route(engine)
+                default_gw_obj = re.search(r'0\.0\.0\.0\/0 \[.*\] via (.*), eth0', routes)
+                return default_gw_obj.group(1) if default_gw_obj else None
+
+            def _get_by_arp():
+                arp_table_dict = SonicArpCli.show_arp_table(engine)
+                for arp_ip, arp_info in arp_table_dict.items():
+                    if arp_info['Iface'] == 'eth0' and arp_info['MacAddress'] != '(incomplete)':
+                        return arp_ip
+
+            _default_gw = _get_by_iproute()
+            if not _default_gw:
+                _default_gw = _get_by_arp()
+            return _default_gw
+
         config_db_json = SonicGeneralCli.get_config_db(engine)
         mask = _get_subnet_mask(ip, SonicIpCli.get_interface_ips(engine, 'eth0'))
-        routes = SonicRouteCli.show_ip_route(engine)
-        default_gw = re.search(r'0\.0\.0\.0\/0 \[.*\] via (.*), eth0', routes)
+        default_gw = _get_default_gw()
         config_db_json[ConfigDbJsonConst.MGMT_INTERFACE] =\
-            json.loads(ConfigDbJsonConst.MGMT_INTERFACE_VALUE % (ip, mask, default_gw.group(1)))
+            json.loads(ConfigDbJsonConst.MGMT_INTERFACE_VALUE % (ip, mask, default_gw))
 
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json, file_name)
 
