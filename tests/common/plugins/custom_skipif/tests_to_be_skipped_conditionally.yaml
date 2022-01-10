@@ -689,11 +689,6 @@ ecmp/inner_hashing:
 # Nightly
 
 tests/nightly/auto_negotition:
-  - Redmine:
-    - 2801854
-    Platform:
-    - 4600
-    - 4600c
   - Branch:
     - 202012
   - Platform:
@@ -848,11 +843,6 @@ tests/nightly/fec:
     - 4410
   - Branch:
     - 202012
-  - Redmine:
-    - 2801854
-    Platform:
-    - 4600
-    - 4600c
   - Redmine:
     - 2855810
     Platform:
