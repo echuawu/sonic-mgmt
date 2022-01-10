@@ -25,6 +25,7 @@ from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
 from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
+from ngts.conftest import update_topology_with_cli_class
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -43,7 +44,7 @@ def get_app_ext_info(engine):
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params,
-                            app_extension_dict_path):
+                            app_extension_dict_path, update_branch_in_topology):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -57,6 +58,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     :param p4_sampling_table_params: p4_sampling_table_params fixture
     :param shared_params: fixture which provide dictionary which can be shared between tests
     :param app_extension_dict_path: app_extension_dict_path
+    :param update_branch_in_topology: fixture which doing update branch in topology
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
@@ -162,7 +164,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     # Static route config which will be used in test
     static_route_config_dict = {
         'hb': [{'dst': '69.0.1.0', 'dst_mask': 24, 'via': ['69.0.0.1']},
-               {'dst': '69.1.0.0', 'dst_mask': 24, 'via': ['69.0.0.1']}]
+               {'dst': '69.1.0.0', 'dst_mask': 24, 'via': ['69.0.0.1']},
+               {'dst': '6900:1::', 'dst_mask': 64, 'via': ['6900::1']},
+               {'dst': '6910::', 'dst_mask': 64, 'via': ['6900::1']}]
     }
 
     # DHCP Relay config which will be used in test
@@ -201,6 +205,10 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']}
     }
 
+    # Update CLI classes based on current SONiC branch
+    update_branch_in_topology(topology_obj)
+    update_topology_with_cli_class(topology_obj)
+
     if run_config_only or full_flow_run:
         logger.info('Starting PushGate Common configuration')
         InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
@@ -236,6 +244,11 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                     logger.info('Performing sonic to sonic upgrade')
                     SonicGeneralCli.deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
                                                  deploy_type='sonic')
+
+                # Update CLI classes based on current SONiC branch
+                update_branch_in_topology(topology_obj)
+                update_topology_with_cli_class(topology_obj)
+
                 with allure.step('Copying config_db.json from target version'):
                     engines.dut.copy_file(source_file='config_db.json',
                                           dest_file=POST_UPGRADE_CONFIG.format(engines.dut.ip),

@@ -20,3 +20,24 @@ def save_config_db_json(engine, config_db_json):
                      file_system='/tmp', overwrite_file=True, verify_file=False)
     engine.run_cmd('sudo mv {} {}'.format(LOCAL_CONFIG_DB_PATH, SonicConst.CONFIG_DB_JSON_PATH))
     os.remove(LOCAL_CONFIG_DB_PATH)
+
+
+def save_config_into_json(engine, config_dict, config_file_name, dst_folder='/tmp'):
+    """
+    Save json config to file and upload to DUT dst folder
+    :param engine: ssh engine object
+    :param config_dict: dictionary which should be saved into json
+    :param config_file_name: config db content in json format
+    :param dst_folder: destination folder
+    :return: string with path to file on DUT
+    """
+    local_file_path = f'/tmp/{config_file_name}'
+    with open(local_file_path, 'w') as f:
+        json.dump(config_dict, f, indent=4)
+        # Python JSON dump misses last newline, so add the newline at the end of the file
+        f.write("\n")
+    engine.copy_file(source_file=local_file_path, dest_file=config_file_name,
+                     file_system=dst_folder, overwrite_file=True, verify_file=False)
+    os.remove(local_file_path)
+    path_to_file_on_dut = f'{dst_folder}/{config_file_name}'
+    return path_to_file_on_dut

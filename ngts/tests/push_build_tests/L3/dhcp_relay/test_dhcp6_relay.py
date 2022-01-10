@@ -1,14 +1,13 @@
 import allure
 import logging
 import pytest
-import time
 import os
+
+from retry.api import retry_call
 
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
 from ngts.cli_wrappers.linux.linux_ip_clis import LinuxIpCli
-from ngts.cli_wrappers.sonic.sonic_dhcp_relay_clis import SonicDhcpRelayCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
-from ngts.cli_util.stub_engine import StubEngine
 from ngts.cli_util.cli_parsers import show_vlan_brief_parser
 from ngts.helpers.network import get_bpf_filter_for_ipv6_address
 
@@ -27,13 +26,12 @@ RUN_DHCP6_CLIENT = LinuxDhcpCli.run_dhcp6_client
 DHCP6_CLIENT_STOP_CMD = LinuxDhcpCli.stop_dhcp6_client
 
 
-def get_ipv6_dhcp_relay_bpf_filter(s_port=547, d_port=547, upd_size=None, msg_type=None, msg_type_offset=48,
+def get_ipv6_dhcp_relay_bpf_filter(d_port=547, upd_size=None, msg_type=None, msg_type_offset=48,
                                    hop_count=None, hop_count_offset=49, relay_iface_addr=None, relay_iface_offset=50,
                                    client_link_local=None, client_link_local_offset=66, relay_msg_option=None,
                                    relay_msg_option_offset=None, second_hop_count=None, second_hop_count_offset=None):
     """
     This method create tcpdump filter for DHCPv6 relay test cases - according to provided arguments
-    :param s_port: packet src port
     :param d_port: packet dst port
     :param upd_size: packet size according to UDP header - DEC value
     :param msg_type: DHCP message type(relay-fwd, relay-reply) - HEX value
@@ -51,7 +49,7 @@ def get_ipv6_dhcp_relay_bpf_filter(s_port=547, d_port=547, upd_size=None, msg_ty
     :return: string with tcdpump filter, example: 'udp src port 547 and dst port 547 and ip6[44:2] == 102'
     """
 
-    tcpdump_filter = 'udp src port {s_port} and dst port {d_port}'.format(s_port=s_port, d_port=d_port)
+    tcpdump_filter = 'udp dst port {d_port}'.format(d_port=d_port)
     one_byte_size = 1
     two_bytes_size = 2
 
@@ -135,6 +133,7 @@ class TestDHCP6Relay:
         self.ha_dut_2_mac = ha_dut_2_mac
         self.hb_dut_2_mac = hb_dut_2_mac
         self.dut_mac = dut_mac
+        self.dut_cli_object = topology_obj.players['dut']['cli']
 
         self.dhcp_server_vlan = '69'
         self.dut_dhcp_server_vlan_iface_ip = '6900::1'
@@ -185,8 +184,9 @@ class TestDHCP6Relay:
         with allure.step('Verify that DHCP relay settings appear as expected in "show vlan brief"'):
             vlans_output = self.engines.dut.run_cmd('sudo show vlan brief')
             vlans_parsed_data = show_vlan_brief_parser(vlans_output)
-            assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_main_vlan]['dhcp_servers'], \
-                'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_main_vlan)
+            # TODO: uncomment validation in when support of multiple branches will be added
+            # assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_main_vlan]['dhcp_servers'], \
+            #     'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_main_vlan)
             # TODO: uncomment code below once https://redmine.mellanox.com/issues/2821847 will be fixed
             # assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_second_vlan]['dhcp_servers'], \
             #     'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_second_vlan)
@@ -196,10 +196,11 @@ class TestDHCP6Relay:
                     self.dhclient_main_iface)):
                 logger.info('Getting IPv6 address from main DHCP client VLAN iface: {}'.format(
                     self.dhclient_main_iface))
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                           dhclient_iface=self.dhclient_main_iface,
-                                           expected_ip=self.expected_main_vlan_ip)
+
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                  self.dhclient_main_iface, self.expected_main_vlan_ip],
+                           tries=3, delay=5)
 
             # TODO: uncomment code below once https://redmine.mellanox.com/issues/2821847 will be fixed
             # with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
@@ -223,24 +224,21 @@ class TestDHCP6Relay:
         server(dhcp request not forwarded)
         :return: raise exception in case of failure
         """
-        cleanup_engine = StubEngine()
         try:
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv4'.format(self.dhclient_main_vlan)):
-                SonicDhcpRelayCli.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '69.0.0.2')
-                SonicDhcpRelayCli.add_dhcp_relay(cleanup_engine, self.dhclient_main_vlan, '69.0.0.2')
-                time.sleep(10)  # need to sleep 10 sec due to DHCP docker restart which took ~5 sec
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '69.0.0.2')
 
             with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
                     self.dhclient_main_iface)):
                 logger.info('Trying to get IPv6 address - when IPv4 relay settings removed')
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                           dhclient_iface=self.dhclient_main_iface,
-                                           expected_ip=self.expected_main_vlan_ip)
+
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                  self.dhclient_main_iface, self.expected_main_vlan_ip],
+                           tries=3, delay=5)
 
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_main_vlan)):
-                SonicDhcpRelayCli.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '6900::2')
-                SonicDhcpRelayCli.add_dhcp_relay(cleanup_engine, self.dhclient_main_vlan, '6900::2')
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '6900::2')
 
             with allure.step('Trying to GET IPv6 address from DHCP server when DHCP relay settings removed, '
                              'iface: {}'.format(self.dhclient_main_iface)):
@@ -266,11 +264,12 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            self.engines.dut.run_cmd_set(cleanup_engine.commands_list)
-            verify_dhcp6_client_output(engine=self.engines.ha,
-                                       dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                       dhclient_iface=self.dhclient_main_iface,
-                                       expected_ip=self.expected_main_vlan_ip)
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '69.0.0.2')
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '6900::2')
+            retry_call(verify_dhcp6_client_output,
+                       fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                              self.dhclient_main_iface, self.expected_main_vlan_ip],
+                       tries=3, delay=5)
             LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
 
     @pytest.mark.dhcp6_relay
@@ -324,7 +323,7 @@ class TestDHCP6Relay:
         # DHCP response with few options - should forward only Relay content(without IAAdress)
         server_response_pkt = self.base_packet.format(dst_mac=self.dut_mac,
                                                       src_ip=self.dhcp_server_ip,
-                                                      dst_ip=self.dut_dhcp_server_vlan_iface_ip,
+                                                      dst_ip=self.dut_dhclient_main_vlan_ip,
                                                       s_port=LinuxDhcpCli.ipv6_server_src_port,
                                                       d_port=LinuxDhcpCli.ipv6_dst_port) + \
             'DHCP6_RelayReply(linkaddr="{link_addr}", peeraddr="{peer_addr}")/' \
@@ -558,10 +557,10 @@ class TestDHCP6Relay:
         """
         try:
             with allure.step('Getting IPv6 address from DHCP6 server when 2 DHCP6 servers configured and active'):
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                           dhclient_iface=self.dhclient_main_iface,
-                                           expected_ip=self.expected_main_vlan_ip)
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                  self.dhclient_main_iface, self.expected_main_vlan_ip],
+                           tries=3, delay=5)
 
             with allure.step('Release DHCP6 address from client'):
                 self.engines.ha.run_cmd(DHCP6_CLIENT_STOP_CMD.format(self.run_dhclient_main_iface))
@@ -570,10 +569,10 @@ class TestDHCP6Relay:
                 self.engines.hb.run_cmd(LinuxDhcpCli.dhcp_server_stop_cmd)
 
             with allure.step('Getting IPv6 from DHCP6 server when 2 DHCP6 servers configured and only second active'):
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                           dhclient_iface=self.dhclient_main_iface,
-                                           expected_ip=self.expected_main_vlan_ip)
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                  self.dhclient_main_iface, self.expected_main_vlan_ip],
+                           tries=3, delay=5)
 
             with allure.step('Release DHCP6 address from client'):
                 self.engines.ha.run_cmd(DHCP6_CLIENT_STOP_CMD.format(self.run_dhclient_main_iface))
@@ -592,10 +591,10 @@ class TestDHCP6Relay:
 
             with allure.step('Getting IPv6 address from DHCP6 server when 2 DHCP6 servers configured '
                              'and first only active'):
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                           dhclient_iface=self.dhclient_main_iface,
-                                           expected_ip=self.expected_main_vlan_ip)
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                  self.dhclient_main_iface, self.expected_main_vlan_ip],
+                           tries=3, delay=5)
 
             with allure.step('Release DHCP6 address from client'):
                 self.engines.ha.run_cmd(DHCP6_CLIENT_STOP_CMD.format(self.run_dhclient_main_iface))
@@ -604,10 +603,10 @@ class TestDHCP6Relay:
                 self.engines.ha.run_cmd(LinuxDhcpCli.dhcp_server_start_cmd)
 
             with allure.step('Getting IPv6 address from DHCP6 server when 2 DHCP6 servers configured and 2 active'):
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_main_iface),
-                                           dhclient_iface=self.dhclient_main_iface,
-                                           expected_ip=self.expected_main_vlan_ip)
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
+                                  self.dhclient_main_iface, self.expected_main_vlan_ip],
+                           tries=3, delay=5)
 
             with allure.step('Release DHCP6 address from client'):
                 self.engines.ha.run_cmd(DHCP6_CLIENT_STOP_CMD.format(self.run_dhclient_main_iface))

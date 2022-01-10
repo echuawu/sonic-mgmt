@@ -17,17 +17,13 @@ class DhcpRelayConfigTemplate:
         Example: {'dut': [{'vlan_id': 690, 'dhcp_servers': ['69.0.0.2', '6900::2']}]}
         """
         with allure.step('Applying DHCP Relay configuration'):
-            conf = {}
             for player_alias, configuration in dhcp_relay_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
-                stub_engine = StubEngine()
+                engine = topology_obj.players[player_alias]['engine']
                 for dhcp_relay_info in configuration:
                     vlan = dhcp_relay_info['vlan_id']
                     for dhcp_server in dhcp_relay_info['dhcp_servers']:
-                        cli_object.dhcp_relay.add_dhcp_relay(stub_engine, vlan, dhcp_server)
-                conf[player_alias] = stub_engine.commands_list
-            # here we perform parallel configuration
-            parallel_config_runner(topology_obj, conf)
+                        cli_object.dhcp_relay.add_dhcp_relay(engine, vlan, dhcp_server)
 
     @staticmethod
     def cleanup(topology_obj, dhcp_relay_config_dict):
@@ -38,14 +34,10 @@ class DhcpRelayConfigTemplate:
         Example: {'dut': [{'vlan_id': 690, 'dhcp_servers': ['69.0.0.2', '6900::2']}]}
         """
         with allure.step('Performing DHCP Relay configuration cleanup'):
-            conf = {}
             for player_alias, configuration in dhcp_relay_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
-                stub_engine = StubEngine()
+                engine = topology_obj.players[player_alias]['engine']
                 for dhcp_relay_info in configuration:
                     vlan = dhcp_relay_info['vlan_id']
                     for dhcp_server in dhcp_relay_info['dhcp_servers']:
-                        cli_object.dhcp_relay.del_dhcp_relay(stub_engine, vlan, dhcp_server)
-                conf[player_alias] = stub_engine.commands_list
-            # here we perform parallel cleaning-up
-            parallel_config_runner(topology_obj, conf)
+                        cli_object.dhcp_relay.del_dhcp_relay(engine, vlan, dhcp_server)

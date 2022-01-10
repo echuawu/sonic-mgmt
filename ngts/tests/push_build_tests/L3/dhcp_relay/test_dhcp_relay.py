@@ -5,10 +5,8 @@ import pytest
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
-from ngts.cli_wrappers.sonic.sonic_dhcp_relay_clis import SonicDhcpRelayCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from ngts.cli_util.stub_engine import StubEngine
 from retry.api import retry_call
 
 
@@ -42,6 +40,7 @@ class TestDHCPRelay:
         self.topology = topology_obj
         self.players = players
         self.dut_engine = engines.dut
+        self.dut_cli_object = topology_obj.players['dut']['cli']
         self.dhcp_client_engine = engines.ha
         self.dhcp_server_engine = engines.hb
         self.dhclient_vlan = '690'
@@ -72,11 +71,9 @@ class TestDHCPRelay:
     @pytest.mark.dhcp_relay
     @pytest.mark.skip(reason='https://github.com/Azure/sonic-utilities/pull/1269')
     def test_dhcp_relay_remove_dhcp_server(self):
-        cleanup_engine = StubEngine()
         try:
             with allure.step('Remove DHCP relay setting from DUT'):
-                SonicDhcpRelayCli.del_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip)
-                SonicDhcpRelayCli.add_dhcp_relay(cleanup_engine, self.dhclient_vlan, self.dhcp_server_ip)
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip)
 
             with allure.step('Trying to GET ip address from DHCP server when DHCP relay settings removed'):
                 assert LinuxDhcpCli.dhcp_client_no_offers in self.dhcp_client_engine.run_cmd(
@@ -85,7 +82,7 @@ class TestDHCPRelay:
             raise AssertionError(err)
         finally:
             LinuxDhcpCli.kill_all_dhcp_clients(self.dhcp_client_engine)
-            self.dut_engine.run_cmd_set(cleanup_engine.commands_list)
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip)
 
     @pytest.mark.dhcp_relay
     def test_dhcp_relay_release_message(self):

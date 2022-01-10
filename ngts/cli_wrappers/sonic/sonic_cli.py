@@ -24,7 +24,7 @@ logger = logging.getLogger()
 
 
 class SonicCli:
-    def __init__(self):
+    def __init__(self, topology):
         self.ip = SonicIpCli()
         self.lldp = SonicLldpCli()
         self.mac = SonicMacCli()
@@ -35,7 +35,7 @@ class SonicCli:
         self.vrf = SonicVrfCli()
         self.chassis = SonicChassisCli()
         self.general = SonicGeneralCli()
-        self.dhcp_relay = SonicDhcpRelayCli()
+        self.dhcp_relay = SonicDhcpRelayCli(topology=topology)
         self.ifconfig = SonicIfconfigCli()
         self.crm = SonicCrmCli()
         self.acl = SonicAclCli()

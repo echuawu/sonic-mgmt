@@ -683,6 +683,11 @@ class SonicGeneralCli(GeneralCliCommon):
         return json.loads(config_db_json)
 
     @staticmethod
+    def get_config_db_from_running_config(dut_engine):
+        config = dut_engine.run_cmd('sudo show runningconfiguration all', print_output=False)
+        return json.loads(config)
+
+    @staticmethod
     def is_spc1(cli_object, dut):
         """
         Function to check if the current DUT is SPC1

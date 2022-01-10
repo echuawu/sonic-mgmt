@@ -773,13 +773,43 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
-  - Branch:
-    - 202012
+# Ignore test on master image due to "config reload -y" during apply DHCPv6 relay config which cause errors in the logs
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
   - Redmine:
-    - 2838163
+    - 2922329
     Branch:
       - master
+      - 202012
+      - 202111
+      - HEAD # Ignore also on CI versions
+
+# Ignore test on master image due to "config reload -y" during apply DHCPv6 relay config which cause errors in the logs
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
+  - Redmine:
+    - 2922329
+    Branch:
+      - master
+      - 202012
+      - 202111
+      - HEAD # Ignore also on CI versions
+
+# Ignore test on master image due to ssue - DHCP6_RelayForward - not forwarded by relay
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_agent_message:
+  - Redmine:
+    - 2922407
+    Branch:
+      - master
+      - 202012
+      - 202111
+      - HEAD # Ignore also on CI versions
+
+# Ignore test on master image due to issue - dhcpv6 relay forward malformed packet
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
+  - Redmine:
+    - 2922412
+    Branch:
+      - master
+      - 202012
       - 202111
       - HEAD # Ignore also on CI versions
   - Redmine:

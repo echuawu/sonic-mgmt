@@ -132,7 +132,7 @@ def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
-            player_info['cli'] = SonicCli()
+            player_info['cli'] = SonicCli(topology)
         else:
             player_info['cli'] = LinuxCli()
 
@@ -270,3 +270,23 @@ def cleanup_last_config_in_stack(cleanup_list):
     """
     func, args = cleanup_list.pop()
     func(*args)
+
+
+@pytest.fixture(scope='session')
+def update_branch_in_topology(topology_obj):
+    """
+    Method which doing updated for SONiC branch in topology object
+    :param topology_obj: topology object
+    :return: method object - which can be called and update branch
+    """
+
+    def update_branch(topology):
+        try:
+            sonic_version_output = topology.players['dut']['engine'].run_cmd('sudo cat /etc/sonic/sonic_version.yml')
+            branch_regexp = r"branch:\s\'(.*)\'"
+            branch = re.search(branch_regexp, sonic_version_output, re.IGNORECASE).group(1)
+            topology_obj.players['dut']['branch'] = branch
+        except Exception as err:
+            logger.error(f'Can not update SONiC branch in topology object. Error: {err}')
+
+    return update_branch
