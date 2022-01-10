@@ -869,6 +869,12 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
   - Platform:
     - simx
 
+tests/push_build_tests/L3/crm/test_crm.py:
+  - Redmine:
+    - 2929718
+    Branch:
+    - 202012
+
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_nexthop:
   - Redmine:
     - 2909197
