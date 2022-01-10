@@ -19,6 +19,7 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
     - 2886337
     Branch:
     - master
+    - 202111
 
 # warm reboot
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
@@ -26,12 +27,14 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
     - 2886337
     Branch:
     - master
+    - 202111
 
 platform_tests/test_sensors.py::test_sensors:
   - Redmine:
     - 2815265
     Branch:
     - master
+    - 202111
 
 # pfc_asym(RPC)
 pfc_asym/test_pfc_asym.py::test_pfc_asym_off_tx_pfc:
@@ -147,6 +150,7 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
     - 2885445
     Branch:
     - master
+    - 202111
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
@@ -160,6 +164,7 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   - Branch:
     - master
+    - 202111
     Redmine:
     - 2878715
     - 2885445
@@ -167,6 +172,7 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   - Branch:
     - master
+    - 202111
     Platform:
     - 3700
     - 4600
@@ -193,6 +199,7 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
     - 2010
     Branch:
     - master
+    - 202111
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_sequential_restart.py::test_restart_swss:
@@ -240,6 +247,7 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
     - 2100
     Branch:
     - master
+    - 202111
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
   - Redmine:
@@ -248,12 +256,14 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
     - 2100
     Branch:
     - master
+    - 202111
 
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
   - Redmine:
     - 2885445
     Branch:
     - master
+    - 202111
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
   - Branch:
@@ -666,6 +676,7 @@ sflow/test_sflow.py:
     - 2886553
     Branch:
     - master
+    - 202111
 
 # pbh
 ecmp/inner_hashing:
@@ -732,6 +743,7 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
     - 2838163
     Branch:
     - master
+    - 202111
   - Branch:
     - 202012
 
@@ -768,6 +780,7 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
     - 2838163
     Branch:
       - master
+      - 202111
       - HEAD # Ignore also on CI versions
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
@@ -824,6 +837,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     - 2876984
     Branch:
     - master
+    - 202111
   - Platform:
     - simx
 
@@ -847,6 +861,7 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
     - 2903370
     Branch:
     - master
+    - 202111
     - Platform:
       - 3700
 
@@ -863,6 +878,7 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
     - 2903370
     Branch:
     - master
+    - 202111
     - Platform:
       - 3700
 
