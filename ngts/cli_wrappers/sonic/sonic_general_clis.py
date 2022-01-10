@@ -316,10 +316,11 @@ class SonicGeneralCli(GeneralCliCommon):
             with allure.step("Apply port_config.ini and config_db.json"):
                 SonicGeneralCli.apply_basic_config(topology_obj, dut_engine, cli_object, setup_name, platform_params)
             with allure.step("Apply qos and dynamic buffer"):
-                # Once master and 202106 support the feature, will remove the version check
-                if "202012" == SonicGeneralCli.get_image_sonic_version(dut_engine):
+                # Now all branches above 201911 except for 202106 support the feature
+                if "202106" != SonicGeneralCli.get_image_sonic_version(dut_engine):
                     SonicQosCli.reload_qos(dut_engine)
                     SonicGeneralCli.save_configuration(dut_engine)
+                    dut_engine.reload(['sudo reboot'])
 
         if wjh_deb_url:
             with allure.step("Installing wjh deb url"):
