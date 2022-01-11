@@ -12,7 +12,6 @@ from ngts.helpers.arp_helper import verify_arp_entry_in_arp_table,\
     send_arp_request_and_check_update_corresponding_entry_into_arp_table
 from ngts.cli_wrappers.common.ip_clis_common import IpCliCommon
 from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
-from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.helpers.network import gen_new_mac_based_old_mac
 from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
@@ -22,7 +21,8 @@ logger = logging.getLogger()
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test corresponding arp is clean after dut shutdown the specified interface')
-def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, players, pre_test_interface_data, interface_type):
+def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, players, cli_objects,
+                                                                       pre_test_interface_data, interface_type):
     """
     Verify that a dynamic arp entry is removed after shutting down the link on which it was learnt.
     1. Host A sends ARP request for broadcast
@@ -31,6 +31,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
     3. Verify the arp entry related to the interface will be cleaned
     :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli_objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     :param interface_type: interface type
     """
@@ -45,7 +46,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
 
         with allure.step("Shutdown DUT interface:".format(interface_data["dut_interface"])):
             if interface_type is "vlan":
-                SonicVlanCli.shutdown_vlan(engines.dut, interface_data["dut_vlan_id"])
+                cli_objects.dut.vlan.shutdown_vlan(engines.dut, interface_data["dut_vlan_id"])
             else:
                 SonicInterfaceCli.disable_interface(engines.dut, interface_data["dut_interface"])
 
@@ -59,7 +60,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
         raise AssertionError(err)
     finally:
         if interface_type is "vlan":
-            SonicVlanCli.startup_vlan(engines.dut, interface_data["dut_vlan_id"])
+            cli_objects.dut.vlan.startup_vlan(engines.dut, interface_data["dut_vlan_id"])
         else:
             SonicInterfaceCli.enable_interface(engines.dut, interface_data["dut_interface"])
 
@@ -299,7 +300,7 @@ def test_arp_gratuitous_with_arp_update(engines, players, pre_test_interface_dat
 
 
 @allure.title('test arp proxy')
-def test_arp_proxy(engines, players, interfaces, pre_test_interface_data):
+def test_arp_proxy(engines, players, cli_objects, interfaces, pre_test_interface_data):
     """
     Verify arp behavior when arp proxy is disable/enable in one l2 domain
     1. Disable arp proxy in vlan 40
@@ -312,6 +313,7 @@ def test_arp_proxy(engines, players, interfaces, pre_test_interface_data):
     8. Recover the arp proxy to the default value by disabling it
     :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli_objects fixture
     :param interfaces: interfaces fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     """
@@ -321,7 +323,7 @@ def test_arp_proxy(engines, players, interfaces, pre_test_interface_data):
             logger.info("interface test data  is: {}".format(interface_data))
         with allure.step('Disable arp proxy and check arp behavior'):
             with allure.step('Disable arp proxy'):
-                SonicVlanCli.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
+                cli_objects.dut.vlan.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
             with allure.step(
                     "Host A Send a broadcast arp request to host B, and Host B reply it"):
                 host_b_ip = "40.0.0.10"
@@ -339,7 +341,7 @@ def test_arp_proxy(engines, players, interfaces, pre_test_interface_data):
 
         with allure.step('Enable arp proxy and check arp behavior'):
             with allure.step('Enable arp proxy'):
-                SonicVlanCli.enable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
+                cli_objects.dut.vlan.enable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
             with allure.step(
                     "Host A Send a broadcast arp request to host B, and DUT reply it"):
                 interface_data["dut_mac"] = dut_mac
@@ -349,4 +351,4 @@ def test_arp_proxy(engines, players, interfaces, pre_test_interface_data):
         raise AssertionError(err)
     finally:
         with allure.step('Recover the default config of arp proxy by disabing arp proxy'):
-            SonicVlanCli.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
+            cli_objects.dut.vlan.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])

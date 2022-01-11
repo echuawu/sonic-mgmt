@@ -14,20 +14,18 @@ logger = logging.getLogger()
 class SonicDhcpRelayCli:
 
     def __new__(cls, **kwargs):
-        topology = kwargs['topology']
-        branch = topology.players['dut'].get('branch')
+        branch = kwargs['branch']
 
-        supported_branches = {'default': SonicDhcpRelayCliDefault(),
-                              'master': SonicDhcpRelayCliMaster(),
-                              '202012': SonicDhcpRelayCli202012(),
-                              '202111': SonicDhcpRelayCli202111()}
+        supported_cli_classes = {'default': SonicDhcpRelayCliDefault(),
+                                 'master': SonicDhcpRelayCliMaster(),
+                                 '202012': SonicDhcpRelayCli202012(),
+                                 '202111': SonicDhcpRelayCli202111()}
 
-        if supported_branches.get(branch):
-            logger.info(f'Going to use custom DHCP relay CLI class for SONiC branch: {branch}')
-        else:
-            logger.warning(f'Can not get DHCP relay CLI class for SONiC branch: {branch}, '
-                           f'default DHCP relay CLI class will be used.')
-        return supported_branches.get(branch, supported_branches['default'])
+        cli_class = supported_cli_classes.get(branch, supported_cli_classes['default'])
+        cli_class_name = cli_class.__class__.__name__
+        logger.info(f'Going to use DHCP relay CLI class: {cli_class_name}')
+
+        return cli_class
 
 
 class SonicDhcpRelayCliDefault:
@@ -69,6 +67,42 @@ class SonicDhcpRelayCliDefault:
     @staticmethod
     def del_ipv6_dhcp_relay(engine, vlan, dhcp_server):
         return engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
+
+    @staticmethod
+    def get_ipv4_dhcp_relay_cli_config_dict(engine, cli_obj):
+        return cli_obj.vlan.get_show_vlan_brief_parsed_output(engine)
+
+    @staticmethod
+    def get_ipv6_dhcp_relay_cli_config_dict(engine, cli_obj):
+        return cli_obj.vlan.get_show_vlan_brief_parsed_output(engine)
+
+    @staticmethod
+    def validate_dhcp_relay_cli_config_ipv4(vlan_brief_parsed_output, vlan, expected_dhcp_servers_list):
+        """
+        This method doing DHCP relay IPv4 CLI validation in "show vlan brief" output
+        :param vlan_brief_parsed_output: dict, parsed output of cmd "show vlan brief"
+        :param vlan: vlan in which we will do validation
+        :param expected_dhcp_servers_list: list, expected DHCP relay servers
+        :return: AssertionError in case of failure
+        """
+        for dhcp_server in expected_dhcp_servers_list:
+            logger.info(f'Checking that DHCP relay: {dhcp_server} available in CLI config for VLAN: {vlan}')
+            assert dhcp_server in vlan_brief_parsed_output[vlan]['dhcp_servers'], \
+                f'Unable to find DHCP relay {dhcp_server} in "show vlan brief" output for VLAN {vlan}'
+
+    @staticmethod
+    def validate_dhcp_relay_cli_config_ipv6(vlan_brief_parsed_output, vlan, expected_dhcp_servers_list):
+        """
+        This method doing DHCP relay IPv6 CLI validation in "show vlan brief" output
+        :param vlan_brief_parsed_output: dict, parsed output of cmd "show vlan brief"
+        :param vlan: vlan in which we will do validation
+        :param expected_dhcp_servers_list: list, expected DHCP relay servers
+        :return: AssertionError in case of failure
+        """
+        for dhcp_server in expected_dhcp_servers_list:
+            logger.info(f'Checking that DHCP relay: {dhcp_server} available in CLI config for VLAN: {vlan}')
+            assert dhcp_server in vlan_brief_parsed_output[vlan]['dhcp_servers'], \
+                f'Unable to find DHCP relay {dhcp_server} in "show vlan brief" output for VLAN {vlan}'
 
 
 class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
@@ -207,6 +241,64 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
             config_db['VLAN'][vlan_iface].pop('dhcpv6_servers')
 
         return config_db
+
+    @staticmethod
+    def parse_show_dhcprelay_helper_ipv6_as_dict(engine):
+        """
+        Parse output of command "show dhcprelay_helper ipv6" and return result as dict
+        :param engine: ssh engine object
+        :return: dict, example: {'Vlan690': ['6900::2', '6900::3'], 'Vlan691': ['6900::2']}
+        """
+        result = {}
+        output = engine.run_cmd('show dhcprelay_helper ipv6')
+        """
+        Example of output:
+        -------  -------
+        Vlan690  6900::2
+                 6900::3
+        -------  -------
+
+        -------  -------
+        Vlan691  6900::2
+        -------  -------
+        """
+        vlan = None
+        for line in output.splitlines():
+            if '----' not in line and line:
+                # Example of splited_line : ['Vlan690', '6900::2'] or ['6900::3']
+                splited_line = line.split()
+                if len(splited_line) == 2:
+                    vlan = splited_line[0]
+                    relay_ip = splited_line[1]
+                    result[vlan] = [relay_ip]
+                else:
+                    relay_ip = splited_line[0]
+                    result[vlan].append(relay_ip)
+
+        return result
+
+    @staticmethod
+    def get_ipv4_dhcp_relay_cli_config_dict(engine, cli_obj):
+        return cli_obj.vlan.get_show_vlan_brief_parsed_output(engine)
+
+    @staticmethod
+    def get_ipv6_dhcp_relay_cli_config_dict(engine, cli_obj):
+        return cli_obj.dhcp_relay.parse_show_dhcprelay_helper_ipv6_as_dict(engine)
+
+    @staticmethod
+    def validate_dhcp_relay_cli_config_ipv6(dhcprelay_helper_ipv6_output_dict, vlan, expected_dhcp_servers_list):
+        """
+        This method doing DHCP relay CLI IPv6 validation in "show dhcprelay_helper ipv6" output
+        :param dhcprelay_helper_ipv6_output_dict: output of cmd "show dhcprelay_helper ipv6" parsed as dict
+        :param vlan: vlan in which we will do validation
+        :param expected_dhcp_servers_list: list, expected DHCP relay servers
+        :return: AssertionError in case of failure
+        """
+        for dhcp_server in expected_dhcp_servers_list:
+            vlan_iface = f'Vlan{vlan}'
+            logger.info(f'Checking that DHCP relay: {dhcp_server} available in CLI config for VLAN: {vlan}')
+            assert dhcp_server in dhcprelay_helper_ipv6_output_dict[vlan_iface], \
+                f'Unable to find DHCP relay {dhcp_server} in "show dhcprelay_helper ipv6" output for VLAN {vlan}'
 
 
 class SonicDhcpRelayCli202012(SonicDhcpRelayCliMaster):

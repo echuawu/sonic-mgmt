@@ -8,7 +8,6 @@ from retry.api import retry_call
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
 from ngts.cli_wrappers.linux.linux_ip_clis import LinuxIpCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
-from ngts.cli_util.cli_parsers import show_vlan_brief_parser
 from ngts.helpers.network import get_bpf_filter_for_ipv6_address
 
 
@@ -182,11 +181,11 @@ class TestDHCP6Relay:
         """
 
         with allure.step('Verify that DHCP relay settings appear as expected in "show vlan brief"'):
-            vlans_output = self.engines.dut.run_cmd('sudo show vlan brief')
-            vlans_parsed_data = show_vlan_brief_parser(vlans_output)
-            # TODO: uncomment validation in when support of multiple branches will be added
-            # assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_main_vlan]['dhcp_servers'], \
-            #     'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_main_vlan)
+            dhcpv6_relays_dict = self.dut_cli_object.dhcp_relay.get_ipv6_dhcp_relay_cli_config_dict(self.engines.dut,
+                                                                                                    self.dut_cli_object)
+            self.dut_cli_object.dhcp_relay.validate_dhcp_relay_cli_config_ipv6(dhcpv6_relays_dict,
+                                                                               self.dhclient_main_vlan,
+                                                                               [self.dhcp_server_ip])
             # TODO: uncomment code below once https://redmine.mellanox.com/issues/2821847 will be fixed
             # assert self.dhcp_server_ip in vlans_parsed_data[self.dhclient_second_vlan]['dhcp_servers'], \
             #     'Unable to find DHCP relay settings in VLAN output for VLAN {}'.format(self.dhclient_second_vlan)

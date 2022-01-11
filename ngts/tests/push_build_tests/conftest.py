@@ -15,7 +15,6 @@ from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
-from ngts.cli_wrappers.sonic.sonic_vlan_clis import SonicVlanCli
 from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from ngts.constants.constants import SonicConst
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
@@ -227,7 +226,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         logger.info('PushGate Common configuration completed')
 
         with allure.step('Doing debug logs print'):
-            log_debug_info(engines.dut)
+            log_debug_info(engines.dut, cli_object)
 
         with allure.step('Doing conf save'):
             logger.info('Doing config save')
@@ -308,11 +307,11 @@ def p4_sampling_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb
     return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
 
 
-def log_debug_info(dut_engine):
+def log_debug_info(dut_engine, cli_obj):
     logger.info('Started debug prints')
     SonicInterfaceCli.show_interfaces_status(dut_engine)
     SonicIpCli.show_ip_interfaces(dut_engine)
-    SonicVlanCli.show_vlan_config(dut_engine)
+    cli_obj.vlan.show_vlan_config(dut_engine)
     SonicRouteCli.show_ip_route(dut_engine)
     SonicRouteCli.show_ip_route(dut_engine, ipv6=True)
     SonicVxlanCli.show_vxlan_tunnel(dut_engine)
