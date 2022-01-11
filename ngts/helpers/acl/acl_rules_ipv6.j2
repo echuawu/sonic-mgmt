@@ -1,0 +1,24 @@
+{
+    "ACL_RULE": {
+        "{{ acl_table_name }}|RULE_1": {
+            "PACKET_ACTION": "FORWARD",
+            "PRIORITY": "9999",
+            "SRC_IPV6": "{{forward_src_ip_match}}"
+        },
+        "{{ acl_table_name }}|RULE_2": {
+            "DST_IPV6": "{{forward_dst_ip_match}}",
+            "PACKET_ACTION": "FORWARD",
+            "PRIORITY": "9998"
+        },
+        "{{ acl_table_name }}|RULE_3": {
+            "PACKET_ACTION": "DROP",
+            "PRIORITY": "9986",
+            "SRC_IPV6": "{{drop_src_ip_match}}"
+        },
+        "{{ acl_table_name }}|RULE_4": {
+            "DST_IPV6": "{{drop_dst_ip_match}}",
+            "PACKET_ACTION": "DROP",
+            "PRIORITY": "9985"
+        }
+    }
+}

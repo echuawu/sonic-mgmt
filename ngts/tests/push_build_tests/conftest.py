@@ -2,6 +2,7 @@ import pytest
 import logging
 import allure
 import os
+import itertools
 
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
@@ -24,6 +25,9 @@ from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
 from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
 from ngts.conftest import update_topology_with_cli_class
+import ngts.helpers.acl_helper as acl_helper
+from ngts.helpers.acl_helper import ACLConstants
+
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
@@ -42,7 +46,7 @@ def get_app_ext_info(engine):
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params,
-                            app_extension_dict_path, update_branch_in_topology):
+                            app_extension_dict_path, update_branch_in_topology, acl_table_config_list):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -211,14 +215,14 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
                 fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
-        logger.info('PushGate Common configuration completed')
-
         with allure.step('Doing debug logs print'):
             log_debug_info(engines.dut, cli_object)
 
         with allure.step('Doing conf save'):
             logger.info('Doing config save')
             cli_object.general.save_configuration(engines.dut)
+
+        logger.info('PushGate Common configuration completed')
 
         if upgrade_params.is_upgrade_required:
             with allure.step('Doing upgrade to target version'):
@@ -314,3 +318,42 @@ def install_app(dut_engine, app_name, app_repository_name, version):
             SonicAppExtensionCli.enable_app(dut_engine, app_name)
     except Exception as err:
         raise AssertionError(err)
+
+
+@pytest.fixture(scope='package')
+def acl_table_config_list(engines, interfaces):
+    """
+    The acl table config list fixture, which will return the list acl tables config params
+    :param engines: engines fixture
+    :param interfaces: interfaces fixture
+    return: list of dictionary,the item of the list include all the information used to created one acl table and
+    the acl rules for this table
+            example:[{'table_name': 'DATA_INGRESS_L3TEST',
+                    'table_ports': ['Ethernet236'],
+                    'table_stage': 'ingress',
+                    'table_type': 'L3',
+                    'rules_template_file': 'acl_rules_ipv4.j2',
+                    'rules_template_file_args': {
+                            'acl_table_name': 'DATA_INGRESS_L3TEST',
+                            'ether_type': '2048',
+                            'forward_src_ip_match':
+                            '10.0.1.2/32',
+                            'forward_dst_ip_match': '121.0.0.2/32',
+                            'drop_src_ip_match': '10.0.1.6/32',
+                            'drop_dst_ip_match': '123.0.0.2/32',
+                            'unmatch_dst_ip': '125.0.0.2/32',
+                            'unused_src_ip': '10.0.1.11/32',
+                            'unused_dst_ip': '192.168.0.1/32'}}, ...]
+    """
+    ip_version_list = ACLConstants.IP_VERSION_LIST
+    stage_list = ACLConstants.STAGE_LIST
+    port_list = [interfaces.dut_ha_2]
+    acl_table_config_list = []
+    for ip_version, stage in itertools.product(ip_version_list, stage_list):
+        acl_table_config_list.append(acl_helper.generate_acl_table_config(stage, ip_version, port_list))
+    logger.info("Creating temporary folder \"{}\" for ACL test".format(ACLConstants.DUT_ACL_TMP_DIR))
+    engines.dut.run_cmd("mkdir -p {}".format(ACLConstants.DUT_ACL_TMP_DIR))
+
+    yield acl_table_config_list
+    logger.info("Removing temporary directory \"{}\"".format(ACLConstants.DUT_ACL_TMP_DIR))
+    engines.dut.run_cmd("rm -rf {}".format(ACLConstants.DUT_ACL_TMP_DIR))

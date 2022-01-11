@@ -61,24 +61,54 @@ def generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset
     for line in data:
         if line == '':
             continue
-        base_position = 0
-        line_dict = {}
-        for column_len in column_lens:
-            new_position = base_position + len(column_len)
-            header_name = get_column_header_name(
-                headers_lines, base_position, new_position)
-            line_dict[header_name] = line[base_position:new_position].strip()
-            base_position = new_position + column_ofset
+        first_column_item = line[:len(column_lens[0])].strip()
+        if first_column_item:
+            line_dict = {}
+        parse_line_data_to_dict(line, line_dict, column_lens, headers_lines, column_ofset)
         if output_key:
-            last_line_key = update_result_dict(
-                line_dict, output_key, last_line_key, result_dict)
-        else:
+            last_line_key = update_result_dict(line_dict, output_key, last_line_key, result_dict)
+        elif first_column_item:
             result_list.append(line_dict)
 
     if output_key:
         return result_dict
     else:
         return result_list
+
+
+def parse_line_data_to_dict(line, line_dict, column_lens, headers_lines, column_ofset):
+    """
+    Parse the line data from string to the dict, the line data will be updated to line_dict.
+    :param line: the origin line data in string format
+    :param line_dict: dictionary which is used to save the data in the line in string format
+    :param column_lens: the column length list
+    :param headers_lines: the headers name content
+    :param column_ofset: Number of spaces between columns in output(usually 2)
+    :return: None
+        Example: the line can be one of line of the following content, for the RULE_1, it has more than one line,
+        in this function need to do the special process of it.
+            Table                  Rule    Priority    Action    Match
+            ---------------------  ------  ----------  --------  --------------------------
+            DATA_EGRESS_L3TEST     RULE_1  9999        FORWARD   ETHER_TYPE: 2048
+                                                                 SRC_IP: 30.0.0.2/32
+            DATA_EGRESS_L3V6TEST   RULE_1  9999        FORWARD   SRC_IPV6: 80c0:a800::2/128
+    """
+    base_position = 0
+    for column_len in column_lens:
+        new_position = base_position + len(column_len)
+        header_name = get_column_header_name(headers_lines, base_position, new_position)
+        item_value = line[base_position:new_position].strip()
+        if header_name in line_dict:
+            # if line_dict has header_name, it means that one item occupy more than one line,
+            # then the corresponding value should be a list
+            if item_value:
+                if not isinstance(line_dict[header_name], list):
+                    line_dict[header_name] = [line_dict[header_name]]
+                line_dict[header_name].append(item_value)
+        else:
+            line_dict[header_name] = item_value
+        base_position = new_position + column_ofset
+    return line_dict
 
 
 def get_column_header_name(headers_lines, base_position, new_position):

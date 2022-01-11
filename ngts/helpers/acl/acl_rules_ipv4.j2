@@ -1,0 +1,28 @@
+{
+    "ACL_RULE": {
+        "{{ acl_table_name }}|RULE_1": {
+            "ETHER_TYPE": {{ether_type}},
+            "PACKET_ACTION": "FORWARD",
+            "PRIORITY": "9999",
+            "SRC_IP": "{{forward_src_ip_match}}"
+        },
+        "{{ acl_table_name }}|RULE_2": {
+            "DST_IP": "{{forward_dst_ip_match}}",
+            "ETHER_TYPE": {{ether_type}},
+            "PACKET_ACTION": "FORWARD",
+            "PRIORITY": "9998"
+        },
+        "{{ acl_table_name }}|RULE_3": {
+            "ETHER_TYPE": {{ether_type}},
+            "PACKET_ACTION": "DROP",
+            "PRIORITY": "9986",
+            "SRC_IP": "{{drop_src_ip_match}}"
+        },
+        "{{ acl_table_name }}|RULE_4": {
+            "DST_IP": "{{drop_dst_ip_match}}",
+            "ETHER_TYPE": {{ether_type}},
+            "PACKET_ACTION": "DROP",
+            "PRIORITY": "9985"
+        }
+    }
+}
