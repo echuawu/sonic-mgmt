@@ -156,12 +156,6 @@ def pytest_addoption(parser):
                      help="Define the loop times of the test")
 
 
-@pytest.fixture(scope='session', autouse=True)
-def tmp_sonic_version_fix(duthost):
-    out = duthost.shell('cat /etc/sonic/sonic_version.yml')
-    if "release: 'none'" in out["stdout_lines"]:
-        duthost.shell('sudo sed -e "s/release\: \'none\'/release\: \'202106\'/g" -i /etc/sonic/sonic_version.yml')
-
 @pytest.fixture(scope="session", autouse=True)
 def enhance_inventory(request):
     """
