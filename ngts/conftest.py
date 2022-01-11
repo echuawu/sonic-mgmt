@@ -23,6 +23,7 @@ from ngts.constants.constants import SonicConst, PytestConst
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.helpers.sonic_branch_helper import get_sonic_branch
 
 logger = logging.getLogger()
 
@@ -208,15 +209,13 @@ def sonic_version(engines):
 
 
 @pytest.fixture(scope='session')
-def sonic_branch(sonic_version):
+def sonic_branch(topology_obj):
     """
-    Pytest fixture which are returning current SONiC branch
-    :param sonic_version: sonic image version, Example: SONiC.202012.175-84b565937_Internal
+    Pytest fixture which are returning current SONiC branch which defined in the /etc/sonic/sonic_version.yml
+    :param topology_obj: topology_obj fixture
     :return: the branch name
     """
-
-    branch_index = 1
-    return sonic_version.split('.')[branch_index]
+    return get_sonic_branch(topology_obj)
 
 
 @pytest.fixture(scope='session')
@@ -298,10 +297,8 @@ def update_branch_in_topology(topology_obj):
 
     def update_branch(topology):
         try:
-            sonic_version_output = topology.players['dut']['engine'].run_cmd('sudo cat /etc/sonic/sonic_version.yml')
-            branch_regexp = r"branch:\s\'(.*)\'"
-            branch = re.search(branch_regexp, sonic_version_output, re.IGNORECASE).group(1)
-            topology_obj.players['dut']['branch'] = branch
+            branch = get_sonic_branch(topology)
+            topology.players['dut']['branch'] = branch
         except Exception as err:
             logger.error(f'Can not update SONiC branch in topology object. Error: {err}')
 

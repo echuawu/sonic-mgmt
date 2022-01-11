@@ -30,11 +30,9 @@ def _parse_args():
 
 
 def get_sonic_branch(duthost):
-    show_ver_output = duthost.run('show version').stdout
-    image_ver = re.search(r'SONiC\sSoftware\sVersion:\s(.*)', show_ver_output, re.IGNORECASE).group(1)
-    # image_ver = SONiC.202012.175-84b565937_Internal
-    branch_index = 1
-    branch = image_ver.split('.')[branch_index]
+    branch = duthost.run("sonic-cfggen -y /etc/sonic/sonic_version.yml -v release").stdout
+    if branch == "none":
+        branch = "master"
     return branch
 
 

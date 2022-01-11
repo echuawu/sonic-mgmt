@@ -29,6 +29,7 @@ class SonicOnieCli:
     """
     This class defines methods over Onie
     """
+
     def __init__(self, host_ip, fw_pkg_path=None, platform_params=None):
         self.ip = host_ip
         self.engine = None
