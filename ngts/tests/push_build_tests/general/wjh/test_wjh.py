@@ -272,17 +272,27 @@ def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_
         pytest.fail("Could not find drop in WJH {} table".format(table_type[0]))
 
     if drop_reason in ['buffer_congestion', 'buffer_latency']:
-        check_buffer_info_table(parsed_tables[1], result['entry'], drop_reason, table_types[0])
+        check_buffer_info_table(parsed_tables[1], result['entry'], drop_reason, table_types[0],
+                                is_dynamic_buffer_configured(engines))
 
 
-def check_buffer_info_table(table, entry, drop_reason, table_type):
+def is_dynamic_buffer_configured(engines):
+    get_buffer_mode_cmd = 'redis-cli -n 4 hget "DEVICE_METADATA|localhost" buffer_model'
+    buffer_mode = engines.dut.run_cmd(get_buffer_mode_cmd)
+    return buffer_mode.strip('"') == "dynamic"
+
+
+def check_buffer_info_table(table, entry, drop_reason, table_type, is_dynamic_buffer=False):
     """
     A function that checks the WJH buffer info table
     :param table: buffer info table
     :param entry: entry which found on raw/agg table
     :param drop_reason: drop reason
     :param table_type: table type (raw/agg)
+    :param is_dynamic_buffer: whether dynamic or static buffer mode is configured
     """
+    logger.info(f'Validating buffer table. Table type is:{table_type}, '
+                f'is dynamic buffer configured:{is_dynamic_buffer}')
     index = entry['#']
     entry_found = False
 
@@ -291,6 +301,8 @@ def check_buffer_info_table(table, entry, drop_reason, table_type):
     latency = "N/A"
     tc_watermark = "N/A"
     latency_watermark = "N/A"
+
+    expected_tc_id = '1' if is_dynamic_buffer else '0'
 
     for key in table:
         entry = table[key]
@@ -312,21 +324,21 @@ def check_buffer_info_table(table, entry, drop_reason, table_type):
 
     if (table_type == 'raw'):
         if drop_reason == 'buffer_congestion':
-            if (tc_id == '0' and tc_usage != "N/A" and int(tc_usage) > 0 and latency == "N/A" and
+            if (tc_id == expected_tc_id and tc_usage != "N/A" and int(tc_usage) > 0 and latency == "N/A" and
                     tc_watermark == "N/A" and latency_watermark == "N/A"):
                 return
         elif drop_reason == 'buffer_latency':
-            if (tc_id == '0' and tc_usage != "N/A" and int(tc_usage) > 0 and latency != "N/A" and
+            if (tc_id == expected_tc_id and tc_usage != "N/A" and int(tc_usage) > 0 and latency != "N/A" and
                     int(latency) > 0 and tc_watermark == "N/A" and latency_watermark == "N/A"):
                 return
 
     elif (table_type == 'agg'):
         if drop_reason == 'buffer_congestion':
-            if (tc_id == '0' and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
+            if (tc_id == expected_tc_id and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
                     int(tc_watermark) > 0 and latency_watermark == "N/A"):
                 return
         elif (drop_reason == "buffer_latency"):
-            if (tc_id == '0' and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
+            if (tc_id == expected_tc_id and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
                     int(tc_watermark) > 0 and latency_watermark != "N/A" and int(latency_watermark) > 0):
                 return
 
