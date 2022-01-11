@@ -174,7 +174,7 @@ def setup_vlan(duthosts, rand_one_dut_hostname, ptfadapter, tbinfo, work_vlan_po
             res = duthost.command('show int portchannel')
             logger.info('"show int portchannel" output on DUT:\n{}'.format(pprint.pformat(res['stdout_lines'])))
 
-            populate_fdb(ptfadapter, work_vlan_ports_list, vlan_intfs_dict, duthost)
+            populate_fdb(ptfadapter, work_vlan_ports_list, vlan_intfs_dict)
     # --------------------- Testing -----------------------
         yield
     # --------------------- Teardown -----------------------
