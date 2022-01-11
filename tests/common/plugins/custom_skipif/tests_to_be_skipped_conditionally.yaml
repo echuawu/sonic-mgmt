@@ -76,12 +76,20 @@ everflow/test_everflow_testbed.py:
     - 2929366
     Branch:
     - master
+  - Redmine:
+    - 2931441
+    Branch:
+    - 202012
 
 everflow/test_everflow_ipv6.py:
   - Redmine:
     - 2929366
     Branch:
     - master
+  - Redmine:
+    - 2931441
+    Branch:
+    - 202012
 
 # dhcp_relay
 dhcp_relay/test_dhcp_relay.py:
@@ -89,12 +97,20 @@ dhcp_relay/test_dhcp_relay.py:
     - 2929366
     Branch:
     - master
+  - Redmine:
+    - 2931441
+    Branch:
+    - 202012
 
 dhcp_relay/test_dhcpv6_relay.py:
   - Redmine:
     - 2929366
     Branch:
     - master
+  - Redmine:
+    - 2931441
+    Branch:
+    - 202012
 
 # copp
 copp/test_copp.py::TestCOPP::test_counter:
@@ -132,6 +148,10 @@ platform_tests/link_flap/test_link_flap.py:
     - 2929366
     Branch:
     - master
+  - Redmine:
+    - 2931441
+    Branch:
+    - 202012
 
 platform_tests/test_port_toggle.py:
   - Redmine:
