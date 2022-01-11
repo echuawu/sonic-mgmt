@@ -779,7 +779,6 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
       - master
       - 202012
       - 202111
-      - HEAD # Ignore also on CI versions
 
 # Ignore test on master image due to "config reload -y" during apply DHCPv6 relay config which cause errors in the logs
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
@@ -789,7 +788,6 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
       - master
       - 202012
       - 202111
-      - HEAD # Ignore also on CI versions
 
 # Ignore test on master image due to ssue - DHCP6_RelayForward - not forwarded by relay
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_agent_message:
@@ -799,7 +797,6 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
       - master
       - 202012
       - 202111
-      - HEAD # Ignore also on CI versions
 
 # Ignore test on master image due to issue - dhcpv6 relay forward malformed packet
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
@@ -809,12 +806,6 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
       - master
       - 202012
       - 202111
-      - HEAD # Ignore also on CI versions
-  - Redmine:
-    - 2923657
-    Branch:
-      - fix-thermal-202012
-      - HEAD
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
