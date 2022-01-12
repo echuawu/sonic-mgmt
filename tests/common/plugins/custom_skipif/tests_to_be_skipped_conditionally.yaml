@@ -719,10 +719,6 @@ vxlan/test_vnet_vxlan.py::test_vnet_vxlan[Enabled]:
   - Redmine:
     - 2833049
 
-#vlan
-vlan/test_vlan.py::test_vlan_tc5_untagged_unicast:
-  - Redmine:
-    - 2859704
 
 ########## Canonical ##########
 # Nightly
