@@ -2,6 +2,7 @@ import pytest
 import os
 
 from ngts.cli_wrappers.linux.linux_route_clis import LinuxRouteCli
+from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemplate
 
 DHCPD_CONF_NAME = 'dhcpd.conf'
 DHCPD6_CONF_NAME = 'dhcpd6.conf'
@@ -16,6 +17,17 @@ def dhcp_server_configuration(topology_obj, engines):
     :param topology_obj: topology object fixture
     :param engines: fixture with engines
     """
+
+    # DHCP Relay config which will be used in test
+    dhcp_relay_config_dict = {
+        'dut': [{'vlan_id': 690, 'dhcp_servers': ['69.0.0.2', '6900::2']}
+                # Second DHCP relay for check bug: https://github.com/Azure/sonic-buildimage/issues/6053
+                # {'vlan_id': 691, 'dhcp_servers': ['69.0.0.2', '6900::2']}
+                ]
+    }
+
+    DhcpRelayConfigTemplate.configuration(topology_obj, dhcp_relay_config_dict)
+
     engines.hb.copy_file(source_file=DHCPD_CONF_PATH, dest_file=DHCPD_CONF_NAME, file_system='/etc/dhcp/',
                          overwrite_file=True, verify_file=False)
     engines.hb.copy_file(source_file=DHCPD6_CONF_PATH, dest_file=DHCPD6_CONF_NAME, file_system='/etc/dhcp/',
@@ -33,6 +45,8 @@ def dhcp_server_configuration(topology_obj, engines):
     engines.hb.run_cmd('/etc/init.d/isc-dhcp-server restart')
 
     yield
+
+    DhcpRelayConfigTemplate.cleanup(topology_obj, dhcp_relay_config_dict)
 
     engines.hb.run_cmd('rm -f dhclient.conf')
     engines.hb.run_cmd(

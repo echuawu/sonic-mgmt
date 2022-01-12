@@ -10,7 +10,6 @@ from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
-from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
@@ -168,13 +167,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                {'dst': '6910::', 'dst_mask': 64, 'via': ['6900::1']}]
     }
 
-    # DHCP Relay config which will be used in test
-    dhcp_relay_config_dict = {
-        'dut': [{'vlan_id': 690, 'dhcp_servers': ['69.0.0.2', '6900::2']}
-                # Second DHCP relay for check bug: https://github.com/Azure/sonic-buildimage/issues/6053
-                # {'vlan_id': 691, 'dhcp_servers': ['69.0.0.2', '6900::2']}
-                ]
-    }
     """
     TODO: once EVPN-VXLAN will be supported - need to change line:
     FROM: 'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
@@ -215,7 +207,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
         IpConfigTemplate.configuration(topology_obj, ip_config_dict)
         RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
-        DhcpRelayConfigTemplate.configuration(topology_obj, dhcp_relay_config_dict)
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
             FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
@@ -270,7 +261,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if not upgrade_params.is_upgrade_required:
             FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
-        DhcpRelayConfigTemplate.cleanup(topology_obj, dhcp_relay_config_dict)
+
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
         IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
