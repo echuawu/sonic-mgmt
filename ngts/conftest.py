@@ -116,19 +116,31 @@ def setup_name(request):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def topology_obj(setup_name):
+def topology_obj(setup_name, request):
     """
     Fixture which create topology object before run tests and doing cleanup for ssh engines after test executed
     :param setup_name: example: sonic_tigris_r-tigris-06
+    :param request: pytest buildin
     """
     logger.debug('Creating topology object')
     topology = get_topology_by_setup_name(setup_name, slow_cli=False)
     update_nos_type(topology)
     update_topology_with_cli_class(topology)
+    export_cli_type_to_cache(topology, request)
     yield topology
     logger.debug('Cleaning-up the topology object')
     for player_name, player_attributes in topology.players.items():
         player_attributes['engine'].disconnect()
+
+
+def export_cli_type_to_cache(topology, request):
+    """
+    This function will cache set a variable called CLI_TYPE that indicates what is the Cli Type, NVUE Or Sonic.
+    :param topology: topology object
+    :param request: pytest builtin
+    """
+    cli_type = topology[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
+    request.session.config.cache.set('CLI_TYPE', cli_type)
 
 
 def update_nos_type(topology):

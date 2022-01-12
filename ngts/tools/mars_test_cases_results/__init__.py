@@ -5,7 +5,7 @@ import json
 import logging
 import subprocess
 
-from ngts.constants.constants import InfraConst
+from ngts.constants.constants import InfraConst, CliType, DbConstants
 
 logger = logging.getLogger()
 ALLURE_REPORT_URL = 'allure_report_url'
@@ -16,15 +16,18 @@ NAME = "name"
 RESULT = "result"
 
 
-def create_metadata_dir(session_id):
+def create_metadata_dir(session_id, cli_type):
     """
     Create directory for test artifacts in shared location
     :param setup_name: name of the setup
     :param session_id: MARS session id
     :param suffix_path_name: End part of the directory name
+    :param cli_type: the type of cli, wether its NVUE or SONIC
     :return: created directory path
     """
-    folder_path = os.path.join(InfraConst.METADATA_PATH, session_id)
+
+    folder_path = DbConstants.CLI_TYPE_PATH_MAPPING.get(cli_type)
+    folder_path = os.path.join(folder_path, session_id)
     logger.info("Create folder: {} if it doesn't exist".format(folder_path))
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -60,6 +63,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     report_url = config.cache.get(ALLURE_REPORT_URL, None)
     session_id = config.cache.get(SESSION_ID, None)
     mars_key_id = config.cache.get(MARS_KEY_ID, None)
+    cli_type = config.cache.get('CLI_TYPE', CliType.SONIC)
     if valid_tests_data(report_url, session_id, mars_key_id):
         tests_results = parse_tests_results(terminalreporter)
         for test_case_name, test_result in tests_results.items():
@@ -69,12 +73,12 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                                                test_result,
                                                report_url))
         logger.debug("Tests results to be exported to SQL DB: {}".format(json_obj))
-        dump_json_to_file(json_obj, session_id, mars_key_id)
-        export_data(session_id, mars_key_id)
+        dump_json_to_file(json_obj, session_id, mars_key_id, cli_type)
+        export_data(session_id, mars_key_id, cli_type)
 
 
-def dump_json_to_file(json_obj, session_id, mars_key_id):
-    folder_path = create_metadata_dir(session_id)
+def dump_json_to_file(json_obj, session_id, mars_key_id, cli_type):
+    folder_path = create_metadata_dir(session_id, cli_type)
     json_file_path = os.path.join(folder_path, "{}_mars_sql_data.json".format(mars_key_id))
     logger.info("Damp json test results to file")
     with open(json_file_path, 'w') as f:
@@ -82,10 +86,10 @@ def dump_json_to_file(json_obj, session_id, mars_key_id):
     logger.info("Result were saved at file: {}".format(json_file_path))
 
 
-def export_data(session_id, mars_key_id):
+def export_data(session_id, mars_key_id, cli_type):
     export_data_cmd = "/ngts_venv/bin/python /root/mars/workspace/sonic-mgmt/ngts/scripts/export_test_json_to_mars_db.py" \
-                      " --session_id={SESSION_ID} --mars_key_id={MARS_KEY_ID} --log-level=INFO ".format(SESSION_ID=session_id,
-                                                                                                        MARS_KEY_ID=mars_key_id)
+                      " --session_id={SESSION_ID} --mars_key_id={MARS_KEY_ID} --cli_type={CLI_TYPE} --log-level=INFO "\
+        .format(SESSION_ID=session_id, MARS_KEY_ID=mars_key_id, CLI_TYPE=cli_type)
     try:
         logger.info("Exporting json tests data with command:\n{}".format(export_data_cmd))
         subprocess.check_output(export_data_cmd, shell=True)

@@ -5,7 +5,8 @@ from datetime import datetime
 
 
 class MarsConnectDB(ConnectMSSQL):
-    def __init__(self, server='mtlsqlprd', database='sonic_mars', username='sonic_db_user', password='Pa$$word01'):
+    def __init__(self, server, database, username, password):
+        ConnectMSSQL.__init__(self, server, database, username, password)
         self.server = server
         self.database = database
         self.username = username
@@ -37,6 +38,6 @@ class MarsConnectDB(ConnectMSSQL):
         if self.conn is None:
             self.connect_db()
 
-        clear_cmd = 'truncate table [Sonic_Mars].[dbo].[mars_respond]'
+        clear_cmd = 'truncate table [' + self.database + '].[dbo].[mars_respond]'
         self.execute_db_cmd(clear_cmd)
         self.disconnect_db()

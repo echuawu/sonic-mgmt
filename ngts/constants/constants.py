@@ -48,14 +48,29 @@ class SonicConst:
     MINIGRAPH_XML_PATH = SONIC_CONFIG_FOLDER + MINIGRAPH_XML
 
 
+class CliType:
+    NVUE = 'NVUE'
+    SONIC = 'SONIC'
+
+
+class DbConstants:
+    METADATA_PATH = "/.autodirect/sw_regression/system/SONIC/MARS/metadata/"
+    METADATA_PATH_NVOS = "/auto/sw_system_project/MLNX_OS_INFRA/NVOS-SONIC/MARS/metadata/"
+
+    CLI_TYPE_PATH_MAPPING = {CliType.SONIC: METADATA_PATH,
+                             CliType.NVUE: METADATA_PATH_NVOS}
+    CREDENTIALS = {CliType.SONIC: {'server': 'mtlsqlprd', 'database': 'sonic_mars',
+                                   'username': 'sonic_db_user', 'password': 'Pa$$word01'},
+                   CliType.NVUE: {'server': "mtlsqlprd", 'database': "NVOS", 'username': 'NVOS_ADMIN',
+                                  'password': "Nvos1234$$"}}
+
+
 class InfraConst:
     HTTP_SERVER = 'http://fit69'
     HTTTP_SERVER_FIT16 = 'http://r-fit16-clone.mtr.labs.mlnx'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
-    METADATA_PATH = "/.autodirect/sw_regression/system/SONIC/MARS/metadata/"
     HTTP_SERVER_MARS_TOPO_FOLDER_PATH = '{}{}'.format(HTTP_SERVER, MARS_TOPO_FOLDER_PATH)
-
     MYSQL_SERVER = '10.208.1.11'
     MYSQL_USER = 'sonic'
     MYSQL_PASSWORD = 'sonic11'
