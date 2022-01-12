@@ -206,6 +206,16 @@ platform_tests/test_reboot.py:
     Platform:
     - 2201
 
+platform_tests/test_reboot.py::test_power_off_reboot:
+  - Redmine:
+    - 2933078
+    Platform:
+    - 2100
+
+platform_tests/test_reboot.py::test_warm_reboot:
+  - Platform:
+    - 2100
+
 platform_tests/cli/test_show_platform.py::test_show_platform_fan:
   - Redmine:
     - 2829184
