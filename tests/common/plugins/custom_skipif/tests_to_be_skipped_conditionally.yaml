@@ -739,6 +739,10 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
     - 2686798
 
 tests/nightly/dynamic_port_breakout:
+  - Redmine:
+    - 2885961
+    Platform:
+    - simx
   - Branch:
     - 202012
     - 202106
