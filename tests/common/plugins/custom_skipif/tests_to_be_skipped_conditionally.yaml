@@ -806,41 +806,65 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
-# Ignore test on master image due to "config reload -y" during apply DHCPv6 relay config which cause errors in the logs
+# Ignore test due to issue - "config load -y" will not apply DHCP and require reload all configuration
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
-  - Redmine:
-    - 2922329
-    Branch:
-      - master
-      - 202012
-      - 202111
+  - Branch:
+    - master
+    Redmine:
+      - 2920544
+  - Branch:
+    - 202012
+    Redmine:
+      - 2934348
+  - Branch:
+    - 202111
+    GitHub:
+      - https://github.com/Azure/sonic-buildimage/issues/9679
 
-# Ignore test on master image due to "config reload -y" during apply DHCPv6 relay config which cause errors in the logs
+# Ignore test due to issue - "config load -y" will not apply DHCP and require reload all configuration
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
-  - Redmine:
-    - 2922329
-    Branch:
-      - master
-      - 202012
-      - 202111
+  - Branch:
+    - master
+    Redmine:
+      - 2920544
+  - Branch:
+    - 202012
+    Redmine:
+      - 2934348
+  - Branch:
+    - 202111
+    GitHub:
+      - https://github.com/Azure/sonic-buildimage/issues/9679
 
-# Ignore test on master image due to ssue - DHCP6_RelayForward - not forwarded by relay
+# Ignore test due to issue - DHCP6_RelayForward - not forwarded by relay
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_agent_message:
-  - Redmine:
-    - 2922407
-    Branch:
-      - master
-      - 202012
-      - 202111
+  - Branch:
+    - master
+    Redmine:
+      - 2922407
+  - Branch:
+    - 202012
+    Redmine:
+      - 2934351
+  - Branch:
+    - 202111
+    GitHub:
+      - https://github.com/Azure/sonic-buildimage/issues/9689
 
-# Ignore test on master image due to issue - dhcpv6 relay forward malformed packet
+# Ignore test due to issue - dhcpv6 relay forward malformed packet
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
-  - Redmine:
-    - 2922412
-    Branch:
-      - master
-      - 202012
-      - 202111
+  - Branch:
+    - master
+    Redmine:
+      - 2922412
+  - Branch:
+    - 202012
+    Redmine:
+      - 2934353
+  - Branch:
+    - 202111
+    GitHub:
+      - https://github.com/Azure/sonic-buildimage/issues/9690
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
   - Platform:
