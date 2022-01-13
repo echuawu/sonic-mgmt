@@ -942,10 +942,6 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
     - Platform:
       - 3700
 
-tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_upgrade_p4_sampling:
-  - Redmine:
-    - 2861094
-
 scripts/log_profiler/log_profiler.py::test_run_log_profiler:
   - Redmine:
     - 2899542

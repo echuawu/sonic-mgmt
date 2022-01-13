@@ -168,22 +168,6 @@ class TestEntryTraffic:
             self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
             self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
 
-    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
-    @allure.title('Test upgrade and downgrade p4-sampling app')
-    def test_upgrade_p4_sampling(self, engines, table_params, topology_obj, interfaces):
-        current_version = SonicAppExtensionCli.get_installed_app_version(engines.dut, P4SamplingConsts.APP_NAME)
-        with allure.step('Upgrade p4-sampling from version {} to version: {}'.format(current_version,
-                                                                                     P4SamplingConsts.UPGRADE_TARGET_VERSION)):
-            SonicAppExtensionCli.upgrade_app(engines.dut, P4SamplingConsts.APP_NAME,
-                                             P4SamplingConsts.UPGRADE_TARGET_VERSION, True)
-        with allure.step('Run basic test after upgrade to version {}'.format(P4SamplingConsts.UPGRADE_TARGET_VERSION)):
-            self.run_p4_smapling_basic_test(engines, table_params, topology_obj, interfaces)
-        with allure.step('Upgrade p4-sampling from version {} to version: {}'.format(P4SamplingConsts.UPGRADE_TARGET_VERSION,
-                                                                                     current_version)):
-            SonicAppExtensionCli.upgrade_app(engines.dut, P4SamplingConsts.APP_NAME, current_version, True)
-        with allure.step('Run basic test after upgrade to version {}'.format(current_version)):
-            self.run_p4_smapling_basic_test(engines, table_params, topology_obj, interfaces)
-
     @staticmethod
     def get_ingress_ports(indices, port_entries):
         """
