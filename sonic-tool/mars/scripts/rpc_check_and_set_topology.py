@@ -33,7 +33,7 @@ def get_sonic_branch(duthost):
     branch = duthost.run("sonic-cfggen -y /etc/sonic/sonic_version.yml -v release").stdout
     if branch == "none":
         branch = "master"
-    return branch
+    return branch.strip()
 
 
 if __name__ == "__main__":

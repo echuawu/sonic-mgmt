@@ -8,4 +8,4 @@ def get_sonic_branch(topology):
     # master branch always has release "none"
     if branch == "none":
         branch = "master"
-    return branch
+    return branch.strip()
