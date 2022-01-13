@@ -465,6 +465,7 @@ class SonicGeneralCli(GeneralCliCommon):
         SonicGeneralCli.create_extended_config_db_file(setup_name, base_config_db_json,
                                                        file_name=config_db_file_name)
         SonicGeneralCli.update_config_db_metadata_router(setup_name, config_db_file_name)
+        SonicGeneralCli.update_config_db_docker_routing_config_mode(setup_name, config_db_file_name)
         SonicGeneralCli.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
         SonicGeneralCli.update_config_db_features(setup_name, dut_engine, hwsku, config_db_file_name)
         SonicGeneralCli.update_config_db_feature_config(setup_name, "database", "auto_restart",
@@ -495,6 +496,15 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                 config_db_json_file_name=config_db_json_file_name)
         config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.TYPE] =\
             ConfigDbJsonConst.TOR_ROUTER
+        return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
+                                                              file_name=config_db_json_file_name)
+
+    @staticmethod
+    def update_config_db_docker_routing_config_mode(setup_name, config_db_json_file_name):
+        config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name,
+                                                                config_db_json_file_name=config_db_json_file_name)
+        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST].update(
+            {ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE: ConfigDbJsonConst.SPLIT})
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
                                                               file_name=config_db_json_file_name)
 
@@ -862,18 +872,3 @@ class SonicGeneralCli(GeneralCliCommon):
                 dut_engine.ip, username=DefaultCredentialConstants.OTHER_SONIC_USER, password=password)
             if SonicGeneralCli.is_dummy_command_succeed(engine):
                 return engine
-
-    @staticmethod
-    def update_config_db_docker_routing_config_mode(engine, mode='split', remove_docker_routing_config_mode=False):
-        SonicGeneralCli.save_configuration(engine)
-        config_db = SonicGeneralCli.get_config_db(engine)
-        config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
-
-        if remove_docker_routing_config_mode:
-            config_db_localhost.pop('docker_routing_config_mode', None)
-        else:
-            config_db_localhost.update({'docker_routing_config_mode': mode})
-
-        save_config_db_json(engine, config_db)
-        SonicGeneralCli.reload_configuration(engine)
-        SonicGeneralCli.verify_dockers_are_up(engine)

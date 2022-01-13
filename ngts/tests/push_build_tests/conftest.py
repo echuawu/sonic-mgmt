@@ -78,9 +78,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
                     get_app_ext_info(engines.dut)
 
-        with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
-            SonicGeneralCli.update_config_db_docker_routing_config_mode(engines.dut)
-
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
             retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
@@ -274,10 +271,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
             app_cleanup(engines.dut, app_name)
         logger.info('Doing config save after cleanup')
         cli_object.general.save_configuration(engines.dut)
-
-        with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
-            SonicGeneralCli.update_config_db_docker_routing_config_mode(engines.dut,
-                                                                        remove_docker_routing_config_mode=True)
 
         logger.info('PushGate Common cleanup completed')
 

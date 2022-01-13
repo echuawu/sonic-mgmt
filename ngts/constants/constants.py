@@ -109,6 +109,8 @@ class ConfigDbJsonConst:
     MAC = "mac"
     HWSKU = "hwsku"
     ADMIN_STATUS = "admin_status"
+    DOCKER_ROUTING_CONFIG_MODE = "docker_routing_config_mode"
+    SPLIT = "split"
 
 
 class IpIfaceAddrConst:
