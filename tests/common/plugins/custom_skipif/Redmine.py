@@ -2,7 +2,7 @@ import requests
 
 from CustomSkipIf import CustomSkipIf
 
-INACTIVE_STATES = ['Fixed', 'Rejected', 'Closed (Rejected)', 'Closed']
+INACTIVE_STATES = ['Fixed', 'Closed (Rejected)', 'Closed']
 ROOT_ISSUE = 'root_issue'
 STATUS = 'status'
 
