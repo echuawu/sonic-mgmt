@@ -65,6 +65,7 @@ def acl_configuration(topology_obj, interfaces, acl_table_config_list, engines):
     VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    ping_from_host(engines)
     acl_helper.add_acl_table(engines.dut, acl_table_config_list)
     acl_helper.add_acl_rules(engines.dut, acl_table_config_list)
     yield
@@ -73,3 +74,21 @@ def acl_configuration(topology_obj, interfaces, acl_table_config_list, engines):
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
+
+
+def ping_from_host(engines):
+    """
+    Do ping from the host to the DUT interface to make the ip address on the host can be learnt add added to
+    the ACL table. Else, the egress test will always have some pkt lost, For detail info can refer to
+    [SONiC  Verification] Bug SW #2921562: [Functional] [ACL] | ACL egress rule can not hit all the pkts which
+    match the rule. | Assignee: Nana He | Status: Assigned
+
+    :param engines: engines fixture object
+    :return: None
+    """
+    ip_list_ping_from_ha = ["120.0.0.1", "122.0.0.1", "124.0.0.1", "7000:120::1", "7000:122::1", "7000:124::1"]
+    ip_list_ping_from_hb = ["121.0.0.1", "123.0.0.1", "125.0.0.1", "7000:121::1", "7000:123::1", "7000:124::1"]
+    for ip in ip_list_ping_from_ha:
+        engines.ha.run_cmd(f"ping {ip} -c 1")
+    for ip in ip_list_ping_from_hb:
+        engines.hb.run_cmd(f"ping {ip} -c 1")

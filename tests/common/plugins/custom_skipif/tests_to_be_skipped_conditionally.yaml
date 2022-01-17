@@ -968,7 +968,7 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
     - Platform:
       - 3700
 
-tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match[ipv4-egress]:
+tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match[ipv5-egress]:
   - Redmine:
     - 2921562
 
