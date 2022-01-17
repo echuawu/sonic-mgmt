@@ -1,6 +1,7 @@
 import re
 import logging
 import ast
+import allure
 import time
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -136,6 +137,19 @@ class SonicInterfaceCli(InterfaceCliCommon):
         return result
 
     @staticmethod
+    def get_interfaces_transceiver_presence(engine, interface):
+        """
+        :param engine:  ssh engine object
+        :param interface:  interfaces name, example: 'Ethernet0'
+        :return: interface transceiver presence,
+        i.e, command output sample:
+        Port       Presence
+        ---------  -----------
+        Ethernet0  Not present
+        """
+        return engine.run_cmd(f"show interfaces transceiver presence {interface}")
+
+    @staticmethod
     def get_interface_mtu(engine, interface):
         """
         Method which getting interface MTU
@@ -204,9 +218,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
     def configure_dpb_on_ports(self, engine, conf, expect_error=False, force=False):
         for breakout_mode, ports_list in conf.items():
             for port in ports_list:
-                self.configure_dpb_on_port(engine, port, breakout_mode, expect_error, force)
-                time.sleep(10)  # TODO: this is a workaround for issue https://redmine.mellanox.com/issues/2927327 -
-                # TODO: please remove sleep statment after bug had been resolved
+                with allure.step(f"Configuring breakout mode: {breakout_mode} on port: {port}, force mode: {force}"):
+                    self.configure_dpb_on_port(engine, port, breakout_mode, expect_error, force)
 
     @staticmethod
     def configure_dpb_on_port(engine, port, breakout_mode, expect_error=False, force=False):
@@ -221,18 +234,27 @@ class SonicInterfaceCli(InterfaceCliCommon):
         logger.info('Configuring breakout mode: {} on port: {}, force mode: {}'.format(breakout_mode, port, force))
         force = "" if force is False else "-f"
         try:
-            cmd = 'sudo config interface breakout {PORT} {MODE} -y {FORCE}'.format(PORT=port,
-                                                                                   MODE=breakout_mode,
-                                                                                   FORCE=force)
-            output = engine.send_config_set([cmd, 'y'])
+            cmd = f'sudo config interface breakout {port} {breakout_mode} -y {force}'
+            output = engine.send_config_set([cmd, 'y'], delay_factor=5, max_loops=600)
             logger.info(output)
+            SonicInterfaceCli.verify_dpb_cmd(cmd, output)
             return output
         except Exception as e:
             if expect_error:
                 logger.info(output)
                 return output
             else:
-                raise AssertionError("Command: {} failed with error {} when was expected to pass".format(cmd, e))
+                logger.error(f"Command: {cmd} failed with error {e} when was expected to pass")
+                raise AssertionError(f"Command: {cmd} failed with error {e} when was expected to pass")
+
+    @staticmethod
+    def verify_dpb_cmd(cmd, output):
+        expected_msg_breakout_success = "Breakout process got successfully completed."
+        with allure.step(f"Verify breakout command output"):
+            if not re.search(expected_msg_breakout_success, output, re.IGNORECASE):
+                logger.warning(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
+                logger.error(f"Verification of Breakout command \"{cmd}\" failed")
+                raise AssertionError(f"Command: {cmd} failed when was expected to pass")
 
     @staticmethod
     def config_auto_negotiation_mode(engine, interface, mode):

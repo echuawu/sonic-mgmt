@@ -3,7 +3,7 @@ import pytest
 from retry.api import retry_call
 from ngts.tests.nightly.dynamic_port_breakout.conftest import set_dpb_conf, cleanup, set_ip_conf_for_ping, \
     send_ping_and_verify_results
-from ngts.tests.nightly.dynamic_port_breakout.test_dpb_introp import verify_port_speed_and_status
+from ngts.tests.nightly.dynamic_port_breakout.test_dpb_introp import verify_ifaces_speed_and_status
 
 
 class TestDPBSpeed:
@@ -35,7 +35,7 @@ class TestDPBSpeed:
                 ports_ip_conf = set_ip_conf_for_ping(self.topology_obj, cleanup_list, [lb])
                 for speed_option in self.get_mutual_speeds_option(breakout_mode, lb):
                     self.configure_speed_on_breakout_ports(breakout_ports_conf, speed_option)
-                    verify_port_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
+                    verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
                     send_ping_and_verify_results(self.topology_obj, self.dut_engine, cleanup_list, [lb], ports_ip_conf)
                 with allure.step(f'Cleanup breakout configuration from {lb}'):
                     cleanup(cleanup_list)

@@ -12,6 +12,7 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.constants.constants import SonicConst
 from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.helpers.breakout_helpers import get_dut_breakout_modes
+from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 
 """
 
@@ -151,11 +152,23 @@ def get_mutual_breakout_modes(ports_breakout_modes, ports_list):
 
 def cleanup(cleanup_list):
     """
-    execute all the functions in the cleanup list
+    execute all the functions in the cleanup list,
+    if function cleanup finished successful remove the function from list
     :return: None
     """
-    for func, args in cleanup_list:
-        func(*args)
+    logger.info("--------------------Starting Cleanup-----------------")
+    while cleanup_list:
+        cleanup_tuple = cleanup_list[0]
+        func, args = cleanup_tuple
+        try:
+            func(*args)
+            logger.debug(f"cleanup function {func.__name__} finished successfully - "
+                         f"removing function from cleanup list")
+            cleanup_list.remove(cleanup_tuple)
+        except Exception as e:
+            logger.error(f"Execution of cleanup function {func.__name__} with arguments: {args} failed")
+            raise e
+    logger.info("--------------------Finished Cleanup-----------------")
 
 
 @pytest.fixture(autouse=True)
@@ -167,7 +180,7 @@ def cleanup_list():
     cleanup_list = []
     logger.info("------------------TEST START HERE------------------")
     yield cleanup_list
-    logger.info("------------------TEST TEARDOWN------------------")
+    logger.info("------------------TEST TEARDOWN--------------------")
     cleanup(cleanup_list)
 
 
@@ -234,7 +247,7 @@ def is_splittable(ports_breakout_modes, port_name):
     return has_breakout_mode
 
 
-def verify_port_speed_and_status(cli_object, dut_engine, breakout_ports_conf):
+def verify_ifaces_speed_and_status(cli_object, dut_engine, breakout_ports_conf):
     """
     verify the ports state is up and speed configuration is as expected
     :param breakout_ports_conf: a dictionary with the port configuration after breakout
@@ -243,14 +256,17 @@ def verify_port_speed_and_status(cli_object, dut_engine, breakout_ports_conf):
     :return: raise assertion error in case validation of port status or speed fail
     """
     interfaces_list = list(breakout_ports_conf.keys())
-    with allure.step('Verify interfaces {} are in up state'.format(interfaces_list)):
+    with allure.step('Verify interfaces are in up state'):
+        logger.info('Verify interfaces are in up state')
         retry_call(cli_object.interface.check_ports_status,
                    fargs=[dut_engine, interfaces_list],
                    tries=2, delay=2, logger=logger)
-    verify_port_speed(dut_engine, cli_object, breakout_ports_conf)
+    verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf)
+    # verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_conf)
+    # TODO: enable verification back when bug 2937511 is resolved
 
 
-def verify_port_speed(dut_engine, cli_object, breakout_ports_conf):
+def verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf):
     """
     :param breakout_ports_conf: a dictionary with the port configuration after breakout
     {'Ethernet216': '25G',
@@ -258,9 +274,31 @@ def verify_port_speed(dut_engine, cli_object, breakout_ports_conf):
     :return: raise assertion error in case configured speed is not as expected
     """
     interfaces_list = list(breakout_ports_conf.keys())
-    with allure.step(f'Verify interfaces {interfaces_list} speed configuration'):
+    with allure.step('Verify interfaces speed configuration'):
+        logger.info('Verify interfaces speed configuration')
         actual_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, interfaces_list)
         compare_actual_and_expected_speeds(breakout_ports_conf, actual_speed_conf)
+
+
+def verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_conf):
+    """
+    :param dut_engine: ssh engine of dut
+    :param cli_object: cli object of dut
+    :param breakout_ports_conf: a dictionary with the port configuration after breakout
+    {'Ethernet216': '25G',
+    'Ethernet217': '25G',...}
+    :return: Exception raised in case of not all breakout ports has transceiver present
+    """
+    interfaces_list = list(breakout_ports_conf.keys())
+    with allure.step('Verify interfaces transceiver presence'):
+        logger.info('Verify interfaces transceiver presence')
+        for iface in interfaces_list:
+            with allure.step(f'Verify interface {iface} transceiver presence'):
+                logger.info(f'Verify interface {iface} transceiver presence')
+                actual_transceiver_presence = cli_object.interface.get_interfaces_transceiver_presence(dut_engine,
+                                                                                                       iface)
+                retry_call(verify_show_cmd, fargs=[actual_transceiver_presence, [(fr"{iface}\s+present", True)]],
+                           tries=3, delay=10, logger=logger)
 
 
 def compare_actual_and_expected_speeds(expected_speeds_dict, actual_speeds_dict):

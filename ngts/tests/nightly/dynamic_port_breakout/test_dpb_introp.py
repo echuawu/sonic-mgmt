@@ -9,7 +9,7 @@ from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.tests.nightly.conftest import save_configuration_and_reboot
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_ports_list_from_loopback_tuple_list, \
-    set_ip_dependency, verify_no_breakout, set_dpb_conf, verify_port_speed_and_status, \
+    set_ip_dependency, verify_no_breakout, set_dpb_conf, verify_ifaces_speed_and_status, \
     send_ping_and_verify_results, build_remove_dpb_conf, cleanup
 
 
@@ -184,7 +184,7 @@ class TestDPBInterop:
                                                conf=self.tested_modes_lb_conf,
                                                original_speed_conf=self.dut_ports_default_speeds_configuration,
                                                force=True)
-        verify_port_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
+        verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
         self.verify_no_dependencies_on_ports(dependency_list, ports_dependencies)
         return breakout_ports_conf
 
@@ -348,7 +348,7 @@ class TestDPBInterop:
         with allure.step('Verify remove breakout succeeded and breakout ports no longer exist'):
             verify_no_breakout(self.dut_engine, self.cli_object, self.ports_breakout_modes,
                                conf=self.tested_modes_lb_conf)
-        verify_port_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
+        verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
         self.verify_no_dependencies_on_ports(dependency_list, ports_dependencies)
         send_ping_and_verify_results(self.topology_obj, self.dut_engine, cleanup_list,
                                      self.tested_modes_lb_conf.values())

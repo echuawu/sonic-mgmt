@@ -211,3 +211,21 @@ def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
 def dut_ports_default_speeds_configuration(topology_obj, engines, cli_objects):
     ports = topology_obj.players_all_ports['dut']
     return cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=ports)
+
+
+@pytest.fixture(scope='session')
+def dut_ports_interconnects(topology_obj):
+    """
+    :return: a dictionary with all the Noga connectivity for dut ports, i.e.
+    {
+    'Ethernet4': 'Ethernet8'
+    }
+    """
+    dut_ports_interconnects_dict = {}
+    for port_noga_alias, neighbor_port_noga_alias in topology_obj.ports_interconnects.items():
+        alias_prefix = port_noga_alias.split('-')[0]
+        if alias_prefix == 'dut':
+            port = topology_obj.ports[port_noga_alias]
+            neighbor_port = topology_obj.ports[neighbor_port_noga_alias]
+            dut_ports_interconnects_dict.update({port: neighbor_port})
+    return dut_ports_interconnects_dict

@@ -20,7 +20,7 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.conftest import cleanup_last_config_in_stack
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list
-from ngts.tests.nightly.auto_negotition.conftest import speed_string_to_int_in_mb
+from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
 
 logger = logging.getLogger()
 PORTCHANNEL_NAME = 'PortChannel1111'

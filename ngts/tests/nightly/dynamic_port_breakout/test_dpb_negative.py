@@ -5,7 +5,7 @@ import re
 from retry.api import retry_call
 from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_options, logger, is_splittable, \
     compare_actual_and_expected_speeds, cleanup, get_mutual_breakout_modes, send_ping_and_verify_results, \
-    set_dpb_conf, verify_port_speed_and_status, verify_no_breakout
+    set_dpb_conf, verify_ifaces_speed_and_status, verify_no_breakout
 
 
 class TestDPBNegative:
@@ -77,7 +77,7 @@ class TestDPBNegative:
         ports_list_after_breakout = list(breakout_ports_conf.keys())
 
         with allure.step(f'Verify ports {ports_list_after_breakout} are up after breakout'):
-            verify_port_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
+            verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
 
         for port in lb:
             breakout_port_list = self.get_breakout_ports(breakout_mode, port)

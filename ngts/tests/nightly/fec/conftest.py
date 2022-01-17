@@ -311,21 +311,3 @@ def get_lb_mutual_fec_modes(lb, fec_capability_for_dut_ports):
     for port in lb:
         port_supported_fec_modes.append(set(fec_capability_for_dut_ports[port]))
     return list(set.intersection(*port_supported_fec_modes))
-
-
-@pytest.fixture(autouse=True, scope='session')
-def dut_ports_interconnects(topology_obj):
-    """
-    :return: a dictionary with all the Noga connectivity for dut ports, i.e.
-    {
-    'Ethernet4': 'Ethernet8'
-    }
-    """
-    dut_ports_interconnects_dict = {}
-    for port_noga_alias, neighbor_port_noga_alias in topology_obj.ports_interconnects.items():
-        alias_prefix = port_noga_alias.split('-')[0]
-        if alias_prefix == 'dut':
-            port = topology_obj.ports[port_noga_alias]
-            neighbor_port = topology_obj.ports[neighbor_port_noga_alias]
-            dut_ports_interconnects_dict.update({port: neighbor_port})
-    return dut_ports_interconnects_dict

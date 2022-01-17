@@ -7,9 +7,9 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_speeds_in_Gb_str_format, get_interface_cable_width, \
-    get_matched_types, speed_string_to_int_in_mb, convert_speeds_to_mb_format
+    get_matched_types, convert_speeds_to_mb_format
 from ngts.constants.constants import AutonegCommandConstants
-from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
+from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.nightly.conftest import compare_actual_and_expected
 
 logger = logging.getLogger()

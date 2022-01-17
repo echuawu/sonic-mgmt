@@ -5,7 +5,7 @@ import re
 
 from ngts.constants.constants import InterfacesTypeConstants
 from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
-from ngts.helpers.interface_helpers import get_lb_mutual_speed
+from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger()
 
@@ -164,25 +164,6 @@ def get_interface_cable_width(type_string, expected_speed=None):
     if expected_speed == '400G':
         width = 8
     return width
-
-
-def speed_string_to_int_in_mb(speed):
-    """
-    :param speed: a speed string i.e, '25G', '100M'
-    :return: speed int value in megabits, i.e., 25000, 100
-    """
-    match_gig = re.search(r'(\d+)G', speed)
-    match_mb = re.search(r'(\d+)M', speed)
-    if match_gig:
-        speed_int = int(match_gig.group(1)) * 1000
-    elif match_mb:
-        speed_int = int(match_mb.group(1))
-    else:
-        try:
-            speed_int = int(speed)
-        except ValueError:
-            raise Exception(f'Can not match speed in Mbits/Gbits from: {speed}')
-    return speed_int
 
 
 def get_matched_types(lane_number, speed_list, types_dict):

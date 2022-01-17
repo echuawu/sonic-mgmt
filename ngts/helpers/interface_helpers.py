@@ -38,3 +38,22 @@ def get_lb_mutual_speed(lb, split_mode, split_mode_supported_speeds):
     for port in lb:
         speeds_sets.append(set(split_mode_supported_speeds[port][split_mode]))
     return list(set.intersection(*speeds_sets))
+
+
+def speed_string_to_int_in_mb(speed):
+    """
+    :param speed: a speed string i.e, '25G', '100M'
+    :return: speed int value in megabits, i.e., 25000, 100
+    """
+    match_gig = re.search(r'(\d+)G', speed)
+    match_mb = re.search(r'(\d+)M', speed)
+    if match_gig:
+        speed_int = int(match_gig.group(1)) * 1000
+    elif match_mb:
+        speed_int = int(match_mb.group(1))
+    else:
+        try:
+            speed_int = int(speed)
+        except ValueError:
+            raise Exception(f'Can not match speed in Mbits/Gbits from: {speed}')
+    return speed_int
