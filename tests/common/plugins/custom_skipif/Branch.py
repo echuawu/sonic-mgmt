@@ -1,5 +1,4 @@
 import logging
-import re
 
 from CustomSkipIf import CustomSkipIf, run_cmd_on_dut, CUSTOM_TEST_SKIP_BRANCH_NAME
 

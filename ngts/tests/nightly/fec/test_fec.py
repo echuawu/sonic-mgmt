@@ -52,7 +52,7 @@ class TestFec:
         self.dut_ports_basic_mlxlink_configuration = dut_ports_default_mlxlink_configuration
 
     @pytest.mark.reboot_reload
-    def test_fec_capabilities_loopback_ports(self, ignore_expected_loganalyzer_reboot_exceptions,
+    def test_fec_capabilities_loopback_ports(self, extend_loganalyzer_ignore_by_reboot_expected_errors,
                                              cleanup_list, skip_if_active_optical_cable):
         with allure.step("Configure and verify FEC with all speed options on dut loopbacks"):
             logger.info("Configure and verify FEC with all speed options on dut loopbacks")
@@ -75,7 +75,7 @@ class TestFec:
             self.verify_fec_configuration(dut_lb_conf)
 
     @pytest.mark.reboot_reload
-    def test_fec_capabilities_hosts_ports(self, ignore_expected_loganalyzer_reboot_exceptions,
+    def test_fec_capabilities_hosts_ports(self, extend_loganalyzer_ignore_by_reboot_expected_errors,
                                           cleanup_list, skip_if_active_optical_cable):
 
         with allure.step("Configure IP on dut - host connectivities for traffic validation"):
@@ -116,7 +116,7 @@ class TestFec:
                 logger.info("Verify FEC on host - dut connectivities returned to default configuration")
                 self.verify_fec_configuration_on_host(dut_host_conf)
 
-    def test_negative_fec(self, ignore_expected_loganalyzer_reboot_exceptions,
+    def test_negative_fec(self, extend_loganalyzer_ignore_by_reboot_expected_errors,
                           cleanup_list, skip_if_active_optical_cable):
         split_mode = 1
         conf = {}
@@ -156,7 +156,7 @@ class TestFec:
                        fargs=[conf[dut_host_port], self.cli_objects.ha, self.engines.ha, self.interfaces.ha_dut_1],
                        tries=6, delay=10, logger=logger)
 
-    def test_fec_bug_2705016(self, ignore_expected_loganalyzer_reboot_exceptions,
+    def test_fec_bug_2705016(self, extend_loganalyzer_ignore_by_reboot_expected_errors,
                              cleanup_list, skip_if_active_optical_cable):
         reboot_type = 'warm-reboot'
         tested_ports = get_tested_lb_dict_tested_ports(self.tested_lb_dict_for_bug_2705016_flow)

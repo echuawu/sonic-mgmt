@@ -1,6 +1,6 @@
 import pytest
 import logging
-import os
+
 from ngts.cli_wrappers.linux.linux_interface_clis import LinuxInterfaceCli
 
 logger = logging.getLogger()
@@ -24,18 +24,3 @@ def lldp_configuration(topology_obj):
                 LinuxInterfaceCli.disable_interface(host_engine, port)
                 LinuxInterfaceCli.enable_interface(host_engine, port)
     yield
-
-
-@pytest.fixture(autouse=False)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests
-    because of some expected bugs which causes exceptions in log
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "temp_log_analyzer_ignores.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)

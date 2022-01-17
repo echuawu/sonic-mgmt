@@ -11,7 +11,6 @@ logger = logging.getLogger()
 
 @pytest.mark.build
 @pytest.mark.p4_examples
-@pytest.mark.usefixtures('ignore_loganalyzer_exceptions_withbugs')
 def test_p4_examples_feature_state(engines, p4_example_default_feature):
     """
     Run the p4_examples_feature_state test

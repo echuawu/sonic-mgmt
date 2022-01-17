@@ -52,8 +52,7 @@ class TestAutoNegNegative(TestAutoNegBase):
 
             verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
-    def test_negative_config_advertised_speeds(self, ignore_auto_neg_expected_loganalyzer_exceptions,
-                                               cleanup_list, skip_if_active_optical_cable):
+    def test_negative_config_advertised_speeds(self, cleanup_list, skip_if_active_optical_cable):
         """
         Test command config interface advertised-speeds <interface_name> <speed_list>.
         Verify the command return error if given invalid interface name or speed list.
@@ -61,7 +60,6 @@ class TestAutoNegNegative(TestAutoNegBase):
         meaning the port should not change speed because ports advertised different speeds.
         port should remain in up state even if the auto negotiation failed.
 
-        :param  ignore_auto_neg_expected_loganalyzer_exceptions: expand the logger analyzer errors before the test run
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """
@@ -142,14 +140,12 @@ class TestAutoNegNegative(TestAutoNegBase):
                                                                       random.choice(types_supported_on_dut))
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
-    def test_negative_config_advertised_types(self, ignore_auto_neg_expected_loganalyzer_exceptions, cleanup_list,
-                                              skip_if_active_optical_cable):
+    def test_negative_config_advertised_types(self, cleanup_list, skip_if_active_optical_cable):
         """
         Test command config interface advertised-types <interface_name> <interface_type_list>.
         Verify the command return error if given invalid interface name.
         verify auto-negotiation fails in case of mismatch advertised list.
 
-        :param  ignore_auto_neg_expected_loganalyzer_exceptions: expand the logger analyzer errors before the test run
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """
@@ -184,14 +180,12 @@ class TestAutoNegNegative(TestAutoNegBase):
         return conf
 
     def test_negative_advertised_speed_type_mismatch(self, expected_auto_neg_loganalyzer_exceptions,
-                                                     ignore_auto_neg_expected_loganalyzer_exceptions,
                                                      cleanup_list, skip_if_active_optical_cable):
         """
         Verify error in log when configuring mismatch type and speed, like 'CR4' and '10G',
         Verify port state is up when speed and type doesn't match,
         and configuration is not applied because of SAI recognize it as invalid configuration.
 
-        :param ignore_auto_neg_expected_loganalyzer_exceptions: expand the logger analyzer errors before the test run
         :param cleanup_list:  a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """

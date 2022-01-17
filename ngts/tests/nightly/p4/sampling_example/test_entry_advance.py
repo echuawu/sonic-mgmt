@@ -48,7 +48,7 @@ class TestEntryTraffic:
             P4SamplingUtils.stop_background_traffic(flow_table_scapy_senders)
 
     @pytest.mark.reboot_reload
-    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
+    @pytest.mark.usefixtures('extend_loganalyzer_ignore_by_reboot_expected_errors')
     @allure.title('Test disable p4-sampling, change the config db file, and re-enable it, the entries can be changed.')
     def test_enable_disable_p4_sampling(self, topology_obj, engines, interfaces, table_params):
         pkt_count = 20
@@ -113,7 +113,7 @@ class TestEntryTraffic:
 
     @allure.title('Test disables p4-sampling or shutdown interface, and verifies that traffic can not be mirrored. '
                   'Then enable it back and verify that traffic can be mirrored again.')
-    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
+    @pytest.mark.usefixtures('extend_loganalyzer_ignore_by_reboot_expected_errors')
     @pytest.mark.usefixtures('start_stop_continuous_traffic')
     def test_p4_sampling_traffic_concussive(self, topology_obj, engines, interfaces, table_params,
                                             port_traffic_params_list, flow_traffic_params_list):

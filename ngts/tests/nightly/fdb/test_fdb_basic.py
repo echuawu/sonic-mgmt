@@ -52,7 +52,7 @@ class TestFdbBasic:
                 verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, src_mac, self.port1)
 
     @allure.title('Test fdb aging time expire')
-    def test_fdb_aging_time_expire(self, set_fdb_aging_time, ignore_expected_loganalyzer_exceptions):
+    def test_fdb_aging_time_expire(self, set_fdb_aging_time):
         """
         Verify after fdb aging time expire the corresponding fdb items will be cleared
         1. Clear fdb table

@@ -27,7 +27,7 @@ class TestEntryScaling:
 
     @pytest.mark.reboot_reload
     @allure.title('Test 500 entries added for each table')
-    @pytest.mark.usefixtures('ignore_expected_loganalyzer_exceptions')
+    @pytest.mark.usefixtures('extend_loganalyzer_ignore_by_reboot_expected_errors')
     def test_scaling_entries(self, topology_obj, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
         """
         configure 500 entries for each table, and send traffic for some entry, verify the cpu and memory usage,

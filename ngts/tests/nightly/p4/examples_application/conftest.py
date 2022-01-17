@@ -1,6 +1,6 @@
 import pytest
-import os
 import json
+
 from ngts.constants.constants import P4ExamplesConsts
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4ExamplesCli
@@ -102,45 +102,3 @@ def verify_running_feature(engine, expected_feature):
     running_feature = P4ExamplesCli.get_p4_example_running_feature(engine)
     assert running_feature == expected_feature, \
         f"Expect no feature is running, but {running_feature} is running in the {P4ExamplesConsts.APP_NAME}"
-
-
-@pytest.fixture(autouse=False)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of reboot.
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..", "..",
-                                                               "tools", "loganalyzer",
-                                                               "reboot_loganalyzer_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..", "..",
-                                                               "tools", "loganalyzer",
-                                                               "loganalyzer_common_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-
-
-@pytest.fixture(autouse=False)
-def ignore_loganalyzer_exceptions_withbugs(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of bug.
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    # TODO: need to remove this fixture after the ticket resolved
-    # #2919698: "ERR swss#orchagent: :- addOperation: Vxlan tunnel 'tunnel1' is already exists"
-    # #2890809: "ERR syncd#SDK: [BRIDGE.ERR] __sdk_bridge_db_get_bridge failed (Entry Not Found)."
-    # #2920504: "ERR swss#vxlanmgrd: :- doVxlanCreateTask: Cannot create vxlan Vxlan1"
-    if loganalyzer:
-        ignoreRegex = [
-            ".*ERR syncd#SDK.*__sdk_bridge_db_get_bridge failed.*",
-            ".*ERR swss#orchagent.*addOperation.*Vxlan tunnel .* is already exists",
-            ".*ERR swss#vxlanmgrd.*doVxlanCreateTask: Cannot create vxlan.*"
-        ]
-        loganalyzer.ignore_regex.extend(ignoreRegex)

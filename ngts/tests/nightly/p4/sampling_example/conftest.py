@@ -9,38 +9,13 @@ Defines the methods and fixtures which will be used by pytest
 import pytest
 import logging
 import allure
-import os
+
 import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils, TrafficParams
 logger = logging.getLogger()
-
-
-@pytest.fixture(autouse=False)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of reboot.
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..", "..",
-                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..", "..",
-                                                               "tools", "loganalyzer",
-                                                               "loganalyzer_common_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "p4_sampling_loganalyzer_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
 @pytest.fixture(scope='package', autouse=False)

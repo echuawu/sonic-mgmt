@@ -1,0 +1,210 @@
+# Note that single quote ' should be escaped by another single quote '
+# Example(see: Can''t):     '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
+# Example: in code below - errors will be ignored:
+# IF: test case name: tests/test_dbg.py::test_a
+# OR
+# IF: Redmine issue active AND branch is 202106 AND sn2 in platform
+# OR
+# IF: GitHub issue is active
+#- Errors_list:
+#    - '.* ERR \d+'
+#    - 'ERR can''t do \d+'
+#  Conditions:
+#    - Affected_test_cases:
+#      - tests/test_dbg.py::test_a
+#    - Redmine:
+#      - 2829157
+#      Branch:
+#      - 202106
+#      Platform:
+#      - sn2
+#    - GitHub:
+#      - https://github.com/Azure/sonic-buildimage/issues/9811
+
+- Errors_list:
+    - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
+    - '.* ERR watchdogutil: Failed to get watchdog module'
+    - '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
+    - '.* ERR healthd: Failed to read from file \/var\/run\/hw-management\/led\/led_status_capability - FileNotFoundError.*No such file or directory.*'
+    - '.* ERR healthd: Failed to write.*file \/var\/run\/hw-management\/led\/led_status_green - FileNotFoundError.*No such file or directory.*'
+  Conditions:
+    - Platform:
+      - simx
+
+# Ignores for LAG/LACP tests
+- Errors_list:
+    - '.* ERR.*hostcfgd: ''sudo systemctl stop macsec.service'' failed. RC: 5, output: None.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+
+# Below ignores from temp_log_analyzer_ignores.txt in LAG folder
+- Errors_list:
+    - '.* ERR \/hostcfgd: Unexpected state value ''always_enabled'' for feature .*'
+    - '.* ERR caclmgrd\[.*\]: :- initializeGlobalConfig: Sonic database config global file doesn''t exist at .*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      # From ngts/tests/nightly/app_extension/temp_log_analyzer_ignores.txt
+      - tests/nightly/app_extension/test_app_extension_reboot.py
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_repo_management
+
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[LAG\.WARNING\] \[sx_lag_port_group_get\] incomplete logport list retrieving.*'
+    - '.* WARNING syncd#SDK:.* \[.*] mlnx_sai_switch.c\[.*\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet.*'
+    - '.* ERR teamd#tlm_teamd: :- get_dump: Can''t get dump for LAG ''PortChannel\d+''.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access failed \(.*\)'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to write PWM'
+    - '.* ERR pmon#syseepromd: Failed to load platform-specific eeprom from deprecated plugin.*'
+    - '.* WARNING pmon#syseepromd: Failed to load platform-specific eeprom from sonic_platform package due to KeyError.*'
+    - '.* ERR \/hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.* ERR \/hostcfgd: error returned by select.*'
+    - '.* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*'
+    - '.* ERR kernel.*mlxsw_minimal.*HW semaphore is not released.*'
+    - '.* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*opcode.*opcode_mod.*'
+    - '.* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*'
+    - '.* ERR teamd#tlm_teamd: :- process_add_queue: Can''t connect to teamd after .* attempts.*'
+    - '.* ERR syncd#SDK: :- updateSupportedBufferPoolCounters: BUFFER_POOL_WATERMARK_STAT_COUNTER: counter SAI_BUFFER_POOL_STAT_XOFF_ROOM_WATERMARK_BYTES is not supported on buffer pool .*, rv: SAI_STATUS_NOT_IMPLEMENTED'
+    - '.* INFO kernel: .* teamd.*: segfault at b0 ip .* sp .* error 4 in libteam.*'
+    - '.* ERR snmp#snmpd.*: ioctl \d+ returned -1.*'
+    - '.* ERR pmon#sensord: Error getting sensor data: mlxsw.*: Kernel interface error.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+# Finished ignores from temp_log_analyzer_ignores.txt in LAG folder
+
+# From ngts/tests/nightly/show_techsupport/log_analyzer_techsupport_ignore.txt and temp_log_analyzer_ignores.txt
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access failed \(.*\).*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access status failed \(.*\).*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: HW semaphore is not released.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Cmd exec failed \(.*\).*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048 sfp9: Eeprom query failed.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport
+
+# From ngts/tests/nightly/arp/log_analyzer_ignores.txt
+- Errors_list:
+    - '.* ERR swss#orchagent.*Failed to remove ref count.*\d+.*LAG.*PortChannel.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/arp/test_arp.py
+
+# From ngts/tests/nightly/auto_negotition/negative_auto_neg_log_analyzer_ignores
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] configuration is invalid.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_update_speed: Failed to merge speeds, interface types and auto_neg.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_attr_set: Failed to update speed.*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[.*\]- sai_set_attribute: Failed set attrib dispatch.*'
+    - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_SET failed in syncd mode: SAI_STATUS_INVALID_ATTR_VALUE_.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: VID: oid:.* RID: oid:.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_.*INTERFACE_TYPE:.*SAI_PORT_INTERFACE_TYPE_.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_AUTO_NEG_MODE:.*'
+    - '.* ERR swss#orchagent: :- set: set status: SAI_STATUS_INVALID_ATTR_VALUE_.*'
+    - '.* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+.*interface type to .*'
+    - '.* ERR swss#orchagent: :- setPortAutoNeg: Failed to set AutoNeg \d+ to port pid:\d+.*'
+    - '.* ERR swss#orchagent: :- handleSaiSetStatus: Encountered failure in set operation, exiting orchagent.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[.*\] configuration doesn''t match mask for \d+ lanes.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_SPEED: \d+.*'
+    - '.* ERR swss#orchagent: :- handleSaiSetStatus: Encountered SAI_STATUS_INVALID_ATTR_VALUE_0 in set operation.*'
+    - '.* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ speed from \d+ to \d+.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds
+      - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_types
+      - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port
+
+# From ngts/tests/nightly/fdb/log_analyzer_ignores.txt
+- Errors_list:
+    - '.* ERR swss#orchagent.*doAppSwitchTableTask.*Unsupported switch attribute ordered_ecmp.*'
+    - '.* WARNING syncd#SDK:.*Not supported attribute SAI_TUNNEL_ATTR_DECAP_DSCP_MODE.*'
+    - '.* WARNING syncd#SDK:.*sai_set_attribute: Failed attribs check, key:tunnel ID.*'
+    - '.* ERR syncd#SDK.*sendApiResponse: api SAI_COMMON_API_SET failed in syncd mode: SAI_STATUS_ATTR_NOT_SUPPORTED.*'
+    - '.* ERR syncd#SDK.*processQuadEvent.*VID.*oid.*RID.*oid.*'
+    - '.* ERR syncd#SDK.*processQuadEvent.*attr.*SAI_TUNNEL_ATTR_DECAP_DSCP_MODE.*SAI_TUNNEL_DSCP_MODE_PIPE_MODEL.*'
+    - '.* ERR swss#orchagent.*SAI_STATUS_ATTR_NOT_SUPPORTED.*'
+    - '.* ERR swss#orchagent.*setTunnelAttribute.*Failed to set attribute dscp_mode with value pipe.*'
+    - '.* ERR syncd#SDK.*updateSupportedBufferPoolCounters: BUFFER_POOL_WATERMARK_STAT_COUNTER: counter SAI_BUFFER_POOL_STAT_XOFF_ROOM_WATERMARK_BYTES is not supported on buffer pool oid:.*, rv: SAI_STATUS_NOT_IMPLEMENTED.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire
+
+# Ignores from ngts/tests/nightly/p4/examples_application/conftest.py
+- Errors_list:
+    - '.* ERR syncd#SDK.*__sdk_bridge_db_get_bridge failed.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/p4/examples_application/test_p4_examples_app.py::test_p4_examples_feature_state
+      Redmine:
+      - 2890809
+
+- Errors_list:
+    - '.* ERR swss#orchagent.*addOperation.*Vxlan tunnel .* is already exists'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/p4/examples_application/test_p4_examples_app.py::test_p4_examples_feature_state
+      Redmine:
+      - 2919698
+
+- Errors_list:
+    - '.* ERR swss#vxlanmgrd.*doVxlanCreateTask: Cannot create vxlan.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/p4/examples_application/test_p4_examples_app.py::test_p4_examples_feature_state
+      Redmine:
+      - 2920504
+
+# From ngts/tests/nightly/p4/sampling_example/p4_sampling_loganalyzer_ignore.txt
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SPAN.ERR\] SPAN module already initialized'
+    - '.* ERR swss#orchagent: :- removeTunnelNextHop: Remove Tunnel next hop unable to find EVPN VTEP.*'
+    - '.* ERR swss#orchagent: :- removeOverlayNextHops: Tunnel Nexthop .*delete failed.*'
+    - '.* ERR syncd#SAI:.*\[SAI_SWITCH.ERR\].*mlnx_sai_switch.c.*Shared memory of the SAI already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI.*\[SAI_SWITCH.WARNING\].*mlnx_sai_switch.c.*sai_qos_db_create.*Shared memory of the SAI QOS already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI.*\[SAI_SWITCH.WARNING\].*mlnx_sai_switch.c.*sai_buffer_db_create.*Shared memory of the SAI buffer already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI.*\[SAI_SWITCH.WARNING\].*mlnx_sai_switch.c.*sai_acl_db_create.*Shared memory of the SAI ACL already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI.*\[SAI_SWITCH.WARNING\].*mlnx_sai_switch.c.*sai_tunnel_db_create.*Shared memory of the SAI TUNNEL already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SDK.*\[SXD_DPT.WARNING\].*sxd_dpt_init().*Shared memory of the DPT already exists,destroying it and re-creating'
+    - '.* ERR /hostcfgd: Unexpected state value ''always_enabled'' for feature.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+
+
+# From ngts/tests/push_build_tests/L2/lldp/temp_log_analyzer_ignores.txt
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[SAI_UTILS.WARNING\] mlnx_sai_utils.c.*Not implemented object type.*vendor meta data not found.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L2/lldp/test_lldp.py
+
+# From ngts/tests/push_build_tests/L3/crm/crm_loganalyzer_ignore.txt
+- Errors_list:
+    - '.* ERR swss#orchagent: :- removeLag: Failed to remove ref count.*\d+.*LAG PortChannel.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L3/crm/test_crm.py::test_crm_route
+      - tests/push_build_tests/L3/crm/test_crm.py::test_crm_neighbor_and_nexthop
+      - tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member
+      - tests/push_build_tests/L3/crm/test_crm.py::test_crm_fdb_entry
+      - tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl

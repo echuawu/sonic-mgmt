@@ -14,7 +14,7 @@ logger = logging.getLogger()
 class TestAutoNeg(TestAutoNegBase):
 
     @pytest.mark.reboot_reload
-    def test_auto_neg_conf(self, cleanup_list, ignore_expected_loganalyzer_reboot_exceptions,
+    def test_auto_neg_conf(self, cleanup_list, extend_loganalyzer_ignore_by_reboot_expected_errors,
                            skip_if_active_optical_cable):
         """
         check 1#:
@@ -75,8 +75,7 @@ class TestAutoNeg(TestAutoNegBase):
                                          conf, cleanup_list, mode='disabled')
             self.verify_auto_neg_configuration(conf_backup)
 
-    def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable,
-                                       ignore_auto_neg_expected_loganalyzer_exceptions):
+    def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable):
         """
         configuring default/costume auto neg on the dut port connected to host
         while toggling a port connected to the host

@@ -64,7 +64,9 @@ pytest_plugins = ('tests.common.plugins.ptfadapter',
                   'tests.decap',
                   'tests.common.plugins.allure_server',
                   'tests.common.plugins.conditional_mark',
-                  'tests.common.plugins.mars_test_cases_results')
+                  'tests.common.plugins.mars_test_cases_results',
+                  'tests.common.plugins.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore')
+
 
 def pytest_addoption(parser):
     parser.addoption("--testbed", action="store", default=None, help="testbed name")

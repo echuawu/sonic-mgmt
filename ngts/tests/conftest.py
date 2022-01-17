@@ -9,12 +9,14 @@ Defines the methods and fixtures which will be used by pytest for only canonical
 import pytest
 import os
 import yaml
-import re
+import logging
 from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import PytestConst
+
+logger = logging.getLogger()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -198,17 +200,13 @@ def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_bra
     return expected_cpu_or_ram_usage_dict
 
 
-@pytest.fixture(autouse=True)
-def ignore_simx_expected_loganalyzer_exceptions(loganalyzer, platform_params):
-    """
-    expanding the ignore list of the loganalyzer for these tests
-    because of some expected bugs which causes exceptions in log
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if re.search('simx', platform_params.setup_name):
-        if loganalyzer:
-            ignore_regex_list = \
-                loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                   "temp_simx_log_analyzer_ignores.txt")))
-            loganalyzer.ignore_regex.extend(ignore_regex_list)
+@pytest.fixture()
+def extend_loganalyzer_ignore_by_reboot_expected_errors(loganalyzer):
+
+    if loganalyzer:
+        ignore_regex_list = \
+            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                               "..", "tools", "loganalyzer",
+                                                               "reboot_loganalyzer_ignore.txt")))
+        logger.info('Extending ignore LogAnalyzer errors list by reboot expected errors')
+        loganalyzer.ignore_regex.extend(ignore_regex_list)

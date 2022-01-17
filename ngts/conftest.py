@@ -33,7 +33,8 @@ pytest_plugins = ('ngts.tools.sysdumps',
                   'ngts.tools.infra',
                   'pytester',
                   'ngts.tools.allure_report',
-                  'ngts.tools.mars_test_cases_results'
+                  'ngts.tools.mars_test_cases_results',
+                  'ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore'
                   )
 
 

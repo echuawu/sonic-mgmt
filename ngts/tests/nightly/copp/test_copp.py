@@ -66,7 +66,7 @@ def protocol_for_reboot_flow():
 @allure.title('CoPP Policer test case')
 @pytest.mark.parametrize("protocol", PROTOCOLS_LIST)
 def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params,
-                      sonic_version, is_trap_counters_supported):
+                      sonic_version, is_trap_counters_supported, extend_loganalyzer_ignore_by_reboot_expected_errors):
     """
     Run CoPP Policer test case, which will check that the policer enforces the rate limit for protocols.
     The test flow:

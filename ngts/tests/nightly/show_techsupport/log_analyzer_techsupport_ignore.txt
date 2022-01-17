@@ -1,1 +1,0 @@
-r, ".* WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*"

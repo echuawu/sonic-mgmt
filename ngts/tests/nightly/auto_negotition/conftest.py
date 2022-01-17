@@ -200,36 +200,6 @@ def convert_speeds_to_mb_format(speeds_list):
 
 
 @pytest.fixture(autouse=False)
-def ignore_expected_loganalyzer_reboot_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of reboot.
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..",
-                                                               "tools", "loganalyzer",
-                                                               "reboot_loganalyzer_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-
-
-@pytest.fixture(autouse=False)
-def ignore_auto_neg_expected_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of reboot.
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "negative_auto_neg_log_analyzer_ignores.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-
-
-@pytest.fixture(autouse=False)
 def expected_auto_neg_loganalyzer_exceptions(loganalyzer):
     """
     expanding the ignore list of the loganalyzer for these tests because of reboot.

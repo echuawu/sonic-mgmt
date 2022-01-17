@@ -1,9 +1,7 @@
 import allure
-import os
 import logging
 import pytest
 import random
-import re
 from retry.api import retry_call
 
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
@@ -21,47 +19,6 @@ TRAFFIC_TYPES = ['TCP', 'UDP']
 @pytest.fixture()
 def traffic_type():
     return random.choice(TRAFFIC_TYPES)
-
-
-@pytest.fixture(autouse=True)
-def ignore_expected_loganalyzer_exceptions(loganalyzer, platform_params):
-    """
-    expanding the ignore list of the loganalyzer for these tests because of reboot.
-    :param loganalyzer: loganalyzer utility fixture
-    :param platform_params: platform_params fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..",
-                                                               "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
-        ignoreRegex = [
-            ".*ERR.*hostcfgd: \'sudo systemctl stop macsec.service\' failed. RC: 5, output: None.*"
-        ]
-
-        if re.search('simx', platform_params.setup_name):
-            ignoreRegex.append(".* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due "
-                               "to FileNotFoundError\(2, 'No such file or directory'\)")
-            ignoreRegex.append(".* ERR watchdogutil: Failed to get watchdog module")
-
-        loganalyzer.ignore_regex.extend(ignoreRegex)
-
-
-@pytest.fixture(autouse=False)
-def ignore_temp_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests
-    because of some expected bugs which causes exceptions in log
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "temp_log_analyzer_ignores.txt")))
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
 
 
 @pytest.fixture(scope='package', autouse=True)

@@ -1,6 +1,5 @@
 import pytest
 import logging
-import os
 
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
@@ -119,24 +118,3 @@ def set_fdb_aging_time(engines, topology_obj):
                tries=20,
                delay=15,
                logger=logger)
-
-
-@pytest.fixture(autouse=False)
-def ignore_expected_loganalyzer_exceptions(loganalyzer):
-    """
-    expanding the ignore list of the loganalyzer for these tests
-    because of some expected bugs which causes exceptions in log
-    :param loganalyzer: loganalyzer utility fixture
-    :return: None
-    """
-    if loganalyzer:
-        ignore_reboot_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "..", "..",
-                                                               "tools", "loganalyzer",
-                                                               "reboot_loganalyzer_ignore.txt")))
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "log_analyzer_ignores.txt")))
-        loganalyzer.ignore_regex.extend(ignore_reboot_regex_list)
-        loganalyzer.ignore_regex.extend(ignore_regex_list)
