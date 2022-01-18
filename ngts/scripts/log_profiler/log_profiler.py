@@ -237,7 +237,7 @@ def elapsed_time_between_two_patterns_iterate(check_type, first_pattern, second_
 def get_log_lines(log_file_name, log_start_pattern, dut):
     log = ""
     test_log_files = []
-    dut_log_files = dut.run_cmd("ls -l " + log_file_path_dict[log_file_name], validate=True, print_output=False)
+    dut_log_files = dut.run_cmd("sudo ls -l " + log_file_path_dict[log_file_name], validate=True, print_output=False)
 
     log_file_suffix_list = ['.3.gz', '.2.gz', '.1', '']
     for log_file_suffix in log_file_suffix_list:
