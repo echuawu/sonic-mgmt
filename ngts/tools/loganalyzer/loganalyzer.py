@@ -4,6 +4,7 @@ import os
 import re
 import time
 import pprint
+import netmiko.ssh_exception
 
 from .log_parser import DutLogAnalyzer
 from os.path import join, split, dirname, exists
@@ -37,8 +38,13 @@ class DisableLogrotateCronContext:
         """
         Disable logrotate cron task and make sure the running logrotate is stopped.
         """
-        # Disable logrotate cron task
-        self.dut_engine.run_cmd("sudo sed -i 's/^/#/g' /etc/cron.d/logrotate")
+        try:
+            # Disable logrotate cron task
+            self.dut_engine.run_cmd("sudo sed -i 's/^/#/g' /etc/cron.d/logrotate")
+        except netmiko.ssh_exception.NetmikoAuthenticationException as err:
+            logger.error(
+                f'Unable to run command on the dut. Assuming that the device is not reachable. '
+                f'Got error: {err}')
 
         logging.debug("Waiting for logrotate from previous cron task run to finish")
         # Wait for logrotate from previous cron task run to finish
@@ -62,8 +68,13 @@ class DisableLogrotateCronContext:
         """
         Restore logrotate cron task.
         """
-        # Enable logrotate cron task back
-        self.dut_engine.run_cmd("sudo sed -i 's/^#//g' /etc/cron.d/logrotate")
+        try:
+            # Enable logrotate cron task back
+            self.dut_engine.run_cmd("sudo sed -i 's/^#//g' /etc/cron.d/logrotate")
+        except netmiko.ssh_exception.NetmikoAuthenticationException as err:
+            logger.error(
+                f'Unable to run command on the dut. Assuming that the device is not reachable. '
+                f'Got error: {err}')
 
 
 class LogAnalyzerError(Exception):
@@ -227,9 +238,14 @@ class LogAnalyzer:
         """
         logger.info("Loganalyzer init")
 
-        self.dut_engine.run_cmd("sudo rm -f {}".format(join(self.dut_run_dir, DUT_LOGANALYZER)))
-        self.dut_engine.copy_file(source_file=LOG_PARSER, dest_file=DUT_LOGANALYZER, file_system=self.dut_run_dir,
-                                  overwrite_file=True, verify_file=False)
+        try:
+            self.dut_engine.run_cmd("sudo rm -f {}".format(join(self.dut_run_dir, DUT_LOGANALYZER)))
+            self.dut_engine.copy_file(source_file=LOG_PARSER, dest_file=DUT_LOGANALYZER, file_system=self.dut_run_dir,
+                                      overwrite_file=True, verify_file=False)
+        except netmiko.ssh_exception.NetmikoAuthenticationException as err:
+            logger.error(
+                f'Unable to run command on the dut. Assuming that the device is not reachable. '
+                f'Got error: {err}')
 
         return self._setup_marker()
 

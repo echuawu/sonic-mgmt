@@ -8,6 +8,9 @@ Defines the methods and fixtures which will be used by pytest
 
 import pytest
 import logging
+import re
+
+from ngts.constants.constants import MarsConstants
 
 logger = logging.getLogger()
 
@@ -32,6 +35,63 @@ def pytest_addoption(parser):
     logger.info('Parsing fw_pkg')
     parser.addoption('--fw_pkg_path', action='store', required=False, default=None,
                      help='firmware package file path')
+    logger.info('Parsing base-version')
+    parser.addoption("--base-version", action="store",
+                     help="URL or path to the SONiC image. Firstly upgrade switch to this version.")
+    logger.info('Parsing target-version')
+    parser.addoption("--target-version", action="store",
+                     help="URL or path to the SONiC image. If this argument is specified, upgrade switch to this \
+                              version after upgraded to the base_version. Default: ''")
+    logger.info('Parsing serve_files')
+    parser.addoption("--serve_files", action="store",
+                     help="Specify whether to run http server on the running machine and serve the installer files"
+                          "Note: this option is not supported when running from a docker without ip")
+    logger.info('Parsing upgrade-only')
+    parser.addoption("--upgrade-only", action="store", default="no", choices=["yes", "no"],
+                     help="Specify whether to skip topology change and only do upgrade. Default: 'no'")
+    logger.info('Parsing sonic-topo')
+    parser.addoption("--sonic-topo", action="store",
+                     help="The topo for SONiC testing, for example: t0, t1, t1-lag, ptf32, ...")
+    logger.info('Parsing deploy_only_target')
+    parser.addoption("--deploy_only_target", action="store", default='no', choices=["yes", "no"],
+                     dest="deploy_only_target", help="If yes - then the installation of the base version will be "
+                                                     "skipped and the target version will be installed instead of "
+                                                     "the base.")
+    logger.info('Parsing deploy_fanout')
+    parser.addoption("--deploy_fanout", help="Specify whether to do fanout deployment. Default is 'no'",
+                     choices=["no", "yes"], action="store", default="no")
+    logger.info('Parsing onyx_image_url')
+    parser.addoption("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
+                                              " Example: http://fit69.mtl.labs.mlnx/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
+                     action="store", default=None)
+    logger.info('Parsing port-number')
+    parser.addoption("--port-number", action="store", default="",
+                     help="Specify the test setup's number of ports. Default: ''")
+    logger.info('Parsing recover_by_reboot')
+    parser.addoption("--recover_by_reboot", help="If post validation install validation has failed, "
+                                                 "reboot the dut and run post validation again."
+                                                 "This flag might be useful when the first boot has failed due to fw upgrade timeout",
+                     default=True, action='store_true')
+    logger.info('Parsing reboot')
+    parser.addoption("--reboot", action="store", default="no",
+                     choices=["no", "random"] + list(MarsConstants.REBOOT_TYPES.keys()),
+                     help="Specify whether reboot the switch after deploy. Default: 'no'")
+    logger.info('Parsing additional-apps')
+    parser.addoption("--additional-apps", help="Specify url to WJH debian package or JSON data of app extensions",
+                     default="", action="store")
+    logger.info('Parsing workspace-path')
+    parser.addoption("--workspace-path", help="Specify workspace path",
+                     default="/root/mars/workspace/", action="store")
+
+
+@pytest.fixture(scope="module")
+def workspace_path(request):
+    """
+    Method for getting workspace path from pytest arguments
+    :param request: pytest builtin
+    :return: workspace path
+    """
+    return request.config.getoption('--workspace-path')
 
 
 @pytest.fixture(scope="module")
@@ -45,6 +105,70 @@ def deploy_type(request):
 
 
 @pytest.fixture(scope="module")
+def base_version(request):
+    """
+    Method for getting base version from pytest arguments
+    :param request: pytest builtin
+    :return: base version
+    """
+    return request.config.getoption('--base-version')
+
+
+@pytest.fixture(scope="module")
+def target_version(request):
+    """
+    Method for getting target version from pytest arguments
+    :param request: pytest builtin
+    :return: target version
+    """
+    return request.config.getoption('--target-version')
+
+
+@pytest.fixture(scope="module")
+def serve_files(request):
+    """
+    Method for getting serve files from pytest arguments
+    :param request: pytest builtin
+    :return: serve files
+    """
+    return request.config.getoption('--serve_files')
+
+
+@pytest.fixture(scope="module")
+def upgrade_only(request):
+    """
+    Method for getting upgrade-only from pytest arguments
+    :param request: pytest builtin
+    :return: True if upgrade-only == yes, False - otherwise
+    """
+    upgrade_only_arg = request.config.getoption('--upgrade-only')
+    if upgrade_only_arg and re.match(r"^(no|false)$", upgrade_only_arg, re.I):
+        return True
+    return False
+
+
+@pytest.fixture(scope="module")
+def sonic_topo(request):
+    """
+    Method for getting sonic-topo from pytest arguments
+    :param request: pytest builtin
+    :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
+    """
+    return request.config.getoption('--sonic-topo')
+
+
+@pytest.fixture(scope="module")
+def deploy_only_target(request):
+    """
+    Method for getting deploy only target from pytest arguments
+    :param request: pytest builtin
+    :return: True/False
+    """
+    deploy_only_target_arg = request.config.getoption('--deploy_only_target')
+    return deploy_only_target_arg == "yes"
+
+
+@pytest.fixture(scope="module")
 def apply_base_config(request):
     """
     Method for getting base version from pytest arguments
@@ -52,6 +176,17 @@ def apply_base_config(request):
     :return: apply base config flag
     """
     return request.config.getoption('--apply_base_config')
+
+
+@pytest.fixture(scope="module")
+def deploy_fanout(request):
+    """
+    Method for getting deploy only target from pytest arguments
+    :param request: pytest builtin
+    :return: True/False
+    """
+    deploy_fanout_arg = request.config.getoption('--deploy_fanout')
+    return deploy_fanout_arg == "yes"
 
 
 @pytest.fixture(scope="module")
@@ -75,6 +210,36 @@ def is_shutdown_bgp(request):
 
 
 @pytest.fixture(scope="module")
+def onyx_image_url(request):
+    """
+    Method for getting onyx_image_url from pytest arguments
+    :param request: pytest builtin
+    :return: onyx_image_url
+    """
+    return request.config.getoption('--onyx_image_url')
+
+
+@pytest.fixture(scope="module")
+def port_number(request):
+    """
+    Method for getting port-number from pytest arguments
+    :param request: pytest builtin
+    :return: port-number
+    """
+    return request.config.getoption('--port-number')
+
+
+@pytest.fixture(scope="module")
+def recover_by_reboot(request):
+    """
+    Method for getting recover_by_reboot from pytest arguments
+    :param request: pytest builtin
+    :return: recover_by_reboot
+    """
+    return request.config.getoption('--recover_by_reboot')
+
+
+@pytest.fixture(scope="module")
 def fw_pkg_path(request):
     """
     Method for getting firmware package file path from pytest arguments
@@ -82,3 +247,23 @@ def fw_pkg_path(request):
     :return: path to firmware package
     """
     return request.config.getoption('--fw_pkg_path')
+
+
+@pytest.fixture(scope='session')
+def reboot(request):
+    """
+    Method for getting the reboot from pytest arguments
+    :param request: pytest builtin
+    :return: reboot
+    """
+    return request.config.getoption('--reboot')
+
+
+@pytest.fixture(scope='session')
+def additional_apps(request):
+    """
+    Method for getting the additional-apps from pytest arguments
+    :param request: pytest builtin
+    :return: additional-apps
+    """
+    return request.config.getoption('--additional-apps')

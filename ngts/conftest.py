@@ -147,7 +147,6 @@ def topology_obj(setup_name, request):
     """
     logger.debug('Creating topology object')
     topology = get_topology_by_setup_name(setup_name, slow_cli=False)
-    update_nos_type(topology)
     # Update CLI classes according to the current SONiC branch
     branch = request.session.config.cache.get(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
     update_branch_in_topology(topology, branch)
@@ -169,17 +168,6 @@ def export_cli_type_to_cache(topology, request):
     """
     cli_type = topology[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
     request.session.config.cache.set('CLI_TYPE', cli_type)
-
-
-def update_nos_type(topology):
-    """
-    This method will be deleted ones relevant attributes will be added in noga (CLI_TYPE)
-    """
-    sub_group = topology[0]['dut']['attributes'].noga_query_data['attributes']['Common']['sub_group']
-    cli_type = "SONIC"
-    if sub_group == "MLNX_OS_V2":
-        cli_type = "NVUE"
-    topology[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = cli_type
 
 
 def update_topology_with_cli_class(topology):

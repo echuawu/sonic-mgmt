@@ -31,6 +31,8 @@ def _parse_args():
                         help="Specify the location to checkout sonic-mgmt repo")
     parser.add_argument("--host_name", dest="host_name", help="Host on which git actions should be executed, host name"
                                                               "the same as in MARS topology file")
+    parser.add_argument("--tarball_path", dest="tarball_path", help="Tarballs directory",
+                        default="/auto/sw_regression/system/SONIC/MARS/tarballs/")
     return parser.parse_args()
 
 
@@ -38,7 +40,7 @@ def main():
 
     args = _parse_args()
 
-    tarball_shared_path = '/auto/sw_regression/system/SONIC/MARS/tarballs/'
+    tarball_shared_path = args.tarball_path
     tarball_path = os.path.join(tarball_shared_path, args.tarball)
     workspace_path = args.workspace_path
     host_name = args.host_name if args.host_name else constants.TEST_SERVER_DEVICE_ID

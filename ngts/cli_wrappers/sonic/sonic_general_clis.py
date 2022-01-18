@@ -288,8 +288,8 @@ class SonicGeneralCli(GeneralCliCommon):
         if deploy_type == 'onie':
             SonicGeneralCli.deploy_onie(dut_engine, image_path, in_onie, fw_pkg_path, platform_params)
 
-    @staticmethod
-    def deploy_image(topology_obj, image_path, apply_base_config=False, setup_name=None,
+    @classmethod
+    def deploy_image(cls, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
                      reboot_after_install=None, fw_pkg_path=None):
         dut_engine = topology_obj.players['dut']['engine']
@@ -321,10 +321,10 @@ class SonicGeneralCli(GeneralCliCommon):
                 SonicGeneralCli.install_wjh(dut_engine, wjh_deb_url)
 
         with allure.step("Validate dockers are up"):
-            SonicGeneralCli.verify_dockers_are_up(dut_engine)
+            cls.verify_dockers_are_up(dut_engine)
         with allure.step("Validate app extensions are up"):
-            SonicGeneralCli.verify_installed_extensions_running(dut_engine)
-        SonicGeneralCli.configure_dhclient_if_simx(dut_engine)
+            cls.verify_installed_extensions_running(dut_engine)
+        cls.configure_dhclient_if_simx(dut_engine)
 
     @staticmethod
     def deploy_sonic(dut_engine, image_path, is_skipping_migrating_package=False):

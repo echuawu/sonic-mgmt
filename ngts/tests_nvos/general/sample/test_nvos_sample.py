@@ -18,7 +18,7 @@ def test_nvos_show(engines):
 
         with allure.step('Run: show_platform_summary'):
             show_com = NvueChassisCli.show_platform_summary(engines.dut)
-            assert 'Platform: x86_64-mlnx_mqm8700-r0' in show_com
+            assert 'Platform: x86_64-mlnx_mqm' in show_com, "Command Failed"
 
         logger.info('Sample Test Completed')
 

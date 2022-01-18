@@ -24,7 +24,9 @@ SONIC_MGMT_MOUNTPOINTS = {
     '/auto/sw_regression/system/SONIC/MARS': '/auto/sw_regression/system/SONIC/MARS',
     '/.autodirect/sw_regression/system/SONIC/MARS': '/.autodirect/sw_regression/system/SONIC/MARS',
     '/workspace': '/workspace',
-    '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS'
+    '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS',
+    '/auto/sw_regression/system/NVOS/MARS': '/auto/sw_regression/system/NVOS/MARS',
+    '/.autodirect/sw_regression/system/NVOS/MARS': '/.autodirect/sw_regression/system/NVOS/MARS'
 }
 
 VER_SDK_PATH = "/opt/ver_sdk"

@@ -33,9 +33,7 @@ def loganalyzer(topology_obj, request, loganalyzer_log_folder):
 
     with DisableLogrotateCronContext(dut_engine):
         # Force rotate logs
-        dut_engine.run_cmd(
-            "sudo /usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1"
-        )
+        dut_engine.run_cmd("sudo /usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1")
 
     loganalyzer = LogAnalyzer(dut_engine=dut_engine,
                               marker_prefix=request.node.name,

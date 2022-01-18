@@ -55,7 +55,9 @@ class SonicConst:
 
 class CliType:
     NVUE = 'NVUE'
-    SONIC = 'SONIC'
+    SONIC = 'Sonic'
+    SHELL = 'SHELL'
+    MLNX_OS = 'MLNX_OS'
 
 
 class DbConstants:
@@ -63,7 +65,9 @@ class DbConstants:
     METADATA_PATH_NVOS = "/auto/sw_system_project/MLNX_OS_INFRA/NVOS-SONIC/MARS/metadata/"
 
     CLI_TYPE_PATH_MAPPING = {CliType.SONIC: METADATA_PATH,
-                             CliType.NVUE: METADATA_PATH_NVOS}
+                             CliType.NVUE: METADATA_PATH_NVOS,
+                             CliType.SHELL: METADATA_PATH,
+                             CliType.MLNX_OS: METADATA_PATH_NVOS}
     CREDENTIALS = {CliType.SONIC: {'server': 'mtlsqlprd', 'database': 'sonic_mars',
                                    'username': 'sonic_db_user', 'password': 'Pa$$word01'},
                    CliType.NVUE: {'server': "mtlsqlprd", 'database': "NVOS", 'username': 'NVOS_ADMIN',
@@ -663,3 +667,52 @@ class AppExtensionInstallationConstants:
                                      'sonic-lc-manager': LC_MANAGER,
                                      'p4-examples': P4ExamplesConsts.APP_NAME}
     APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME, P4ExamplesConsts.APP_NAME]
+
+
+class MarsConstants:
+    SONIC_MARS_BASE_PATH = "/.autodirect/sw_regression/system/SONIC/MARS"
+
+    SONIC_MGMT_DEVICE_ID = "SONIC_MGMT"
+    NGTS_PATH_PYTEST = "/ngts_venv/bin/pytest"
+    NGTS_PATH_PYTHON = "/ngts_venv/bin/python"
+    TEST_SERVER_DEVICE_ID = "TEST_SERVER"
+    NGTS_DEVICE_ID = "NGTS"
+    DUT_DEVICE_ID = "DUT"
+    FANOUT_DEVICE_ID = "FANOUT"
+    SONIC_MGMT_DIR = '/root/mars/workspace/sonic-mgmt/'
+    UPDATED_FW_TAR_PATH = 'tests/platform_tests/fwutil/updated-fw.tar.gz'
+    HTTTP_SERVER_FIT69 = 'http://fit69.mtl.labs.mlnx'
+
+    DOCKER_SONIC_MGMT_IMAGE_NAME = "docker-sonic-mgmt"
+    DOCKER_NGTS_IMAGE_NAME = "docker-ngts"
+
+    SONIC_MGMT_REPO_URL = "http://10.7.77.140:8080/switchx/sonic/sonic-mgmt"
+    SONIC_MGMT_MOUNTPOINTS = {
+        '/.autodirect/mswg/projects': '/.autodirect/mswg/projects',
+        '/auto/sw_system_project': '/auto/sw_system_project',
+        '/auto/sw_system_release': '/auto/sw_system_release',
+        '/.autodirect/sw_system_release/': '/.autodirect/sw_system_release/',
+        '/auto/sw_regression/system/SONIC/MARS': '/auto/sw_regression/system/SONIC/MARS',
+        '/.autodirect/sw_regression/system/SONIC/MARS': '/.autodirect/sw_regression/system/SONIC/MARS',
+        '/workspace': '/workspace',
+        '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS'
+    }
+
+    VER_SDK_PATH = "/opt/ver_sdk"
+    EXTRA_PACKAGE_PATH_LIST = ["/usr/lib64/python2.7/site-packages"]
+
+    TOPO_ARRAY = ("t0", "t1", "t1-lag", "ptf32", "t0-64", "t1-64-lag")
+    REBOOT_TYPES = {
+        "reboot": "reboot",
+        "fast-reboot": "fast-reboot",
+        "warm-reboot": "warm-reboot"
+    }
+
+    DOCKER_REGISTRY = "harbor.mellanox.com/sonic"
+
+    DUT_LOG_BACKUP_PATH = "/.autodirect/sw_system_project/sonic/dut_logs"
+
+    BRANCH_PTF_MAPPING = {'master': 'latest',
+                          '202012': '42007',
+                          '202106': '42007'
+                          }
