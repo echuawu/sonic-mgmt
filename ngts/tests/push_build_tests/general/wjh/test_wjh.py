@@ -200,6 +200,8 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
         # but all rest of info is in the first entry
         if isinstance(entry, list):
             entry = entry[0]
+        if isinstance(entry['Drop reason - Recommended action'], list):
+            entry['Drop reason - Recommended action'] = " ".join(entry['Drop reason - Recommended action'])
         if (entry['sPort'] == interface and
             entry['Src IP:Port'].split(':')[0] == src_ip and
             entry['Dst IP:Port'].split(':')[0] == dst_ip and
