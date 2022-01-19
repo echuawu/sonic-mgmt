@@ -16,7 +16,6 @@ ACL_TEMPLATE_FOLDER = "acl"
 
 
 class ACLConstants:
-    DUT_ACL_TMP_DIR = "acl_test_dir"
     PKT_COUNT = 10
     IP_VERSION_LIST = ["ipv4", "ipv6"]
     STAGE_LIST = ["ingress", "egress"]
@@ -179,7 +178,7 @@ def add_acl_rules(dut_engine, acl_table_config_list):
             continue
         template_file = os.path.join(BASE_DIR, f"{ACL_TEMPLATE_FOLDER}/{template_file_name}")
         logger.info(f"Generating basic ACL rules config for ACL table \"{table_name}\" on {dut_engine}")
-        dut_conf_file_path = f"{ACLConstants.DUT_ACL_TMP_DIR}/acl_rules_{table_name}.json"
+        dut_conf_file_path = f"acl_rules_{table_name}.json"
         config_template = jinja2.Template(open(template_file).read())
         with open('acl_config_file', 'w') as config_file:
             config_file.write(config_template.render(acl_table_config['rules_template_file_args']))
@@ -199,7 +198,7 @@ def clear_acl_rules(dut_engine):
     """
     logger.info(f"Clear the acl rules on {dut_engine}")
     acl_config_file = os.path.join(BASE_DIR, f"{ACL_TEMPLATE_FOLDER}/{ACL_REMOVE_RULES_FILE}")
-    dut_conf_file_path = f"{ACLConstants.DUT_ACL_TMP_DIR}/{ACL_REMOVE_RULES_FILE}"
+    dut_conf_file_path = f"{ACL_REMOVE_RULES_FILE}"
     dut_engine.copy_file(source_file=acl_config_file,
                          dest_file=dut_conf_file_path,
                          file_system="/home/admin",

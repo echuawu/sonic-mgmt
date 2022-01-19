@@ -351,9 +351,5 @@ def acl_table_config_list(engines, interfaces):
     acl_table_config_list = []
     for ip_version, stage in itertools.product(ip_version_list, stage_list):
         acl_table_config_list.append(acl_helper.generate_acl_table_config(stage, ip_version, port_list))
-    logger.info("Creating temporary folder \"{}\" for ACL test".format(ACLConstants.DUT_ACL_TMP_DIR))
-    engines.dut.run_cmd("mkdir -p {}".format(ACLConstants.DUT_ACL_TMP_DIR))
 
     yield acl_table_config_list
-    logger.info("Removing temporary directory \"{}\"".format(ACLConstants.DUT_ACL_TMP_DIR))
-    engines.dut.run_cmd("rm -rf {}".format(ACLConstants.DUT_ACL_TMP_DIR))
