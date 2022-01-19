@@ -789,7 +789,31 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
     Platform:
     - simx
 
+tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_dynamic_mac_learning[lldp]:
+  - Redmine:
+    - 2939294
+    Platform:
+    - simx
+
 # PushGate
+tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match:
+  - Redmine:
+    - 2939326
+    Platform:
+    - simx
+
+tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
+  - Redmine:
+    - 2939326
+    Platform:
+    - simx
+
+tests/push_build_tests/general/wjh/test_wjh.py:
+  - Redmine:
+    - 2939285
+    Platform:
+    - msn4700_simx
+
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   - Redmine:
     - 2804440
