@@ -158,7 +158,7 @@ class SonicOnieCli:
         if self.fw_pkg_path is None:
             logger.warning("No firmware package file path specified.")
         else:
-            logger.warning(f"Get latest ONIE version from specified file {self.fw_pkg_path}")
+            logger.info(f"Get latest ONIE version from specified file {self.fw_pkg_path}")
             fw_data = extract_fw_data(self.fw_pkg_path)
             if self.platform_params.filtered_platform.upper() in fw_data["chassis"]:
                 onie_info_list = fw_data["chassis"][self.platform_params.filtered_platform.upper()]["component"]["ONIE"]
