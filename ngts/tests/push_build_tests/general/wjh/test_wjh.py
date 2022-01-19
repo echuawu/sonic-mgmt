@@ -192,7 +192,6 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
     :param dst_mac: dst mac
     :param src_mac: src mac
     """
-    entry = []
     result = {'result': False, 'entry': None}
     for key in table:
         entry = table[key]
@@ -200,8 +199,7 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
         # but all rest of info is in the first entry
         if isinstance(entry, list):
             entry = entry[0]
-        if isinstance(entry['Drop reason - Recommended action'], list):
-            entry['Drop reason - Recommended action'] = " ".join(entry['Drop reason - Recommended action'])
+        format_wjh_entry_data(entry)
         if (entry['sPort'] == interface and
             entry['Src IP:Port'].split(':')[0] == src_ip and
             entry['Dst IP:Port'].split(':')[0] == dst_ip and
@@ -211,11 +209,46 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
             entry['dMAC'] == dst_mac and
             entry['sMAC'] == src_mac and
                 entry['Drop reason - Recommended action'] in drop_reason):
-                result['result'] = True
-                result['entry'] = entry
-                break
+            result['result'] = True
+            result['entry'] = entry
+            break
 
     return result
+
+
+def format_wjh_entry_data(entry):
+    """
+    Some column data of the entry may take more than one line, for this case, the entry data will be a list,
+    need to convert it to string
+    :param entry: the wjh entry data, in dict format
+    :return: None
+        for example:
+            entry before format:
+            {'#': '4',
+            'Timestamp': '22/01/19 07:22:15.525',
+            'sPort': 'Ethernet248', 'dPort': 'N/A', 'VLAN': 'N/A',
+            'sMAC': '98:03:9b:9b:3b:22', 'dMAC': '33:33:00:00:00:16',
+            'EthType': 'IPv6', 'Src IP:Port': ['fe80::9a03:9bff:fe9b:', '3b22'],
+            'Dst IP:Port': 'ff02::16', 'IP Proto': 'ip', 'Drop Group': 'L2', 'Severity': 'Warn',
+            'Drop reason - Recommended action': ['Multicast egress port list is empty - Validate',
+                                                'why IGMP join or multicast router port does not', 'exist']}
+            entry after format:
+            {'#': '4',
+            'Timestamp': '22/01/19 07:22:15.525',
+            'sPort': 'Ethernet248', 'dPort': 'N/A', 'VLAN': 'N/A',
+            'sMAC': '98:03:9b:9b:3b:22', 'dMAC': '33:33:00:00:00:16',
+            'EthType': 'IPv6', 'Src IP:Port': 'fe80::9a03:9bff:fe9b:3b22'],
+            'Dst IP:Port': 'ff02::16', 'IP Proto': 'ip', 'Drop Group': 'L2', 'Severity': 'Warn',
+            'Drop reason - Recommended action': 'Multicast egress port list is empty - Validate why IGMP
+                                                join or multicast router port does not exist'}
+    """
+    for column_header in ['sPort', 'Src IP:Port', 'Dst IP:Port', 'dMAC', 'sMAC',
+                          'Drop reason - Recommended action']:
+        if isinstance(entry[column_header], list):
+            if column_header == 'Drop reason - Recommended action':
+                entry[column_header] = " ".join(entry[column_header])
+            else:
+                entry[column_header] = "".join(entry[column_header])
 
 
 def validate_wjh_table(engines, cmd, table_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac):
