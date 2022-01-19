@@ -18,7 +18,7 @@ full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
 sys.path.append(full_path_to_community_plugins)
 
 from CustomSkipIf import pytest_runtest_setup  # noqa: E402
-from Branch import get_branch_from_version  # noqa: E402
+from Branch import get_branch_from_release_ouput  # noqa: E402
 
 
 def pytest_collection(session):

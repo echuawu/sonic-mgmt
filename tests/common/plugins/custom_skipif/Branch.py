@@ -36,8 +36,8 @@ def get_branch_name(pytest_item_obj):
     if not branch_name:
         logger.debug('Getting branch name from DUT')
         try:
-            show_version_raw_output = run_cmd_on_dut(pytest_item_obj, 'show version')
-            branch_name = get_branch_from_version(show_version_raw_output)
+            release_output = run_cmd_on_dut(pytest_item_obj, "sonic-cfggen -y /etc/sonic/sonic_version.yml -v release").strip()
+            branch_name = get_branch_from_release_ouput(release_output)
             pytest_item_obj.session.config.cache.set(CUSTOM_TEST_SKIP_BRANCH_NAME, branch_name)
         except Exception as err:
             logger.error('Unable to get branch name. Custom skip by branch impossible. Error: {}'.format(err))
@@ -48,14 +48,17 @@ def get_branch_name(pytest_item_obj):
     return branch_name
 
 
-def get_branch_from_version(version_output):
+def get_branch_from_release_ouput(release_output):
     """
-    Get branch name from 'show version' output
-    :param version_output: 'show version' command output
+    Get branch name from "sonic-cfggen -y /etc/sonic/sonic_version.yml -v release" output
+    :param release_output: output of ansible command "sonic-cfggen -y /etc/sonic/sonic_version.yml -v release"
     :return: string with branch name, example: '202012'
+    example of release_output:
+        'r-lionfish-13 | CHANGED | rc=0 >>\nnone'
+        'r-lionfish-13 | CHANGED | rc=0 >>\n202012'
     """
-    image_ver = re.search(r'SONiC\sSoftware\sVersion:\s(.*)', version_output, re.IGNORECASE).group(1)
-    # image_ver = SONiC.202012.175-84b565937_Internal
-    branch_index = 1
-    branch = image_ver.split('.')[branch_index]
-    return branch
+    branch_name = release_output.splitlines()[1]
+    # master branch always has release "none"
+    if branch_name == "none":
+        branch_name = "master"
+    return branch_name
