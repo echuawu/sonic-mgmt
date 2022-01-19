@@ -1,6 +1,7 @@
 import logging
 import allure
 import copy
+from retry import retry
 
 from ngts.helpers.network import generate_mac
 from retry.api import retry_call
@@ -100,6 +101,7 @@ def gen_test_interface_data(engines, interfaces, vlan_id):
     return interface_data
 
 
+@retry(Exception, tries=3, delay=5)
 def verify_mac_saved_to_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic"):
     """
     The method is to prepare the interface test data
@@ -116,6 +118,7 @@ def verify_mac_saved_to_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic
     assert False, f"Fdb item: {mac} {vlan_id} {port} {fdb_type} is not saved into fdb table"
 
 
+@retry(Exception, tries=3, delay=5)
 def verify_mac_not_in_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic"):
     """
     The method is to prepare the interface test data
