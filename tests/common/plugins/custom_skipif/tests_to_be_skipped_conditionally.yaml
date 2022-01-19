@@ -1008,3 +1008,34 @@ scripts/log_profiler/log_profiler.py::test_run_log_profiler:
 qos/test_buffer.py:
   - Platform:
     - x86_64-mlnx_msn2700-r0
+
+snmp/test_snmp_phy_entity.py::test_transceiver_info:
+  - Redmine:
+    - 2929579
+    Branch:
+    - master
+    - Platform:
+      - x86_64-mlnx_msn4700-r0
+
+pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/4817
+    Branch:
+    - master
+    - Platform:
+      - x86_64-mlnx_msn2700-r0
+      - x86_64-mlnx_msn3700-r0
+
+sflow/test_sflow.py::TestReboot::testWarmreboot:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/4817
+    Branch:
+    - master
+    - Platform:
+      - x86_64-mlnx_msn2700-r0
+
+show_techsupport/test_techsupport.py::test_secret_removed_from_show_techsupport:
+  - Redmine:
+    - 2934654
+    Branch:
+    - master
