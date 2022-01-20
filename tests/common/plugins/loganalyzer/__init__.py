@@ -56,6 +56,10 @@ def loganalyzer(duthosts, request):
         analyzers[duthost.hostname] = LogAnalyzer(ansible_host=duthost, marker_prefix=request.node.name)
     markers = parallel_run(analyzer_add_marker, [analyzers], {}, duthosts, timeout=120)
 
+    # TODO: temporal workaround for LA - force load regular expressions from common files
+    for host in analyzers:
+        analyzers[host].load_common_config()
+
     yield analyzers
 
     # Skip LogAnalyzer if case is skipped
