@@ -71,10 +71,6 @@ def is_trap_counters_supported(engines):
     """
     Pytest fixture which is veriies if Trap Counters supported on installed image
     """
-    logger.info('Skipping the Trap Counters validations as not all components are merged.\n'
-                'See the PR - https://github.com/Azure/sonic-buildimage/pull/9397')
-    return False
-
     logger.info('Verify if Trap Counters supported on installed image')
     try:
         engines.dut.run_cmd('sudo counterpoll flowcnt-trap', validate=True)
