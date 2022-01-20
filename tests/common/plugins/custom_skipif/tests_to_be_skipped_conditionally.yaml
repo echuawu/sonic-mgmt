@@ -995,6 +995,18 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match[ipv6-egress]:
   - Redmine:
     - 2921562
 
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
+  - Redmine:
+    - 2942509
+    - Branch:
+      - 202111
+
+tests/push_build_tests/general.wjh/test_wjh.py:
+  - Redmine:
+    - 2942484
+    - Branch:
+      - master
+
 scripts/log_profiler/log_profiler.py::test_run_log_profiler:
   - Redmine:
     - 2899542
