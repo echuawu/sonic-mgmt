@@ -1046,3 +1046,9 @@ show_techsupport/test_techsupport.py::test_secret_removed_from_show_techsupport:
     - 2934654
     Branch:
     - master
+
+iface_namingmode/test_iface_namingmode.py:
+  - Redmine:
+    - 2938601
+    Platform:
+    - x86_64-mlnx_msn4700-r0
