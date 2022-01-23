@@ -142,6 +142,33 @@ drop_packets/test_wjh.py::test_fid_miss:
     - 2912116
 
 # Platform
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next:
+  - Redmine:
+    - 2942626
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
+  - Redmine:
+    - 2944818
+    Platform:
+    - 2700
+    - 2410
+  - Redmine:
+    - 2382365
+    Platform:
+    - 2100
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
+  - Redmine:
+    - 2382365
+    Platform:
+    - 2100
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
+  - Redmine:
+    - 2382365
+    Platform:
+    - 2100
+
 platform_tests/link_flap/test_link_flap.py:
   - Redmine:
     - 2929366
