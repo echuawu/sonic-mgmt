@@ -138,6 +138,9 @@ class SonicOnieCli:
                     format(self.cut_console_baud_rate_from_onie_version(self.latest_onie_version))
                 self.run_cmd_set([f'onie-self-update {onie_updater_url}'])
                 self.post_reboot_delay()
+        else:
+            with allure.step(f"Doesn't required ONIE installation"):
+                logger.info(f"Doesn't required ONIE installation")
 
     @staticmethod
     def cut_console_baud_rate_from_onie_version(onie_version):

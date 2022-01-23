@@ -82,7 +82,8 @@ def extract_fw_data(fw_pkg_path):
         os.mkdir("/tmp/firmware")
     except OSError as e:
         # if already exists, thats fine
-        assert e.errno == errno.EEXIST, e
+        if not e.errno == errno.EEXIST:
+            raise AssertionError(f"Problem in creating temporary directory: /tmp/firmware. \n{e}")
     with tarfile.open(fw_pkg_path, "r:gz") as f:
         f.extractall("/tmp/firmware/")
         with open('/tmp/firmware/firmware.json', 'r') as fw:
