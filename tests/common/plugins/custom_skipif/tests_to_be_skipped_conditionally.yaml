@@ -952,6 +952,12 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_nexthop:
     Branch:
     - 202012
 
+tests/push_build_tests/general/wjh:
+  - Redmine:
+    - 2942484
+    Branch:
+    - master
+
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
     - 3800
