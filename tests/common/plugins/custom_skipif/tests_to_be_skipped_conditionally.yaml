@@ -807,6 +807,11 @@ tests/push_build_tests/general/wjh/test_wjh.py:
     - 2939285
     Platform:
     - msn4700_simx
+  - Redmine:
+    - 2942484
+    - Branch:
+        - master
+        - 202111
 
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   - Redmine:
@@ -962,6 +967,13 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
     - 3800
     - simx
+  - Redmine:
+    - 2943254
+    Platform:
+      - msn3
+      - Branch:
+        - 202111
+        - master
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   - Branch:
@@ -1006,12 +1018,6 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
     - 2942509
     - Branch:
       - 202111
-      - master
-
-tests/push_build_tests/general.wjh/test_wjh.py:
-  - Redmine:
-    - 2942484
-    - Branch:
       - master
 
 scripts/log_profiler/log_profiler.py::test_run_log_profiler:
