@@ -1,7 +1,7 @@
 import requests
 
 
-INACTIVE_STATES = ['Fixed', 'Closed (Rejected)', 'Closed']
+INACTIVE_STATES = ['Closed (Rejected)', 'Closed']
 ROOT_ISSUE = 'root_issue'
 STATUS = 'status'
 
