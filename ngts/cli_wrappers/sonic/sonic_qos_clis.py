@@ -11,3 +11,12 @@ class SonicQosCli:
         :return: command output
         """
         return engine.run_cmd('sudo config qos reload ', validate=True)
+
+    @staticmethod
+    def clear_qos(engine):
+        """
+        This method is to clear qos
+        :param engine: ssh engine object
+        :return: command output
+        """
+        return engine.run_cmd('sudo config qos clear ', validate=True)
