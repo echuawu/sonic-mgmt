@@ -211,3 +211,19 @@
       - pc/test_po_update.py::test_po_update_io_no_los
       Redmine:
       - 2615940
+
+- Errors_list:
+    - '.*ERR kernel:.*mlxsw_minimal .* Eeprom query failed.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      Redmine:
+        - 2940773
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to run thermal policy all fan and psu presence.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/test_platform_info.py::test_show_platform_temperature_mocked
+      Redmine:
+        - 2943278
