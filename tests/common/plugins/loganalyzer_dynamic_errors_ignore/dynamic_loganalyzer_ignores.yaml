@@ -190,14 +190,6 @@
       - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
       - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
 
-
-# From ngts/tests/push_build_tests/L2/lldp/temp_log_analyzer_ignores.txt
-- Errors_list:
-    - '.* WARNING syncd#SDK: \[SAI_UTILS.WARNING\] mlnx_sai_utils.c.*Not implemented object type.*vendor meta data not found.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/push_build_tests/L2/lldp/test_lldp.py
-
 # From ngts/tests/push_build_tests/L3/crm/crm_loganalyzer_ignore.txt
 - Errors_list:
     - '.* ERR swss#orchagent: :- removeLag: Failed to remove ref count.*\d+.*LAG PortChannel.*'
