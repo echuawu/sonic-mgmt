@@ -18,7 +18,7 @@ FS_MOUNTPOINT_TEMPLATE = "/tmp/image-{}-fs"
 OVERLAY_MOUNTPOINT_TEMPLATE = "/tmp/image-{}-overlay"
 
 def check_path_exists(path):
-    return duthost.stat(path = path)["stat"]["exists"] 
+    return duthost.stat(path = path)["stat"]["exists"]
 
 def pytest_generate_tests(metafunc):
     val = metafunc.config.getoption('--fw-pkg')
@@ -34,7 +34,7 @@ def fw_pkg(fw_pkg_name):
         os.mkdir("firmware")
     except Exception as e:
         pass # Already exists, thats fine
-    with tarfile.open(fw_pkg_name) as f:
+    with tarfile.open(fw_pkg_name, "r:gz") as f:
         f.extractall("./firmware/")
         with open('./firmware/firmware.json', 'r') as fw:
             fw_data = json.load(fw)
@@ -49,12 +49,12 @@ def random_component(duthost, fw_pkg):
     if len(components) == 0:
         pytest.skip("No suitable components found in config file for platform {}.".format(duthost.facts['platform']))
 
-    return components[randrange(len(components))] 
+    return components[randrange(len(components))]
 
 @pytest.fixture(scope='function')
 def host_firmware(localhost, duthost):
     logger.info("Starting local python server to test URL firmware update....")
-    comm = "python3 -m http.server --directory {}".format(os.path.join(DEVICES_PATH, 
+    comm = "python3 -m http.server --directory {}".format(os.path.join(DEVICES_PATH,
         duthost.facts['platform']))
     duthost.command(comm, module_ignore_errors=True, module_async=True)
     yield "http://localhost:8000/"
@@ -96,12 +96,11 @@ def next_image(duthost, fw_pkg):
 
     logger.info("Attempting to stage test firware onto newly-installed image.")
     try:
-        wait_until(10, 1, 0, check_path_exists, fs_rw)
         duthost.command("mkdir -p {}".format(fs_mountpoint))
         duthost.command("mkdir -p {}".format(fs_rw))
         duthost.command("mkdir -p {}".format(fs_work))
 
-        cmd = "mount -t s quashfs {} {}".format(fs_path, fs_mountpoint)
+        cmd = "mount -t squashfs {} {}".format(fs_path, fs_mountpoint)
         duthost.command(cmd)
 
         duthost.command("mkdir -p {}".format(overlay_mountpoint))
@@ -120,4 +119,3 @@ def next_image(duthost, fw_pkg):
 
     logger.info("Ensuring correct image is set to default boot.")
     duthost.command("sonic-installer remove {} -y".format("SONiC-OS-{}".format(target)))
-
