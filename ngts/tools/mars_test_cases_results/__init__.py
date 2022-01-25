@@ -16,11 +16,6 @@ NAME = "name"
 RESULT = "result"
 
 
-def pytest_addoption(parser):
-    parser.addoption("--disable_exporting_results_to_mars_db", action="store_true", default=False,
-                     help="Disable exporting cases results to MARS SQL database")
-
-
 def create_metadata_dir(session_id, cli_type):
     """
     Create directory for test artifacts in shared location
@@ -64,10 +59,6 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    if config.getoption("disable_exporting_results_to_mars_db"):
-        logger.info("Export MARS cases result to SQL database disabled")
-        return
-
     json_obj = []
     report_url = config.cache.get(ALLURE_REPORT_URL, None)
     session_id = config.cache.get(SESSION_ID, None)

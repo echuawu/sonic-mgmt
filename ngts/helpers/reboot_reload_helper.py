@@ -65,18 +65,6 @@ def add_to_pytest_args_disable_loganalyzer(pytest_args_list):
     return pytest_args_list
 
 
-def add_to_pytest_args_disable_exporting_test_results_to_mars_db(pytest_args_list):
-    """
-    This method adds disable_export_mars_cases_result parameter for pytest run args
-    :param pytest_args_list: list with pytest arguments
-    :return: modified list with pytest arguments
-    """
-    if PytestConst.disable_export_mars_cases_result not in pytest_args_list:
-        pytest_args_list.insert(-1, PytestConst.disable_export_mars_cases_result)
-
-    return pytest_args_list
-
-
 def remove_allure_server_project_id_arg(pytest_args_list):
     """
     This method removes the allure project id argument, since there is no need to maintain history for reboot validations

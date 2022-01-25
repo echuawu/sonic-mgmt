@@ -7,7 +7,6 @@ class PytestConst:
     run_cleanup_only_arg = '--run_cleanup_only'
     alluredir_arg = '--alluredir'
     disable_loganalyzer = '--disable_loganalyzer'
-    disable_export_mars_cases_result = '--disable_exporting_results_to_mars_db'
 
 
 class SonicConst:
