@@ -35,7 +35,6 @@ platform_tests/test_sensors.py::test_sensors:
     Branch:
     - master
     - 202111
-    - 202111_rc_01_20220117
 
 # pfc_asym(RPC)
 pfc_asym/test_pfc_asym.py::test_pfc_asym_off_tx_pfc:
@@ -71,52 +70,6 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     Platform:
     - msn3
     - msn4
-
-everflow/test_everflow_testbed.py:
-  - Redmine:
-    - 2929366
-    Branch:
-    - master
-  - Redmine:
-    - 2931441
-    Branch:
-    - 202012
-
-everflow/test_everflow_ipv6.py:
-  - Redmine:
-    - 2929366
-    Branch:
-    - master
-  - Redmine:
-    - 2931441
-    Branch:
-    - 202012
-
-# dhcp_relay
-dhcp_relay/test_dhcp_relay.py:
-  - Redmine:
-    - 2929366
-    Branch:
-    - master
-  - Redmine:
-    - 2931441
-    Branch:
-    - 202012
-
-dhcp_relay/test_dhcpv6_relay.py:
-  - Redmine:
-    - 2929366
-    Branch:
-    - master
-  - Redmine:
-    - 2931441
-    Branch:
-    - 202012
-
-# copp
-copp/test_copp.py::TestCOPP::test_counter:
-  - Redmine:
-    - 2863613
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
@@ -169,39 +122,8 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
     Platform:
     - 2100
 
-platform_tests/link_flap/test_link_flap.py:
-  - Redmine:
-    - 2929366
-    Branch:
-    - master
-  - Redmine:
-    - 2931441
-    Branch:
-    - 202012
-
-platform_tests/test_port_toggle.py:
-  - Redmine:
-    - 2929366
-    Branch:
-    - master
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_fans:
-  - Redmine:
-    - 2860420
-    Platform:
-    - 2201
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
-  - Redmine:
-    - 2885445
-    Branch:
-    - master
-    - 202111
-
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
-  - Redmine:
-    - 2875108
   - Redmine:
     - 2829184
     Platform:
@@ -213,7 +135,6 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
     - 202111
     Redmine:
     - 2878715
-    - 2885445
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   - Branch:
@@ -248,48 +169,6 @@ platform_tests/cli/test_show_platform.py::test_show_platform_fan:
     Platform:
     - 2201
 
-platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
-  - Redmine:
-    - 2879089
-    Platform:
-    - 2010
-    Branch:
-    - master
-    - 202111
-
-# Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
-platform_tests/test_sequential_restart.py::test_restart_swss:
-  - Redmine:
-    - 2875108
-  - Redmine:
-    - 2854587
-    Platform:
-    - 2201
-
-platform_tests/api/test_watchdog.py:
-  - Redmine:
-    - 2821986
-    Platform:
-    - 2201
-
-platform_tests/api/test_watchdog.py::TestWatchdogApi::test_arm_different_timeout_smaller:
-  - Redmine:
-    - 2910642
-    Platform:
-    - 2700
-
-platform_tests/api/test_watchdog.py::TestWatchdogApi::test_arm_different_timeout_greater:
-  - Redmine:
-    - 2910642
-    Platform:
-    - 2700
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
-  - Redmine:
-    - 2821986
-    Platform:
-    - 2201
-
 platform_tests/api/test_psu.py::TestPsuApi::test_fans:
   - Redmine:
     - 2829184
@@ -314,13 +193,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
     - master
     - 202111
 
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
-  - Redmine:
-    - 2885445
-    Branch:
-    - master
-    - 202111
-
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
   - Branch:
     - 201811
@@ -332,15 +204,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_serial:
     - 201811
     - 201911
     - 202012
-
-# Test failed because "systemctl is-system-running" returns "degraded"
-platform_tests/test_reload_config.py:
-  - Redmine:
-    - 2875108
-  - Redmine:
-    - 2854554
-    Platform:
-    - 2201
 
 platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
   - Platform:
@@ -726,14 +589,6 @@ mvrf/test_mgmtvrf.py:
       - x86_64-mlnx_msn2700-r0
       - x86_64-mlnx_msn3700-r0
 
-# sflow
-sflow/test_sflow.py:
-  - Redmine:
-    - 2886553
-    Branch:
-    - master
-    - 202111
-
 # pbh
 ecmp/inner_hashing:
   - Branch:
@@ -773,14 +628,6 @@ tests/nightly/dynamic_port_breakout:
     - 202012
     - 202106
 
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
-  - Redmine:
-    - 2927327
-
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_remove_dpb_configuration_interop:
-  - Redmine:
-    - 2927327
-
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
     - simx
@@ -796,11 +643,6 @@ tests/nightly/static_route/test_static_route.py:
     - simx
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
-  - Redmine:
-    - 2838163
-    Branch:
-    - master
-    - 202111
   - Branch:
     - 202012
 
@@ -964,25 +806,8 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
     - simx
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
-  - Redmine:
-    - 2876984
-    Branch:
-    - master
-    - 202111
   - Platform:
     - simx
-
-tests/push_build_tests/L3/crm/test_crm.py:
-  - Redmine:
-    - 2929718
-    Branch:
-    - 202012
-
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_nexthop:
-  - Redmine:
-    - 2909197
-    Branch:
-    - 202012
 
 tests/push_build_tests/general/wjh:
   - Redmine:
@@ -1031,25 +856,6 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
     - 202111
     - Platform:
       - 3700
-
-tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match[ipv5-egress]:
-  - Redmine:
-    - 2921562
-
-tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match[ipv6-egress]:
-  - Redmine:
-    - 2921562
-
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
-  - Redmine:
-    - 2942509
-    - Branch:
-      - 202111
-      - master
-
-scripts/log_profiler/log_profiler.py::test_run_log_profiler:
-  - Redmine:
-    - 2899542
 
 qos/test_buffer.py:
   - Platform:
