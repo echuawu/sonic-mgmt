@@ -19,13 +19,35 @@ from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setu
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import SonicConst, PytestConst
+from ngts.constants.constants import PytestConst
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.sonic_branch_helper import get_sonic_branch
 
 logger = logging.getLogger()
+
+
+def pytest_sessionstart(session):
+    """Clear cached variables from previous pytest session"""
+
+    session.config.cache.set(PytestConst.LA_DYNAMIC_IGNORES_LIST, None)
+    session.config.cache.set(PytestConst.CUSTOM_SKIP_IF_DICT, None)
+    session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_PLATFORM_TYPE, None)
+    session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
+
+
+def pytest_collection(session):
+
+    topology = get_topology_by_setup_name(session.config.option.setup_name, slow_cli=False)
+    devinfo = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription']
+
+    platform = json.loads(devinfo).get('platform')
+    session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_PLATFORM_TYPE, platform)
+
+    branch = get_sonic_branch(topology)
+    session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, branch)
+
 
 pytest_plugins = ('ngts.tools.sysdumps',
                   'ngts.tools.custom_skipif.CustomSkipIf',

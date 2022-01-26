@@ -7,6 +7,10 @@ class PytestConst:
     run_cleanup_only_arg = '--run_cleanup_only'
     alluredir_arg = '--alluredir'
     disable_loganalyzer = '--disable_loganalyzer'
+    CUSTOM_SKIP_IF_DICT = 'custom_skip_if_dict'
+    CUSTOM_TEST_SKIP_PLATFORM_TYPE = 'dynamic_tests_skip_platform_type'
+    CUSTOM_TEST_SKIP_BRANCH_NAME = 'dynamic_tests_skip_branch_name'
+    LA_DYNAMIC_IGNORES_LIST = 'LA_DYNAMIC_IGNORES_LIST'
 
 
 class SonicConst:
