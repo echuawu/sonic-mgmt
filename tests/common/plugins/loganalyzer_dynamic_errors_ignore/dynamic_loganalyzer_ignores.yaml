@@ -190,7 +190,6 @@
       - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
       - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
 
-# From ngts/tests/push_build_tests/L3/crm/crm_loganalyzer_ignore.txt
 - Errors_list:
     - '.* ERR swss#orchagent: :- removeLag: Failed to remove ref count.*\d+.*LAG PortChannel.*'
   Conditions:
@@ -201,6 +200,15 @@
       - tests/push_build_tests/L3/crm/test_crm.py::test_crm_fdb_entry
       - tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl
       - pc/test_po_update.py::test_po_update_io_no_los
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      Redmine:
+      - 2615940
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- removeLag: Failed to remove non-empty LAG PortChannel.*'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update
       Redmine:
       - 2615940
 
