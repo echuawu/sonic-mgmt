@@ -37,8 +37,7 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
 
     # LAG/LACP config which will be used in test
     lag_lacp_config_dict = {
-        'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_1]},
-               {'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_2]}]
+        'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_1, interfaces.hb_dut_2]}]
     }
 
     # VLAN config which will be used in test
