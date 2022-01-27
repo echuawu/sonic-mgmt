@@ -53,7 +53,6 @@ def same_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac,
 @allure.title('Test when different entries with different priority can match with same traffic, '
               'the entry with high priority will hit. ')
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
-@pytest.mark.usefixtures('extend_loganalyzer_ignore_by_reboot_expected_errors')
 def test_entries_with_different_priority(engines, different_priority_entries, topology_obj, interfaces):
     """
     Test when different entries with different priority can match with same traffic, the entry with high priority will hit.
@@ -78,7 +77,6 @@ def test_entries_with_different_priority(engines, different_priority_entries, to
 @allure.title('Test when different entries with same priority can match with same traffic, '
               'only one entry will hit, and the entry is randomly selected.')
 @pytest.mark.usefixtures('skipping_p4_sampling_test_case_for_spc1')
-@pytest.mark.usefixtures('extend_loganalyzer_ignore_by_reboot_expected_errors')
 def test_entries_with_same_priority(engines, same_priority_entries, topology_obj, interfaces):
     """
     Test when different entries with same priority can match with same traffic, only one entry will hit, and the entry

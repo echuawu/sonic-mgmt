@@ -465,25 +465,11 @@ class TestDHCP6Relay:
 
     @pytest.mark.dhcp6_relay
     @pytest.mark.build
-    def test_dhcpv6_relay_client_request_with_malformed_payload(self, loganalyzer):
+    def test_dhcpv6_relay_client_request_with_malformed_payload(self):
         """
         Test checks that message with malformed payload not forwarded by DHCP6 relay to DHCP6 server
-        :param loganalyzer: lognalyzer fixture
         :return: raise exception in case of failure
         """
-        if loganalyzer:
-            ignore_regex_list = \
-                loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                   '..', '..', '..', '..',
-                                                                   'tools', 'loganalyzer',
-                                                                   'reboot_loganalyzer_ignore.txt')))
-            loganalyzer.ignore_regex.extend(ignore_regex_list)
-            ignoreRegex = [
-                r'.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.',
-                r'.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\smessage\srepeated\s\d+\stimes:\s\[\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
-            ]
-            loganalyzer.ignore_regex.extend(ignoreRegex)
-
         dhcp_request_pkt_raw_payload = self.base_packet.format(dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
                                                                src_ip=self.dhclient_main_iface_linklocal_ipv6,
                                                                dst_ip=LinuxDhcpCli.dhcpv6_reserved_dst_ip,

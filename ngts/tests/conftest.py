@@ -198,15 +198,3 @@ def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_bra
     branch = sonic_branch if sonic_branch in expected_cpu_or_ram_usage_dict.keys() else default_branch
     expected_cpu_or_ram_usage_dict = expected_cpu_or_ram_usage_dict[branch][platform]
     return expected_cpu_or_ram_usage_dict
-
-
-@pytest.fixture()
-def extend_loganalyzer_ignore_by_reboot_expected_errors(loganalyzer):
-
-    if loganalyzer:
-        ignore_regex_list = \
-            loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                               "..", "tools", "loganalyzer",
-                                                               "reboot_loganalyzer_ignore.txt")))
-        logger.info('Extending ignore LogAnalyzer errors list by reboot expected errors')
-        loganalyzer.ignore_regex.extend(ignore_regex_list)

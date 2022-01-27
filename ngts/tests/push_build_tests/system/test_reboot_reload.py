@@ -73,19 +73,6 @@ class RebootReload:
         self.app_name = shared_params.app_ext_app_name
         self.version = shared_params.app_ext_version
 
-    @pytest.fixture(autouse=True)
-    def ignore_expected_loganalyzer_exceptions(self, loganalyzer):
-        """
-        expanding the ignore list of the loganalyzer for these tests because of reboot.
-        :param loganalyzer: loganalyzer utility fixture
-        :return: None
-        """
-        if loganalyzer:
-            ignore_regex_list = loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                                   "..", "..", "..",
-                                                                                   "tools", "loganalyzer", "reboot_loganalyzer_ignore.txt")))
-            loganalyzer.ignore_regex.extend(ignore_regex_list)
-
     @pytest.mark.disable_loganalyzer
     def push_gate_reboot_test_runner(self, request, validation_type):
         """

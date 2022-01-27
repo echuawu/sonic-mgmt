@@ -21,6 +21,75 @@
 #    - GitHub:
 #      - https://github.com/Azure/sonic-buildimage/issues/9811
 
+# Errors which should be ignored in tests which doing reboot/reload
+- Errors_list:
+    - '.* ERR mlxfwmanager: LIBMVPD: MVPD_READ4 failed on offset:.*'
+    - '.* ERR \/container: docker cmd: kill for .* failed .*'
+    - '.* ERR pmon#thermalctld: Caught exception while running thermal policy .*'
+    - '.* ERR (caclmgrd|\/hostcfgd).*: :- poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.* INFO hostcfgd.*:     raise ConnectionError.*'
+    - '.* ERR systemd.*: kdump-tools.service: Ignoring invalid environment assignment .* /etc/default/kdump-tools.*'
+    - '.* ERR hw-management: Path /var/run/hw-management/events/.* doesn''t exist'
+    - '.* ERR dhclient.*send_packet: Network is unreachable.*'
+    - '.* ERR dhclient.*send_packet: please consult README file regarding broadcast address.*'
+    - '.* ERR dhclient.*Failed to send 300 byte long packet over .*'
+    - '.* ERR dhclient.*No buffer space available.*'
+    - '.* ERR syncd#SDK:.*Invalid port type.*'
+    - '.* ERR syncd#SDK:.*mlnx_sai_utils.c.*Failed attribs dispatch.*'
+    - '.* ERR syncd#SDK:.*mlnx_sai_bridge.c.*Unexpected bridge type.*'
+    - '.* ERR syncd#SDK:.*mlnx_sai_utils.c.*Failed getting attrib.*'
+    - '.* WARNING syncd#SDK:.*skipping since it causes crash:.*'
+    - '.* ERR swss#orchagent:.*ASIC sensors : failed to get .*'
+    - '.* ERR syncd#SDK:.*Unsupported debug counter type.*'
+    - '.* ERR syncd#SDK:.*Invalid port counter.*'
+    - '.* INFO systemd.*Start.*Kernel crash dump capture service.*'
+    - '.* ERR syncd#SDK:.*mlnx_initialize_switch: Transaction mode should be enabled, enabling now.*'
+    - '.* NOTICE syncd#SDK:.*Create trap.*'
+    - '.* ERR neighbor_advertiser: EVERFLOW.* table does not exist.*'
+    - '.* INFO systemd.*: Finished Kernel crash dump capture service.*'
+    - '.* ERR syncd#SDK:.*\[SAI_BRIDGE.ERR\].*Isolation group is only supported for bridge port type port.*'
+    - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*Port index not found in DB by log id.*'
+    - '.* ERR teamd#teammgrd:.*/usr/bin/teamd -k -t.*'
+    - '.* ERR caclmgrd.*: message repeated \d+ times: .*poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.*Not supported stats ID.*'
+    - '.* ERR syncd#SDK:.*\[SX_API_BULK_COUNTER.ERR\].*Invalid value of port counter-groups bitmap.*'
+    - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to convert counter IDs to counter types bitmap.*'
+    - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to create buffer: Parameter Error.*'
+    - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\].*mlnx_sai_port.c.* Failed to allocate SDK buffer.*'
+    - '.* ERR swss#\w+syncd: :- readData: netlink reports .* on reading a netlink socket.*'
+    - '.* ERR syncd#SDK:.*\[SX_API_INTERNAL.ERR\].*Failed command read at communication channel: Connection reset by peer.*'
+    - '.* ERR \/hostcfgd:.*sudo systemctl (enable|disable).*failed. RC: 1.*'
+    - '.* ERR \/hostcfgd:.*Feature.*failed to be\s+(enabled and started|stopped and disabled).*'
+    - '.* ERR (swss#portsyncd|teamd#teamsyncd):.*netlink reports an error=-33 on reading a netlink socket.*'
+    - '.* ERR systemd-udevd.*: could not read from ''\/sys\/module\/acpi_cpufreq\/initstate'': No such device.*'
+    - '.* (ERR|WARNING) syncd#(SAI|SDK):.*Shared memory of the.*already exists,\s*destroying it and re-creating.*'
+    - '.* ERR swss#orchagent:.*removeLag: Failed to remove (ref count 1|non-empty) LAG PortChannel.*'
+    - '.* ERR \/hostcfgd:.*error returned by select.*'
+  Conditions:
+    - Affected_test_cases:
+      # Canonical
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/copp/test_copp.py::test_copp_policer
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_lag_min_links
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      # Community
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
     - '.* ERR watchdogutil: Failed to get watchdog module'
@@ -227,3 +296,10 @@
       - platform_tests/test_platform_info.py::test_show_platform_temperature_mocked
       Redmine:
         - 2943278
+
+- Errors_list:
+    - '.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
+    - '.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\smessage\srepeated\s\d+\stimes:\s\[\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload
