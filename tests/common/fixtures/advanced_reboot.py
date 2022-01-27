@@ -112,7 +112,10 @@ class AdvancedReboot:
             elif 'warm-reboot' in self.rebootType:
                 self.rebootLimit = 0
             else:
-                self.rebootLimit = 30 # Default reboot limit for physical devices
+                if self.tbinfo["topo"]["name"] == "t0-64":
+                    self.rebootLimit = 32
+                else:
+                    self.rebootLimit = 30 # Default reboot limit for physical devices
 
     def getHostMaxLen(self):
         '''
