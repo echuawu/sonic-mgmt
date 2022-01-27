@@ -71,6 +71,7 @@
       - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       - tests/nightly/copp/test_copp.py::test_copp_policer
+      - tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
       - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
