@@ -101,6 +101,17 @@
     - Platform:
       - simx
 
+- Errors_list:
+    - '.* ERR hostcfgd: sonic-kdump-config --disable - failed: return code - 1, output:#012None'
+    - '.* ERR hostcfgd: sonic-kdump-config --memory 0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M - failed: return code - 1, output:#012None'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fec/test_fec.py
+      Platform:
+      - sn5600_simx
+      Redmine:
+      - 2951102
+
 # Ignores for LAG/LACP tests
 - Errors_list:
     - '.* ERR.*hostcfgd: ''sudo systemctl stop macsec.service'' failed. RC: 5, output: None.*'
@@ -151,7 +162,6 @@
       - tests/nightly/lag/test_lag.py::test_lags_scale
 # Finished ignores from temp_log_analyzer_ignores.txt in LAG folder
 
-# From ngts/tests/nightly/show_techsupport/log_analyzer_techsupport_ignore.txt and temp_log_analyzer_ignores.txt
 - Errors_list:
     - '.* WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
@@ -159,11 +169,14 @@
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access status failed \(.*\).*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: HW semaphore is not released.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Cmd exec failed \(.*\).*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048 sfp9: Eeprom query failed.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048 sfp\d+: Eeprom query failed.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport
+      - show_techsupport/test_techsupport.py::test_techsupport
+      Redmine:
+      - 2723566
 
 # From ngts/tests/nightly/arp/log_analyzer_ignores.txt
 - Errors_list:
@@ -237,6 +250,7 @@
     - Affected_test_cases:
       - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
       - tests/nightly/p4/examples_application/test_p4_examples_app.py::test_p4_examples_feature_state
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       Redmine:
       - 2920504
 
