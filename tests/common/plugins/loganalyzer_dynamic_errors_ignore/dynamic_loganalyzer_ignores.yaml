@@ -109,6 +109,7 @@
     - Affected_test_cases:
       - tests/nightly/fec/test_fec.py
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - pc/test_po_update.py::test_po_update_io_no_loss
       Redmine:
       - 2951102
 
@@ -357,6 +358,8 @@
         - 2954292
       Branch:
         - 202012
+        - 202111
+        - master
 
 - Errors_list:
     - '.* ERR swss#fdbsyncd: :- readData: netlink reports an error=-25 on reading a netlink socket'
@@ -445,6 +448,39 @@
       - system_health/test_system_health.py::test_system_health_config
       Redmine:
         - 2954933
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR teamd#tlm_teamd: :- get_dump: Can''t get dump for LAG ''PortChannel\d+''. Skipping'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update
+      Redmine:
+        - 2934692
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Not allowed to read/clear port counters when at least one port bulk counter transaction is in progress'
+    - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[970\]- mlnx_clear_queue_stats: Failed to get clear port tc counters - Command Unpermitted.'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[6873\]- mlnx_clear_port_all_stats: Failed to clear all port counters - Command Unpermitted.'
+    - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[970\]- mlnx_clear_queue_stats: Failed to get clear port tc counters - Command Unpermitted.\]'
+    - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[711\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.\]'
+  Conditions:
+    - Affected_test_cases:
+      - pfc_asym/test_pfc_asym.py::test_pfc_asym_off_rx_pause_frames
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXoffLimit[None-xoff_1]
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXonLimit[None-xon_1]
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize[None]
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiPgSharedWatermark[None-wm_pg_shared_lossless]
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXonLimit[None-xon_2]
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiPgSharedWatermark[None-wm_pg_shared_lossy]
+      - qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark[None-wm_q_shared_lossless]
+      Redmine:
+        - 2955175
       Branch:
         - 202111
         - master
