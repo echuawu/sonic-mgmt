@@ -6,6 +6,7 @@ from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -13,7 +14,7 @@ CONFIG_DB_COPP_CONFIG = '/etc/sonic/copp_cfg.json'
 
 
 @pytest.fixture(scope='module', autouse=True)
-def copp_configuration(topology_obj, engines, interfaces, cli_objects):
+def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_name, platform_params):
     """
     Pytest fixture which are doing configuration for test case based on copp config
     :param topology_obj: topology object fixture
@@ -36,7 +37,6 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects):
     logger.info('Disable periodic lldp traffic')
     cli_objects.ha.general.stop_service(engines.ha, 'lldpad')
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-
     logger.info('CoPP Common configuration completed')
 
     yield
@@ -45,8 +45,7 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects):
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     cli_objects.ha.general.start_service(engines.ha, 'lldpad')
 
-    cli_objects.dut.general.load_configuration(engines.dut, CONFIG_DB_COPP_CONFIG)
-    cli_objects.dut.general.save_configuration(engines.dut)
+    SonicGeneralCli.apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
 
     logger.info('CoPP Common cleanup completed')
 
