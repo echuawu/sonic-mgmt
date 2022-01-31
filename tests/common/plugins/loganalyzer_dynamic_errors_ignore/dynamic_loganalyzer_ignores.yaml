@@ -337,3 +337,76 @@
       - pfcwd/test_pfcwd_timer_accuracy.py::TestPfcwdAllTimer::test_pfcwd_timer_accuracy
       Redmine:
         - 2954026
+
+- Errors_list:
+    - '.* ERR bgp#fpmsyncd: :- onRouteMsg: Invalid VRF name  \(ifindex \d+\)'
+  Conditions:
+    - Affected_test_cases:
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      Redmine:
+        - 2954105
+      Branch:
+        - 202012
+
+- Errors_list:
+    - '.* ERR dhcp_relay#dhcp6relay: bind: Failed to bind to socket'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      Redmine:
+        - 2954292
+      Branch:
+        - 202012
+
+- Errors_list:
+    - '.* ERR swss#fdbsyncd: :- readData: netlink reports an error=-25 on reading a netlink socket'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      Redmine:
+        - 2606325
+      Branch:
+        - 202012
+
+- Errors_list:
+    - '.* WARNING syncd#SDK: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[328\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[6100\]- mlnx_get_port_stats_ext: Invalid port counter \d+'
+    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[3364\]- sai_db_create: mlnx_sai_switch.c\[3364\]- sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5044\]- sai_qos_db_create: mlnx_sai_switch.c\[5044\]- sai_qos_db_create: Shared memory of the SAI QOS already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5192\]- sai_buffer_db_create: mlnx_sai_switch.c\[5192\]- sai_buffer_db_create: Shared memory of the SAI buffer already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5342\]- sai_acl_db_create: mlnx_sai_switch.c\[5342\]- sai_acl_db_create: Shared memory of the SAI ACL already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5445\]- sai_tunnel_db_create: mlnx_sai_switch.c\[5445\]- sai_tunnel_db_create: Shared memory of the SAI TUNNEL already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SDK: \[SXD_DPT.WARNING\] sxd_dpt_init\(\): Shared memory of the DPT already exists,destroying it and re-creating'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      Branch:
+        - 202012
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[1872\]- mlnx_bridge_port_lag_or_port_get: Invalid port type - 2'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2275\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_PORT_ATTR_ISOLATION_GROUP'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2275\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_ATTR_UNKNOWN_UNICAST_FLOOD_GROUP'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2275\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_ATTR_UNKNOWN_MULTICAST_FLOOD_GROUP'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2275\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_ATTR_BROADCAST_FLOOD_GROUP'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2275\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_PORT_ATTR_PORT_ID'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2412\]- sai_get_attributes: Failed attribs dispatch'
+    - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[2631\]- mlnx_bridge_port_isolation_group_get: Isolation group is only supported for bridge port type port'
+    - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[1439\]- mlnx_bridge_1d_oid_to_data: Unexpected bridge type 0 is not 1D'
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      Redmine:
+        - 2619129
+      Branch:
+        - 202012
