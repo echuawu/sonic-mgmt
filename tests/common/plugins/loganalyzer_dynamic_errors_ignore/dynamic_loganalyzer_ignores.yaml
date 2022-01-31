@@ -318,3 +318,22 @@
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[2199\]- mlnx_sai_buffer_create_pool_hw: Pool creation failed. sx_status:5, message No More Resources.'
+    - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_INSUFFICIENT_RESOURCES'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_BUFFER_POOL_ATTR_SIZE: 0'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_BUFFER_POOL_ATTR_TYPE: SAI_BUFFER_POOL_TYPE_INGRESS'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_BUFFER_POOL_ATTR_THRESHOLD_MODE: SAI_BUFFER_POOL_THRESHOLD_MODE_DYNAMIC'
+    - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_INSUFFICIENT_RESOURCES'
+    - '.* ERR swss#orchagent: :- createZeroBufferProfile: Failed to create dynamic zero buffer pool for PFC WD: -4'
+    - '.* ERR syncd#SDK: \[COS_DB_SB.ERR\] \[CREATE\]:No available Pool to use \(existed pools number=5, pool dir=0\)'
+    - '.* ERR syncd#SDK: \[COS_SB.ERR\] sx_cos_db_pool_set\(SX_ACCESS_CMD_CREATE\): No More Resources'
+    - '.* WARNING syncd#SDK: \[COS_SB.WARNING\] Failed in cos_sb_pool_param_set_cb\(\) , error: No More Resources'
+    - '.* WARNING syncd#SDK: \[CORE_API.WARNING\] Failed in cos_pool_param_set_cb_wrapper\(\) , error: No More Resources'
+    - '.* WARNING syncd#SDK: \[SX_API_COS.WARNING\] sx_api_cos_pool_set failed. err: 5'
+  Conditions:
+    - Affected_test_cases:
+      - pfcwd/test_pfcwd_timer_accuracy.py::TestPfcwdAllTimer::test_pfcwd_timer_accuracy
+      Redmine:
+        - 2954026
