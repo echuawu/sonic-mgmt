@@ -624,6 +624,15 @@ tests/nightly/dynamic_port_breakout:
     - 2885961
     Platform:
     - simx
+  - Redmine:
+    - 2954550
+    Platform:
+    - 4600
+    - 2700
+  - Redmine:
+    - 2954916
+    Platform:
+    - 3800
   - Branch:
     - 202012
     - 202106
