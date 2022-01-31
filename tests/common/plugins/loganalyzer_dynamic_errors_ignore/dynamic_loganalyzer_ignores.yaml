@@ -90,6 +90,7 @@
       # Community
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
 
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
@@ -107,8 +108,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/fec/test_fec.py
-      Platform:
-      - sn5600_simx
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       Redmine:
       - 2951102
 
@@ -410,3 +410,41 @@
         - 2619129
       Branch:
         - 202012
+
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[SAI_TUNNEL.WARNING\] mlnx_sai_tunnel.c\[3610\]- mlnx_sdk_fill_tunnel_ttl_data: TTL uniform model is not supported for non-ipinip type on Spectrum 1, using default settings in switch'
+  Conditions:
+    - Affected_test_cases:
+      - vxlan/test_vxlan_decap.py::test_vxlan_decap[Enabled]
+      Redmine:
+        - 2954740
+      Branch:
+        - 202111
+        - master
+      Platform:
+        - x86_64-mlnx_msn2
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[630\]- mlnx_bridge_port_sai_to_log_port_not_locked: Invalid bridge port type 4 - should be port or sub-port'
+    - '.* ERR swss#orchagent: :- flushFDBEntries: Flushing FDB failed. rv:-5'
+  Conditions:
+    - Affected_test_cases:
+      - vxlan/test_vxlan_decap.py::test_vxlan_decap[Removed]
+      Redmine:
+        - 2954778
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan\d_status - ValueError\("invalid literal for int\(\) with base 10: ''''"\)'
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/psu\d_status - ValueError\("invalid literal for int\(\) with base 10: ''''"\)'
+    - '.* ERR pmon#psud: Failed to read from file /var/run/hw-management/thermal/psu\d_status - ValueError\("invalid literal for int\(\) with base 10: ''''"\)'
+  Conditions:
+    - Affected_test_cases:
+      - system_health/test_system_health.py::test_system_health_config
+      Redmine:
+        - 2954933
+      Branch:
+        - 202111
+        - master
