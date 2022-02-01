@@ -110,6 +110,8 @@
       - tests/nightly/fec/test_fec.py
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - pc/test_po_update.py::test_po_update_io_no_loss
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       Redmine:
       - 2951102
 
@@ -157,11 +159,7 @@
     - '.* ERR pmon#sensord: Error getting sensor data: mlxsw.*: Kernel interface error.*'
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
-      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
-      - tests/nightly/lag/test_lag.py::test_lag_members_scale
-      - tests/nightly/lag/test_lag.py::test_lags_scale
-# Finished ignores from temp_log_analyzer_ignores.txt in LAG folder
+      - tests/nightly/lag/test_lag.py
 
 - Errors_list:
     - '.* WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
@@ -481,6 +479,18 @@
       - qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark[None-wm_q_shared_lossless]
       Redmine:
         - 2955175
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* WARNING kernel: \[   \d+.\d+\] NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/fec/test_fec.py
+      Redmine:
+        - 2957431
       Branch:
         - 202111
         - master
