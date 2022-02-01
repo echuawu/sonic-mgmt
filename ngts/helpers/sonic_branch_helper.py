@@ -21,3 +21,14 @@ def get_sonic_branch(topology):
     if branch == "none":
         branch = "master"
     return branch.strip()
+
+
+def update_branch_in_topology(topology, branch=None):
+    """
+    Method which doing update for SONiC branch in topology object
+    :param topology: topology fixture object
+    :param branch: SONiC branch, example: "202106"
+    """
+    if not branch:
+        branch = get_sonic_branch(topology)
+    topology.players['dut']['branch'] = branch

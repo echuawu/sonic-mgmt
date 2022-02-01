@@ -23,7 +23,7 @@ from ngts.constants.constants import PytestConst
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
-from ngts.helpers.sonic_branch_helper import get_sonic_branch
+from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology
 
 logger = logging.getLogger()
 
@@ -143,14 +143,19 @@ def topology_obj(setup_name, request):
     """
     Fixture which create topology object before run tests and doing cleanup for ssh engines after test executed
     :param setup_name: example: sonic_tigris_r-tigris-06
-    :param request: pytest buildin
+    :param request: pytest build-in
     """
     logger.debug('Creating topology object')
     topology = get_topology_by_setup_name(setup_name, slow_cli=False)
     update_nos_type(topology)
+    # Update CLI classes according to the current SONiC branch
+    branch = request.session.config.cache.get(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
+    update_branch_in_topology(topology, branch)
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
+
     yield topology
+
     logger.debug('Cleaning-up the topology object')
     for player_name, player_attributes in topology.players.items():
         player_attributes['engine'].disconnect()
@@ -320,21 +325,3 @@ def cleanup_last_config_in_stack(cleanup_list):
     """
     func, args = cleanup_list.pop()
     func(*args)
-
-
-@pytest.fixture(scope='session')
-def update_branch_in_topology(topology_obj):
-    """
-    Method which doing updated for SONiC branch in topology object
-    :param topology_obj: topology object
-    :return: method object - which can be called and update branch
-    """
-
-    def update_branch(topology):
-        try:
-            branch = get_sonic_branch(topology)
-            topology.players['dut']['branch'] = branch
-        except Exception as err:
-            logger.error(f'Can not update SONiC branch in topology object. Error: {err}')
-
-    return update_branch

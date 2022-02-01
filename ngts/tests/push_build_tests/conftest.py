@@ -27,6 +27,7 @@ from ngts.scripts.install_app_extension.install_app_extesions import install_all
 from ngts.conftest import update_topology_with_cli_class
 import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
+from ngts.helpers.sonic_branch_helper import update_branch_in_topology
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -46,7 +47,7 @@ def get_app_ext_info(engine):
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params,
-                            app_extension_dict_path, update_branch_in_topology, acl_table_config_list):
+                            app_extension_dict_path, acl_table_config_list):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -60,7 +61,6 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     :param p4_sampling_table_params: p4_sampling_table_params fixture
     :param shared_params: fixture which provide dictionary which can be shared between tests
     :param app_extension_dict_path: app_extension_dict_path
-    :param update_branch_in_topology: fixture which doing update branch in topology
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
