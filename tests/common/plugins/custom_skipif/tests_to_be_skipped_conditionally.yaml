@@ -585,7 +585,7 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
 mvrf/test_mgmtvrf.py:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/3589
-    - Platform:
+    Platform:
       - x86_64-mlnx_msn2700-r0
       - x86_64-mlnx_msn3700-r0
 
@@ -687,9 +687,9 @@ tests/push_build_tests/general/wjh/test_wjh.py:
     - msn4700_simx
   - Redmine:
     - 2942484
-    - Branch:
-        - master
-        - 202111
+    Branch:
+      - master
+      - 202111
 
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   - Redmine:
@@ -832,9 +832,9 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
     - 2943254
     Platform:
       - msn3
-      - Branch:
-        - 202111
-        - master
+    Branch:
+      - 202111
+      - master
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   - Branch:
@@ -844,9 +844,9 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   - Redmine:
     - 2903370
     Branch:
-    - master
-    - 202111
-    - Platform:
+      - master
+      - 202111
+    Platform:
       - 3700
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
@@ -861,9 +861,9 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
   - Redmine:
     - 2903370
     Branch:
-    - master
-    - 202111
-    - Platform:
+      - master
+      - 202111
+    Platform:
       - 3700
 
 qos/test_buffer.py:
@@ -874,16 +874,16 @@ snmp/test_snmp_phy_entity.py::test_transceiver_info:
   - Redmine:
     - 2929579
     Branch:
-    - master
-    - Platform:
+      - master
+    Platform:
       - x86_64-mlnx_msn4700-r0
 
 pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/4817
     Branch:
-    - master
-    - Platform:
+      - master
+    Platform:
       - x86_64-mlnx_msn2700-r0
       - x86_64-mlnx_msn3700-r0
 
@@ -891,18 +891,24 @@ sflow/test_sflow.py::TestReboot::testWarmreboot:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/4817
     Branch:
-    - master
-    - Platform:
+      - master
+    Platform:
       - x86_64-mlnx_msn2700-r0
 
 show_techsupport/test_techsupport.py::test_secret_removed_from_show_techsupport:
   - Redmine:
     - 2934654
     Branch:
-    - master
+      - master
 
 iface_namingmode/test_iface_namingmode.py:
   - Redmine:
     - 2938601
     Platform:
-    - x86_64-mlnx_msn4700-r0
+      - x86_64-mlnx_msn4700-r0
+
+drop_packets/test_wjh.py:
+  - Redmine:
+    - 2956616
+    Branch:
+      - 202111
