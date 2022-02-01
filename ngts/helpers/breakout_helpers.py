@@ -171,8 +171,9 @@ def parse_platform_json(platform_json_obj, config_db_json):
                                                                                 parsed_port_dict
                                                                                 [SonicConstant.LANES])
         parsed_port_dict['speeds_by_modes'] = get_speed_option_by_breakout_modes(breakout_modes)
-        parsed_port_dict['default_breakout_mode'] = \
-            config_db_json[SonicConstant.BREAKOUT_CFG][port_name][SonicConstant.BRKOUT_MODE]
+        port_breakout_cfg = config_db_json[SonicConstant.BREAKOUT_CFG].get(port_name)
+        if port_breakout_cfg:
+            parsed_port_dict['default_breakout_mode'] = port_breakout_cfg[SonicConstant.BRKOUT_MODE]
         ports_breakout_info[port_name] = parsed_port_dict
     return ports_breakout_info
 

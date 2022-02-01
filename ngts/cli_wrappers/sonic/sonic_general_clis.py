@@ -466,9 +466,8 @@ class SonicGeneralCli(GeneralCliCommon):
                                                         "always_enabled", config_db_file_name)
         default_mtu = "9100"
         SonicGeneralCli.update_config_db_port_mtu_config(setup_name, default_mtu, config_db_file_name)
-        if SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku):
-            SonicGeneralCli.update_config_db_breakout_cfg(topology_obj, setup_name, dut_engine,
-                                                          cli_object, hwsku, config_db_file_name)
+        SonicGeneralCli.update_config_db_breakout_cfg(topology_obj, setup_name, dut_engine,
+                                                      cli_object, hwsku, config_db_file_name)
         return config_db_file_name
 
     @staticmethod
@@ -586,7 +585,7 @@ class SonicGeneralCli(GeneralCliCommon):
         config_db_json = SonicGeneralCli.get_config_db_json_obj(setup_name, config_db_json_file_name)
         if init_config_db_json.get("BREAKOUT_CFG"):
             config_db_json = SonicGeneralCli.update_breakout_cfg(topology_obj, dut_engine, cli_object,
-                                                                 init_config_db_json, config_db_json)
+                                                                 init_config_db_json, config_db_json, hwsku)
         return SonicGeneralCli.create_extended_config_db_file(setup_name, config_db_json,
                                                               file_name=config_db_json_file_name)
 
@@ -607,14 +606,18 @@ class SonicGeneralCli(GeneralCliCommon):
 
     @staticmethod
     def update_breakout_cfg(topology_obj, dut_engine, cli_object,
-                            init_config_db_json, config_db_json):
+                            init_config_db_json, config_db_json, hwsku):
         """
-        This function updates the config_sb.json file with BREAKOUT_CFG section
+        This function updates the config_sb.json file with BREAKOUT_CFG section.
+        In cases of systems where the consecutive port is unmapped after split of 4,
+        the static split ports of 4, will not be include in the BREAKOUT_CFG.
+
         :param topology_obj: a topology object fixture
         :param dut_engine: an ssh engine of the dut
         :param cli_object: a cli obj of the dut
         :param init_config_db_json: a json object of the initial config_db.json file on the dut
         :param config_db_json: a json object of the config_db.json file on the dut
+        :param hwsku:  hwsku of the dut  i.e, Mellanox-SN2700
         :return: the name of the updated config_db.json file with BREAKOUT_CFG section
         """
         breakout_cfg_dict = init_config_db_json.get("BREAKOUT_CFG")
@@ -623,12 +626,24 @@ class SonicGeneralCli(GeneralCliCommon):
                                                                                      parse_by_breakout_modes=True)
         ports_for_update = get_all_split_ports_parents(config_db_json)
         for port, split_num in ports_for_update:
-            breakout_cfg_dict[port]["brkout_mode"] = \
-                get_port_current_breakout_mode(config_db_json, port,
-                                               split_num,
-                                               parsed_platform_json_by_breakout_modes)
+            if SonicGeneralCli.is_supported_split_mode(hwsku, split_num):
+                SonicGeneralCli.update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
+                                                              split_num, parsed_platform_json_by_breakout_modes)
+            else:
+                # don't include port split mode in breakout_cfg
+                breakout_cfg_dict.pop(port)
         config_db_json["BREAKOUT_CFG"] = breakout_cfg_dict
         return config_db_json
+
+    @staticmethod
+    def is_supported_split_mode(hwsku, split_num):
+        return SonicGeneralCli.is_platform_supports_split_without_unmap(hwsku) or split_num is 2
+
+    @staticmethod
+    def update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
+                                      split_num, parsed_platform_json_by_breakout_modes):
+        breakout_cfg_dict[port]["brkout_mode"] = get_port_current_breakout_mode(config_db_json, port, split_num,
+                                                                                parsed_platform_json_by_breakout_modes)
 
     @staticmethod
     def create_extended_config_db_file(setup_name, config_db_json, file_name=SonicConst.EXTENDED_CONFIG_DB_PATH):

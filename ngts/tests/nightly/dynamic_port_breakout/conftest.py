@@ -75,7 +75,8 @@ def get_random_lb_breakout_conf(topology_obj, ports_breakout_modes):
         logger.warning("Test configuration doesn't cover all breakout modes, missing breakout modes: {}"
                        .format(list(set(breakout_modes_supported_lb.keys()).difference(set(conf.keys())))))
     if not conf:
-        raise AssertionError("Failed to build valid tested configuration for this test")
+        pytest.skip("Can't test DPB Feature on this setup because there "
+                    "are no available splittable ports on this topology")
     return conf
 
 
@@ -260,7 +261,7 @@ def verify_ifaces_speed_and_status(cli_object, dut_engine, breakout_ports_conf):
         logger.info('Verify interfaces are in up state')
         retry_call(cli_object.interface.check_ports_status,
                    fargs=[dut_engine, interfaces_list],
-                   tries=2, delay=2, logger=logger)
+                   tries=6, delay=10, logger=logger)
     verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf)
     # verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_conf)
     # TODO: enable verification back when bug 2937511 is resolved

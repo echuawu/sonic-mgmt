@@ -237,7 +237,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
             cmd = f'sudo config interface breakout {port} {breakout_mode} -y {force}'
             output = engine.send_config_set([cmd, 'y'], delay_factor=5, max_loops=600)
             logger.info(output)
-            SonicInterfaceCli.verify_dpb_cmd(cmd, output)
+            SonicInterfaceCli.verify_dpb_cmd(engine, cmd, output)
             return output
         except Exception as e:
             if expect_error:
@@ -248,13 +248,19 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 raise AssertionError(f"Command: {cmd} failed with error {e} when was expected to pass")
 
     @staticmethod
-    def verify_dpb_cmd(cmd, output):
+    def verify_dpb_cmd(engine, cmd, output):
         expected_msg_breakout_success = "Breakout process got successfully completed."
         with allure.step(f"Verify breakout command output"):
             if not re.search(expected_msg_breakout_success, output, re.IGNORECASE):
                 logger.warning(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
-                logger.error(f"Verification of Breakout command \"{cmd}\" failed")
-                raise AssertionError(f"Command: {cmd} failed when was expected to pass")
+                logger.info("Check if command finished successfully by trying to configure the command again")
+                logger.info("sleep for 10 second for letting the previous command configuration to finish")
+                time.sleep(10)
+                output = engine.send_config_set([cmd, 'y'], delay_factor=5, max_loops=600)
+                expected_msg_breakout_success = "No action will be taken as current and desired Breakout Mode are same."
+                if not re.search(expected_msg_breakout_success, output, re.IGNORECASE):
+                    logger.error(f"Verification of Breakout command \"{cmd}\" failed")
+                    raise AssertionError(f"Command: {cmd} failed when was expected to pass")
 
     @staticmethod
     def config_auto_negotiation_mode(engine, interface, mode):

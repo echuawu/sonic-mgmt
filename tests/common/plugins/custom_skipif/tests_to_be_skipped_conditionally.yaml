@@ -628,7 +628,6 @@ tests/nightly/dynamic_port_breakout:
     - 2954550
     Platform:
     - 4600
-    - 2700
   - Redmine:
     - 2954916
     Platform:
