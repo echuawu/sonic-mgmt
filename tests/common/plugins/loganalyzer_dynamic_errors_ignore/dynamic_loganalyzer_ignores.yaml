@@ -110,7 +110,7 @@
       - tests/nightly/fec/test_fec.py
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - pc/test_po_update.py::test_po_update_io_no_loss
-      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       Redmine:
       - 2951102
@@ -489,8 +489,22 @@
     - Affected_test_cases:
       - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
       - tests/nightly/fec/test_fec.py
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_interface_autoneg
       Redmine:
         - 2957431
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* teamd\[\d+\]: segfault at .* ip .* sp .* error 4 in libteam.so.5.6.0.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      Redmine:
+        - 2910559
       Branch:
         - 202111
         - master
