@@ -134,6 +134,7 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
     - 3420
     Branch:
     - 202111
+    - master
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   - Branch:
@@ -919,19 +920,22 @@ drop_packets/test_wjh.py:
     - 2956616
     Branch:
       - 202111
+      - master
 
 platform_tests/test_sequential_restart.py::test_restart_swss:
   - Redmine:
     - 2959285
     Platform:
-    - 3420
+      - 3420
     Branch:
-    - 202111
+      - 202111
+      - master
 
 platform_tests/test_reload_config.py::test_reload_configuration:
   - Redmine:
     - 2959285
     Platform:
-    - 3420
+      - 3420
     Branch:
-    - 202111
+      - 202111
+      - master
