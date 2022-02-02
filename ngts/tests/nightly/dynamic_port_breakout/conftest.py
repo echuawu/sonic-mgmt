@@ -228,7 +228,9 @@ def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, con
 
 
 def set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf):
-    cleanup_list.append((cli_object.interface.configure_dpb_on_ports, (dut_engine, remove_conf, False, True)))
+    for port_remove_dpb_conf in remove_conf:
+        cleanup_list.append((cli_object.interface.configure_dpb_on_ports, (dut_engine, port_remove_dpb_conf,
+                                                                           False, True)))
     cleanup_list.append((cli_object.interface.enable_interfaces, (dut_engine, original_ports_list)))
     original_speed_conf_subset = {key: original_speed_conf[key] for key in original_ports_list}
     cleanup_list.append((cli_object.interface.set_interfaces_speed, (dut_engine, original_speed_conf_subset)))
@@ -445,12 +447,9 @@ def build_remove_dpb_conf(tested_modes_lb_conf, ports_breakout_modes):
     {'1x100G[50G,40G,25G,10G]': ('Ethernet212', 'Ethernet216'),
     '1x100G[50G,40G,25G,10G]': ('Ethernet228', 'Ethernet232')}
     """
-    remove_breakout_ports_conf = {}
+    remove_breakout_ports_conf = []
     for breakout_mode, lb in tested_modes_lb_conf.items():
         for port in lb:
             default_breakout_mode = ports_breakout_modes[port]['default_breakout_mode']
-            if default_breakout_mode in remove_breakout_ports_conf.keys():
-                remove_breakout_ports_conf[default_breakout_mode].append(port)
-            else:
-                remove_breakout_ports_conf[default_breakout_mode] = [port]
+            remove_breakout_ports_conf.append({default_breakout_mode: [port]})
     return remove_breakout_ports_conf
