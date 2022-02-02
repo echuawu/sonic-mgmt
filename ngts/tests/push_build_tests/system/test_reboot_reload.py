@@ -12,7 +12,8 @@ from dateutil.parser import parse as time_parse
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list, add_to_pytest_args_skip_tests, \
     add_to_pytest_args_disable_loganalyzer, remove_allure_server_project_id_arg, \
-    prepare_pytest_cmd_with_custom_allure_dir, add_to_pytest_args_custom_cache_dir, generate_report
+    prepare_pytest_cmd_with_custom_allure_dir, add_to_pytest_args_custom_cache_dir, generate_report, \
+    add_to_pytest_args_disable_exporting_test_results_to_mars_db
 
 
 logger = logging.getLogger()
@@ -303,6 +304,9 @@ def prepare_pytest_args(pytest_args_list):
     skip_test_list = ["test_push_gate_reboot_policer", "test_validate_config_db_json_during_upgrade"]
     pytest_args_list = add_to_pytest_args_skip_tests(pytest_args_list, skip_test_list)
     pytest_args_list = add_to_pytest_args_disable_loganalyzer(pytest_args_list)
+    # Disable export tests data to SQLm in case of failure after reboot, the desired behaviour is to list only
+    # the parent test in the failed results and not any subtest.
+    pytest_args_list = add_to_pytest_args_disable_exporting_test_results_to_mars_db(pytest_args_list)
     pytest_args_list = remove_allure_server_project_id_arg(pytest_args_list)
     pytest_args_list = add_to_pytest_args_custom_cache_dir(pytest_args_list)
     cmd = prepare_pytest_cmd_with_custom_allure_dir(pytest_args_list, "/tmp/allure_reboot_reload")
