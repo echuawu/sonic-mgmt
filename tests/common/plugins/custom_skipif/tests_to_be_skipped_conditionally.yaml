@@ -180,6 +180,7 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
     - 2877294
     Platform:
     - 2100
+    - 2010
     Branch:
     - master
     - 202111
@@ -189,6 +190,7 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
     - 2877294
     Platform:
     - 2100
+    - 2010
     Branch:
     - master
     - 202111
