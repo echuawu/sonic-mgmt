@@ -33,6 +33,8 @@ SHORT_INTERVAL = 'short'
 LONG_INTERVAL = 'long'
 GROUPS_WITH_MINIMAL_CONFIG = ['queue4_group1', 'queue4_group3']
 LEGAL_TRAP_ID_TO_ADD = 'l3_mtu_error'
+COPP_ALWAYS_ENABLED = 'always_enabled'
+COPP_ALWAYS_ENABLED_TRUE = 'true'
 
 RATE_TRAFFIC_MULTIPLIER = 4
 BURST_TRAFFIC_MULTIPLIER = 30
@@ -991,7 +993,9 @@ def add_new_protocol_to_config(protocol, copp_dict, trap_ids):
     :param copp_dict: config dictionary
     :param trap_ids: traps ids
     """
-    copp_dict[COPP_TRAP].update({protocol: {TRAP_IDS: trap_ids, TRAP_GROUP: DEFAULT_TRAP_GROUP}})
+    copp_dict[COPP_TRAP].update({protocol: {TRAP_IDS: trap_ids,
+                                            TRAP_GROUP: DEFAULT_TRAP_GROUP,
+                                            COPP_ALWAYS_ENABLED: COPP_ALWAYS_ENABLED_TRUE}})
 
 # -------------------------------------------------------------------------------
 
