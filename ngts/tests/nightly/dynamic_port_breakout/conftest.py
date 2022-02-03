@@ -342,7 +342,7 @@ def verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf):
     with allure.step('Verify ports {} are up'.format(ports_list)):
         retry_call(cli_object.interface.check_ports_status,
                    fargs=[dut_engine, ports_list],
-                   tries=2, delay=2, logger=logger)
+                   tries=6, delay=10, logger=logger)
 
     with allure.step('Verify there is no breakout ports: {}'.format(all_breakout_ports)):
         cmd_output = cli_object.interface.show_interfaces_status(dut_engine)

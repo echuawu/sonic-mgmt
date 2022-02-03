@@ -250,8 +250,11 @@ class SonicInterfaceCli(InterfaceCliCommon):
     @staticmethod
     def verify_dpb_cmd(output):
         expected_msg_breakout_success = r"Breakout\s+process\s+got\s+successfully\s+completed"
+        expected_msg_breakout_mode_same = \
+            r"No\s+action\s+will\s+be\s+taken\s+as\s+current\s+and\s+desired\s+Breakout\s+Mode\s+are\s+same"
         with allure.step(f"Verify breakout command output"):
-            if not re.search(expected_msg_breakout_success, output, re.IGNORECASE):
+            if not re.search(f"{expected_msg_breakout_success}|{expected_msg_breakout_mode_same}",
+                             output, re.IGNORECASE):
                 logger.error(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
                 raise AssertionError(f"Verification of Breakout command failed")
 

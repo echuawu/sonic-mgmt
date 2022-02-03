@@ -338,13 +338,14 @@ class TestDPBInterop:
         :return: raise assertion error in case validation failed
         """
         remove_breakout_ports_conf = build_remove_dpb_conf(self.tested_modes_lb_conf, self.ports_breakout_modes)
-        with allure.step('Configure remove breakout with force'):
-            breakout_ports_conf = set_dpb_conf(self.dut_engine, self.cli_object,
-                                               self.ports_breakout_modes,
-                                               cleanup_list=cleanup_list,
-                                               conf=remove_breakout_ports_conf,
-                                               original_speed_conf=self.dut_ports_default_speeds_configuration,
-                                               force=True)
+        with allure.step('Configure remove breakout with force from ports'):
+            for port_remove_breakout_ports_conf in remove_breakout_ports_conf:
+                breakout_ports_conf = set_dpb_conf(self.dut_engine, self.cli_object,
+                                                   self.ports_breakout_modes,
+                                                   cleanup_list=cleanup_list,
+                                                   conf=port_remove_breakout_ports_conf,
+                                                   original_speed_conf=self.dut_ports_default_speeds_configuration,
+                                                   force=True)
         with allure.step('Verify remove breakout succeeded and breakout ports no longer exist'):
             verify_no_breakout(self.dut_engine, self.cli_object, self.ports_breakout_modes,
                                conf=self.tested_modes_lb_conf)
