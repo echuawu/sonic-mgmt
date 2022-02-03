@@ -820,9 +820,6 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
     - 2201
 
 tests/nightly/fec:
-  - Platform:
-    - 3420
-    - 4410
   - Branch:
     - 202012
   - Redmine:
@@ -833,6 +830,7 @@ tests/nightly/fec:
     - 2887900
     Platform:
     - 4700
+    - 4600
     - 3700
 
 
