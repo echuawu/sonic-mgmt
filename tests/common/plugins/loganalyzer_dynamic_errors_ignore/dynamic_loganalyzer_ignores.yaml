@@ -520,3 +520,14 @@
       Branch:
         - 202111
         - master
+
+- Errors_list:
+    - '.* ERR logrotate: No archive file to delete -- potential for filling up /var/log partition!'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      Redmine:
+        - 2960947
+      Branch:
+        - 202111
+        - master
