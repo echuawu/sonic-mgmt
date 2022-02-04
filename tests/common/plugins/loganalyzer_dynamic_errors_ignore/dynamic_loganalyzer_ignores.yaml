@@ -91,6 +91,11 @@
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
 
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
