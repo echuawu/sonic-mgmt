@@ -200,9 +200,10 @@ def convert_speeds_to_mb_format(speeds_list):
 
 
 @pytest.fixture(autouse=False)
-def expected_auto_neg_loganalyzer_exceptions(loganalyzer):
+def expected_auto_neg_loganalyzer_exceptions(request, loganalyzer):
     """
     expanding the ignore list of the loganalyzer for these tests because of reboot.
+    :param request: pytest build-in
     :param loganalyzer: loganalyzer utility fixture
     :return: None
     """
@@ -211,6 +212,13 @@ def expected_auto_neg_loganalyzer_exceptions(loganalyzer):
             loganalyzer.parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                "expected_negative_auto_neg_logs.txt")))
         loganalyzer.expect_regex.extend(expected_regex_list)
+
+    yield
+
+    # If test skipped - remove expected regexps from loganalyzer.expect_regex list
+    if request.node.rep_setup.skipped:
+        for regexp in expected_regex_list:
+            loganalyzer.expect_regex.remove(regexp)
 
 
 def get_speeds_in_Gb_str_format(speeds_list):
