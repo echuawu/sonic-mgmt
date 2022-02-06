@@ -116,18 +116,30 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
     - 2382365
     Platform:
     - 2100
+  - Redmine:
+    - 2962311
+    Platform:
+    - 4600c
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
   - Redmine:
     - 2382365
     Platform:
     - 2100
+  - Redmine:
+    - 2962311
+    Platform:
+    - 4600c
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
   - Redmine:
     - 2382365
     Platform:
     - 2100
+  - Redmine:
+    - 2962311
+    Platform:
+    - 4600c
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
@@ -658,28 +670,27 @@ tests/nightly/dynamic_port_breakout:
   - Branch:
     - 202012
     - 202106
+  - Redmine:
+    - 2962569
+    Platform:
+    - 4410
+
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
   - Redmine:
     - 2960190
-    Platform:
-    - 3700
-    - 2700
   - Redmine:
     - 2960256
-    Platform:
-    - 3700
   - Redmine:
     - 2960397
-    Platform:
-    - 2700
 
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_remove_dpb_configuration_interop:
   - Redmine:
     - 2960190
-    Platform:
-    - 3700
-    - 2700
+
+tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
+  - Redmine:
+    - 2960190
 
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
