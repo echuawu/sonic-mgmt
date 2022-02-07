@@ -80,3 +80,4 @@ r, ".* ERR syncd#SDK: \[CORE_ASYNC.ERR\] Failed to to call handler func of API.*
 r, ".* ERR syncd#SDK: \[SX_WORK_QUEUEP.ERR\] Error at job handler cb module_id .*-\[sxCoreAsync\] queue ID .*"
 r, ".* ERR syncd#SDK: \[CORE_ASYNC.ERR\] Error got in completion data.*"
 r, ".* WARNING syncd#.*(SAI|Sai|sai).*(NOT|Not|not) implemented.*"
+r, ".* INFO kernel: \[ \d+.\d+\] pstore: Using crash dump compression: deflate"
