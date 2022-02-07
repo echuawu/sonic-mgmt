@@ -746,3 +746,25 @@
       Branch:
         - 202111
         - master
+
+- Errors_list:
+    - '.* ERR lldp#lldpmgrd\[\d+\]: Port ''Ethernet\d+'' not found in PORT table in Config DB. Using port name instead of port alias'
+    - '.* ERR syncd#SDK: \[PORT_DB.ERR\] Failed to get SWID\(255\) type - Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] SWID\(255\) type mismatch'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] SWID\(0\) type mismatch'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Failed to retrieve counters values for prio \(\d\)'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] port_buff_cntr_get failed, for chip type CHIP_TYPE_SWITCH_SPECTRUM\d, err = Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\]- mlnx_sai_get_ingress_priority_group_stats_ext: Failed to get port pg counters - Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: :- collectPriorityGroupCounters: PG_DROP_STAT_COUNTER: failed to get \d+/\d+ stats of PG 0x.*: -5'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Failed to retrieve counters values for TC \(\d\)'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] port_tc_cntr_get failed, for chip type CHIP_TYPE_SPECTRUM.*, err = Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: :- collectQueueCounters: QUEUE_STAT_COUNTER: failed to get stats of queue 0x.*: -5'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/dynamic_port_breakout
+      Redmine:
+        - 2934289
+      Branch:
+        - 202111
+        - master
