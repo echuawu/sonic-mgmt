@@ -702,6 +702,11 @@
       - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_interface_autoneg
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
       Redmine:
         - 2957431
       Branch:
