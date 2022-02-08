@@ -220,10 +220,11 @@
       - 202111
       - master
 
-# Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961386
+# Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2943278
 - Errors_list:
-    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/mlxsw/thermal_zone_temp - FileNotFoundError\(2, ''No such file or directory''\)'
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/.*''No such file or directory''.*'
     - '.* ERR pmon#thermalctld: Failed to run thermal policy all fan and psu presence - FileNotFoundError\(2, ''No such file or directory''\)'
+    - '.* ERR healthd: Failed to read from file /var/run/hw-management/.*''No such file or directory''.*'
   Conditions:
     - Affected_test_cases:
       # Canonical
@@ -256,7 +257,7 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
       Redmine:
-      - 2961386
+      - 2943278
       Branch:
       - 202111
       - master
@@ -651,7 +652,7 @@
         - master
 
 - Errors_list:
-    - '.* WARNING kernel: \[   \d+.\d+\] NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!'
+    - '.* WARNING kernel: \[\s+\d+.\d+\] NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
@@ -722,6 +723,35 @@
       - tests/nightly/dynamic_port_breakout
       Redmine:
         - 2934289
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[SAI_ISSU_STORAGE.WARNING\] mlnx_sai_issu_storage.c\[\d+\]- mlnx_sai_issu_restore_info_spc2: ISSU persistent file does not exist'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      Redmine:
+        - 2963838
+      Branch:
+        - 202111
+        - master
+      Platform:
+        - sn3
+
+- Errors_list:
+    - '.* ERR wjhcli: :- send: send\(\): failed to sent data to client: Broken pipe'
+    - '.* ERR wjhcli: :- requestDaemon: Failed to send request to daemon'
+    - '.* ERR wjhcli: :- connect: connect\(\) failed to connect to daemon: Connection refused'
+    - '.* ERR wjhcli: :- recv: recv\(\): failed to read data from socket: Connection reset by peer'
+    - '.* ERR wjhcli: :- requestDaemon: Failed to receive reply from daemon'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      Redmine:
+        - 2963797
       Branch:
         - 202111
         - master
