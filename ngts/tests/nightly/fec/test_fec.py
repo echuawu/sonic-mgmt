@@ -350,7 +350,13 @@ class TestFec:
                 self.verify_fec_configuration_on_host_port(dut_host_conf[dut_host_port], cli_object, engine, host_dut_port)
         with allure.step("Verify traffic on dut - host connectivity"):
             traffic_validation = ip_conf[dut_host_port]
-            self.validate_traffic_on_dut_host_ports(traffic_validation)
+            retry_call(
+                self.validate_traffic_on_dut_host_ports,
+                fargs=[traffic_validation],
+                tries=3,
+                delay=5,
+                logger=logger,
+            )
 
     def get_dut_host_port_speeds_option_for_fec_mode(self, fec_mode, split_mode, dut_host_port, host_dut_port):
         fec_mode_supported_speeds = set(self.fec_modes_speed_support[fec_mode][split_mode].keys())
