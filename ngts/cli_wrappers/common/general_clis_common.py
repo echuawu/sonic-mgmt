@@ -23,6 +23,21 @@ class GeneralCliCommon(GeneralCliInterface):
         return output
 
     @staticmethod
+    def systemctl_start(engine, service):
+        output = engine.run_cmd(f'sudo systemctl start {service}', validate=True)
+        return output
+
+    @staticmethod
+    def systemctl_stop(engine, service):
+        output = engine.run_cmd(f'sudo systemctl stop {service}', validate=True)
+        return output
+
+    @staticmethod
+    def systemctl_restart(engine, service):
+        output = engine.run_cmd(f'sudo systemctl restart {service}', validate=True)
+        return output
+
+    @staticmethod
     def get_container_status(engine, app_name):
         """
         Get specified container's status:
@@ -40,6 +55,26 @@ class GeneralCliCommon(GeneralCliInterface):
         if app_container_info:
             app_container_status = eval(app_container_info)["Status"]
         return app_container_status
+
+    @staticmethod
+    def get_running_containers_names(engine):
+        """
+        Returns the names of running Docker containers in the system.
+        :param engine: the engine to use.
+        """
+        return engine.run_cmd("docker ps --format '{{.Names}}'").splitlines()
+
+    @staticmethod
+    def hostname(engine, flags=''):
+        return engine.run_cmd(f'hostname {flags}')
+
+    @staticmethod
+    def echo(engine, string, flags=''):
+        return engine.run_cmd(f'echo {flags} {string}')
+
+    @staticmethod
+    def ls(engine, path, flags=''):
+        return engine.run_cmd(f'ls {flags} {path}')
 
     @staticmethod
     def mv(engine, src_path, dst_path, flags=''):
@@ -90,3 +125,11 @@ class GeneralCliCommon(GeneralCliInterface):
     @staticmethod
     def apt_install(engine, package, flags=''):
         return engine.run_cmd(f'apt {flags} install {package}', validate=True)
+
+    @staticmethod
+    def coverage_combine(engine, flags=''):
+        return engine.run_cmd(f'coverage combine {flags}', validate=True)
+
+    @staticmethod
+    def coverage_xml(engine, outfile, flags=''):
+        return engine.run_cmd(f'coverage xml -o {outfile} {flags}', validate=True)

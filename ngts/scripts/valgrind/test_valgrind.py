@@ -4,9 +4,9 @@ import logging
 import os
 import pytest
 import json
-from retry.api import retry_call
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.helpers import system_helpers
 
 logger = logging.getLogger()
 
@@ -22,9 +22,6 @@ VALGRIND_RUNNER_PATH = os.path.join(VALGRIND_DIR, VALGRIND_RUNNER)
 HOST_PROCESSES_KEY = 'host_processes'
 DOCKER_PROCESSES_KEY = 'docker_processes'
 NO_SERVICE_KEY = 'null'  # For processes that are not associated with any service
-
-MAX_ATTEMPTS = 12
-POLLING_INTERVAL_SEC = 10
 
 
 @pytest.fixture
@@ -42,16 +39,6 @@ def valgrind_config():
     """
     with open(VALGRIND_CONFIG_PATH) as valgrind_config_file:
         return json.load(valgrind_config_file)
-
-
-class PrefixEngine():
-
-    def __init__(self, engine, prefix):
-        self.engine = engine
-        self.prefix = prefix
-
-    def run_cmd(self, cmd, validate=False):
-        return self.engine.run_cmd(f'{self.prefix} {cmd}', validate=validate)
 
 
 @pytest.mark.disable_loganalyzer
@@ -94,7 +81,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
     """
     try:
         engine = topology_obj.players['dut']['engine']
-        sudo_engine = PrefixEngine(engine, 'sudo')
+        sudo_engine = system_helpers.PrefixEngine(engine, 'sudo')
 
         if install:
             clear_valgrind_dir(sudo_engine)
@@ -125,7 +112,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
                 SonicGeneralCli().verify_dockers_are_up(engine, docker_processes.keys())
 
             for (container, processes) in docker_processes.items():
-                docker_exec_engine = PrefixEngine(engine, f'docker exec {container}')
+                docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
                 if install:
                     clear_valgrind_dir(docker_exec_engine)
 
@@ -258,31 +245,6 @@ def is_valgrind_installed_for_process(engine, process_path):
     return VALGRIND_RUNNER_STAMP == GeneralCliCommon.sed(engine, process_path, f'{VALGRIND_RUNNER_STAMP_LINE_NUM}q;d')
 
 
-def verify_empty_job_queue(engine):
-    """
-    Verifies that systemd job queue is empty.
-    :param engine: the engine to use.
-    :raise Exception: if the job queue is not empty.
-    """
-    if engine.run_cmd("sudo systemctl list-jobs | grep -v 'No jobs running.'"):
-        raise Exception('Job queue is not empty')
-
-
-def wait_for_all_jobs_done(engine, max_attempts=MAX_ATTEMPTS, polling_interval_sec=POLLING_INTERVAL_SEC):
-    """
-    Polls systemd job queue until it is empty.
-    :param engine: the engine to use.
-    :param max_attempts: the maximum number of attempts before failing with Exception
-    :param polling_interval_sec: the polling interval in seconds
-    :raise Exception: if the job queue was not empty after max_attempts have been made.
-    """
-    retry_call(verify_empty_job_queue,
-               fargs=[engine],
-               tries=max_attempts,
-               delay=polling_interval_sec,
-               logger=logger)
-
-
 def restart_services(engine, services_to_restart):
     """
     Restart system services using service stop and start commands.
@@ -296,8 +258,8 @@ def restart_services(engine, services_to_restart):
         with allure.step(f'Restart system services: {services_to_restart}'):
             for service in services_to_restart:
                 GeneralCliCommon.stop_service(engine, service)
-                wait_for_all_jobs_done(engine)
+                system_helpers.wait_for_all_jobs_done(engine)
 
             for service in services_to_restart:
                 GeneralCliCommon.start_service(engine, service)
-                wait_for_all_jobs_done(engine)
+                system_helpers.wait_for_all_jobs_done(engine)
