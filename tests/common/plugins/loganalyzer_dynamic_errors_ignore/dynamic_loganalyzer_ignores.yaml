@@ -99,9 +99,9 @@
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961383
 - Errors_list:
-    - '.* INFO kernel: .* resctrl: L3 allocation detected'
-    - '.* INFO kernel: .* resctrl: L3DATA allocation detected'
-    - '.* INFO kernel: .* resctrl: L3CODE allocation detected'
+    - '.* resctrl: L3 allocation detected'
+    - '.* resctrl: L3DATA allocation detected'
+    - '.* resctrl: L3CODE allocation detected'
     - '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
   Conditions:
     - Affected_test_cases:
