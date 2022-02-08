@@ -185,6 +185,9 @@ platform_tests/test_reboot.py:
     - 2829184
     Platform:
     - 2201
+# Ignore - test not supported on boxer(msn2010) device
+  - Platform:
+    - 2010
 
 platform_tests/test_reboot.py::test_power_off_reboot:
   - Redmine:
