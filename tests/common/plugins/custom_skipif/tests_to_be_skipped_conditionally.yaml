@@ -645,6 +645,18 @@ vxlan/test_vnet_vxlan.py::test_vnet_vxlan[Enabled]:
   - Redmine:
     - 2833049
 
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v4_in_v6]:
+  - Redmine:
+    - 2965573
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v6_in_v6]:
+  - Redmine:
+    - 2965573
+
+vxlan/test_vxlan_ecmp.py:
+  - Branch:
+    - 202106
+
 
 ########## Canonical ##########
 # Nightly
