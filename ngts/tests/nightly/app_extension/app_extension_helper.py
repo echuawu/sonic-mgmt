@@ -331,10 +331,13 @@ def verify_app_container_start_delay(dut_engine, app_name, delay_time):
     Verify app container delay delay_time (currently default is 180s) to start
 
     """
-    up_time_swss = time_parse(dut_engine.run_cmd("docker inspect --format='{{.State.StartedAt}}' swss"))
-    up_time_app = time_parse(dut_engine.run_cmd("docker inspect --format='{{.State.StartedAt}}'  %s " % app_name))
-    if up_time_app > up_time_swss:
-        time_diff = (up_time_app - up_time_swss).seconds
+    get_app_uptime_cmd = f'date ' \
+                         f'--date=`docker inspect --format="{{{{.State.StartedAt}}}}" {app_name}` +"%Y-%m-%d %H:%M:%S"'
+    up_time_kernel = time_parse(dut_engine.run_cmd('uptime -s'))
+    up_time_app = time_parse(dut_engine.run_cmd(get_app_uptime_cmd))
+
+    if up_time_app > up_time_kernel:
+        time_diff = (up_time_app - up_time_kernel).seconds
     else:
         time_diff = 0
 
