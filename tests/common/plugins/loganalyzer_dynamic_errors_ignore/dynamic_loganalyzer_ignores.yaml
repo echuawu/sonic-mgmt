@@ -310,16 +310,13 @@
     - '.* WARNING syncd#SDK: \[LAG\.WARNING\] \[sx_lag_port_group_get\] incomplete logport list retrieving.*'
     - '.* WARNING syncd#SDK:.* \[.*] mlnx_sai_switch.c\[.*\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet.*'
     - '.* ERR teamd#tlm_teamd: :- get_dump: Can''t get dump for LAG ''PortChannel\d+''.*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access failed \(.*\)'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to write PWM'
     - '.* ERR pmon#syseepromd: Failed to load platform-specific eeprom from deprecated plugin.*'
     - '.* WARNING pmon#syseepromd: Failed to load platform-specific eeprom from sonic_platform package due to KeyError.*'
     - '.* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*'
-    - '.* ERR kernel.*mlxsw_minimal.*HW semaphore is not released.*'
     - '.* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*opcode.*opcode_mod.*'
-    - '.* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*'
     - '.* ERR teamd#tlm_teamd: :- process_add_queue: Can''t connect to teamd after .* attempts.*'
     - '.* ERR syncd#SDK: :- updateSupportedBufferPoolCounters: BUFFER_POOL_WATERMARK_STAT_COUNTER: counter SAI_BUFFER_POOL_STAT_XOFF_ROOM_WATERMARK_BYTES is not supported on buffer pool .*, rv: SAI_STATUS_NOT_IMPLEMENTED'
     - '.* INFO kernel: .* teamd.*: segfault at b0 ip .* sp .* error 4 in libteam.*'
@@ -332,10 +329,6 @@
 - Errors_list:
     - '.* WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access failed \(.*\).*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Reg cmd access status failed \(.*\).*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: HW semaphore is not released.*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Cmd exec failed \(.*\).*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048 sfp\d+: Eeprom query failed.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM.*'
   Conditions:
@@ -709,11 +702,13 @@
     - '.* ERR syncd#SDK: \[PORT.ERR\] SWID\(255\) type mismatch'
     - '.* ERR syncd#SDK: \[PORT.ERR\] SWID\(0\) type mismatch'
     - '.* ERR syncd#SDK: \[PORT.ERR\] Failed to retrieve counters values for prio \(\d\)'
-    - '.* ERR syncd#SDK: \[PORT.ERR\] port_buff_cntr_get failed, for chip type CHIP_TYPE_SWITCH_SPECTRUM\d, err = Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] port_buff_cntr_get failed, for chip type CHIP_TYPE_SWITCH_SPECTRUM.*, err = Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] port_tc_cntr_get failed, for chip type CHIP_TYPE_SWITCH_SPECTRUM.*, err = Parameter Exceeds Range'
     - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\]- mlnx_sai_get_ingress_priority_group_stats_ext: Failed to get port pg counters - Parameter Exceeds Range'
     - '.* ERR syncd#SDK: :- collectPriorityGroupCounters: PG_DROP_STAT_COUNTER: failed to get \d+/\d+ stats of PG 0x.*: -5'
     - '.* ERR syncd#SDK: \[PORT.ERR\] Failed to retrieve counters values for TC \(\d\)'
     - '.* ERR syncd#SDK: \[PORT.ERR\] port_tc_cntr_get failed, for chip type CHIP_TYPE_SPECTRUM.*, err = Parameter Exceeds Range'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] port_buff_cntr_get failed, for chip type CHIP_TYPE_SPECTRUM.*, err = Parameter Exceeds Range'
     - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Parameter Exceeds Range'
     - '.* ERR syncd#SDK: :- collectQueueCounters: QUEUE_STAT_COUNTER: failed to get stats of queue 0x.*: -5'
   Conditions:
@@ -752,6 +747,61 @@
       - tests/nightly/lag/test_lag.py::test_lag_members_scale
       Redmine:
         - 2963797
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR memory_checker: \[memory_checker\] Failed to execute the command ''docker stats --no-stream --format \\{\\{.MemUsage\\}\\} .*''. Return code: ''1'''
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      Redmine:
+        - 2966714
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- threadFunction: time span WD exceeded \d+ ms for create:SAI_OBJECT_TYPE_SWITCH:oid:0x.*'
+    - '.* ERR syncd#SDK: :- logEventData: op: create, key: SAI_OBJECT_TYPE_SWITCH:oid:0x.*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_FDB_EVENT_NOTIFY: 0x.*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY: 0x.*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_BFD_SESSION_STATE_CHANGE_NOTIFY: 0x.*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY: 0x.*'
+    - '.* ERR syncd#SDK: :- setEndTime: event ''create:SAI_OBJECT_TYPE_SWITCH:oid:0x.*'' took \d+ ms to execute'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+        - 2966737
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR coredump_gen_handler.py\[\d+\]: show techsupport failed with exit code 6.*'
+    - '.* ERR coredump_gen_handler.py\[\d+\]: stdout of the ''show techsupport'' cmd doesn''t have the dump name'
+    - '.* ERR coredump_gen_handler.py\[\d+\]: show techsupport --silent --since .* was run, but no techsupport dump is found'
+    - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file:\[/tmp/saisdkdump.*'
+    - '.* ERR syncd#SDK: \[DBG.ERR\] FW dump generation failed to move meta|CR file to:\[/tmp/saisdkdump.*'
+  Conditions:
+    - Redmine:
+      - 2966770
+      Branch:
+        - 202111
+        - master
+
+- Errors_list:
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048 sfp\d+: Eeprom query failed.*'
+    - '.* ERR syncd#SDK: \[DBG.ERR\] Cr space dump failed#012'
+    - '.* ERR syncd#SDK: \[DBG.ERR\] dump generation failed'
+    - '.* ERR syncd#SDK: \[DBG.ERR\] dbg_generate_dump failed \(No such file or directory\) - failed to open meta file \(/tmp/saisdkdump.*'
+    - '.* ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c\[\d+\]- sai_dbg_run_mlxtrace: Failed running "mlxtrace_ext -d /dev.*'
+    - '.* ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c\[\d+\]- sai_dbg_do_dump: Failed to run mlxtrace'
+  Conditions:
+    - Redmine:
+      - 2966776
       Branch:
         - 202111
         - master
