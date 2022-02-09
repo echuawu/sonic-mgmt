@@ -518,10 +518,8 @@
 - Errors_list:
     - '.* ERR dhcp_relay#dhcp6relay: bind: Failed to bind to socket'
   Conditions:
-    - Affected_test_cases:
-      - pc/test_po_update.py::test_po_update_io_no_loss
-      Redmine:
-        - 2954292
+    - Redmine:
+      - 2954292
       Branch:
         - 202012
         - 202111
@@ -740,6 +738,8 @@
         - master
       Platform:
         - sn3
+        - sn4
+        - sn5
 
 - Errors_list:
     - '.* ERR wjhcli: :- send: send\(\): failed to sent data to client: Broken pipe'

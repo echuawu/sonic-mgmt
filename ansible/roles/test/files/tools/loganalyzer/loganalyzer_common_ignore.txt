@@ -85,3 +85,4 @@ r, ".* sonic kernel: \[\s+\d+.\d+\] core: PMU erratum BJ122, BV98, HSD29 workaro
 r, ".* sonic systemd\[\d+\]: Starting Kernel crash dump capture service.*"
 r, ".* sonic kdump-tools\[\d+\]: no crashkernel= parameter in the kernel cmdline.*"
 r, ".* sonic systemd\[\d+\]: Finished Kernel crash dump capture service.*"
+r, ".* ERR systemd-udevd\[\d+\]: could not read from '/sys/module/pcc_cpufreq/initstate': No such device"
