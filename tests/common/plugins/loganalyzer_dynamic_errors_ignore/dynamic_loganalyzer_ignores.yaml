@@ -96,6 +96,9 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
+      - copp/test_copp.py::TestCOPP::test_add_new_trap
+      - copp/test_copp.py::TestCOPP::test_remove_trap
+      - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961383
 - Errors_list:
@@ -436,6 +439,7 @@
 
 - Errors_list:
     - '.* ERR swss#orchagent: :- removeLag: Failed to remove ref count.*\d+.*LAG PortChannel.*'
+    - '.* ERR swss#orchagent: message repeated \d+ times: \[ :- removeLag: Failed to remove ref count \d+ LAG PortChannel\d+\]'
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/L3/crm/test_crm.py::test_crm_route
@@ -688,9 +692,7 @@
 - Errors_list:
     - '.* ERR logrotate: No archive file to delete -- potential for filling up /var/log partition!'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_lags_scale
-      Redmine:
+    - Redmine:
         - 2960947
       Branch:
         - 202111
