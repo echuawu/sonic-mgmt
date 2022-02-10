@@ -633,16 +633,15 @@
     - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[6873\]- mlnx_clear_port_all_stats: Failed to clear all port counters - Command Unpermitted.'
     - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[970\]- mlnx_clear_queue_stats: Failed to get clear port tc counters - Command Unpermitted.\]'
     - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[711\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.\]'
+    - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\]- mlnx_sai_get_ingress_priority_group_stats_ext: Failed to get port pg counters - Command Unpermitted.*'
+    - '.* ERR syncd#SDK: :- collectPriorityGroupCounters: PG_DROP_STAT_COUNTER: failed to get \d/\d stats of PG 0x.*: -1'
+    - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.'
+    - '.* ERR syncd#SDK: :- collectQueueCounters: QUEUE_STAT_COUNTER: failed to get stats of queue 0x.*: -1'
+    - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.\]'
   Conditions:
     - Affected_test_cases:
       - pfc_asym/test_pfc_asym.py::test_pfc_asym_off_rx_pause_frames
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXoffLimit[None-xoff_1]
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXonLimit[None-xon_1]
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize[None]
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiPgSharedWatermark[None-wm_pg_shared_lossless]
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXonLimit[None-xon_2]
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiPgSharedWatermark[None-wm_pg_shared_lossy]
-      - qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark[None-wm_q_shared_lossless]
+      - qos/test_qos_sai.py::TestQosSai
       Redmine:
         - 2955175
       Branch:
