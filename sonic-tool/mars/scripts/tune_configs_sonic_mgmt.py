@@ -56,6 +56,6 @@ if __name__ == "__main__":
                                       config=Config(overrides={"run": {"echo": True}}),
                                       connect_kwargs={"password": sonic_mgmt_container_info.USERS[0].PASSWORD})
     cmd = "PYTHONPATH={mgmt_repo}/sonic-tool/sonic_ngts {ngts_path} {mgmt_repo}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py --dut=\"{dut}\" --mgmt_repo=\"{mgmt_repo}\" \
-            --topo_dir=\"{topo_dir}\" --update_minigraph_only=\"True\"".format(ngts_path=constants.NGTS_PATH_PYTHON, dut=args.dut_name, mgmt_repo=sonic_mgmt_repo_path,
+            --topo_dir=\"{topo_dir}\" --update_ansible_modules_only=\"True\"".format(ngts_path=constants.NGTS_PATH_PYTHON, dut=args.dut_name, mgmt_repo=sonic_mgmt_repo_path,
                                               topo_dir=get_topo_dir(topo_file))
     sonic_mgmt_container.run(cmd)

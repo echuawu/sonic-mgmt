@@ -1021,3 +1021,10 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
     Branch:
       - 202111
       - master
+
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
+  - Redmine:
+    - 2968649
+    Branch:
+      - 202111
+      - master

@@ -326,12 +326,19 @@ def get_base_mac(syseeprom_info):
     return eval(syseeprom_info)[base_mac_code_key]
 
 
+def replace_conn_graph_facts(sonic_mgmt_path):
+    mgmt_conn_graph_facts_path = '{}/ansible/library/conn_graph_facts.py'.format(sonic_mgmt_path)
+    stub_mgmt_conn_graph_facts_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'conn_graph_facts.py')
+    logger.info('Replacing: {} by {}'.format(mgmt_conn_graph_facts_path, stub_mgmt_conn_graph_facts_path))
+    shutil.copyfile(stub_mgmt_conn_graph_facts_path, mgmt_conn_graph_facts_path)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dut", help="DUT name", type=str, required=True)
     parser.add_argument("--mgmt_repo", help="Path to the sonic-mgmt repo", type=str, required=True)
     parser.add_argument("--topo_dir", help="Path to the topology folder of current DUT", type=str, required=True)
-    parser.add_argument("--update_minigraph_only", help="True if only file user want to update is minigraph_facts.py",
+    parser.add_argument("--update_ansible_modules_only", help="True if only update ansible modules",
                         type=str, required=True)
     args = parser.parse_args()
 
@@ -349,9 +356,14 @@ if __name__ == "__main__":
     noga_resource = get_noga_resource_data(resource_name=dut_name)
     hwsku = get_hwsku_from_noga_res(noga_resource)
 
-    if args.update_minigraph_only == "True":
+    if args.update_ansible_modules_only == "True":
         # Update minigraph_facts.py
         mg_facts.write_minigraph_facts()
+        logger.info('minigraph_facts.py replaced by stub file')
+        # Update conn_graph_facts.py
+        replace_conn_graph_facts(mgmt_repo)
+        logger.info('conn_graph_facts.py replaced by stub file')
+
     elif testbed_csv.entry_exists(dut_name=dut_name):
         logger.warning("{} - Entry for '{}' DUT already exists. Skip configuration.".format(conf_files.testbed_csv, dut_name))
     else:
