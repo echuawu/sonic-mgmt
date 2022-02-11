@@ -279,17 +279,8 @@
     - '.* ERR hostcfgd: sonic-kdump-config --disable - failed: return code - 1, output:#012None'
     - '.* ERR hostcfgd: sonic-kdump-config --memory 0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M - failed: return code - 1, output:#012None'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/fec/test_fec.py
-      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
-      - pc/test_po_update.py::test_po_update_io_no_loss
-      - tests/nightly/lag/test_lag.py
-      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
-      - copp/test_copp.py::TestCOPP::test_add_new_trap
-      - copp/test_copp.py::TestCOPP::test_remove_trap
-      - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
-      Redmine:
-      - 2951102
+    - Redmine:
+        - 2951102
 
 # Ignores for LAG/LACP tests
 - Errors_list:
