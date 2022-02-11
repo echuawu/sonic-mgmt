@@ -137,6 +137,7 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
+      - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
       Redmine:
       - 2961383
       Branch:
@@ -626,6 +627,7 @@
     - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[711\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.\]'
     - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\]- mlnx_sai_get_ingress_priority_group_stats_ext: Failed to get port pg counters - Command Unpermitted.*'
     - '.* ERR syncd#SDK: :- collectPriorityGroupCounters: PG_DROP_STAT_COUNTER: failed to get \d/\d stats of PG 0x.*: -1'
+    - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\]- mlnx_sai_get_ingress_priority_group_stats_ext: Failed to get port pg counters - Command Unpermitted.\]'
     - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.'
     - '.* ERR syncd#SDK: :- collectQueueCounters: QUEUE_STAT_COUNTER: failed to get stats of queue 0x.*: -1'
     - '.* ERR syncd#SDK: message repeated \d+ times: \[ \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_get_queue_statistics_ext: Failed to get port tc counters - Command Unpermitted.\]'
