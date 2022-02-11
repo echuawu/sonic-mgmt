@@ -235,7 +235,7 @@ class TestEntryScaling:
         self.verify_p4_sampling_up(engine_dut)
 
     @staticmethod
-    @retry(Exception, tries=10, delay=10)
+    @retry(Exception, tries=18, delay=10)
     def verify_p4_sampling_up(engine_dut):
         """
         Verifying the dockers are in up state
