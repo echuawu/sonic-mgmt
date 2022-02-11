@@ -630,9 +630,6 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
 mvrf/test_mgmtvrf.py:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/3589
-    Platform:
-      - x86_64-mlnx_msn2700-r0
-      - x86_64-mlnx_msn3700-r0
 
 # pbh
 ecmp/inner_hashing:
