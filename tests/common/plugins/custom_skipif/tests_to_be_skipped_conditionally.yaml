@@ -1028,3 +1028,10 @@ platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
     Branch:
       - 202111
       - master
+
+platform_tests/test_xcvr_info_in_db.py::test_xcvr_info_in_db:
+  - GitHub:
+    - https://github.com/Azure/sonic-buildimage/issues/9972
+    Branch:
+      - 202111
+      - master
