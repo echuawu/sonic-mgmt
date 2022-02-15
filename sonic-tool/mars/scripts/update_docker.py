@@ -381,7 +381,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.72'}
+    default_list = {'docker-ngts': '1.2.73'}
     return default_list.get(docker_name, latest)
 
 def send_takeover_notification(topo):
