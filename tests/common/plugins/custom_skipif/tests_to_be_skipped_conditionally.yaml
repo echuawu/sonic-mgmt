@@ -105,6 +105,10 @@ platform_tests/fwutil/test_fwutil.py:
     - 202012
     - 202106
     - 201911
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972407
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_show:
   - Redmine:
@@ -1004,6 +1008,10 @@ platform_tests/test_sequential_restart.py::test_restart_swss:
     Branch:
       - 202111
       - master
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2971886
 
 platform_tests/test_reload_config.py::test_reload_configuration:
   - Redmine:
@@ -1013,6 +1021,10 @@ platform_tests/test_reload_config.py::test_reload_configuration:
     Branch:
       - 202111
       - master
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2971886
 
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
   - Redmine:
@@ -1022,6 +1034,10 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
     Branch:
       - 202111
       - master
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972419
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
   - Redmine:
@@ -1031,6 +1047,40 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
     Branch:
       - 202111
       - master
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972419
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972481
+
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_name:
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972489
+
+platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_num_fans:
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972489
+
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_name:
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972489
+
+platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972400
 
 platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
   - Redmine:
