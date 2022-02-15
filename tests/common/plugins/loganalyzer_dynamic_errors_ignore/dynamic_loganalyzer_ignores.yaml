@@ -272,6 +272,7 @@
     - '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
     - '.* ERR healthd: Failed to read from file \/var\/run\/hw-management\/led\/led_status_capability - FileNotFoundError.*No such file or directory.*'
     - '.* ERR healthd: Failed to write.*file \/var\/run\/hw-management\/led\/led_status_green - FileNotFoundError.*No such file or directory.*'
+    - '.* ERR show: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, .*No such file or directory.*\)'
   Conditions:
     - Platform:
       - simx
@@ -803,3 +804,34 @@
       Branch:
         - 202111
         - master
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.*mlnx_get_port_stats_ext: Failed to wait for bulk counter read event.*'
+    - '.* ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.* mlnx_port_stats_wait_for_bulk_read_event: Bulk read event status is not OK.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.*mlnx_port_stats_allocate_sx_bulk_buffer: Failed to create buffer: Driver.*Return Status is Non-Zero.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[6757\]- mlnx_get_port_stats_ext: Failed to allocate SDK buffer.*'
+    - '.* ERR swss#orchagent: :- wait: SELECT operation result: TIMEOUT on object_type_get_availability_response.*'
+    - '.* ERR swss#orchagent: :- wait: failed to get response for object_type_get_availability_response.*'
+    - '.* ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+  Conditions:
+    - Redmine:
+      - 2942594
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*WARNING kernel:.* get_operation_tlv: Err: Got status 0x4 for register 0x9053.*'
+  Conditions:
+    - Redmine:
+      - 2971680
+      Platform:
+        - x86_64-mlnx_msn2700_simx-r0
+
+- Errors_list:
+    - '.* ERR systemd-modules-load\[\d+\]: Failed to find module.*'
+  Conditions:
+    - Redmine:
+      - 2971947
+      Platform:
+        - simx
