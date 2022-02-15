@@ -835,3 +835,56 @@
       - 2971947
       Platform:
         - simx
+
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/led_fan\d_capability - FileNotFoundError\(2, ''No such file or directory''\)'
+  Conditions:
+    - Redmine:
+      - 2972123
+      Platform:
+      - x86_64-nvidia_sn2201-r0
+
+- Errors_list:
+    - '.* INFO kernel: \[\s+\d+.\d+\] resctrl: L2 allocation detected'
+    - '.* ERR kernel: \[\s+\d+.\d+\] /dev/nvme0n1p3: Can''t open blockdev'
+    - '.* ERR kernel: \[\s+\d+.\d+\] QAT: AE0 is inactive!!'
+    - '.* ERR kernel: \[\s+\d+.\d+\] QAT: failed to get device out of reset'
+    - '.* ERR kernel: \[\s+\d+.\d+\] c3xxx 0000:01:00.0: qat_hal_clr_reset error'
+    - '.* ERR kernel: \[\s+\d+.\d+\] c3xxx 0000:01:00.0: Failed to init the AEs'
+    - '.* ERR kernel: \[\s+\d+.\d+\] c3xxx 0000:01:00.0: Failed to initialise Acceleration Engine'
+    - '.* WARNING kernel: \[\s+\d+.\d+\] c3xxx: probe of 0000:01:00.0 failed with error -14'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/copp/test_copp.py::test_copp_policer
+      - tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_lag_min_links
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      Redmine:
+      - 2972161
+      Platform:
+      - x86_64-nvidia_sn2201-r0
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      Redmine:
+      - 2972187
+      Platform:
+      - x86_64-nvidia_sn2201-r0
