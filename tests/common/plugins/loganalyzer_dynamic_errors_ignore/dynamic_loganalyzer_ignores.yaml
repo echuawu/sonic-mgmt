@@ -507,6 +507,7 @@
         - 2954105
       Branch:
         - 202012
+        - 202111
 
 - Errors_list:
     - '.* ERR dhcp_relay#dhcp6relay: bind: Failed to bind to socket'
@@ -885,6 +886,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py::test_lags_scale
+      - vxlan/test_vnet_route_leak.py
       Redmine:
       - 2972187
       Platform:
@@ -893,16 +895,7 @@
 - Errors_list:
     - '.*ERR show: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to PermissionError.*'
   Conditions:
-    - Affected_test_cases:
-      - fib/test_fib.py
-      - ipfwd/test_dip_sip.py
-      - lldp/test_lldp.py
-      - ipfwd/test_mtu.py
-      - arp/test_arpall.py
-      - ipfwd/test_dir_bcast.py
-      - vxlan/test_vnet_route_leak.py
-      - vxlan/test_vnet_vxlan.py
-      Redmine:
+    - Redmine:
       - 2972056
 
 - Errors_list:
@@ -953,3 +946,27 @@
       - 2972668
       Platform:
         - simx
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Thermal sysfs /run/hw-management/thermal/gearbox.*_temp_input does not exist'
+  Conditions:
+    - Affected_test_cases:
+      - copp/test_copp.py
+      Redmine:
+        - 2972980
+
+- Errors_list:
+    - '.* ERR systemd-modules-load\[\d+\]: Failed to find module.*'
+  Conditions:
+    - Affected_test_cases:
+      - copp/test_copp.py
+      Redmine:
+        - 2973000
+
+- Errors_list:
+    - '.*Failed to start Platform monitor container.*'
+  Conditions:
+    - Affected_test_cases:
+      - fib/test_fib.py
+      Redmine:
+        - 2973019
