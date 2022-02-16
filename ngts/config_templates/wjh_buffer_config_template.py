@@ -24,10 +24,9 @@ class WjhBufferConfigTemplate:
                 for threshold_info in configuration:
                     iface = threshold_info['iface']
                     queue_type = threshold_info.get('queue_type')
-                    index = threshold_info.get('index')
                     threshold = threshold_info.get('threshold')
 
-                    engine.run_cmd("sudo config what-just-happened {} {} {} {}".format(command_dict[queue_type], iface, index, threshold))
+                    engine.run_cmd("sudo config what-just-happened {} {} {}".format(command_dict[queue_type], iface, threshold))
 
     @staticmethod
     def cleanup(topology_obj, thresholds_config_dict):
@@ -44,6 +43,5 @@ class WjhBufferConfigTemplate:
                 for threshold_info in configuration:
                     iface = threshold_info['iface']
                     queue_type = threshold_info.get('queue_type')
-                    index = threshold_info.get('index')
 
-                    engine.run_cmd("sudo config what-just-happened {} {} {} 0".format(command_dict[queue_type], iface, index))
+                    engine.run_cmd("sudo config what-just-happened {} {} 0".format(command_dict[queue_type], iface))

@@ -156,8 +156,8 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
                     ]
         }
         thresholds_config_dict = {
-            'dut': [{'iface': interfaces.dut_ha_2, 'queue_type': 'queue', 'index': '0', 'threshold': 10},
-                    {'iface': interfaces.dut_ha_2, 'queue_type': 'latency', 'index': '0', 'threshold': 100}
+            'dut': [{'iface': interfaces.dut_ha_2, 'queue_type': 'queue', 'threshold': 10},
+                    {'iface': interfaces.dut_ha_2, 'queue_type': 'latency', 'threshold': 100}
                     ]
         }
 
