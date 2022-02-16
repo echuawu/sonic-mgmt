@@ -772,6 +772,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py
+      - vxlan/test_vnet_route_leak.py
       Redmine:
         - 2966737
       Branch:
@@ -888,3 +889,57 @@
       - 2972187
       Platform:
       - x86_64-nvidia_sn2201-r0
+
+- Errors_list:
+    - '.*ERR show: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to PermissionError.*'
+  Conditions:
+    - Affected_test_cases:
+      - fib/test_fib.py
+      - ipfwd/test_dip_sip.py
+      - lldp/test_lldp.py
+      - ipfwd/test_mtu.py
+      - arp/test_arpall.py
+      - ipfwd/test_dir_bcast.py
+      - vxlan/test_vnet_route_leak.py
+      - vxlan/test_vnet_vxlan.py
+      Redmine:
+      - 2972056
+
+- Errors_list:
+    - '.*ERR sonic_yang: Data Loading Failed:Duplicated instance of "profile_list" leaf-list.*'
+    - '.*ERR ConfigMgmt: Data Loading Failed.*Duplicated instance of "profile_list" leaf-list.*'
+  Conditions:
+    - Affected_test_cases:
+      - dhcp_relay/test_dhcpv6_relay.py::test_dhcp_relay_after_link_flap
+      Redmine:
+      - 2972065
+
+- Errors_list:
+    - '.*ERR pmon#psud: Failed to read from file /var/run/hw-management/thermal/psu\d_status - FileNotFoundError.*'
+  Conditions:
+    - Affected_test_cases:
+      - system_health/test_system_health.py
+      Redmine:
+      - 2972076
+
+- Errors_list:
+    - ".*ERR swss#orchagent: :- delOperation: VNET 'Vnet_v4_in_v6-0' map delete failed.*"
+    - ".*ERR swss#orchagent: :- removeVxlanTunnelMap: Vxlan tunnel 'tunnel_v6' does not exists.*"
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_techsupport.py
+      - drop_packets/test_drop_counters.py
+      - system_health/test_system_health.py
+      Redmine:
+      - 2972035
+
+- Errors_list:
+    - '.*ERR .*Thermal sysfs /run/hw-management/thermal/psu2_temp does not exist.*'
+    - '.*ERR .*Thermal sysfs /run/hw-management/thermal/psu2_temp_max does not exist.*'
+    - ".*ERR pmon#psud: Failed to read from file /var/run/hw-management/thermal/psu2_fan1_speed_get - FileNotFoundError.*"
+    - ".*ERR pmon#psud: Failed to read from file /var/run/hw-management/thermal/psu2_fan_max - FileNotFoundError.*"
+  Conditions:
+    - Affected_test_cases:
+      - pc/test_lag_2.py
+      Redmine:
+      - 2972074
