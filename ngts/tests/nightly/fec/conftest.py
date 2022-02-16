@@ -23,7 +23,7 @@ def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     yield
 
     logger.info('Starting FEC configuration cleanup')
-    SonicGeneralCli.apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
+    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
 
     logger.info('FEC cleanup completed')
 

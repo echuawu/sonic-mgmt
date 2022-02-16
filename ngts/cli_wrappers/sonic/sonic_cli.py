@@ -36,7 +36,7 @@ class SonicCli:
         self.route = SonicRouteCli()
         self.vrf = SonicVrfCli()
         self.chassis = SonicChassisCli()
-        self.general = SonicGeneralCli()
+        self.general = SonicGeneralCli(branch=branch)
         self.dhcp_relay = SonicDhcpRelayCli(branch=branch)
         self.ifconfig = SonicIfconfigCli()
         self.crm = SonicCrmCli()

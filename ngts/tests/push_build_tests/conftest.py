@@ -74,9 +74,9 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
             with allure.step('Installing base version from ONIE'):
                 logger.info('Deploying via ONIE or call manufacture script with arg onie')
                 reboot_after_install = True if '201911' in upgrade_params.base_version else None
-                SonicGeneralCli.deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
-                                             setup_name=platform_params.setup_name, platform_params=platform_params,
-                                             deploy_type='onie', reboot_after_install=reboot_after_install)
+                SonicGeneralCli().deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
+                                               setup_name=platform_params.setup_name, platform_params=platform_params,
+                                               deploy_type='onie', reboot_after_install=reboot_after_install)
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
@@ -233,8 +233,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                           verify_file=False, direction='get')
                 with allure.step('Performing sonic to sonic upgrade'):
                     logger.info('Performing sonic to sonic upgrade')
-                    SonicGeneralCli.deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
-                                                 deploy_type='sonic')
+                    SonicGeneralCli().deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
+                                                   deploy_type='sonic')
 
                 # Update CLI classes based on current SONiC branch
                 update_branch_in_topology(topology_obj)
@@ -248,7 +248,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                           direction='get')
                 with allure.step("Installing wjh deb url"):
                     if upgrade_params.wjh_deb_url:
-                        SonicGeneralCli.install_wjh(engines.dut, upgrade_params.wjh_deb_url)
+                        SonicGeneralCli().install_wjh(engines.dut, upgrade_params.wjh_deb_url)
                     else:
                         install_all_supported_app_extensions(engines.dut, app_extension_dict_path)
 

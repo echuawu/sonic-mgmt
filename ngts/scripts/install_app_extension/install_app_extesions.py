@@ -41,7 +41,7 @@ def install_all_supported_app_extensions(dut_engine, app_extension_dict_path):
     elif SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
         app_ext_installer = AppExtensionInstaller(dut_engine, app_extension_dict_path)
         app_ext_installer.install_supported_app_extensions()
-        SonicGeneralCli.save_configuration(dut_engine)
+        SonicGeneralCli().save_configuration(dut_engine)
     else:
         logger.info("The image does not support app extension")
         skip_reason = 'The image does not support app extension'

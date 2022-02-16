@@ -212,7 +212,7 @@ def dut_mac(engines):
     :return: dut mac address
     """
     logger.info('Getting DUT mac address')
-    config_db = SonicGeneralCli.get_config_db(engines.dut)
+    config_db = SonicGeneralCli().get_config_db(engines.dut)
     dut_mac = config_db.get('DEVICE_METADATA').get('localhost').get('mac')
     logger.info('DUT mac address is: {}'.format(dut_mac))
     return dut_mac

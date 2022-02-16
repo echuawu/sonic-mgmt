@@ -58,7 +58,7 @@ def install_p4_sampling(engine_dut):
             app_status = app_data['Status']
             if app_status == 'Installed':
                 with allure.step('Disable {}'.format(APP_NAME)):
-                    SonicGeneralCli.set_feature_state(
+                    SonicGeneralCli().set_feature_state(
                         engine_dut, APP_NAME, 'disabled')
                 with allure.step('Uninstall {}'.format(APP_NAME)):
                     SonicAppExtensionCli.uninstall_app(engine_dut, APP_NAME)
@@ -70,7 +70,7 @@ def install_p4_sampling(engine_dut):
     with allure.step('Install {} with version {}'.format(APP_NAME, P4SamplingConsts.VERSION)):
         SonicAppExtensionCli.install_app(engine_dut, APP_NAME, P4SamplingConsts.VERSION)
     with allure.step('Enable {}'.format(APP_NAME)):
-        SonicGeneralCli.set_feature_state(engine_dut, APP_NAME, 'enabled')
+        SonicGeneralCli().set_feature_state(engine_dut, APP_NAME, 'enabled')
 
     # TODO: after the bug 2684913 is fixed, need to remove the sleep
     time.sleep(10)
@@ -84,7 +84,7 @@ def uninstall_p4_sampling(engine_dut):
     :return: None
     """
     with allure.step('Disable {}'.format(APP_NAME)):
-        SonicGeneralCli.set_feature_state(engine_dut, APP_NAME, 'disabled')
+        SonicGeneralCli().set_feature_state(engine_dut, APP_NAME, 'disabled')
     with allure.step('Uninstall {}'.format(APP_NAME)):
         SonicAppExtensionCli.uninstall_app(engine_dut, APP_NAME)
     with allure.step('Remove {} app from {} Repository'.format(APP_NAME, P4SamplingConsts.REPOSITORY)):

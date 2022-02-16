@@ -15,7 +15,7 @@ def test_app_status(engines, shared_params, upgrade_params):
     """
     # If below required in case when we did upgrade and the run nested pytest sessions during reboot/reload validations
     if upgrade_params.is_upgrade_required:
-        base_image, target_image = SonicGeneralCli.get_base_and_target_images(engines.dut)
+        base_image, target_image = SonicGeneralCli().get_base_and_target_images(engines.dut)
         if '202012' in base_image:
             pytest.skip('App ext during upgrade from 202012 image not supported')
 

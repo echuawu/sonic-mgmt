@@ -57,26 +57,26 @@ class TestEntryTraffic:
         with allure.step("Save config"):
             engines.dut.run_cmd('sudo config save -y')
         with allure.step("Disable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
         with allure.step("Remove all entries from the config db"):
             entries_config_removed = json_file_helper.remove_key_from_config_db(engines.dut, P4_SAMPLING_KEY)
         with allure.step("Reload config"):
-            SonicGeneralCli.reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
+            SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
         with allure.step("Enable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify that the entries has been removed"):
             P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, False)
             P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, False)
         with allure.step("Send traffic and check traffic can not be mirrored, and the counter is as expected"):
             P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count, 0)
         with allure.step("Disable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
         with allure.step("Add all entries back to config db"):
             json_file_helper.add_content_to_config_db(engines.dut, entries_config_removed, P4_SAMPLING_KEY)
         with allure.step("Reload config"):
-            SonicGeneralCli.reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
+            SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
         with allure.step("Enable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify that the entries has been added back"):
             P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
             P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
@@ -129,13 +129,13 @@ class TestEntryTraffic:
         with allure.step("Disable enable p4-sampling for {} times".format(disable_enable_times)):
             self.disable_enable_feature_state(engines.dut, P4SamplingConsts.APP_NAME, disable_enable_times)
         with allure.step("Disable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
             # sleep for 1 second to wait until this is configured to HW and traffic mirror stops
             time.sleep(1)
         with allure.step("Check traffic can not be received by the mirror port"):
             self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
         with allure.step("Enable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
             # sleep for 1 second to wait until this is configured to HW and traffic mirror starts
             time.sleep(1)
         with allure.step("Check traffic can be received by the mirror port"):
@@ -303,7 +303,7 @@ class TestEntryTraffic:
         """
         for port in ports:
             SonicInterfaceCli.disable_interface(engine_dut, port)
-        SonicGeneralCli.check_link_state(engine_dut, ports, expected_status="down")
+        SonicGeneralCli().check_link_state(engine_dut, ports, expected_status="down")
 
     @staticmethod
     def startup_ports(engine_dut, ports):
@@ -315,7 +315,7 @@ class TestEntryTraffic:
         """
         for port in ports:
             SonicInterfaceCli.enable_interface(engine_dut, port)
-        SonicGeneralCli.check_link_state(engine_dut, ports)
+        SonicGeneralCli().check_link_state(engine_dut, ports)
 
     @staticmethod
     def remove_entries(engine_dut, table_params):

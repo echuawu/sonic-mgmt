@@ -126,7 +126,7 @@ class RebootReload:
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
             with allure.step('Checking warm-reboot status'):
-                retry_call(SonicGeneralCli.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
+                retry_call(SonicGeneralCli().check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
                            delay=10, logger=logger)
 
         # Step below required - to check that PortChannel0001 iface are UP
@@ -181,7 +181,7 @@ class RebootReload:
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
             with allure.step('Checking warm-reboot status'):
-                retry_call(SonicGeneralCli.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
+                retry_call(SonicGeneralCli().check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
                            delay=10, logger=logger)
 
         # Step below required - to check that PortChannel0001 iface are UP
@@ -250,7 +250,7 @@ class RebootReload:
 
         """
         with allure.step("Verify all docker container is up"):
-            SonicGeneralCli.verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST.append(self.app_name))
+            SonicGeneralCli().verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST.append(self.app_name))
         with allure.step("Verify app shutdown order: bgp-> {} -> swss".format(self.app_name)):
             bgp_shutdown_time = time_parse(
                 self.dut_engine.run_cmd("docker inspect --format='{{.State.FinishedAt}}' bgp"))
@@ -265,11 +265,11 @@ class RebootReload:
         Verify warm restart state of app is
         """
         with allure.step("Verify warm_restart state of {} is reconciled".format(self.app_name)):
-            assert SonicGeneralCli.show_warm_restart_state(self.dut_engine)[self.app_name]["state"] == "reconciled", "Warm_restart state is not reconciled"
+            assert SonicGeneralCli().show_warm_restart_state(self.dut_engine)[self.app_name]["state"] == "reconciled", "Warm_restart state is not reconciled"
 
     def verify_app_and_container_up_after_config_reload(self, validation_type):
         with allure.step("Verify container are up"):
-            SonicGeneralCli.verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST)
+            SonicGeneralCli().verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST)
         with allure.step("Verify app is up and repo stat is installed"):
             verify_app_container_up_and_repo_status_installed(self.dut_engine, self.app_name, self.version)
 

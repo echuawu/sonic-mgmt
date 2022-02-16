@@ -95,9 +95,9 @@ def test_sonic_to_sonic_upgrade_with_sipping_migrating_package(pre_install_base_
     try:
         with allure.step("Upgrade from sonic base:{} to sonic target:{}. Skipping migrating is {}".format(
                 base_version, target_version, skipping_migrating_package)):
-            SonicGeneralCli.deploy_sonic(dut_engine, target_version, skipping_migrating_package)
+            SonicGeneralCli().deploy_sonic(dut_engine, target_version, skipping_migrating_package)
         with allure.step("Verify basic container is up"):
-            SonicGeneralCli.verify_dockers_are_up(dut_engine)
+            SonicGeneralCli().verify_dockers_are_up(dut_engine)
         with allure.step("Verify app:{} is clean".format(app_name)):
             verify_app_container_down_and_repo_status_na(dut_engine, app_name)
 

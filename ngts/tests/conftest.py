@@ -25,7 +25,7 @@ def show_version(engines):
     Print show version output to logs
     :param engines: engines fixture
     """
-    SonicGeneralCli.show_version(engines.dut)
+    SonicGeneralCli().show_version(engines.dut)
 
 
 @pytest.fixture(scope='session')

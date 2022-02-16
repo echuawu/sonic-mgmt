@@ -73,7 +73,7 @@ class TestNegativeConfig:
         """
         expect_error_msg = 'Error: "p4-sampling" feature is disabled, run "config feature state p4-sampling enabled"'
         with allure.step('Disable {}'.format(P4SamplingConsts.APP_NAME)):
-            SonicGeneralCli.set_feature_state(
+            SonicGeneralCli().set_feature_state(
                 engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
 
         with allure.step('Verify add, delete and show command for the table_port_sampling'):
@@ -122,7 +122,7 @@ class TestNegativeConfig:
                                                        r'state p4-sampling enabled"', True)])
 
         with allure.step('Enable {}'.format(P4SamplingConsts.APP_NAME)):
-            SonicGeneralCli.set_feature_state(
+            SonicGeneralCli().set_feature_state(
                 engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
 
     @allure.title('Test P4 sampling add, delete entry with negative keys')
@@ -603,7 +603,7 @@ def test_p4_sampling_not_support_on_spc1(engines, table_params, platform_params)
     with allure.step(
             'Verify {} not support on SPC1'.format(P4SamplingConsts.APP_NAME)):
         expect_error_msg = "feature is not supported on device type"
-        SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+        SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         flow_entry = table_params.flow_entry
         flow_entry_key = list(flow_entry.keys())[0]
         params = flow_entry[flow_entry_key]

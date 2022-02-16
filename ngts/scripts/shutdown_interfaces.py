@@ -21,11 +21,11 @@ def test_shutdown_interfaces_on_dut(topology_obj, setup_name, preset):
         config_db_file = "config_db_{}.json".format(preset)
 
         with allure.step("Set interfaces {} as down in config db file: {}".format(shutdown_ifaces, config_db_file)):
-            config_db_json = SonicGeneralCli.get_config_db(dut_engine)
+            config_db_json = SonicGeneralCli().get_config_db(dut_engine)
             for interface in shutdown_ifaces:
                 config_db_json[ConfigDbJsonConst.PORT][interface][ConfigDbJsonConst.ADMIN_STATUS] = "down"
-            SonicGeneralCli.create_extended_config_db_file(setup_topo_dir_name, config_db_json,
-                                                           file_name=config_db_file)
+            SonicGeneralCli().create_extended_config_db_file(setup_topo_dir_name, config_db_json,
+                                                             file_name=config_db_file)
 
         with allure.step("Load {} to switch".format(config_db_file)):
             dut_engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path, config_db_file,

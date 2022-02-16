@@ -40,7 +40,7 @@ class TestEntryScaling:
         port_params = self.generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         flow_params = self.generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         with allure.step("Enable p4-sampling"):
-            SonicGeneralCli.set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify cpu and ram usage before the entries added"):
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
         with allure.step("Add {} entries for port table and {} entries for flow table with cli command and "
@@ -54,7 +54,7 @@ class TestEntryScaling:
                 self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
             with allure.step("Save configuration before reboot"):
-                SonicGeneralCli.save_configuration(engines.dut)
+                SonicGeneralCli().save_configuration(engines.dut)
             with allure.step("Do cold reboot and verify the execution time"):
                 self.do_cold_reboot(engines.dut, topology_obj)
             with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
@@ -70,7 +70,7 @@ class TestEntryScaling:
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
 
         with allure.step("Save configuration before reboot"):
-            SonicGeneralCli.save_configuration(engines.dut)
+            SonicGeneralCli().save_configuration(engines.dut)
         with allure.step("Do cold reboot and verify the execution time after the entries are cleared"):
             self.do_cold_reboot(engines.dut, topology_obj)
 
@@ -228,7 +228,7 @@ class TestEntryScaling:
 
     def do_cold_reboot(self, engine_dut, topology_obj):
         start_time = datetime.now()
-        SonicGeneralCli.reboot_reload_flow(engine_dut, topology_obj=topology_obj)
+        SonicGeneralCli().reboot_reload_flow(engine_dut, topology_obj=topology_obj)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))

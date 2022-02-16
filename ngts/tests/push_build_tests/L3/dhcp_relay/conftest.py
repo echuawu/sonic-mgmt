@@ -67,8 +67,8 @@ def configure_additional_dhcp_server(topology_obj, engines):
     engines.ha.run_cmd('sed -e "s/INTERFACESv4=\\"\\"/INTERFACESv4=\\"bond0\\"/g" -i /etc/default/isc-dhcp-server')
     engines.ha.run_cmd('sed -e "s/INTERFACESv6=\\"\\"/INTERFACESv6=\\"bond0\\"/g" -i /etc/default/isc-dhcp-server')
     engines.ha.run_cmd('/etc/init.d/isc-dhcp-server restart')
-    dut_cli_object.dhcp_relay.add_dhcp_relay(engines.dut, 690, '30.0.0.2')
-    dut_cli_object.dhcp_relay.add_dhcp_relay(engines.dut, 690, '3000::2')
+    dut_cli_object.dhcp_relay.add_dhcp_relay(engines.dut, 690, '30.0.0.2', topology_obj=topology_obj)
+    dut_cli_object.dhcp_relay.add_dhcp_relay(engines.dut, 690, '3000::2', topology_obj=topology_obj)
     LinuxRouteCli.add_route(engines.ha, '69.0.1.0', '30.0.0.1', '24')
     LinuxRouteCli.add_route(engines.ha, '6900:1::', '3000::1', '64')
 
@@ -76,7 +76,7 @@ def configure_additional_dhcp_server(topology_obj, engines):
 
     engines.ha.run_cmd('sed -e "s/INTERFACESv4=\\"bond0\\"/INTERFACESv4=\\"\\"/g" -i /etc/default/isc-dhcp-server')
     engines.ha.run_cmd('sed -e "s/INTERFACESv6=\\"bond0\\"/INTERFACESv6=\\"\\"/g" -i /etc/default/isc-dhcp-server')
-    dut_cli_object.dhcp_relay.del_dhcp_relay(engines.dut, 690, '30.0.0.2')
-    dut_cli_object.dhcp_relay.del_dhcp_relay(engines.dut, 690, '3000::2')
+    dut_cli_object.dhcp_relay.del_dhcp_relay(engines.dut, 690, '30.0.0.2', topology_obj=topology_obj)
+    dut_cli_object.dhcp_relay.del_dhcp_relay(engines.dut, 690, '3000::2', topology_obj=topology_obj)
     LinuxRouteCli.del_route(engines.ha, '69.0.1.0', '30.0.0.1', '24')
     LinuxRouteCli.del_route(engines.ha, '6900:1::', '3000::1', '64')

@@ -73,7 +73,8 @@ class TestDHCPRelay:
     def test_dhcp_relay_remove_dhcp_server(self):
         try:
             with allure.step('Remove DHCP relay setting from DUT'):
-                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip)
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip,
+                                                              topology_obj=self.topology)
 
             with allure.step('Trying to GET ip address from DHCP server when DHCP relay settings removed'):
                 assert LinuxDhcpCli.dhcp_client_no_offers in self.dhcp_client_engine.run_cmd(
@@ -82,7 +83,8 @@ class TestDHCPRelay:
             raise AssertionError(err)
         finally:
             LinuxDhcpCli.kill_all_dhcp_clients(self.dhcp_client_engine)
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip)
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip,
+                                                          topology_obj=self.topology)
 
     @pytest.mark.dhcp_relay
     def test_dhcp_relay_release_message(self):

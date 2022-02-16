@@ -222,7 +222,7 @@ def test_app_techsupport_integration(add_app_into_repo):
         with allure.step("Check app version and status"):
             verify_app_container_up_and_repo_status_installed(dut_engine, app_name, verison)
         with allure.step("Show tech support and verify there is a dump/{}.gz".format(app_name)):
-            dump_file = SonicGeneralCli.generate_techsupport(dut_engine)
+            dump_file = SonicGeneralCli().generate_techsupport(dut_engine)
             res = dut_engine.run_cmd("sudo tar -tf {} | grep {}.gz".format(dump_file, app_name))
             assert res, "Not found dump/{}.gz ".format(app_name)
     except Exception as err:

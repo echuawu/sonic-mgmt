@@ -91,7 +91,7 @@ def check_feature_enabled(engines):
     :param engines: engines fixture
     """
     with allure.step('Valdating WJH feature is installed and enabled on the DUT'):
-        features = SonicGeneralCli.show_and_parse_feature_status(engines.dut)
+        features = SonicGeneralCli().show_and_parse_feature_status(engines.dut)
         if 'what-just-happened' not in features or features['what-just-happened']['State'] != 'enabled':
             pytest.skip("what-just-happened feature is not available. Skipping the test.")
 
@@ -105,7 +105,7 @@ def check_if_channel_enabled(cli_object, engines, channel, channel_type):
     :param cli_object: cli_object
     """
 
-    if channel == "buffer" and SonicGeneralCli.is_spc1(cli_object, engines.dut):
+    if channel == "buffer" and SonicGeneralCli().is_spc1(cli_object, engines.dut):
         pytest.skip("buffer channel is not supported in SPC1.")
 
     if channel not in pytest.CHANNEL_CONF:

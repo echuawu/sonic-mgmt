@@ -94,7 +94,7 @@ def apply_config(topology_obj, engine, ip_config_dict):
                                   ROUTE_APP_CONFIG_DEL_DUT_PATH, ROUTE_APP_CONFIG_DEL)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     add_routes_command = 'swssconfig {}'.format(ROUTE_APP_CONFIG_SET_DUT_PATH)
-    SonicGeneralCli.execute_command_in_docker(engine, docker='swss', command=add_routes_command)
+    SonicGeneralCli().execute_command_in_docker(engine, docker='swss', command=add_routes_command)
 
 
 def copy_route_app_configs_to_dut(engine, ROUTE_APP_CONFIG_SET_LOCAL_PATH, ROUTE_APP_CONFIG_SET_DUT_PATH,
@@ -120,7 +120,7 @@ def cleanup_config(topology_obj, engine, ip_config_dict):
     :param ip_config_dict: ip_config_dict
     """
     del_routes_command = 'swssconfig {}'.format(ROUTE_APP_CONFIG_DEL_DUT_PATH)
-    SonicGeneralCli.execute_command_in_docker(engine, docker='swss', command=del_routes_command)
+    SonicGeneralCli().execute_command_in_docker(engine, docker='swss', command=del_routes_command)
     engine.run_cmd('sudo rm -f {}'.format(ROUTE_APP_CONFIG_SET_DUT_PATH))
     engine.run_cmd('sudo rm -f {}'.format(ROUTE_APP_CONFIG_DEL_DUT_PATH))
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)

@@ -23,7 +23,7 @@ class DhcpRelayConfigTemplate:
                 for dhcp_relay_info in configuration:
                     vlan = dhcp_relay_info['vlan_id']
                     for dhcp_server in dhcp_relay_info['dhcp_servers']:
-                        cli_object.dhcp_relay.add_dhcp_relay(engine, vlan, dhcp_server)
+                        cli_object.dhcp_relay.add_dhcp_relay(engine, vlan, dhcp_server, topology_obj=topology_obj)
 
     @staticmethod
     def cleanup(topology_obj, dhcp_relay_config_dict):
@@ -40,4 +40,4 @@ class DhcpRelayConfigTemplate:
                 for dhcp_relay_info in configuration:
                     vlan = dhcp_relay_info['vlan_id']
                     for dhcp_server in dhcp_relay_info['dhcp_servers']:
-                        cli_object.dhcp_relay.del_dhcp_relay(engine, vlan, dhcp_server)
+                        cli_object.dhcp_relay.del_dhcp_relay(engine, vlan, dhcp_server, topology_obj=topology_obj)

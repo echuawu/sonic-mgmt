@@ -175,7 +175,7 @@ class TestFec:
         with allure.step("Save configuration and warm reboot"):
             save_configuration(self.engines.dut, self.cli_objects.dut, cleanup_list)
             self.engines.dut.reload(['sudo {}'.format(reboot_type)], wait_after_ping=45)
-            SonicGeneralCli.verify_dockers_are_up(self.engines.dut, SonicConst.DOCKERS_LIST)
+            SonicGeneralCli().verify_dockers_are_up(self.engines.dut, SonicConst.DOCKERS_LIST)
 
         with allure.step("Toggle ports: {}".format(ports_for_toggle_flow)):
             self.toggle_ports(ports_for_toggle_flow, cleanup_list)
@@ -184,7 +184,7 @@ class TestFec:
             self.enable_ports(ports_for_disable_enable_flow)
 
         with allure.step("Verify ports: {} are up".format(tested_ports)):
-            SonicGeneralCli.check_link_state(self.engines.dut, tested_ports)
+            SonicGeneralCli().check_link_state(self.engines.dut, tested_ports)
 
         self.verify_fec_configuration(conf)
 

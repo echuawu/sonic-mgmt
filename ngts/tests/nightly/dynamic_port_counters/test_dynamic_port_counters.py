@@ -157,7 +157,7 @@ def test_dynamic_port_counters(request, engines, ports_num, interfaces, players,
                 verify_traffic(interfaces, players, ha_dut_1_mac)
     except Exception as e:
         with allure.step("Reload config after failure"):
-            SonicGeneralCli.reload_configuration(dut_engine)
+            SonicGeneralCli().reload_configuration(dut_engine)
         with allure.step("Verify ports are added back after reload config"):
             retry_call(verify_ifaces_status, fargs=[dut_engine, orig_ifaces],
                        tries=10, delay=10, logger=logger)

@@ -45,7 +45,7 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     cli_objects.ha.general.start_service(engines.ha, 'lldpad')
 
-    SonicGeneralCli.apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
+    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
 
     logger.info('CoPP Common cleanup completed')
 

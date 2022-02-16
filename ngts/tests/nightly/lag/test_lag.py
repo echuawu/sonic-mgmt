@@ -403,7 +403,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                   expected_ports_status_list,
                                                   tries=10)
         with allure.step('Validate dockers status'):
-            SonicGeneralCli.verify_dockers_are_up(engines.dut)
+            SonicGeneralCli().verify_dockers_are_up(engines.dut)
     except BaseException as err:
         raise AssertionError(err)
 

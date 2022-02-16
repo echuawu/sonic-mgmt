@@ -19,12 +19,12 @@ def test_configure_qos(topology_obj, qos_config_action):
     try:
         dut_engine = topology_obj.players['dut']['engine']
         # Now all branches above 201911 except for 202106 support the feature
-        if "202106" != SonicGeneralCli.get_image_sonic_version(dut_engine):
+        if "202106" != SonicGeneralCli().get_image_sonic_version(dut_engine):
             if qos_config_action == "reload":
                 SonicQosCli.reload_qos(dut_engine)
             else:
                 SonicQosCli.clear_qos(dut_engine)
-            SonicGeneralCli.save_configuration(dut_engine)
+            SonicGeneralCli().save_configuration(dut_engine)
             dut_engine.reload(['sudo reboot'])
 
     except Exception as err:

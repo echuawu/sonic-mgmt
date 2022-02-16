@@ -25,8 +25,8 @@ def test_p4_examples_reboot(request, engines, topology_obj):
     # TODO: for now the all the test case in except test_p4_examples_reboot itself will be executed after reboot,
     # TODO: later when the test case increase, need to check if all the test case need to be executed.
     r_type = random.choice(REBOOT_LIST)
-    SonicGeneralCli.save_configuration(engines.dut)
-    SonicGeneralCli.reboot_reload_flow(engines.dut, r_type=r_type, topology_obj=topology_obj)
+    SonicGeneralCli().save_configuration(engines.dut)
+    SonicGeneralCli().reboot_reload_flow(engines.dut, r_type=r_type, topology_obj=topology_obj)
     try:
         with allure.step('Running functional validations after reboot/reload'):
             logger.info('Running functional validations after reboot/reload')

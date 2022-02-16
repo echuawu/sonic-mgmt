@@ -1,10 +1,6 @@
 import logging
 import ipaddress
-import time
 
-from retry.api import retry_call
-
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.config_db_utils import save_config_db_json, save_config_into_json
 
@@ -31,7 +27,7 @@ class SonicDhcpRelayCli:
 class SonicDhcpRelayCliDefault:
 
     @staticmethod
-    def add_dhcp_relay(engine, vlan, dhcp_server):
+    def add_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
         """
         This method adding DHCP relay entry for VLAN interface
         :param engine: ssh engine object
@@ -42,7 +38,7 @@ class SonicDhcpRelayCliDefault:
         return engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
 
     @staticmethod
-    def del_dhcp_relay(engine, vlan, dhcp_server):
+    def del_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
         """
         This method delete DHCP relay entry from VLAN interface
         :param engine: ssh engine object
@@ -108,7 +104,7 @@ class SonicDhcpRelayCliDefault:
 class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
     @staticmethod
-    def add_dhcp_relay(engine, vlan, dhcp_server):
+    def add_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
         """
         This method adding DHCP relay entry for VLAN interface
         :param engine: ssh engine object
@@ -118,12 +114,13 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         ip_addr_version = ipaddress.ip_address(dhcp_server).version
 
         if ip_addr_version == 6:
-            SonicDhcpRelayCliMaster.add_ipv6_dhcp_relay(engine, vlan, dhcp_server)
+            topology_obj = kwargs.get('topology_obj')
+            SonicDhcpRelayCliMaster.add_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj)
         else:
             SonicDhcpRelayCliMaster.add_ipv4_dhcp_relay(engine, vlan, dhcp_server)
 
     @staticmethod
-    def del_dhcp_relay(engine, vlan, dhcp_server):
+    def del_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
         """
         This method delete DHCP relay entry from VLAN interface
         :param engine: ssh engine object
@@ -133,21 +130,23 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         ip_addr_version = ipaddress.ip_address(dhcp_server).version
 
         if ip_addr_version == 6:
-            SonicDhcpRelayCliMaster.del_ipv6_dhcp_relay(engine, vlan, dhcp_server)
+            topology_obj = kwargs.get('topology_obj')
+            SonicDhcpRelayCliMaster.del_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj)
         else:
             SonicDhcpRelayCliMaster.del_ipv4_dhcp_relay(engine, vlan, dhcp_server)
 
     @staticmethod
-    def add_ipv6_dhcp_relay(engine, vlan, dhcp_server):
+    def add_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj):
         """
         This method adding DHCPv6 relay entry for VLAN interface using DHCPv6 json config
         :param engine: ssh engine object
         :param vlan: vlan interface ID for which DHCP relay should be added
         :param dhcp_server: DHCP server IP address
+        :param topology_obj: topology_obj
         """
         vlan_iface = 'Vlan{}'.format(vlan)
 
-        config_db = SonicGeneralCli.get_config_db_from_running_config(engine)
+        config_db = SonicGeneralCli().get_config_db_from_running_config(engine)
 
         if config_db.get('DHCP_RELAY'):
             available_dhcpv6_servers = config_db['DHCP_RELAY'].get(vlan_iface, {}).get('dhcpv6_servers', [])
@@ -167,27 +166,22 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         engine.run_cmd(f'sudo config load -y {path_to_config_on_dut}')
 
         # TODO: Once https://github.com/Azure/sonic-buildimage/issues/9679 fixed - remove "config reload -y" logic
-        SonicGeneralCli.save_configuration(engine)
-        SonicGeneralCli.reload_configuration(engine)
-        SonicGeneralCli.verify_dockers_are_up(engine)
-
-        first_interface = 'Ethernet0'
-        delay_after_first_iface_up = 5
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engine, [first_interface]], tries=12,
-                   delay=5, logger=logger)
-        time.sleep(delay_after_first_iface_up)
+        SonicGeneralCli().save_configuration(engine)
+        branch = topology_obj.players['dut'].get('branch')
+        SonicGeneralCli(branch=branch).reload_flow(engine, topology_obj=topology_obj, reload_force=True)
 
     @staticmethod
-    def del_ipv6_dhcp_relay(engine, vlan, dhcp_server):
+    def del_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj):
         """
         This method delete DHCPv6 relay entry from VLAN interface
         :param engine: ssh engine object
         :param vlan: vlan interface ID from which DHCP relay should be deleted
         :param dhcp_server: DHCP server IP address
+        :param topology_obj: topology_obj
         """
         vlan_iface = 'Vlan{}'.format(vlan)
 
-        config_db = SonicGeneralCli.get_config_db_from_running_config(engine)
+        config_db = SonicGeneralCli().get_config_db_from_running_config(engine)
 
         config_db = SonicDhcpRelayCliMaster.remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
         config_db = SonicDhcpRelayCliMaster.remove_vlan_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
@@ -195,14 +189,8 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
         # TODO: Once https://github.com/Azure/sonic-buildimage/issues/9679 fixed - remove "config reload -y" logic
         save_config_db_json(engine, config_db)
-        SonicGeneralCli.reload_configuration(engine)
-        SonicGeneralCli.verify_dockers_are_up(engine)
-
-        first_interface = 'Ethernet0'
-        delay_after_first_iface_up = 5
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engine, [first_interface]], tries=12,
-                   delay=5, logger=logger)
-        time.sleep(delay_after_first_iface_up)
+        branch = topology_obj.players['dut'].get('branch')
+        SonicGeneralCli(branch=branch).reload_flow(engine, topology_obj=topology_obj, reload_force=True)
 
     @staticmethod
     def remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server):

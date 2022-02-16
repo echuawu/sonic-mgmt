@@ -28,7 +28,7 @@ def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines
     allowed_diff_file_path = os.path.join(test_folder_path, allowed_diff_file)
 
     with allure.step('Getting base and target versions'):
-        base_image, target_image = SonicGeneralCli.get_base_and_target_images(engines.dut)
+        base_image, target_image = SonicGeneralCli().get_base_and_target_images(engines.dut)
         assert base_image, 'Only 1 installed image available'
 
     with allure.step('Comparing configurations before and after the upgrade'):
