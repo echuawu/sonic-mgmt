@@ -58,7 +58,8 @@ HOST_MASK = {'v4' : 32, 'v6' : 128}
 # This is the list of encapsulations that will be tested in this script.
 # v6_in_v4 means: V6 payload is encapsulated inside v4 outer layer.
 # This list is used in many locations in the script.
-SUPPORTED_ENCAP_TYPES = ['v4_in_v4', 'v4_in_v6', 'v6_in_v4', 'v6_in_v6']
+# SUPPORTED_ENCAP_TYPES = ['v4_in_v4', 'v4_in_v6', 'v6_in_v4', 'v6_in_v6']  # Return when v6 encapsulation is available
+SUPPORTED_ENCAP_TYPES = ['v4_in_v4', 'v6_in_v4']
 
 pytestmark = [
     # This script supports any T1 topology: t1, t1-64-lag, t1-lag.
