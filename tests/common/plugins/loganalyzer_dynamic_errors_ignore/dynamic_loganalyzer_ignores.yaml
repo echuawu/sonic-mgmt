@@ -445,6 +445,7 @@
       - tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl
       - pc/test_po_update.py::test_po_update_io_no_los
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py
       Redmine:
       - 2615940
 
@@ -960,3 +961,17 @@
       - fib/test_fib.py
       Redmine:
         - 2973019
+
+- Errors_list:
+    - '.* WARNING kernel:.* NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!.*'
+    - '.* WARNING kernel:.* mlxsw_minimal: probe of 2-0048 failed with error -5.*'
+    - '.* ERR kernel:.*mlxsw_minimal 2-0048: Fail to register core bus.*'
+    - '.* ERR kernel:\[.*\] xdpe.*: Chip identification failed.*'
+    - '.* WARNING kernel: \[.*\] xdpe.*: probe of .* failed with error.*'
+    - '.* ERR kernel: \[.*\] xdpe.*: Chip identification failed.*'
+    - '.* ERR kernel: \[.*\] xdpe.*: PMBus status register not found.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/fwutil/test_fwutil.py
+      Redmine:
+      - 2962500
