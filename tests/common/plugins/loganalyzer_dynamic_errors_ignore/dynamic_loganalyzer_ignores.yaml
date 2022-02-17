@@ -636,7 +636,7 @@
   Conditions:
     - Affected_test_cases:
       - pfc_asym/test_pfc_asym.py::test_pfc_asym_off_rx_pause_frames
-      - qos/test_qos_sai.py::TestQosSai
+      - qos/test_qos_sai.py
       Redmine:
         - 2955175
       Branch:
@@ -835,8 +835,6 @@
   Conditions:
     - Redmine:
       - 2971947
-      Platform:
-        - simx
 
 - Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/led_fan\d_capability - FileNotFoundError\(2, ''No such file or directory''\)'
@@ -950,18 +948,10 @@
 - Errors_list:
     - '.*ERR pmon#thermalctld: Thermal sysfs /run/hw-management/thermal/gearbox.*_temp_input does not exist'
   Conditions:
-    - Affected_test_cases:
-      - copp/test_copp.py
-      Redmine:
-        - 2972980
-
-- Errors_list:
-    - '.* ERR systemd-modules-load\[\d+\]: Failed to find module.*'
-  Conditions:
-    - Affected_test_cases:
-      - copp/test_copp.py
-      Redmine:
-        - 2973000
+    - Redmine:
+      - 2972980
+      Platform:
+        - x86_64-mlnx_msn3800-r0
 
 - Errors_list:
     - '.*Failed to start Platform monitor container.*'
