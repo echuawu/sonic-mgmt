@@ -743,6 +743,12 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
     - 202012
 
+tests/nightly/copp/test_copp.py:
+  - Platform:
+    - x86_64-nvidia_sn2201-r0
+    Redmine:
+      - 2972489
+
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
   - Redmine:
     - 2682609
