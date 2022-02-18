@@ -986,3 +986,20 @@
       - 2976288
       Platform:
       - x86_64-mlnx_msn3800-r0
+
+- Errors_list:
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
+    - '.* ERR kernel: \[.*\] hwmon hwmon15: Failed to query module temperature sensor.*'
+    - '.* ERR pmon#thermalctld: Failed to read from file /run/hw-management/thermal/module.*_temp_fault - OSError.*'
+  Conditions:
+    - Redmine:
+      - 2976349
+
+- Errors_list:
+    - '.* ERR container: docker cmd: kill for .* failed with 404 Client Error for http+docker:.*: Not Found ("No such container: .*").*'
+    - '.* ERR hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.* ERR caclmgrd[3294]: :- poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.*ERR hostcfgd: error returned by select.*'
+  Conditions:
+    - Redmine:
+        - 2976351
