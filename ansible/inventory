@@ -296,6 +296,20 @@ r-tigon-11-t1-64-lag ansible_host=10.210.25.10 sonic_version=v2 sonic_hwsku=ACS-
 r-tigon-11-ptf32 ansible_host=10.210.25.10 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigris-23 ptf_host=ptf-r-tigon-11 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp32_interface_to_front_map.ini" dut_mac="1c:34:da:1d:ea:00" pdu_host=pdu-10-208-0-158
 r-tigon-11-ptf64 ansible_host=10.210.25.10 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigris-23 ptf_host=ptf-r-tigon-11 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1c:34:da:1d:ea:00" pdu_host=pdu-10-208-0-158
 
+# MTR testbed r-tigon-20 topologies
+r-tigon-20 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t0 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t0-16 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t0-52 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t0-56 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t0-64 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t1 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t1-lag ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-t1-64-lag ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-ptf32 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp32_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+r-tigon-20-ptf64 ansible_host=10.210.24.183 sonic_version=v2 sonic_hwsku=ACS-MSN4600C fanout_switch=r-tigon-19 ptf_host=ptf-r-tigon-20 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:C9:60:00" pdu_host=pdu-10.208.0.20
+
+
 # MTS testbed mts-sonic-dut topologies
 mts-sonic-dut ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN2700 serial_console="telnet 10.9.103.13 7022" ptf_host=mts-ptf ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-9-74-52
 mts-sonic-dut-t1 ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN2700 serial_console="telnet 10.9.103.13 7022" ptf_host=mts-ptf ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-9-74-52
@@ -359,6 +373,7 @@ mtbc-sonic-02-2700 ansible_host=mtbc-sonic-02-2700 ansible_ssh_user=admin ansibl
 r-panther-03 ansible_host=r-panther-03 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-tigris-17 ansible_host=r-tigris-17 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-tigris-23 ansible_host=r-tigris-23 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
+r-tigon-19 ansible_host=r-tigon-19 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-liger-05 ansible_host=r-liger-05 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-leopard-20 ansible_host=r-leopard-20 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 mtbc-3700c-02 ansible_host=mtbc-3700c-02 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
@@ -477,6 +492,19 @@ r-tigon-11-t1-lag
 r-tigon-11-t1-64-lag
 r-tigon-11-ptf32
 r-tigon-11-ptf64
+
+# MTR r-tigon-20 topologies
+r-tigon-20
+r-tigon-20-t0
+r-tigon-20-t0-16
+r-tigon-20-t0-52
+r-tigon-20-t0-56
+r-tigon-20-t0-64
+r-tigon-20-t1
+r-tigon-20-t1-lag
+r-tigon-20-t1-64-lag
+r-tigon-20-ptf32
+r-tigon-20-ptf64
 
 # MTS testbed mts-sonic-dut topologies
 mts-sonic-dut
@@ -763,6 +791,19 @@ r-tigon-11-t1-64-lag
 r-tigon-11-ptf32
 r-tigon-11-ptf64
 
+# MTR r-tigon-20 topologies
+r-tigon-20
+r-tigon-20-t0
+r-tigon-20-t0-16
+r-tigon-20-t0-52
+r-tigon-20-t0-56
+r-tigon-20-t0-64
+r-tigon-20-t1
+r-tigon-20-t1-lag
+r-tigon-20-t1-64-lag
+r-tigon-20-ptf32
+r-tigon-20-ptf64
+
 # MTR r-anaconda-81 topologies
 r-anaconda-81
 r-anaconda-81-t0
@@ -868,6 +909,10 @@ ptf-r-tigon-04 ansible_host=10.213.84.61 ansible_ssh_user=root ansible_ssh_pass=
 ptf-r-tigon-11 ansible_host=10.213.14.62 ansible_ssh_user=root ansible_ssh_pass=root
 10.213.14.62 ansible_host=10.213.14.62 ansible_ssh_user=root ansible_ssh_pass=root
 
+# MTR r-tigon-20 PTF host
+ptf-r-tigon-20 ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass=root
+10.215.18.183 ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass=root
+
 # MTR r-lionfish-07, r-tigris-06 and other canonical DUTs PTF host
 ptf-dummy ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
 1.1.1.1 ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
@@ -924,3 +969,4 @@ pdu-10-208-2-33 ansible_host=10.208.2.33 protocol=snmp
 pdu-10-208-0-137 ansible_host=10.208.0.137 protocol=snmp
 pdu-10-208-0-157 ansible_host=10.208.0.157 protocol=snmp
 pdu-10-208-0-19 ansible_host=10.208.0.19 protocol=snmp
+pdu-10-208-0-20 ansible_host=10.208.0.20 protocol=snmp
