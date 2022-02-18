@@ -3,6 +3,7 @@ import logging
 import pytest
 import os
 import re
+import random
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_process_on_host
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
@@ -18,7 +19,7 @@ from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_
 
 logger = logging.getLogger()
 
-validation_types = ['fast-reboot', 'warm-reboot', 'reboot', 'config reload -y']
+simx_validation_types = ['reboot', 'config reload -y']
 expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
                               'warm-reboot': {'data': 0, 'control': 90},
                               'reboot': {'data': 180, 'control': 180},
@@ -28,8 +29,7 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
 
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
-@pytest.mark.parametrize('validation_type', validation_types)
-def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params, validation_type):
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -44,15 +44,11 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, sh
     try:
         test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
         if re.search('simx', platform_params.setup_name):
-            if validation_type in ['reboot', 'config reload -y']:
-                test_reboot_reload.push_gate_reboot_simx_test_runner(request, validation_type)
-            else:
-                logger.info("Validation Type: {} is not supported on SIMX".format(validation_type))
+            validation_type = random.choice(simx_validation_types)
+            test_reboot_reload.push_gate_reboot_simx_test_runner(request, validation_type)
         else:
             supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
-            if validation_type not in supported_reboot_reload_list:
-                pytest.skip('Reboot by cmd: {} not supported on current platform: {}'.format(validation_type,
-                                                                                             platform_params.platform))
+            validation_type = random.choice(supported_reboot_reload_list)
             test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
 
     except Exception as err:
