@@ -296,29 +296,12 @@
 
 # Below ignores from temp_log_analyzer_ignores.txt in LAG folder
 - Errors_list:
-    - '.* ERR hostcfgd: Unexpected state value ''always_enabled'' for feature .*'
-    - '.* ERR caclmgrd\[.*\]: :- initializeGlobalConfig: Sonic database config global file doesn''t exist at .*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
-      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
-      - tests/nightly/lag/test_lag.py::test_lag_members_scale
-      - tests/nightly/lag/test_lag.py::test_lags_scale
-      # From ngts/tests/nightly/app_extension/temp_log_analyzer_ignores.txt
-      - tests/nightly/app_extension/test_app_extension_reboot.py
-      - tests/nightly/app_extension/test_app_extension_basic.py::test_repo_management
-
-- Errors_list:
-    - '.* WARNING syncd#SDK: \[LAG\.WARNING\] \[sx_lag_port_group_get\] incomplete logport list retrieving.*'
-    - '.* WARNING syncd#SDK:.* \[.*] mlnx_sai_switch.c\[.*\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet.*'
-    - '.* ERR teamd#tlm_teamd: :- get_dump: Can''t get dump for LAG ''PortChannel\d+''.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to write PWM'
     - '.* ERR pmon#syseepromd: Failed to load platform-specific eeprom from deprecated plugin.*'
     - '.* WARNING pmon#syseepromd: Failed to load platform-specific eeprom from sonic_platform package due to KeyError.*'
     - '.* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*'
-    - '.* ERR kernel.*mlxsw_minimal.*Cmd exec failed.*opcode.*opcode_mod.*'
     - '.* ERR teamd#tlm_teamd: :- process_add_queue: Can''t connect to teamd after .* attempts.*'
     - '.* ERR syncd#SDK: :- updateSupportedBufferPoolCounters: BUFFER_POOL_WATERMARK_STAT_COUNTER: counter SAI_BUFFER_POOL_STAT_XOFF_ROOM_WATERMARK_BYTES is not supported on buffer pool .*, rv: SAI_STATUS_NOT_IMPLEMENTED'
     - '.* INFO kernel: .* teamd.*: segfault at b0 ip .* sp .* error 4 in libteam.*'
@@ -327,6 +310,14 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py
+
+- Errors_list:
+    - '.* ERR teamd#tlm_teamd: :- get_dump: Can''t get dump for LAG ''PortChannel\d+''.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+      - 2934692
 
 - Errors_list:
     - '.* WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
@@ -427,7 +418,6 @@
     - '.* WARNING syncd#SAI.*\[SAI_SWITCH.WARNING\].*mlnx_sai_switch.c.*sai_acl_db_create.*Shared memory of the SAI ACL already exists, destroying it and re-creating'
     - '.* WARNING syncd#SAI.*\[SAI_SWITCH.WARNING\].*mlnx_sai_switch.c.*sai_tunnel_db_create.*Shared memory of the SAI TUNNEL already exists, destroying it and re-creating'
     - '.* WARNING syncd#SDK.*\[SXD_DPT.WARNING\].*sxd_dpt_init().*Shared memory of the DPT already exists,destroying it and re-creating'
-    - '.* ERR /hostcfgd: Unexpected state value ''always_enabled'' for feature.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
