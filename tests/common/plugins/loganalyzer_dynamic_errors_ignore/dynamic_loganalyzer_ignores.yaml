@@ -579,15 +579,15 @@
 - Errors_list:
     - '.* WARNING syncd#SDK: \[SAI_TUNNEL.WARNING\] mlnx_sai_tunnel.c\[3610\]- mlnx_sdk_fill_tunnel_ttl_data: TTL uniform model is not supported for non-ipinip type on Spectrum 1, using default settings in switch'
   Conditions:
-    - Affected_test_cases:
-      - vxlan/test_vxlan_decap.py::test_vxlan_decap[Enabled]
-      Redmine:
+    - Redmine:
         - 2954740
       Branch:
         - 202111
         - master
       Platform:
         - x86_64-mlnx_msn2
+        - x86_64-mlnx_msn2700-r0
+        - x86_64-mlnx_msn2010-r0
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[630\]- mlnx_bridge_port_sai_to_log_port_not_locked: Invalid bridge port type 4 - should be port or sub-port'
@@ -978,3 +978,11 @@
       - platform_tests/fwutil/test_fwutil.py
       Redmine:
       - 2962500
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Receive PMPE error event on module \d+: status 3 error type 1.*'
+  Conditions:
+    - Redmine:
+      - 2976288
+      Platform:
+      - x86_64-mlnx_msn3800-r0
