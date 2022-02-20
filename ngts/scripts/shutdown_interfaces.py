@@ -1,7 +1,7 @@
 import logging
 import pytest
 import allure
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli, ConfigDbJsonConst, InfraConst, SonicConst
+from ngts.cli_wrappers.sonic.sonic_general_clis import InfraConst, SonicConst
 
 logger = logging.getLogger()
 
@@ -21,11 +21,12 @@ def test_shutdown_interfaces_on_dut(topology_obj, setup_name, preset):
         config_db_file = "config_db_{}.json".format(preset)
 
         with allure.step("Set interfaces {} as down in config db file: {}".format(shutdown_ifaces, config_db_file)):
-            config_db_json = SonicGeneralCli().get_config_db(dut_engine)
             for interface in shutdown_ifaces:
-                config_db_json[ConfigDbJsonConst.PORT][interface][ConfigDbJsonConst.ADMIN_STATUS] = "down"
-            SonicGeneralCli().create_extended_config_db_file(setup_topo_dir_name, config_db_json,
-                                                             file_name=config_db_file)
+                cli_object.interface.disable_interface(dut_engine, interface)
+            cli_object.general.save_configuration(dut_engine)
+            config_db_json = cli_object.general.get_config_db(dut_engine)
+            cli_object.general.create_extended_config_db_file(setup_topo_dir_name, config_db_json,
+                                                              file_name=config_db_file)
 
         with allure.step("Load {} to switch".format(config_db_file)):
             dut_engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path, config_db_file,

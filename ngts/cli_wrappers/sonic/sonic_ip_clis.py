@@ -197,9 +197,15 @@ class SonicIpCli(IpCliCommon):
                 interface_dict_list = SonicIpCli.get_interface_dict_list(
                     interfaces, interface)
                 for interface_dict in interface_dict_list:
-                    key = SonicIpCli.get_ip_type_key(interface_dict)
-                    ip_mask = interface_dict[key].split('/')
-                    ip_list.append({'ip': ip_mask[0], 'mask': ip_mask[1]})
+                    ip_key = SonicIpCli.get_ip_type_key(interface_dict)
+                    if isinstance(interface_dict[ip_key], list):
+                        for ip_addr in interface_dict[ip_key]:
+                            ip, mask = ip_addr.split('/')
+                            ip_list.append({'ip': ip, 'mask': mask})
+                    else:
+                        ip_addr = interface_dict[ip_key]
+                        ip, mask = ip_addr.split('/')
+                        ip_list.append({'ip': ip, 'mask': mask})
 
         return ip_list
 
