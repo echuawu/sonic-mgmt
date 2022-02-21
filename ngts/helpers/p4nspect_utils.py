@@ -203,9 +203,12 @@ def format_value_with_name(name, value, port_configs):
     """
     hex_key_list = ['vlan', 'is_trunc', 'trunc_size', 'vni']
     ipv4_key_list = ['underlay_dip']
-    port_key_list = ['ingress_port', 'label_port', 'pbs_port']
-    if name in port_key_list:
+    label_port_key_list = ['ingress_port', 'label_port']
+    logic_port_key_list = ['pbs_port']
+    if name in label_port_key_list:
         return convert_label_port_to_physical(value, port_configs)
+    if name in logic_port_key_list:
+        return convert_log_port_to_physical(value, port_configs)
     if name == 'hdr_checksum':
         return "{:#06x}".format(int(value, 16))
     elif name == 'protocol':
@@ -224,6 +227,21 @@ def convert_label_port_to_physical(label_port, port_configs):
     :param port_configs: port config get from the config_db.json
     :return: physical port
     """
+    for port in port_configs.keys():
+        port_config = port_configs.get(port)
+        if port_config.get('index') == "{}".format(int(label_port, 16)):
+            return port
+    return label_port
+
+
+def convert_log_port_to_physical(log_port, port_configs):
+    """
+    convert logic port to physical port
+    :param log_port: logic port value
+    :param port_configs: port config get from the config_db.json
+    :return: physical port
+    """
+    label_port = log_port >> 22
     for port in port_configs.keys():
         port_config = port_configs.get(port)
         if port_config.get('index') == "{}".format(int(label_port, 16)):
