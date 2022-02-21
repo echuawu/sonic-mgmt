@@ -126,7 +126,7 @@ class SwitchTopologyEntity(TopologyEntityInterface):
         verify lldp is configured on the switch.
         :return: None. raise exception if the switch lldp is not enabled.
         """
-        lldp_state = self.config_db[ConfigDbJsonConst.FEATURE][ConfigDbJsonConst.LLDP][ConfigDbJsonConst.STATUS]
+        lldp_state = self.config_db[ConfigDbJsonConst.FEATURE][ConfigDbJsonConst.LLDP][ConfigDbJsonConst.STATE]
         if lldp_state != 'enabled':
             raise TopologyEntityError("LLDP is not configured on switch {}.".format(self.ip))
 

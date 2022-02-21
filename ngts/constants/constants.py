@@ -120,6 +120,7 @@ class ConfigDbJsonConst:
     FEATURE = 'FEATURE'
     LLDP = 'lldp'
     STATUS = 'status'
+    STATE = 'state'
     ENABLED = 'enabled'
     DEVICE_METADATA = "DEVICE_METADATA"
     MGMT_INTERFACE = "MGMT_INTERFACE"

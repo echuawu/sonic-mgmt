@@ -292,7 +292,7 @@ def set_lldp(init_config_db_json):
     where the lldp is enabled
     """
     init_config_db_json[ConfigDbJsonConst.FEATURE][ConfigDbJsonConst.LLDP] = \
-        {ConfigDbJsonConst.STATUS: ConfigDbJsonConst.ENABLED}
+        {ConfigDbJsonConst.STATE: ConfigDbJsonConst.ENABLED}
     return init_config_db_json
 
 
