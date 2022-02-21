@@ -53,8 +53,13 @@ def cleanup(cleanup_list):
     execute all the functions in the cleanup list
     :return: None
     """
-    for func, args in cleanup_list:
-        func(*args)
+    for cleanup_item in cleanup_list:
+        if len(cleanup_item) == 3:  # if **kwargs available
+            func, args, kwargs = cleanup_item
+            func(*args, **kwargs)
+        else:
+            func, args = cleanup_item
+            func(*args)
 
 
 def save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type):
@@ -201,6 +206,8 @@ def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
     logger.info("Verify cable compliance info is updated for all ports")
     compliance_info = engines.dut.run_cmd("show interfaces transceiver eeprom")
     for port in ports:
+        if re.search("{}: SFP EEPROM is not applicable for RJ45 port".format(port), compliance_info):
+            continue
         if not re.search("{}: SFP EEPROM detected".format(port), compliance_info):
             raise AssertionError("Cable Information for port {} is not Loaded by"
                                  " \"show interfaces transceiver eeprom\" cmd".format(port))

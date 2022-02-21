@@ -52,10 +52,34 @@ def get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds):
 
 
 @pytest.fixture(scope='session')
-def ports_lanes_dict(engines, interfaces, cli_objects):
+def interfaces_status_dict(engines, cli_objects):
+    """
+    Get and parse show interfaces status output
+    :param engines: engines fixture
+    :param cli_objects:  cli objects fixture
+    :return: dictionary with parsed output
+    """
+    interfaces_status_dict = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
+    return interfaces_status_dict
+
+
+@pytest.fixture(scope='session')
+def physical_interfaces_types_dict(interfaces_status_dict):
+    """
+    Get physical interfaces type dictionary
+    :param interfaces_status_dict: dictionary with parsed output of "show interfaces status"
+    :return: dictionary, example: {"Ethernet0": "RJ45", "Ethernet1": "RJ45", ...}
+    """
+    interfaces_types_dict = {}
+    for port, port_status in interfaces_status_dict.items():
+        interfaces_types_dict[port] = port_status['Type']
+    return interfaces_types_dict
+
+
+@pytest.fixture(scope='session')
+def ports_lanes_dict(interfaces_status_dict, interfaces, cli_objects):
     ports_lanes_dict = {}
-    interfaces_status = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
-    for port, port_status in interfaces_status.items():
+    for port, port_status in interfaces_status_dict.items():
         lanes = port_status['Lanes'].split(sep=",")
         ports_lanes_dict[port] = len(lanes)
     ports_lanes_dict[interfaces.ha_dut_1] = 4
@@ -221,11 +245,15 @@ def expected_auto_neg_loganalyzer_exceptions(request, loganalyzer):
             loganalyzer.expect_regex.remove(regexp)
 
 
-def get_speeds_in_Gb_str_format(speeds_list):
-        """
-        :param speeds_list: a list of speeds ['10000', '50000']
-        :return: return a string of speeds configuration in G format, i.e, "10G,50G"
-        """
-        speeds_list = sorted(speeds_list, key=lambda speed_str: int(speed_str))
+def get_all_advertised_speeds_sorted_string(speeds_list, physical_interface_type=None):
+    """
+    :param speeds_list: a list of speeds ['10000', '50000']
+    :param physical_interface_type: physical interface type
+    :return: return a string of sorted speeds configuration in M/G format, i.e, "10G,50G"
+    """
+    speeds_list = sorted(speeds_list, key=lambda speed_str: int(speed_str))
+    if physical_interface_type == 'RJ45':
+        speeds_in_str_format = list(map(lambda speed: "{}M".format(int(speed)), speeds_list))
+    else:
         speeds_in_str_format = list(map(lambda speed: "{}G".format(int(int(speed) / 1000)), speeds_list))
-        return ",".join(speeds_in_str_format)
+    return ",".join(speeds_in_str_format)

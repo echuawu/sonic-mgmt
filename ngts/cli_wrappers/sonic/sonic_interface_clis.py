@@ -63,6 +63,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
         # TODO: Move 2 lines below to separate method in ngts/utilities
         if 'G' in speed:
             speed = int(speed.split('G')[0]) * 1000
+        elif 'M' in speed:
+            speed = int(speed.split('M')[0])
 
         return engine.run_cmd("sudo config interface speed {} {}".format(interface, speed))
 

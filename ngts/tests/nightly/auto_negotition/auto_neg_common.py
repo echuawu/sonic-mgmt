@@ -6,7 +6,7 @@ from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from ngts.tests.nightly.auto_negotition.conftest import get_speeds_in_Gb_str_format, get_interface_cable_width, \
+from ngts.tests.nightly.auto_negotition.conftest import get_all_advertised_speeds_sorted_string, get_interface_cable_width, \
     get_matched_types, convert_speeds_to_mb_format
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed, speed_string_to_int_in_mb
@@ -15,11 +15,27 @@ from ngts.tests.nightly.conftest import compare_actual_and_expected
 logger = logging.getLogger()
 
 
+def skip_for_interface_type_rj45(func):
+    """
+    Wrapper which skips method execution in case when physical interface type RJ45
+    :param func: function which should be wrapped
+    """
+
+    def wrapper(*args, **kwargs):
+        if kwargs.get('physical_interface_type') == 'RJ45':
+            func_name = func.__name__
+            logger.warning(f'Skipping execution of method: {func_name} for port with type RJ45')
+        else:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 class TestAutoNegBase:
 
     @pytest.fixture(autouse=True)
     def setup(self, topology_obj, engines, cli_objects,
-              interfaces, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
+              interfaces, physical_interfaces_types_dict, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
               split_mode_supported_speeds, interfaces_types_dict, platform_params):
         self.topology_obj = topology_obj
         self.engines = engines
@@ -30,6 +46,7 @@ class TestAutoNegBase:
         self.ports_lanes_dict = ports_lanes_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
+        self.physical_interfaces_types_dict = physical_interfaces_types_dict
         self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
         self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf(self.engines.dut)
 
@@ -261,29 +278,34 @@ class TestAutoNegBase:
         :return: raise assertion error in case expected and actual configuration don't match
         """
         with allure.step('Compare expected and actual auto neg configuration'):
+            physical_interface_type = self.physical_interfaces_types_dict.get(actual_conf.get('Interface'))
             logger.debug("expected: {}".format(expected_conf))
             logger.debug("actual: {}".format(actual_conf))
             for key, value in expected_conf.items():
                 if key in actual_conf.keys() and key != AutonegCommandConstants.TYPE:
                     actual_conf_value = actual_conf[key]
                     if key == AutonegCommandConstants.ADV_SPEED and check_adv_parm:
-                        self.compare_advertised_speeds(value, actual_conf_value)
+                        self.compare_advertised_speeds(value, actual_conf_value,
+                                                       physical_interface_type=physical_interface_type)
                     elif key == AutonegCommandConstants.ADV_TYPES and check_adv_parm:
-                        self.compare_advertised_types(value, actual_conf_value)
+                        self.compare_advertised_types(value, actual_conf_value,
+                                                      physical_interface_type=physical_interface_type)
                     elif key not in [AutonegCommandConstants.ADV_SPEED, AutonegCommandConstants.ADV_TYPES]:
                         compare_actual_and_expected(key, value, actual_conf_value)
 
     @staticmethod
-    def compare_advertised_speeds(expected_adv_speed, actual_adv_speed):
+    def compare_advertised_speeds(expected_adv_speed, actual_adv_speed, physical_interface_type=None):
         """
         :return:
         """
         if expected_adv_speed != 'all':
-            expected_adv_speed = get_speeds_in_Gb_str_format(expected_adv_speed.split(','))
+            expected_adv_speed = get_all_advertised_speeds_sorted_string(expected_adv_speed.split(','),
+                                                                         physical_interface_type=physical_interface_type)
         compare_actual_and_expected(AutonegCommandConstants.ADV_SPEED, expected_adv_speed, actual_adv_speed)
 
     @staticmethod
-    def compare_advertised_types(expected_adv_type, actual_adv_type):
+    @skip_for_interface_type_rj45
+    def compare_advertised_types(expected_adv_type, actual_adv_type, **kwargs):
         """
         :return:
         """
@@ -295,11 +317,18 @@ class TestAutoNegBase:
         base_speed = base_interfaces_speeds[port]
         matched_types = get_matched_types(self.ports_lanes_dict[port], [base_speed], self.interfaces_types_dict)
         base_type = max(matched_types, key=get_interface_cable_width)
-        cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, 'none')))
+        physical_interface_type = self.physical_interfaces_types_dict.get(port)
+        cleanup_list.append((self.configure_interface_type,
+                             (engine, cli_object, port, 'none'),
+                             {'physical_interface_type': physical_interface_type}))
         cleanup_list.append((cli_object.interface.set_interface_speed, (engine, port, base_speed)))
-        cleanup_list.append((cli_object.interface.config_interface_type, (engine, port, base_type)))
+        cleanup_list.append((self.configure_interface_type,
+                             (engine, cli_object, port, base_type),
+                             {'physical_interface_type': physical_interface_type}))
         cleanup_list.append((cli_object.interface.config_advertised_speeds, (engine, port, 'all')))
-        cleanup_list.append((cli_object.interface.config_advertised_interface_types, (engine, port, 'all')))
+        cleanup_list.append((self.configure_advertised_interface_types,
+                             (engine, cli_object, port, 'all'),
+                             {'physical_interface_type': physical_interface_type}))
 
     def auto_neg_toggle_peer_checker(self, conf, cleanup_list):
         """
@@ -464,18 +493,31 @@ class TestAutoNegBase:
         with allure.step('Configuring speed, advertised speed, type and advertised type on ports: {}'
                          .format(list(conf.keys()))):
             for port, port_conf_dict in conf.items():
+                physical_interface_type = self.physical_interfaces_types_dict.get(port)
                 if set_cleanup:
                     self.set_speed_type_cleanup(port, engine, cli_object, base_interfaces_speeds, cleanup_list)
-                cli_object.interface.\
-                    config_interface_type(engine, port, 'none')
-                cli_object.interface.\
+
+                self.configure_interface_type(engine, cli_object, port, 'none',
+                                              physical_interface_type=physical_interface_type)
+                cli_object.interface. \
                     set_interface_speed(engine, port, port_conf_dict[AutonegCommandConstants.SPEED])
-                cli_object.interface.\
-                    config_interface_type(engine, port, port_conf_dict[AutonegCommandConstants.TYPE])
-                cli_object.interface.\
+                self.configure_interface_type(engine, cli_object, port, port_conf_dict[AutonegCommandConstants.TYPE],
+                                              physical_interface_type=physical_interface_type)
+                cli_object.interface. \
                     config_advertised_speeds(engine, port, port_conf_dict[AutonegCommandConstants.ADV_SPEED])
-                cli_object.interface.\
-                    config_advertised_interface_types(engine, port, port_conf_dict[AutonegCommandConstants.ADV_TYPES])
+                self.configure_advertised_interface_types(engine, cli_object, port,
+                                                          port_conf_dict[AutonegCommandConstants.ADV_TYPES],
+                                                          physical_interface_type=physical_interface_type)
+
+    @staticmethod
+    @skip_for_interface_type_rj45
+    def configure_interface_type(engine, cli_object, port, iface_type, physical_interface_type):
+        cli_object.interface.config_interface_type(engine, port, iface_type)
+
+    @staticmethod
+    @skip_for_interface_type_rj45
+    def configure_advertised_interface_types(engine, cli_object, port, interface_type_list, physical_interface_type):
+        cli_object.interface.config_advertised_interface_types(engine, port, interface_type_list)
 
     @staticmethod
     def configure_port_auto_neg(engine, cli_object, ports_list, conf, cleanup_list, mode='enabled'):

@@ -232,6 +232,9 @@ def get_speed_option_by_breakout_modes(breakout_modes):
             breakout_num, speed_conf = breakout_mode.split("x")
             speed_value = r"(\d+G)\[[\d*G,]*\]|(\d+G)"
             speed = re.match(speed_value, speed_conf).group(1)
+            # TODO: temporary fix, should be removed once platform.json on sn2201 will be fixed
+            if speed == '1G':
+                speed = '1000M'
             speeds_list_pattern = r"\d+G\[([\d*G,]*)\]|(\d+G)"
             speeds_list_str = re.match(speeds_list_pattern, speed_conf).group(1)
             speeds_list = speeds_list_str.split(sep=',')
