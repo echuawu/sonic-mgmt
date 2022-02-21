@@ -9,7 +9,7 @@
 
 master:
   # SPC1
-  MSN2201: # Alligator
+  SN2201: # Alligator
     total: 4250
     sx_sdk: 1000
     syncd: 100
@@ -321,7 +321,7 @@ master:
     sensord: 10
 202106:
   # SPC1
-  MSN2201: # Alligator
+  SN2201: # Alligator
     total: 3500
     sx_sdk: 900
     syncd: 100
@@ -633,7 +633,7 @@ master:
     sensord: 10
 202012:
   # SPC1
-  MSN2201: # Alligator
+  SN2201: # Alligator
     total: 3500
     sx_sdk: 900
     syncd: 100
