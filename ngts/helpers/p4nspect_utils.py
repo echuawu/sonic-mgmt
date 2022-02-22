@@ -241,12 +241,12 @@ def convert_log_port_to_physical(log_port, port_configs):
     :param port_configs: port config get from the config_db.json
     :return: physical port
     """
-    label_port = log_port >> 22
+    label_port = int(log_port, 16) >> 22
     for port in port_configs.keys():
         port_config = port_configs.get(port)
-        if port_config.get('index') == "{}".format(int(label_port, 16)):
+        if port_config.get('index') == "{}".format(label_port):
             return port
-    return label_port
+    return log_port
 
 
 def convert_protocol_value(protocol):
