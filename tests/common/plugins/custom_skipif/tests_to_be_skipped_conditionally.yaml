@@ -1135,3 +1135,9 @@ platform_tests/api/test_watchdog.py::TestWatchdogApi::test_arm_too_big_timeout:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2976345
+
+tests/nightly/copp:
+  - Redmine:
+    - 2980204
+    Platform:
+    - simx
