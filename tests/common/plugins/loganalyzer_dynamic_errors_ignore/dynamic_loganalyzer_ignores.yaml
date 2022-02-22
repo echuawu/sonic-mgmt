@@ -406,6 +406,13 @@
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       Redmine:
       - 2920504
+# Errors which should be ignored on SPC1 when install the p4-examples, p4-sampling, and enable them
+- Errors_list:
+    - '.*ERR p4-examples: start.sh - unsupported DEVICE_TYPE=Spectrum.*'
+    - '.*ERR p4-sampling: start.sh - unsupported DEVICE_TYPE=Spectrum.*'
+  Conditions:
+    - Platform:
+        sn2
 
 # From ngts/tests/nightly/p4/sampling_example/p4_sampling_loganalyzer_ignore.txt
 - Errors_list:
@@ -993,3 +1000,9 @@
   Conditions:
     - Redmine:
         - 2976351
+
+- Errors_list:
+    - '.*WARNING kernel: .* NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!'
+  Conditions:
+    - Redmine:
+        - 2957431
