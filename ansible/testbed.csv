@@ -186,6 +186,7 @@ r-anaconda-simx-134-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,
 r-anaconda-simx-139-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-139,Mellanox MTR testbed
 r-buffalo-simx-28-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-simx-28,Mellanox MTR testbed
 r-buffalo-simx-165-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-simx-165,Mellanox MTR testbed
+r-buffalo-simx-169-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-simx-169,Mellanox MTR testbed
 r-leopard-simx-69-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-69,Mellanox MTR testbed
 r-leopard-simx-74-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-74,Mellanox MTR testbed
 r-leopard-simx-79-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-79,Mellanox MTR testbed

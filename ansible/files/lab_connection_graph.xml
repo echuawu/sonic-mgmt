@@ -95,6 +95,8 @@
       <Device Hostname="r-anaconda-simx-134" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-anaconda-simx-139" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-buffalo-simx-28" HwSku="ACS-MSN4800" Type="DevSonic"/>
+      <Device Hostname="r-buffalo-simx-165" HwSku="ACS-MSN4800" Type="DevSonic"/>
+      <Device Hostname="r-buffalo-simx-169" HwSku="ACS-MSN4800" Type="DevSonic"/>
       <Device Hostname="r-leopard-simx-69" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-simx-74" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-simx-79" HwSku="ACS-MSN4700" Type="DevSonic"/>
