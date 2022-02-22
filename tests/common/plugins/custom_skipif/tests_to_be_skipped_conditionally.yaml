@@ -732,7 +732,7 @@ tests/nightly/dynamic_port_breakout:
     - 202012
     - 202106
   - Redmine:
-    - 2962569
+    - 2980513
     Platform:
     - 4410
 

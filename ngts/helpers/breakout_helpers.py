@@ -55,6 +55,17 @@ def get_all_split_ports_parents(config_db_json):
     return dut_first_split_port_info
 
 
+def get_all_unsplit_ports(config_db_json):
+    unsplit_ports = []
+    port_info_dict = config_db_json.get(ConfigDbJsonConst.PORT, [])
+    for port, port_info in port_info_dict.items():
+        port_alias = port_info[ConfigDbJsonConst.ALIAS]
+        is_unsplit_port = bool(re.match(r'etp\d+$', port_alias))
+        if is_unsplit_port:
+            unsplit_ports.append(port)
+    return unsplit_ports
+
+
 def get_split_number(config_db_json, port_alias):
     """
     return the port split number, as the port was split to 2/4/8.

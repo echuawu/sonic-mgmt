@@ -21,7 +21,7 @@ from infra.tools.exceptions.real_issue import RealIssue
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
     AppExtensionInstallationConstants, DefaultCredentialConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
-    get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds
+    get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds, get_all_unsplit_ports
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
@@ -639,20 +639,38 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         platform_json_obj = json_file_helper.get_platform_json(dut_engine, cli_object)
         parsed_platform_json_by_breakout_modes = SonicGeneralCliDefault.parse_platform_json(topology_obj, platform_json_obj,
                                                                                             parse_by_breakout_modes=True)
-        ports_for_update = get_all_split_ports_parents(config_db_json)
-        for port, split_num in ports_for_update:
-            if SonicGeneralCliDefault.is_supported_split_mode(hwsku, split_num):
-                SonicGeneralCliDefault.update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
-                                                                     split_num, parsed_platform_json_by_breakout_modes)
-            else:
-                # don't include port split mode in breakout_cfg
-                breakout_cfg_dict.pop(port)
+        split_ports_for_update = get_all_split_ports_parents(config_db_json)
+        unsplit_ports_for_update = get_all_unsplit_ports(config_db_json)
+        SonicGeneralCliDefault.update_breakout_mode_for_split_ports(split_ports_for_update, hwsku, breakout_cfg_dict,
+                                                                    config_db_json, parsed_platform_json_by_breakout_modes)
+        SonicGeneralCliDefault.update_breakout_mode_for_unsplit_ports(unsplit_ports_for_update, breakout_cfg_dict,
+                                                                      config_db_json, parsed_platform_json_by_breakout_modes)
+        port_info_dict = config_db_json.get(ConfigDbJsonConst.PORT, [])
+        breakout_cfg_dict = {port: breakout_mode for port, breakout_mode in breakout_cfg_dict.items()
+                             if port in port_info_dict}
         config_db_json["BREAKOUT_CFG"] = breakout_cfg_dict
         return config_db_json
 
     @staticmethod
     def is_supported_split_mode(hwsku, split_num):
         return SonicGeneralCliDefault.is_platform_supports_split_without_unmap(hwsku) or split_num is 2
+
+    @staticmethod
+    def update_breakout_mode_for_split_ports(split_ports_for_update, hwsku, breakout_cfg_dict,
+                                             config_db_json, parsed_platform_json_by_breakout_modes):
+        for port, split_num in split_ports_for_update:
+            if SonicGeneralCliDefault.is_supported_split_mode(hwsku, split_num):
+                SonicGeneralCliDefault.update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
+                                                                     split_num, parsed_platform_json_by_breakout_modes)
+
+    @staticmethod
+    def update_breakout_mode_for_unsplit_ports(unsplit_ports_for_update, breakout_cfg_dict,
+                                               config_db_json, parsed_platform_json_by_breakout_modes):
+        unsplit_ports_split_num = 1
+        for port in unsplit_ports_for_update:
+            SonicGeneralCliDefault.update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
+                                                                 unsplit_ports_split_num,
+                                                                 parsed_platform_json_by_breakout_modes)
 
     @staticmethod
     def update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
