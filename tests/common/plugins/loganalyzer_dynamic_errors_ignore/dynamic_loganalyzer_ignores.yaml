@@ -416,7 +416,6 @@
 
 # From ngts/tests/nightly/p4/sampling_example/p4_sampling_loganalyzer_ignore.txt
 - Errors_list:
-    - '.* ERR syncd#SDK: \[SPAN.ERR\] SPAN module already initialized'
     - '.* ERR swss#orchagent: :- removeTunnelNextHop: Remove Tunnel next hop unable to find EVPN VTEP.*'
     - '.* ERR swss#orchagent: :- removeOverlayNextHops: Tunnel Nexthop .*delete failed.*'
     - '.* ERR syncd#SAI:.*\[SAI_SWITCH.ERR\].*mlnx_sai_switch.c.*Shared memory of the SAI already exists, destroying it and re-creating'
@@ -432,6 +431,18 @@
       - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
       - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
       - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+# p4-sampling related err msg
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SPAN.ERR\] SPAN module already initialized'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+      # this err can also happen in test case doing "config reload -y" when p4-sampling is installed and enabled
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
 
 - Errors_list:
     - '.* ERR swss#orchagent: :- removeLag: Failed to remove ref count.*\d+.*LAG PortChannel.*'
