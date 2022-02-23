@@ -154,8 +154,7 @@ class SonicOnieCli:
     def required_onie_installation(self):
         onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
         self.get_latest_onie_version()
-        return (self.latest_onie_version is not None) and \
-               (self.latest_onie_version not in onie_version_output)
+        return self.latest_onie_version not in onie_version_output
 
     def get_latest_onie_version(self):
         if self.fw_pkg_path is None:
@@ -166,9 +165,8 @@ class SonicOnieCli:
             if self.platform_params.filtered_platform.upper() in fw_data["chassis"]:
                 onie_info_list = fw_data["chassis"][self.platform_params.filtered_platform.upper()]["component"]["ONIE"]
                 for onie_version_info in onie_info_list:
-                    if "onie-latest" in onie_version_info["firmware"]:
+                    if not self.latest_onie_version or self.latest_onie_version < onie_version_info["version"]:
                         self.latest_onie_version = onie_version_info["version"]
-                        break
             else:
                 logger.warning(f"The specified platform {self.platform_params.filtered_platform.upper()} not in the"
                                f" provided firmware package file {self.fw_pkg_path}")
