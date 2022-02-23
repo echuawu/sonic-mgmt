@@ -28,6 +28,7 @@ platform_tests/test_sensors.py::test_sensors:
     Branch:
     - master
     - 202111
+    - 202012
 
 # pfc_asym(RPC)
 pfc_asym/test_pfc_asym.py::test_pfc_asym_off_tx_pfc:
