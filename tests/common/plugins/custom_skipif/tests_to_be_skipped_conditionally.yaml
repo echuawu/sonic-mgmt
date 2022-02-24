@@ -46,9 +46,17 @@ pfc_asym/test_pfc_asym.py::test_pfc_asym_on_handle_pfc_all_prio:
 qos/test_qos_sai.py:
   - Redmine:
     - 2971459
+
 copp/test_copp.py:
   - Redmine:
     - 2971459
+
+copp/test_copp.py::TestCOPP::test_add_new_trap:
+  - Redmine:
+    - 2982183
+    Branch:
+    - 202012
+
 pfc_asym/test_pfc_asym.py:
   - Redmine:
     - 2971459
