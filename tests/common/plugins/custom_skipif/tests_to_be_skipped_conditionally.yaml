@@ -89,6 +89,8 @@ everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_eve
     Platform:
     - 3800
     - 3700
+    - 4600c
+    - 4700
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_unused_ecmp_next_hop:
   - Redmine:
@@ -96,6 +98,8 @@ everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_eve
     Platform:
     - 3800
     - 3700
+    - 4600c
+    - 4700
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_neighbor_mac_change:
   - Redmine:
@@ -103,6 +107,8 @@ everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_eve
     Platform:
     - 3800
     - 3700
+    - 4600c
+    - 4700
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_basic_forwarding:
   - Redmine:
@@ -110,6 +116,8 @@ everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_eve
     Platform:
     - 3800
     - 3700
+    - 4600c
+    - 4700
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
