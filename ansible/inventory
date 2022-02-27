@@ -1,4 +1,8 @@
 [sonic_latest]
+# MTR canonical testbed r-buffalo-04 topologies
+r-buffalo-04-ptf-any ansible_host=r-buffalo-04  sonic_version=v2  sonic_hwsku=ACS-MSN4800             serial_console="ssh -l rcon:7011 10.208.2.39" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-15 base_mac=1C:34:DA:C1:DF:00 serial=MT2121X12204 model=MSN4800-WS4F syseeprom_info="{'0x28': u'x86_64-mlnx_msn4800-r0', '0x29': u'2021.05-5.3.0006-115200', '0x22': u'MSN4800-WS4F', '0x23': u'MT2121X12204', '0x21': u'MSN4800', '0x26': u'0', '0x24': u'1C:34:DA:C1:DF:00', '0x25': u'05/24/2021 00:27:27', '0xfe': u'0xDF8697F3', '0x2b': u'Mellanox', '0x2a': u'254'}"
+r-buffalo-04 ansible_host=r-buffalo-04  sonic_version=v2  sonic_hwsku=ACS-MSN4800             serial_console="ssh -l rcon:7011 10.208.2.39" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-15 base_mac=1C:34:DA:C1:DF:00 serial=MT2121X12204 model=MSN4800-WS4F syseeprom_info="{'0x28': u'x86_64-mlnx_msn4800-r0', '0x29': u'2021.05-5.3.0006-115200', '0x22': u'MSN4800-WS4F', '0x23': u'MT2121X12204', '0x21': u'MSN4800', '0x26': u'0', '0x24': u'1C:34:DA:C1:DF:00', '0x25': u'05/24/2021 00:27:27', '0xfe': u'0xDF8697F3', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
 # MTR canonical testbed r-alligator-04 topologies
 r-alligator-04-ptf-any ansible_host=r-alligator-04  sonic_version=v2  sonic_hwsku=ACS-SN2201             serial_console="ssh -l rcon:7047 10.208.0.44" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18  base_mac=90:0a:84:1e:86:80 serial=MT2139200003 model=MSN2201-CB2FO syseeprom_info="{}"
 r-alligator-04 ansible_host=r-alligator-04  sonic_version=v2  sonic_hwsku=ACS-SN2201             serial_console="ssh -l rcon:7047 10.208.0.44" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18  base_mac=90:0a:84:1e:86:80 serial=MT2139200003 model=MSN2201-CB2FO syseeprom_info="{}"
@@ -556,6 +560,8 @@ dev-r-vrt-233-010-t0
 dev-r-vrt-233-010-ptf32
 
 [lab]
+r-buffalo-04-ptf-any
+r-buffalo-04
 r-alligator-04-ptf-any
 r-alligator-04
 
@@ -956,6 +962,7 @@ ptf-1 ansible_host=10.0.0.200 ansible_ssh_user=root ansible_ssh_pass=password
 ptf-vms6-3 ansible_host=10.75.206.214 ansible_ssh_user=root ansible_ssh_pass=root
 
 [pdu]
+pdu-10-208-2-15 ansible_host=10.208.2.15 protocol=snmp
 pdu-10-208-0-18  ansible_host=10.208.0.18  protocol=snmp
 pdu-10-208-0-137  ansible_host=10.208.0.137  protocol=snmp
 pdu-10-208-0-136 ansible_host=10.208.0.136 protocol=snmp
