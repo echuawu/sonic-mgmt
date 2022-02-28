@@ -36,8 +36,7 @@ def traffic_validation(players, interfaces, interface_data, src_mac, pkt_type, r
             pkt = f'Ether(src="{src_mac}", dst="{interface_data["dst_mac"]}") / ARP(op=2, hwsrc="{src_mac}", hwdst="{interface_data["dst_mac"]}", psrc="{interface_data["src_ip"]}", pdst="{interface_data["dst_ip"]}")'
             protocol = "arp"
         elif pkt_type == "lldp":
-            pkt = f'Ether(dst="{interface_data["dst_mac"]}", src="{src_mac}", type=0x88cc)'
-            protocol = "lldp"
+            pkt = f'Ether(dst="01:80:c2:00:00:0e", src="{src_mac}", type=0x88cc) / Padding("00000000")'
         elif pkt_type == "icmp":
             pkt = f'Ether(src="{src_mac}", dst="{interface_data["dst_mac"]}")/IP(dst="{interface_data["dst_ip"]}")/ICMP()'
             protocol = "icmp"
@@ -45,18 +44,24 @@ def traffic_validation(players, interfaces, interface_data, src_mac, pkt_type, r
             assert True, f"pkt_type:{pkt_type} is not correct"
 
         first_receiver_count_index = 0
-        validation = {'sender': interface_data["sender_alias"],
-                      'send_args': {'interface': interface_data["sender_interface"],
-                                    'packets': pkt, 'count': 1},
-                      'receivers':
-                          [
-                              {'receiver': interface_data["receiver_alias"],
-                               'receive_args': {'interface': interface_data["receiver_interface"],
-                                                'filter': TCPDUMP_FILTER.format(protocol, src_mac),
-                                                'count': receive_packet_counts[first_receiver_count_index],
-                                                'timeout': 20}},
-        ]
-        }
+        if pkt_type == "lldp":  # lldp packet will not be received on hb,so don't validate
+            validation = {'sender': interface_data["sender_alias"],
+                          'send_args': {'interface': interface_data["sender_interface"],
+                                        'packets': pkt, 'count': 1}
+                          }
+        else:
+            validation = {'sender': interface_data["sender_alias"],
+                          'send_args': {'interface': interface_data["sender_interface"],
+                                        'packets': pkt, 'count': 1},
+                          'receivers':
+                              [
+                                  {'receiver': interface_data["receiver_alias"],
+                                   'receive_args': {'interface': interface_data["receiver_interface"],
+                                                    'filter': TCPDUMP_FILTER.format(protocol, src_mac),
+                                                    'count': receive_packet_counts[first_receiver_count_index],
+                                                    'timeout': 20}}
+            ]
+            }
         if len(receive_packet_counts) == 2:
             second_receiver_count_index = 1
             receiver2 = copy.deepcopy(validation["receivers"][0])
