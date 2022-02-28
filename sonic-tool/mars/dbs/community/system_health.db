@@ -41,13 +41,25 @@
             </post>
         </Test>
         <Case>
-            <!-- OPTIONAL TAGS -->
-            <!--<tags> TAG NAME </tags>-->
-            <pre></pre>
+            <on_not_success>
+            <name> Generate sysdump on not success </name>
+            <type> setup_mode </type>
+            <cmd>
+			   <type> reg_exec_cmd </type>
+			   <players_selection>
+					<ep_targets> SONIC_MGMT </ep_targets>
+			   </players_selection>
+
+				<name> run_on_stm </name>
+				<tout> 600 </tout>
+				<params>
+					<exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py  --setup_name=[[conf:extra_info.setup_name]] --tech_support_duration=1800  --session_id=[[run_time:session_id]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini     --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+				</params>
+			</cmd>
+            </on_not_success>
             <ignore>
                 <ignore_by_tag> TAG_TOPOLOGY_NOT_APPLICABLE </ignore_by_tag>
             </ignore>
-            <post></post>
         </Case>
     </global>
     <!--THIS DB CAN RUN ONLY ON "MASTER" BRANCH BASED IMAGES-->
