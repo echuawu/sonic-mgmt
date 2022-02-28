@@ -36,7 +36,7 @@ FRR_CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger()
 
 
-def get_app_ext_info(engine):
+def get_test_app_ext_info(engine):
     is_support_app_ext = SonicAppExtensionCli.verify_version_support_app_ext(engine)
     app_name = APP_INFO["name"]
     app_repository_name = APP_INFO["repository"]
@@ -72,7 +72,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     cli_object = topology_obj.players['dut']['cli']
 
     # Check if app_ext supported and get app name, repo, version
-    shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = get_app_ext_info(engines.dut)
+    shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = get_test_app_ext_info(engines.dut)
     if run_config_only or full_flow_run:
         if upgrade_params.is_upgrade_required:
             with allure.step('Installing base version from ONIE'):
@@ -84,7 +84,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
-                    get_app_ext_info(engines.dut)
+                    get_test_app_ext_info(engines.dut)
 
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
