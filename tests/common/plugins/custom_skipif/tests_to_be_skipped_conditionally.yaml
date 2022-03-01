@@ -1038,6 +1038,10 @@ show_techsupport/test_techsupport.py::test_secret_removed_from_show_techsupport:
     Branch:
       - master
 
+show_techsupport/test_auto_techsupport.py:
+  - Branch:
+    - 202012
+
 iface_namingmode/test_iface_namingmode.py:
   - Redmine:
     - 2938601
