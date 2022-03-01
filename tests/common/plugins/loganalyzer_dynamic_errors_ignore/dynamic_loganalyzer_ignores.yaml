@@ -457,6 +457,7 @@
       - pc/test_po_update.py::test_po_update_io_no_los
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
       Redmine:
       - 2615940
 
@@ -786,6 +787,7 @@
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py
       - vxlan/test_vnet_route_leak.py
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
       Redmine:
         - 2966737
       Branch:
