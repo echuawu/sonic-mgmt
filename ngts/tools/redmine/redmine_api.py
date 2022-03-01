@@ -35,7 +35,7 @@ def get_issues_status(issues_list):
         'X-Redmine-API-Key': api_key
     }
     body = {"ids": issues_list}
-    issues_status_response = requests.post(redmine_api_url, json=body, headers=headers).json()
+    issues_status_response = requests.post(redmine_api_url, json=body, headers=headers, timeout=10).json()
 
     issues_status_dict = {}
     for issue in issues_list:
