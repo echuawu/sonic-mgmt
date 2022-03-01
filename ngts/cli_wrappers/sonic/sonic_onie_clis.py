@@ -33,7 +33,7 @@ class SonicOnieCli:
     def __init__(self, host_ip, fw_pkg_path=None, platform_params=None):
         self.ip = host_ip
         self.engine = None
-        self.latest_onie_version = None
+        self.latest_onie_version = ''
         self.fw_pkg_path = fw_pkg_path
         self.platform_params = platform_params
         self.create_engine()
@@ -165,7 +165,7 @@ class SonicOnieCli:
             if self.platform_params.filtered_platform.upper() in fw_data["chassis"]:
                 onie_info_list = fw_data["chassis"][self.platform_params.filtered_platform.upper()]["component"]["ONIE"]
                 for onie_version_info in onie_info_list:
-                    if not self.latest_onie_version or self.latest_onie_version < onie_version_info["version"]:
+                    if self.latest_onie_version < onie_version_info["version"]:
                         self.latest_onie_version = onie_version_info["version"]
             else:
                 logger.warning(f"The specified platform {self.platform_params.filtered_platform.upper()} not in the"
