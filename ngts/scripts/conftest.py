@@ -18,8 +18,6 @@ def pytest_addoption(parser):
                                                             'i.e  --dockers_list=database,swss '
                                                             'will verify database and swss dockers are up',
                      default=",".join(SonicConst.DOCKERS_LIST))
-    parser.addoption("--qos_config_action", action="store", default="reload",
-                     help="qos config action: reload or clear ")
 
 
 @pytest.fixture(scope='function')
@@ -40,13 +38,3 @@ def dockers_list(request):
     :return: a list of dockers that should be up on the switch, i.e ['database','swss']
     """
     return request.config.getoption('--dockers_list').split(',')
-
-
-@pytest.fixture(scope='function')
-def qos_config_action(request):
-    """
-    Method for get the qos config action
-    :param request: pytest buildin
-    :return: reload or clear
-    """
-    return request.config.getoption('--qos_config_action')

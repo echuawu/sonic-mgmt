@@ -20,3 +20,21 @@ class SonicQosCli:
         :return: command output
         """
         return engine.run_cmd('sudo config qos clear ', validate=True)
+
+    @staticmethod
+    def stop_buffermgrd(engine):
+        """
+        This method is to stop buffermgrd
+        :param engine: ssh engine object
+        :return: command output
+        """
+        return engine.run_cmd('docker exec swss supervisorctl stop buffermgrd', validate=True)
+
+    @staticmethod
+    def start_buffermgrd(engine):
+        """
+        This method is to start buffermgrd
+        :param engine: ssh engine object
+        :return: command output
+        """
+        return engine.run_cmd('docker exec swss supervisorctl start buffermgrd', validate=True)

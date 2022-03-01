@@ -14,28 +14,6 @@
 			<!-- pre db commands - executed once before DB run -->
 			<pre>
 			</pre>
-			<pre>
-                <type> reg_exec_func </type>
-                <name> reload qos config </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
-                <tout> 600 </tout>
-                <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/configure_qos.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]]  --setup-name [[conf:extra_info.setup_name]]  --qos-config-action reload --workspace-path /root/mars/workspace  </cmd_params>
-                </params>
-            </pre>
-            <post>
-                <type> reg_exec_func </type>
-                <name> clear qos config </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <tout> 600 </tout>
-                <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/configure_qos.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]]  --setup-name [[conf:extra_info.setup_name]]  --qos-config-action clear --workspace-path /root/mars/workspace  </cmd_params>
-                </params>
-            </post>
-
 		</DB>
 		<Test>
 			<!--Must reset any dynamic ignore tags created by other tests-->
