@@ -636,7 +636,7 @@ master:
   SN2201: # Alligator
     total: 3500
     sx_sdk: 900
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -658,7 +658,7 @@ master:
   MSN2010: # Boxer
     total: 3500
     sx_sdk: 900
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -680,7 +680,7 @@ master:
   MSN2100: # Bulldog
     total: 3000
     sx_sdk: 500
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -702,7 +702,7 @@ master:
   MSN2410: # Spider
     total: 3000
     sx_sdk: 500
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -724,7 +724,7 @@ master:
   SN2700: # Panther
     total: 3000
     sx_sdk: 500
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -746,7 +746,7 @@ master:
   MSN2700: # Simx Panther
     total: 3000
     sx_sdk: 500
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -769,7 +769,7 @@ master:
   MSN3420: # Lionfish
     total: 4000
     sx_sdk: 1000
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -791,7 +791,7 @@ master:
   MSN3700: # Anaconda
     total: 4000
     sx_sdk: 1000
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -813,7 +813,7 @@ master:
   MSN3700C: # Anaconda C
     total: 4000
     sx_sdk: 1000
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -835,7 +835,7 @@ master:
   MSN3800: # Tigris
     total: 4000
     sx_sdk: 1000
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -858,7 +858,7 @@ master:
   MSN4410: # Ocelot
     total: 4300
     sx_sdk: 1400
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -880,7 +880,7 @@ master:
   MSN4600: # Liger
     total: 4000
     sx_sdk: 1100
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -902,7 +902,7 @@ master:
   MSN4600C: # Tigon
     total: 4000
     sx_sdk: 1100
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -924,7 +924,7 @@ master:
   MSN4700: # Leopard
     total: 4000
     sx_sdk: 1100
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
@@ -947,7 +947,7 @@ master:
   SN5600: # Moose/Albatross
     total: 4000
     sx_sdk: 1100
-    syncd: 100
+    syncd: 250
     redis-server: 70
     snmpd: 20
     zebra: 60
