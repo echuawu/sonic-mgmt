@@ -72,58 +72,62 @@ class TestNegativeConfig:
         :param table_params: table_params fixture
         """
         expect_error_msg = 'Error: "p4-sampling" feature is disabled, run "config feature state p4-sampling enabled"'
-        with allure.step('Disable {}'.format(P4SamplingConsts.APP_NAME)):
-            SonicGeneralCli().set_feature_state(
-                engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+        try:
+            with allure.step('Disable {}'.format(P4SamplingConsts.APP_NAME)):
+                SonicGeneralCli().set_feature_state(
+                    engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
 
-        with allure.step('Verify add, delete and show command for the table_port_sampling'):
-            port_table_entry_params = "key {} action {} {} priority {}".format(
-                table_params.port_key,
-                ACTION_NAME,
-                table_params.port_action_param,
-                table_params.port_priority)
-            with allure.step('Verify add entry to port table output'):
-                verify_show_cmd(P4SamplingCli.add_entry_to_table(engines.dut, PORT_TABLE_NAME, port_table_entry_params),
-                                expected_output_list=[(r'{}'.format(expect_error_msg), True)])
-            with allure.step('Verifying remove entry from port table output'):
-                verify_show_cmd(P4SamplingCli.delete_entry_from_table(engines.dut, PORT_TABLE_NAME, "key {}".format(table_params.port_key)),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
-            with allure.step('Verifying show entries of port table output'):
-                verify_show_cmd(P4SamplingCli.show_table_entries(engines.dut, PORT_TABLE_NAME),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
-            with allure.step('Verifying show counters of port table output'):
-                verify_show_cmd(P4SamplingCli.show_table_counters(engines.dut, PORT_TABLE_NAME),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
+            with allure.step('Verify add, delete and show command for the table_port_sampling'):
+                port_table_entry_params = "key {} action {} {} priority {}".format(
+                    table_params.port_key,
+                    ACTION_NAME,
+                    table_params.port_action_param,
+                    table_params.port_priority)
+                with allure.step('Verify add entry to port table output'):
+                    verify_show_cmd(P4SamplingCli.add_entry_to_table(engines.dut, PORT_TABLE_NAME,
+                                                                     port_table_entry_params),
+                                    expected_output_list=[(r'{}'.format(expect_error_msg), True)])
+                with allure.step('Verifying remove entry from port table output'):
+                    verify_show_cmd(P4SamplingCli.delete_entry_from_table(engines.dut, PORT_TABLE_NAME,
+                                                                          "key {}".format(table_params.port_key)),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
+                with allure.step('Verifying show entries of port table output'):
+                    verify_show_cmd(P4SamplingCli.show_table_entries(engines.dut, PORT_TABLE_NAME),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
+                with allure.step('Verifying show counters of port table output'):
+                    verify_show_cmd(P4SamplingCli.show_table_counters(engines.dut, PORT_TABLE_NAME),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
 
-        with allure.step('Verify add, delete and show command for the table_flow_sampling'):
+            with allure.step('Verify add, delete and show command for the table_flow_sampling'):
 
-            flow_table_entry_params = "key {} action {} {} priority {}".format(table_params.flow_key, ACTION_NAME,
-                                                                               table_params.flow_action_param, table_params.flow_priority)
-            with allure.step('Verify add entry to flow table output'):
-                verify_show_cmd(P4SamplingCli.add_entry_to_table(engines.dut, FLOW_TABLE_NAME,
-                                                                 flow_table_entry_params),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
-            with allure.step('Verify remove entry from flow table output'):
-                verify_show_cmd(P4SamplingCli.delete_entry_from_table(engines.dut, FLOW_TABLE_NAME,
-                                                                      "key {}".format(table_params.flow_key)),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
-            with allure.step('Verify show entries of flow table output'):
-                verify_show_cmd(P4SamplingCli.show_table_entries(engines.dut, FLOW_TABLE_NAME),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
-            with allure.step('Verify show counters of flow table output'):
-                verify_show_cmd(P4SamplingCli.show_table_counters(engines.dut, FLOW_TABLE_NAME),
-                                expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run "config feature '
-                                                       r'state p4-sampling enabled"', True)])
-
-        with allure.step('Enable {}'.format(P4SamplingConsts.APP_NAME)):
-            SonicGeneralCli().set_feature_state(
-                engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+                flow_table_entry_params = "key {} action {} {} priority {}".format(table_params.flow_key, ACTION_NAME,
+                                                                                   table_params.flow_action_param,
+                                                                                   table_params.flow_priority)
+                with allure.step('Verify add entry to flow table output'):
+                    verify_show_cmd(P4SamplingCli.add_entry_to_table(engines.dut, FLOW_TABLE_NAME,
+                                                                     flow_table_entry_params),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
+                with allure.step('Verify remove entry from flow table output'):
+                    verify_show_cmd(P4SamplingCli.delete_entry_from_table(engines.dut, FLOW_TABLE_NAME,
+                                                                          "key {}".format(table_params.flow_key)),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
+                with allure.step('Verify show entries of flow table output'):
+                    verify_show_cmd(P4SamplingCli.show_table_entries(engines.dut, FLOW_TABLE_NAME),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
+                with allure.step('Verify show counters of flow table output'):
+                    verify_show_cmd(P4SamplingCli.show_table_counters(engines.dut, FLOW_TABLE_NAME),
+                                    expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
+                                                           r'"config feature state p4-sampling enabled"', True)])
+        finally:
+            with allure.step('Enable {}'.format(P4SamplingConsts.APP_NAME)):
+                SonicGeneralCli().set_feature_state(
+                    engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
 
     @allure.title('Test P4 sampling add, delete entry with negative keys')
     def test_sampling_entry_with_negative_key(self, engines, table_params):

@@ -50,38 +50,42 @@ class TestEntryTraffic:
     @pytest.mark.reboot_reload
     @allure.title('Test disable p4-sampling, change the config db file, and re-enable it, the entries can be changed.')
     def test_enable_disable_p4_sampling(self, topology_obj, engines, interfaces, table_params):
-        pkt_count = 20
-        with allure.step("Verify that the entries has been added"):
-            P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
-            P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
-        with allure.step("Save config"):
-            engines.dut.run_cmd('sudo config save -y')
-        with allure.step("Disable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
-        with allure.step("Remove all entries from the config db"):
-            entries_config_removed = json_file_helper.remove_key_from_config_db(engines.dut, P4_SAMPLING_KEY)
-        with allure.step("Reload config"):
-            SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
-        with allure.step("Enable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
-        with allure.step("Verify that the entries has been removed"):
-            P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, False)
-            P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, False)
-        with allure.step("Send traffic and check traffic can not be mirrored, and the counter is as expected"):
-            P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count, 0)
-        with allure.step("Disable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
-        with allure.step("Add all entries back to config db"):
-            json_file_helper.add_content_to_config_db(engines.dut, entries_config_removed, P4_SAMPLING_KEY)
-        with allure.step("Reload config"):
-            SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
-        with allure.step("Enable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
-        with allure.step("Verify that the entries has been added back"):
-            P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
-            P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
-        with allure.step("Send the traffic and the traffic can still be mirrored and the counter is as expected"):
-            P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count, pkt_count)
+        try:
+            pkt_count = 20
+            with allure.step("Verify that the entries has been added"):
+                P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
+                P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
+            with allure.step("Save config"):
+                engines.dut.run_cmd('sudo config save -y')
+            with allure.step("Disable p4-sampling"):
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+            with allure.step("Remove all entries from the config db"):
+                entries_config_removed = json_file_helper.remove_key_from_config_db(engines.dut, P4_SAMPLING_KEY)
+            with allure.step("Reload config"):
+                SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
+            with allure.step("Enable p4-sampling"):
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            with allure.step("Verify that the entries has been removed"):
+                P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, False)
+                P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, False)
+            with allure.step("Send traffic and check traffic can not be mirrored, and the counter is as expected"):
+                P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count, 0)
+            with allure.step("Disable p4-sampling"):
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+            with allure.step("Add all entries back to config db"):
+                json_file_helper.add_content_to_config_db(engines.dut, entries_config_removed, P4_SAMPLING_KEY)
+            with allure.step("Reload config"):
+                SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
+            with allure.step("Enable p4-sampling"):
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            with allure.step("Verify that the entries has been added back"):
+                P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
+                P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
+            with allure.step("Send the traffic and the traffic can still be mirrored and the counter is as expected"):
+                P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count,
+                                                   pkt_count)
+        finally:
+            SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
 
     @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
     @allure.title('Test Dynamic port breakout on the port used in the entries..')
@@ -124,47 +128,55 @@ class TestEntryTraffic:
         flow_entry_keys, _ = TrafficParams.prepare_flow_table_send_receive_traffic_params(interfaces, topology_obj,
                                                                                           table_params.flow_entry,
                                                                                           indices, chksum_type)
-        with allure.step("Check traffic counter will increase after the update interval"):
-            self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
-        with allure.step("Disable enable p4-sampling for {} times".format(disable_enable_times)):
-            self.disable_enable_feature_state(engines.dut, P4SamplingConsts.APP_NAME, disable_enable_times)
-        with allure.step("Disable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
-            # sleep for 1 second to wait until this is configured to HW and traffic mirror stops
-            time.sleep(1)
-        with allure.step("Check traffic can not be received by the mirror port"):
-            self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
-        with allure.step("Enable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
-            # sleep for 1 second to wait until this is configured to HW and traffic mirror starts
-            time.sleep(1)
-        with allure.step("Check traffic can be received by the mirror port"):
-            self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
-            self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
+        try:
+            with allure.step("Check traffic counter will increase after the update interval"):
+                self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list,
+                                             flow_traffic_params_list)
+            with allure.step("Disable enable p4-sampling for {} times".format(disable_enable_times)):
+                self.disable_enable_feature_state(engines.dut, P4SamplingConsts.APP_NAME, disable_enable_times)
+            with allure.step("Disable p4-sampling"):
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+                # sleep for 1 second to wait until this is configured to HW and traffic mirror stops
+                time.sleep(1)
+            with allure.step("Check traffic can not be received by the mirror port"):
+                self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list,
+                                           flow_traffic_params_list)
+            with allure.step("Enable p4-sampling"):
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+                # sleep for 1 second to wait until this is configured to HW and traffic mirror starts
+                time.sleep(1)
+            with allure.step("Check traffic can be received by the mirror port"):
+                self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list,
+                                             flow_traffic_params_list)
+                self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
 
-        ingress_ports = self.get_ingress_ports(indices, table_params.port_entry)
-        with allure.step("Shutdown port of the ingress port in the port table"):
-            self.shutdown_ports(engines.dut, ingress_ports)
-        with allure.step("Check traffic can not be received by the mirror port"):
-            self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, [])
-            self.verify_entries_missed(engines.dut, port_entry_keys, [])
-        with allure.step("Startup port of the ingress port in the port table"):
-            self.startup_ports(engines.dut, ingress_ports)
-        with allure.step("Check traffic can be received by the mirror port"):
-            self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, [])
-            self.verify_entries_hit(engines.dut, port_entry_keys, [])
+            ingress_ports = self.get_ingress_ports(indices, table_params.port_entry)
+            with allure.step("Shutdown port of the ingress port in the port table"):
+                self.shutdown_ports(engines.dut, ingress_ports)
+            with allure.step("Check traffic can not be received by the mirror port"):
+                self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, [])
+                self.verify_entries_missed(engines.dut, port_entry_keys, [])
+            with allure.step("Startup port of the ingress port in the port table"):
+                self.startup_ports(engines.dut, ingress_ports)
+            with allure.step("Check traffic can be received by the mirror port"):
+                self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, [])
+                self.verify_entries_hit(engines.dut, port_entry_keys, [])
 
-        mirror_ports = self.get_mirror_ports(indices, table_params)
-        with allure.step("Shutdown the mirror port in the port and flow table"):
-            self.shutdown_ports(engines.dut, mirror_ports)
-        with allure.step("Check traffic can not be received by the mirror port"):
-            self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
-            self.verify_entries_missed(engines.dut, port_entry_keys, flow_entry_keys)
-        with allure.step("Startup the mirror port in the port and flow table"):
-            self.startup_ports(engines.dut, mirror_ports)
-        with allure.step("Check traffic can be received by the mirror port"):
-            self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, flow_traffic_params_list)
-            self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
+            mirror_ports = self.get_mirror_ports(indices, table_params)
+            with allure.step("Shutdown the mirror port in the port and flow table"):
+                self.shutdown_ports(engines.dut, mirror_ports)
+            with allure.step("Check traffic can not be received by the mirror port"):
+                self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list,
+                                           flow_traffic_params_list)
+                self.verify_entries_missed(engines.dut, port_entry_keys, flow_entry_keys)
+            with allure.step("Startup the mirror port in the port and flow table"):
+                self.startup_ports(engines.dut, mirror_ports)
+            with allure.step("Check traffic can be received by the mirror port"):
+                self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list,
+                                             flow_traffic_params_list)
+                self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
+        finally:
+            SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
 
     @staticmethod
     def get_ingress_ports(indices, port_entries):
