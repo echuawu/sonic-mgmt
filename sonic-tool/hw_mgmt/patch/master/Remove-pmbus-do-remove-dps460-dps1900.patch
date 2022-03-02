@@ -1,0 +1,53 @@
+diff --git a/patch/0013-hwmon-pmbus-shrink-code-and-remove-pmbus_do_rem.patch b/patch-2/0013-hwmon-pmbus-shrink-code-and-remove-pmbus_do_rem.patch
+index 87aeb66a152d..73346e6431eb 100644
+--- a/patch/0013-hwmon-pmbus-shrink-code-and-remove-pmbus_do_rem.patch
++++ b/patch-2/0013-hwmon-pmbus-shrink-code-and-remove-pmbus_do_rem.patch
+@@ -17,6 +17,8 @@ Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  drivers/hwmon/pmbus/adm1266.c      |  1 -
+  drivers/hwmon/pmbus/adm1275.c      |  1 -
+  drivers/hwmon/pmbus/bel-pfe.c      |  1 -
++ drivers/hwmon/pmbus/dni_dps460.c   |  1 -
++ drivers/hwmon/pmbus/dps1900.c      |  1 -
+  drivers/hwmon/pmbus/ibm-cffps.c    |  1 -
+  drivers/hwmon/pmbus/inspur-ipsps.c |  1 -
+  drivers/hwmon/pmbus/ir35221.c      |  1 -
+@@ -44,7 +46,7 @@ Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  drivers/hwmon/pmbus/ucd9200.c      |  1 -
+  drivers/hwmon/pmbus/xdpe12284.c    |  1 -
+  drivers/hwmon/pmbus/zl6100.c       |  1 -
+- 32 files changed, 9 insertions(+), 52 deletions(-)
++ 34 files changed, 9 insertions(+), 54 deletions(-)
+ 
+ diff --git a/Documentation/hwmon/pmbus-core.rst b/Documentation/hwmon/pmbus-core.rst
+ index e22c4f6808bc..73e23ab42cc3 100644
+@@ -123,6 +125,30 @@ index 2c5b853d6c7f..aed7542d7ce5 100644
+  	.id_table = pfe_device_id,
+  };
+  
++diff --git a/drivers/hwmon/pmbus/dni_dps460.c b/drivers/hwmon/pmbus/dni_dps460.c
++index 4e96a430bbe9..0d6fc448d27f 100644
++--- a/drivers/hwmon/pmbus/dni_dps460.c
+++++ b/drivers/hwmon/pmbus/dni_dps460.c
++@@ -375,7 +375,6 @@ static int dni_dps460_remove(struct i2c_client *client)
++ 	sysfs_remove_group(&client->dev.kobj, &dni_dps460_attr_grp);
++ 	if (data->info)
++ 		kfree(data->info);
++-	pmbus_do_remove(client);
++ 	return 0;
++ }
++ 
++diff --git a/drivers/hwmon/pmbus/dps1900.c b/drivers/hwmon/pmbus/dps1900.c
++index decbd07c6d6e..c7400d4f1bfa 100644
++--- a/drivers/hwmon/pmbus/dps1900.c
+++++ b/drivers/hwmon/pmbus/dps1900.c
++@@ -151,7 +151,6 @@ static struct i2c_driver dps1900_driver = {
++ 		.name = "dps1900",
++ 	},
++ 	.probe = dps1900_probe,
++-	.remove = pmbus_do_remove,
++ 	.id_table = dps1900_id,
++ };
++ 
+ diff --git a/drivers/hwmon/pmbus/ibm-cffps.c b/drivers/hwmon/pmbus/ibm-cffps.c
+ index 2fb7540ee952..d6bbbb223871 100644
+ --- a/drivers/hwmon/pmbus/ibm-cffps.c

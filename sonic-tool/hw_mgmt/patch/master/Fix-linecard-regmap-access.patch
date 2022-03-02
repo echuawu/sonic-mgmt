@@ -1,0 +1,44 @@
+diff --git a/patch/0061-platform-mellanox-mlxreg-lc-Add-initial-support.patch b/patch-2/0061-platform-mellanox-mlxreg-lc-Add-initial-support.patch
+index 3d5a02b0ff74..38c64830f3f0 100644
+--- a/patch/0061-platform-mellanox-mlxreg-lc-Add-initial-support.patch
++++ b/patch-2/0061-platform-mellanox-mlxreg-lc-Add-initial-support.patch
+@@ -83,7 +83,7 @@ index 499623ccf2fe..e47b6b064881 100644
+ +obj-$(CONFIG_MLXREG_LC) += mlxreg-lc.o
+ diff --git a/drivers/platform/mellanox/mlxreg-lc.c b/drivers/platform/mellanox/mlxreg-lc.c
+ new file mode 100644
+-index 000000000000..2ddad96b154a
++index 000000000000..c2ccb38df693
+ --- /dev/null
+ +++ b/drivers/platform/mellanox/mlxreg-lc.c
+ @@ -0,0 +1,915 @@
+@@ -566,7 +566,7 @@ index 000000000000..2ddad96b154a
+ +	else
+ +		regval &= ~BIT(mlxreg_lc->data->slot - 1);
+ +
+-+	err = regmap_write(mlxreg_lc->par_regmap, mlxreg_lc->data->reg_pwr, regval);
+++	err = 0; /*regmap_write(mlxreg_lc->par_regmap, mlxreg_lc->data->reg_pwr, regval);*/
+ +
+ +	mutex_unlock(&mlxreg_lc->lock);
+ +
+@@ -598,7 +598,7 @@ index 000000000000..2ddad96b154a
+ +	else
+ +		regval &= ~BIT(mlxreg_lc->data->slot - 1);
+ +
+-+	err = regmap_write(mlxreg_lc->par_regmap, mlxreg_lc->data->reg_ena, regval);
+++	err = 0; /*regmap_write(mlxreg_lc->par_regmap, mlxreg_lc->data->reg_ena, regval);*/
+ +
+ +regmap_read_fail:
+ +	mutex_unlock(&mlxreg_lc->lock);
+diff --git a/patch/0092-platform-mellanox-mlxreg-lc-fix-error-code-in-m.patch b/patch-2/0092-platform-mellanox-mlxreg-lc-fix-error-code-in-m.patch
+index 5cacc0ca2ee9..ab6ef6203a94 100644
+--- a/patch/0092-platform-mellanox-mlxreg-lc-fix-error-code-in-m.patch
++++ b/patch-2/0092-platform-mellanox-mlxreg-lc-fix-error-code-in-m.patch
+@@ -18,7 +18,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+  1 file changed, 3 insertions(+), 2 deletions(-)
+ 
+ diff --git a/drivers/platform/mellanox/mlxreg-lc.c b/drivers/platform/mellanox/mlxreg-lc.c
+-index 2ddad96b154a..75c28179dd07 100644
++index c2ccb38df693..244676a12d74 100644
+ --- a/drivers/platform/mellanox/mlxreg-lc.c
+ +++ b/drivers/platform/mellanox/mlxreg-lc.c
+ @@ -420,7 +420,7 @@ mlxreg_lc_create_static_devices(struct mlxreg_lc *mlxreg_lc, struct mlxreg_hotpl
