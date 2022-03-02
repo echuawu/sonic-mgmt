@@ -109,7 +109,7 @@ def gen_test_interface_data(engines, interfaces, vlan_id):
 @retry(Exception, tries=3, delay=5)
 def verify_mac_saved_to_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic"):
     """
-    The method is to prepare the interface test data
+    The method is to verify that mac address is saved to fdb table
     :param engines: engines object fixture
     :param vlan_id:  vlan id
     :param mac: mac address
@@ -126,7 +126,7 @@ def verify_mac_saved_to_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic
 @retry(Exception, tries=3, delay=5)
 def verify_mac_not_in_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic"):
     """
-    The method is to prepare the interface test data
+    The method is to verify that mac address doesn't exist in fdb table
     :param engines: engines object fixture
     :param vlan_id:  vlan id
     :param mac: mac address
@@ -136,5 +136,5 @@ def verify_mac_not_in_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic")
     mac_table = SonicMacCli.parse_mac_table(engines.dut)
     for k, v in mac_table.items():
         if v["Vlan"] == vlan_id and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v["Type"].lower() == fdb_type:
-            assert False, f"Fdb item: {mac} {vlan_id} {port} {fdb_type} is not saved into fdb table"
+            assert False, f"Fdb item: {mac} {vlan_id} {port} {fdb_type} still exists in fdb table"
     return True
