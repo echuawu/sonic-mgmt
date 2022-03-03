@@ -29,6 +29,32 @@ DEFAULT_SINCE = '2 days ago'
 CMD_GET_AUTO_TECH_SUPPORT_HISTORY_REDIS_KEYS = 'sudo redis-cli --raw -n 6  KEYS AUTO_TECHSUPPORT*'
 
 
+@pytest.fixture(autouse=True, scope='class')
+def tmp_workaround(duthosts, rand_one_dut_hostname):
+    """
+    Fixture - temporary workaround for errors:
+    libyang[0]: Duplicated instance of \"profile_list\" leaf-list (\"e\").
+    (path: /sonic-buffer-port-egress-profile-list:sonic-buffer-port-egress-profile-list/
+    BUFFER_PORT_EGRESS_PROFILE_LIST/BUFFER_PORT_EGRESS_PROFILE_LIST_LIST[port='Ethernet0']/profile_list[.='e'])\n
+    Aborted!
+    Related to GitHub issue: https://github.com/Azure/sonic-buildimage/issues/9801
+    """
+    duthost = duthosts[rand_one_dut_hostname]
+    ingress_file = 'sonic-buffer-port-ingress-profile-list.yang'
+    egress_file = 'sonic-buffer-port-egress-profile-list.yang'
+    ingress_full_path = '/usr/local/yang-models/{}'.format(ingress_file)
+    egress_full_path = '/usr/local/yang-models/{}'.format(egress_file)
+    home_folder = '/home/admin/'
+
+    duthost.shell('sudo mv {} {}'.format(ingress_full_path, home_folder))
+    duthost.shell('sudo mv {} {}'.format(egress_full_path, home_folder))
+
+    yield
+
+    duthost.shell('sudo mv {}{} {}'.format(home_folder, ingress_file, ingress_full_path))
+    duthost.shell('sudo mv {}{} {}'.format(home_folder, egress_file, egress_full_path))
+
+
 def cleanup(cleanup_list):
     """
     Execute all the functions in the cleanup list
