@@ -279,22 +279,20 @@ platform_tests/api/test_psu.py::TestPsuApi::test_fans:
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
   - Redmine:
-    - 2877294
+    - 2994085
     Platform:
     - 2100
     - 2010
     Branch:
-    - master
     - 202111
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
   - Redmine:
-    - 2877294
+    - 2994085
     Platform:
     - 2100
     - 2010
     Branch:
-    - master
     - 202111
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
