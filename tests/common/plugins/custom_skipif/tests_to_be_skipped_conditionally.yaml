@@ -977,20 +977,19 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
     - 202012
     - 202106
   - Redmine:
-    - 2903370
+    - 2994124
     Branch:
-      - master
       - 202111
-    Platform:
-      - 3700
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
-  - Redmine:
-    - 2861103
   - Branch:
     - 201911
     - 202012
     - 202106
+  - Redmine:
+    - 2994124
+    Branch:
+      - 202111
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
   - Redmine:
