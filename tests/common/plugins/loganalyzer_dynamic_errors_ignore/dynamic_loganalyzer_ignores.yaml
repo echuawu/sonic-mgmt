@@ -1028,3 +1028,11 @@
       - tests/nightly/dynamic_port_breakout/test_dpb_speeds.py
       Redmine:
       - 2754703
+
+- Errors_list:
+    - '.* ERR swss#orchagent: message repeated \d+ times: .* :- removeLag: Failed to remove LAG PortChannel\d+, it is still in VLAN.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+      - 2825653
