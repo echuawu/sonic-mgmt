@@ -654,7 +654,7 @@
       - pfc_asym/test_pfc_asym.py::test_pfc_asym_off_rx_pause_frames
       - qos/test_qos_sai.py
       Redmine:
-        - 2955175
+        - 2644713
       Branch:
         - 202111
         - master
