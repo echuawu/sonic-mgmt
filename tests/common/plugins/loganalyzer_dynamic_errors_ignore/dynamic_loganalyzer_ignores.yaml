@@ -102,6 +102,7 @@
       - copp/test_copp.py::TestCOPP::test_add_new_trap
       - copp/test_copp.py::TestCOPP::test_remove_trap
       - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
+      - vxlan/test_vnet_vxlan.py
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961383
 - Errors_list:
@@ -141,6 +142,7 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
       - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
+      - vxlan/test_vnet_vxlan.py
       Redmine:
       - 2961383
       Branch:
@@ -604,6 +606,7 @@
   Conditions:
     - Affected_test_cases:
       - vxlan/test_vxlan_decap.py::test_vxlan_decap[Removed]
+      - vxlan/test_vnet_vxlan.py
       Redmine:
         - 2954778
       Branch:
@@ -739,6 +742,7 @@
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      - vxlan/test_vnet_vxlan.py
       Redmine:
         - 2963838
       Branch:
@@ -1005,9 +1009,9 @@
       - 2976349
 
 - Errors_list:
-    - '.* ERR container: docker cmd: kill for .* failed with 404 Client Error for http+docker:.*: Not Found ("No such container: .*").*'
+    - '.* ERR container: docker cmd: kill for .* failed with 404 Client Error for http.*ocker:.*: Not Found \("No such container: .*"\).*'
     - '.* ERR hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*'
-    - '.* ERR caclmgrd[3294]: :- poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.* ERR caclmgrd.* poll_descriptors: readData error: Unable to read redis reply.*'
     - '.*ERR hostcfgd: error returned by select.*'
   Conditions:
     - Redmine:
