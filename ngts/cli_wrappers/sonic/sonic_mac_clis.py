@@ -4,7 +4,7 @@ from ngts.cli_wrappers.common.mac_clis_common import MacCliCommon
 from ngts.helpers.network import generate_mac
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 
-FDB_AGING_TIME_FILE = "swss:/etc/swss/config.d/switch.json"
+FDB_AGING_TIME_FILE = "/etc/swss/config.d/switch.json"
 
 
 class SonicMacCli(MacCliCommon):
@@ -65,15 +65,15 @@ class SonicMacCli(MacCliCommon):
         :param fdb_aging_time: fdb aging time
         :return: command output
         """
-        cmd_copy_file_from_swss_to_switch = f"docker cp {FDB_AGING_TIME_FILE} /tmp/"
+        cmd_copy_file_from_swss_to_switch = f"docker cp swss:{FDB_AGING_TIME_FILE} /tmp/"
         engine.run_cmd(cmd_copy_file_from_swss_to_switch)
 
         replace_fdb_aging_time = f"sudo sed -i 's/ \"fdb_aging_time\": \".*\"/\"fdb_aging_time\": \"{fdb_aging_time}\"/' /tmp/switch.json"
         engine.run_cmd(replace_fdb_aging_time)
 
-        cmd_copy_file_from_switch_to_swss = f"docker cp /tmp/switch.json {FDB_AGING_TIME_FILE}"
+        cmd_copy_file_from_switch_to_swss = f"docker cp /tmp/switch.json swss:{FDB_AGING_TIME_FILE}"
         engine.run_cmd(cmd_copy_file_from_switch_to_swss)
-        cmd_config_swss_config = f"docker exec swss bash -c swssconfig {FDB_AGING_TIME_FILE}"
+        cmd_config_swss_config = f'docker exec swss bash -c "swssconfig {FDB_AGING_TIME_FILE}"'
         engine.run_cmd(cmd_config_swss_config)
 
     @staticmethod
