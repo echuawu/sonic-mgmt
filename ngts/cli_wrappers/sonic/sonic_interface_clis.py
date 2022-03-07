@@ -237,9 +237,10 @@ class SonicInterfaceCli(InterfaceCliCommon):
         force = "" if force is False else "-f"
         try:
             cmd = f'sudo config interface breakout {port} {breakout_mode} -y {force}'
+            pattern = r"\s+".join([r"Do", r"you", r"wish", r"to", r"Continue\?", r"\[y\/N\]:"])
             output = engine.run_cmd_set([cmd, 'y'], tries_after_run_cmd=75,
-                                        patterns_list=["Do\s+you\s+wish\s+to\s+Continue\?\s+\[y\/N\]:"])
-            SonicInterfaceCli.verify_dpb_cmd(output)
+                                        patterns_list=[pattern])
+            SonicInterfaceCli.verify_dpb_cmd(output, expect_error)
             return output
         except Exception as e:
             if expect_error:
@@ -250,15 +251,25 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 raise AssertionError(f"Command: {cmd} failed with error {e} when was expected to pass")
 
     @staticmethod
-    def verify_dpb_cmd(output):
-        expected_msg_breakout_success = r"Breakout\s+process\s+got\s+successfully\s+completed"
-        expected_msg_breakout_mode_same = \
-            r"No\s+action\s+will\s+be\s+taken\s+as\s+current\s+and\s+desired\s+Breakout\s+Mode\s+are\s+same"
-        with allure.step(f"Verify breakout command output"):
-            if not re.search(f"{expected_msg_breakout_success}|{expected_msg_breakout_mode_same}",
-                             output, re.IGNORECASE):
-                logger.error(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
-                raise AssertionError(f"Verification of Breakout command failed")
+    def verify_dpb_cmd(output, expect_error):
+        """
+        :param output: output of breakout command
+        :param expect_error: True if command was expected to fail
+        :return: verify the breakout command output only if it expected to pass successfully
+        """
+        if not expect_error:
+            expected_msg_breakout_success = \
+                r"\s+".join([r"Breakout", r"process", r"got",
+                             r"successfully", r"completed"])
+            expected_msg_breakout_mode_same = \
+                r"\s+".join([r"No", r"action", r"will", r"be", r"taken", r"as",
+                             r"current", r"and", r"desired", r"Breakout",
+                             r"Mode", r"are", r"same"])
+            with allure.step(f"Verify breakout command output"):
+                if not re.search(f"{expected_msg_breakout_success}|{expected_msg_breakout_mode_same}",
+                                 output, re.IGNORECASE):
+                    logger.error(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
+                    raise AssertionError(f"Verification of Breakout command failed")
 
     @staticmethod
     def config_auto_negotiation_mode(engine, interface, mode):

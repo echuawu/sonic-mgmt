@@ -2,14 +2,10 @@ import allure
 import logging
 import pytest
 import random
-import json
 import re
 from retry.api import retry_call
-from ngts.config_templates.vlan_config_template import VlanConfigTemplate
-from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
-from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
-from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.constants.constants import SonicConst
+from ngts.helpers.dependencies_helpers import DependenciesBase
 from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.helpers.breakout_helpers import get_dut_breakout_modes
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
@@ -366,7 +362,7 @@ def send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list
 def set_ip_conf_for_ping(topology_obj, cleanup_list, lb_list):
     ports_list = get_ports_list_from_loopback_tuple_list(lb_list)
     ports_ip_conf = {port: {} for port in ports_list}
-    set_ip_dependency(topology_obj, ports_list, ports_ip_conf, cleanup_list)
+    DependenciesBase.set_ip_dependency(topology_obj, ports_list, ports_ip_conf, cleanup_list)
     return ports_ip_conf
 
 
@@ -406,38 +402,6 @@ def get_ports_list_from_loopback_tuple_list(lb_list):
         ports_list.append(lb_port_1)
         ports_list.append(lb_port_2)
     return ports_list
-
-
-def set_ip_dependency(topology_obj, ports_list, ports_dependencies, cleanup_list, dependency_list=[]):
-    """
-    configure ip dependency on all the ports in ports_list and update the configuration
-    in the dictionary ports_dependencies.
-    :param ports_list: a list of the ports ['Ethernet8', 'Ethernet4', 'Ethernet36', 'Ethernet40',..]
-    :param ports_dependencies: a dictionary with the ports configured dependencies information
-    for example,
-    {'Ethernet212': {'vlan': 'Vlan3730', 'portchannel': 'PortChannel0001', 'ip': 10.10.10.1},
-    :return: None
-    """
-    ip_config_dict = {'dut': []}
-    idx = 1
-    for port in ports_list:
-        ip_member = port
-        if 'vlan' in dependency_list:
-            ip_member = ports_dependencies[port]['vlan']
-            vlan_config_dict = {'dut': [{'vlan_id': ip_member, 'vlan_members': []}]}
-            cleanup_list.append((VlanConfigTemplate.cleanup, (topology_obj, vlan_config_dict,)))
-        elif 'portchannel' in dependency_list:
-            ip_member = ports_dependencies[port]['portchannel']
-            lag_lacp_config_dict = {'dut': [{'type': 'lacp',
-                                             'name': ip_member,
-                                             'members': [port]}]}
-            cleanup_list.append((LagLacpConfigTemplate.cleanup, (topology_obj, lag_lacp_config_dict,)))
-        ip = '10.0.0.{}'.format(idx)
-        ip_config_dict['dut'].append({'iface': ip_member, 'ips': [(ip, '24')]})
-        ports_dependencies[port].update({'ip': ip})
-        idx += 1
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    cleanup_list.append((IpConfigTemplate.cleanup, (topology_obj, ip_config_dict,)))
 
 
 def build_remove_dpb_conf(tested_modes_lb_conf, ports_breakout_modes):

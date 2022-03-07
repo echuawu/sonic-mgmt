@@ -141,6 +141,7 @@ class ConfigDbJsonConst:
 class IpIfaceAddrConst:
     IPV4_ADDR_MASK_KEY = 'IPv4 address/mask'
     IPV6_ADDR_MASK_KEY = 'IPv6 address/mask'
+    IPV4_MASK_24 = '24'
 
 
 class AutonegCommandConstants:
