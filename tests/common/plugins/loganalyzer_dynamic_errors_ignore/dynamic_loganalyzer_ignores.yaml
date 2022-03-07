@@ -1040,3 +1040,12 @@
       - tests/nightly/lag/test_lag.py
       Redmine:
       - 2825653
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Got unrecognized event \d+, ignored'
+    - '.* ERR pmon#xcvrd: message repeated \d+ times: \[ Got unrecognized event \d+, ignored\]'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode
+      Redmine:
+      - 2994207
