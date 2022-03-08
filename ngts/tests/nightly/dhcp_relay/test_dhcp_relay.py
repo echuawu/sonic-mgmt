@@ -9,6 +9,7 @@ from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemp
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 logger = logging.getLogger()
 num_of_dhcp_servers = 10
@@ -63,6 +64,7 @@ def configure_dhcp_scale(topology_obj, interfaces, engines):
     DhcpRelayConfigTemplate.cleanup(topology_obj, dhcp_relay_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
+    SonicGeneralCli().save_configuration(engines.dut)
     logger.info('DHCP relay scale configuration completed')
 
 
