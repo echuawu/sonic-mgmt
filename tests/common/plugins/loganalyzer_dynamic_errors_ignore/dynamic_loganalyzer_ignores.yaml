@@ -901,10 +901,7 @@
 - Errors_list:
     - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_lags_scale
-      - vxlan/test_vnet_route_leak.py
-      Redmine:
+    - Redmine:
       - 2966737
 
 - Errors_list:
@@ -1010,10 +1007,10 @@
       - 2976349
 
 - Errors_list:
-    - '.* ERR container: docker cmd: kill for .* failed with 404 Client Error for http.*ocker:.*: Not Found \("No such container: .*"\).*'
-    - '.* ERR hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*'
+    - '.* ERR.*container: docker cmd: kill for .* failed with 404 Client Error.*: Not Found \("No such container: .*"\).*'
+    - '.* ERR.*hostcfgd: :- poll_descriptors: readData error: Unable to read redis reply.*'
     - '.* ERR caclmgrd.* poll_descriptors: readData error: Unable to read redis reply.*'
-    - '.*ERR hostcfgd: error returned by select.*'
+    - '.*ERR.*hostcfgd: error returned by select.*'
   Conditions:
     - Redmine:
         - 2976351
@@ -1050,3 +1047,13 @@
       - platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode
       Redmine:
       - 2994207
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- create: Mirror rule references mirror session "neighbor_advertiser" that does not exist yet'
+    - '.* ERR swss#orchagent: :- add: Failed to create ACL rule rule_(nd|arp) in table EVERFLOW.*'
+    - ".* ERR swss#orchagent: :- addOperation: Vxlan tunnel 'neighbor_advertiser' is already exists"
+  Conditions:
+    - Affected_test_cases:
+      - vxlan/test_vnet_route_leak.py
+      Redmine:
+      - 2997615
