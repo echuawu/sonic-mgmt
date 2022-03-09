@@ -460,6 +460,7 @@
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py
       - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - system_health/test_system_health.py
       Redmine:
       - 2615940
 
@@ -1055,5 +1056,12 @@
   Conditions:
     - Affected_test_cases:
       - vxlan/test_vnet_route_leak.py
+      - vxlan/test_vnet_vxlan.py
       Redmine:
       - 2997615
+
+- Errors_list:
+    - '.* ERR kernel.*Failed to query module temperature thresholds'
+  Conditions:
+    - Redmine:
+        - 2915388
