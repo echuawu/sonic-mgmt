@@ -136,8 +136,14 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
         for port in host_ports:
+            port_ethtool_status = host_cli.interface.parse_show_interface_ethtool_status(host_engine, port)
+            port_supported_speeds = port_ethtool_status["supported speeds"]
+            if '1G' in port_supported_speeds:
+                port_supported_speeds.remove('1G')
+                # TODO: bug 2966698 fix only on latest kernel - kernel update is unplanned for now
+                # TODO: please remove this if statement once issue is resolved
             split_mode_supported_speeds[port] = \
-                {1: host_cli.interface.parse_show_interface_ethtool_status(host_engine, port)["supported speeds"]}
+                {1: port_supported_speeds}
     return split_mode_supported_speeds
 
 
