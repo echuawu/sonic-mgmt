@@ -13,8 +13,8 @@ def get_breakout_mode_supported_speed_list(breakout_mode):
     :return: return 25G
     """
     support_speed_list = []
-    support_speed_list.append(re.search(r"\dx(\d+G)", breakout_mode).group(1))
-    support_speed_list.extend(re.search(r"\dx(\d+G)\[([\d+G,]+)\]", breakout_mode).group(2).split(','))
+    support_speed_list.append(re.search(r"\dx(\d+G|\d+)", breakout_mode).group(1))
+    support_speed_list.extend(re.search(r"\dx(\d+G|\d+)\[([\d+G,]+|[\d,]+)\]", breakout_mode).group(2).split(','))
     return support_speed_list
 
 
@@ -82,7 +82,10 @@ def get_split_number(config_db_json, port_alias):
 
 
 def get_port_current_breakout_mode(config_db_json, port, split_num, parsed_platform_json_by_breakout_modes):
-    port_speed = get_speed_in_G_format(config_db_json['PORT'][port]['speed'])
+    if 'G' in config_db_json['BREAKOUT_CFG'][port]['brkout_mode']:  # if not RJ45 port
+        port_speed = get_speed_in_G_format(config_db_json['PORT'][port]['speed'])
+    else:
+        port_speed = config_db_json['PORT'][port]['speed']
     supported_brk_modes = parsed_platform_json_by_breakout_modes[port][split_num]
     return get_breakout_mode_by_speed_conf(supported_brk_modes, port_speed)
 
@@ -115,7 +118,7 @@ def get_split_mode_supported_breakout_modes(breakout_modes):
     """
     split_mode_supported_breakout_modes = {1: set(), 2: set(), 4: set(), 8: set()}
     for breakout_mode in breakout_modes:
-        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
+        breakout_pattern = r"(\dx\d+G\[[\d*G,]*\]|\dx\d+G|\dx\d+\[[\d+,]*\])"
         if re.search(breakout_pattern, breakout_mode):
             breakout_num, _ = breakout_mode.split("x")
             split_mode_supported_breakout_modes[int(breakout_num)].add(breakout_mode)
