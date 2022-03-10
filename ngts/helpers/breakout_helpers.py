@@ -82,10 +82,10 @@ def get_split_number(config_db_json, port_alias):
 
 
 def get_port_current_breakout_mode(config_db_json, port, split_num, parsed_platform_json_by_breakout_modes):
-    if 'G' in config_db_json['BREAKOUT_CFG'][port]['brkout_mode']:  # if not RJ45 port
-        port_speed = get_speed_in_G_format(config_db_json['PORT'][port]['speed'])
-    else:
-        port_speed = config_db_json['PORT'][port]['speed']
+    port_speed = get_speed_in_G_format(config_db_json['PORT'][port]['speed'])
+    if config_db_json.get('BREAKOUT_CFG'):
+        if 'G' not in config_db_json['BREAKOUT_CFG'][port]['brkout_mode']:  # if RJ45 port
+            port_speed = config_db_json['PORT'][port]['speed']
     supported_brk_modes = parsed_platform_json_by_breakout_modes[port][split_num]
     return get_breakout_mode_by_speed_conf(supported_brk_modes, port_speed)
 
