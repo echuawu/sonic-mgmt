@@ -1102,6 +1102,12 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2972419
+  - Redmine:
+    - 3001927
+    Platform:
+    - msn4600c
+    Branch:
+    - 202012
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
   - Platform:

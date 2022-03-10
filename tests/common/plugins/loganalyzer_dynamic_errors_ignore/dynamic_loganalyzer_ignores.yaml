@@ -1065,3 +1065,24 @@
   Conditions:
     - Redmine:
         - 2915388
+
+- Errors_list:
+    - '.* ERR pmon#python3: :- checkReplyType: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
+  Conditions:
+    - Redmine:
+        - 3001594
+
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[SAI_SWITCH\.WARNING\] mlnx_sai_switch\.c\[\d+\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet.*'
+    - '.* WARNING syncd#SDK: message repeated \d+ times: \[ \[SAI_SWITCH\.WARNING\] mlnx_sai_switch\.c\[\d+\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet\]'
+  Conditions:
+    - Redmine:
+        - 3001584
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- handleSetCommand: Failed to parse CRM Config configuration\. Unknown attribute mpls_'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+        - 3001683
