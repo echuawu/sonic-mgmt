@@ -956,6 +956,13 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   - Platform:
     - simx
+  - Platform:
+    - x86_64-mlnx_msn4600c-r0
+    - x86_64-mlnx_msn4410-r0
+    - x86_64-mlnx_msn4700-r0
+    - x86_64-mlnx_msn4600-r0
+    Redmine:
+    - 3002280
 
 tests/push_build_tests/general/wjh:
   - Redmine:
@@ -1182,3 +1189,10 @@ tests/everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
     Platform:
     - msn2410
 
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_hdd_usage:
+  - Platform:
+    - x86_64-mlnx_msn4600c-r0
+    - x86_64-mlnx_msn4410-r0
+    - x86_64-mlnx_msn4600-r0
+    Redmine:
+    - 3002280
