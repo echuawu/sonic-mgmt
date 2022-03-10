@@ -566,6 +566,7 @@
     - Affected_test_cases:
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - system_health/test_system_health.py
       Branch:
         - 202012
 
@@ -1086,3 +1087,23 @@
       - tests/nightly/lag/test_lag.py
       Redmine:
         - 3001683
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- mlnx_log_port_to_object: Failed to find log port \d+ in SAI DB'
+  Conditions:
+    - Affected_test_cases:
+      - vxlan/test_vnet_vxlan.py
+      Redmine:
+      - 3001583
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[EMAD_RX_THREAD.ERR\] EMAD transaction FW error.*'
+    - '.* ERR syncd#SDK: \[EMAD.ERR\] emad-send failed on register.*'
+    - '.* ERR syncd#SDK: \[REG_BULK.ERR\] sx_reg_layer_sxd_reg_call - Error at access reg call reg_id.*'
+    - '.* ERR syncd#SDK: \[REG_BULK.ERR\] __reg_bulk_post_completion_cb Error got in completion data sxd_status .*'
+    - '.* ERR syncd#SDK: \[MGMT_LIB.ERR\] Slot .* Module .* Attr get, MCION GET failed.*'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_techsupport.py
+      Redmine:
+      - 3001626
