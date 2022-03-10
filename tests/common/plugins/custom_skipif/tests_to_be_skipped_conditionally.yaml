@@ -21,6 +21,13 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
     Branch:
     - master
     - 202111
+  - Redmine:
+    - 2995223
+    Platform:
+    - msn4600c
+    Branch:
+    - 202111
+    - 202012
 
 platform_tests/test_sensors.py::test_sensors:
   - Redmine:
@@ -1168,3 +1175,10 @@ tests/nightly/copp:
 tests/nightly/app_extension:
   - Redmine:
     - 2984113
+
+tests/everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
+  - Redmine:
+    - 3002304
+    Platform:
+    - msn2410
+
