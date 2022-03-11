@@ -1068,7 +1068,7 @@
         - 2915388
 
 - Errors_list:
-    - '.* ERR pmon#python3: :- checkReplyType: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
+    - '.* ERR pmon#python3: :- .*Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
   Conditions:
     - Redmine:
         - 3001594
