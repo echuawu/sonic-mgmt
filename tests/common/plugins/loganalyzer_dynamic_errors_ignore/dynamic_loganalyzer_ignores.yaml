@@ -1107,3 +1107,11 @@
       - show_techsupport/test_techsupport.py
       Redmine:
       - 3001626
+
+- Errors_list:
+    - '.* INFO kernel: [.*] teamd[\d+]: segfault at .* ip .* sp .* error \d+ in libteam'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+      - 2910559
