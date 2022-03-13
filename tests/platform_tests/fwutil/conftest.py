@@ -18,7 +18,7 @@ FS_MOUNTPOINT_TEMPLATE = "/tmp/image-{}-fs"
 OVERLAY_MOUNTPOINT_TEMPLATE = "/tmp/image-{}-overlay"
 
 def check_path_exists(path):
-    return duthost.stat(path = path)["stat"]["exists"]
+    return duthost.stat(path = path)["stat"]["exists"] 
 
 def pytest_generate_tests(metafunc):
     val = metafunc.config.getoption('--fw-pkg')
@@ -49,12 +49,12 @@ def random_component(duthost, fw_pkg):
     if len(components) == 0:
         pytest.skip("No suitable components found in config file for platform {}.".format(duthost.facts['platform']))
 
-    return components[randrange(len(components))]
+    return components[randrange(len(components))] 
 
 @pytest.fixture(scope='function')
 def host_firmware(localhost, duthost):
     logger.info("Starting local python server to test URL firmware update....")
-    comm = "python3 -m http.server --directory {}".format(os.path.join(DEVICES_PATH,
+    comm = "python3 -m http.server --directory {}".format(os.path.join(DEVICES_PATH, 
         duthost.facts['platform']))
     duthost.command(comm, module_ignore_errors=True, module_async=True)
     yield "http://localhost:8000/"
@@ -119,3 +119,4 @@ def next_image(duthost, fw_pkg):
 
     logger.info("Ensuring correct image is set to default boot.")
     duthost.command("sonic-installer remove {} -y".format("SONiC-OS-{}".format(target)))
+
