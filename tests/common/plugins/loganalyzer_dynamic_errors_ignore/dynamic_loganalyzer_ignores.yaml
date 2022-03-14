@@ -1106,6 +1106,17 @@
     - Affected_test_cases:
       - show_techsupport/test_techsupport.py
       Redmine:
+      - 3004719
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW CR timeout on address:.*crspace timeout case is unknown. Check FW.*'
+    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW health event device:\[\d+\] FW cause:\[.*FW CR space timeout\].*'
+    - '.* WARNING syncd#SDK: \[HOST_INTERFACE.WARNING\] FW SOS device:\[\d+\] sending SDK health:\[error\] event cause:\[FW health issue.*\].*'
+    - '.* WARNING syncd#SDK: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c.*mlnx_switch_health_event_handle: Health event happened, severity error, cause FW health issue.*'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_techsupport.py
+      Redmine:
       - 3001626
 
 - Errors_list:
