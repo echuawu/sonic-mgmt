@@ -3,6 +3,7 @@ from ansible.module_utils.basic import *
 import traceback
 import os
 import sys
+from retry.api import retry_call
 
 sys.path.append('{}/../ansible/library'.format(os.path.abspath(os.curdir)))
 from minigraph_facts import get_config_db_json_from_hostname, get_dut_ports
@@ -54,7 +55,7 @@ def build_results(hostnames):
     device_pdu_links = {}
 
     for hostname in hostnames:
-        config_db = get_config_db_json_from_hostname(hostname)
+        config_db = retry_call(get_config_db_json_from_hostname, fargs=[hostname], tries=5, logger=None)
         all_dut_ports = get_dut_ports(config_db)
 
         device_info[hostname] = {}

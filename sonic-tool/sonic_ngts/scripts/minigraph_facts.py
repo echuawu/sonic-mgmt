@@ -4,6 +4,8 @@ import traceback
 import re
 import json
 import sys
+import socket
+socket.setdefaulttimeout(60)
 
 if sys.version_info[0] == 3:
     # Python 3
