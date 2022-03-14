@@ -1,15 +1,14 @@
 import pytest
 import logging
 
-from ngts.cli_wrappers.linux.linux_interface_clis import LinuxInterfaceCli
-
 logger = logging.getLogger()
 
 
 @pytest.fixture(scope='module', autouse=True)
-def lldp_configuration(topology_obj):
+def lldp_configuration(topology_obj, cli_objects):
     """
     :param topology_obj: topology object fixture
+    :param cli_objects: cli_objects fixture
     """
     logger.info('Enable LLDP on hosts')
     hosts_aliases = ['ha', 'hb']
@@ -21,6 +20,6 @@ def lldp_configuration(topology_obj):
             # to prevent advertising the same mac on an interfaces,
             # need to restart ports status after lldp enbling
             for port in topology_obj.players_all_ports[host_alias]:
-                LinuxInterfaceCli.disable_interface(host_engine, port)
-                LinuxInterfaceCli.enable_interface(host_engine, port)
+                cli_objects.host_alias.interface.disable_interface(host_engine, port)
+                cli_objects.host_alias.interface.enable_interface(host_engine, port)
     yield

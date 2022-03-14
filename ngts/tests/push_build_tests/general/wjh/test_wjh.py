@@ -10,7 +10,6 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from ngts.config_templates.wjh_buffer_config_template import WjhBufferConfigTemplate
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 pytest.CHANNEL_CONF = None
@@ -85,13 +84,14 @@ def get_channel_configuration(engines, check_feature_enabled):
 
 
 @pytest.fixture(scope='module')
-def check_feature_enabled(engines):
+def check_feature_enabled(engines, cli_objects):
     """
     An autouse fixture to check if WJH fixture is enabled
     :param engines: engines fixture
+    :param cli_objects: cli_objects fixture
     """
     with allure.step('Valdating WJH feature is installed and enabled on the DUT'):
-        features = SonicGeneralCli().show_and_parse_feature_status(engines.dut)
+        features = cli_objects.dut.general.show_and_parse_feature_status(engines.dut)
         if 'what-just-happened' not in features or features['what-just-happened']['State'] != 'enabled':
             pytest.skip("what-just-happened feature is not available. Skipping the test.")
 
@@ -105,7 +105,7 @@ def check_if_channel_enabled(cli_object, engines, channel, channel_type):
     :param cli_object: cli_object
     """
 
-    if channel == "buffer" and SonicGeneralCli().is_spc1(cli_object, engines.dut):
+    if channel == "buffer" and cli_object.dut.general.is_spc1(cli_object, engines.dut):
         pytest.skip("buffer channel is not supported in SPC1.")
 
     if channel not in pytest.CHANNEL_CONF:
@@ -127,25 +127,24 @@ def get_parsed_table(dut, cmd, table_type):
 
 
 @pytest.fixture(scope='module')
-def wjh_buffer_configuration(topology_obj, engines, interfaces):
+def wjh_buffer_configuration(topology_obj, cli_objects, engines, interfaces):
     """
     Pytest fixture which is doing configuration fot WJH Buffer test case
     :param topology_obj: topology object fixture
+    :param cli_objects: cli_objects fixture
     :param engines: engines fixture
     :param interfaces: interfaces fixture
     """
-    cli_object = topology_obj.players['dut']['cli']
-
     with allure.step('Check that links are in UP state'.format()):
         ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
+        retry_call(cli_objects.dut.inteface.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
                    logger=logger)
 
     # variable below required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
-                                                                                          interfaces.dut_hb_2,
-                                                                                          interfaces.dut_ha_2,
-                                                                                          interfaces.dut_hb_1])
+    dut_original_interfaces_speeds = cli_objects.dut.inteface.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
+                                                                                                 interfaces.dut_hb_2,
+                                                                                                 interfaces.dut_ha_2,
+                                                                                                 interfaces.dut_hb_1])
     with allure.step("Configuring dut_ha_2 speed to be 1G, and dut_hb_2 to be 25G \
                       Configuring port dut_ha_2, pg 0, congestion threshold = 10%, latency threshold = 100ns"):
         interfaces_config_dict = {
@@ -168,14 +167,14 @@ def wjh_buffer_configuration(topology_obj, engines, interfaces):
 
     with allure.step('Doing config save'):
         logger.info('Doing config save')
-        cli_object.general.save_configuration(engines.dut)
+        cli_objects.dut.general.save_configuration(engines.dut)
 
     yield
 
     WjhBufferConfigTemplate.cleanup(topology_obj, thresholds_config_dict)
     InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
     logger.info('Doing config save after cleanup')
-    cli_object.general.save_configuration(engines.dut)
+    cli_objects.dut.general.save_configuration(engines.dut)
     logger.info('WJH Buffer cleanup completed')
 
 
@@ -272,7 +271,8 @@ def validate_wjh_table(engines, cmd, table_type, interface, dst_ip, src_ip, prot
         pytest.fail("Could not find drop in WJH {} table".format(table_type))
 
 
-def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, drop_reason):
+def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac,
+                              src_mac, drop_reason):
     """
     A function that checks the WJH buffer tables (raw/agg + second page)
     :param engines: engines fixture
@@ -377,10 +377,12 @@ def check_buffer_info_table(table, entry, drop_reason, table_type, is_dynamic_bu
                     int(tc_watermark) > 0 and latency_watermark != "N/A" and int(latency_watermark) > 0):
                 return
 
-    pytest.fail("Buffer info table is wrong, tc_id = {}, tc_usage = {}, latency = {}, tc_watermark = {}, latency_watermark = {}".format(tc_id, tc_usage, latency, tc_watermark, latency_watermark))
+    pytest.fail("Buffer info table is wrong, tc_id = {}, tc_usage = {}, latency = {}, tc_watermark = {}, "
+                "latency_watermark = {}".format(tc_id, tc_usage, latency, tc_watermark, latency_watermark))
 
 
-def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac, command):
+def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac,
+                src_mac, command):
     """
     A function that checks the WJH feature with raw channel type
     :param engines: engines fixture
@@ -396,11 +398,13 @@ def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, s
     """
     check_if_channel_enabled(cli_object, engines, channel, channel_type)
 
-    retry_call(validate_wjh_table, fargs=[engines, command, 'raw', interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
+    retry_call(validate_wjh_table, fargs=[engines, command, 'raw', interface, dst_ip, src_ip, proto, drop_reason,
+                                          dst_mac, src_mac],
                tries=3, delay=3, logger=logger)
 
 
-def do_buffer_raw_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, command, drop_reason):
+def do_buffer_raw_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto,
+                       drop_reason_message, dst_mac, src_mac, command, drop_reason):
     """
     A function that checks the WJH feature with raw channel type
     :param engines: engines fixture
@@ -419,11 +423,13 @@ def do_buffer_raw_test(engines, cli_object, channel, channel_types, interface, d
     """
     check_if_channel_enabled(cli_object, engines, channel, channel_types[0])
 
-    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, drop_reason],
+    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto,
+                                                 drop_reason_message, dst_mac, src_mac, drop_reason],
                tries=3, delay=3, logger=logger)
 
 
-def do_agg_test(engines, cli_object, channel, channel_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac, command):
+def do_agg_test(engines, cli_object, channel, channel_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac,
+                src_mac, command):
     """
     A function that checks the WJH feature with aggregated channel type
     :param engines: engines fixture
@@ -439,11 +445,13 @@ def do_agg_test(engines, cli_object, channel, channel_type, interface, dst_ip, s
     """
     check_if_channel_enabled(cli_object, engines, channel, channel_type)
 
-    retry_call(validate_wjh_table, fargs=[engines, command, 'agg', interface, dst_ip, src_ip, proto, drop_reason, dst_mac, src_mac],
+    retry_call(validate_wjh_table, fargs=[engines, command, 'agg', interface, dst_ip, src_ip, proto, drop_reason,
+                                          dst_mac, src_mac],
                tries=3, delay=3, logger=logger)
 
 
-def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, command, drop_reason):
+def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto,
+                       drop_reason_message, dst_mac, src_mac, command, drop_reason):
     """
     A function that checks the WJH feature with aggregated channel type
     :param engines: engines fixture
@@ -462,7 +470,8 @@ def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, d
     """
     check_if_channel_enabled(cli_object, engines, channel, channel_types[0])
 
-    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac, src_mac, drop_reason],
+    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto,
+                                                 drop_reason_message, dst_mac, src_mac, drop_reason],
                tries=3, delay=3, logger=logger)
 
 
@@ -471,7 +480,8 @@ def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, d
 @pytest.mark.push_gate
 @pytest.mark.parametrize("drop_reason", drop_reason_dict.keys())
 @allure.title('WJH Buffer test case')
-def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buffer_configuration, ha_dut_2_mac, hb_dut_2_mac):
+def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buffer_configuration, ha_dut_2_mac,
+                hb_dut_2_mac):
     """
     This test will configure the DUT and hosts to generate buffer drops
 
@@ -519,51 +529,55 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
 
     cli_object = topology_obj.players['dut']['cli']
     with allure.step('Validating WJH raw table output'):
-        do_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer', channel_types=['raw', 'raw_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
-                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer', drop_reason=drop_reason)
+        do_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer',
+                           channel_types=['raw', 'raw_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
+                           src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
+                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer',
+                           drop_reason=drop_reason)
 
     with allure.step('Sending iPerf traffic'):
         logger.info('Sending iPerf traffic')
         IperfChecker(players, validation).run_validation()
 
     with allure.step('Validating WJH aggregated table output'):
-        do_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer', channel_types=['agg', 'agg_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip, src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
-                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason)
+        do_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
+                           channel_types=['agg', 'agg_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
+                           src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
+                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
+                           command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason)
 
 
 @pytest.mark.wjh
 @pytest.mark.build
 @allure.title('WJH L1 Raw test case')
-def test_l1_raw_drop(engines, topology_obj, interfaces):
-    cli_object = topology_obj.players['dut']['cli']
+def test_l1_raw_drop(engines, cli_objects):
     port = SonicInterfaceCli.get_active_phy_port(engines)
     if not port:
         pytest.skip("Could not find port in active state. Skipping the test.")
     try:
         with allure.step('Shutting down {} interface'.format(port)):
-            SonicInterfaceCli.disable_interface(engines.dut, port)
+            cli_objects.dut.inteface.disable_interface(engines.dut, port)
 
         drop_reason_message = 'Generic L1 event - Check layer 1 aggregated information'
         na = 'N/A'
         with allure.step('Validating WJH raw table output'):
-            do_raw_test(engines=engines, cli_object=cli_object, channel='layer-1', channel_type='raw', interface=port,
-                        dst_ip=na, src_ip=na, proto=na, drop_reason=drop_reason_message,
+            do_raw_test(engines=engines, cli_object=cli_objects.dut, channel='layer-1', channel_type='raw',
+                        interface=port, dst_ip=na, src_ip=na, proto=na, drop_reason=drop_reason_message,
                         dst_mac=na, src_mac=na, command='show what-just-happened poll layer-1')
     finally:
-        SonicInterfaceCli.enable_interface(engines.dut, port)
+        cli_objects.dut.inteface.enable_interface(engines.dut, port)
 
 
 @pytest.mark.wjh
 @pytest.mark.build
 @allure.title('WJH L1 Aggregated test case')
-def test_l1_agg_drop(engines, topology_obj, players):
-    cli_object = topology_obj.players['dut']['cli']
-    check_if_channel_enabled(cli_object, engines, 'layer-1', 'aggregate')
-    port = SonicInterfaceCli.get_active_phy_port(engines)
+def test_l1_agg_drop(engines, cli_objects):
+    check_if_channel_enabled(cli_objects.dut, engines, 'layer-1', 'aggregate')
+    port = cli_objects.dut.inteface.get_active_phy_port(engines)
     if not port:
         pytest.skip("Could not find port in active state. Skipping the test.")
     with allure.step('Shutting down {} interface'.format(port)):
-        SonicInterfaceCli.disable_interface(engines.dut, port)
+        cli_objects.dut.inteface.disable_interface(engines.dut, port)
     drop_reason_message = 'Port admin down - Validate port configuration'
     na = 'N/A'
     try:
@@ -572,8 +586,9 @@ def test_l1_agg_drop(engines, topology_obj, players):
             verify_l1_agg_drop_exists(table, port, 'Down', drop_reason_message)
 
         with allure.step('Starting up {} interface'.format(port)):
-            SonicInterfaceCli.enable_interface(engines.dut, port)
-            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, [port]], tries=10, delay=5, logger=logger)
+            cli_objects.dut.inteface.enable_interface(engines.dut, port)
+            retry_call(cli_objects.dut.inteface.check_ports_status, fargs=[engines.dut, [port]], tries=10, delay=5,
+                       logger=logger)
             time.sleep(3)
 
         with allure.step('Validating WJH L1 Aggregated table output with up port'):
@@ -582,7 +597,7 @@ def test_l1_agg_drop(engines, topology_obj, players):
 
     finally:
         with allure.step('Starting up {} interface'.format(port)):
-            SonicInterfaceCli.enable_interface(engines.dut, port)
+            cli_objects.dut.inteface.enable_interface(engines.dut, port)
 
 
 def verify_l1_agg_drop_exists(table, port, state, drop_reason_message):
@@ -592,8 +607,8 @@ def verify_l1_agg_drop_exists(table, port, state, drop_reason_message):
             table[entry]['Port'] == port and
             table[entry]['Down Reason - Recommended Action'] and
                 int(table[entry]['State Change']) > 0):
-                entry_exists = True
-                break
+            entry_exists = True
+            break
     if not entry_exists:
         pytest.fail("Could not find L1 drop on WJH aggregated table.")
     return entry
@@ -603,8 +618,7 @@ def verify_l1_agg_drop_exists(table, port, state, drop_reason_message):
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('WJH L2 test case')
-def test_l2_src_mac_equals_dst_mac(engines, topology_obj, players, interfaces, hb_dut_2_mac):
-    cli_object = topology_obj.players['dut']['cli']
+def test_l2_src_mac_equals_dst_mac(engines, cli_objects, topology_obj, interfaces, hb_dut_2_mac):
     src_ip = '1.1.1.1'
     dst_ip = '40.0.0.3'
     count = 50
@@ -613,23 +627,31 @@ def test_l2_src_mac_equals_dst_mac(engines, topology_obj, players, interfaces, h
     try:
         with allure.step('Sending packet with src mac = dst mac'):
             validation = {
-                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2), 'packets': pkt, 'count': 1}
+                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2),
+                                              'packets': pkt,
+                                              'count': 1}
             }
             ScapyChecker(topology_obj.players, validation).run_validation()
 
         with allure.step('Validating WJH L2 raw table output'):
-            do_raw_test(engines=engines, cli_object=cli_object, channel='forwarding', channel_type='raw', interface=interfaces.dut_ha_2, dst_ip=dst_ip, src_ip=src_ip, proto='tcp', drop_reason=drop_reason_message,
-                        dst_mac=hb_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll forwarding')
+            do_raw_test(engines=engines, cli_object=cli_objects.dut, channel='forwarding', channel_type='raw',
+                        interface=interfaces.dut_ha_2, dst_ip=dst_ip, src_ip=src_ip, proto='tcp',
+                        drop_reason=drop_reason_message, dst_mac=hb_dut_2_mac, src_mac=hb_dut_2_mac,
+                        command='show what-just-happened poll forwarding')
 
         with allure.step('Sending {} packets with src mac = dst mac'.format(count)):
             validation = {
-                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2), 'packets': pkt, 'count': count}
+                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2),
+                                              'packets': pkt,
+                                              'count': count}
             }
             ScapyChecker(topology_obj.players, validation).run_validation()
 
         with allure.step('Validating WJH L2 aggregated table output'):
-            do_agg_test(engines=engines, cli_object=cli_object, channel='forwarding', channel_type='aggregate', interface=interfaces.dut_ha_2, dst_ip=dst_ip, src_ip=src_ip, proto='tcp', drop_reason=drop_reason_message,
-                        dst_mac=hb_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll forwarding --aggregate')
+            do_agg_test(engines=engines, cli_object=cli_objects.dut, channel='forwarding', channel_type='aggregate',
+                        interface=interfaces.dut_ha_2, dst_ip=dst_ip, src_ip=src_ip, proto='tcp',
+                        drop_reason=drop_reason_message, dst_mac=hb_dut_2_mac, src_mac=hb_dut_2_mac,
+                        command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
         pytest.fail("Could not finish the test.\nAborting!.")
@@ -639,8 +661,7 @@ def test_l2_src_mac_equals_dst_mac(engines, topology_obj, players, interfaces, h
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('WJH L3 test case')
-def test_l3_dst_ip_is_loopback(engines, topology_obj, players, interfaces):
-    cli_object = topology_obj.players['dut']['cli']
+def test_l3_dst_ip_is_loopback(engines, cli_objects, topology_obj, interfaces):
     src_mac = '00:11:22:33:44:55'
     broadcast_mac = 'ff:ff:ff:ff:ff:ff'
     loopback_ip = '127.0.0.1'
@@ -651,23 +672,31 @@ def test_l3_dst_ip_is_loopback(engines, topology_obj, players, interfaces):
     try:
         with allure.step('Sending loopback dst ip packet'):
             validation = {
-                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2), 'packets': pkt, 'count': 1}
+                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2),
+                                              'packets': pkt,
+                                              'count': 1}
             }
             ScapyChecker(topology_obj.players, validation).run_validation()
 
         with allure.step('Validating WJH L3 raw table output'):
-            do_raw_test(engines=engines, cli_object=cli_object, channel='forwarding', channel_type='raw', interface=interfaces.dut_ha_2, dst_ip=loopback_ip, src_ip=src_ip, proto='tcp', drop_reason=drop_reason_message,
-                        dst_mac=broadcast_mac, src_mac=src_mac, command='show what-just-happened poll forwarding')
+            do_raw_test(engines=engines, cli_object=cli_objects.dut, channel='forwarding', channel_type='raw',
+                        interface=interfaces.dut_ha_2, dst_ip=loopback_ip, src_ip=src_ip, proto='tcp',
+                        drop_reason=drop_reason_message, dst_mac=broadcast_mac, src_mac=src_mac,
+                        command='show what-just-happened poll forwarding')
 
         with allure.step('Sending {} loopback dst ip packets'.format(count)):
             validation = {
-                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2), 'packets': pkt, 'count': 50}
+                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2),
+                                              'packets': pkt,
+                                              'count': 50}
             }
             ScapyChecker(topology_obj.players, validation).run_validation()
 
         with allure.step('Validating WJH L3 aggregated table output'):
-            do_agg_test(engines=engines, cli_object=cli_object, channel='forwarding', channel_type='aggregate', interface=interfaces.dut_ha_2, dst_ip=loopback_ip, src_ip=src_ip, proto='tcp', drop_reason=drop_reason_message,
-                        dst_mac=broadcast_mac, src_mac=src_mac, command='show what-just-happened poll forwarding --aggregate')
+            do_agg_test(engines=engines, cli_object=cli_objects.dut, channel='forwarding', channel_type='aggregate',
+                        interface=interfaces.dut_ha_2, dst_ip=loopback_ip, src_ip=src_ip, proto='tcp',
+                        drop_reason=drop_reason_message, dst_mac=broadcast_mac, src_mac=src_mac,
+                        command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
         pytest.fail("Could not finish the test.\nAborting!.")

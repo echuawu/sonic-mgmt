@@ -2,8 +2,6 @@ import allure
 import logging
 import pytest
 
-from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
-from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
@@ -43,7 +41,7 @@ def static_route_configuration(topology_obj):
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('Test Basic Static Route')
-def test_basic_static_route(engines, interfaces, players):
+def test_basic_static_route(engines, cli_objects, interfaces, players):
     """
     This test will check basic static route functionality.
     :return: raise assertion error in case when test failed
@@ -70,22 +68,22 @@ def test_basic_static_route(engines, interfaces, players):
 
         # Test started here
         with allure.step('Check that static routes IPv4 on switch using CLI'):
-            verify_show_cmd(SonicRouteCli.show_ip_route(engines.dut, route='20.0.0.10/32'),
+            verify_show_cmd(cli_objects.dut.route.show_ip_route(engines.dut, route='20.0.0.10/32'),
                             expected_output_list=[(r'\*\s69.0.0.2,\svia\sVlan69', True)])
-            verify_show_cmd(SonicRouteCli.show_ip_route(engines.dut, route='20.0.0.1'),
+            verify_show_cmd(cli_objects.dut.route.show_ip_route(engines.dut, route='20.0.0.1'),
                             expected_output_list=[(r'\*\s+directly\sconnected,\sPortChannel0001', True)])
-            verify_show_cmd(SonicRouteCli.show_ip_route(engines.dut, route='20.0.0.0'),
+            verify_show_cmd(cli_objects.dut.route.show_ip_route(engines.dut, route='20.0.0.0'),
                             expected_output_list=[(r'\*\s30.0.0.2,\svia\sPortChannel0001', True)])
 
         with allure.step('Check that static routes IPv6 on switch using CLI'):
-            verify_show_cmd(SonicRouteCli.show_ip_route(engines.dut, route='2000::10/128', ipv6=True),
+            verify_show_cmd(cli_objects.dut.route.show_ip_route(engines.dut, route='2000::10/128', ipv6=True),
                             expected_output_list=[(r'\*\s6900::2,\svia\sVlan69', True)])
-            verify_show_cmd(SonicRouteCli.show_ip_route(engines.dut, route='2000::1', ipv6=True),
+            verify_show_cmd(cli_objects.dut.route.show_ip_route(engines.dut, route='2000::1', ipv6=True),
                             expected_output_list=[(r'\*\sdirectly\sconnected,\sVlan69', True)])
-            verify_show_cmd(SonicRouteCli.show_ip_route(engines.dut, route='2000::', ipv6=True),
+            verify_show_cmd(cli_objects.dut.route.show_ip_route(engines.dut, route='2000::', ipv6=True),
                             expected_output_list=[(r'\*\s3000::2,\svia\sPortChannel0001', True)])
 
-        dut_mac = SonicMacCli.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_1)
+        dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_1)
         sender_interface = '{}.40'.format(interfaces.ha_dut_2)
         receiver_interface_ha = 'bond0'
         receiver_interface_hb = 'bond0.69'

@@ -2,10 +2,6 @@ import allure
 import logging
 import pytest
 
-from ngts.cli_wrappers.common.frr_clis_common import FrrCliCommon
-from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
-from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
-from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 
@@ -42,12 +38,12 @@ vni_500101_iface = 'br_{}'.format(vni_500101)
 
 
 @pytest.fixture(scope='class')
-def get_used_mac_addresses(engines):
-    dut_mac = SonicMacCli.get_mac_address_for_interface(engines.dut, dut_vlan_100_iface)
-    ha_br_500100_mac = LinuxMacCli.get_mac_address_for_interface(engines.ha, vni_500100_iface)
-    ha_br_500101_mac = LinuxMacCli.get_mac_address_for_interface(engines.ha, vni_500101_iface)
-    hb_br_500100_mac = LinuxMacCli.get_mac_address_for_interface(engines.hb, vni_500100_iface)
-    hb_bond0_101_mac = LinuxMacCli.get_mac_address_for_interface(engines.hb, hb_vlan_101_iface)
+def get_used_mac_addresses(engines, cli_objects):
+    dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, dut_vlan_100_iface)
+    ha_br_500100_mac = cli_objects.ha.mac.get_mac_address_for_interface(engines.ha, vni_500100_iface)
+    ha_br_500101_mac = cli_objects.ha.mac.get_mac_address_for_interface(engines.ha, vni_500101_iface)
+    hb_br_500100_mac = cli_objects.hb.mac.get_mac_address_for_interface(engines.hb, vni_500100_iface)
+    hb_bond0_101_mac = cli_objects.hb.mac.get_mac_address_for_interface(engines.hb, hb_vlan_101_iface)
 
     return dut_mac, ha_br_500100_mac, ha_br_500101_mac, hb_br_500100_mac, hb_bond0_101_mac
 
@@ -80,7 +76,7 @@ class TestEvpnVxlan:
     @pytest.mark.build
     @pytest.mark.push_gate
     @allure.title('Test EVPN VXLAN Basic')
-    def test_evpn_vxlan_basic(self, upgrade_params):
+    def test_evpn_vxlan_basic(self, cli_objects, upgrade_params):
         """
         This test will check basic EVPN VXLAN functionality.
 
@@ -119,8 +115,8 @@ class TestEvpnVxlan:
                 'PushGate with upgrade executed. Test not supported on branch 202012 which used as base version')
 
         with allure.step('Check CLI VLAN to VNI mapping'):
-            SonicVxlanCli.check_vxlan_vlanvnimap(self.engines.dut, vlan_vni_map_list=[(vlan_100, vni_500100),
-                                                                                      (vlan_101, vni_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(self.engines.dut, vlan_vni_map_list=[(vlan_100, vni_500100),
+                                                                                              (vlan_101, vni_500101)])
 
         # Ping from hosts to DUT
         with allure.step('Send ping from HA to DUT via VNI 500100'):
@@ -239,43 +235,43 @@ class TestEvpnVxlan:
 
         # CLI validations
         with allure.step('Validate CLI type-2 routes on DUT'):
-            dut_type_2_info = FrrCliCommon.get_l2vpn_evpn_route_type_macip(self.engines.dut)
-            FrrCliCommon.validate_type_2_route(dut_type_2_info, self.hb_bond0_101_mac, self.dut_loopback_ip, rd_101,
-                                               self.hb_vlan_101_iface_ip)
+            dut_type_2_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_macip(self.engines.dut)
+            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.hb_bond0_101_mac, self.dut_loopback_ip,
+                                                      rd_101, self.hb_vlan_101_iface_ip)
 
         with allure.step('Validate CLI type-3 routes on DUT'):
-            dut_type_3_info = FrrCliCommon.get_l2vpn_evpn_route_type_multicast(self.engines.dut)
-            FrrCliCommon.validate_type_3_route(dut_type_3_info, self.ha_bond_0_ip, self.ha_bond_0_ip, rd_100)
-            FrrCliCommon.validate_type_3_route(dut_type_3_info, self.ha_bond_0_ip, self.ha_bond_0_ip, rd_101)
+            dut_type_3_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_multicast(self.engines.dut)
+            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.ha_bond_0_ip, self.ha_bond_0_ip, rd_100)
+            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.ha_bond_0_ip, self.ha_bond_0_ip, rd_101)
 
-            FrrCliCommon.validate_type_3_route(dut_type_3_info, self.hb_vlan_40_ip, self.hb_vlan_40_ip, rd_100)
+            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.hb_vlan_40_ip, self.hb_vlan_40_ip, rd_100)
 
         with allure.step('Validate CLI type-5 routes on DUT'):
             # TODO: implement type-5 route validation
-            dut_type_5_info = FrrCliCommon.get_l2vpn_evpn_route_type_prefix(self.engines.dut)
+            dut_type_5_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_prefix(self.engines.dut)
 
         with allure.step('Validate CLI type-2 routes on HA'):
-            ha_type_2_info = FrrCliCommon.get_l2vpn_evpn_route_type_macip(self.engines.ha)
-            FrrCliCommon.validate_type_2_route(ha_type_2_info, self.hb_bond0_101_mac, self.dut_loopback_ip, rd_101,
-                                               self.hb_vlan_101_iface_ip)
+            ha_type_2_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_macip(self.engines.ha)
+            cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.hb_bond0_101_mac, self.dut_loopback_ip,
+                                                     rd_101, self.hb_vlan_101_iface_ip)
 
         with allure.step('Validate CLI type-3 routes on HA'):
-            ha_type_3_info = FrrCliCommon.get_l2vpn_evpn_route_type_multicast(self.engines.ha)
-            FrrCliCommon.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_100)
-            FrrCliCommon.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_101)
+            ha_type_3_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_multicast(self.engines.ha)
+            cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_100)
+            cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_101)
 
         with allure.step('Validate CLI type-5 routes on HA'):
             # TODO: implement type-5 route validation
-            ha_type_5_info = FrrCliCommon.get_l2vpn_evpn_route_type_prefix(self.engines.ha)
+            ha_type_5_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_prefix(self.engines.ha)
 
         with allure.step('Validate CLI type-2 routes on HB'):
-            hb_type_2_info = FrrCliCommon.get_l2vpn_evpn_route_type_macip(self.engines.hb)
+            hb_type_2_info = cli_objects.hb.frr.get_l2vpn_evpn_route_type_macip(self.engines.hb)
 
         with allure.step('Validate CLI type-3 routes on HB'):
-            hb_type_3_info = FrrCliCommon.get_l2vpn_evpn_route_type_multicast(self.engines.hb)
-            FrrCliCommon.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_100)
-            FrrCliCommon.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_101)
+            hb_type_3_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_multicast(self.engines.hb)
+            cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_100)
+            cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, rd_101)
 
         with allure.step('Validate CLI type-5 routes on HB'):
             # TODO: implement type-5 route validation
-            hb_type_5_info = FrrCliCommon.get_l2vpn_evpn_route_type_prefix(self.engines.hb)
+            hb_type_5_info = cli_objects.hb.frr.get_l2vpn_evpn_route_type_prefix(self.engines.hb)

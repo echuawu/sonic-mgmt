@@ -1,7 +1,6 @@
 import pytest
 import os
 
-from ngts.cli_wrappers.linux.linux_route_clis import LinuxRouteCli
 from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemplate
 
 DHCPD_CONF_NAME = 'dhcpd.conf'
@@ -56,7 +55,7 @@ def dhcp_server_configuration(topology_obj, engines):
 
 
 @pytest.fixture()
-def configure_additional_dhcp_server(topology_obj, engines):
+def configure_additional_dhcp_server(topology_obj, cli_objects, engines):
     dut_cli_object = topology_obj.players['dut']['cli']
 
     engines.ha.copy_file(source_file=DHCPD_CONF_PATH, dest_file=DHCPD_CONF_NAME, file_system='/etc/dhcp/',
@@ -69,8 +68,8 @@ def configure_additional_dhcp_server(topology_obj, engines):
     engines.ha.run_cmd('/etc/init.d/isc-dhcp-server restart')
     dut_cli_object.dhcp_relay.add_dhcp_relay(engines.dut, 690, '30.0.0.2', topology_obj=topology_obj)
     dut_cli_object.dhcp_relay.add_dhcp_relay(engines.dut, 690, '3000::2', topology_obj=topology_obj)
-    LinuxRouteCli.add_route(engines.ha, '69.0.1.0', '30.0.0.1', '24')
-    LinuxRouteCli.add_route(engines.ha, '6900:1::', '3000::1', '64')
+    cli_objects.ha.route.add_route(engines.ha, '69.0.1.0', '30.0.0.1', '24')
+    cli_objects.ha.route.add_route(engines.ha, '6900:1::', '3000::1', '64')
 
     yield
 
@@ -78,5 +77,5 @@ def configure_additional_dhcp_server(topology_obj, engines):
     engines.ha.run_cmd('sed -e "s/INTERFACESv6=\\"bond0\\"/INTERFACESv6=\\"\\"/g" -i /etc/default/isc-dhcp-server')
     dut_cli_object.dhcp_relay.del_dhcp_relay(engines.dut, 690, '30.0.0.2', topology_obj=topology_obj)
     dut_cli_object.dhcp_relay.del_dhcp_relay(engines.dut, 690, '3000::2', topology_obj=topology_obj)
-    LinuxRouteCli.del_route(engines.ha, '69.0.1.0', '30.0.0.1', '24')
-    LinuxRouteCli.del_route(engines.ha, '6900:1::', '3000::1', '64')
+    cli_objects.ha.route.del_route(engines.ha, '69.0.1.0', '30.0.0.1', '24')
+    cli_objects.ha.route.del_route(engines.ha, '6900:1::', '3000::1', '64')

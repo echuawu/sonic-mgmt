@@ -2,12 +2,10 @@ import logging
 import pytest
 import yaml
 import json
-import re
 import os
 import allure
 
 from deepdiff import DeepDiff
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -15,7 +13,7 @@ PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
 
 
-def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines,
+def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines, cli_objects,
                                                 allowed_diff_file='upgrade_allowed_diff.yaml'):
     """
     This tests checking diff in config_db.json between base and target version
@@ -28,7 +26,7 @@ def test_validate_config_db_json_during_upgrade(upgrade_params, testdir, engines
     allowed_diff_file_path = os.path.join(test_folder_path, allowed_diff_file)
 
     with allure.step('Getting base and target versions'):
-        base_image, target_image = SonicGeneralCli().get_base_and_target_images(engines.dut)
+        base_image, target_image = cli_objects.dut.general.get_base_and_target_images(engines.dut)
         assert base_image, 'Only 1 installed image available'
 
     with allure.step('Comparing configurations before and after the upgrade'):

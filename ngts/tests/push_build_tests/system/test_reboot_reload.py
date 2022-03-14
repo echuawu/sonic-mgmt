@@ -1,12 +1,10 @@
 import allure
 import logging
 import pytest
-import os
 import re
 import random
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_process_on_host
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.constants.constants import SonicConst
 from dateutil.parser import parse as time_parse
@@ -29,7 +27,8 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
 
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
-def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params):
+def test_push_gate_reboot_policer(request, topology_obj, cli_objects, interfaces, engines, shared_params,
+                                  platform_params):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -122,8 +121,8 @@ class RebootReload:
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
             with allure.step('Checking warm-reboot status'):
-                retry_call(SonicGeneralCli().check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
-                           delay=10, logger=logger)
+                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'],
+                           tries=24, delay=10, logger=logger)
 
         # Step below required - to check that PortChannel0001 iface are UP
         with allure.step('Checking that possible to ping PortChannel iface 30.0.0.1'):
@@ -177,8 +176,8 @@ class RebootReload:
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
             with allure.step('Checking warm-reboot status'):
-                retry_call(SonicGeneralCli().check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'], tries=24,
-                           delay=10, logger=logger)
+                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'],
+                           tries=24, delay=10, logger=logger)
 
         # Step below required - to check that PortChannel0001 iface are UP
         with allure.step('Checking that possible to ping PortChannel iface 30.0.0.1'):
@@ -246,7 +245,8 @@ class RebootReload:
 
         """
         with allure.step("Verify all docker container is up"):
-            SonicGeneralCli().verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST.append(self.app_name))
+            self.cli_object.general.verify_dockers_are_up(self.dut_engine,
+                                                          SonicConst.DOCKERS_LIST.append(self.app_name))
         with allure.step("Verify app shutdown order: bgp-> {} -> swss".format(self.app_name)):
             bgp_shutdown_time = time_parse(
                 self.dut_engine.run_cmd("docker inspect --format='{{.State.FinishedAt}}' bgp"))
@@ -261,11 +261,12 @@ class RebootReload:
         Verify warm restart state of app is
         """
         with allure.step("Verify warm_restart state of {} is reconciled".format(self.app_name)):
-            assert SonicGeneralCli().show_warm_restart_state(self.dut_engine)[self.app_name]["state"] == "reconciled", "Warm_restart state is not reconciled"
+            assert self.cli_object.general.show_warm_restart_state(self.dut_engine)[self.app_name]["state"] == \
+                "reconciled", "Warm_restart state is not reconciled"
 
     def verify_app_and_container_up_after_config_reload(self, validation_type):
         with allure.step("Verify container are up"):
-            SonicGeneralCli().verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST)
+            self.cli_object.general.verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST)
         with allure.step("Verify app is up and repo stat is installed"):
             verify_app_container_up_and_repo_status_installed(self.dut_engine, self.app_name, self.version)
 

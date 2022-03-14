@@ -7,14 +7,12 @@ import json
 import copy
 import tempfile
 import math
-import random
 from jinja2 import Template
 
 from ngts.tools.loganalyzer.loganalyzer import LogAnalyzer
 from ngts.constants.constants import LoganalyzerConsts
 from retry.api import retry_call
 from ngts.cli_util.sonic_docker_utils import SwssContainer
-from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
 
 
 AVAILABLE_TOLERANCE = 0.02
@@ -247,11 +245,11 @@ def verify_thresholds(env, test_name, la_log_folder, **kwargs):
     th_buff = get_threshold_to_verify()
 
     if 'percentage' in th_buff[0][0] and 'nexthop group' in kwargs['crm_cli_res'] and 'mellanox' in env.platform_params.asic_type.lower():
-            # TODO: Fix this. Temporal skip percentage verification for 'nexthop group' verification
-            # Max supported ECMP group values is less then number of entries we need to configure
-            # in order to test percentage threshold (Can't even reach 1 percent)
-            # For test case used 'nexthop_group' need to be configured at least 1 percent from available
-            th_buff = get_threshold_to_verify()
+        # TODO: Fix this. Temporal skip percentage verification for 'nexthop group' verification
+        # Max supported ECMP group values is less then number of entries we need to configure
+        # in order to test percentage threshold (Can't even reach 1 percent)
+        # For test case used 'nexthop_group' need to be configured at least 1 percent from available
+        th_buff = get_threshold_to_verify()
 
     for th_type_cmd_pair in th_buff:
         th_type, th_cmd = th_type_cmd_pair
@@ -332,7 +330,7 @@ def th_apply_neighbor_config(env, ip_ver, start_ip, vlan_iface):
     _, ip_route_available = get_main_crm_stat(env, "ipv{}_route".format(ip_ver))
     # Required neighbors should be double of routes to create unique nexthop groups, so multiplication per 2 is used
     required_ip_neigh = get_required_minimum(ip_route_available) * 2
-    neigh_cfg_add = SonicIpCli.generate_neighbors_cfg(
+    neigh_cfg_add = env.sonic_cli.ip.generate_neighbors_cfg(
         required_ip_neigh, start_ip, vlan_iface, 'IPv{}'.format(ip_ver), 'SET'
     )
     SwssContainer.apply_config(env.dut_engine, neigh_cfg_add)
@@ -353,7 +351,7 @@ def th_apply_nexthop_group_member(env, ip_ver, start_ip, neigh_cfg_json):
     # _, ip_route_available = get_main_crm_stat(env, "ipv{}_route".format(ip_ver))
     # required_ip_route = get_required_minimum(ip_route_available)
     required_ip_route = len(neigh_cfg_json) // 2
-    nexthop_group_member_add = SonicIpCli.generate_routes_cfg_w_nexthop_group(
+    nexthop_group_member_add = env.sonic_cli.ip.generate_routes_cfg_w_nexthop_group(
         required_ip_route, start_ip, neigh_cfg_json, "SET"
     )
     SwssContainer.apply_config(env.dut_engine, nexthop_group_member_add)

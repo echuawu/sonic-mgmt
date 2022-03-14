@@ -3,8 +3,6 @@ import logging
 import pytest
 
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
-from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
-from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from retry.api import retry_call
@@ -36,11 +34,11 @@ dhcp_option_53 = 'udp[250:1]'
 class TestDHCPRelay:
 
     @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, engines, players, interfaces):
+    def setup(self, topology_obj, cli_objects, engines, players, interfaces):
         self.topology = topology_obj
         self.players = players
         self.dut_engine = engines.dut
-        self.dut_cli_object = topology_obj.players['dut']['cli']
+        self.dut_cli_object = cli_objects.dut
         self.dhcp_client_engine = engines.ha
         self.dhcp_server_engine = engines.hb
         self.dhclient_vlan = '690'
@@ -51,8 +49,9 @@ class TestDHCPRelay:
         self.dhcp_server_ip = '69.0.0.2'
         self.dut_dhclient_vlan_ip = '69.0.1.1'
         self.expected_ip = '69.0.1.150'
-        self.dhclient_mac = LinuxMacCli.get_mac_address_for_interface(self.dhcp_client_engine, self.dhclient_iface)
-        self.dut_mac = SonicMacCli.get_mac_address_for_interface(self.dut_engine, self.dut_vlan_iface)
+        self.dhclient_mac = cli_objects.ha.mac.get_mac_address_for_interface(self.dhcp_client_engine,
+                                                                             self.dhclient_iface)
+        self.dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(self.dut_engine, self.dut_vlan_iface)
         self.chaddr = bytes.fromhex(self.dhclient_mac.replace(':', ''))
 
     @pytest.mark.dhcp_relay

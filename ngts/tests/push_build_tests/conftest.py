@@ -5,7 +5,6 @@ import os
 import itertools
 
 from retry.api import retry_call
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
@@ -13,16 +12,11 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
-from ngts.cli_wrappers.sonic.sonic_ip_clis import SonicIpCli
-from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
 from ngts.constants.constants import SonicConst
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
-from ngts.cli_wrappers.sonic.sonic_vxlan_clis import SonicVxlanCli
 from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
 from ngts.conftest import update_topology_with_cli_class
 import ngts.helpers.acl_helper as acl_helper
@@ -36,8 +30,8 @@ FRR_CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger()
 
 
-def get_test_app_ext_info(engine):
-    is_support_app_ext = SonicAppExtensionCli.verify_version_support_app_ext(engine)
+def get_test_app_ext_info(engine, cli_obj):
+    is_support_app_ext = cli_obj.app_ext.verify_version_support_app_ext(engine)
     app_name = APP_INFO["name"]
     app_repository_name = APP_INFO["repository"]
     version = APP_INFO["shut_down"]["version"]
@@ -49,12 +43,13 @@ def get_test_app_ext_info(engine):
 
 
 @pytest.fixture(scope='package', autouse=True)
-def push_gate_configuration(topology_obj, engines, interfaces, platform_params, upgrade_params,
+def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params,
                             app_extension_dict_path, acl_table_config_list):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
+    :param cli_objects: cli_objects fixture
     :param engines: engines fixture
     :param interfaces: interfaces fixture
     :param platform_params: platform_params fixture
@@ -65,39 +60,41 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
     :param p4_sampling_table_params: p4_sampling_table_params fixture
     :param shared_params: fixture which provide dictionary which can be shared between tests
     :param app_extension_dict_path: app_extension_dict_path
+    :param acl_table_config_list: acl_table_config_list fixture
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
 
-    cli_object = topology_obj.players['dut']['cli']
-
     # Check if app_ext supported and get app name, repo, version
-    shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = get_test_app_ext_info(engines.dut)
+    shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
+        get_test_app_ext_info(engines.dut, cli_objects.dut)
     if run_config_only or full_flow_run:
         if upgrade_params.is_upgrade_required:
             with allure.step('Installing base version from ONIE'):
                 logger.info('Deploying via ONIE or call manufacture script with arg onie')
                 reboot_after_install = True if '201911' in upgrade_params.base_version else None
-                SonicGeneralCli().deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
-                                               setup_name=platform_params.setup_name, platform_params=platform_params,
-                                               deploy_type='onie', reboot_after_install=reboot_after_install)
+                cli_objects.dut.general.deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
+                                                     setup_name=platform_params.setup_name,
+                                                     platform_params=platform_params,
+                                                     deploy_type='onie', reboot_after_install=reboot_after_install)
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
-                    get_test_app_ext_info(engines.dut)
+                    get_test_app_ext_info(engines.dut, cli_objects.dut)
 
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
-                       logger=logger)
+            retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, ports_list], tries=10,
+                       delay=10, logger=logger)
 
         # Install app here in order to test migrating app from base image to target image
         if shared_params.app_ext_is_app_ext_supported:
             with allure.step("Install app {}".format(app_name)):
-                install_app(engines.dut, app_name, app_repository_name, version)
+                install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
     # variable below required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
-                                                                                          interfaces.dut_hb_2])
+    dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed(engines.dut,
+                                                                                    [interfaces.dut_ha_1,
+                                                                                     interfaces.dut_hb_2])
 
     # Interfaces config which will be used in test
     interfaces_config_dict = {
@@ -220,11 +217,11 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                 fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
         with allure.step('Doing debug logs print'):
-            log_debug_info(engines.dut, cli_object)
+            log_debug_info(engines.dut, cli_objects.dut)
 
         with allure.step('Doing conf save'):
             logger.info('Doing config save')
-            cli_object.general.save_configuration(engines.dut)
+            cli_objects.dut.general.save_configuration(engines.dut)
 
         logger.info('PushGate Common configuration completed')
 
@@ -237,8 +234,8 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                           verify_file=False, direction='get')
                 with allure.step('Performing sonic to sonic upgrade'):
                     logger.info('Performing sonic to sonic upgrade')
-                    SonicGeneralCli().deploy_image(topology_obj, upgrade_params.target_version, apply_base_config=False,
-                                                   deploy_type='sonic')
+                    cli_objects.dut.general.deploy_image(topology_obj, upgrade_params.target_version,
+                                                         apply_base_config=False, deploy_type='sonic')
 
                 # Update CLI classes based on current SONiC branch
                 update_branch_in_topology(topology_obj)
@@ -252,7 +249,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
                                           direction='get')
                 with allure.step("Installing wjh deb url"):
                     if upgrade_params.wjh_deb_url:
-                        SonicGeneralCli().install_wjh(engines.dut, upgrade_params.wjh_deb_url)
+                        cli_objects.dut.general.install_wjh(engines.dut, upgrade_params.wjh_deb_url)
                     else:
                         install_all_supported_app_extensions(engines.dut, app_extension_dict_path)
 
@@ -278,7 +275,7 @@ def push_gate_configuration(topology_obj, engines, interfaces, platform_params, 
         if shared_params.app_ext_is_app_ext_supported:
             app_cleanup(engines.dut, app_name)
         logger.info('Doing config save after cleanup')
-        cli_object.general.save_configuration(engines.dut)
+        cli_objects.dut.general.save_configuration(engines.dut)
 
         logger.info('PushGate Common cleanup completed')
 
@@ -301,25 +298,25 @@ def p4_sampling_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb
 
 def log_debug_info(dut_engine, cli_obj):
     logger.info('Started debug prints')
-    SonicInterfaceCli.show_interfaces_status(dut_engine)
-    SonicIpCli.show_ip_interfaces(dut_engine)
+    cli_obj.interface.show_interfaces_status(dut_engine)
+    cli_obj.ip.show_ip_interfaces(dut_engine)
     cli_obj.vlan.show_vlan_config(dut_engine)
-    SonicRouteCli.show_ip_route(dut_engine)
-    SonicRouteCli.show_ip_route(dut_engine, ipv6=True)
-    SonicVxlanCli.show_vxlan_tunnel(dut_engine)
-    SonicVxlanCli.show_vxlan_vlanvnimap(dut_engine)
+    cli_obj.route.show_ip_route(dut_engine)
+    cli_obj.route.show_ip_route(dut_engine, ipv6=True)
+    cli_obj.vxlan.show_vxlan_tunnel(dut_engine)
+    cli_obj.vxlan.show_vxlan_vlanvnimap(dut_engine)
     logger.info('Finished debug prints')
 
 
-def install_app(dut_engine, app_name, app_repository_name, version):
+def install_app(dut_engine, cli_obj, app_name, app_repository_name, version):
     try:
         with allure.step("Clean up app before install"):
             app_cleanup(dut_engine, app_name)
         with allure.step("Install {}, verison=".format(app_name, version)):
-            SonicAppExtensionCli.add_repository(dut_engine, app_name, app_repository_name, version=version)
-            SonicAppExtensionCli.install_app(dut_engine, app_name)
+            cli_obj.app_ext.add_repository(dut_engine, app_name, app_repository_name, version=version)
+            cli_obj.app_ext.install_app(dut_engine, app_name)
         with allure.step("Enable app and save config"):
-            SonicAppExtensionCli.enable_app(dut_engine, app_name)
+            cli_obj.app_ext.enable_app(dut_engine, app_name)
     except Exception as err:
         raise AssertionError(err)
 

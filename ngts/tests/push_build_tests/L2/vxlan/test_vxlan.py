@@ -2,8 +2,6 @@ import allure
 import pytest
 import logging
 
-from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
-from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 
 logger = logging.getLogger()
@@ -61,8 +59,8 @@ def test_vxlan_decap(engines, players, cli_objects, upgrade_params):
         cli_objects.dut.vxlan.check_vxlan_vlanvnimap(engines.dut, vlan_vni_map_list=[(vlan, vni)])
 
     with allure.step('Validate decapsulation of VXLAN traffic. Send traffic from HA with VNI {}'.format(vni)):
-        main_src_mac = LinuxMacCli.get_mac_address_for_interface(engines.ha, 'bond0')
-        main_dst_mac = SonicMacCli.get_mac_address_for_interface(engines.dut, 'PortChannel0001')
+        main_src_mac = cli_objects.ha.mac.get_mac_address_for_interface(engines.ha, 'bond0')
+        main_dst_mac = cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, 'PortChannel0001')
         encap_src_mac = '0e:2e:96:af:9d:c0'
 
         pkt = 'Ether(dst="{}", src="{}")/IP(dst="{}", src="10.1.1.32")/' \

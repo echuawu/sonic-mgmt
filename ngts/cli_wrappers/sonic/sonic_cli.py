@@ -19,6 +19,7 @@ from ngts.cli_wrappers.sonic.sonic_frr_cli import SonicFrrCli
 from ngts.cli_wrappers.sonic.sonic_bgp_clis import SonicBgpCli
 from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
 from ngts.cli_wrappers.sonic.sonic_flowcnt_clis import SonicFlowcntCli
+from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 
 logger = logging.getLogger()
 
@@ -46,3 +47,4 @@ class SonicCli:
         self.bgp = SonicBgpCli()
         self.counterpoll = SonicCounterpollCli()
         self.flowcnt = SonicFlowcntCli()
+        self.app_ext = SonicAppExtensionCli()

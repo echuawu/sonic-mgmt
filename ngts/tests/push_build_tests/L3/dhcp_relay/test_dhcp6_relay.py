@@ -1,12 +1,10 @@
 import allure
 import logging
 import pytest
-import os
 
 from retry.api import retry_call
 
 from ngts.cli_wrappers.linux.linux_dhcp_clis import LinuxDhcpCli
-from ngts.cli_wrappers.linux.linux_ip_clis import LinuxIpCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from ngts.helpers.network import get_bpf_filter_for_ipv6_address
 
@@ -82,15 +80,16 @@ def get_ipv6_dhcp_relay_bpf_filter(d_port=547, upd_size=None, msg_type=None, msg
 
 
 @pytest.fixture(scope='class')
-def dhcp_client_link_local_addr(engines, interfaces):
+def dhcp_client_link_local_addr(engines, cli_objects, interfaces):
     """
     Fixture which get dhcp client link-local IPv6 address
     :param engines: engines fixture
+    :param cli_objects: cli_objects fixture
     :param interfaces: interfaces fixture
     :return: link-local IPv6 address for interface ha-dut-2.690
     """
     dhclient_iface = '{}.690'.format(interfaces.ha_dut_2)
-    link_local_address = LinuxIpCli().get_interface_link_local_ipv6_addresses(engines.ha, dhclient_iface)
+    link_local_address = cli_objects.ha.ip.get_interface_link_local_ipv6_addresses(engines.ha, dhclient_iface)
     return link_local_address
 
 

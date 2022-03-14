@@ -1,7 +1,7 @@
 import allure
 import pytest
 import logging
-import os
+
 from retry.api import retry_call
 from ngts.cli_wrappers.linux.linux_arp_cache_cli import LinuxARPCache
 
