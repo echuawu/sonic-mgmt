@@ -1200,3 +1200,12 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::tes
 scripts/log_profiler/log_profiler.py:
   - Redmine:
     - 2943264
+
+tests/nightly/rj45/test_rj45.py:
+  - Platform:
+    - x86_64-mlnx_msn
+    - x86_64-nvidia_sn4
+    - x86_64-nvidia_sn5
+  - Redmine:
+    - 3005540
+    - 3005591
