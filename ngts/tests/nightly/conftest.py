@@ -7,6 +7,7 @@ import logging
 from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers import json_file_helper as json_file_helper
+from ngts.constants.constants import InterfacesTypeConstants
 
 logger = logging.getLogger()
 
@@ -48,11 +49,25 @@ def get_dut_loopbacks(topology_obj):
                     dut_loopback_aliases_list))
 
 
+@pytest.fixture(autouse=True)
+def cleanup_list():
+    """
+    Fixture to execute cleanup after a test has run
+    :return: None
+    """
+    cleanup_list = []
+
+    yield cleanup_list
+
+    cleanup(cleanup_list)
+
+
 def cleanup(cleanup_list):
     """
     execute all the functions in the cleanup list
     :return: None
     """
+    cleanup_list.reverse()
     for cleanup_item in cleanup_list:
         if len(cleanup_item) == 3:  # if **kwargs available
             func, args, kwargs = cleanup_item
@@ -242,3 +257,58 @@ def dut_ports_interconnects(topology_obj):
             neighbor_port = topology_obj.ports[neighbor_port_noga_alias]
             dut_ports_interconnects_dict.update({port: neighbor_port})
     return dut_ports_interconnects_dict
+
+
+@pytest.fixture(scope='session')
+def interfaces_status_dict(engines, cli_objects):
+    """
+    Get and parse show interfaces status output
+    :param engines: engines fixture
+    :param cli_objects:  cli objects fixture
+    :return: dictionary with parsed output
+    """
+    interfaces_status_dict = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
+    return interfaces_status_dict
+
+
+@pytest.fixture(scope='session')
+def physical_interfaces_types_dict(interfaces_status_dict):
+    """
+    Get physical interfaces type dictionary
+    :param interfaces_status_dict: dictionary with parsed output of "show interfaces status"
+    :return: dictionary, example: {"Ethernet0": "RJ45", "Ethernet1": "RJ45", ...}
+    """
+    interfaces_types_dict = {}
+    for port, port_status in interfaces_status_dict.items():
+        interfaces_types_dict[port] = port_status['Type']
+    return interfaces_types_dict
+
+
+@pytest.fixture(scope='session')
+def rj45_ports_list(physical_interfaces_types_dict):
+    """
+    Get rj45 ports list
+    :param physical_interfaces_types_dict: dictionary, example: {"Ethernet0": "RJ45", "Ethernet1": "RJ45", ...}
+    :return: list with rj45 ports, example: ['Ethernet0', 'Ethernet1', 'Ethernet2'...]
+    """
+    rj_45_ports_list = []
+    for port in physical_interfaces_types_dict:
+        if physical_interfaces_types_dict[port] == InterfacesTypeConstants.RJ45:
+            rj_45_ports_list.append(port)
+
+    return rj_45_ports_list
+
+
+@pytest.fixture(scope='session')
+def sfp_ports_list(physical_interfaces_types_dict):
+    """
+    Get SFP ports list
+    :param physical_interfaces_types_dict: dictionary, example: {"Ethernet0": "RJ45", "Ethernet1": "QSFP", ...}
+    :return: list with SFP ports, example: ['Ethernet1', 'Ethernet2'...]
+    """
+    spf_ifaces_list = []
+    for port in physical_interfaces_types_dict:
+        if 'SFP' in physical_interfaces_types_dict[port]:
+            spf_ifaces_list.append(port)
+
+    return spf_ifaces_list

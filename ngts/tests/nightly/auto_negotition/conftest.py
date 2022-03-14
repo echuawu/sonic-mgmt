@@ -4,7 +4,7 @@ import os
 import re
 
 from ngts.constants.constants import InterfacesTypeConstants
-from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
+from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger()
@@ -49,31 +49,6 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
 def get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds):
     return max(dut_lbs, key=lambda lb: speed_string_to_int_in_mb(max(get_lb_mutual_speed(lb, 1, split_mode_supported_speeds),
                                                                      key=speed_string_to_int_in_mb)))
-
-
-@pytest.fixture(scope='session')
-def interfaces_status_dict(engines, cli_objects):
-    """
-    Get and parse show interfaces status output
-    :param engines: engines fixture
-    :param cli_objects:  cli objects fixture
-    :return: dictionary with parsed output
-    """
-    interfaces_status_dict = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
-    return interfaces_status_dict
-
-
-@pytest.fixture(scope='session')
-def physical_interfaces_types_dict(interfaces_status_dict):
-    """
-    Get physical interfaces type dictionary
-    :param interfaces_status_dict: dictionary with parsed output of "show interfaces status"
-    :return: dictionary, example: {"Ethernet0": "RJ45", "Ethernet1": "RJ45", ...}
-    """
-    interfaces_types_dict = {}
-    for port, port_status in interfaces_status_dict.items():
-        interfaces_types_dict[port] = port_status['Type']
-    return interfaces_types_dict
 
 
 @pytest.fixture(scope='session')
@@ -155,19 +130,6 @@ def ports_aliases_dict(engines, cli_objects):
           'Ethernet60': 'etp16'}
     """
     return cli_objects.dut.interface.parse_ports_aliases_on_sonic(engines.dut)
-
-
-@pytest.fixture(autouse=True)
-def cleanup_list():
-    """
-    Fixture to execute cleanup after a test is run
-    :return: None
-    """
-    cleanup_list = []
-    logger.info("------------------TEST START HERE------------------")
-    yield cleanup_list
-    logger.info("------------------test teardown------------------")
-    cleanup(cleanup_list)
 
 
 def get_interface_cable_width(type_string, expected_speed=None):

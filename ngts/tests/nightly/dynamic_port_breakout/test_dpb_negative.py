@@ -4,7 +4,7 @@ import random
 import re
 from retry.api import retry_call
 from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_options, logger, is_splittable, \
-    compare_actual_and_expected_speeds, cleanup, get_mutual_breakout_modes, send_ping_and_verify_results, \
+    compare_actual_and_expected_speeds, get_mutual_breakout_modes, send_ping_and_verify_results, \
     set_dpb_conf, verify_ifaces_speed_and_status, verify_no_breakout
 
 

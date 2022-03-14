@@ -198,6 +198,8 @@ class PlatformTypesConstants:
 
 
 class InterfacesTypeConstants:
+    RJ45 = 'RJ45'
+
     INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC = {
         PlatformTypesConstants.FILTERED_PLATFORM_ALLIGATOR: {
             SonicConst.PORT_LANE_NUM_1: {'CR': ['10M', '100M', '1000M', '1G', '10G', '25G']},

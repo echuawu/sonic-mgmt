@@ -1,7 +1,7 @@
 import allure
 import pytest
 from retry.api import retry_call
-from ngts.tests.nightly.dynamic_port_breakout.conftest import set_dpb_conf, cleanup, set_ip_conf_for_ping, \
+from ngts.tests.nightly.dynamic_port_breakout.conftest import set_dpb_conf, set_ip_conf_for_ping, \
     send_ping_and_verify_results
 from ngts.tests.nightly.dynamic_port_breakout.test_dpb_introp import verify_ifaces_speed_and_status
 

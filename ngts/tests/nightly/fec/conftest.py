@@ -2,7 +2,7 @@ import pytest
 import logging
 import random
 from retry.api import retry_call
-from ngts.tests.nightly.conftest import get_dut_loopbacks, cleanup
+from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, FecConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
@@ -26,19 +26,6 @@ def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
 
     logger.info('FEC cleanup completed')
-
-
-@pytest.fixture(autouse=True)
-def cleanup_list():
-    """
-    Fixture to execute cleanup after a test has run
-    :return: None
-    """
-    cleanup_list = []
-    logger.info("------------------TEST START HERE------------------")
-    yield cleanup_list
-    logger.info("------------------TEST TEARDOWN------------------")
-    cleanup(cleanup_list)
 
 
 @pytest.fixture(scope='session')

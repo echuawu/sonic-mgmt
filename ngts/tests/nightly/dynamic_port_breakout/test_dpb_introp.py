@@ -7,7 +7,7 @@ from ngts.cli_util.cli_constants import SonicConstant
 from ngts.tests.nightly.conftest import save_configuration_and_reboot
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_ports_list_from_loopback_tuple_list, \
     verify_no_breakout, set_dpb_conf, verify_ifaces_speed_and_status, \
-    send_ping_and_verify_results, build_remove_dpb_conf, cleanup
+    send_ping_and_verify_results, build_remove_dpb_conf
 from ngts.helpers.dependencies_helpers import DependenciesBase
 
 

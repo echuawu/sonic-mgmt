@@ -632,6 +632,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         return init_config_db_json
 
     @staticmethod
+    def get_hwsku_json_as_dict(engine, platform, hwsku):
+        hwsku_path = f'/usr/share/sonic/device/{platform}/{hwsku}/hwsku.json'
+        data = engine.run_cmd(f'cat {hwsku_path}')
+        return json.loads(data)
+
+    @staticmethod
     def update_breakout_cfg(topology_obj, dut_engine, cli_object,
                             init_config_db_json, config_db_json, hwsku):
         """

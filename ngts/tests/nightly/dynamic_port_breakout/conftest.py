@@ -147,40 +147,6 @@ def get_mutual_breakout_modes(ports_breakout_modes, ports_list):
     return set.intersection(*breakout_mode_sets)
 
 
-def cleanup(cleanup_list):
-    """
-    execute all the functions in the cleanup list,
-    if function cleanup finished successful remove the function from list
-    :return: None
-    """
-    logger.info("--------------------Starting Cleanup-----------------")
-    while cleanup_list:
-        cleanup_tuple = cleanup_list[0]
-        func, args = cleanup_tuple
-        try:
-            func(*args)
-            logger.debug(f"cleanup function {func.__name__} finished successfully - "
-                         f"removing function from cleanup list")
-            cleanup_list.remove(cleanup_tuple)
-        except Exception as e:
-            logger.error(f"Execution of cleanup function {func.__name__} with arguments: {args} failed")
-            raise e
-    logger.info("--------------------Finished Cleanup-----------------")
-
-
-@pytest.fixture(autouse=True)
-def cleanup_list():
-    """
-    Fixture to execute cleanup after a test is run
-    :return: None
-    """
-    cleanup_list = []
-    logger.info("------------------TEST START HERE------------------")
-    yield cleanup_list
-    logger.info("------------------TEST TEARDOWN--------------------")
-    cleanup(cleanup_list)
-
-
 def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, conf, original_speed_conf, force=False):
     """
     configure DPB conf and return ports expected status after DPB had been applied.

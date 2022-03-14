@@ -5,7 +5,7 @@ from retry.api import retry_call
 import re
 
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
-    is_splittable, set_dpb_conf, cleanup, verify_ifaces_speed_and_status
+    is_splittable, set_dpb_conf, verify_ifaces_speed_and_status
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
 
 logger = logging.getLogger()

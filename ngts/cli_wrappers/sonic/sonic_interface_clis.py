@@ -4,7 +4,7 @@ import ast
 import allure
 import time
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
-from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+from ngts.cli_util.cli_parsers import generic_sonic_output_parser, parse_show_interfaces_transceiver_eeprom
 from ngts.constants.constants import AutonegCommandConstants, SonicConst
 
 logger = logging.getLogger()
@@ -139,7 +139,34 @@ class SonicInterfaceCli(InterfaceCliCommon):
         return result
 
     @staticmethod
-    def get_interfaces_transceiver_presence(engine, interface):
+    def get_interfaces_transceiver_eeprom(engine, interface=''):
+        """
+        :param engine:  ssh engine object
+        :param interface:  interfaces name, example: 'Ethernet0'
+        :return: interface transceiver eeprom,
+        i.e, command output sample:
+        Ethernet0: SFP EEPROM is not applicable for RJ45 port
+        """
+        cmd = f'show interfaces transceiver eeprom {interface}'
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def parse_interfaces_transceiver_eeprom(engine, interface='', interfaces_transceiver_eeprom_output=None):
+        """
+        Parse output 'show interfaces transceiver eeprom' as dictionary
+        :param engine: ssh engine object
+        :param interface: interfaces name, example: 'Ethernet0'
+        :param interfaces_transceiver_eeprom_output: output 'show interfaces transceiver eeprom'
+        :return: dict, example: {'Ethernet0': 'Present', 'Ethernet1': 'Present'...}
+        """
+        if not interfaces_transceiver_eeprom_output:
+            interfaces_transceiver_eeprom_output = SonicInterfaceCli.get_interfaces_transceiver_eeprom(engine,
+                                                                                                       interface)
+
+        return parse_show_interfaces_transceiver_eeprom(interfaces_transceiver_eeprom_output)
+
+    @staticmethod
+    def get_interfaces_transceiver_presence(engine, interface=''):
         """
         :param engine:  ssh engine object
         :param interface:  interfaces name, example: 'Ethernet0'
@@ -149,7 +176,88 @@ class SonicInterfaceCli(InterfaceCliCommon):
         ---------  -----------
         Ethernet0  Not present
         """
-        return engine.run_cmd(f"show interfaces transceiver presence {interface}")
+        cmd = f'show interfaces transceiver presence {interface}'
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def parse_interfaces_transceiver_presence(engine, interface='', interfaces_transceiver_presence_output=None):
+        """
+        Parse output 'show interfaces transceiver presence' as dictionary
+        :param engine: ssh engine object
+        :param interface: interfaces name, example: 'Ethernet0'
+        :param interfaces_transceiver_presence_output: output 'show interfaces transceiver presence'
+        :return: dict, example: {'Ethernet0': 'Present', 'Ethernet1': 'Present'...}
+        """
+        if not interfaces_transceiver_presence_output:
+            interfaces_transceiver_presence_output = SonicInterfaceCli.get_interfaces_transceiver_presence(engine,
+                                                                                                           interface)
+
+        return generic_sonic_output_parser(interfaces_transceiver_presence_output,
+                                           headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
+                                           data_ofset_from_end=None, column_ofset=2, output_key='Port')
+
+    @staticmethod
+    def get_interfaces_transceiver_lpmode(engine, interface=''):
+        """
+        :param engine:  ssh engine object
+        :param interface:  interfaces name, example: 'Ethernet0'
+        :return: interface transceiver lpmode,
+        i.e, command output sample:
+        Port       Low-power Mode
+        ---------  ----------------
+        Ethernet0  N/A
+        """
+        cmd = f'show interfaces transceiver lpmode {interface}'
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def parse_interfaces_transceiver_lpmode(engine, interface='', interfaces_transceiver_lpmode_output=None):
+        """
+        Parse output 'show interfaces transceiver lpmode' as dictionary
+        :param engine: ssh engine object
+        :param interface: interfaces name, example: 'Ethernet0'
+        :param interfaces_transceiver_lpmode_output: output 'show interfaces transceiver lpmode'
+        :return: dict, example: {'Ethernet0': 'Present', 'Ethernet1': 'Present'...}
+        """
+        if not interfaces_transceiver_lpmode_output:
+            interfaces_transceiver_lpmode_output = SonicInterfaceCli.get_interfaces_transceiver_lpmode(engine,
+                                                                                                       interface)
+
+        return generic_sonic_output_parser(interfaces_transceiver_lpmode_output,
+                                           headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
+                                           data_ofset_from_end=None, column_ofset=2, output_key='Port')
+
+    @staticmethod
+    def get_interfaces_transceiver_error_status(engine, interface=''):
+        """
+        :param engine:  ssh engine object
+        :param interface:  interfaces name, example: 'Ethernet0'
+        :return: interface transceiver error-status,
+        i.e, command output sample:
+        Port       Error Status
+        ---------  --------------
+        Ethernet0  N/A
+        """
+        cmd = f'show interfaces transceiver error-status {interface}'
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def parse_interfaces_transceiver_error_status(engine, interface='',
+                                                  interfaces_transceiver_error_status_output=None):
+        """
+        Parse output 'show interfaces transceiver error-status' as dictionary
+        :param engine: ssh engine object
+        :param interface: interfaces name, example: 'Ethernet0'
+        :param interfaces_transceiver_error_status_output: output 'show interfaces transceiver error-status'
+        :return: dict, example: {'Ethernet0': 'Present', 'Ethernet1': 'Present'...}
+        """
+        if not interfaces_transceiver_error_status_output:
+            interfaces_transceiver_error_status_output = \
+                SonicInterfaceCli.get_interfaces_transceiver_error_status(engine, interface)
+
+        return generic_sonic_output_parser(interfaces_transceiver_error_status_output,
+                                           headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
+                                           data_ofset_from_end=None, column_ofset=2, output_key='Port')
 
     @staticmethod
     def get_interface_mtu(engine, interface):
