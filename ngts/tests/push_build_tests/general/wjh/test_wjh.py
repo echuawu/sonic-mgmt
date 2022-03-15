@@ -137,14 +137,14 @@ def wjh_buffer_configuration(topology_obj, cli_objects, engines, interfaces):
     """
     with allure.step('Check that links are in UP state'.format()):
         ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-        retry_call(cli_objects.dut.inteface.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
+        retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10,
                    logger=logger)
 
     # variable below required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = cli_objects.dut.inteface.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
-                                                                                                 interfaces.dut_hb_2,
-                                                                                                 interfaces.dut_ha_2,
-                                                                                                 interfaces.dut_hb_1])
+    dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed(engines.dut, [interfaces.dut_ha_1,
+                                                                                                  interfaces.dut_hb_2,
+                                                                                                  interfaces.dut_ha_2,
+                                                                                                  interfaces.dut_hb_1])
     with allure.step("Configuring dut_ha_2 speed to be 1G, and dut_hb_2 to be 25G \
                       Configuring port dut_ha_2, pg 0, congestion threshold = 10%, latency threshold = 100ns"):
         interfaces_config_dict = {
@@ -556,7 +556,7 @@ def test_l1_raw_drop(engines, cli_objects):
         pytest.skip("Could not find port in active state. Skipping the test.")
     try:
         with allure.step('Shutting down {} interface'.format(port)):
-            cli_objects.dut.inteface.disable_interface(engines.dut, port)
+            cli_objects.dut.interface.disable_interface(engines.dut, port)
 
         drop_reason_message = 'Generic L1 event - Check layer 1 aggregated information'
         na = 'N/A'
@@ -565,7 +565,7 @@ def test_l1_raw_drop(engines, cli_objects):
                         interface=port, dst_ip=na, src_ip=na, proto=na, drop_reason=drop_reason_message,
                         dst_mac=na, src_mac=na, command='show what-just-happened poll layer-1')
     finally:
-        cli_objects.dut.inteface.enable_interface(engines.dut, port)
+        cli_objects.dut.interface.enable_interface(engines.dut, port)
 
 
 @pytest.mark.wjh
@@ -573,11 +573,11 @@ def test_l1_raw_drop(engines, cli_objects):
 @allure.title('WJH L1 Aggregated test case')
 def test_l1_agg_drop(engines, cli_objects):
     check_if_channel_enabled(cli_objects.dut, engines, 'layer-1', 'aggregate')
-    port = cli_objects.dut.inteface.get_active_phy_port(engines)
+    port = cli_objects.dut.interface.get_active_phy_port(engines)
     if not port:
         pytest.skip("Could not find port in active state. Skipping the test.")
     with allure.step('Shutting down {} interface'.format(port)):
-        cli_objects.dut.inteface.disable_interface(engines.dut, port)
+        cli_objects.dut.interface.disable_interface(engines.dut, port)
     drop_reason_message = 'Port admin down - Validate port configuration'
     na = 'N/A'
     try:
@@ -586,8 +586,8 @@ def test_l1_agg_drop(engines, cli_objects):
             verify_l1_agg_drop_exists(table, port, 'Down', drop_reason_message)
 
         with allure.step('Starting up {} interface'.format(port)):
-            cli_objects.dut.inteface.enable_interface(engines.dut, port)
-            retry_call(cli_objects.dut.inteface.check_ports_status, fargs=[engines.dut, [port]], tries=10, delay=5,
+            cli_objects.dut.interface.enable_interface(engines.dut, port)
+            retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, [port]], tries=10, delay=5,
                        logger=logger)
             time.sleep(3)
 
@@ -597,7 +597,7 @@ def test_l1_agg_drop(engines, cli_objects):
 
     finally:
         with allure.step('Starting up {} interface'.format(port)):
-            cli_objects.dut.inteface.enable_interface(engines.dut, port)
+            cli_objects.dut.interface.enable_interface(engines.dut, port)
 
 
 def verify_l1_agg_drop_exists(table, port, state, drop_reason_message):
