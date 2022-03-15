@@ -105,7 +105,7 @@ def check_if_channel_enabled(cli_object, engines, channel, channel_type):
     :param cli_object: cli_object
     """
 
-    if channel == "buffer" and cli_object.dut.general.is_spc1(cli_object, engines.dut):
+    if channel == "buffer" and cli_object.general.is_spc1(cli_object, engines.dut):
         pytest.skip("buffer channel is not supported in SPC1.")
 
     if channel not in pytest.CHANNEL_CONF:
