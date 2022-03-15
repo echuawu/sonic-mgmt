@@ -1217,3 +1217,36 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_
 tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speeds_on_dpb:
   - Redmine:
     - 3006650
+copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-04-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-11-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[arc-switch1025-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[arc-switch1038-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+copp/test_copp.py::TestCOPP::test_no_policer[r-leopard-01-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[r-leopard-58-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-20-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+copp/test_copp.py::TestCOPP::test_no_policer[r-tigris-04-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[r-tigris-13-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
