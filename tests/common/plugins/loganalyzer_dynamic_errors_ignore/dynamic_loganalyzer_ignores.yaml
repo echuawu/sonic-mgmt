@@ -292,9 +292,12 @@
 # Ignores for LAG/LACP tests
 - Errors_list:
     - '.* ERR.*hostcfgd: ''sudo systemctl stop macsec.service'' failed. RC: 5, output: None.*'
+    - '.* ERR.*hostcfgd: Feature ''macsec'' failed to be stopped and disabled'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py
+      Redmine:
+      - 3006215
 
 # Below ignores from temp_log_analyzer_ignores.txt in LAG folder
 - Errors_list:
@@ -686,12 +689,13 @@
     - '.* teamd\[\d+\]: segfault at .* ip .* sp .* error 4 in libteam.so.5.6.0.*'
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py
       Redmine:
         - 2910559
       Branch:
         - 202111
         - master
+        - 202012
 
 - Errors_list:
     - '.* ERR hostcfgd: sudo systemctl disable cpu-report.service - failed: return code - 1, output:#012None'
@@ -1120,9 +1124,11 @@
       - 3001626
 
 - Errors_list:
-    - '.* INFO kernel: [.*] teamd[\d+]: segfault at .* ip .* sp .* error \d+ in libteam'
+    - '.* ERR dhclient\[\d+\]: send_packet: No such device or address'
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
       Redmine:
-      - 2910559
+      - 3006222
+      Platform:
+      - simx
