@@ -1209,3 +1209,11 @@ tests/nightly/rj45/test_rj45.py:
   - Redmine:
     - 3005540
     - 3005591
+
+tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_ports_breakout_after_wrong_removal:
+  - Redmine:
+    - 3006650
+
+tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speeds_on_dpb:
+  - Redmine:
+    - 3006650
