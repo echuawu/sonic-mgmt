@@ -23,7 +23,7 @@
           <Speed>25000</Speed>
     {% endif %}
 {% elif (inventory_hostname == "arc-switch1004" or inventory_hostname == "arc-switch1025") and index == 43 %}
-          <Speed>50000</Speed>
+          <Speed>10000</Speed>
 {% else %}
     {%- if port_alias[index] in port_speed and port_speed[port_alias[index]] != ""  %}
           <Speed>{{ port_speed[port_alias[index]] }}</Speed>

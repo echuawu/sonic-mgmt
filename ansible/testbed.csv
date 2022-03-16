@@ -1,4 +1,6 @@
 # conf-name,group-name,topo,ptf_image_name,ptf,ptf_ip,ptf_ipv6,server,vm_base,dut,comment
+sonic-dual-tor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,[arc-switch1004;arc-switch1025],Dual-TOR testbed
+
 arc-switch1038-t0,vm-t1,t0,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,VM0101,arc-switch1038,Mellanox MTR testbed
 arc-switch1038-t0-64-32,vm-t1,t0-64-32,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,arc-switch1038,Mellanox MTR testbed
 arc-switch1038-t1,vm-t1,t1,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,VM0101,arc-switch1038,Mellanox MTR testbed
