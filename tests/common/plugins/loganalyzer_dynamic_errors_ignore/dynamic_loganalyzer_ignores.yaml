@@ -289,16 +289,6 @@
     - Redmine:
         - 2951102
 
-# Ignores for LAG/LACP tests
-- Errors_list:
-    - '.* ERR.*hostcfgd: ''sudo systemctl stop macsec.service'' failed. RC: 5, output: None.*'
-    - '.* ERR.*hostcfgd: Feature ''macsec'' failed to be stopped and disabled'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py
-      Redmine:
-      - 3006215
-
 # Below ignores from temp_log_analyzer_ignores.txt in LAG folder
 - Errors_list:
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock'
