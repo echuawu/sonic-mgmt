@@ -17,7 +17,7 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
 # warm reboot
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   - Redmine:
-    - 2886337
+    - 2983587
     Branch:
     - master
     - 202111
