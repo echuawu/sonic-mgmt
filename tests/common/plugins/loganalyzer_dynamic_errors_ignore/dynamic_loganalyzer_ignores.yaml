@@ -143,6 +143,7 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
       - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
       - vxlan/test_vnet_vxlan.py
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
       Redmine:
       - 2961383
       Branch:
@@ -545,6 +546,7 @@
     - Affected_test_cases:
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[328\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
@@ -577,6 +579,7 @@
     - Affected_test_cases:
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
       Redmine:
         - 2619129
       Branch:
@@ -789,6 +792,7 @@
       - tests/nightly/lag/test_lag.py
       - vxlan/test_vnet_route_leak.py
       - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - copp/test_copp.py
       Redmine:
         - 2966737
       Branch:
@@ -996,7 +1000,7 @@
 
 - Errors_list:
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
-    - '.* ERR kernel: \[.*\] hwmon hwmon15: Failed to query module temperature sensor.*'
+    - '.* ERR kernel: \[.*\] hwmon hwmon\d+: Failed to query module temperature sensor.*'
     - '.* ERR pmon#thermalctld: Failed to read from file /run/hw-management/thermal/module.*_temp_fault - OSError.*'
   Conditions:
     - Redmine:
