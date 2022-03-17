@@ -1250,3 +1250,19 @@ copp/test_copp.py::TestCOPP::test_no_policer[r-tigris-04-DHCP6]:
 copp/test_copp.py::TestCOPP::test_no_policer[r-tigris-13-DHCP6]:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[arc-switch1004-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[mtbc-sonic-03-2700-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[mtbc-sonic-01-2410-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
+
+copp/test_copp.py::TestCOPP::test_no_policer[arc-mtbc-1001-DHCP6]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5329
