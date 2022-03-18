@@ -2,6 +2,7 @@ import pytest
 import os
 import json
 import logging
+import allure
 
 from copy import deepcopy
 
