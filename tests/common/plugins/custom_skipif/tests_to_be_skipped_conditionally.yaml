@@ -1286,3 +1286,10 @@ copp/test_copp.py::TestCOPP::test_no_policer[mtbc-sonic-01-2410-DHCP6]:
 copp/test_copp.py::TestCOPP::test_no_policer[arc-mtbc-1001-DHCP6]:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/5329
+
+qos/test_buffer.py::test_headroom_override:
+  - Platform:
+    - x86_64-mlnx_msn3700_simx-r0
+    - x86_64-mlnx_msn4700_simx-r0
+    Redmine:
+      - 3010264
