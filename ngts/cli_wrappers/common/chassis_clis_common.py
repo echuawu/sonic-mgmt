@@ -6,11 +6,12 @@ class ChassisCliCommon(ChassisCliInterface):
     """
     This class hosts methods which are implemented identically for Linux and SONiC
     """
-    @staticmethod
-    def get_hostname(engine):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def get_hostname(self):
         """
         This method return the hostname of host/switch
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd("hostname")
+        return self.engine.run_cmd("hostname")

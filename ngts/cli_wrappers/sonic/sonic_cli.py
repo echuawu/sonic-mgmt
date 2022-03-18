@@ -20,31 +20,43 @@ from ngts.cli_wrappers.sonic.sonic_bgp_clis import SonicBgpCli
 from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
 from ngts.cli_wrappers.sonic.sonic_flowcnt_clis import SonicFlowcntCli
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
 
+from ngts.cli_util.stub_engine import StubEngine
+from dotted_dict import DottedDict
 logger = logging.getLogger()
 
 
 class SonicCli:
     def __init__(self, topology):
         branch = topology.players['dut'].get('branch')
+        engine = topology.players['dut']['engine']
 
-        self.ip = SonicIpCli()
-        self.lldp = SonicLldpCli()
-        self.mac = SonicMacCli()
-        self.vlan = SonicVlanCli(branch=branch)
-        self.lag = SonicLagLacpCli()
-        self.interface = SonicInterfaceCli()
-        self.route = SonicRouteCli()
-        self.vrf = SonicVrfCli()
-        self.chassis = SonicChassisCli()
-        self.general = SonicGeneralCli(branch=branch)
-        self.dhcp_relay = SonicDhcpRelayCli(branch=branch)
+        self.ip = SonicIpCli(engine=engine)
+        self.arp = SonicArpCli(engine=engine)
+        self.lldp = SonicLldpCli(engine=engine)
+        self.mac = SonicMacCli(engine=engine)
+        self.vlan = SonicVlanCli(branch=branch, engine=engine)
+        self.lag = SonicLagLacpCli(engine=engine)
+        self.interface = SonicInterfaceCli(engine=engine)
+        self.route = SonicRouteCli(engine=engine)
+        self.vrf = SonicVrfCli(engine=engine)
+        self.chassis = SonicChassisCli(engine=engine)
+        self.general = SonicGeneralCli(branch=branch, engine=engine)
+        self.dhcp_relay = SonicDhcpRelayCli(branch=branch, engine=engine)
         self.ifconfig = SonicIfconfigCli()
-        self.crm = SonicCrmCli()
-        self.acl = SonicAclCli()
-        self.vxlan = SonicVxlanCli()
-        self.frr = SonicFrrCli()
-        self.bgp = SonicBgpCli()
-        self.counterpoll = SonicCounterpollCli()
-        self.flowcnt = SonicFlowcntCli()
-        self.app_ext = SonicAppExtensionCli()
+        self.crm = SonicCrmCli(engine=engine)
+        self.acl = SonicAclCli(engine=engine)
+        self.vxlan = SonicVxlanCli(engine=engine)
+        self.frr = SonicFrrCli(engine=engine)
+        self.bgp = SonicBgpCli(engine=engine)
+        self.counterpoll = SonicCounterpollCli(engine=engine)
+        self.flowcnt = SonicFlowcntCli(engine=engine)
+        self.app_ext = SonicAppExtensionCli(engine=engine)
+
+
+class SonicCliStub(SonicCli):
+    def __init__(self, topology):
+        stub_topo = DottedDict()
+        stub_topo.players = {'dut': {'engine': StubEngine()}}
+        super().__init__(stub_topo)

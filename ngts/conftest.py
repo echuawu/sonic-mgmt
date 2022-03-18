@@ -16,13 +16,12 @@ import json
 from dotted_dict import DottedDict
 
 from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
-from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
-from ngts.cli_wrappers.linux.linux_cli import LinuxCli
+from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
+from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import PytestConst
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology
 
 logger = logging.getLogger()
@@ -178,8 +177,10 @@ def update_topology_with_cli_class(topology):
                 player_info['cli'] = NvueCli()
             else:
                 player_info['cli'] = SonicCli(topology)
+                player_info.update({'stub_cli': SonicCliStub(topology)})
         else:
-            player_info['cli'] = LinuxCli()
+            player_info['cli'] = LinuxCli(player_info['engine'])
+            player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})
 
 
 @pytest.fixture(scope='session')
@@ -205,14 +206,15 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture(scope='session')
-def dut_mac(engines):
+def dut_mac(engines, cli_objects):
     """
     Fixture which get DUT mac address from DUT config_db.json file
     :param engines: engines fixture
+    :param cli_objects: cli_objects fixture
     :return: dut mac address
     """
     logger.info('Getting DUT mac address')
-    config_db = SonicGeneralCli().get_config_db(engines.dut)
+    config_db = cli_objects.dut.general.get_config_db()
     dut_mac = config_db.get('DEVICE_METADATA').get('localhost').get('mac')
     logger.info('DUT mac address is: {}'.format(dut_mac))
     return dut_mac

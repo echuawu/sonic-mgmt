@@ -6,12 +6,13 @@ class MacCliCommon(MacCliInterface):
     This class hosts methods which are implemented identically for Linux and SONiC
     """
 
-    @staticmethod
-    def get_mac_address_for_interface(engine, interface):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def get_mac_address_for_interface(self, interface):
         """
         Method for get mac address for interface
-        :param engine: ssh engine object
         :param interface: interface name
         :return: mac address
         """
-        return engine.run_cmd("cat /sys/class/net/{}/address".format(interface))
+        return self.engine.run_cmd("cat /sys/class/net/{}/address".format(interface))

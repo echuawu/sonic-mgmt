@@ -33,7 +33,7 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
 
     ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_ha_2]
     with allure.step('Check that links are in UP state'.format(ports_list)):
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=10, delay=10, logger=logger)
+        retry_call(SonicInterfaceCli(engine=engines.dut).check_ports_status, fargs=[ports_list], tries=10, delay=10, logger=logger)
 
     # LAG/LACP config which will be used in test
     lag_lacp_config_dict = {
@@ -77,8 +77,8 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
         if not cli_object.lldp.is_lldp_enabled_on_host(host_engine):
             cli_object.lldp.enable_lldp_on_host(host_engine)
             for port in topology_obj.players_all_ports[host_alias]:
-                LinuxInterfaceCli.disable_interface(host_engine, port)
-                LinuxInterfaceCli.enable_interface(host_engine, port)
+                LinuxInterfaceCli(engine=host_engine).disable_interface(port)
+                LinuxInterfaceCli(engine=host_engine).enable_interface(port)
 
     """
     Reboot below required to prevent failure in tests after this test.

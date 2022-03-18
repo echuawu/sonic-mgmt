@@ -62,8 +62,10 @@ class CRMHelper:
 class SonicCrmCli:
     thresholds_cmd = 'crm config thresholds'
 
-    @staticmethod
-    def set_threshold_ip(engine, ip_ver, resource, th_type=None, low=None, high=None):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def set_threshold_ip(self, ip_ver, resource, th_type=None, low=None, high=None):
         """
         Configure CRM thresholds for 'ipv4/ipv6' 'neighbor', 'nexthop' or 'route' resources
         SONiC CLI configuration examples:
@@ -74,7 +76,6 @@ class SonicCrmCli:
             neighbor  nexthop   route
 
         crm config thresholds ipv4 route type percentage
-        :param engine: ssh engine object
         :param ip_ver: IP version 4 or 6 to choose beatween 'ipv4' or 'ipv6' CRM resources
         :param resource: crm 'ipv4/6' available resources - 'neighbor', 'nexthop' or 'route'
         :param th_type: crm threshold type: 'percentage', 'used' or 'free'
@@ -89,11 +90,10 @@ class SonicCrmCli:
                 )
             )
 
-        template = ' '.join([SonicCrmCli.thresholds_cmd, 'ipv{}'.format(ip_ver), resource])
-        CRMHelper.configure_threshold(engine, template, th_type, low, high)
+        template = ' '.join([self.thresholds_cmd, 'ipv{}'.format(ip_ver), resource])
+        CRMHelper.configure_threshold(self.engine, template, th_type, low, high)
 
-    @staticmethod
-    def set_threshold_nexthop_group(engine, resource, th_type=None, low=None, high=None):
+    def set_threshold_nexthop_group(self, resource, th_type=None, low=None, high=None):
         """
         Configure CRM thresholds for 'nexthop group' resources.
         SONiC CLI command examples:
@@ -104,7 +104,6 @@ class SonicCrmCli:
 
         crm config thresholds nexthop group member type percentage
         crm config thresholds nexthop group object low 5
-        :param engine: ssh engine object
         :param resource: crm 'ipv4/6' available resources - 'neighbor', 'nexthop' or 'route'
         :param th_type: crm threshold type: 'percentage', 'used' or 'free'
         :param low: crm low threshold 0..100
@@ -118,18 +117,16 @@ class SonicCrmCli:
                 )
             )
 
-        template = ' '.join([SonicCrmCli.thresholds_cmd, 'nexthop group', resource])
-        CRMHelper.configure_threshold(engine, template, th_type, low, high)
+        template = ' '.join([self.thresholds_cmd, 'nexthop group', resource])
+        CRMHelper.configure_threshold(self.engine, template, th_type, low, high)
 
-    @staticmethod
-    def set_threshold_acl(engine, resource, th_type=None, low=None, high=None):
+    def set_threshold_acl(self, resource, th_type=None, low=None, high=None):
         """
         Configure CRM thresholds for 'acl' resources
         SONiC CLI command examples:
         crm config thresholds acl table type percentage
         crm config thresholds acl group counter type percentage
         crm config thresholds acl group type percentage
-        :param engine: ssh engine object
         :param resource: crm 'ipv4/6' available resources - 'neighbor', 'nexthop' or 'route'
         :param th_type: crm threshold type: 'percentage', 'used' or 'free'
         :param low: crm low threshold 0..100
@@ -143,11 +140,10 @@ class SonicCrmCli:
                 )
             )
 
-        template = ' '.join([SonicCrmCli.thresholds_cmd, 'acl', resource])
-        CRMHelper.configure_threshold(engine, template, th_type, low, high)
+        template = ' '.join([self.thresholds_cmd, 'acl', resource])
+        CRMHelper.configure_threshold(self.engine, template, th_type, low, high)
 
-    @staticmethod
-    def set_threshold_fdb(engine, th_type=None, low=None, high=None):
+    def set_threshold_fdb(self, th_type=None, low=None, high=None):
         """
         Configure CRM thresholds for 'fdb' resource
         SONiC CLI command examples:
@@ -155,43 +151,36 @@ class SonicCrmCli:
             high  CRM high threshod configuration
             low   CRM low threshod configuration
             type  CRM threshod type configuration
-        :param engine: ssh engine object
         :param th_type: crm threshold type: 'percentage', 'used' or 'free'
         :param low: crm low threshold 0..100
         :param high: crm high threshold 0..100
         """
-        template = ' '.join([SonicCrmCli.thresholds_cmd, 'fdb'])
-        CRMHelper.configure_threshold(engine, template, th_type, low, high)
+        template = ' '.join([self.thresholds_cmd, 'fdb'])
+        CRMHelper.configure_threshold(self.engine, template, th_type, low, high)
 
-    @staticmethod
-    def get_polling_interval(engine):
+    def get_polling_interval(self):
         """
         Return configured CRM polling interval
-        :param engine: ssh engine object
         """
-        output = engine.run_cmd('crm show summary')
+        output = self.engine.run_cmd('crm show summary')
         if 'error' in output.lower():
             logger.warning('CRM was not enabled yet, returning default {} sec. interval'.format(CRM_DEFAULT_INTERVAL))
             return CRM_DEFAULT_INTERVAL
         else:
-            return int(engine.run_cmd('crm show summary | awk \'{print $3}\'').strip())
+            return int(self.engine.run_cmd('crm show summary | awk \'{print $3}\'').strip())
 
-    @staticmethod
-    def set_polling_interval(engine, interval):
+    def set_polling_interval(self, interval):
         """
         Configure CRM polling interval
-        :param engine: ssh engine object
         :param interval: crm polling interval in seconds
         """
-        engine.run_cmd('crm config polling interval {}'.format(interval))
+        self.engine.run_cmd('crm config polling interval {}'.format(interval))
 
-    @staticmethod
-    def parse_thresholds_table(engine):
+    def parse_thresholds_table(self):
         """
         Parse output of 'crm show thresholds all'
-        :param engine: ssh engine object
         """
-        output = engine.run_cmd("crm show thresholds all")
+        output = self.engine.run_cmd("crm show thresholds all")
         result = generic_sonic_output_parser(output, headers_ofset=0,
                                              len_ofset=1,
                                              data_ofset_from_start=2,
@@ -200,15 +189,13 @@ class SonicCrmCli:
                                              output_key='Resource Name')
         return result
 
-    @staticmethod
-    def parse_resources_table(engine):
+    def parse_resources_table(self):
         """
         Run output of 'crm show resources all'
-        :param engine: ssh engine object
         """
         result = {'main_resources': {}, 'acl_resources': [], 'table_resources': []}
-        output = engine.run_cmd("crm show resources all")
-        first_table, rest_output = SonicCrmCli.extract_first_table_from_output(output)
+        output = self.engine.run_cmd("crm show resources all")
+        first_table, rest_output = self.extract_first_table_from_output(output)
         result['main_resources'] = generic_sonic_output_parser(first_table, headers_ofset=0,
                                                                len_ofset=1,
                                                                data_ofset_from_start=2,
@@ -216,7 +203,7 @@ class SonicCrmCli:
                                                                column_ofset=2,
                                                                output_key='Resource Name')
 
-        first_table, rest_output = SonicCrmCli.extract_first_table_from_output(rest_output)
+        first_table, rest_output = self.extract_first_table_from_output(rest_output)
         result['acl_resources'] = generic_sonic_output_parser(first_table, headers_ofset=0, len_ofset=1,
                                                               data_ofset_from_start=2,
                                                               data_ofset_from_end=0,

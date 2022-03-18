@@ -8,22 +8,21 @@ class FrrCliCommon(FrrCliInterface):
     This class hosts methods which are implemented identically for Linux and SONiC
     """
 
-    @staticmethod
-    def run_config_frr_cmd(engine, frr_command):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def run_config_frr_cmd(self, frr_command):
         """
         Run FRR command
-        :param engine: ssh engine object
         :param frr_command: string or list with FRR commands
         :return: cli output
         """
-        cmd = FrrCliCommon.get_frr_configuration_command(frr_command)
-        return engine.run_cmd(cmd)
+        cmd = self.get_frr_configuration_command(frr_command)
+        return self.engine.run_cmd(cmd)
 
-    @staticmethod
-    def run_show_frr_cmd(engine, frr_command, is_json=True):
+    def run_show_frr_cmd(self, frr_command, is_json=True):
         """
         Run FRR show command
-        :param engine: ssh engine object
         :param frr_command: string with FRR command
         :param is_json: is need JSON output - then True, if not - False
         :return: cli output
@@ -31,7 +30,7 @@ class FrrCliCommon(FrrCliInterface):
         if is_json:
             frr_command += ' json'
 
-        cmd_output = FrrCliCommon.run_config_frr_cmd(engine, frr_command)
+        cmd_output = self.run_config_frr_cmd(frr_command)
         if is_json:
             cmd_output = json.loads(cmd_output)
 
@@ -52,59 +51,49 @@ class FrrCliCommon(FrrCliInterface):
             cmd += ' -c "{}"'.format(frr_command)
         return cmd
 
-    @staticmethod
-    def get_l2vpn_evpn_route(engine, is_json=True):
+    def get_l2vpn_evpn_route(self, is_json=True):
         """
         Run FRR command "show bgp l2vpn evpn route"
-        :param engine: ssh engine object
         :param is_json: is need JSON output - then True, if not - False
         :return: cli output string or dict
         """
         cmd = 'show bgp l2vpn evpn route'
-        return FrrCliCommon.run_show_frr_cmd(engine, cmd, is_json)
+        return self.run_show_frr_cmd(cmd, is_json)
 
-    @staticmethod
-    def get_l2vpn_evpn_route_type_multicast(engine, is_json=True):
+    def get_l2vpn_evpn_route_type_multicast(self, is_json=True):
         """
         Run FRR command "show bgp l2vpn evpn route type multicast"
-        :param engine: ssh engine object
         :param is_json: is need JSON output - then True, if not - False
         :return: cli output string or dict
         """
         cmd = 'show bgp l2vpn evpn route type multicast'
-        return FrrCliCommon.run_show_frr_cmd(engine, cmd, is_json)
+        return self.run_show_frr_cmd(cmd, is_json)
 
-    @staticmethod
-    def get_l2vpn_evpn_route_type_macip(engine, is_json=True):
+    def get_l2vpn_evpn_route_type_macip(self, is_json=True):
         """
         Run FRR command "show bgp l2vpn evpn route type macip"
-        :param engine: ssh engine object
         :param is_json: is need JSON output - then True, if not - False
         :return: cli output string or dict
         """
         cmd = 'show bgp l2vpn evpn route type macip'
-        return FrrCliCommon.run_show_frr_cmd(engine, cmd, is_json)
+        return self.run_show_frr_cmd(cmd, is_json)
 
-    @staticmethod
-    def get_l2vpn_evpn_route_type_prefix(engine, is_json=True):
+    def get_l2vpn_evpn_route_type_prefix(self, is_json=True):
         """
         Run FRR command "show bgp l2vpn evpn route type prefix"
-        :param engine: ssh engine object
         :param is_json: is need JSON output - then True, if not - False
         :return: cli output string or dict
         """
         cmd = 'show bgp l2vpn evpn route type prefix'
-        return FrrCliCommon.run_show_frr_cmd(engine, cmd, is_json)
+        return self.run_show_frr_cmd(cmd, is_json)
 
-    @staticmethod
-    def save_frr_configuration(engine):
+    def save_frr_configuration(self):
         """
         Save FRR configuration
-        :param engine: ssh engine object
         :return: cli output
         """
         cmd = 'write memory'
-        return FrrCliCommon.run_config_frr_cmd(engine, cmd)
+        return self.run_config_frr_cmd(cmd)
 
     @staticmethod
     def validate_type_2_route(type_2_info, route_mac, peer_ip, peer_rd, route_ip=None):

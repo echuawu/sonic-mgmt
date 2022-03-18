@@ -5,7 +5,6 @@ from retry.api import retry_call
 from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, FecConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 logger = logging.getLogger()
 
@@ -23,7 +22,7 @@ def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     yield
 
     logger.info('Starting FEC configuration cleanup')
-    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
 
     logger.info('FEC cleanup completed')
 

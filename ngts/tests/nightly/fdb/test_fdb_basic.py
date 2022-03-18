@@ -186,7 +186,7 @@ class TestFdbBasic:
 
         with allure.step(f'Verify tested mac has been save into the fdb table with the port dut-ha-1'):
             port = self.interfaces.dut_hb_1
-            src_mac = SonicMacCli.get_mac_address_for_interface(self.engines.hb, self.interfaces.hb_dut_1)
+            src_mac = SonicMacCli(engine=self.engines.hb).get_mac_address_for_interface(self.interfaces.hb_dut_1)
             verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, src_mac, port)
 
     def send_packet_from_hb(self):

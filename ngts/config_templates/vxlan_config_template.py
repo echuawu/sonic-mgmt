@@ -23,12 +23,12 @@ class VxlanConfigTemplate:
         with allure.step('Applying VXLAN configuration'):
             conf = {}
             for player_alias, configuration in vxlan_config_dict.items():
-                stub_engine = StubEngine()
-                cli_object = topology_obj.players[player_alias]['cli']
+                cli_object = topology_obj.players[player_alias]['stub_cli']
                 for vxlan_info in configuration:
-                    cli_object.vxlan.configure_vxlan(stub_engine, vxlan_info)
+                    cli_object.vxlan.configure_vxlan(vxlan_info)
 
-                conf[player_alias] = stub_engine.commands_list
+                conf[player_alias] = cli_object.vxlan.engine.commands_list
+                cli_object.vxlan.engine.commands_list = []
 
             parallel_config_runner(topology_obj, conf)
 
@@ -47,11 +47,10 @@ class VxlanConfigTemplate:
         with allure.step('Performing VXLAN configuration cleanup'):
             conf = {}
             for player_alias, configuration in vxlan_config_dict.items():
-                stub_engine = StubEngine()
-                cli_object = topology_obj.players[player_alias]['cli']
+                cli_object = topology_obj.players[player_alias]['stub_cli']
                 for vxlan_info in configuration:
-                    cli_object.vxlan.delete_vxlan(stub_engine, vxlan_info)
-
-                conf[player_alias] = stub_engine.commands_list
+                    cli_object.vxlan.delete_vxlan(vxlan_info)
+                conf[player_alias] = cli_object.vxlan.engine.commands_list
+                cli_object.vxlan.engine.commands_list = []
 
             parallel_config_runner(topology_obj, conf)

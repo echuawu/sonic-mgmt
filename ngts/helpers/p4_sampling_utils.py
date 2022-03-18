@@ -6,7 +6,6 @@ from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4nspect_utils import get_p4nspect_query_parsed
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from datetime import datetime
 import time
 
@@ -27,7 +26,7 @@ class P4SamplingUtils:
         :return: None
         """
         logger.info("Clear the Interface counters before send traffic")
-        SonicInterfaceCli.clear_counters(engine)
+        SonicInterfaceCli(engine=engine).clear_counters()
         logger.info("Clear the entry counters before send traffic")
         P4SamplingCli.clear_all_table_counters(engine)
 
@@ -455,9 +454,9 @@ class P4SamplingUtils:
         return "{:#06x}".format(i)
 
     @staticmethod
-    def check_p4_sampling_installed(engine_dut):
-        if SonicAppExtensionCli.verify_version_support_app_ext(engine_dut):
-            app_installed = SonicAppExtensionCli.parse_app_package_list_dict(engine_dut)
+    def check_p4_sampling_installed(cli_obj):
+        if cli_obj.app_ext.verify_version_support_app_ext():
+            app_installed = cli_obj.app_ext.parse_app_package_list_dict()
             if APP_NAME in app_installed:
                 app_install_content = app_installed[APP_NAME]
                 if app_install_content["Status"] == "Installed":

@@ -27,8 +27,7 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
 
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
-def test_push_gate_reboot_policer(request, topology_obj, cli_objects, interfaces, engines, shared_params,
-                                  platform_params):
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -38,7 +37,6 @@ def test_push_gate_reboot_policer(request, topology_obj, cli_objects, interfaces
     3. Verify app status is up, after config reload -y
     :param request: pytest build-in
     :param platform_params: platform_params fixture
-    :param validation_type: validation type - which will be executed
     """
     try:
         test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
@@ -96,8 +94,8 @@ class RebootReload:
         with allure.step('Starting background validation for data plane traffic'):
             data_plane_checker = self.start_data_plane_validation(validation_type, allowed_data_loss_time)
 
-        self.cli_object.general.reboot_reload_flow(self.dut_engine, r_type=validation_type,
-                                                   topology_obj=self.topology_obj, wait_after_ping=0)
+        self.cli_object.general.reboot_reload_flow(r_type=validation_type, topology_obj=self.topology_obj,
+                                                   wait_after_ping=0)
 
         try:
             with allure.step('Checking control plane traffic loss'):
@@ -121,7 +119,7 @@ class RebootReload:
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
             with allure.step('Checking warm-reboot status'):
-                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'],
+                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=['inactive'],
                            tries=24, delay=10, logger=logger)
 
         # Step below required - to check that PortChannel0001 iface are UP
@@ -158,8 +156,8 @@ class RebootReload:
         with allure.step('Starting background validation for control plane traffic'):
             control_plane_checker = self.start_control_plane_validation(validation_type, allowed_control_loss_time)
 
-        self.cli_object.general.reboot_reload_flow(self.dut_engine, r_type=validation_type,
-                                                   topology_obj=self.topology_obj, wait_after_ping=0)
+        self.cli_object.general.reboot_reload_flow(r_type=validation_type, topology_obj=self.topology_obj,
+                                                   wait_after_ping=0)
 
         try:
             with allure.step('Checking control plane traffic loss'):
@@ -176,7 +174,7 @@ class RebootReload:
         # Wait until warm-reboot finished
         if validation_type == 'warm-reboot':
             with allure.step('Checking warm-reboot status'):
-                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=[self.dut_engine, 'inactive'],
+                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=['inactive'],
                            tries=24, delay=10, logger=logger)
 
         # Step below required - to check that PortChannel0001 iface are UP
@@ -245,8 +243,7 @@ class RebootReload:
 
         """
         with allure.step("Verify all docker container is up"):
-            self.cli_object.general.verify_dockers_are_up(self.dut_engine,
-                                                          SonicConst.DOCKERS_LIST.append(self.app_name))
+            self.cli_object.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST.append(self.app_name))
         with allure.step("Verify app shutdown order: bgp-> {} -> swss".format(self.app_name)):
             bgp_shutdown_time = time_parse(
                 self.dut_engine.run_cmd("docker inspect --format='{{.State.FinishedAt}}' bgp"))
@@ -261,12 +258,12 @@ class RebootReload:
         Verify warm restart state of app is
         """
         with allure.step("Verify warm_restart state of {} is reconciled".format(self.app_name)):
-            assert self.cli_object.general.show_warm_restart_state(self.dut_engine)[self.app_name]["state"] == \
+            assert self.cli_object.general.show_warm_restart_state()[self.app_name]["state"] == \
                 "reconciled", "Warm_restart state is not reconciled"
 
     def verify_app_and_container_up_after_config_reload(self, validation_type):
         with allure.step("Verify container are up"):
-            self.cli_object.general.verify_dockers_are_up(self.dut_engine, SonicConst.DOCKERS_LIST)
+            self.cli_object.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
         with allure.step("Verify app is up and repo stat is installed"):
             verify_app_container_up_and_repo_status_installed(self.dut_engine, self.app_name, self.version)
 

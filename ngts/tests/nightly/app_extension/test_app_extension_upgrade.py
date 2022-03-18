@@ -3,10 +3,8 @@ import logging
 import pytest
 import re
 
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.tests.nightly.app_extension.app_extension_helper import \
     verify_app_container_up_and_repo_status_installed, verify_app_container_down_and_repo_status_na, APP_INFO
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -15,7 +13,7 @@ logger = logging.getLogger()
 @pytest.mark.app_ext
 @pytest.mark.parametrize("upgrade_type", ["repo", "repo_force"])
 @allure.title('App package upgrade ')
-def test_app_upgrade(pre_install_app, upgrade_type):
+def test_app_upgrade(cli_objects, pre_install_app, upgrade_type):
     """
     This test case is test app upgrade, it includes following sub test cases:
     1. Upgrade app to normal version
@@ -31,9 +29,9 @@ def test_app_upgrade(pre_install_app, upgrade_type):
     try:
         with allure.step("Upgrade app {} with version {}".format(app_name, version)):
             if upgrade_type is "repo":
-                SonicAppExtensionCli.upgrade_app(dut_engine, app_name, version)
+                cli_objects.dut.app_ext.upgrade_app(app_name, version)
             elif upgrade_type is "repo_force":
-                SonicAppExtensionCli.upgrade_app(dut_engine, app_name, version, is_force_upgrade=True)
+                cli_objects.dut.app_ext.upgrade_app(app_name, version, is_force_upgrade=True)
         with allure.step("Verify app version is upgraded to specified one, and status is correct"):
             verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version)
     except Exception as err:
@@ -56,7 +54,7 @@ def test_app_upgrade(pre_install_app, upgrade_type):
     ],
 )
 @allure.title('App package upgrade with abnormal package ')
-def test_app_upgrade_with_abnormal_package(pre_install_app, app_name, version, expected_error_msg):
+def test_app_upgrade_with_abnormal_package(cli_objects, pre_install_app, app_name, version, expected_error_msg):
     """
     This test case is test app upgrade with abnormal package
     1. App with a invalid manifest
@@ -71,7 +69,7 @@ def test_app_upgrade_with_abnormal_package(pre_install_app, app_name, version, e
 
     try:
         with allure.step("Upgrade app {} with version {} using abnormal package".format(app_name, version)):
-            output = SonicAppExtensionCli.upgrade_app(dut_engine, app_name, version, is_force_upgrade=False, validate=False)
+            output = cli_objects.dut.app_ext.upgrade_app(app_name, version, is_force_upgrade=False, validate=False)
             logger.info("Expected message is {}, actual message is {}".format(expected_error_msg, output))
             msg_pattern = re.compile(expected_error_msg)
             assert msg_pattern.match(output), "Error msg for upgrading abnormal app is not correct"
@@ -83,7 +81,8 @@ def test_app_upgrade_with_abnormal_package(pre_install_app, app_name, version, e
 
 @pytest.mark.app_ext
 @allure.title('Sonic upgrade to sonic with skipping migrating package')
-def test_sonic_to_sonic_upgrade_with_sipping_migrating_package(pre_install_base_image, pre_install_app, skipping_migrating_package):
+def test_sonic_to_sonic_upgrade_with_sipping_migrating_package(cli_objects, pre_install_base_image, pre_install_app,
+                                                               skipping_migrating_package):
     """
     This test case is to test sonic upgrade to sonic without package migrating, after upgrade verify app is clean
 
@@ -95,9 +94,9 @@ def test_sonic_to_sonic_upgrade_with_sipping_migrating_package(pre_install_base_
     try:
         with allure.step("Upgrade from sonic base:{} to sonic target:{}. Skipping migrating is {}".format(
                 base_version, target_version, skipping_migrating_package)):
-            SonicGeneralCli().deploy_sonic(dut_engine, target_version, skipping_migrating_package)
+            cli_objects.dut.general.deploy_sonic(dut_engine, target_version, skipping_migrating_package)
         with allure.step("Verify basic container is up"):
-            SonicGeneralCli().verify_dockers_are_up(dut_engine)
+            cli_objects.dut.general.verify_dockers_are_up(dut_engine)
         with allure.step("Verify app:{} is clean".format(app_name)):
             verify_app_container_down_and_repo_status_na(dut_engine, app_name)
 

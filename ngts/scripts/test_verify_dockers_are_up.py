@@ -18,6 +18,6 @@ def test_verify_dockers_are_up(topology_obj, dockers_list):
     """
     try:
         dut_engine = topology_obj.players['dut']['engine']
-        SonicGeneralCli().verify_dockers_are_up(dut_engine, dockers_list)
+        SonicGeneralCli(engine=dut_engine).verify_dockers_are_up(dockers_list)
     except Exception as err:
         raise AssertionError(err)

@@ -12,7 +12,6 @@ from infra.tools.validations.traffic_validations.scapy.scapy_runner import Scapy
 from ngts.cli_wrappers.linux.linux_interface_clis import LinuxInterfaceCli
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
@@ -71,9 +70,9 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
     """
     dut_cli = topology_obj.players['dut']['cli']
 
-    cleanup_list.append((LinuxInterfaceCli.enable_interface, (engines.hb, interfaces.dut_hb_1,)))
-    cleanup_list.append((LinuxInterfaceCli.enable_interface, (engines.hb, interfaces.dut_hb_2,)))
-    cleanup_list.append((LinuxInterfaceCli.enable_interface, (engines.hb, 'bond0',)))
+    cleanup_list.append((LinuxInterfaceCli(engine=engines.hb).enable_interface, (interfaces.dut_hb_1,)))
+    cleanup_list.append((LinuxInterfaceCli(engine=engines.hb).enable_interface, (interfaces.dut_hb_2,)))
+    cleanup_list.append((LinuxInterfaceCli(engine=engines.hb).enable_interface, ('bond0',)))
 
     # LAG/LACP config which will be used in this test
     lag_lacp_config_dict = {
@@ -103,7 +102,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP1: Disable interface 1 on host, traffic should pass via interface 2'):
-            LinuxInterfaceCli.disable_interface(engines.hb, interfaces.hb_dut_1)
+            LinuxInterfaceCli(engine=engines.hb).disable_interface(interfaces.hb_dut_1)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -113,8 +112,8 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
 
         with allure.step('STEP2: Enable interface 1 and disable interface 2 on host,'
                          ' traffic should pass via interface 1'):
-            LinuxInterfaceCli.enable_interface(engines.hb, interfaces.hb_dut_1)
-            LinuxInterfaceCli.disable_interface(engines.hb, interfaces.hb_dut_2)
+            LinuxInterfaceCli(engine=engines.hb).enable_interface(interfaces.hb_dut_1)
+            LinuxInterfaceCli(engine=engines.hb).disable_interface(interfaces.hb_dut_2)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -123,7 +122,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP3: Enable both interfaces on host'):
-            LinuxInterfaceCli.enable_interface(engines.hb, interfaces.hb_dut_2)
+            LinuxInterfaceCli(engine=engines.hb).enable_interface(interfaces.hb_dut_2)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -147,13 +146,13 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP6: Validate fallback parameter (default - false)'):
-            LinuxInterfaceCli.disable_interface(engines.hb, 'bond0')
+            LinuxInterfaceCli(engine=engines.hb).disable_interface('bond0')
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
                                                   'Dw',
                                                   [(interfaces.dut_hb_1, 'D'), (interfaces.dut_hb_2, 'D')])
-            LinuxInterfaceCli.enable_interface(engines.hb, 'bond0')
+            LinuxInterfaceCli(engine=engines.hb).enable_interface('bond0')
 
         with allure.step('STEP7: Validate configuration of LAG with fallback parameter "true"'):
             cleanup_last_config_in_stack(cleanup_list)  # pop vlan cleanup from stack
@@ -359,7 +358,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                                              len(all_interfaces_with_same_type)))
 
         with allure.step('Set same speed to all interfaces'):
-            dut_orig_ifaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces_with_same_type)
+            dut_orig_ifaces_speeds = SonicInterfaceCli(engine=engines.dut).get_interfaces_speed(all_interfaces_with_same_type)
             # Get minimal supported speed
             min_speed = min([speed_string_to_int_in_mb(speed) for speed in dut_orig_ifaces_speeds.values()])
             # Get speed for all members and if it's not similar - set all ports to minimal supported speed
@@ -383,7 +382,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
 
         with allure.step('Check that all interfaces in Up state'.format()):
-            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, member_interfaces], tries=20, delay=15,
+            retry_call(SonicInterfaceCli(engine=engines.dut).check_ports_status, fargs=[member_interfaces], tries=20, delay=15,
                        logger=logger)
 
         with allure.step('Validate members status in PortChannel'):
@@ -403,7 +402,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                   expected_ports_status_list,
                                                   tries=10)
         with allure.step('Validate dockers status'):
-            SonicGeneralCli().verify_dockers_are_up(engines.dut)
+            dut_cli.general.verify_dockers_are_up()
     except BaseException as err:
         raise AssertionError(err)
 
@@ -578,7 +577,7 @@ def config_speed_dependency(topology_obj, cleanup_list):
     """
     duthb2 = topology_obj.ports['dut-hb-2']
     dut_engine = topology_obj.players['dut']['engine']
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(dut_engine, [duthb2])
+    dut_original_interfaces_speeds = SonicInterfaceCli(engine=dut_engine).get_interfaces_speed([duthb2])
     interfaces_config_dict = {
         'dut': [{'iface': duthb2, 'speed': '10G',
                  'original_speed': dut_original_interfaces_speeds[duthb2]}]

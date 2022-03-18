@@ -89,7 +89,7 @@ def dhcp_client_link_local_addr(engines, cli_objects, interfaces):
     :return: link-local IPv6 address for interface ha-dut-2.690
     """
     dhclient_iface = '{}.690'.format(interfaces.ha_dut_2)
-    link_local_address = cli_objects.ha.ip.get_interface_link_local_ipv6_addresses(engines.ha, dhclient_iface)
+    link_local_address = cli_objects.ha.ip.get_interface_link_local_ipv6_addresses(dhclient_iface)
     return link_local_address
 
 
@@ -180,8 +180,7 @@ class TestDHCP6Relay:
         """
 
         with allure.step('Verify that DHCP relay settings appear as expected in "show vlan brief"'):
-            dhcpv6_relays_dict = self.dut_cli_object.dhcp_relay.get_ipv6_dhcp_relay_cli_config_dict(self.engines.dut,
-                                                                                                    self.dut_cli_object)
+            dhcpv6_relays_dict = self.dut_cli_object.dhcp_relay.get_ipv6_dhcp_relay_cli_config_dict(self.dut_cli_object)
             self.dut_cli_object.dhcp_relay.validate_dhcp_relay_cli_config_ipv6(dhcpv6_relays_dict,
                                                                                self.dhclient_main_vlan,
                                                                                [self.dhcp_server_ip])
@@ -212,7 +211,7 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
+            LinuxDhcpCli(engine=self.engines.ha).kill_all_dhcp_clients()
 
     @pytest.mark.dhcp6_relay
     @pytest.mark.build
@@ -224,7 +223,7 @@ class TestDHCP6Relay:
         """
         try:
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv4'.format(self.dhclient_main_vlan)):
-                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '69.0.0.2',
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_main_vlan, '69.0.0.2',
                                                               topology_ojb=self.topology)
 
             with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
@@ -237,7 +236,7 @@ class TestDHCP6Relay:
                            tries=3, delay=5)
 
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_main_vlan)):
-                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '6900::2',
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_main_vlan, '6900::2',
                                                               topology_obj=self.topology)
 
             with allure.step('Trying to GET IPv6 address from DHCP server when DHCP relay settings removed, '
@@ -264,15 +263,15 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '69.0.0.2',
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_main_vlan, '69.0.0.2',
                                                           topology_obj=self.topology)
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.engines.dut, self.dhclient_main_vlan, '6900::2',
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_main_vlan, '6900::2',
                                                           topology_obj=self.topology)
             retry_call(verify_dhcp6_client_output,
                        fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
                               self.dhclient_main_iface, self.expected_main_vlan_ip],
                        tries=3, delay=5)
-            LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
+            LinuxDhcpCli(engine=self.engines.ha).kill_all_dhcp_clients()
 
     @pytest.mark.dhcp6_relay
     @pytest.mark.build
@@ -602,4 +601,4 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.engines.ha)
+            LinuxDhcpCli(engine=self.engines.ha).kill_all_dhcp_clients()

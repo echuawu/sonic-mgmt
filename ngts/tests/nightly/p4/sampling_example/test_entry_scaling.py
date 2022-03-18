@@ -9,7 +9,6 @@ from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.tests.push_build_tests.system.test_cpu_ram_hdd_usage import get_cpu_usage_and_processes
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 import yaml
 import os
 import time
@@ -27,7 +26,7 @@ class TestEntryScaling:
 
     @pytest.mark.reboot_reload
     @allure.title('Test 500 entries added for each table')
-    def test_scaling_entries(self, topology_obj, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
+    def test_scaling_entries(self, topology_obj, cli_objects, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
         """
         configure 500 entries for each table, and send traffic for some entry, verify the cpu and memory usage,
         verify the the execution time for the add, show and delete cli command, verify it is added correctly with p4nspect,
@@ -40,7 +39,7 @@ class TestEntryScaling:
         port_params = self.generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         flow_params = self.generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         with allure.step("Enable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify cpu and ram usage before the entries added"):
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
         with allure.step("Add {} entries for port table and {} entries for flow table with cli command and "
@@ -54,7 +53,7 @@ class TestEntryScaling:
                 self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
             with allure.step("Save configuration before reboot"):
-                SonicGeneralCli().save_configuration(engines.dut)
+                cli_objects.dut.general.save_configuration()
             with allure.step("Do cold reboot and verify the execution time"):
                 self.do_cold_reboot(engines.dut, topology_obj)
             with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
@@ -70,7 +69,7 @@ class TestEntryScaling:
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
 
         with allure.step("Save configuration before reboot"):
-            SonicGeneralCli().save_configuration(engines.dut)
+            cli_objects.dut.general.save_configuration()
         with allure.step("Do cold reboot and verify the execution time after the entries are cleared"):
             self.do_cold_reboot(engines.dut, topology_obj)
 
@@ -228,7 +227,7 @@ class TestEntryScaling:
 
     def do_cold_reboot(self, engine_dut, topology_obj):
         start_time = datetime.now()
-        SonicGeneralCli().reboot_reload_flow(engine_dut, topology_obj=topology_obj)
+        topology_obj.players['dut']['cli'].general.reboot_reload_flow(topology_obj=topology_obj)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))

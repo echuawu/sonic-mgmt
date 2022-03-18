@@ -109,7 +109,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
         docker_processes = valgrind_config[DOCKER_PROCESSES_KEY]
         if docker_processes:
             with allure.step('Verify containers are up: {}'.format(docker_processes.keys())):
-                SonicGeneralCli().verify_dockers_are_up(engine, docker_processes.keys())
+                SonicGeneralCli(engine=engine).verify_dockers_are_up(docker_processes.keys())
 
             for (container, processes) in docker_processes.items():
                 docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
@@ -117,7 +117,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
                     clear_valgrind_dir(docker_exec_engine)
 
                     with allure.step(f'Copy valgrind runner into {container} container at {VALGRIND_RUNNER_PATH}'):
-                        SonicGeneralCli().copy_to_docker(engine, container, VALGRIND_RUNNER_PATH, VALGRIND_RUNNER_PATH)
+                        SonicGeneralCli(engine=engine).copy_to_docker(container, VALGRIND_RUNNER_PATH, VALGRIND_RUNNER_PATH)
 
                     with allure.step(f'Install valgrind on {container} container processes: {processes}'):
                         install_valgrind(docker_exec_engine, processes)
@@ -131,7 +131,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
 
         if docker_processes:
             with allure.step('Verify containers are up: {}'.format(docker_processes.keys())):
-                SonicGeneralCli().verify_dockers_are_up(engine, docker_processes.keys())
+                SonicGeneralCli(engine=engine).verify_dockers_are_up(docker_processes.keys())
 
     except Exception as err:
         raise AssertionError(err)

@@ -42,9 +42,9 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask):
     used, available = get_main_crm_stat(env, crm_resource)
 
     with allure.step('Add route: {}/{} {}'.format(dst, mask, vlan_iface)):
-        env.sonic_cli.route.add_route(env.dut_engine, dst, vlan_iface, mask)
+        env.sonic_cli.route.add_route(dst, vlan_iface, mask)
 
-    cleanup.append((env.sonic_cli.route.del_route, env.dut_engine, dst, vlan_iface, mask))
+    cleanup.append((env.sonic_cli.route.del_route, dst, vlan_iface, mask))
     with allure.step('Verify CRM {} counters'.format(crm_resource)):
         retry_call(
             verify_counters, fargs=[env, crm_resource, used + 1, '==', available],
@@ -53,7 +53,7 @@ def test_crm_route(env, cleanup, ip_ver, dst, mask):
     cleanup.pop()
 
     with allure.step('Remove route: {}/{} {}'.format(dst, mask, vlan_iface)):
-        env.sonic_cli.route.del_route(env.dut_engine, dst, vlan_iface, mask)
+        env.sonic_cli.route.del_route(dst, vlan_iface, mask)
 
     with allure.step('Verify CRM {} counters'.format(crm_resource)):
         retry_call(
@@ -83,9 +83,9 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor_list, neigh_mac
     neighbor_used, neighbor_available = get_main_crm_stat(env, neighbor_resource)
 
     with allure.step('Add {} neighbors to {}'.format(len(neighbor_list), vlan_iface)):
-        env.sonic_cli.ip.add_ip_neigh_list(env.dut_engine, neighbor_list, neigh_mac_addr_list, vlan_iface)
+        env.sonic_cli.ip.add_ip_neigh_list(neighbor_list, neigh_mac_addr_list, vlan_iface)
 
-    cleanup.append((env.sonic_cli.ip.del_ip_neigh_list, env.dut_engine, neighbor_list, neigh_mac_addr_list, vlan_iface))
+    cleanup.append((env.sonic_cli.ip.del_ip_neigh_list, neighbor_list, neigh_mac_addr_list, vlan_iface))
     # check that all ip neighbors were added
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
         retry_call(
@@ -100,7 +100,7 @@ def test_crm_neighbor_and_nexthop(env, cleanup, ip_ver, neighbor_list, neigh_mac
     cleanup.pop()
 
     with allure.step('Remove {} neighbors from {}'.format(len(neighbor_list), vlan_iface)):
-        env.sonic_cli.ip.del_ip_neigh_list(env.dut_engine, neighbor_list, neigh_mac_addr_list, vlan_iface)
+        env.sonic_cli.ip.del_ip_neigh_list(neighbor_list, neigh_mac_addr_list, vlan_iface)
     # Check that at least (len(neighbor_list)-2) ip neighbors were deleted.
     # In some cases an unexpected background traffic might cause the addition of unexpected neighbors.
     with allure.step('Verify CRM {} counters'.format(nexthop_resource)):
@@ -140,20 +140,20 @@ def test_crm_nexthop_group_and_member(env, cleanup):
     group_used, group_available = get_main_crm_stat(env, group_res)
 
     with allure.step('Add neighbors: {} {}'.format(neigh_69, neigh_40)):
-        env.sonic_cli.ip.add_ip_neigh(env.dut_engine, neigh_69, mac_addr_templ.format(vlan_id_69), vlan_69)
-        env.sonic_cli.ip.add_ip_neigh(env.dut_engine, neigh_40, mac_addr_templ.format(vlan_id_40), vlan_40)
-    cleanup.append((env.sonic_cli.ip.del_ip_neigh, env.dut_engine, neigh_69, mac_addr_templ.format(vlan_id_69),
+        env.sonic_cli.ip.add_ip_neigh(neigh_69, mac_addr_templ.format(vlan_id_69), vlan_69)
+        env.sonic_cli.ip.add_ip_neigh(neigh_40, mac_addr_templ.format(vlan_id_40), vlan_40)
+    cleanup.append((env.sonic_cli.ip.del_ip_neigh, neigh_69, mac_addr_templ.format(vlan_id_69),
                     vlan_69))
-    cleanup.append((env.sonic_cli.ip.del_ip_neigh, env.dut_engine, neigh_40, mac_addr_templ.format(vlan_id_40),
+    cleanup.append((env.sonic_cli.ip.del_ip_neigh, neigh_40, mac_addr_templ.format(vlan_id_40),
                     vlan_40))
 
     with allure.step('Add route: {}/{} {}'.format(dst_ip, mask, neigh_69)):
-        env.sonic_cli.route.add_route(env.dut_engine, dst_ip, neigh_69, mask)
+        env.sonic_cli.route.add_route(dst_ip, neigh_69, mask)
     with allure.step('Add route: {}/{} {}'.format(dst_ip, mask, neigh_40)):
-        env.sonic_cli.route.add_route(env.dut_engine, dst_ip, neigh_40, mask)
+        env.sonic_cli.route.add_route(dst_ip, neigh_40, mask)
 
-    cleanup.append((env.sonic_cli.route.del_route, env.dut_engine, dst_ip, neigh_69, mask))
-    cleanup.append((env.sonic_cli.route.del_route, env.dut_engine, dst_ip, neigh_40, mask))
+    cleanup.append((env.sonic_cli.route.del_route, dst_ip, neigh_69, mask))
+    cleanup.append((env.sonic_cli.route.del_route, dst_ip, neigh_40, mask))
 
     with allure.step('Verify CRM nexthop_group_member counters'):
         retry_call(
@@ -167,8 +167,8 @@ def test_crm_nexthop_group_and_member(env, cleanup):
         )
 
     with allure.step('Delete routes'.format(dst_ip, mask, neigh_40)):
-        env.sonic_cli.route.del_route(env.dut_engine, dst_ip, neigh_69, mask)
-        env.sonic_cli.route.del_route(env.dut_engine, dst_ip, neigh_40, mask)
+        env.sonic_cli.route.del_route(dst_ip, neigh_69, mask)
+        env.sonic_cli.route.del_route(dst_ip, neigh_40, mask)
 
     cleanup.clear()
 
@@ -236,7 +236,7 @@ def test_crm_acl(env, cleanup):
 
     with allure.step('Adding basic ACL config'):
         apply_acl_config(env, entry_num=1)
-    cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
+    cleanup.append((env.sonic_cli.acl.delete_config,))
 
     with allure.step('Wait until CRM ACL table will be created'):
         retry_call(
@@ -273,8 +273,8 @@ def test_crm_acl(env, cleanup):
             verify_counters, fargs=[env, acl_counter_resource, acl_counter_used, '==', acl_counter_available],
             tries=env.MAX_CRM_UPDATE_TIME, delay=1, logger=None
         )
-    cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
-    cleanup.append((env.sonic_cli.acl.remove_table, env.dut_engine, ACL_TABLE_NAME))
+    cleanup.append((env.sonic_cli.acl.delete_config,))
+    cleanup.append((env.sonic_cli.acl.remove_table, ACL_TABLE_NAME))
 
 
 @pytest.mark.parametrize('ip_ver,start_ip', [('4', '2.2.2.0'), ('6', '2001::')], ids=['ipv4', 'ipv6'])
@@ -399,8 +399,8 @@ def test_crm_thresholds_acl(env, cleanup, loganalyzer_log_folder, map_res_to_thr
 
     with allure.step("Create ACL config with {} entries".format(required_acl_entries)):
         apply_acl_config(env, entry_num=required_acl_entries)
-        cleanup.append((env.sonic_cli.acl.delete_config, env.dut_engine))
-        cleanup.append((env.sonic_cli.acl.remove_table, env.dut_engine, ACL_TABLE_NAME))
+        cleanup.append((env.sonic_cli.acl.delete_config,))
+        cleanup.append((env.sonic_cli.acl.remove_table, ACL_TABLE_NAME))
 
     with allure.step("Verify 'ACL' counters incremented"):
         retry_call(

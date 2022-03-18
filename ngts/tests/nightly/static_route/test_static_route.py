@@ -7,7 +7,6 @@ from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_route_clis import SonicRouteCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
@@ -94,7 +93,7 @@ def apply_config(topology_obj, engine, ip_config_dict):
                                   ROUTE_APP_CONFIG_DEL_DUT_PATH, ROUTE_APP_CONFIG_DEL)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     add_routes_command = 'swssconfig {}'.format(ROUTE_APP_CONFIG_SET_DUT_PATH)
-    SonicGeneralCli().execute_command_in_docker(engine, docker='swss', command=add_routes_command)
+    topology_obj.players['dut']['cli'].general.execute_command_in_docker(docker='swss', command=add_routes_command)
 
 
 def copy_route_app_configs_to_dut(engine, ROUTE_APP_CONFIG_SET_LOCAL_PATH, ROUTE_APP_CONFIG_SET_DUT_PATH,
@@ -120,7 +119,7 @@ def cleanup_config(topology_obj, engine, ip_config_dict):
     :param ip_config_dict: ip_config_dict
     """
     del_routes_command = 'swssconfig {}'.format(ROUTE_APP_CONFIG_DEL_DUT_PATH)
-    SonicGeneralCli().execute_command_in_docker(engine, docker='swss', command=del_routes_command)
+    topology_obj.players['dut']['cli'].generalexecute_command_in_docker(docker='swss', command=del_routes_command)
     engine.run_cmd('sudo rm -f {}'.format(ROUTE_APP_CONFIG_SET_DUT_PATH))
     engine.run_cmd('sudo rm -f {}'.format(ROUTE_APP_CONFIG_DEL_DUT_PATH))
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
@@ -182,7 +181,7 @@ def test_scale_static_route(engines, players, interfaces, static_route_configura
 
     :return: raise assertion error in case when test failed
     """
-    dut_mac = SonicMacCli.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_1)
+    dut_mac = SonicMacCli(engine=engines.dut).get_mac_address_for_interface(interfaces.dut_ha_1)
 
     ipv4_list, ipv6_list = static_route_configuration
     # Instead of use big list with IPs use one smaller with 1k IPs(in other case - scapy will fail, too many packets)

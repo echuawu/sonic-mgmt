@@ -6,7 +6,7 @@ import re
 from ngts.constants.constants import InterfacesTypeConstants
 from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+
 logger = logging.getLogger()
 
 
@@ -20,7 +20,7 @@ def auto_neg_configuration(topology_obj, setup_name, engines, cli_objects, platf
     yield
 
     logger.info('Starting Auto Neg configuration cleanup')
-    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
 
     logger.info('Auto Neg cleanup completed')
 

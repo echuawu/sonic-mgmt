@@ -8,15 +8,16 @@ logger = logging.getLogger()
 
 class LinuxLldpCli(LldpCliCommon):
 
-    @staticmethod
-    def show_lldp_info_for_specific_interface(engine, interface_name):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def show_lldp_info_for_specific_interface(self, interface_name):
         """
         This method gets LLDP information for a specific interface
-        :param engine: ssh engine object
         :param interface_name: interface name
         :return: command output
         """
-        return engine.run_cmd("lldptool -i {} -t -n".format(interface_name))
+        return self.engine.run_cmd("lldptool -i {} -t -n".format(interface_name))
 
     @staticmethod
     def parse_lldp_info_for_specific_interface(port_lldp_output):
@@ -40,42 +41,34 @@ class LinuxLldpCli(LldpCliCommon):
             res[value_name] = reg_value
         return res
 
-    @staticmethod
-    def disable_lldp_on_interface(engine, interface):
+    def disable_lldp_on_interface(self, interface):
         """
         This method disable LLDP on host interface
-        :param engine: ssh engine object
         :param interface: interface name
         :return: command output
         """
-        return engine.run_cmd("lldptool set-lldp -i {} adminStatus=disabled".format(interface))
+        return self.engine.run_cmd("lldptool set-lldp -i {} adminStatus=disabled".format(interface))
 
-    @staticmethod
-    def enable_lldp_on_interface(engine, interface):
+    def enable_lldp_on_interface(self, interface):
         """
         This method enable LLDP on host interface
-        :param engine: ssh engine object
         :param interface: interface name
         :return: command output
         """
-        return engine.run_cmd("lldptool set-lldp -i {} adminStatus=rxtx".format(interface))
+        return self.engine.run_cmd("lldptool set-lldp -i {} adminStatus=rxtx".format(interface))
 
-    @staticmethod
-    def enable_lldp_on_host(engine):
+    def enable_lldp_on_host(self):
         """
         This method enable LLDP on host
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd("lldpad -d")
+        return self.engine.run_cmd("lldpad -d")
 
-    @staticmethod
-    def is_lldp_enabled_on_host(engine):
+    def is_lldp_enabled_on_host(self):
         """
         This method enable LLDP on host
-        :param engine: ssh engine object
         :return: command output
         """
         regex_pattern = "lldpad -d"
-        output = engine.run_cmd("ps -aux | grep lldpad")
+        output = self.engine.run_cmd("ps -aux | grep lldpad")
         return bool(re.search(regex_pattern, output, re.IGNORECASE))

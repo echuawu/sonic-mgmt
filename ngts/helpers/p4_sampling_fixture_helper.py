@@ -2,13 +2,12 @@ import pytest
 import logging
 import allure
 import time
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+
 from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from dotted_dict import DottedDict
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 logger = logging.getLogger()
 SPEED = '10G'
@@ -36,74 +35,73 @@ def skipping_p4_sampling_test_case_for_spc1(platform_params):
         pytest.skip("Skipping p4-sampling test cases as SPC1 does not support it")
 
 
-def skipping_p4_sampling_test_case(engine_dut):
+def skipping_p4_sampling_test_case(cli_obj):
     """
     If p4-sampling is not ready, skipping all p4-sampling test cases execution
-    :param engine_dut: dut ssh engine
+    :param cli_obj: cli_obj
     """
-    if not P4SamplingUtils.check_p4_sampling_installed(engine_dut):
+    if not P4SamplingUtils.check_p4_sampling_installed(cli_obj):
         pytest.skip("Skipping p4-sampling test cases as p4-sampling is not installed.")
 
 
-def install_p4_sampling(engine_dut):
+def install_p4_sampling(engine_dut, cli_obj):
     """
     install p4-sampling app
     :param engine_dut: dut ssh engine object
     :return: None
     """
     with allure.step('Check if the repository of the {} added and if it is Installed '.format(APP_NAME)):
-        app_list = SonicAppExtensionCli.parse_app_package_list_dict(engine_dut)
+        app_list = cli_obj.app_ext.parse_app_package_list_dict()
         if APP_NAME in app_list:
             app_data = app_list[APP_NAME]
             app_status = app_data['Status']
             if app_status == 'Installed':
                 with allure.step('Disable {}'.format(APP_NAME)):
-                    SonicGeneralCli().set_feature_state(
-                        engine_dut, APP_NAME, 'disabled')
+                    cli_obj.general.set_feature_state(APP_NAME, 'disabled')
                 with allure.step('Uninstall {}'.format(APP_NAME)):
-                    SonicAppExtensionCli.uninstall_app(engine_dut, APP_NAME)
+                    cli_obj.app_ext.uninstall_app(APP_NAME)
             with allure.step('Remove {} app from {} Repository'.format(APP_NAME, P4SamplingConsts.REPOSITORY)):
-                SonicAppExtensionCli.remove_repository(engine_dut, APP_NAME)
+                cli_obj.app_ext.remove_repository(APP_NAME)
 
     with allure.step('Add {} app to {} Repository'.format(APP_NAME, P4SamplingConsts.REPOSITORY)):
-        SonicAppExtensionCli.add_repository(engine_dut, APP_NAME, P4SamplingConsts.REPOSITORY)
+        cli_obj.app_ext.add_repository(APP_NAME, P4SamplingConsts.REPOSITORY)
     with allure.step('Install {} with version {}'.format(APP_NAME, P4SamplingConsts.VERSION)):
-        SonicAppExtensionCli.install_app(engine_dut, APP_NAME, P4SamplingConsts.VERSION)
+        cli_obj.app_ext.install_app(APP_NAME, P4SamplingConsts.VERSION)
     with allure.step('Enable {}'.format(APP_NAME)):
-        SonicGeneralCli().set_feature_state(engine_dut, APP_NAME, 'enabled')
+        cli_obj.general.set_feature_state(APP_NAME, 'enabled')
 
     # TODO: after the bug 2684913 is fixed, need to remove the sleep
     time.sleep(10)
     logger.info('{} installation completed'.format(APP_NAME))
 
 
-def uninstall_p4_sampling(engine_dut):
+def uninstall_p4_sampling(engine_dut, cli_obj):
     """
     uninstall p4-sampling app
     :param engine_dut: dut ssh engine object
     :return: None
     """
     with allure.step('Disable {}'.format(APP_NAME)):
-        SonicGeneralCli().set_feature_state(engine_dut, APP_NAME, 'disabled')
+        cli_obj.general.set_feature_state(APP_NAME, 'disabled')
     with allure.step('Uninstall {}'.format(APP_NAME)):
-        SonicAppExtensionCli.uninstall_app(engine_dut, APP_NAME)
+        cli_obj.app_ext.uninstall_app(APP_NAME)
     with allure.step('Remove {} app from {} Repository'.format(APP_NAME, P4SamplingConsts.REPOSITORY)):
-        SonicAppExtensionCli.remove_repository(engine_dut, APP_NAME)
+        cli_obj.app_ext.remove_repository(APP_NAME)
     with allure.step('Verify the app is uninstalled'):
-        app_list = SonicAppExtensionCli.parse_app_package_list_dict(engine_dut)
+        app_list = cli_obj.app_ext.parse_app_package_list_dict()
         assert APP_NAME not in app_list
     logger.info('{} uninstallation completed'.format(APP_NAME))
     logger.info("Check the sdk acl value after the p4-sampling is installed")
     logger.info(engine_dut.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'"))
 
 
-def clean_p4_sampling_entries(engines):
+def clean_p4_sampling_entries(engines, cli_obj):
     """
     clean the p4 sampling entries
     :param engines: engines fixture object
     :return: port entries and flow entries that have been removed.
     """
-    SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
+    cli_obj.app_ext.enable_app(APP_NAME)
     with allure.step('Get existing entries'):
         port_entries = P4SamplingCli.show_and_parse_table_entries(engines.dut, PORT_TABLE_NAME, exclude_keys=['rule'])
         flow_entries = P4SamplingCli.show_and_parse_table_entries(engines.dut, FLOW_TABLE_NAME, exclude_keys=['rule'])
@@ -136,13 +134,13 @@ def recover_p4_sampling_entries(engines, port_entries, flow_entries):
             P4SamplingCli.add_entry_to_table(engines.dut, PORT_TABLE_NAME, flow_table_entry_params)
 
 
-def add_p4_sampling_entries(engines, table_params):
+def add_p4_sampling_entries(engines, cli_obj, table_params):
     """
     Add p4 sampling entries with entry params defined in table_params
     :param engines: engines fixture object
     :param table_params: table_params fixture object
     """
-    SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
+    cli_obj.app_ext.enable_app(APP_NAME)
 
     port_entry = table_params.port_entry
     with allure.step('Add {} entries for {}'.format(len(port_entry.keys()), PORT_TABLE_NAME)):
@@ -217,8 +215,8 @@ def get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_m
     l3_mirror_is_truc = 'True'
     l3_mirror_truc_size = 300
     cli_object = topology_obj.players['dut']['cli']
-    dutha2_mac = cli_object.mac.get_mac_address_for_interface(engines.dut, topology_obj.ports['dut-ha-2'])
-    duthb1_mac = cli_object.mac.get_mac_address_for_interface(engines.dut, topology_obj.ports['dut-hb-1'])
+    dutha2_mac = cli_object.mac.get_mac_address_for_interface(topology_obj.ports['dut-ha-2'])
+    duthb1_mac = cli_object.mac.get_mac_address_for_interface(topology_obj.ports['dut-hb-1'])
     port_entry_action_param_list = ['{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, hb_dut_1_mac,
                                                                      P4SamplingEntryConsts.duthb1_ip,
                                                                      P4SamplingEntryConsts.hbdut1_ip,

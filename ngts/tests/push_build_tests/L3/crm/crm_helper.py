@@ -97,7 +97,7 @@ def get_main_crm_stat(env, resource):
         ipv4_route, ipv6_route, ipv4_nexthop, ipv6_nexthop, ipv4_neighbor,
         ipv6_neighbor, nexthop_group_member, nexthop_group, fdb_entry
     """
-    crm_resources_all = env.sonic_cli.crm.parse_resources_table(env.dut_engine)
+    crm_resources_all = env.sonic_cli.crm.parse_resources_table()
     res = crm_resources_all['main_resources'][resource]
     return int(res['Used Count']), int(res['Available Count'])
 
@@ -108,7 +108,7 @@ def get_all_crm_stat(env):
     :param env: pytest fixture
     """
     stat = {}
-    crm_resources_all = env.sonic_cli.crm.parse_resources_table(env.dut_engine)
+    crm_resources_all = env.sonic_cli.crm.parse_resources_table()
     for resource, value in crm_resources_all['main_resources'].items():
         stat[resource] = {"used": int(value['Used Count']), "available": int(value['Available Count'])}
     return stat
@@ -126,7 +126,7 @@ def get_acl_crm_stat(env, resource):
         ipv4_route, ipv6_route, ipv4_nexthop, ipv6_nexthop, ipv4_neighbor,
         ipv6_neighbor, nexthop_group_member, nexthop_group, fdb_entry
     """
-    crm_resource_acl = env.sonic_cli.crm.parse_resources_table(env.dut_engine)['table_resources']
+    crm_resource_acl = env.sonic_cli.crm.parse_resources_table()['table_resources']
     if not crm_resource_acl:
         return None
 
@@ -196,7 +196,7 @@ def apply_acl_config(env, entry_num=1):
     env.dut_engine.run_cmd('mkdir -p {}'.format(dst_dir))
 
     # Create ACL table
-    env.sonic_cli.acl.create_table(env.dut_engine, tbl_name=ACL_TABLE_NAME, tbl_type='L3',
+    env.sonic_cli.acl.create_table(tbl_name=ACL_TABLE_NAME, tbl_type='L3',
                                    description='"{} table"'.format(ACL_TABLE_NAME), stage='ingress')
 
     if entry_num == 1:
@@ -222,7 +222,7 @@ def apply_acl_config(env, entry_num=1):
         raise Exception('Incorrect number of ACL entries specified - {}'.format(entry_num))
 
     logger.info("Applying ACL config on DUT")
-    env.sonic_cli.acl.apply_config(env.dut_engine, os.path.join(dst_dir, acl_rules_file))
+    env.sonic_cli.acl.apply_config(os.path.join(dst_dir, acl_rules_file))
 
 
 def get_used_percent(crm_used, crm_available):

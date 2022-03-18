@@ -56,14 +56,14 @@ class TestFdbAdvance:
                 self.generate_dynamic_fdb_item(self.vlan_id1)
                 verify_mac_saved_to_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
             with allure.step("Shutdown dut-ha-1"):
-                SonicInterfaceCli.disable_interface(self.engines.dut, self.port1)
+                SonicInterfaceCli(engine=self.engines.dut).disable_interface(self.port1)
             with allure.step("Verify the fdb items related to dut-ha-1 are removed"):
                 verify_mac_not_in_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
 
         except Exception as err:
             raise AssertionError(err)
         finally:
-            SonicInterfaceCli.enable_interface(self.engines.dut, self.port1)
+            SonicInterfaceCli(engine=self.engines.dut).enable_interface(self.port1)
 
     @allure.title('Test fdb item will be removed after removing the corresponding vlan')
     def test_fdb_item_be_removed_after_removing_corresponding_vlan(self):

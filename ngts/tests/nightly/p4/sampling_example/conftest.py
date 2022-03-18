@@ -41,12 +41,12 @@ def skipping_p4_sampling_test_case_for_spc1(platform_params):
 
 
 @pytest.fixture(scope="package", autouse=False)
-def skipping_p4_sampling_test_case(engines):
+def skipping_p4_sampling_test_case(cli_objects):
     """
     If p4-sampling is not ready, skipping all p4-sampling test cases execution
-    :param engines: engines fixture
+    :param cli_objects: cli_objects fixture
     """
-    fixture_helper.skipping_p4_sampling_test_case(engines.dut)
+    fixture_helper.skipping_p4_sampling_test_case(cli_objects.dut)
 
 
 @pytest.fixture(scope='package', autouse=True)

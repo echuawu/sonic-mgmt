@@ -19,12 +19,12 @@ class VlanConfigTemplate:
         with allure.step('Applying VLAN configuration'):
             conf = {}
             for player_alias, configuration in vlan_config_dict.items():
-                stub_engine = StubEngine()
-                cli_object = topology_obj.players[player_alias]['cli']
+                cli_object = topology_obj.players[player_alias]['stub_cli']
                 for vlan_info in configuration:
-                    cli_object.vlan.configure_vlan_and_add_ports(stub_engine, vlan_info)
+                    cli_object.vlan.configure_vlan_and_add_ports(vlan_info)
 
-                conf[player_alias] = stub_engine.commands_list
+                conf[player_alias] = cli_object.vlan.engine.commands_list
+                cli_object.vlan.engine.commands_list = []
 
             parallel_config_runner(topology_obj, conf)
 
@@ -39,11 +39,11 @@ class VlanConfigTemplate:
         with allure.step('Performing VLAN configuration cleanup'):
             conf = {}
             for player_alias, configuration in vlan_config_dict.items():
-                stub_engine = StubEngine()
-                cli_object = topology_obj.players[player_alias]['cli']
+                cli_object = topology_obj.players[player_alias]['stub_cli']
                 for vlan_info in configuration:
-                    cli_object.vlan.delete_vlan_and_remove_ports(stub_engine, vlan_info)
+                    cli_object.vlan.delete_vlan_and_remove_ports(vlan_info)
 
-                conf[player_alias] = stub_engine.commands_list
+                conf[player_alias] = cli_object.vlan.engine.commands_list
+                cli_object.vlan.engine.commands_list = []
 
             parallel_config_runner(topology_obj, conf)

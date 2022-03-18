@@ -39,9 +39,9 @@ def verify_neighbour_ports(topology_obj, engines, dut_ports_interconnects):
     :return: Raise Assertion in case when failed
     """
     cli_object = topology_obj.players['dut']['cli']
-    lldp_table_info = cli_object.lldp.parse_lldp_table_info(engines.dut)
-    port_aliases_dict = cli_object.interface.parse_ports_aliases_on_sonic(engines.dut)
-    dut_hostname = cli_object.chassis.get_hostname(engines.dut)
+    lldp_table_info = cli_object.lldp.parse_lldp_table_info()
+    port_aliases_dict = cli_object.interface.parse_ports_aliases_on_sonic()
+    dut_hostname = cli_object.chassis.get_hostname()
     for port_noga_alias, neighbor_port_noga_alias in dut_ports_interconnects.items():
         port = topology_obj.ports[port_noga_alias]
         port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
@@ -79,7 +79,7 @@ def verify_lldp_ports_match_topology_ports(dut_ports_interconnects, topology_obj
     """
     with allure.step("Verifying topology ports list is same as lldp ports list"):
         cli_object = topology_obj.players['dut']['cli']
-        lldp_table_info = cli_object.lldp.parse_lldp_table_info(topology_obj.players['dut']['engine'])
+        lldp_table_info = cli_object.lldp.parse_lldp_table_info()
         logger.info("Verify topology ports list is same as lldp ports list")
         dut_ports = list(map(lambda x: topology_obj.ports[x], dut_ports_interconnects.keys()))
         lldp_ports = list(lldp_table_info.keys())
@@ -108,10 +108,9 @@ def verify_lldp_table_info_for_host_port(topology_obj, lldp_table_info, port, ne
     :return: None, raise assertion error if lldp table info doesn't match the expected output
     """
     host_name_alias = neighbor_port_noga_alias.split('-')[0]
-    host_engine = topology_obj.players[host_name_alias]['engine']
     cli_object = topology_obj.players[host_name_alias]['cli']
-    hostname = cli_object.chassis.get_hostname(host_engine)
-    host_port_mac = cli_object.mac.get_mac_address_for_interface(host_engine, port_neighbor)
+    hostname = cli_object.chassis.get_hostname()
+    host_port_mac = cli_object.mac.get_mac_address_for_interface(port_neighbor)
     verify_lldp_table_info_for_port(port, lldp_table_info,
                                     hostname,
                                     host_port_mac,
@@ -217,8 +216,8 @@ def test_show_lldp_neighbors_output(topology_obj, engines):
                      " match the expected setup Noga topology"):
         cli_object = topology_obj.players['dut']['cli']
         dut_ports_interconnects = get_dut_ports_interconnects(topology_obj.ports_interconnects)
-        dut_hostname = cli_object.chassis.get_hostname(engines.dut)
-        dut_mac = cli_object.mac.get_mac_address_for_interface(engines.dut, "eth0")
+        dut_hostname = cli_object.chassis.get_hostname()
+        dut_mac = cli_object.mac.get_mac_address_for_interface("eth0")
         for port_noga_alias, neighbor_port_noga_alias in dut_ports_interconnects.items():
             retry_call(verify_lldp_neighbor_info,
                        fargs=[topology_obj, cli_object, engines, port_noga_alias,
@@ -234,7 +233,7 @@ def verify_lldp_neighbor_info(topology_obj, cli_object, engines,
     """
     port = topology_obj.ports[port_noga_alias]
     port_neighbor = topology_obj.ports[neighbor_port_noga_alias]
-    lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(engines.dut, port)
+    lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(port)
     with allure.step("Validating topology neighbor ports {}: {} and {}: {}"
                      .format(port_noga_alias, port, neighbor_port_noga_alias, port_neighbor)):
         if is_port_connected_to_host(port_noga_alias):
@@ -256,8 +255,8 @@ def verify_lldp_neighbor_info_for_host_port(topology_obj, lldp_neighbor_info, po
     host_name_alias = neighbor_port_noga_alias.split('-')[0]
     host_engine = topology_obj.players[host_name_alias]['engine']
     cli_object = topology_obj.players[host_name_alias]['cli']
-    hostname = cli_object.chassis.get_hostname(host_engine)
-    host_mac = cli_object.mac.get_mac_address_for_interface(host_engine, port_neighbor)
+    hostname = cli_object.chassis.get_hostname()
+    host_mac = cli_object.mac.get_mac_address_for_interface(port_neighbor)
     verify_lldp_neighbor_info_for_port(port, lldp_neighbor_info, hostname, host_mac, port_neighbor)
 
 
@@ -323,7 +322,7 @@ def test_lldp_after_disable_on_dut(topology_obj, engines, cli_objects):
     :return: None, raise assertion error if lldp info doesn't match the expected output
     """
     try:
-        cli_objects.dut.lldp.disable_lldp(engines.dut)
+        cli_objects.dut.lldp.disable_lldp()
         logger.info("Verify lldp is disabled in \"show_feature_status\"")
         check_lldp_feature_status(engines.dut, cli_objects.dut, expected_res=r"lldp\s+disabled")
         with allure.step("Expect test LLDP to fail after being disabled"):
@@ -332,18 +331,18 @@ def test_lldp_after_disable_on_dut(topology_obj, engines, cli_objects):
                 raise Exception("Test passed when expected to fail")
             except AssertionError as e:
                 logger.info("Test failed as expected")
-        cli_objects.dut.lldp.enable_lldp(engines.dut)
+        cli_objects.dut.lldp.enable_lldp()
         logger.info("Verify LLDP service start")
         check_lldp_feature_status(engines.dut, cli_objects.dut)
         with allure.step("Expect test LLDP to pass after LLDP is enabled"):
             retry_call(verify_lldp_info_for_dut_host_ports, fargs=[topology_obj], tries=4, delay=10, logger=logger)
     finally:
-        cli_objects.dut.lldp.enable_lldp(engines.dut)
+        cli_objects.dut.lldp.enable_lldp()
 
 
 def check_lldp_feature_status(dut_engine, cli_object, expected_res=r"lldp\s+enabled"):
     with allure.step("Verifying the output of \"show feature status\" command"):
-        feature_status = cli_object.general.show_feature_status(dut_engine)
+        feature_status = cli_object.general.show_feature_status()
         expected_output = [(expected_res, True)]
         verify_show_cmd(feature_status, expected_output)
 
@@ -358,17 +357,15 @@ def verify_lldp_info_for_dut_host_ports(topology_obj):
         ports_for_validation = {'host_ports': ['ha-dut-1', 'ha-dut-2', 'hb-dut-1', 'hb-dut-2'],
                                 'dut_ports': ['dut-ha-1', 'dut-ha-2', 'dut-hb-1', 'dut-hb-2']}
 
-        dut_engine = topology_obj.players['dut']['engine']
         cli_object = topology_obj.players['dut']['cli']
         for host_dut_port in zip(ports_for_validation['host_ports'], ports_for_validation['dut_ports']):
             host_port_alias = host_dut_port[0]
             host_name_alias = host_port_alias.split('-')[0]
-            host_engine = topology_obj.players[host_name_alias]['engine']
             host_cli_object = topology_obj.players[host_name_alias]['cli']
-            host_port_mac = host_cli_object.mac.get_mac_address_for_interface(host_engine, topology_obj.ports[host_port_alias])
+            host_port_mac = host_cli_object.mac.get_mac_address_for_interface(topology_obj.ports[host_port_alias])
             dut_port = topology_obj.ports[host_dut_port[1]]
             with allure.step('Checking peer MAC address via LLDP in interface {}'.format(dut_port)):
-                lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(dut_engine, dut_port)
+                lldp_info = cli_object.lldp.parse_lldp_info_for_specific_interface(dut_port)
                 logger.info('Checking that peer device mac address in LLDP output')
                 assert host_port_mac in lldp_info['Chassis']['ChassisID'], \
                     '{} was not found in {}'.format(host_port_mac, lldp_info)
@@ -388,7 +385,7 @@ def test_lldp_after_disable_on_host(topology_obj, engines, interfaces):
     """
     cli_object = topology_obj.players['ha']['cli']
     try:
-        cli_object.lldp.disable_lldp_on_interface(engines.ha, interfaces.ha_dut_1)
+        cli_object.lldp.disable_lldp_on_interface(interfaces.ha_dut_1)
         with allure.step("Expect test LLDP to fail after LLDP was disabled on host interface"):
             try:
                 verify_lldp_info_for_dut_host_ports(topology_obj)
@@ -396,7 +393,7 @@ def test_lldp_after_disable_on_host(topology_obj, engines, interfaces):
             except AssertionError as e:
                 logger.info("Test failed as expected")
         logger.info("Start LLDP on host interface")
-        cli_object.lldp.enable_lldp_on_interface(engines.ha, interfaces.ha_dut_1)
+        cli_object.lldp.enable_lldp_on_interface(interfaces.ha_dut_1)
         with allure.step("Expect test LLDP to pass after LLDP is enabled on host interface"):
             retry_call(verify_lldp_info_for_dut_host_ports, fargs=[topology_obj], tries=4, delay=10, logger=logger)
 
@@ -405,7 +402,7 @@ def test_lldp_after_disable_on_host(topology_obj, engines, interfaces):
 
     finally:
         # cleanup
-        cli_object.lldp.enable_lldp_on_interface(engines.ha, interfaces.ha_dut_1)
+        cli_object.lldp.enable_lldp_on_interface(interfaces.ha_dut_1)
 
 
 @pytest.mark.build
@@ -424,10 +421,10 @@ def test_lldp_change_transmit_delay(topology_obj, engines):
     checked_intervals = [120, 60, 30]
     for interval in checked_intervals:
         with allure.step("Check lldp when changing transmit delay to {} seconds.".format(interval)):
-            cli_object.lldp.change_lldp_tx_interval(engines.dut, interval=interval)
-            cli_object.lldp.verify_lldp_tx_interval(engines.dut, expected_transmit_interval=interval)
-            cli_object.lldp.pause_lldp(engines.dut)
-            cli_object.lldp.resume_lldp(engines.dut)
+            cli_object.lldp.change_lldp_tx_interval(interval=interval)
+            cli_object.lldp.verify_lldp_tx_interval(expected_transmit_interval=interval)
+            cli_object.lldp.pause_lldp()
+            cli_object.lldp.resume_lldp()
             logger.info("Verify LLDP service resume within {} seconds".format(interval))
             with allure.step("Expect test LLDP to pass within {} seconds after LLDP is resume".format(interval)):
                 retry_call(verify_lldp_info_for_host_dut_ports, fargs=[topology_obj],
@@ -445,15 +442,14 @@ def verify_lldp_info_for_host_dut_ports(topology_obj):
                                 'dut_ports': ['dut-ha-1', 'dut-ha-2', 'dut-hb-1', 'dut-hb-2']}
         dut_engine = topology_obj.players['dut']['engine']
         cli_object = topology_obj.players['dut']['cli']
-        dut_hostname = cli_object.chassis.get_hostname(dut_engine)
+        dut_hostname = cli_object.chassis.get_hostname()
         for host_port_alias, dut_host_port_alias in zip(ports_for_validation['host_ports'], ports_for_validation['dut_ports']):
             host_name_alias = host_port_alias.split('-')[0]
             dut_port = topology_obj.ports[dut_host_port_alias]
             host_port = topology_obj.ports[host_port_alias]
-            host_engine = topology_obj.players[host_name_alias]['engine']
             host_cli_object = topology_obj.players[host_name_alias]['cli']
-            host_hostname = cli_object.chassis.get_hostname(host_engine)
-            port_lldp_output = host_cli_object.lldp.show_lldp_info_for_specific_interface(host_engine, host_port)
+            host_hostname = host_cli_object.chassis.get_hostname()
+            port_lldp_output = host_cli_object.lldp.show_lldp_info_for_specific_interface(host_port)
             parsed_lldp_output_dict = host_cli_object.lldp.parse_lldp_info_for_specific_interface(port_lldp_output)
             with allure.step('Checking LLDP Info in host {} for interface {}'.format(host_hostname, host_port)):
                 neighbor_port = parsed_lldp_output_dict["neighbor_port"]

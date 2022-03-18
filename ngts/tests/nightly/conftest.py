@@ -5,7 +5,6 @@ import pytest
 import logging
 
 from retry.api import retry_call
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers import json_file_helper as json_file_helper
 from ngts.constants.constants import InterfacesTypeConstants
 
@@ -143,7 +142,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
           'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
     """
     platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
-    split_mode_supported_speeds = SonicGeneralCli().parse_platform_json(topology_obj, platform_json_info)
+    split_mode_supported_speeds = cli_objects.dut.general.parse_platform_json(topology_obj, platform_json_info)
 
     # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
     convert_100_to_100m_speed(split_mode_supported_speeds)

@@ -3,7 +3,6 @@ import allure
 import re
 import random
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_lldp_clis import SonicLldpCli
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
@@ -36,7 +35,7 @@ def orig_ifaces(engines):
     :param engines: engines fixture object
     :return: interfaces status in dictionary format
     """
-    yield SonicInterfaceCli.parse_interfaces_status(engines.dut)
+    yield SonicInterfaceCli(engine=engines.dut).parse_interfaces_status()
 
 
 @pytest.fixture(scope='package', autouse=False)
@@ -47,7 +46,7 @@ def dynamic_port_counter_configuration(engines, interfaces, topology_obj):
     :param interfaces: interfaces fixture object
     :param topology_obj: topology_obj fixture object
     """
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_hb_2])
+    dut_original_interfaces_speeds = SonicInterfaceCli(engine=engines.dut).get_interfaces_speed([interfaces.dut_hb_2])
     interfaces_config_dict = {
         'dut': [{'iface': interfaces.dut_ha_2, 'speed': '10G',
                  'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '10G')},
@@ -112,7 +111,7 @@ PORT_NUM_LIST = [1]
 
 
 @pytest.mark.parametrize("ports_num", PORT_NUM_LIST)
-def test_dynamic_port_counters(request, engines, ports_num, interfaces, players, ha_dut_1_mac, orig_ifaces):
+def test_dynamic_port_counters(request, cli_objects, engines, ports_num, interfaces, players, ha_dut_1_mac, orig_ifaces):
     """
     Test dynamically adding ports or deleting ports
     :param request: pytest request fixture object
@@ -134,7 +133,7 @@ def test_dynamic_port_counters(request, engines, ports_num, interfaces, players,
             add_ports_cmd, del_ports_cmd = get_add_del_cmds(orig_ifaces, sampling_interfaces)
 
         with allure.step("Get lldp table before delete ports"):
-            ori_lldp_table = SonicLldpCli.parse_lldp_table_info(dut_engine)
+            ori_lldp_table = SonicLldpCli(engine=dut_engine).parse_lldp_table_info()
 
         with allure.step("Delete ports"):
             dut_engine.run_cmd(del_ports_cmd)
@@ -157,7 +156,7 @@ def test_dynamic_port_counters(request, engines, ports_num, interfaces, players,
                 verify_traffic(interfaces, players, ha_dut_1_mac)
     except Exception as e:
         with allure.step("Reload config after failure"):
-            SonicGeneralCli().reload_configuration(dut_engine)
+            cli_objects.dut.general.reload_configuration()
         with allure.step("Verify ports are added back after reload config"):
             retry_call(verify_ifaces_status, fargs=[dut_engine, orig_ifaces],
                        tries=10, delay=10, logger=logger)
@@ -172,9 +171,9 @@ def verify_ifaces_status(dut_engine, expected_interfaces):
     :return: None, raise exception on unexpected results
     """
     if len(expected_interfaces) > 0:
-        interfaces = SonicInterfaceCli.parse_interfaces_status(dut_engine)
+        interfaces = SonicInterfaceCli(engine=dut_engine).parse_interfaces_status()
     else:
-        interfaces = SonicInterfaceCli.parse_interfaces_status(dut_engine, headers_ofset=2, len_ofset=3,
+        interfaces = SonicInterfaceCli(engine=dut_engine).parse_interfaces_status(headers_ofset=2, len_ofset=3,
                                                                data_ofset_from_start=4)
     for iface in expected_interfaces:
         assert interfaces[iface] == expected_interfaces[iface], \
@@ -188,7 +187,7 @@ def verify_lldp_table(dut_engine, expected_lldp_table):
     :param expected_lldp_table: expected_lldp_table
     :return: None, raise exception on unexpected results
     """
-    lldp_table = SonicLldpCli.parse_lldp_table_info(dut_engine)
+    lldp_table = SonicLldpCli(engine=dut_engine).parse_lldp_table_info()
     for iface in expected_lldp_table:
         assert lldp_table[iface] == expected_lldp_table[iface], \
             "the lldp neighbor {} is not same as expected {}".format(lldp_table[iface], expected_lldp_table[iface])

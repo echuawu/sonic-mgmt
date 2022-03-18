@@ -36,17 +36,17 @@ def set_polling_interval(env):
     """ Set CRM polling interval to 1 second """
     wait_time = 2
     polling_1_sec = 1
-    original_poll_interval = env.sonic_cli.crm.get_polling_interval(env.dut_engine)
+    original_poll_interval = env.sonic_cli.crm.get_polling_interval()
 
     with allure.step('Set CRM polling interval to {}'.format(polling_1_sec)):
-        env.sonic_cli.crm.set_polling_interval(env.dut_engine, polling_1_sec)
+        env.sonic_cli.crm.set_polling_interval(polling_1_sec)
     retry_call(ensure_polling_configured, fargs=[polling_1_sec, env.sonic_cli, env.dut_engine], tries=5, delay=1,
                logger=None)
 
     yield
 
     with allure.step('Restore CRM polling interval to {}'.format(original_poll_interval)):
-        env.sonic_cli.crm.set_polling_interval(env.dut_engine, original_poll_interval)
+        env.sonic_cli.crm.set_polling_interval(original_poll_interval)
     retry_call(ensure_polling_configured, fargs=[original_poll_interval, env.sonic_cli, env.dut_engine], tries=5,
                delay=1, logger=None)
 
@@ -79,7 +79,7 @@ def ensure_polling_configured(expected_interval, sonic_cli, dut_engine):
     """
     Function checks that crm polling interval was configured
     """
-    assert (sonic_cli.crm.get_polling_interval(dut_engine) == expected_interval), "CRM polling interval was not updated"
+    assert (sonic_cli.crm.get_polling_interval() == expected_interval), "CRM polling interval was not updated"
 
 
 @pytest.fixture(scope='module')
@@ -143,31 +143,31 @@ def increase_arp_cache(env):
     for ip_ver in [4, 6]:
         for thresh_id in range(1, 4):
             # Store default
-            gc_thresh[ip_ver][thresh_id] = LinuxARPCache.get_gc_thresh(env.dut_engine, ip_ver, thresh_id)
+            gc_thresh[ip_ver][thresh_id] = LinuxARPCache(engine=env.dut_engine).get_gc_thresh(ip_ver, thresh_id)
             # Configure threshold that will not reach by test case
-            LinuxARPCache.set_gc_thresh(env.dut_engine, ip_ver, thresh_id, test_gc_thresh)
+            LinuxARPCache(engine=env.dut_engine).set_gc_thresh(ip_ver, thresh_id, test_gc_thresh)
         # Store default net.ipv[4|6].route.gc_interval
-        route_gc_interval[ip_ver] = LinuxARPCache.get_route_gc_interval(env.dut_engine, ip_ver)
+        route_gc_interval[ip_ver] = LinuxARPCache(engine=env.dut_engine).get_route_gc_interval(ip_ver)
         # Increase 'route.gc_interval' intervall to 600 seconds
-        LinuxARPCache.set_route_gc_interval(env.dut_engine, ip_ver, route_gc_interval[ip_ver])
+        LinuxARPCache(engine=env.dut_engine).set_route_gc_interval(ip_ver, route_gc_interval[ip_ver])
         # Store default net.ipv[4|6].neigh.default.gc_interval
-        neigh_gc_interval[ip_ver] = LinuxARPCache.get_neigh_gc_interval(env.dut_engine, ip_ver)
+        neigh_gc_interval[ip_ver] = LinuxARPCache(engine=env.dut_engine).get_neigh_gc_interval(ip_ver)
         # Increase 'neigh.default.gc_interval' intervall to 600 seconds
-        LinuxARPCache.set_neigh_gc_interval(env.dut_engine, ip_ver, neigh_gc_interval[ip_ver])
+        LinuxARPCache(engine=env.dut_engine).set_neigh_gc_interval(ip_ver, neigh_gc_interval[ip_ver])
 
     yield
 
     # Restore default Linux gc_interval and gc_thresh values
     for ip_ver in [4, 6]:
         for thresh_id in range(1, 4):
-            LinuxARPCache.set_gc_thresh(env.dut_engine, ip_ver, thresh_id, gc_thresh[ip_ver][thresh_id])
-        LinuxARPCache.set_route_gc_interval(env.dut_engine, ip_ver, route_gc_interval[ip_ver])
-        LinuxARPCache.set_neigh_gc_interval(env.dut_engine, ip_ver, neigh_gc_interval[ip_ver])
+            LinuxARPCache(engine=env.dut_engine).set_gc_thresh(ip_ver, thresh_id, gc_thresh[ip_ver][thresh_id])
+        LinuxARPCache(engine=env.dut_engine).set_route_gc_interval(ip_ver, route_gc_interval[ip_ver])
+        LinuxARPCache(engine=env.dut_engine).set_neigh_gc_interval(ip_ver, neigh_gc_interval[ip_ver])
 
 
 @pytest.fixture
 def thresholds_cleanup(env, map_res_to_thr, cleanup):
-    crm_thresholds = env.sonic_cli.crm.parse_thresholds_table(env.dut_engine)
+    crm_thresholds = env.sonic_cli.crm.parse_thresholds_table()
     cmd = 'crm config thresholds {res} type {th_type}; crm config thresholds {res} low {low}; crm config thresholds {res} high {high}'
     yield
     # Restore CRM thresholds configuration

@@ -2,7 +2,6 @@ import pytest
 import logging
 import allure
 from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from dotted_dict import DottedDict
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.constants.constants import P4SamplingConsts
@@ -65,7 +64,7 @@ class TestNegativeConfig:
         return table_param_data
 
     @allure.title('Test P4 sampling command, such as add, delete, show when the p4-sampling feature is disabled')
-    def test_sampling_cmd_with_disabled(self, engines, table_params):
+    def test_sampling_cmd_with_disabled(self, engines, cli_objects, table_params):
         """
         Verify the add, remove and show command when the p4-sampling is disabled.
         :param engines: engines fixture
@@ -74,8 +73,7 @@ class TestNegativeConfig:
         expect_error_msg = 'Error: "p4-sampling" feature is disabled, run "config feature state p4-sampling enabled"'
         try:
             with allure.step('Disable {}'.format(P4SamplingConsts.APP_NAME)):
-                SonicGeneralCli().set_feature_state(
-                    engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
+                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'disabled')
 
             with allure.step('Verify add, delete and show command for the table_port_sampling'):
                 port_table_entry_params = "key {} action {} {} priority {}".format(
@@ -126,8 +124,7 @@ class TestNegativeConfig:
                                                            r'"config feature state p4-sampling enabled"', True)])
         finally:
             with allure.step('Enable {}'.format(P4SamplingConsts.APP_NAME)):
-                SonicGeneralCli().set_feature_state(
-                    engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
 
     @allure.title('Test P4 sampling add, delete entry with negative keys')
     def test_sampling_entry_with_negative_key(self, engines, table_params):
@@ -601,13 +598,13 @@ class TestNegativeConfig:
 
 
 @pytest.mark.build
-def test_p4_sampling_not_support_on_spc1(engines, table_params, platform_params):
+def test_p4_sampling_not_support_on_spc1(engines, cli_objects, table_params, platform_params):
     if fixture_helper.is_p4_sampling_supported(platform_params):
         pytest.skip("Skip it due to the device is not SPC1")
     with allure.step(
             'Verify {} not support on SPC1'.format(P4SamplingConsts.APP_NAME)):
         expect_error_msg = "feature is not supported on device type"
-        SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+        cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
         flow_entry = table_params.flow_entry
         flow_entry_key = list(flow_entry.keys())[0]
         params = flow_entry[flow_entry_key]

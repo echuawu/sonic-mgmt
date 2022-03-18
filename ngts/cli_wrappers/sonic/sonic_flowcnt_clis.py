@@ -7,18 +7,18 @@ class SonicFlowcntCli(FlowcntCliCommon):
     This class is for flow counters cli commands for sonic only
     """
 
-    @staticmethod
-    def show_trap_stats(engine):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def show_trap_stats(self):
         """
         Show statistics of all traps matching the configured traps
-        :param engine: ssh engine object
         """
         cmd = 'show flowcnt-trap stats'
-        return engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd)
 
-    @staticmethod
-    def parse_trap_stats(engine):
-        flowcnt_trap_stats_output = SonicFlowcntCli.show_trap_stats(engine)
+    def parse_trap_stats(self):
+        flowcnt_trap_stats_output = self.show_trap_stats()
         flowcnt_trap_stats_dict = generic_sonic_output_parser(flowcnt_trap_stats_output,
                                                               headers_ofset=0,
                                                               len_ofset=1,
@@ -28,11 +28,9 @@ class SonicFlowcntCli(FlowcntCliCommon):
                                                               output_key='Trap Name')
         return flowcnt_trap_stats_dict
 
-    @staticmethod
-    def clear_trap_counters(engine):
+    def clear_trap_counters(self):
         """
         Clear all trap counters
-        :param engine: ssh engine object
         """
         cmd = 'sonic-clear flowcnt-trap'
-        return engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd)

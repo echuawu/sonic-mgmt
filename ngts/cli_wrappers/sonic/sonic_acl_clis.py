@@ -3,11 +3,12 @@ from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 
 class SonicAclCli:
 
-    @staticmethod
-    def create_table(engine, tbl_name, tbl_type, description, stage, ports=None):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def create_table(self, tbl_name, tbl_type, description, stage, ports=None):
         """
         Creates ACL table from SONIC
-        :param engine: ssh engine object
         :param tbl_name: ACL table name
         :param tbl_type: ACL table type [L3, MIRROR, MIRROR_DSCP, etc.]
         :param description: ACL table description
@@ -20,75 +21,61 @@ class SonicAclCli:
             ports = ','.join(ports)
             cmd += f' --ports={ports}'
 
-        return engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd)
 
-    @staticmethod
-    def remove_table(engine, tbl_name):
+    def remove_table(self, tbl_name):
         """
         Creates ACL table from SONIC
-        :param engine: ssh engine object
         :param tbl_name: ACL table name
         :return: command output
         """
         cmd = f'sudo config acl remove table {tbl_name}'
 
-        return engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd)
 
-    @staticmethod
-    def apply_config(engine, cfg_path):
+    def apply_config(self, cfg_path):
         """
         On DUT applies ACL config defined in file 'cfg_path'
-        :param engine: ssh engine object
         :param cfg_path: Path to the ACL config file stored on DUT
         :return: command output
         """
-        return engine.run_cmd(f"acl-loader update full {cfg_path}")
+        return self.engine.run_cmd(f"acl-loader update full {cfg_path}")
 
-    @staticmethod
-    def apply_acl_rules(engine, cfg_path):
+    def apply_acl_rules(self, cfg_path):
         """
         On DUT applies ACL config defined in file 'cfg_path'
-        :param engine: ssh engine object
         :param cfg_path: Path to the ACL config file stored on DUT
         :return: command output
         """
-        return engine.run_cmd(f'sonic-cfggen -j {cfg_path} --write-to-db')
+        return self.engine.run_cmd(f'sonic-cfggen -j {cfg_path} --write-to-db')
 
-    @staticmethod
-    def delete_config(engine):
+    def delete_config(self):
         """
         On DUT removes current ACL configuration
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd('acl-loader delete')
+        return self.engine.run_cmd('acl-loader delete')
 
-    @staticmethod
-    def config_null_route_helper(engine, tbl_name, src_ip, action):
+    def config_null_route_helper(self, tbl_name, src_ip, action):
         """
         Block/unblock src_ip
-        :param engine: ssh engine object
         :param tbl_name: ACL table name
         :param src_ip: src ip address
         :param action: block/unblock
         :return: command output
         """
-        return engine.run_cmd(f'sudo null_route_helper {tbl_name} {src_ip} {action}')
+        return self.engine.run_cmd(f'sudo null_route_helper {tbl_name} {src_ip} {action}')
 
-    @staticmethod
-    def show_acl_table(engine):
+    def show_acl_table(self):
         """
         Show acl tables
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd('show acl table')
+        return self.engine.run_cmd('show acl table')
 
-    @staticmethod
-    def show_and_parse_acl_table(engine):
+    def show_and_parse_acl_table(self):
         """
         Show acl tables
-        :param engine: ssh engine object
         :return: dictionary with table name as key
                     Example: return of the 'show acl table':
                         Name                   Type    Binding      Description            Stage
@@ -113,27 +100,23 @@ class SonicAclCli:
                         }
                     }
         """
-        acl_tables = SonicAclCli.show_acl_table(engine)
+        acl_tables = self.show_acl_table()
         if not acl_tables:
             return {}
         acl_tables = generic_sonic_output_parser(acl_tables, headers_ofset=0, data_ofset_from_end=None, column_ofset=2,
                                                  output_key="Name")
         return acl_tables
 
-    @staticmethod
-    def show_acl_rule(engine):
+    def show_acl_rule(self):
         """
         Show acl rules
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd('show acl rule')
+        return self.engine.run_cmd('show acl rule')
 
-    @staticmethod
-    def show_and_parse_acl_rule(engine):
+    def show_and_parse_acl_rule(self):
         """
         Show acl rules
-        :param engine: ssh engine object
         :return: dictionary of the acl rules,
                 examples: output of "show acl rule":
                         Table                  Rule    Priority    Action    Match
@@ -158,7 +141,7 @@ class SonicAclCli:
                     }
 
         """
-        acl_rules = SonicAclCli.show_acl_rule(engine)
+        acl_rules = self.show_acl_rule()
         if not acl_rules:
             return []
         acl_rules = generic_sonic_output_parser(acl_rules, headers_ofset=0, data_ofset_from_end=None, column_ofset=2)
@@ -172,11 +155,9 @@ class SonicAclCli:
             acl_table_rules[table_name].append(acl_rule)
         return acl_table_rules
 
-    @staticmethod
-    def show_acl_rules_counters(engine, tbl_name):
+    def show_acl_rules_counters(self, tbl_name):
         """
         Show acl rules
-        :param engine: ssh engine object
         :param tbl_name: ACL table name
         :return: command output
         """
@@ -184,13 +165,11 @@ class SonicAclCli:
         if tbl_name:
             tbl = f'-t {tbl_name}'
 
-        return engine.run_cmd(f'sudo aclshow -a {tbl}')
+        return self.engine.run_cmd(f'sudo aclshow -a {tbl}')
 
-    @staticmethod
-    def show_and_parse_acl_rules_counters(engine, tbl_name):
+    def show_and_parse_acl_rules_counters(self, tbl_name):
         """
         Show acl rules
-        :param engine: ssh engine object
         :param tbl_name: ACL table name
         :return: dictionary
                 example:
@@ -215,7 +194,7 @@ class SonicAclCli:
                             'BYTES COUNT': '0'}]
                     }
         """
-        acl_rules = SonicAclCli.show_acl_rules_counters(engine, tbl_name)
+        acl_rules = self.show_acl_rules_counters(tbl_name)
         if not acl_rules:
             return []
         acl_rules = generic_sonic_output_parser(acl_rules, headers_ofset=0, data_ofset_from_end=None, column_ofset=2)
@@ -227,11 +206,9 @@ class SonicAclCli:
             acl_table_rules[table_name].append(acl_rule)
         return acl_table_rules
 
-    @staticmethod
-    def clear_acl_counters(engine, tbl_name):
+    def clear_acl_counters(self, tbl_name):
         """
         Show acl tables
-        :param engine: ssh engine object
         :param tbl_name: acl table name
         :return: command output
         """
@@ -239,4 +216,4 @@ class SonicAclCli:
         if tbl_name:
             tbl = f'-t {tbl_name}'
 
-        return engine.run_cmd(f'sudo aclshow -c {tbl}')
+        return self.engine.run_cmd(f'sudo aclshow -c {tbl}')

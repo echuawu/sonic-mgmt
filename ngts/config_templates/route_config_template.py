@@ -17,13 +17,12 @@ class RouteConfigTemplate:
         with allure.step('Applying route configuration'):
             for player_alias, configuration in static_route_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
-                engine = topology_obj.players[player_alias]['engine']
                 for route_info in configuration:
                     dst = route_info['dst']
                     dst_mask = route_info['dst_mask']
                     vrf = route_info.get('vrf')
                     for nexthop in route_info['via']:
-                        cli_object.route.add_route(engine, dst, nexthop, dst_mask, vrf)
+                        cli_object.route.add_route(dst, nexthop, dst_mask, vrf)
 
     @staticmethod
     def cleanup(topology_obj, static_route_config_dict):
@@ -37,10 +36,9 @@ class RouteConfigTemplate:
         with allure.step('Performing route configuration cleanup'):
             for player_alias, configuration in static_route_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
-                engine = topology_obj.players[player_alias]['engine']
                 for route_info in configuration:
                     dst = route_info['dst']
                     dst_mask = route_info['dst_mask']
                     vrf = route_info.get('vrf')
                     for nexthop in route_info['via']:
-                        cli_object.route.del_route(engine, dst, nexthop, dst_mask, vrf)
+                        cli_object.route.del_route(dst, nexthop, dst_mask, vrf)

@@ -165,7 +165,7 @@ class CoppBase:
         """
         # check default burst and rate value
         if self.is_trap_counters_supported:
-            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
+            self.init_trap_names = list(SonicFlowcntCli(engine=self.dut_engine).parse_trap_stats().keys())
             with allure.step('Set short trap interval'):
                 self.set_counters_short_trap_interval()
         with allure.step('Check functionality of default burst limit'):
@@ -211,7 +211,7 @@ class CoppBase:
         """
         # check default rate value
         if self.is_trap_counters_supported:
-            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
+            self.init_trap_names = list(SonicFlowcntCli(engine=self.dut_engine).parse_trap_stats().keys())
             with allure.step('Set short trap interval'):
                 self.change_flowcnt_trap_interval(self.short_interval)
         with allure.step('Check functionality of default rate limit'):
@@ -332,7 +332,7 @@ class CoppBase:
             self.create_burst_validation(cbs_value)
             pps = cbs_value
         if self.is_trap_counters_supported:
-            SonicFlowcntCli.clear_trap_counters(self.dut_engine)
+            SonicFlowcntCli(engine=self.dut_engine).clear_trap_counters()
         self.send_traffic()
         self.validate_results(pps)
 
@@ -483,7 +483,7 @@ class CoppBase:
         Get received counter of trap
         :return: received counter
         """
-        trap_stats = SonicFlowcntCli.parse_trap_stats(self.dut_engine)
+        trap_stats = SonicFlowcntCli(engine=self.dut_engine).parse_trap_stats()
         rx_count = trap_stats[self.trap_name]['Packets'].replace(',', '')  # convert from 1,200 format
         logger.info('The flowcnt trap counter is {} '.format(rx_count))
         return rx_count
@@ -558,7 +558,7 @@ class CoppBase:
         :param interval: interval value
         :return: None, raise error in case of unexpected result
         """
-        SonicCounterpollCli.set_trap_interval(self.dut_engine, interval)
+        SonicCounterpollCli(engine=self.dut_engine).set_trap_interval(interval)
         self.verify_flowcnt_trap_interval(interval)
 
 # -------------------------------------------------------------------------------
@@ -570,7 +570,7 @@ class CoppBase:
         :param status: expected status value
         :return: None, raise error in case of unexpected result
         """
-        parsed_output = SonicCounterpollCli.parse_counterpoll_show(self.dut_engine)
+        parsed_output = SonicCounterpollCli(engine=self.dut_engine).parse_counterpoll_show()
         assert str(interval) == parsed_output['FLOW_CNT_TRAP_STAT']['Interval (in ms)']
         assert status == parsed_output['FLOW_CNT_TRAP_STAT']['Status']
 
@@ -582,7 +582,7 @@ class CoppBase:
         :param expected_trap_names: expected traps list
         :return: None, raise error in case of unexpected result
         """
-        trap_stats = SonicFlowcntCli.parse_trap_stats(self.dut_engine)
+        trap_stats = SonicFlowcntCli(self.dut_engine).parse_trap_stats()
         delta = list(set(trap_stats.keys()) ^ set(expected_trap_names))
         if delta:
             raise Exception('The list of TRAP NAMEs: {} \nis not as expected: {}'

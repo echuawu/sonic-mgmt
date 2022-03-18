@@ -22,11 +22,10 @@ class FrrConfigTemplate:
         with allure.step('Applying FRR configuration'):
             for player_alias, configuration in frr_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
-                engine = topology_obj.players[player_alias]['engine']
                 config_name = configuration['configuration']['config_name']
                 path_to_config_file = configuration['configuration']['path_to_config_file']
-                cli_object.frr.apply_frr_config(engine, config_name, path_to_config_file)
-                cli_object.frr.save_frr_configuration(engine)
+                cli_object.frr.apply_frr_config(config_name, path_to_config_file)
+                cli_object.frr.save_frr_configuration()
 
     @staticmethod
     def cleanup(topology_obj, frr_config_dict):
@@ -42,10 +41,10 @@ class FrrConfigTemplate:
         with allure.step('Performing FRR configuration cleanup'):
             conf = {}
             for player_alias, configuration in frr_config_dict.items():
-                cli_object = topology_obj.players[player_alias]['cli']
-                stub_engine = StubEngine()
-                cli_object.frr.run_config_frr_cmd(stub_engine, configuration['cleanup'])
-                cli_object.frr.save_frr_configuration(stub_engine)
-                conf[player_alias] = stub_engine.commands_list
+                cli_object = topology_obj.players[player_alias]['stub_cli']
+                cli_object.frr.run_config_frr_cmd(configuration['cleanup'])
+                cli_object.frr.save_frr_configuration()
+                conf[player_alias] = cli_object.frr.engine.commands_list
+                cli_object.frr.engine.commands_list = []
 
             parallel_config_runner(topology_obj, conf)

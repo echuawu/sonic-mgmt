@@ -9,7 +9,6 @@ from ngts.config_templates.dhcp_relay_config_template import DhcpRelayConfigTemp
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 logger = logging.getLogger()
 num_of_dhcp_servers = 10
@@ -18,14 +17,14 @@ dhcp_servers_first_vlan = 101
 
 
 @pytest.fixture(scope='module', autouse=True)
-def configure_dhcp_scale(topology_obj, interfaces, engines):
+def configure_dhcp_scale(topology_obj, cli_objects, interfaces, engines):
     dutha1 = topology_obj.ports['dut-ha-1']
     duthb1 = topology_obj.ports['dut-hb-1']
     hbdut1 = topology_obj.ports['hb-dut-1']
 
     with allure.step('Check that links in UP state'.format()):
         ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-        retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, ports_list], tries=20, delay=10,
+        retry_call(SonicInterfaceCli(engine=engines.dut).check_ports_status, fargs=[ports_list], tries=20, delay=10,
                    logger=logger)
 
     vlan_config_dict = {
@@ -64,7 +63,7 @@ def configure_dhcp_scale(topology_obj, interfaces, engines):
     DhcpRelayConfigTemplate.cleanup(topology_obj, dhcp_relay_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
-    SonicGeneralCli().save_configuration(engines.dut)
+    cli_objects.dut.general.save_configuration()
     logger.info('DHCP relay scale configuration completed')
 
 

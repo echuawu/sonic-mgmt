@@ -11,26 +11,26 @@ TCPDUMP_ARP_FILTER = 'arp && (ether dst host {}) '
 INTERFACE_TYPE_LIST = ["ethernet", "vlan", "portchannel"]
 
 
-def clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted(engine, ip):
+def clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted(cli_obj, ip):
     """
     This method is to clear the dynamic arp table and check some arp entry is removed or not
-    :param engine: ssh engine object
+    :param cli_obj: cli_obj object
     :param ip: ip address for the specified arp entry
     """
-    SonicArpCli.clear_arp(engine)
-    retry_call(verify_arp_entry_not_in_arp_table, fargs=[engine, ip], tries=3, delay=10, logger=logger)
+    cli_obj.arp.clear_arp()
+    retry_call(verify_arp_entry_not_in_arp_table, fargs=[cli_obj, ip], tries=3, delay=10, logger=logger)
 
 
-def verify_arp_entry_in_arp_table(engine, ip, mac, iface, vlan):
+def verify_arp_entry_in_arp_table(cli_obj, ip, mac, iface, vlan):
     """
     This method is to verify if arp entry is added into the arp table
-    :param engine: ssh engine object
+    :param cli_obj: cli_obj object
     :param ip: ip address
     :param mac: mac address
     :param iface: interface such as ethernet, PortChannel Id
     :param vlan: vlan Id
     """
-    arp_table = SonicArpCli.show_arp_table(engine)
+    arp_table = cli_obj.arp.show_arp_table()
     if arp_table:
         if ip in arp_table:
             assert arp_table[ip][
@@ -47,13 +47,13 @@ def verify_arp_entry_in_arp_table(engine, ip, mac, iface, vlan):
     raise Exception('Arp table is empty')
 
 
-def verify_arp_entry_not_in_arp_table(engine, ip):
+def verify_arp_entry_not_in_arp_table(cli_obj, ip):
     """
     This method is to verify if arp entry is not in the arp table
-    :param engine: ssh engine object
+    :param cli_obj: cli_obj object
     :param ip: ip address
     """
-    arp_table = SonicArpCli.show_arp_table(engine)
+    arp_table = cli_obj.arp.show_arp_table()
     if arp_table:
         assert ip not in arp_table, " Arp entry for {} is not cleaned ".format(ip, arp_table)
 
@@ -93,11 +93,11 @@ def arp_request_traffic_validation(players, interface_data, dst_mac, receive_pac
         retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=10, logger=logger)
 
 
-def send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data,
+def send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_obj, players, interface_data,
                                                                          request_type="broadcast"):
     """
     Send arp request and check update the corresponding arp entry into arp table
-    :param engines: engines fixture
+    :param cli_obj: cli_obj
     :param players: players fixture
     :param interface_data: interface
     :param request_type: arp request type(broadcast or unicast)
@@ -113,7 +113,7 @@ def send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines
 
     with allure.step("Verify DUT add the Host's IP and MAC into the ARP table"):
         retry_call(verify_arp_entry_in_arp_table,
-                   fargs=[engines.dut, interface_data["host_ip"],
+                   fargs=[cli_obj, interface_data["host_ip"],
                           interface_data["host_mac"], interface_data["dut_interface"],
                           interface_data["dut_vlan_id"]],
                    tries=3, delay=10, logger=logger)

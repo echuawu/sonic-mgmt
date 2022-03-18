@@ -87,7 +87,7 @@ def pre_configure_for_fdb_advance(engines, topology_obj, interfaces, cli_objects
 
 @pytest.fixture(scope='function', autouse=True)
 def pre_clear_fdb_table(engines, topology_obj, interfaces):
-    SonicMacCli.clear_fdb(engines.dut)
+    SonicMacCli(engine=engines.dut).clear_fdb()
 
 
 @pytest.fixture(scope='function', autouse=False)
@@ -97,12 +97,12 @@ def set_fdb_aging_time(engines, topology_obj):
     :param engines: engines object fixture
     :param topology_obj: topology object fixture
     """
-    old_fdb_aging_time = SonicMacCli.get_fdb_aging_time(engines.dut)
+    old_fdb_aging_time = SonicMacCli(engine=engines.dut).get_fdb_aging_time()
     new_fdb_aging_time = FDB_AGING_TIME
-    SonicMacCli.set_fdb_aging_time(engines.dut, new_fdb_aging_time)
+    SonicMacCli(engine=engines.dut).set_fdb_aging_time(new_fdb_aging_time)
 
     def verify_fdb_aging_time(dut_engine, fdb_aging_time):
-        actual_fdb_aging_time = SonicMacCli.get_fdb_aging_time(dut_engine)
+        actual_fdb_aging_time = SonicMacCli(engine=dut_engine).get_fdb_aging_time()
         assert actual_fdb_aging_time == fdb_aging_time, f"Actual fdb_aging_time:{actual_fdb_aging_time} doesn't equal to expected fdb_aging_time:{fdb_aging_time}"
 
     retry_call(verify_fdb_aging_time,
@@ -112,7 +112,7 @@ def set_fdb_aging_time(engines, topology_obj):
                logger=logger)
 
     yield
-    SonicMacCli.set_fdb_aging_time(engines.dut, old_fdb_aging_time)
+    SonicMacCli(engine=engines.dut).set_fdb_aging_time(old_fdb_aging_time)
     retry_call(verify_fdb_aging_time,
                fargs=[engines.dut, old_fdb_aging_time],
                tries=20,
