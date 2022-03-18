@@ -292,6 +292,13 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
     - 2010
     Branch:
     - 202111
+  - Redmine:
+    - 2877294
+    Platform:
+    - 2100
+    - 2010
+    Branch:
+    - master
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
   - Redmine:
@@ -301,6 +308,13 @@ platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
     - 2010
     Branch:
     - 202111
+  - Redmine:
+    - 2877294
+    Platform:
+    - 2100
+    - 2010
+    Branch:
+    - master
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
   - Branch:
