@@ -1014,6 +1014,12 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
 qos/test_buffer.py:
   - Platform:
     - x86_64-mlnx_msn2700-r0
+    - StaticReason:
+      - 'Test skipped because MSN SKU not support those tests'
+  - Platform:
+    - x86_64-mlnx_msn2700_simx-r0
+    Redmine:
+      - 3006934
 
 snmp/test_snmp_phy_entity.py::test_transceiver_info:
   - Redmine:
