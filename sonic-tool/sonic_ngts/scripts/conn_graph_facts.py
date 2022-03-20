@@ -55,7 +55,7 @@ def build_results(hostnames):
     device_pdu_links = {}
 
     for hostname in hostnames:
-        config_db = retry_call(get_config_db_json_from_hostname, fargs=[hostname], tries=5, logger=None)
+        config_db = retry_call(get_config_db_json_from_hostname, fargs=[hostname], tries=5, delay=6, logger=None)
         all_dut_ports = get_dut_ports(config_db)
 
         device_info[hostname] = {}
@@ -106,8 +106,8 @@ def main():
     try:
         results = build_results(hostnames)
         module.exit_json(ansible_facts=results)
-    except (IOError, OSError):
-        module.fail_json(msg="Can not get info about connections")
+    except (IOError, OSError) as e:
+        module.fail_json(msg="Can not get info about connections, error: {}, traceback: {}".format(e, traceback.format_exc()))
     except Exception as e:
         module.fail_json(msg=traceback.format_exc())
 
