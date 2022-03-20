@@ -648,6 +648,8 @@ ecmp/inner_hashing:
   - Branch:
     - 202012
     - 202106
+  - Platform:
+    - msn2
 
 #vxlan
 vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v4_in_v6]:
