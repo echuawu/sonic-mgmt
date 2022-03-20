@@ -716,20 +716,6 @@ tests/nightly/dynamic_port_breakout:
     Platform:
     - 4410
 
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
-  - Redmine:
-    - 2960190
-  - Redmine:
-    - 2960256
-
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_remove_dpb_configuration_interop:
-  - Redmine:
-    - 2960190
-
-tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
-  - Redmine:
-    - 2960190
-
 tests/nightly/lag/test_lag.py::test_lags_scale:
   - Platform:
     - simx

@@ -769,7 +769,6 @@
         - master
 
 - Errors_list:
-    - '.* ERR lldp#lldpmgrd\[\d+\]: Port ''Ethernet\d+'' not found in PORT table in Config DB. Using port name instead of port alias'
     - '.* ERR syncd#SDK: \[PORT_DB.ERR\] Failed to get SWID\(255\) type - Parameter Exceeds Range'
     - '.* ERR syncd#SDK: \[PORT.ERR\] SWID\(255\) type mismatch'
     - '.* ERR syncd#SDK: \[PORT.ERR\] SWID\(0\) type mismatch'
