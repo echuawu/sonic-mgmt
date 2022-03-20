@@ -133,6 +133,11 @@ platform_tests/fwutil/test_fwutil.py:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2972407
+  - Platform:
+    - 2700
+    Redmine:
+    - 3011424
+
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
   - Redmine:
@@ -667,6 +672,26 @@ tests/nightly/auto_negotition:
   - Platform:
     - simx
     - 3800
+
+tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
+  - Redmine:
+    - 3011200
+    Branch:
+    - 202111
+
+tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port:
+  - Redmine:
+    - 3011200
+    Branch:
+    - 202111
+
+tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
+  - Redmine:
+    - 3011349
+    Branch:
+    - 202111
+    Platform:
+    - 3700
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
   - Redmine:
