@@ -6,14 +6,6 @@ platform_tests/test_auto_negotiation.py:
   - Branch:
     - 202012
 
-# fast reboot
-platform_tests/test_advanced_reboot.py::test_fast_reboot:
-  - Redmine:
-    - 2886337
-    Branch:
-    - master
-    - 202111
-
 # warm reboot
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   - Redmine:
@@ -32,10 +24,6 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
 platform_tests/test_sensors.py::test_sensors:
   - Redmine:
     - 2815265
-    Branch:
-    - master
-    - 202111
-    - 202012
 
 # pfc_asym(RPC)
 pfc_asym/test_pfc_asym.py::test_pfc_asym_off_tx_pfc:
@@ -49,14 +37,6 @@ pfc_asym/test_pfc_asym.py::test_pfc_asym_on_tx_pfc:
 pfc_asym/test_pfc_asym.py::test_pfc_asym_on_handle_pfc_all_prio:
   - Redmine:
     - 2918636
-
-qos/test_qos_sai.py:
-  - Redmine:
-    - 2971459
-
-copp/test_copp.py:
-  - Redmine:
-    - 2971459
 
 copp/test_copp.py::TestCOPP::test_add_new_trap:
   - Redmine:
@@ -93,38 +73,30 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_used_ecmp_next_hop:
   - Redmine:
     - 2979736
-    Platform:
-    - 3800
-    - 3700
-    - 4600c
-    - 4700
+    Branch:
+    - master
+    - 202111
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_unused_ecmp_next_hop:
   - Redmine:
     - 2979736
-    Platform:
-    - 3800
-    - 3700
-    - 4600c
-    - 4700
+    Branch:
+    - master
+    - 202111
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_neighbor_mac_change:
   - Redmine:
     - 2979736
-    Platform:
-    - 3800
-    - 3700
-    - 4600c
-    - 4700
+    Branch:
+    - master
+    - 202111
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_basic_forwarding:
   - Redmine:
     - 2979736
-    Platform:
-    - 3800
-    - 3700
-    - 4600c
-    - 4700
+    Branch:
+    - master
+    - 202111
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
@@ -161,15 +133,6 @@ platform_tests/fwutil/test_fwutil.py:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2972407
-
-platform_tests/fwutil/test_fwutil.py::test_fwutil_show:
-  - Redmine:
-    - 2961316
-    Platform:
-    - 4410
-    Branch:
-     - 202111
-     - master
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
   - Redmine:
@@ -213,13 +176,6 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
     - 2829184
     Platform:
     - 2201
-  - Redmine:
-    - 2959285
-    Platform:
-    - 3420
-    Branch:
-    - 202111
-    - master
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   - Branch:
@@ -237,13 +193,6 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
     - 4600
     Redmine:
     - 2878715
-  - Branch:
-    - master
-    - 202111
-    Platform:
-    - 3800
-    Redmine:
-    - 2961425
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/test_reboot.py:
@@ -255,22 +204,9 @@ platform_tests/test_reboot.py:
   - Platform:
     - 2010
 
-platform_tests/test_reboot.py::test_power_off_reboot:
-  - Redmine:
-    - 2933078
-    Platform:
-    - 2100
-
 platform_tests/test_reboot.py::test_warm_reboot:
   - Platform:
     - 2100
-  - Redmine:
-    - 2964235
-    Platform:
-    - sn2
-    Branch:
-    - 202111
-    - master
 
 platform_tests/cli/test_show_platform.py::test_show_platform_fan:
   - Redmine:
@@ -336,13 +272,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
 platform_tests/fw_utility/test_fwutil.py:
   - Platform:
     - msn4
-  - Redmine:
-    - 2859637
-    - 2859641
-    - 2859644
-    - 2859647
-    Platform:
-    - 2201
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
   - Platform:
@@ -716,10 +645,6 @@ ecmp/inner_hashing:
     - 202106
 
 #vxlan
-vxlan/test_vnet_vxlan.py::test_vnet_vxlan[Enabled]:
-  - Redmine:
-    - 2833049
-
 vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v4_in_v6]:
   - Redmine:
     - 2965573
@@ -756,14 +681,6 @@ tests/nightly/dynamic_port_breakout:
     - 2885961
     Platform:
     - simx
-  - Redmine:
-    - 2954550
-    Platform:
-    - 4600
-  - Redmine:
-    - 2954916
-    Platform:
-    - 3800
   - Branch:
     - 202012
     - 202106
@@ -840,11 +757,6 @@ tests/push_build_tests/general/wjh/test_wjh.py:
     - 2939285
     Platform:
     - msn4700_simx
-  - Redmine:
-    - 2942484
-    Branch:
-      - master
-      - 202111
 
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   - Redmine:
@@ -978,12 +890,6 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     Redmine:
     - 3002280
 
-tests/push_build_tests/general/wjh:
-  - Redmine:
-    - 2942484
-    Branch:
-    - master
-
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
     - 3800
@@ -1011,19 +917,6 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
     - 201911
     - 202012
     - 202106
-  - Redmine:
-    - 2994124
-    Branch:
-      - 202111
-
-tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[tail_drop]:
-  - Redmine:
-    - 2903370
-    Branch:
-      - master
-      - 202111
-    Platform:
-      - 3700
 
 qos/test_buffer.py:
   - Platform:
@@ -1085,53 +978,13 @@ drop_packets/test_wjh.py:
       - 202111
       - master
 
-platform_tests/test_sequential_restart.py::test_restart_swss:
-  - Redmine:
-    - 2959285
-    Platform:
-      - 3420
-    Branch:
-      - 202111
-      - master
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2971886
-
-platform_tests/test_reload_config.py::test_reload_configuration:
-  - Redmine:
-    - 2959285
-    Platform:
-      - 3420
-    Branch:
-      - 202111
-      - master
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2971886
-
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
-  - Redmine:
-    - 2960703
-    Platform:
-      - msn4600c
-    Branch:
-      - 202111
-      - master
   - Platform:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2972419
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
-  - Redmine:
-    - 2960703
-    Platform:
-      - msn4600c
-    Branch:
-      - 202111
-      - master
   - Platform:
     - x86_64-nvidia_sn2201-r0
     Redmine:
@@ -1172,20 +1025,6 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2972400
-
-platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
-  - Redmine:
-    - 2968649
-    Branch:
-      - 202111
-      - master
-
-platform_tests/test_xcvr_info_in_db.py::test_xcvr_info_in_db:
-  - GitHub:
-    - https://github.com/Azure/sonic-buildimage/issues/9972
-    Branch:
-      - 202111
-      - master
 
 platform_tests/api/test_watchdog.py::TestWatchdogApi::test_arm_too_big_timeout:
   - Platform:
