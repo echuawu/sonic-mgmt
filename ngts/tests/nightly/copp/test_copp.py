@@ -240,8 +240,10 @@ class CoppBase:
         and secondary validation,which will be checked specific traffic type only after reboot
         :return: None, raise error in case of unexpected result
         """
-        traffic_type = random.choice(['rate', 'burst'])
-        if traffic_type == 'rate':
+        traffic_types = ['rate', 'burst']
+        random.shuffle(traffic_types)
+        primary_traffic_type, secondary_traffic_type = traffic_types
+        if primary_traffic_type == 'rate':
             with allure.step('Check functionality of non default rate limit before reboot'):
                 self.run_validation_flow(self.default_cbs, self.user_limit, 'rate')
             primary_validation_flow = "self.run_validation_flow(self.default_cbs, self.user_limit, 'rate', False)"
@@ -258,9 +260,9 @@ class CoppBase:
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
             get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
 
-        with allure.step('Check functionality of non default {} limit value after reboot'.format(traffic_type[0])):
+        with allure.step(f'Check functionality of non default {primary_traffic_type} limit value after reboot'):
             eval(primary_validation_flow)
-        with allure.step('Check functionality of non default {} limit value'.format(traffic_type[1])):
+        with allure.step(f'Check functionality of non default {secondary_traffic_type} limit value after reboot'):
             eval(secondary_validation_flow)
 
 # -------------------------------------------------------------------------------
@@ -1009,12 +1011,12 @@ def update_limit_values(copp_dict, trap_group, cir_value, cbs_value):
     :param cbs_value: value of CBS
     :return:
     """
-    if 'cir'in copp_dict[COPP_GROUP][trap_group]:
+    if 'cir' in copp_dict[COPP_GROUP][trap_group]:
         copp_dict[COPP_GROUP][trap_group]['cir'] = cir_value
     else:
         copp_dict[COPP_GROUP][trap_group].update({'cir': cir_value})
 
-    if 'cbs'in copp_dict[COPP_GROUP][trap_group]:
+    if 'cbs' in copp_dict[COPP_GROUP][trap_group]:
         copp_dict[COPP_GROUP][trap_group]['cbs'] = cbs_value
     else:
         copp_dict[COPP_GROUP][trap_group].update({'cbs': cbs_value})
