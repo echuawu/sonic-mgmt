@@ -10,9 +10,8 @@ path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
 sys.path.append(sonic_mgmt_path)
 
+from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases  # noqa: E402
 from ngts.constants.constants import InfraConst  # noqa: E402
-from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name  # noqa: E402
-
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'
 
@@ -129,7 +128,7 @@ if __name__ == "__main__":
     allure_project_id = setup_name.replace('_', '-')
 
     try:
-        topology = get_topology_by_setup_name(setup_name, slow_cli=False)
+        topology = get_topology_by_setup_name_and_aliases(setup_name, slow_cli=False)
         dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
         allure_project_id = dut_name
     except Exception as err:

@@ -15,7 +15,7 @@ import re
 import json
 from dotted_dict import DottedDict
 
-from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
+from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
@@ -24,6 +24,7 @@ from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology
+
 
 logger = logging.getLogger()
 
@@ -39,7 +40,7 @@ def pytest_sessionstart(session):
 
 def pytest_collection(session):
 
-    topology = get_topology_by_setup_name(session.config.option.setup_name, slow_cli=False)
+    topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
     devinfo = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription']
 
     platform = json.loads(devinfo).get('platform')
@@ -146,7 +147,7 @@ def topology_obj(setup_name, request):
     :param request: pytest build-in
     """
     logger.debug('Creating topology object')
-    topology = get_topology_by_setup_name(setup_name, slow_cli=False)
+    topology = get_topology_by_setup_name_and_aliases(setup_name, slow_cli=False)
     # Update CLI classes according to the current SONiC branch
     branch = request.session.config.cache.get(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
     update_branch_in_topology(topology, branch)
@@ -178,6 +179,8 @@ def update_topology_with_cli_class(topology):
                 player_info['cli'] = NvueCli()
             else:
                 player_info['cli'] = SonicCli(topology)
+        elif player_key == 'sl':
+            player_info['cli'] = NvueCli()
         else:
             player_info['cli'] = LinuxCli()
 

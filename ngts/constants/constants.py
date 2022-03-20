@@ -713,3 +713,8 @@ class MarsConstants:
                           '202012': '42007',
                           '202106': '42007'
                           }
+
+
+class PlayeresAliases:
+    Aliases_list = ['sl']
+    SL = 'sl'

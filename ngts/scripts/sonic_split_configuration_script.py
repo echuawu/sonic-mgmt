@@ -12,7 +12,7 @@ from retry import retry
 from shutil import copyfile
 from ngts.constants.constants import LinuxConsts, ConfigDbJsonConst, SonicConst
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
-from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
+from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 logger = logging.getLogger("sonic_split_configuration_script")
 
@@ -136,7 +136,7 @@ def get_switch_resource_from_noga(args):
     :param args: script arguments
     :return: ssh engine to switch and path to the configuration files
     """
-    topology_obj = get_topology_by_setup_name(args.setup_name, slow_cli=False)
+    topology_obj = get_topology_by_setup_name_and_aliases(args.setup_name, slow_cli=False)
     engine = topology_obj.players['dut']['engine']
     config_files_dir_path = '/auto/sw_regression/system/SONIC/MARS/conf/topo/{}'.format(args.setup_name)
     return engine, config_files_dir_path
