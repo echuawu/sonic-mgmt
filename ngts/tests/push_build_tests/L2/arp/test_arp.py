@@ -27,8 +27,8 @@ def test_dut_reply_arp_response(engines, cli_objects, players, interfaces, arp_r
     """
     interface_data = {"host_ip": "30.0.0.20", "dut_ip": "30.0.0.1", "host_interface": "bond0",
                       "dut_interface": "PortChannel0001",
-                      "host_mac": cli_objects.ha.mac.get_mac_address_for_interface(interfaces.ha_dut_1),
-                      "dut_mac": cli_objects.dut.mac.get_mac_address_for_interface(interfaces.dut_ha_1),
+                      "host_mac": cli_objects.dut.mac.get_mac_address_for_interface(engines.ha, interfaces.ha_dut_1),
+                      "dut_mac": cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_1),
                       "dut_vlan_id": "-", "host_alias": "ha"}
 
     try:
@@ -37,7 +37,7 @@ def test_dut_reply_arp_response(engines, cli_objects, players, interfaces, arp_r
             clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted(engines.dut, interface_data["host_ip"])
 
         with allure.step("Host sends ARP request to DUT and check results"):
-            send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players, interface_data,
+            send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data,
                                                                                  arp_request_type)
 
     except Exception as err:

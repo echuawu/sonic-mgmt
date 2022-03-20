@@ -147,7 +147,7 @@ def add_acl_table(dut_engine, acl_table_config_list):
         table_type = acl_table_config['table_type']
         stage = acl_table_config['table_stage']
         description = ""
-        SonicAclCli(engine=dut_engine).create_table(table_name, table_type, description, stage, table_ports)
+        SonicAclCli.create_table(dut_engine, table_name, table_type, description, stage, table_ports)
 
 
 def remove_acl_table(dut_engine, acl_table_config_list):
@@ -160,7 +160,7 @@ def remove_acl_table(dut_engine, acl_table_config_list):
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config["table_name"]
         logger.info(f"Removing ACL table: {table_name}")
-        SonicAclCli(engine=dut_engine).remove_table(table_name)
+        SonicAclCli.remove_table(dut_engine, table_name)
 
 
 def add_acl_rules(dut_engine, acl_table_config_list):
@@ -188,7 +188,7 @@ def add_acl_rules(dut_engine, acl_table_config_list):
                              overwrite_file=True,
                              verify_file=False)
         logger.info(f"Applying ACL rules config \"{dut_conf_file_path}\"")
-        SonicAclCli(engine=dut_engine).apply_acl_rules(dut_conf_file_path)
+        SonicAclCli.apply_acl_rules(dut_engine, dut_conf_file_path)
 
 
 def clear_acl_rules(dut_engine):
@@ -205,7 +205,7 @@ def clear_acl_rules(dut_engine):
                          overwrite_file=True,
                          verify_file=False)
     logger.info(f"Tear down ACL rules config \"{dut_conf_file_path}\"")
-    SonicAclCli(engine=dut_engine).apply_config(dut_conf_file_path)
+    SonicAclCli.apply_config(dut_engine, dut_conf_file_path)
 
 
 def verify_acl_tables_exist(dut_engine, acl_table_config_list, expect_exist):
@@ -216,7 +216,7 @@ def verify_acl_tables_exist(dut_engine, acl_table_config_list, expect_exist):
     :param expect_exist: True if expect the tables exist, False if not expect the ACL tables exist
     :return: None
     """
-    acl_tables = SonicAclCli(engine=dut_engine).show_and_parse_acl_table()
+    acl_tables = SonicAclCli.show_and_parse_acl_table(dut_engine)
 
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config['table_name']
@@ -234,7 +234,7 @@ def verify_acl_rules(dut_engine, acl_table_config_list, expect_exist):
     :param expect_exist: True if expect  ACL rules exist, False if not expect the ACL rules exist
     :return: None
     """
-    acl_table_rules = SonicAclCli(engine=dut_engine).show_and_parse_acl_rule()
+    acl_table_rules = SonicAclCli.show_and_parse_acl_rule(dut_engine)
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config['table_name']
         acl_rule_list = acl_table_rules[table_name] if table_name in acl_table_rules else []
@@ -366,7 +366,7 @@ def verify_acl_traffic(topology_obj, dut_engine, traffic_params, rule_name, is_m
     else:
         pkt, pkt_filter = generate_tcp_pkt(traffic_params)
     logger.info(f"The pkt to be sent is: {pkt}")
-    SonicAclCli(engine=dut_engine).clear_acl_counters(table_name)
+    SonicAclCli.clear_acl_counters(dut_engine, table_name)
     logger.info("dump the flex acl with sx_api_flex_acl_dump before sending traffic")
     dut_engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
     send_recv_traffic(topology_obj, traffic_params, pkt, pkt_filter, expect_received)
@@ -475,7 +475,7 @@ def verify_acl_rule_count(dut_engine, table_name, rule_name, expected_count):
     :param expected_count: expected match packet count
     :return: None
     """
-    acl_rules = SonicAclCli(engine=dut_engine).show_and_parse_acl_rules_counters(table_name)
+    acl_rules = SonicAclCli.show_and_parse_acl_rules_counters(dut_engine, table_name)
     acl_pkt_count = 0
     for acl_rule in acl_rules[table_name]:
         if rule_name:

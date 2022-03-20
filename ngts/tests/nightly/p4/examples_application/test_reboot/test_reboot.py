@@ -3,7 +3,7 @@ import logging
 import pytest
 import allure
 import random
-
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from ngts.helpers.reboot_reload_helper import add_to_pytest_args_disable_loganalyzer, add_to_pytest_args_skip_tests, \
     remove_allure_server_project_id_arg, prepare_pytest_cmd_with_custom_allure_dir, generate_report
@@ -15,7 +15,7 @@ REBOOT_LIST = ["reboot", "config reload -y"]
 
 @pytest.mark.build
 @pytest.mark.p4_examples
-def test_p4_examples_reboot(request, cli_objects, engines, topology_obj):
+def test_p4_examples_reboot(request, engines, topology_obj):
     """
     reboot and then run all p4_examples test case which need to be verified after reboot
     :param request: request fixture
@@ -25,8 +25,8 @@ def test_p4_examples_reboot(request, cli_objects, engines, topology_obj):
     # TODO: for now the all the test case in except test_p4_examples_reboot itself will be executed after reboot,
     # TODO: later when the test case increase, need to check if all the test case need to be executed.
     r_type = random.choice(REBOOT_LIST)
-    cli_objects.dut.general.save_configuration()
-    cli_objects.dut.general.reboot_reload_flow(r_type=r_type, topology_obj=topology_obj)
+    SonicGeneralCli().save_configuration(engines.dut)
+    SonicGeneralCli().reboot_reload_flow(engines.dut, r_type=r_type, topology_obj=topology_obj)
     try:
         with allure.step('Running functional validations after reboot/reload'):
             logger.info('Running functional validations after reboot/reload')

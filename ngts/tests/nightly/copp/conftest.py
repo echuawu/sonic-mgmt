@@ -6,6 +6,7 @@ from retry.api import retry_call
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -21,8 +22,8 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
     logger.info('Starting CoPP Common configuration')
 
     with allure.step('Check that link in UP state'):
-        retry_call(SonicInterfaceCli(engine=engines.dut).check_ports_status,
-                   fargs=[[interfaces.dut_ha_1]],
+        retry_call(SonicInterfaceCli.check_ports_status,
+                   fargs=[engines.dut, [interfaces.dut_ha_1]],
                    tries=10,
                    delay=10,
                    logger=logger)
@@ -44,7 +45,7 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     cli_objects.ha.general.start_service(engines.ha, 'lldpad')
 
-    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
+    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
 
     logger.info('CoPP Common cleanup completed')
 
@@ -70,9 +71,9 @@ def flowcnt_trap_configuration(engines, is_trap_counters_supported):
     :param engines: engines fixture
     """
     if is_trap_counters_supported:
-        SonicCounterpollCli(engine=engines.dut).enable_flowcnt_trap()
+        SonicCounterpollCli.enable_flowcnt_trap(engines.dut)
 
     yield
 
     if is_trap_counters_supported:
-        SonicCounterpollCli(engine=engines.dut).disable_flowcnt_trap()
+        SonicCounterpollCli.disable_flowcnt_trap(engines.dut)

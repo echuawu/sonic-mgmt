@@ -81,14 +81,14 @@ def gen_test_interface_data(engines, interfaces, vlan_id):
     :param vlan_id:  vlan id
     """
     if vlan_id == "40":
-        dst_mac = SonicMacCli(engine=engines.hb).get_mac_address_for_interface(interfaces.hb_dut_1)
+        dst_mac = SonicMacCli.get_mac_address_for_interface(engines.hb, interfaces.hb_dut_1)
         sender_interface = interfaces.ha_dut_1
         receiver_interface = interfaces.hb_dut_1
         src_ip = "40.0.0.2"
         dst_ip = "40.0.0.3"
 
     else:
-        dst_mac = SonicMacCli(engine=engines.hb).get_mac_address_for_interface(interfaces.hb_dut_2)
+        dst_mac = SonicMacCli.get_mac_address_for_interface(engines.hb, interfaces.hb_dut_2)
         sender_interface = interfaces.ha_dut_2
         receiver_interface = interfaces.hb_dut_2
         src_ip = "50.0.0.2"
@@ -116,7 +116,7 @@ def verify_mac_saved_to_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic
     :param port: port
     :param fdb_type: fdb type (dynamic/static)
     """
-    mac_table = SonicMacCli(engine=engines.dut).parse_mac_table()
+    mac_table = SonicMacCli.parse_mac_table(engines.dut)
     for k, v in mac_table.items():
         if v["Vlan"] == vlan_id and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v["Type"].lower() == fdb_type:
             return True
@@ -133,7 +133,7 @@ def verify_mac_not_in_fdb_table(engines, vlan_id, mac, port, fdb_type="dynamic")
     :param port: port
     :param fdb_type: fdb type (dynamic/static)
     """
-    mac_table = SonicMacCli(engine=engines.dut).parse_mac_table()
+    mac_table = SonicMacCli.parse_mac_table(engines.dut)
     for k, v in mac_table.items():
         if v["Vlan"] == vlan_id and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v["Type"].lower() == fdb_type:
             assert False, f"Fdb item: {mac} {vlan_id} {port} {fdb_type} still exists in fdb table"

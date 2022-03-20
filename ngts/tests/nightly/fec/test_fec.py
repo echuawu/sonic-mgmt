@@ -7,6 +7,7 @@ from retry import retry
 from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, compare_actual_and_expected, save_configuration
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts
@@ -152,7 +153,7 @@ class TestFec:
                        fargs=[conf[dut_host_port], self.cli_objects.ha, self.engines.ha, self.interfaces.ha_dut_1],
                        tries=6, delay=10, logger=logger)
 
-    def test_fec_bug_2705016(self, cli_objects, cleanup_list, skip_if_active_optical_cable):
+    def test_fec_bug_2705016(self, cleanup_list, skip_if_active_optical_cable):
         reboot_type = 'warm-reboot'
         tested_ports = get_tested_lb_dict_tested_ports(self.tested_lb_dict_for_bug_2705016_flow)
         ports_for_toggle_flow, ports_for_disable_enable_flow = \
@@ -174,7 +175,7 @@ class TestFec:
         with allure.step("Save configuration and warm reboot"):
             save_configuration(self.engines.dut, self.cli_objects.dut, cleanup_list)
             self.engines.dut.reload(['sudo {}'.format(reboot_type)], wait_after_ping=45)
-            cli_objects.dut.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
+            SonicGeneralCli().verify_dockers_are_up(self.engines.dut, SonicConst.DOCKERS_LIST)
 
         with allure.step("Toggle ports: {}".format(ports_for_toggle_flow)):
             self.toggle_ports(ports_for_toggle_flow, cleanup_list)
@@ -183,7 +184,7 @@ class TestFec:
             self.enable_ports(ports_for_disable_enable_flow)
 
         with allure.step("Verify ports: {} are up".format(tested_ports)):
-            cli_objects.dut.general.check_link_state(tested_ports)
+            SonicGeneralCli().check_link_state(self.engines.dut, tested_ports)
 
         self.verify_fec_configuration(conf)
 

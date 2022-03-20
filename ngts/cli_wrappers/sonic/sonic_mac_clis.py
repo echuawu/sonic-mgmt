@@ -9,15 +9,14 @@ FDB_AGING_TIME_FILE = "/etc/swss/config.d/switch.json"
 
 class SonicMacCli(MacCliCommon):
 
-    def __init__(self, engine):
-        self.engine = engine
-
-    def show_mac(self):
+    @staticmethod
+    def show_mac(engine):
         """
         This method runs 'show mac' command
+        :param engine: ssh engine object
         :return: command output
         """
-        return self.engine.run_cmd('show mac')
+        return engine.run_cmd('show mac')
 
     @staticmethod
     def generate_fdb_config(entries_num, vlan_id, iface, op, fdb_type="dynamic"):
@@ -49,42 +48,49 @@ class SonicMacCli(MacCliCommon):
             fdb_config_json.append(fdb_entry_json)
         return fdb_config_json
 
-    def clear_fdb(self):
+    @staticmethod
+    def clear_fdb(engine):
         """
         This method is to clear fdb table
+        :param engine: ssh engine object
         :return: command output
         """
-        return self.engine.run_cmd('sudo sonic-clear fdb all', validate=True)
+        return engine.run_cmd('sudo sonic-clear fdb all', validate=True)
 
-    def set_fdb_aging_time(self, fdb_aging_time):
+    @staticmethod
+    def set_fdb_aging_time(engine, fdb_aging_time):
         """
         This method is to set fdb aging time
+        :param engine: ssh engine object
         :param fdb_aging_time: fdb aging time
         :return: command output
         """
         cmd_copy_file_from_swss_to_switch = f"docker cp swss:{FDB_AGING_TIME_FILE} /tmp/"
-        self.engine.run_cmd(cmd_copy_file_from_swss_to_switch)
+        engine.run_cmd(cmd_copy_file_from_swss_to_switch)
 
         replace_fdb_aging_time = f"sudo sed -i 's/ \"fdb_aging_time\": \".*\"/\"fdb_aging_time\": \"{fdb_aging_time}\"/' /tmp/switch.json"
-        self.engine.run_cmd(replace_fdb_aging_time)
+        engine.run_cmd(replace_fdb_aging_time)
 
         cmd_copy_file_from_switch_to_swss = f"docker cp /tmp/switch.json swss:{FDB_AGING_TIME_FILE}"
-        self.engine.run_cmd(cmd_copy_file_from_switch_to_swss)
+        engine.run_cmd(cmd_copy_file_from_switch_to_swss)
         cmd_config_swss_config = f'docker exec swss bash -c "swssconfig {FDB_AGING_TIME_FILE}"'
-        self.engine.run_cmd(cmd_config_swss_config)
+        engine.run_cmd(cmd_config_swss_config)
 
-    def get_fdb_aging_time(self):
+    @staticmethod
+    def get_fdb_aging_time(engine):
         """
         This method is to set fdb aging time
+        :param engine: ssh engine object
         :return: fdb aging time
         """
         regrex_time = re.compile(r'\"(?P<time>\d+)\"')
         cmd_get_fdb_aging_time = 'redis-cli -n 0 hget "SWITCH_TABLE:switch" fdb_aging_time'
-        fdb_aging_time = regrex_time.search(self.engine.run_cmd(cmd_get_fdb_aging_time, validate=True))
+        fdb_aging_time = regrex_time.search(engine.run_cmd(cmd_get_fdb_aging_time, validate=True))
 
         return fdb_aging_time.groupdict()["time"] if fdb_aging_time else "nil"
 
-    def parse_mac_table(self, option=""):
+    @staticmethod
+    def parse_mac_table(engine, option=""):
         """
         This method is to parse mac table info
         e.g.:
@@ -94,6 +100,7 @@ class SonicMacCli(MacCliCommon):
         2      40  98:03:9B:9B:3B:23  Ethernet0    Dynamic
         3      40  0C:42:A1:C0:99:2E  Ethernet504  Dynamic
 
+        :param engine: ssh engine object
         :param option: show mac option, such as -v or -p
         :return: command output like below
         {'1': {'No.': '1', 'Vlan': '40', 'MacAddress': '0C:42:A1:B4:CC:E8', 'Port': 'Ethernet0', 'Type': 'Dynamic'},
@@ -101,7 +108,7 @@ class SonicMacCli(MacCliCommon):
          '3': {'No.': '3', 'Vlan': '40', 'MacAddress': '00:00:00:00:00:01', 'Port': 'Ethernet0', 'Type': 'Dynamic'},
         }
         """
-        mac_table = self.engine.run_cmd(f'sudo show mac {option}', validate=True)
+        mac_table = engine.run_cmd(f'sudo show mac {option}', validate=True)
         mac_table_dict = generic_sonic_output_parser(mac_table,
                                                      headers_ofset=0,
                                                      len_ofset=1,

@@ -68,7 +68,7 @@ class TestVLAN:
         :return: raise assertion error if expected output is not matched
         """
         logger.info("Vlan access mode: verify PortChannel0001 in mode access")
-        vlan_info = self.cli_object.vlan.show_vlan_config()
+        vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
         vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.po_iface,
                                                                     mode='untagged'), True),
                               (self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.dut_hb_1,
@@ -133,7 +133,7 @@ class TestVLAN:
         :return: raise assertion error if expected output is not matched
         """
         logger.info("Vlan trunk mode: verify {} and {} are in trunk mode".format(self.dut_hb_1, self.dut_ha_2))
-        vlan_info = self.cli_object.vlan.show_vlan_config()
+        vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
         vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.dut_ha_2,
                                                                     mode='tagged'), True),
                               (self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.dut_hb_1,
@@ -229,24 +229,24 @@ class TestVLAN:
         vlan_expected_info = []
         try:
             # remove iface from vlan to prevent stp
-            self.cli_object.vlan.del_port_from_vlan(self.dut_hb_1, self.vlan_30)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.dut_hb_1, self.vlan_30)
 
-            self.cli_object.vlan.add_port_to_vlan(split_port_1, self.vlan_30, mode='access')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, split_port_1, self.vlan_30, mode='access')
             vlan_expected_info.append((self.show_vlan_config_pattern.format(vid=self.vlan_30,
                                                                             member=split_port_1,
                                                                             mode=vlan_mode_dict['access']), True))
-            self.cli_object.vlan.add_port_to_vlan(split_port_2, self.vlan_800, mode='trunk')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, split_port_2, self.vlan_800, mode='trunk')
             vlan_expected_info.append((self.show_vlan_config_pattern.format(vid=self.vlan_800,
                                                                             member=split_port_2,
                                                                             mode=vlan_mode_dict['trunk']), True))
-            vlan_info = self.cli_object.vlan.show_vlan_config()
+            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
             verify_show_cmd(vlan_info, vlan_expected_info)
-            self.cli_object.interface.check_ports_status([split_port_1, split_port_2],
+            self.cli_object.interface.check_ports_status(self.dut_engine, [split_port_1, split_port_2],
                                                          expected_status='up')
 
             # functional check
-            self.cli_object.vlan.del_port_from_vlan(split_port_2, self.vlan_800)
-            self.cli_object.vlan.add_port_to_vlan(split_port_2, self.vlan_800, mode='access')
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, split_port_2, self.vlan_800)
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, split_port_2, self.vlan_800, mode='access')
 
             with allure.step('Vlan access mode: verify untagged traffic can reach from '
                              'bond0 to {} with VLAN tag {} via split ports)'.format(self.hb_dut_1, self.vlan_800)):
@@ -274,9 +274,9 @@ class TestVLAN:
 
         finally:
             # cleanup
-            self.cli_object.vlan.add_port_to_vlan(self.dut_hb_1, self.vlan_30, mode='trunk')
-            self.cli_object.vlan.del_port_from_vlan(split_port_1, self.vlan_30)
-            self.cli_object.vlan.del_port_from_vlan(split_port_2, self.vlan_800)
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.dut_hb_1, self.vlan_30, mode='trunk')
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, split_port_1, self.vlan_30)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, split_port_2, self.vlan_800)
 
     @pytest.mark.build
     @pytest.mark.push_gate
@@ -290,24 +290,24 @@ class TestVLAN:
         try:
 
             logger.info("Configure Vlan {} on the dut {}".format(self.vlan_4095, self.dut_engine.ip))
-            output = self.cli_object.vlan.add_vlan(self.vlan_4095)
+            output = self.cli_object.vlan.add_vlan(self.dut_engine, self.vlan_4095)
             logger.info("Verify Configure Vlan {} on the dut {} failed".format(self.vlan_4095, self.dut_engine.ip))
             expected_err_msg = [(r"Error:\s+Invalid\s+VLAN\s+ID\s+{}\s+\(1-{}\)".format(self.vlan_4095,
                                                                                         self.vlan_4094), True)]
             verify_show_cmd(output, expected_err_msg)
             logger.info("Clean Vlan configuration from {}".format(self.dut_hb_1, self.po_iface))
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_30)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_30)
             logger.info("Configure Vlan {} on ports {}, {}".format(self.vlan_4095, self.po_iface, self.dut_hb_1))
-            output = self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_4095, mode='access')
+            output = self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_4095, mode='access')
             logger.info("Verify Configure Vlan {} on the ports failed".format(self.vlan_4095))
             verify_show_cmd(output, expected_err_msg)
-            output = self.cli_object.vlan.add_port_to_vlan(self.dut_hb_1, self.vlan_4095, mode='trunk')
+            output = self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.dut_hb_1, self.vlan_4095, mode='trunk')
             verify_show_cmd(output, expected_err_msg)
 
             logger.info("Verify Configuration of Vlan {} on ports po_iface, {} doesn't exist".format(self.vlan_4095,
                                                                                                      self.po_iface,
                                                                                                      self.dut_hb_1))
-            vlan_info = self.cli_object.vlan.show_vlan_config()
+            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
             vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_4095, member=self.po_iface,
                                                                         mode='untagged'), False),
                                   (self.show_vlan_config_pattern.format(vid=self.vlan_4095, member=self.dut_hb_1,
@@ -331,14 +331,14 @@ class TestVLAN:
                 ScapyChecker(self.players, validation).run_validation()
 
             logger.info("Configure Vlan {} on the dut {}".format(self.vlan_4094, self.dut_engine.ip))
-            self.cli_object.vlan.add_vlan(self.vlan_4094)
+            self.cli_object.vlan.add_vlan(self.dut_engine, self.vlan_4094)
             logger.info("Configure Vlan {} on ports {}, {}".format(self.vlan_4094, self.po_iface, self.dut_hb_1))
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_4094, mode='access')
-            self.cli_object.vlan.add_port_to_vlan(self.dut_hb_1, self.vlan_4094, mode='trunk')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_4094, mode='access')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.dut_hb_1, self.vlan_4094, mode='trunk')
 
             logger.info("Verify Configuration of Vlan {} on ports {}, {} exist".format(self.vlan_4094, self.po_iface,
                                                                                        self.dut_hb_1))
-            vlan_info = self.cli_object.vlan.show_vlan_config()
+            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
             vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_4094, member=self.po_iface,
                                                                         mode='untagged'), True),
                                   (self.show_vlan_config_pattern.format(vid=self.vlan_4094, member=self.dut_hb_1,
@@ -401,10 +401,10 @@ class TestVLAN:
 
         finally:
             # cleanup
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_4094)
-            self.cli_object.vlan.del_port_from_vlan(self.dut_hb_1, self.vlan_4094)
-            self.cli_object.vlan.del_vlan(self.vlan_4094)
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_30, mode='access')
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_4094)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.dut_hb_1, self.vlan_4094)
+            self.cli_object.vlan.del_vlan(self.dut_engine, self.vlan_4094)
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_30, mode='access')
 
     @pytest.mark.build
     @allure.title('BUILD VLAN test case')
@@ -416,14 +416,14 @@ class TestVLAN:
         try:
 
             logger.info("Clean port dut-ha-1 from access mode")
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_30)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_30)
 
             logger.info("Switch port dut-ha-1 vlan mode to trunk with {} and {}.".format(self.vlan_30, self.vlan_800))
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_30, 'trunk')
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_800, 'trunk')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_30, 'trunk')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_800, 'trunk')
 
             logger.info("Vlan trunk mode: verify ports vlan mode")
-            vlan_info = self.cli_object.vlan.show_vlan_config()
+            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
             vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.po_iface,
                                                                         mode='tagged'), True),
                                   (self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.dut_ha_2,
@@ -504,15 +504,15 @@ class TestVLAN:
                 ScapyChecker(self.players, validation).run_validation()
 
             logger.info("remove port dut-ha-1 vlan trunk mode configuration.")
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_30)
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_800)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_30)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_800)
 
             logger.info("Switch port dut-ha-1 vlan mode to access with vlan {}.".format(self.vlan_800))
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_800, 'access')
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_800, 'access')
 
             logger.info("Vlan access mode: verify dut-ha-1 ({}) in mode access with vlan {}".format(self.po_iface,
                                                                                                     self.vlan_800))
-            vlan_info = self.cli_object.vlan.show_vlan_config()
+            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
             vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_800, member=self.po_iface,
                                                                         mode='untagged'), True),
                                   (self.show_vlan_config_pattern.format(vid=self.vlan_800, member=self.dut_hb_1,
@@ -568,12 +568,12 @@ class TestVLAN:
                 ScapyChecker(self.players, validation).run_validation()
 
             logger.info("Switch port dut-ha-1 vlan mode to access with vlan {}.".format(self.vlan_30))
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_800)
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_30, 'access')
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_800)
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_30, 'access')
 
             logger.info("Vlan access mode: verify dut-ha-1 ({}) in mode access with vlan {}".format(self.po_iface,
                                                                                                     self.vlan_30))
-            vlan_info = self.cli_object.vlan.show_vlan_config()
+            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
             vlan_expected_info = [(self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.po_iface,
                                                                         mode='untagged'), True),
                                   (self.show_vlan_config_pattern.format(vid=self.vlan_30, member=self.dut_hb_1,
@@ -633,8 +633,8 @@ class TestVLAN:
 
         finally:
             # cleanup
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_30)
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_30)
             # del 800 required to have correct cleanup if test failed at beginning
-            self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_800)
-            self.cli_object.vlan.add_port_to_vlan(self.po_iface, self.vlan_30, 'access')
+            self.cli_object.vlan.del_port_from_vlan(self.dut_engine, self.po_iface, self.vlan_800)
+            self.cli_object.vlan.add_port_to_vlan(self.dut_engine, self.po_iface, self.vlan_30, 'access')
             logger.info("Switch bond0 ip to be access in vlan {}".format(self.vlan_30))

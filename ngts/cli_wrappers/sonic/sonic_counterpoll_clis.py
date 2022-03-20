@@ -7,37 +7,42 @@ class SonicCounterpollCli(CounterpollCliCommon):
     This class is for counterpoll cli commands for sonic only
     """
 
-    def __init__(self, engine):
-        self.engine = engine
-
-    def disable_counterpoll(self):
+    @staticmethod
+    def disable_counterpoll(engine):
         """
         Disable counterpoll on SONIC
+        :param engine: ssh engine object
         """
         cmd = 'sudo counterpoll config-db disable'
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)
 
-    def enable_counterpoll(self):
+    @staticmethod
+    def enable_counterpoll(engine):
         """
         Enable counterpoll on SONIC
+        :param engine: ssh engine object
         """
         cmd = 'sudo counterpoll config-db enable'
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)
 
-    def show(self):
+    @staticmethod
+    def show(engine):
         """
         Run command "counterpoll show" on SONIC
+        :param engine: ssh engine object
         :return: cmd output
         """
         cmd = 'sudo counterpoll show'
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)
 
-    def parse_counterpoll_show(self):
+    @staticmethod
+    def parse_counterpoll_show(engine):
         """
         Run command "counterpoll show" on SONIC and parse output to dict
+        :param engine: ssh engine object
         :return: dictionary with parsed output
         """
-        counterpoll_show_output = self.show()
+        counterpoll_show_output = SonicCounterpollCli.show(engine)
         counterpoll_show_dict = generic_sonic_output_parser(counterpoll_show_output,
                                                             headers_ofset=0,
                                                             len_ofset=1,
@@ -47,27 +52,33 @@ class SonicCounterpollCli(CounterpollCliCommon):
                                                             output_key='Type')
         return counterpoll_show_dict
 
-    def enable_flowcnt_trap(self):
+    @staticmethod
+    def enable_flowcnt_trap(engine):
         """
         Run command "counterpoll flowcnt-trap enable" on SONIC
+        :param engine: ssh engine object
         :return: cmd output
         """
         cmd = 'sudo counterpoll flowcnt-trap enable'
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)
 
-    def disable_flowcnt_trap(self):
+    @staticmethod
+    def disable_flowcnt_trap(engine):
         """
         Run command "counterpoll flowcnt-trap disable" on SONIC
+        :param engine: ssh engine object
         :return: cmd output
         """
         cmd = 'sudo counterpoll flowcnt-trap disable'
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)
 
-    def set_trap_interval(self, interval):
+    @staticmethod
+    def set_trap_interval(engine, interval):
         """
         Run command "counterpoll flowcnt-trap interval <time_in_msec>" on SONIC
+        :param engine: ssh engine object
         :param interval: polling interval for trap flow counters
         :return: cmd output
         """
         cmd = 'sudo counterpoll flowcnt-trap interval {}'.format(interval)
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)

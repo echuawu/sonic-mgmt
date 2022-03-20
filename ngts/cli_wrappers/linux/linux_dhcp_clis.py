@@ -25,8 +25,6 @@ class LinuxDhcpCli:
 
     ipv6_base_pkt = 'Ether(dst="{dst_mac}")/IPv6(src="{src_ip}", dst="{dst_ip}")/UDP(sport={s_port}, dport={d_port})/'
 
-    def __init__(self, engine):
-        self.engine = engine
-
-    def kill_all_dhcp_clients(self):
-        return self.engine.run_cmd('killall dhclient')
+    @staticmethod
+    def kill_all_dhcp_clients(engine):
+        return engine.run_cmd('killall dhclient')

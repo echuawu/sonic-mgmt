@@ -29,7 +29,7 @@ def loganalyzer(topology_obj, request, loganalyzer_log_folder):
 
     marker = None
     dut_engine = topology_obj.players['dut']['engine']
-    hostname = topology_obj.players['dut']['cli'].chassis.get_hostname()
+    hostname = topology_obj.players['dut']['cli'].chassis.get_hostname(dut_engine)
 
     with DisableLogrotateCronContext(dut_engine):
         # Force rotate logs

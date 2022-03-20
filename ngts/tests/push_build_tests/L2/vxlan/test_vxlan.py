@@ -56,11 +56,11 @@ def test_vxlan_decap(engines, players, cli_objects, upgrade_params):
     #     cli_objects.dut.vxlan.check_vxlan_tunnels(engines.dut, expected_tunnels_info_list=[expected_tunnel_info])
 
     with allure.step('Checking VLAN {} mapping to VNI {}'.format(vlan, vni)):
-        cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(vlan, vni)])
+        cli_objects.dut.vxlan.check_vxlan_vlanvnimap(engines.dut, vlan_vni_map_list=[(vlan, vni)])
 
     with allure.step('Validate decapsulation of VXLAN traffic. Send traffic from HA with VNI {}'.format(vni)):
-        main_src_mac = cli_objects.ha.mac.get_mac_address_for_interface('bond0')
-        main_dst_mac = cli_objects.dut.mac.get_mac_address_for_interface('PortChannel0001')
+        main_src_mac = cli_objects.ha.mac.get_mac_address_for_interface(engines.ha, 'bond0')
+        main_dst_mac = cli_objects.dut.mac.get_mac_address_for_interface(engines.dut, 'PortChannel0001')
         encap_src_mac = '0e:2e:96:af:9d:c0'
 
         pkt = 'Ether(dst="{}", src="{}")/IP(dst="{}", src="10.1.1.32")/' \

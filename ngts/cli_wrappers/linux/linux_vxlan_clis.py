@@ -5,15 +5,14 @@ from ngts.cli_wrappers.linux.linux_ip_clis import LinuxIpCli
 
 class LinuxVxlanCli(VxlanCliCommon):
 
-    def __init__(self, engine):
-        self.engine = engine
-
-    def configure_vxlan(self, vxlan_info):
+    @staticmethod
+    def configure_vxlan(engine, vxlan_info):
         """
         Method which adding VXLAN on Linux device
         - Add VXLAN device with specific VNI
         - Add bridge device with name br_VNI
         - Connect bridge device with VXLAN device
+        :param engine: ssh engine object
         :param vxlan_info: vxlan info dictionary
         Example: {'vtep_name': 'vxlan76543', 'vtep_src_ip': '10.1.1.32', 'vtep_dst_ip': '10.1.0.32', 'vni': 76543,
                 'vtep_ips': [('23.45.0.1', '24')]}
@@ -21,35 +20,39 @@ class LinuxVxlanCli(VxlanCliCommon):
         """
         vtep_name = vxlan_info['vtep_name']
         vni = vxlan_info['vni']
-        self.add_vtep(vtep_name, vxlan_info['vtep_src_ip'], vni,
+        LinuxVxlanCli.add_vtep(engine, vtep_name, vxlan_info['vtep_src_ip'], vni,
                                vxlan_info.get('vtep_dst_ip'))
 
-        self.engine.run_cmd('brctl addbr br_{}'.format(vni))
-        self.engine.run_cmd('brctl addif br_{} {}'.format(vni, vtep_name))
-        self.engine.run_cmd('brctl stp br_{} off'.format(vni))
+        engine.run_cmd('brctl addbr br_{}'.format(vni))
+        engine.run_cmd('brctl addif br_{} {}'.format(vni, vtep_name))
+        engine.run_cmd('brctl stp br_{} off'.format(vni))
 
-        LinuxInterfaceCli(engine=self.engine).enable_interface(vtep_name)
-        LinuxInterfaceCli(engine=self.engine).enable_interface('br_{}'.format(vni))
+        LinuxInterfaceCli.enable_interface(engine, vtep_name)
+        LinuxInterfaceCli.enable_interface(engine, 'br_{}'.format(vni))
 
         for ip_mask in vxlan_info.get('vtep_ips', []):
             ip = ip_mask[0]
             mask = ip_mask[1]
-            LinuxIpCli(engine=self.engine).add_ip_to_interface('br_{}'.format(vni), ip, mask)
+            LinuxIpCli.add_ip_to_interface(engine, 'br_{}'.format(vni), ip, mask)
 
-    def delete_vxlan(self, vxlan_info):
+    @staticmethod
+    def delete_vxlan(engine, vxlan_info):
         """
         Method which remove VXLAN from Linux device
+        :param engine: ssh engine object
         :param vxlan_info: vxlan info dictionary
         Example: {'vtep_name': 'vxlan76543', 'vtep_src_ip': '10.1.1.32', 'vtep_dst_ip': '10.1.0.32', 'vni': 76543,
                 'vtep_ips': [('23.45.0.1', '24')]}
         :return: command output
         """
-        LinuxInterfaceCli(engine=self.engine).del_interface('br_{}'.format(vxlan_info['vni']))
-        LinuxInterfaceCli(engine=self.engine).del_interface(vxlan_info['vtep_name'])
+        LinuxInterfaceCli.del_interface(engine, 'br_{}'.format(vxlan_info['vni']))
+        LinuxInterfaceCli.del_interface(engine, vxlan_info['vtep_name'])
 
-    def add_vtep(self, vtep_name, src_ip, vni, dst_ip=False):
+    @staticmethod
+    def add_vtep(engine, vtep_name, src_ip, vni, dst_ip=False):
         """
         Method which adding VTEP to Linux device
+        :param engine: ssh engine object
         :param vtep_name: VTEP name
         :param src_ip: src_ip which will be used by VTEP
         :param vni: vni id
@@ -62,4 +65,4 @@ class LinuxVxlanCli(VxlanCliCommon):
         else:
             cmd += 'nolearning'
 
-        return self.engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)

@@ -9,12 +9,11 @@ from ngts.constants.constants import IpIfaceAddrConst
 
 class SonicIpCli(IpCliCommon):
 
-    def __init__(self, engine):
-        self.engine = engine
-
-    def add_del_ip_from_interface(self, action, interface, ip, mask):
+    @staticmethod
+    def add_del_ip_from_interface(engine, action, interface, ip, mask):
         """
         This method adds/remove ip address to/from network interface
+        :param engine: ssh engine object
         :param action: action which should be executed: add or remove
         :param interface: interface name to which IP should be assigned/removed
         :param ip: ip address which should be assigned/removed
@@ -25,42 +24,50 @@ class SonicIpCli(IpCliCommon):
             raise NotImplementedError(
                 'Incorrect action {} provided, supported only add/del'.format(action))
 
-        self.engine.run_cmd(
+        engine.run_cmd(
             'sudo config interface ip {} {} {}/{}'.format(action, interface, ip, mask))
 
-    def add_ip_to_interface(self, interface, ip, mask=24):
+    @staticmethod
+    def add_ip_to_interface(engine, interface, ip, mask=24):
         """
         This method adds IP to SONiC interface
+        :param engine: ssh engine object
         :param interface: interface name to which IP should be assigned
         :param ip: ip address which should be assigned
         :param mask: mask which should be assigned to IP
         :return: command output
         """
-        self.add_del_ip_from_interface('add', interface, ip, mask)
+        SonicIpCli.add_del_ip_from_interface(
+            engine, 'add', interface, ip, mask)
 
-    def del_ip_from_interface(self, interface, ip, mask=24):
+    @staticmethod
+    def del_ip_from_interface(engine, interface, ip, mask=24):
         """
         This method removes IP from SONiC interface
+        :param engine: ssh engine object
         :param interface: interface name from which IP should be removed
         :param ip: ip address which should be removed
         :param mask: network mask
         :return: command output
         """
-        self.add_del_ip_from_interface('remove', interface, ip, mask)
+        SonicIpCli.add_del_ip_from_interface(
+            engine, 'remove', interface, ip, mask)
 
-    def show_ip_interfaces(self):
+    @staticmethod
+    def show_ip_interfaces(engine):
         """
         This method shows ip configuration on interfaces
         :return: the output of the command "show ip interfaces"
         """
-        return self.engine.run_cmd('sudo show ip interfaces')
+        return engine.run_cmd('sudo show ip interfaces')
 
-    def show_ipv6_interfaces(self):
+    @staticmethod
+    def show_ipv6_interfaces(engine):
         """
         This method shows ipv6 configuration on interfaces
         :return: the output of the command "show ipv6 interfaces"
         """
-        return self.engine.run_cmd('sudo show ipv6 interfaces')
+        return engine.run_cmd('sudo show ipv6 interfaces')
 
     @staticmethod
     def generate_neighbors_cfg(amount, start_ip, iface, family, operation):
@@ -110,7 +117,8 @@ class SonicIpCli(IpCliCommon):
             config_json.append(entry_json)
         return config_json
 
-    def generate_routes_cfg_w_nexthop_group(self, nx_group_amount, start_ip, neighbor_cfg, operation):
+    @staticmethod
+    def generate_routes_cfg_w_nexthop_group(nx_group_amount, start_ip, neighbor_cfg, operation):
         """
         This method generates config with specific amount of IP routes which can be applied via swss container
         :param nx_group_amount: amount of ip routes to be created
@@ -138,7 +146,7 @@ class SonicIpCli(IpCliCommon):
             neighs = neighbor_cfg[neigh_id: neigh_id + 2]
             neigh_id += 2
 
-            iface, nexthop = self.compose_neighbor_pairs(neighs)
+            iface, nexthop = SonicIpCli.compose_neighbor_pairs(neighs)
 
             entry_json = {entry_key_template.format(network=network.format() + "/{}".format(mask)):
                           {"nexthop": nexthop, "ifname": iface},
@@ -171,7 +179,8 @@ class SonicIpCli(IpCliCommon):
         nexthop = ",".join(nexthops)
         return iface, nexthop
 
-    def get_interface_ips(self, interface):
+    @staticmethod
+    def get_interface_ips(engine, interface):
         """
         This method get ip address and mask on specified interface
         :return: list of ip and mask of the interface, empty list will retrun if no ip address configured for the interface
@@ -181,14 +190,14 @@ class SonicIpCli(IpCliCommon):
         ip_list = []
         cmd_list = ['sudo show ip interfaces', 'sudo show ipv6 interfaces']
         for cmd in cmd_list:
-            output = self.engine.run_cmd(cmd)
+            output = engine.run_cmd(cmd)
             interfaces = generic_sonic_output_parser(output, headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
                                                      data_ofset_from_end=None, column_ofset=2, output_key="Interface")
             if interface in interfaces.keys():
-                interface_dict_list = self.get_interface_dict_list(
+                interface_dict_list = SonicIpCli.get_interface_dict_list(
                     interfaces, interface)
                 for interface_dict in interface_dict_list:
-                    ip_key = self.get_ip_type_key(interface_dict)
+                    ip_key = SonicIpCli.get_ip_type_key(interface_dict)
                     if isinstance(interface_dict[ip_key], list):
                         for ip_addr in interface_dict[ip_key]:
                             ip, mask = ip_addr.split('/')

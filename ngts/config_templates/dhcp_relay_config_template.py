@@ -1,5 +1,8 @@
 import allure
 
+from ngts.cli_util.stub_engine import StubEngine
+from ngts.config_templates.parallel_config_runner import parallel_config_runner
+
 
 class DhcpRelayConfigTemplate:
     """
@@ -16,10 +19,11 @@ class DhcpRelayConfigTemplate:
         with allure.step('Applying DHCP Relay configuration'):
             for player_alias, configuration in dhcp_relay_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
+                engine = topology_obj.players[player_alias]['engine']
                 for dhcp_relay_info in configuration:
                     vlan = dhcp_relay_info['vlan_id']
                     for dhcp_server in dhcp_relay_info['dhcp_servers']:
-                        cli_object.dhcp_relay.add_dhcp_relay(vlan, dhcp_server, topology_obj=topology_obj)
+                        cli_object.dhcp_relay.add_dhcp_relay(engine, vlan, dhcp_server, topology_obj=topology_obj)
 
     @staticmethod
     def cleanup(topology_obj, dhcp_relay_config_dict):
@@ -32,7 +36,8 @@ class DhcpRelayConfigTemplate:
         with allure.step('Performing DHCP Relay configuration cleanup'):
             for player_alias, configuration in dhcp_relay_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']
+                engine = topology_obj.players[player_alias]['engine']
                 for dhcp_relay_info in configuration:
                     vlan = dhcp_relay_info['vlan_id']
                     for dhcp_server in dhcp_relay_info['dhcp_servers']:
-                        cli_object.dhcp_relay.del_dhcp_relay(vlan, dhcp_server, topology_obj=topology_obj)
+                        cli_object.dhcp_relay.del_dhcp_relay(engine, vlan, dhcp_server, topology_obj=topology_obj)

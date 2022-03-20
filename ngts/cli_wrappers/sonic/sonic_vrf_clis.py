@@ -2,40 +2,44 @@ from ngts.cli_wrappers.common.vrf_clis_common import VrfCliCommon
 
 
 class SonicVrfCli(VrfCliCommon):
-
-    def __init__(self, engine):
-        self.engine = engine
-
-    def add_vrf(self, vrf):
+    @staticmethod
+    def add_vrf(engine, vrf):
         """
         This method creates VRF
+        :param engine: ssh engine object
         :param vrf: vrf name which should be created
         :return: command output
         """
-        return self.engine.run_cmd("sudo config vrf add {}".format(vrf))
+        return engine.run_cmd("sudo config vrf add {}".format(vrf))
 
-    def del_vrf(self, vrf):
+    @staticmethod
+    def del_vrf(engine, vrf):
         """
         This method deletes VRF
+        :param engine: ssh engine object
         :param vrf: vrf name which should be deleted
         :return: command output
         """
-        return self.engine.run_cmd("sudo config vrf del {}".format(vrf))
+        return engine.run_cmd("sudo config vrf del {}".format(vrf))
 
-    def add_interface_to_vrf(self, interface, vrf):
+    @staticmethod
+    def add_interface_to_vrf(engine, interface, vrf):
         """
         This method moves interface from default VRF to specific
+        :param engine: ssh engine object
         :param interface: interface name which should be moved
         :param vrf: vrf name to which move interface
         :return: command output
         """
-        return self.engine.run_cmd("sudo config interface vrf bind {} {}".format(interface, vrf))
+        return engine.run_cmd("sudo config interface vrf bind {} {}".format(interface, vrf))
 
-    def del_interface_from_vrf(self, interface, vrf):
+    @staticmethod
+    def del_interface_from_vrf(engine, interface, vrf):
         """
         This method moves interface from specific VRF to default
+        :param engine: ssh engine object
         :param interface: interface name which should be moved
         :param vrf: vrf name from which move interface
         :return: command output
         """
-        return self.engine.run_cmd("sudo config interface vrf unbind {}".format(interface))
+        return engine.run_cmd("sudo config interface vrf unbind {}".format(interface))

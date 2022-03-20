@@ -175,4 +175,4 @@ def get_mac_port_address(topology_obj, host, port):
     """
     cli_object = topology_obj.players[host]['cli']
     engine = topology_obj.players[host]['engine']
-    return cli_object.mac.get_mac_address_for_interface(port)
+    return cli_object.mac.get_mac_address_for_interface(engine, port)

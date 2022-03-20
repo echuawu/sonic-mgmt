@@ -13,11 +13,11 @@ class LagLacpConfigTemplate:
         with allure.step('Applying LAG/LACP configuration'):
             conf = {}
             for player_alias, lag_list in lag_lacp_config_dict.items():
-                cli_object = topology_obj.players[player_alias]['stub_cli']
+                cli_object = topology_obj.players[player_alias]['cli']
+                stub_engine = StubEngine()
                 for lag in lag_list:
-                    cli_object.lag.create_lag_interface_and_assign_physical_ports(lag)
-                conf[player_alias] = cli_object.lag.engine.commands_list
-                cli_object.lag.engine.commands_list = []
+                    cli_object.lag.create_lag_interface_and_assign_physical_ports(stub_engine, lag)
+                conf[player_alias] = stub_engine.commands_list
 
             parallel_config_runner(topology_obj, conf)
 
@@ -32,10 +32,10 @@ class LagLacpConfigTemplate:
         with allure.step('Performing LAG/LACP configuration cleanup'):
             conf = {}
             for player_alias, lag_list in lag_lacp_config_dict.items():
-                cli_object = topology_obj.players[player_alias]['stub_cli']
+                cli_object = topology_obj.players[player_alias]['cli']
+                stub_engine = StubEngine()
                 for lag in lag_list:
-                    cli_object.lag.delete_lag_interface_and_unbind_physical_ports(lag)
-                conf[player_alias] = cli_object.lag.engine.commands_list
-                cli_object.lag.engine.commands_list = []
+                    cli_object.lag.delete_lag_interface_and_unbind_physical_ports(stub_engine, lag)
+                conf[player_alias] = stub_engine.commands_list
 
             parallel_config_runner(topology_obj, conf)

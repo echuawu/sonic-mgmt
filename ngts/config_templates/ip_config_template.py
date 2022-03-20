@@ -19,15 +19,15 @@ class IpConfigTemplate:
         with allure.step('Applying IP configuration'):
             conf = {}
             for player_alias, configuration in ip_config_dict.items():
-                cli_object = topology_obj.players[player_alias]['stub_cli']
+                cli_object = topology_obj.players[player_alias]['cli']
+                stub_engine = StubEngine()
                 for port_info in configuration:
                     iface = port_info['iface']
                     for ip_mask in port_info['ips']:
                         ip = ip_mask[0]
                         mask = ip_mask[1]
-                        cli_object.ip.add_ip_to_interface(iface, ip, mask)
-                conf[player_alias] = cli_object.ip.engine.commands_list
-                cli_object.ip.engine.commands_list = []
+                        cli_object.ip.add_ip_to_interface(stub_engine, iface, ip, mask)
+                conf[player_alias] = stub_engine.commands_list
             # here we will do parallel configuration
             parallel_config_runner(topology_obj, conf)
 
@@ -42,14 +42,14 @@ class IpConfigTemplate:
         with allure.step('Performing IP configuration cleanup'):
             conf = {}
             for player_alias, configuration in ip_config_dict.items():
-                cli_object = topology_obj.players[player_alias]['stub_cli']
+                cli_object = topology_obj.players[player_alias]['cli']
+                stub_engine = StubEngine()
                 for port_info in configuration:
                     iface = port_info['iface']
                     for ip_mask in port_info['ips']:
                         ip = ip_mask[0]
                         mask = ip_mask[1]
-                        cli_object.ip.del_ip_from_interface(iface, ip, mask)
-                conf[player_alias] = cli_object.ip.engine.commands_list
-                cli_object.ip.engine.commands_list = []
+                        cli_object.ip.del_ip_from_interface(stub_engine, iface, ip, mask)
+                conf[player_alias] = stub_engine.commands_list
 
             parallel_config_runner(topology_obj, conf)

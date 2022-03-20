@@ -3,6 +3,8 @@ import logging
 import allure
 import semantic_version
 
+from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from dateutil.parser import parse as time_parse
 from ngts.constants.constants import AppExtensionInstallationConstants
@@ -48,10 +50,10 @@ def verify_app_repository_list_format(output_cmd):
     verify_show_cmd(output_cmd, excepted_out_list)
 
 
-def verify_add_app_to_repo(cli_obj, app_name, repo_name, desc="N/A", version="N/A", status="Not Installed"):
+def verify_add_app_to_repo(dut_engine, app_name, repo_name, desc="N/A", version="N/A", status="Not Installed"):
     """
     Verify if app is added into repo From "sonic-package-manager list" output
-    :param cli_obj: cli_obj object
+    :param dut_engine: ssh engine object
     :param app_name: app package name
     :param repo_name: app package repository
     :param desc: app package description
@@ -60,7 +62,7 @@ def verify_add_app_to_repo(cli_obj, app_name, repo_name, desc="N/A", version="N/
     :Return None, or raise exception  if app info not match all
 
     """
-    app_package_repo_dict = cli_obj.app_ext.parse_app_package_list_dict()
+    app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
     if app_name in app_package_repo_dict:
         app_info = app_package_repo_dict[app_name]
         assert all([repo_name == app_info["Repository"],
@@ -72,33 +74,31 @@ def verify_add_app_to_repo(cli_obj, app_name, repo_name, desc="N/A", version="N/
         assert False, "{} is not in the package list:{}".format(app_name, app_package_repo_dict)
 
 
-def retry_verify_app_container_up(dut_engine, cli_obj, app_name):
+def retry_verify_app_container_up(dut_engine, app_name):
     """
     Verify with retries that docker is up
     :param dut_engine: ssh engine object
-    :param cli_obj: cli_obj object
     :param app_name: app package name
     :Return None, or raise exception  if app info not match all
     """
-    def verify_app_container_up(dut_engine, cli_obj, app_name):
-        status = cli_obj.general.get_container_status(dut_engine, app_name)
+    def verify_app_container_up(dut_engine, app_name):
+        status = GeneralCliCommon.get_container_status(dut_engine, app_name)
         assert status, "{} container is not up, container status is None".format(app_name)
         assert "Up" in status, "expected status is Up, actual is {}".format(status)
-    retry_call(verify_app_container_up, fargs=[dut_engine, cli_obj, app_name],
+    retry_call(verify_app_container_up, fargs=[dut_engine, app_name],
                tries=36, delay=10, logger=logger)
 
 
-def verify_app_container_up_and_repo_status_installed(dut_engine, cli_obj, app_name, version):
+def verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version):
     """
     Verify app container is up and status in repo is installed
     :param dut_engine: ssh engine object
-    :param cli_obj: cli_obj object
     :param app_name: app package name
     :Return None, or raise exception  if app info not match all
 
     """
-    retry_verify_app_container_up(dut_engine, cli_obj, app_name)
-    app_package_repo_dict = cli_obj.app_ext.parse_app_package_list_dict()
+    retry_verify_app_container_up(dut_engine, app_name)
+    app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
     if app_name in app_package_repo_dict:
         app_info = app_package_repo_dict[app_name]
         if version:
@@ -109,36 +109,34 @@ def verify_app_container_up_and_repo_status_installed(dut_engine, cli_obj, app_n
         assert False, "No app package info: {}".format(app_package_repo_dict)
 
 
-def verify_app_container_down_and_repo_status_na(dut_engine, cli_obj, app_name):
+def verify_app_container_down_and_repo_status_na(dut_engine, app_name):
     """
     Verify app container is up and status in repo is installed
     :param dut_engine: ssh engine object
-    :param cli_obj: cli_obj object
     :param app_name: app package name
     :Return None, or raise exception  if app info not match all
 
     """
-    status = cli_obj.general.get_container_status(dut_engine, app_name)
+    status = GeneralCliCommon.get_container_status(dut_engine, app_name)
     assert not status, "Container still is not uninstalled,  Status is {}, ".format(status)
-    app_package_repo_dict = cli_obj.app_ext.parse_app_package_list_dict()
+    app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
     if app_name in app_package_repo_dict:
         assert False, "app package is not removed: {}".format(app_package_repo_dict)
 
 
-def uninstall_app_with_force_and_remove_app_from_repo(dut_engine, cli_obj, app_name, is_force=False):
+def uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, is_force=False):
     """
     Uninstall app with force or normally, and remove app from repo
     :param dut_engine: ssh engine object
-    :param cli_obj: cli_obj object
     :param app_name: app package name
     :param is_force：Bool, True uninstall with force, or without force
     """
     if is_force:
-        cli_obj.app_ext.uninstall_app(app_name, True)
+        SonicAppExtensionCli.uninstall_app(dut_engine, app_name, True)
     else:
-        cli_obj.app_ext.disable_app(app_name)
-        cli_obj.app_ext.uninstall_app(app_name)
-    cli_obj.app_ext.remove_repository(app_name)
+        SonicAppExtensionCli.disable_app(dut_engine, app_name)
+        SonicAppExtensionCli.uninstall_app(dut_engine, app_name)
+    SonicAppExtensionCli.remove_repository(dut_engine, app_name)
     verify_app_container_down_and_repo_status_na(dut_engine, app_name)
 
 
@@ -162,16 +160,15 @@ def gen_app_tarball(dut_engine, repo_name, app_name, version):
     return tarball_name
 
 
-def verify_app_container_status_none(dut_engine, cli_obj, app_name):
+def verify_app_container_status_none(dut_engine, app_name):
     """
     Verify app container is None
     :param dut_engine: ssh engine object
-    :param cli_obj: cli_obj object
     :param app_name: app package name
     :Return None, or raise exception  if app info not match all
 
     """
-    status = cli_obj.general.get_container_status(dut_engine, app_name)
+    status = GeneralCliCommon.get_container_status(dut_engine, app_name)
     assert not status, "Excepted container status is None, actual container status is {}".format(status)
 
 
@@ -348,29 +345,28 @@ def verify_app_container_start_delay(dut_engine, app_name, delay_time):
         delay_time, time_diff)
 
 
-def app_cleanup(dut_engine, cli_obj, app_name):
+def app_cleanup(dut_engine, app_name):
     """
     Uninstall app and remove from repo
     :param dut_engine: ssh engines
-    :param cli_obj: cli_obj object
     :param app_name: app extension name
 
     """
     # uninstall app with force
     if dut_engine.run_cmd("docker image list | grep {}".format(app_name)):
-        cli_obj.app_ext.disable_app(app_name)
-        cli_obj.app_ext.uninstall_app(app_name)
+        SonicAppExtensionCli.disable_app(dut_engine, app_name)
+        SonicAppExtensionCli.uninstall_app(dut_engine, app_name)
     # remove app from repo
-    if app_name in cli_obj.app_ext.parse_app_package_list_dict():
-        cli_obj.app_ext.remove_repository(app_name)
+    if app_name in SonicAppExtensionCli.parse_app_package_list_dict(dut_engine):
+        SonicAppExtensionCli.remove_repository(dut_engine, app_name)
 
 
-def get_installed_mellanox_extensions(cli_obj):
+def get_installed_mellanox_extensions(dut_engine):
     """
     Returns list of mellanox application extensions, installed to image
-    :param cli_obj: cli_obj object
+    :param dut_engine:  ssh engines
     :return: list of app extension names
     """
-    app_package_repo_dict = cli_obj.app_ext.parse_app_package_list_dict()
+    app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(dut_engine)
     return [app_name for app_name in app_package_repo_dict
             if app_name in AppExtensionInstallationConstants.APPLICATION_LIST]

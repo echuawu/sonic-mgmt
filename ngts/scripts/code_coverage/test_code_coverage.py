@@ -56,7 +56,7 @@ def test_extract_python_coverage(topology_obj, dest):
                 coverage_xml_files = system_helpers.list_files(docker_exec_engine, coverage_dir, pattern=coverage_xml_filename_prefix)
                 logger.info(f'Coverage xml files in {container} container: {coverage_xml_files}')
                 for file in coverage_xml_files:
-                    SonicGeneralCli(engine=engine).copy_from_docker(container, file, file)
+                    SonicGeneralCli().copy_from_docker(engine, container, file, file)
                     GeneralCliCommon.rm(docker_exec_engine, file, flags='-f')
 
         with allure.step(f'Copy coverage xml reports from the system to destination directory'):

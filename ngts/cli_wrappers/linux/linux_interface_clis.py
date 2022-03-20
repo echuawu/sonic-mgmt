@@ -5,62 +5,73 @@ from ngts.constants.constants import LinuxConsts, SonicConst, FEC_MODES_TO_ETHTO
 
 class LinuxInterfaceCli(InterfaceCliCommon):
 
-    def __init__(self, engine):
-        self.engine = engine
-
-    def add_interface(self, interface, iface_type):
+    @staticmethod
+    def add_interface(engine, interface, iface_type):
         """
         This method creates a network interface with specific type
+        :param engine: ssh engine object
         :param interface: interface name which should be added
         :param iface_type: linux interface type
         :return: command output
         """
-        return self.engine.run_cmd("sudo ip link add {} type {}".format(interface, iface_type))
+        return engine.run_cmd("sudo ip link add {} type {}".format(interface, iface_type))
 
-    def del_interface(self, interface):
+    @staticmethod
+    def del_interface(engine, interface):
         """
         This method delete a network interface
+        :param engine: ssh engine object
         :param interface: interface name which should be removed, example: bond0.5
         :return: command output
         """
-        return self.engine.run_cmd("sudo ip link del {}".format(interface))
+        return engine.run_cmd("sudo ip link del {}".format(interface))
 
-    def add_bond_interface(self, interface):
+    @staticmethod
+    def add_bond_interface(engine, interface):
         """
         Method which adding bond interface to linux
+        :param engine: ssh engine object
         :param interface: interface name which should be added
         :return: command output
         """
-        return self.engine.run_cmd("sudo ip link add {} type bond".format(interface))
+        return engine.run_cmd("sudo ip link add {} type bond".format(interface))
 
-    def enable_interface(self, interface):
+    @staticmethod
+    def enable_interface(engine, interface):
         """
         This method enables a network interface
+        :param engine: ssh engine object
         :param interface: interface name which should be enabled, example: bond0.5
         :return: command output
         """
-        return self.engine.run_cmd("sudo ip link set {} up".format(interface))
+        return engine.run_cmd("sudo ip link set {} up".format(interface))
 
-    def disable_interface(self, interface):
+    @staticmethod
+    def disable_interface(engine, interface):
         """
         This method disables network interface
+        :param engine: ssh engine object
         :param interface: interface name which should be disabled, example: bond0.5
         :return: command output
         """
-        return self.engine.run_cmd("sudo ip link set {} down".format(interface))
+        return engine.run_cmd("sudo ip link set {} down".format(interface))
 
-    def add_port_to_bond(self, interface, bond_name):
+    @staticmethod
+    def add_port_to_bond(engine, interface, bond_name):
         """
         Method which adding slave to bond interface in linux
+        :param engine: ssh engine object
         :param interface: interface name which should be added to bond
         :param bond_name: bond interface name
         :return: command output
         """
-        return self.engine.run_cmd("sudo ip link set {} master {}".format(interface, bond_name))
+        return engine.run_cmd("sudo ip link set {} master {}".format(interface, bond_name))
 
-    def set_interface_speed(self, interface, speed):
+    @staticmethod
+    def set_interface_speed(engine, interface, speed):
         """
         Method which setting interface speed
+        :param engine: ssh engine object
         :param interface: interface name
         :param speed: speed string value, i.e. '50G' or '50000'
         :return: command output
@@ -68,84 +79,102 @@ class LinuxInterfaceCli(InterfaceCliCommon):
         if 'G' in speed:
             speed = int(speed.split('G')[0]) * 1000
 
-        return self.engine.run_cmd("ethtool -s {interface_name} speed {speed}".format(interface_name=interface,
-                                                                                      speed=speed))
+        return engine.run_cmd("ethtool -s {interface_name} speed {speed}".format(interface_name=interface, speed=speed))
 
-    def set_interface_mtu(self, interface, mtu):
+    @staticmethod
+    def set_interface_mtu(engine, interface, mtu):
         """
         Method which setting interface MTU
+        :param engine: ssh engine object
         :param interface: interface name
         :param mtu: mtu value
         :return: command output
         """
-        return self.engine.run_cmd("ip link set mtu {} dev {}".format(mtu, interface))
+        return engine.run_cmd("ip link set mtu {} dev {}".format(mtu, interface))
 
-    def show_interfaces_status(self):
+    @staticmethod
+    def show_interfaces_status(engine):
         """
         Method which getting interfaces status
+        :param engine: ssh engine object
         :return: parsed command output
         """
-        return self.engine.run_cmd("ifconfig")
+        return engine.run_cmd("ifconfig")
 
-    def get_interface_speed(self, interface):
+    @staticmethod
+    def get_interface_speed(engine, interface):
         """
         Method which getting interface speed
+        :param engine: ssh engine object
         :param interface: interface name
         :return: interface speed, example: 200G
         """
-        return self.parse_show_interface_ethtool_status(interface)['speed']
+        return LinuxInterfaceCli.parse_show_interface_ethtool_status(engine, interface)['speed']
 
-    def get_interfaces_speed(self, interfaces_list):
+    @staticmethod
+    def get_interfaces_speed(engine, interfaces_list):
         """
         Method which getting interface speed
+        :param engine: ssh engine object
         :param interfaces_list: interfaces name list, example: ['eth1', 'eth2']
         :return: interface speed dict, example: {'eth1': 200G, 'eth2': '100G'}
         """
         res = dict()
         for interface in interfaces_list:
-            res[interface] = self.get_interface_speed(interface)
+            res[interface] = LinuxInterfaceCli.get_interface_speed(engine, interface)
         return res
 
-    def get_interface_mtu(self, interface):
+    @staticmethod
+    def get_interface_mtu(engine, interface):
         """
         Method which getting interface MTU
+        :param engine: ssh engine object
         :param interface: interface name
         :return: interface MTU, example: 9100
         """
-        return self.engine.run_cmd('cat /sys/class/net/{}/mtu'.format(interface))
+        return engine.run_cmd('cat /sys/class/net/{}/mtu'.format(interface))
 
-    def get_interfaces_mtu(self, interfaces_list):
+    @staticmethod
+    def get_interfaces_mtu(engine, interfaces_list):
         """
         Method which getting interface MTU
+        :param engine: ssh engine object
         :param interfaces_list: interfaces name list, example: ['eth1', 'eth2']
         :return: interface MTU, example: interface mtu dict, example: {'eth1': 9100, 'eth2': '1500'}
         """
         result = {}
         for interface in interfaces_list:
-            result[interface] = self.engine.run_cmd('cat /sys/class/net/{}/mtu'.format(interface))
+            result[interface] = engine.run_cmd('cat /sys/class/net/{}/mtu'.format(interface))
         return result
 
-    def config_auto_negotiation_mode(self, interface, mode):
+    @staticmethod
+    def config_auto_negotiation_mode(engine, interface, mode):
         """
         configure the auto negotiation mode on the interface
+        :param engine: ssh engine object
         :param interface: i.e, enp131s0f1
         :param mode: the auto negotiation mode to be configured, i.e. 'enabled'/'disabled'
         :return: the command output
         """
-        return self.engine.run_cmd("ethtool -s {interface_name} autoneg {mode}"
-                                   .format(interface_name=interface, mode=mode))
+        return engine.run_cmd("ethtool -s {interface_name} autoneg {mode}"
+                              .format(interface_name=interface, mode=mode))
 
-    def show_interface_ethtool_status(self, interface=''):
+    @staticmethod
+    def show_interface_ethtool_status(engine, interface=''):
         """
         ethtool information about the interface.
+        :param engine: ssh engine object
         :param interface:  i.e, enp131s0f1
         :return: the command output
         """
-        return self.engine.run_cmd("ethtool {interface_name}".format(interface_name=interface))
+        return engine.run_cmd("ethtool {interface_name}"
+                              .format(interface_name=interface))
 
-    def parse_show_interface_ethtool_status(self, interface):
+    @staticmethod
+    def parse_show_interface_ethtool_status(engine, interface):
         """
         Method which getting parsed interfaces auto negotiation status
+        :param engine: ssh engine object
         :return: a dictionary with auto negotiation relevant information,
         for example:
         {'autoneg': 'on',
@@ -159,14 +188,14 @@ class LinuxInterfaceCli(InterfaceCliCommon):
         '100GBASE-SR4', '40GBASE-CR4', '10GBASE-KR'},
         'speed': '100G'}
         """
-        iface_ethtool_info = self.show_interface_ethtool_status(interface=interface)
-        adv_speed, adv_type = self.\
+        iface_ethtool_info = LinuxInterfaceCli.show_interface_ethtool_status(engine, interface=interface)
+        adv_speed, adv_type = LinuxInterfaceCli.\
             parse_link_mode(re.search(r"Advertised link modes:([\s*(\d+\w+\/\w+)\s+]*)", iface_ethtool_info).group(1))
-        sup_speed, sup_type = self.\
+        sup_speed, sup_type = LinuxInterfaceCli.\
             parse_link_mode(re.search("Supported link modes:([\s*(\d+\w+\/\w+)\s+]*)", iface_ethtool_info).group(1))
         auto_neg_mode = re.search(r"Auto-negotiation:\s+(\w+)", iface_ethtool_info).group(1)
 
-        speed = self.parse_speed(iface_ethtool_info)
+        speed = LinuxInterfaceCli.parse_speed(iface_ethtool_info)
         res = {"autoneg": auto_neg_mode,
                "supported speeds": set(sup_speed),
                "supported types": set(sup_type),
@@ -206,29 +235,33 @@ class LinuxInterfaceCli(InterfaceCliCommon):
             speed_list.append(speed)
         return speed_list, type_list
 
-    def configure_interface_fec(self, interface, fec_option):
+    @staticmethod
+    def configure_interface_fec(engine, interface, fec_option):
         """
         configure the interface fec
+        :param engine: ssh engine object
         :param interface: i.e Ethernet0
         :param fec_option: i.e, none | fec91 | fec74
         :return: the command output
         """
         fec_option = FEC_MODES_TO_ETHTOOL[fec_option]
-        return self.engine.run_cmd("ethtool --set-fec {interface_name} encoding {fec_option}"
-                                   .format(interface_name=interface, fec_option=fec_option))
+        return engine.run_cmd("ethtool --set-fec {interface_name} encoding {fec_option}"
+                              .format(interface_name=interface, fec_option=fec_option))
 
-    def show_interface_fec(self, interface):
-        return self.engine.run_cmd("ethtool --show-fec {interface_name}".format(interface_name=interface))
+    @staticmethod
+    def show_interface_fec(engine, interface):
+        return engine.run_cmd("ethtool --show-fec {interface_name}".format(interface_name=interface))
 
-    def parse_interface_fec(self, interface):
+    @staticmethod
+    def parse_interface_fec(engine, interface):
         parsed_interface_fec_output = {}
-        interface_fec_output = self.show_interface_fec(interface)
+        interface_fec_output = LinuxInterfaceCli.show_interface_fec(engine, interface)
         if not re.search("Invalid argument", interface_fec_output, re.IGNORECASE):
             parse_fec_info_regex = r"{}:\s*(\w*)"
             parse_keys = [LinuxConsts.CONF_FEC, LinuxConsts.ACTIVE_FEC]
             for key in parse_keys:
                 fec_val = re.search(parse_fec_info_regex.format(key), interface_fec_output).group(1)
-                parsed_interface_fec_output[key] = self.parse_fec_mode(fec_val)
+                parsed_interface_fec_output[key] = LinuxInterfaceCli.parse_fec_mode(fec_val)
         else:
             raise AssertionError("Fec show command return output: {}\n, "
                                  "Interface {} is probably down.".format(interface_fec_output, interface))

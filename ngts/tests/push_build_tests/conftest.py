@@ -30,8 +30,8 @@ FRR_CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger()
 
 
-def get_test_app_ext_info(cli_obj):
-    is_support_app_ext = cli_obj.app_ext.verify_version_support_app_ext()
+def get_test_app_ext_info(engine, cli_obj):
+    is_support_app_ext = cli_obj.app_ext.verify_version_support_app_ext(engine)
     app_name = APP_INFO["name"]
     app_repository_name = APP_INFO["repository"]
     version = APP_INFO["shut_down"]["version"]
@@ -67,7 +67,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
     # Check if app_ext supported and get app name, repo, version
     shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
-        get_test_app_ext_info(cli_objects.dut)
+        get_test_app_ext_info(engines.dut, cli_objects.dut)
     if run_config_only or full_flow_run:
         if upgrade_params.is_upgrade_required:
             with allure.step('Installing base version from ONIE'):
@@ -80,11 +80,11 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
-                    get_test_app_ext_info(cli_objects.dut)
+                    get_test_app_ext_info(engines.dut, cli_objects.dut)
 
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
-            retry_call(cli_objects.dut.interface.check_ports_status, fargs=[ports_list], tries=10,
+            retry_call(cli_objects.dut.interface.check_ports_status, fargs=[engines.dut, ports_list], tries=10,
                        delay=10, logger=logger)
 
         # Install app here in order to test migrating app from base image to target image
@@ -92,7 +92,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
     # variable below required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
+    dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed(engines.dut,
+                                                                                    [interfaces.dut_ha_1,
                                                                                      interfaces.dut_hb_2])
 
     # Interfaces config which will be used in test
@@ -212,15 +213,15 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
             FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
         # add p4 sampling entries, need to check is the p4-sampling is installed or not
-        if P4SamplingUtils.check_p4_sampling_installed(cli_objects.dut) and \
+        if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
                 fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
         with allure.step('Doing debug logs print'):
-            log_debug_info(cli_objects.dut)
+            log_debug_info(engines.dut, cli_objects.dut)
 
         with allure.step('Doing conf save'):
             logger.info('Doing config save')
-            cli_objects.dut.general.save_configuration()
+            cli_objects.dut.general.save_configuration(engines.dut)
 
         logger.info('PushGate Common configuration completed')
 
@@ -268,13 +269,13 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
         LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
         InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
-        if P4SamplingUtils.check_p4_sampling_installed(cli_objects.dut) and \
+        if P4SamplingUtils.check_p4_sampling_installed(engines.dut) and \
                 fixture_helper.is_p4_sampling_supported(platform_params):
             fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, p4_sampling_table_params)
         if shared_params.app_ext_is_app_ext_supported:
             app_cleanup(engines.dut, app_name)
         logger.info('Doing config save after cleanup')
-        cli_objects.dut.general.save_configuration()
+        cli_objects.dut.general.save_configuration(engines.dut)
 
         logger.info('PushGate Common cleanup completed')
 
@@ -295,15 +296,15 @@ def p4_sampling_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb
     return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
 
 
-def log_debug_info(cli_obj):
+def log_debug_info(dut_engine, cli_obj):
     logger.info('Started debug prints')
-    cli_obj.interface.show_interfaces_status()
-    cli_obj.ip.show_ip_interfaces()
-    cli_obj.vlan.show_vlan_config()
-    cli_obj.route.show_ip_route()
-    cli_obj.route.show_ip_route(ipv6=True)
-    cli_obj.vxlan.show_vxlan_tunnel()
-    cli_obj.vxlan.show_vxlan_vlanvnimap()
+    cli_obj.interface.show_interfaces_status(dut_engine)
+    cli_obj.ip.show_ip_interfaces(dut_engine)
+    cli_obj.vlan.show_vlan_config(dut_engine)
+    cli_obj.route.show_ip_route(dut_engine)
+    cli_obj.route.show_ip_route(dut_engine, ipv6=True)
+    cli_obj.vxlan.show_vxlan_tunnel(dut_engine)
+    cli_obj.vxlan.show_vxlan_vlanvnimap(dut_engine)
     logger.info('Finished debug prints')
 
 

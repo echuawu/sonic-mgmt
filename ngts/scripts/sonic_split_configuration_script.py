@@ -126,7 +126,7 @@ def apply_base_configuration_from_user(args):
     save_port_config_ini_file(args)
     config_db_path = save_config_db(args, updated_init_config_db)
     load_configuration_files_to_switch(engine, port_config_ini_path, config_db_path, platform, hwsku)
-    SonicGeneralCli(engine=engine).update_config_db_metadata_mgmt_ip(args.configuration_path_dst, args.switch_ip)
+    SonicGeneralCli().update_config_db_metadata_mgmt_ip(engine, args.configuration_path_dst, args.switch_ip)
     engine.reload(reload_cmd_set=['sudo reboot'])
 
 

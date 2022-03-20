@@ -273,7 +273,7 @@ def convert_hex_to_ipv4_addr(ipv4_address_hex):
 
 
 def get_port_configs(engine):
-    config_db = SonicGeneralCli(engine=engine).get_config_db()
+    config_db = SonicGeneralCli().get_config_db(engine)
     port_configs = config_db.get('PORT')
     return port_configs
 

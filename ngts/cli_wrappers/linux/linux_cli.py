@@ -15,33 +15,24 @@ from ngts.cli_wrappers.linux.linux_vxlan_clis import LinuxVxlanCli
 from ngts.cli_wrappers.linux.linux_frr_cli import LinuxFrrCli
 from ngts.cli_wrappers.linux.linux_bgp_clis import LinuxBgpCli
 from ngts.cli_wrappers.linux.linux_counterpoll_clis import LinuxCounterpollCli
-
-from ngts.cli_util.stub_engine import StubEngine
-from dotted_dict import DottedDict
 logger = logging.getLogger()
 
 
 class LinuxCli:
-    def __init__(self, engine):
-
-        self.ip = LinuxIpCli(engine=engine)
-        self.lldp = LinuxLldpCli(engine=engine)
-        self.lag = LinuxLagLacpCli(engine=engine)
-        self.interface = LinuxInterfaceCli(engine=engine)
-        self.vlan = LinuxVlanCli(engine=engine)
-        self.route = LinuxRouteCli(engine=engine)
+    def __init__(self):
+        self.ip = LinuxIpCli()
+        self.lldp = LinuxLldpCli()
+        self.lag = LinuxLagLacpCli()
+        self.interface = LinuxInterfaceCli()
+        self.vlan = LinuxVlanCli()
+        self.route = LinuxRouteCli()
         self.vrf = LinuxVrfCli()
-        self.mac = LinuxMacCli(engine=engine)
-        self.chassis = LinuxChassisCli(engine=engine)
+        self.mac = LinuxMacCli()
+        self.chassis = LinuxChassisCli()
         self.general = LinuxGeneralCli()
-        self.dhcp = LinuxDhcpCli(engine=engine)
+        self.dhcp = LinuxDhcpCli()
         self.ifconfig = LinuxIfconfigCli()
-        self.vxlan = LinuxVxlanCli(engine=engine)
-        self.frr = LinuxFrrCli(engine=engine)
+        self.vxlan = LinuxVxlanCli()
+        self.frr = LinuxFrrCli()
         self.bgp = LinuxBgpCli()
         self.counterpoll = LinuxCounterpollCli()
-
-
-class LinuxCliStub(LinuxCli):
-    def __init__(self, engine):
-        super().__init__(StubEngine())

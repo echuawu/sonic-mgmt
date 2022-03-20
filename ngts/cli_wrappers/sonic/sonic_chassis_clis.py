@@ -7,15 +7,17 @@ class SonicChassisCli(ChassisCliCommon):
     This class is for chassis cli commands for sonic only
     """
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self):
+        pass
 
-    def get_platform(self):
+    @staticmethod
+    def get_platform(engine):
         """
         This method excute command "show platform summary" and return the dut platform type
+        :param engine: ssh engine object
         :return: the dut platform type
         """
-        output = self.show_platform_summary()
+        output = SonicChassisCli.show_platform_summary(engine)
         pattern = r"Platform:\s*(.*)"
         try:
             platform = re.search(pattern, output, re.IGNORECASE).group(1)
@@ -23,16 +25,20 @@ class SonicChassisCli(ChassisCliCommon):
         except Exception:
             raise AssertionError("Could not match platform type for switch {}".format(engine.ip))
 
-    def show_platform_summary(self):
+    @staticmethod
+    def show_platform_summary(engine):
         """
         This method excute command "show platform summary" on dut
+        :param engine: ssh engine object
         :return: the cmd output
         """
-        return self.engine.run_cmd("show platform summary")
+        return engine.run_cmd("show platform summary")
 
-    def show_mst_status(self):
-        return self.engine.run_cmd("sudo mst status")
+    @staticmethod
+    def show_mst_status(engine):
+        return engine.run_cmd("sudo mst status")
 
-    def get_pci_conf(self):
-        mst_status = self.show_mst_status()
+    @staticmethod
+    def get_pci_conf(engine):
+        mst_status = SonicChassisCli.show_mst_status(engine)
         return re.search("(.*pciconf0)", mst_status).group(1)

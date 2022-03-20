@@ -11,13 +11,11 @@ class NvueGeneralCli(SonicGeneralCli):
     Most of the methods are inherited from SonicGeneralCli
     """
 
-    def __init__(self, engine):
-        self.engine = engine
-
     @staticmethod
-    def verify_dockers_are_up(dockers_list=None):
+    def verify_dockers_are_up(engine, dockers_list=None):
         """
         Verifying the dockers are in up state during a specific time interval
+        :param engine: ssh engine object
         :param dockers_list: list of dockers to check
         :return: None, raise error in case of unexpected result
         """
@@ -25,7 +23,7 @@ class NvueGeneralCli(SonicGeneralCli):
         pass
 
     @staticmethod
-    def verify_installed_extensions_running():
+    def verify_installed_extensions_running(dut_engine):
         """
         This method is not relevant for NVOS (at least for now)
         """

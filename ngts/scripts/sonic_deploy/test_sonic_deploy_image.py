@@ -25,10 +25,10 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
     :param fw_pkg_path: fw_pkg_path fixture
     :return: raise assertion error in case of script failure
     """
-    dut_engine = topology_obj.players['dut']['engine']
     try:
         # when bgp is up, dut can not access the external IP such as fit69.mtl.labs.mlnx. So shutodwn bgp
         if is_shutdown_bgp:
+            dut_engine = topology_obj.players['dut']['engine']
             dut_engine.run_cmd('sudo config bgp shutdown all', validate=True)
             logger.info("Wait all bgp sessions are down")
             retry_call(check_bgp_is_shutdown,
@@ -36,11 +36,9 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
                        tries=6,
                        delay=10,
                        logger=logger)
-        SonicGeneralCli(engine=dut_engine).deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
-                                                        setup_name=setup_name, platform_params=platform_params,
-                                                        wjh_deb_url=wjh_deb_url, deploy_type=deploy_type,
-                                                        reboot_after_install=reboot_after_install,
-                                                        fw_pkg_path=fw_pkg_path)
+        SonicGeneralCli().deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
+                                       setup_name=setup_name, platform_params=platform_params, wjh_deb_url=wjh_deb_url,
+                                       deploy_type=deploy_type, reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
     except Exception as err:
         raise AssertionError(err)
     finally:

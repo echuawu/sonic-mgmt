@@ -41,7 +41,7 @@ def install_all_supported_app_extensions(dut_engine, app_extension_dict_path):
     elif SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
         app_ext_installer = AppExtensionInstaller(dut_engine, app_extension_dict_path)
         app_ext_installer.install_supported_app_extensions()
-        SonicGeneralCli(engine=dut_engine).save_configuration()
+        SonicGeneralCli().save_configuration(dut_engine)
     else:
         logger.info("The image does not support app extension")
         skip_reason = 'The image does not support app extension'
@@ -97,7 +97,7 @@ class AppExtensionInstaller():
     def install_supported_app_extensions(self):
         log_build_supports_app_ext = 'Build supports app extension'
 
-        SonicBgpCli(engine=self.dut_engine).shutdown_bgp_all()
+        SonicBgpCli.shutdown_bgp_all(self.dut_engine)
         try:
             with allure.step(log_build_supports_app_ext):
                 logger.info(log_build_supports_app_ext)
@@ -117,7 +117,7 @@ class AppExtensionInstaller():
         except Exception as err:
             raise err
         finally:
-            SonicBgpCli(engine=self.dut_engine).startup_bgp_all()
+            SonicBgpCli.startup_bgp_all(self.dut_engine)
 
     def uninstall_application(self, app_ext_obj):
         log_uninstall_app_ext_version = f'Uninstalling app extension {app_ext_obj.app_name}'

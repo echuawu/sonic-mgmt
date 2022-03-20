@@ -42,34 +42,32 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
             logger.info("interface test data for {} is: {}".format(interface_type, interface_data))
 
         with allure.step('Send broadcast arp request and check update the corresponding arp entry into arp table'):
-            send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players,
-                                                                                 interface_data)
+            send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data)
 
         with allure.step("Shutdown DUT interface:".format(interface_data["dut_interface"])):
             if interface_type is "vlan":
-                cli_objects.dut.vlan.shutdown_vlan(interface_data["dut_vlan_id"])
+                cli_objects.dut.vlan.shutdown_vlan(engines.dut, interface_data["dut_vlan_id"])
             else:
-                SonicInterfaceCli(engine=engines.dut).disable_interface(interface_data["dut_interface"])
+                SonicInterfaceCli.disable_interface(engines.dut, interface_data["dut_interface"])
 
         with allure.step("Check the corresponding arp related to {}  has been cleaned".format(interface_data["dut_interface"])):
-            retry_call(verify_arp_entry_not_in_arp_table, fargs=[cli_objects.dut, interface_data["host_ip"]], tries=3,
-                       delay=10, logger=logger)
+            retry_call(verify_arp_entry_not_in_arp_table, fargs=[engines.dut, interface_data["host_ip"]], tries=3, delay=10, logger=logger)
 
         with allure.step("DUT sartup interface:".format(interface_data["dut_interface"])):
-            SonicInterfaceCli(engine=engines.dut).enable_interface(interface_data["dut_interface"])
+            SonicInterfaceCli.enable_interface(engines.dut, interface_data["dut_interface"])
 
     except Exception as err:
         raise AssertionError(err)
     finally:
         if interface_type is "vlan":
-            cli_objects.dut.vlan.startup_vlan(interface_data["dut_vlan_id"])
+            cli_objects.dut.vlan.startup_vlan(engines.dut, interface_data["dut_vlan_id"])
         else:
-            SonicInterfaceCli(engine=engines.dut).enable_interface(interface_data["dut_interface"])
+            SonicInterfaceCli.enable_interface(engines.dut, interface_data["dut_interface"])
 
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test arp entry update by changing mac and ip')
-def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_change_mac_ip_lead_arp_entry_update(engines, players, pre_test_interface_data, interface_type):
     """
     Verify arp entry update by changing mac and ip
     1. Host sends ARP request for broadcast
@@ -89,12 +87,12 @@ def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_
             logger.info("interface test data for {} is: {}".format(interface_type, interface_data))
 
         with allure.step('Send arp request and check update the corresponding arp entry into arp table'):
-            send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players, interface_data)
+            send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data)
 
         with allure.step("Host sends ARP request with new mac and check new mac is updated into arp table"):
             new_mac = gen_new_mac_based_old_mac(interface_data["host_mac"])
             interface_data["host_mac"] = new_mac
-            send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players, interface_data)
+            send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data)
 
         with allure.step('Host sends ARP request to DUT with new ip'):
             old_ip = interface_data["host_ip"]
@@ -104,13 +102,13 @@ def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_
                                            dst_mac="FF:FF:FF:FF:FF:FF", receive_packet_count=1)
             with allure.step("Verify DUT add the new Host's IP and MAC into the ARP table"):
                 retry_call(verify_arp_entry_in_arp_table,
-                           fargs=[cli_objects.dut, interface_data["host_ip"],
+                           fargs=[engines.dut, interface_data["host_ip"],
                                   interface_data["host_mac"], interface_data["dut_interface"],
                                   interface_data["dut_vlan_id"]],
                            tries=3, delay=10, logger=logger)
             with allure.step("Verify DUT old Host's IP and MAC into the ARP table"):
                 retry_call(verify_arp_entry_in_arp_table,
-                           fargs=[cli_objects.dut, old_ip,
+                           fargs=[engines.dut, old_ip,
                                   interface_data["host_mac"], interface_data["dut_interface"],
                                   interface_data["dut_vlan_id"]],
                            tries=3, delay=10, logger=logger)
@@ -121,7 +119,7 @@ def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test src ip and dst ip not in one subnet')
-def test_src_ip_dst_ip_not_in_one_subnet(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_src_ip_dst_ip_not_in_one_subnet(engines, players, pre_test_interface_data, interface_type):
     """
     Verify when arp request with src ip and dst ip not in one subnet, the corresponding arp will not be added into
     arp table, and dut will not reply the arp
@@ -145,7 +143,7 @@ def test_src_ip_dst_ip_not_in_one_subnet(engines, players, cli_objects, pre_test
 
         with allure.step("Verify DUT not add Host's IP and MAC into the ARP table"):
             retry_call(verify_arp_entry_not_in_arp_table,
-                       fargs=[cli_objects.dut, interface_data["host_ip"]],
+                       fargs=[engines.dut, interface_data["host_ip"]],
                        tries=3,
                        delay=10,
                        logger=logger)
@@ -156,7 +154,7 @@ def test_src_ip_dst_ip_not_in_one_subnet(engines, players, cli_objects, pre_test
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test static arp')
-def test_static_arp(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_static_arp(engines, players, pre_test_interface_data, interface_type):
     """
     Verify the following behaviors
     1. When there is a dynamic arp, static arp can not overide it
@@ -174,7 +172,7 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
             logger.info("interface test data for {} is: {}".format(interface_type, interface_data))
 
         with allure.step('Generate one dynamic arp entry'):
-            send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players, interface_data)
+            send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data)
 
         with allure.step('Add static arp with the same Ip and interface, and check it will not be permitted'):
             regrex_file_exists = ".*RTNETLINK answers: File exists.*"
@@ -182,21 +180,21 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
                 dev = "Vlan{}".format(interface_data["dut_vlan_id"])
             else:
                 dev = interface_data["dut_interface"]
-            output = cli_objects.dut.ip.add_ip_neigh(interface_data["host_ip"], interface_data["host_mac"],
-                                                     dev, action="add")
+            output = IpCliCommon.add_ip_neigh(engines.dut, interface_data["host_ip"],
+                                              interface_data["host_mac"], dev, action="add")
             assert re.match(regrex_file_exists, output), "Static arp entry has unexpectedly overridden a dynamic entry"
 
         with allure.step("Clear dynamic arp"):
             clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted(engines.dut, interface_data["host_ip"])
 
         with allure.step('DUT add static arp'):
-            output = cli_objects.dut.ip.add_ip_neigh(interface_data["host_ip"], interface_data["host_mac"],
-                                                     dev, action="add")
+            output = IpCliCommon.add_ip_neigh(engines.dut, interface_data["host_ip"],
+                                              interface_data["host_mac"], dev, action="add")
             assert not output, "Add static arp failed. Output is {}".format(output)
 
         with allure.step('DUT check static arp is in arp table'):
             retry_call(verify_arp_entry_in_arp_table,
-                       fargs=[cli_objects.dut, interface_data["host_ip"], interface_data["host_mac"],
+                       fargs=[engines.dut, interface_data["host_ip"], interface_data["host_mac"],
                               interface_data["dut_interface"], interface_data["dut_vlan_id"]],
                        tries=3, delay=10, logger=logger)
 
@@ -207,7 +205,7 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
                                            dst_mac="FF:FF:FF:FF:FF:FF", receive_packet_count=1)
 
         with allure.step("Verify that the dynamic arp entry didn't override the static one"):
-            current_mac_in_arp_table = SonicArpCli(engine=engines.dut).show_arp_table()[interface_data["host_ip"]]["MacAddress"]
+            current_mac_in_arp_table = SonicArpCli.show_arp_table(engines.dut)[interface_data["host_ip"]]["MacAddress"]
             assert interface_data["host_mac"] != current_mac_in_arp_table, \
                 "Dynamic ARP mac: {} overide the static arp mac:{}".format(
                     interface_data["host_mac"], current_mac_in_arp_table)
@@ -216,7 +214,7 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
             IpCliCommon.del_ip_neigh(engines.dut, interface_data["host_ip"], old_mac, dev)
 
         with allure.step('DUT check static arp is deleted from the arp table'):
-            retry_call(verify_arp_entry_not_in_arp_table, fargs=[cli_objects.dut, interface_data["host_ip"]],
+            retry_call(verify_arp_entry_not_in_arp_table, fargs=[engines.dut, interface_data["host_ip"]],
                        tries=3, delay=10, logger=logger)
 
     except Exception as err:
@@ -225,7 +223,7 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('test arp gratuitous without arp update')
-def test_arp_gratuitous_without_arp_update(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_arp_gratuitous_without_arp_update(engines, players, pre_test_interface_data, interface_type):
     """
     Verify When receiving gratuitous ARP packet, if it was not resolved in ARP table before,
     DUT should discard the request and won't add ARP entry for the GARP
@@ -249,7 +247,7 @@ def test_arp_gratuitous_without_arp_update(engines, players, cli_objects, pre_te
                                            receive_packet_count=0, is_garp=True)
 
         with allure.step("Verify DUT not add Host's IP and MAC into the ARP table"):
-            retry_call(verify_arp_entry_not_in_arp_table, fargs=[cli_objects.dut, interface_data["host_ip"]], tries=3,
+            retry_call(verify_arp_entry_not_in_arp_table, fargs=[engines.dut, interface_data["host_ip"]], tries=3,
                        delay=10,
                        logger=logger)
 
@@ -259,7 +257,7 @@ def test_arp_gratuitous_without_arp_update(engines, players, cli_objects, pre_te
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('test arp gratuitous with arp update')
-def test_arp_gratuitous_with_arp_update(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_arp_gratuitous_with_arp_update(engines, players, pre_test_interface_data, interface_type):
     """
     Verify When receiving gratuitous ARP packet, if it was resolved in ARP table before,
     DUT should update ARP entry with new mac
@@ -281,7 +279,7 @@ def test_arp_gratuitous_with_arp_update(engines, players, cli_objects, pre_test_
             logger.info("interface test data for {} is: {}".format(interface_type, interface_data))
 
         with allure.step('Send a unicast arp request and check update the corresponding arp entry into arp table'):
-            send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players, interface_data,
+            send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data,
                                                                                  request_type="unicast")
 
         with allure.step('Host A sends GARP request to DUT with new mac and check that not receives the arp response'):
@@ -291,7 +289,7 @@ def test_arp_gratuitous_with_arp_update(engines, players, cli_objects, pre_test_
 
         with allure.step("Verify DUT add Host IP and MAC into the ARP table"):
             retry_call(verify_arp_entry_in_arp_table,
-                       fargs=[cli_objects.dut, interface_data["host_ip"],
+                       fargs=[engines.dut, interface_data["host_ip"],
                               interface_data["host_mac"],
                               interface_data["dut_interface"],
                               interface_data["dut_vlan_id"]],
@@ -325,11 +323,11 @@ def test_arp_proxy(engines, players, cli_objects, interfaces, pre_test_interface
             logger.info("interface test data  is: {}".format(interface_data))
         with allure.step('Disable arp proxy and check arp behavior'):
             with allure.step('Disable arp proxy'):
-                cli_objects.dut.vlan.disable_vlan_arp_proxy(interface_data["dut_vlan_id"])
+                cli_objects.dut.vlan.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
             with allure.step(
                     "Host A Send a broadcast arp request to host B, and Host B reply it"):
                 host_b_ip = "40.0.0.10"
-                host_b_mac = SonicMacCli(engine=engines.hb).get_mac_address_for_interface(interfaces.hb_dut_1)
+                host_b_mac = SonicMacCli.get_mac_address_for_interface(engines.hb, interfaces.hb_dut_1)
                 dut_mac = interface_data["dut_mac"]
                 interface_data["dut_ip"] = host_b_ip
                 interface_data["dut_mac"] = host_b_mac
@@ -337,20 +335,20 @@ def test_arp_proxy(engines, players, cli_objects, interfaces, pre_test_interface
                                                dst_mac="FF:FF:FF:FF:FF:FF",
                                                receive_packet_count=1)
             with allure.step("Verify DUT not add Host's IP and MAC into the ARP table"):
-                retry_call(verify_arp_entry_not_in_arp_table, fargs=[cli_objects.dut, interface_data["host_ip"]], tries=3,
+                retry_call(verify_arp_entry_not_in_arp_table, fargs=[engines.dut, interface_data["host_ip"]], tries=3,
                            delay=10,
                            logger=logger)
 
         with allure.step('Enable arp proxy and check arp behavior'):
             with allure.step('Enable arp proxy'):
-                cli_objects.dut.vlan.enable_vlan_arp_proxy(interface_data["dut_vlan_id"])
+                cli_objects.dut.vlan.enable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])
             with allure.step(
                     "Host A Send a broadcast arp request to host B, and DUT reply it"):
                 interface_data["dut_mac"] = dut_mac
-                send_arp_request_and_check_update_corresponding_entry_into_arp_table(cli_objects.dut, players, interface_data)
+                send_arp_request_and_check_update_corresponding_entry_into_arp_table(engines, players, interface_data)
 
     except Exception as err:
         raise AssertionError(err)
     finally:
         with allure.step('Recover the default config of arp proxy by disabing arp proxy'):
-            cli_objects.dut.vlan.disable_vlan_arp_proxy(interface_data["dut_vlan_id"])
+            cli_objects.dut.vlan.disable_vlan_arp_proxy(engines.dut, interface_data["dut_vlan_id"])

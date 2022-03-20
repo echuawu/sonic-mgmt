@@ -1,4 +1,5 @@
 import pytest
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.p4_sampling_utils import *
 import time
 import ngts.helpers.json_file_helper as json_file_helper
@@ -48,7 +49,7 @@ class TestEntryTraffic:
 
     @pytest.mark.reboot_reload
     @allure.title('Test disable p4-sampling, change the config db file, and re-enable it, the entries can be changed.')
-    def test_enable_disable_p4_sampling(self, cli_objects, topology_obj, engines, interfaces, table_params):
+    def test_enable_disable_p4_sampling(self, topology_obj, engines, interfaces, table_params):
         try:
             pkt_count = 20
             with allure.step("Verify that the entries has been added"):
@@ -57,26 +58,26 @@ class TestEntryTraffic:
             with allure.step("Save config"):
                 engines.dut.run_cmd('sudo config save -y')
             with allure.step("Disable p4-sampling"):
-                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'disabled')
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
             with allure.step("Remove all entries from the config db"):
                 entries_config_removed = json_file_helper.remove_key_from_config_db(engines.dut, P4_SAMPLING_KEY)
             with allure.step("Reload config"):
-                cli_objects.dut.general.reboot_reload_flow(r_type='config reload -y', topology_obj=topology_obj)
+                SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
             with allure.step("Enable p4-sampling"):
-                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
             with allure.step("Verify that the entries has been removed"):
                 P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, False)
                 P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, False)
             with allure.step("Send traffic and check traffic can not be mirrored, and the counter is as expected"):
                 P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count, 0)
             with allure.step("Disable p4-sampling"):
-                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'disabled')
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
             with allure.step("Add all entries back to config db"):
                 json_file_helper.add_content_to_config_db(engines.dut, entries_config_removed, P4_SAMPLING_KEY)
             with allure.step("Reload config"):
-                cli_objects.dut.general.reboot_reload_flow(r_type='config reload -y', topology_obj=topology_obj)
+                SonicGeneralCli().reboot_reload_flow(engines.dut, r_type='config reload -y', topology_obj=topology_obj)
             with allure.step("Enable p4-sampling"):
-                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
             with allure.step("Verify that the entries has been added back"):
                 P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, True)
                 P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
@@ -84,7 +85,7 @@ class TestEntryTraffic:
                 P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, pkt_count,
                                                    pkt_count)
         finally:
-            cli_objects.dut.app_ext.enable_app(APP_NAME)
+            SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
 
     @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
     @allure.title('Test Dynamic port breakout on the port used in the entries..')
@@ -104,7 +105,7 @@ class TestEntryTraffic:
             P4SamplingUtils.verify_table_entry(engines.dut, PORT_TABLE_NAME, table_params.port_entry, False)
             P4SamplingUtils.verify_table_entry(engines.dut, FLOW_TABLE_NAME, table_params.flow_entry, False)
         with allure.step("Undo Dynamic port breakout"):
-            SonicInterfaceCli(engine=engines.dut).configure_dpb_on_ports(origin_break_out_conf)
+            SonicInterfaceCli.configure_dpb_on_ports(engines.dut, origin_break_out_conf)
         with allure.step("Add entries back"):
             self.remove_entries(engines.dut, table_params)
         with allure.step("Verify entries added"):
@@ -116,7 +117,7 @@ class TestEntryTraffic:
     @allure.title('Test disables p4-sampling or shutdown interface, and verifies that traffic can not be mirrored. '
                   'Then enable it back and verify that traffic can be mirrored again.')
     @pytest.mark.usefixtures('start_stop_continuous_traffic')
-    def test_p4_sampling_traffic_concussive(self, topology_obj, cli_objects, engines, interfaces, table_params,
+    def test_p4_sampling_traffic_concussive(self, topology_obj, engines, interfaces, table_params,
                                             port_traffic_params_list, flow_traffic_params_list):
         indices = [0]
         disable_enable_times = 10
@@ -134,14 +135,14 @@ class TestEntryTraffic:
             with allure.step("Disable enable p4-sampling for {} times".format(disable_enable_times)):
                 self.disable_enable_feature_state(engines.dut, P4SamplingConsts.APP_NAME, disable_enable_times)
             with allure.step("Disable p4-sampling"):
-                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'disabled')
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'disabled')
                 # sleep for 1 second to wait until this is configured to HW and traffic mirror stops
                 time.sleep(1)
             with allure.step("Check traffic can not be received by the mirror port"):
                 self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list,
                                            flow_traffic_params_list)
             with allure.step("Enable p4-sampling"):
-                cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
+                SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
                 # sleep for 1 second to wait until this is configured to HW and traffic mirror starts
                 time.sleep(1)
             with allure.step("Check traffic can be received by the mirror port"):
@@ -151,31 +152,31 @@ class TestEntryTraffic:
 
             ingress_ports = self.get_ingress_ports(indices, table_params.port_entry)
             with allure.step("Shutdown port of the ingress port in the port table"):
-                self.shutdown_ports(engines.dut, cli_objects.dut, ingress_ports)
+                self.shutdown_ports(engines.dut, ingress_ports)
             with allure.step("Check traffic can not be received by the mirror port"):
                 self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, [])
                 self.verify_entries_missed(engines.dut, port_entry_keys, [])
             with allure.step("Startup port of the ingress port in the port table"):
-                self.startup_ports(engines.dut, cli_objects.dut, ingress_ports)
+                self.startup_ports(engines.dut, ingress_ports)
             with allure.step("Check traffic can be received by the mirror port"):
                 self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, [])
                 self.verify_entries_hit(engines.dut, port_entry_keys, [])
 
             mirror_ports = self.get_mirror_ports(indices, table_params)
             with allure.step("Shutdown the mirror port in the port and flow table"):
-                self.shutdown_ports(engines.dut, cli_objects.dut, mirror_ports)
+                self.shutdown_ports(engines.dut, mirror_ports)
             with allure.step("Check traffic can not be received by the mirror port"):
                 self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list,
                                            flow_traffic_params_list)
                 self.verify_entries_missed(engines.dut, port_entry_keys, flow_entry_keys)
             with allure.step("Startup the mirror port in the port and flow table"):
-                self.startup_ports(engines.dut, cli_objects.dut, mirror_ports)
+                self.startup_ports(engines.dut, mirror_ports)
             with allure.step("Check traffic can be received by the mirror port"):
                 self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list,
                                              flow_traffic_params_list)
                 self.verify_entries_hit(engines.dut, port_entry_keys, flow_entry_keys)
         finally:
-            cli_objects.dut.app_ext.enable_app(APP_NAME)
+            SonicAppExtensionCli.enable_app(engines.dut, APP_NAME)
 
     @staticmethod
     def get_ingress_ports(indices, port_entries):
@@ -229,7 +230,7 @@ class TestEntryTraffic:
         for port in port_list:
             conf = breakout_helpers.get_breakout_mode(engine_dut, topology_obj.players['dut']['cli'], [port])
             with loganalyzer:
-                SonicInterfaceCli(engine=engine_dut).configure_dpb_on_ports(conf)
+                SonicInterfaceCli.configure_dpb_on_ports(engine_dut, conf)
 
     @staticmethod
     def verify_traffic_received(topology_obj, engine_dut, port_traffic_params_list, flow_traffic_params_list):
@@ -243,7 +244,7 @@ class TestEntryTraffic:
         """
         traffic_send_duration = 1
         pkt_count = int(traffic_send_duration / P4SamplingConsts.TRAFFIC_INTERVAL)
-        SonicInterfaceCli(engine=engine_dut).clear_counters()
+        SonicInterfaceCli.clear_counters(engine_dut)
         logger.info('sleep for {} second to wait for the the traffic can be received'.format(traffic_send_duration))
         time.sleep(traffic_send_duration)
         logger.info("Print the acl value get from the sdk for debug purpose")
@@ -263,7 +264,7 @@ class TestEntryTraffic:
         """
         traffic_send_duration = 1
         logger.info("Clear the Interface counters before send traffic")
-        SonicInterfaceCli(engine=engine_dut).clear_counters()
+        SonicInterfaceCli.clear_counters(engine_dut)
         logger.info('sleep for {} second to wait for the the traffic can not be received'.format(traffic_send_duration))
         time.sleep(traffic_send_duration)
         logger.info("Print the acl value get from the sdk for debug purpose")
@@ -305,30 +306,28 @@ class TestEntryTraffic:
         P4SamplingUtils.verify_entry_counter(engine_dut, FLOW_TABLE_NAME, flow_entry_keys, pkt_count)
 
     @staticmethod
-    def shutdown_ports(engine_dut, cli_obj, ports):
+    def shutdown_ports(engine_dut, ports):
         """
         shut down the ports
         :param engine_dut: dut engine ssh object
-        :param cli_obj" cli_obj object
         :param ports: list of port to be shutdown
         :return:
         """
         for port in ports:
-            SonicInterfaceCli(engine=engine_dut).disable_interface(port)
-        cli_obj.general.check_link_state(ports, expected_status="down")
+            SonicInterfaceCli.disable_interface(engine_dut, port)
+        SonicGeneralCli().check_link_state(engine_dut, ports, expected_status="down")
 
     @staticmethod
-    def startup_ports(engine_dut, cli_obj, ports):
+    def startup_ports(engine_dut, ports):
         """
         startup ports
         :param engine_dut: dut engine ssh object
-        :param cli_obj" cli_obj object
         :param ports: list of port to be startup
         :return: None
         """
         for port in ports:
-            SonicInterfaceCli(engine=engine_dut).enable_interface(port)
-        cli_obj.general.check_link_state(ports)
+            SonicInterfaceCli.enable_interface(engine_dut, port)
+        SonicGeneralCli().check_link_state(engine_dut, ports)
 
     @staticmethod
     def remove_entries(engine_dut, table_params):
