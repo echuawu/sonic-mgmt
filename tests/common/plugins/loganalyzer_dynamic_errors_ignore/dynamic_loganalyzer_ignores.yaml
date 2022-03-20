@@ -103,6 +103,7 @@
       - copp/test_copp.py::TestCOPP::test_remove_trap
       - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
       - vxlan/test_vnet_vxlan.py
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961383
 - Errors_list:
@@ -567,7 +568,7 @@
         - 202012
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[1872\]- mlnx_bridge_port_lag_or_port_get: Invalid port type - 2'
+    - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[\d+\]- mlnx_bridge_port_lag_or_port_get: Invalid port type - 2'
     - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_PORT_ATTR_ISOLATION_GROUP'
     - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_ATTR_UNKNOWN_UNICAST_FLOOD_GROUP'
     - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- get_dispatch_attribs_handler: Failed getting attrib SAI_BRIDGE_ATTR_UNKNOWN_MULTICAST_FLOOD_GROUP'
@@ -631,6 +632,15 @@
       - autorestart/test_container_autorestart.py
       Redmine:
         - 3010810
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- get_dispatch_attribs_handler: Failed getting attrib SAI_PORT_ATTR_INGRESS_ACL'
+    - '.*ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- get_dispatch_attribs_handler: Failed getting attrib SAI_PORT_ATTR_EGRESS_ACL'
+  Conditions:
+    - Affected_test_cases:
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
+      Redmine:
+        - 3011739
 
 - Errors_list:
     - '.* WARNING syncd#SDK: \[SAI_TUNNEL.WARNING\] mlnx_sai_tunnel.c\[3610\]- mlnx_sdk_fill_tunnel_ttl_data: TTL uniform model is not supported for non-ipinip type on Spectrum 1, using default settings in switch'
