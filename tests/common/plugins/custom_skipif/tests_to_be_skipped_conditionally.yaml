@@ -6,21 +6,6 @@ platform_tests/test_auto_negotiation.py:
   - Branch:
     - 202012
 
-# warm reboot
-platform_tests/test_advanced_reboot.py::test_warm_reboot:
-  - Redmine:
-    - 2983587
-    Branch:
-    - master
-    - 202111
-  - Redmine:
-    - 2995223
-    Platform:
-    - msn4600c
-    Branch:
-    - 202111
-    - 202012
-
 platform_tests/test_sensors.py::test_sensors:
   - Redmine:
     - 2815265
