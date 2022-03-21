@@ -136,7 +136,7 @@ platform_tests/fwutil/test_fwutil.py:
   - Platform:
     - 2700
     Redmine:
-    - 3011424
+    - 3009789
 
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
