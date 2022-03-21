@@ -1,7 +1,7 @@
 import requests
 
 
-INACTIVE_STATES = ['Closed (Rejected)', 'Closed']
+INACTIVE_STATE = 'Closed'
 ROOT_ISSUE = 'root_issue'
 STATUS = 'status'
 
@@ -15,7 +15,7 @@ def is_redmine_issue_active(issues_list):
     status, issue = False, ''
     issues_status_dict = get_issues_status(issues_list)
     for issue_id, state in issues_status_dict.items():
-        if state not in INACTIVE_STATES:
+        if INACTIVE_STATE not in state:
             status, issue = True, issue_id
             break
     return status, issue
