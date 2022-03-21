@@ -716,19 +716,11 @@ tests/nightly/dynamic_port_breakout:
     Platform:
     - 4410
 
-tests/nightly/lag/test_lag.py::test_lags_scale:
-  - Platform:
-    - simx
-
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   - Redmine:
     - 2890871
     Platform:
     - 5600
-
-tests/nightly/static_route/test_static_route.py:
-  - Platform:
-    - simx
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
@@ -779,7 +771,6 @@ tests/push_build_tests/L2/vxlan/test_vxlan.py:
 
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   - Platform:
-    - simx
     - 2201
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
@@ -849,10 +840,6 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     - 202111
     GitHub:
       - https://github.com/Azure/sonic-buildimage/issues/9690
-
-tests/push_build_tests/system/test_cpu_ram_hdd_usage.py:
-  - Platform:
-    - simx
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   - Redmine:
