@@ -715,6 +715,8 @@ tests/nightly/dynamic_port_breakout:
     - 2980513
     Platform:
     - 4410
+  - Platform:
+    - 3800
 
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   - Redmine:
@@ -1076,6 +1078,7 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_
 tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speeds_on_dpb:
   - Redmine:
     - 3006650
+
 copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-04-DHCP6]:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/5329

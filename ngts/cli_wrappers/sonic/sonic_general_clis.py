@@ -599,7 +599,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     @staticmethod
     def is_platform_supports_split_without_unmap(hwsku):
-        platform_prefix_with_unmap = ["SN2410", "SN2700", "SN3800", "SN4600"]
+        platform_prefix_with_unmap = ["SN2410", "SN2700", "SN4600"]
         for platform_prefix in platform_prefix_with_unmap:
             if re.search(platform_prefix, hwsku):
                 return False
@@ -671,7 +671,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     @staticmethod
     def is_supported_split_mode(hwsku, split_num):
-        return SonicGeneralCliDefault.is_platform_supports_split_without_unmap(hwsku) or split_num is 2
+        split_supported_without_unmap = SonicGeneralCliDefault.is_platform_supports_split_without_unmap(hwsku) or split_num is 2
+        platform_not_sn3800 = not re.search("SN3800", hwsku)
+        return split_supported_without_unmap and platform_not_sn3800
 
     @staticmethod
     def update_breakout_mode_for_split_ports(split_ports_for_update, hwsku, breakout_cfg_dict,
