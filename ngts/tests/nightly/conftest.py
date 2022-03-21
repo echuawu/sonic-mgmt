@@ -67,7 +67,6 @@ def cleanup(cleanup_list):
     execute all the functions in the cleanup list
     :return: None
     """
-    cleanup_list.reverse()
     for cleanup_item in cleanup_list:
         if len(cleanup_item) == 3:  # if **kwargs available
             func, args, kwargs = cleanup_item
