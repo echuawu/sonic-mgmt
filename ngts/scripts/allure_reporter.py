@@ -14,6 +14,7 @@ from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_na
 from ngts.constants.constants import InfraConst  # noqa: E402
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'
+HTTP_TIMEOUT = 30
 
 
 def get_logger():
@@ -52,9 +53,9 @@ def create_project(allure_server_url, allure_project):
     http_headers = {'Content-type': 'application/json'}
     url = allure_server_url + '/projects'
 
-    if requests.get(url + '/' + allure_project).status_code != 200:
+    if requests.get(url + '/' + allure_project, timeout=HTTP_TIMEOUT).status_code != 200:
         logger.info('Creating project {} on allure server'.format(allure_project))
-        response = requests.post(url, json=data, headers=http_headers)
+        response = requests.post(url, json=data, headers=http_headers, timeout=HTTP_TIMEOUT)
         if response.raise_for_status():
             logger.error('Failed to create project on allure server, error: {}'.format(response.content))
     else:
@@ -101,13 +102,15 @@ def upload_data_to_server(allure_report_items_list, allure_server, project_id):
 
     logger.info("------------------SEND-RESULTS------------------")
     send_result_url = '{}/send-results?project_id={}'.format(allure_server, project_id)
-    response = requests.post(send_result_url, headers=headers, data=json_request_body, verify=ssl_verification)
+    response = requests.post(send_result_url, headers=headers, data=json_request_body, verify=ssl_verification,
+                             timeout=HTTP_TIMEOUT)
     logger.info("STATUS CODE:")
     logger.info(response.status_code)
 
 
 def generate_report(allure_server_url, allure_project):
-    response = requests.get('{}/generate-report?project_id={}'.format(allure_server_url, allure_project)).json()
+    response = requests.get('{}/generate-report?project_id={}'.format(allure_server_url, allure_project),
+                            timeout=HTTP_TIMEOUT).json()
     report_url = response['data']['report_url']
     logger.info('Allure report URL: {}'.format(report_url))
 
@@ -115,7 +118,7 @@ def generate_report(allure_server_url, allure_project):
 
 
 def cleanup_report(allure_server_url, allure_project):
-    requests.get('{}/clean-results?project_id={}'.format(allure_server_url, allure_project))
+    requests.get('{}/clean-results?project_id={}'.format(allure_server_url, allure_project), timeout=HTTP_TIMEOUT)
 
 
 if __name__ == "__main__":
