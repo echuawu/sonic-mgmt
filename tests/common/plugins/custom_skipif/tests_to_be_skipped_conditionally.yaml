@@ -198,6 +198,12 @@ platform_tests/test_reboot.py::test_warm_reboot:
   - Platform:
     - 2100
 
+platform_tests/test_reboot.py::test_power_off_reboot:
+  - Redmine:
+    - 3013086
+    Platform:
+    - 2100
+
 platform_tests/cli/test_show_platform.py::test_show_platform_fan:
   - Redmine:
     - 2829184
@@ -677,8 +683,6 @@ tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::te
     - 3011349
     Branch:
     - 202111
-    Platform:
-    - 3700
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
   - Redmine:
