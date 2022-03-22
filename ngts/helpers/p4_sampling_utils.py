@@ -510,7 +510,7 @@ class TrafficParams:
         src_ip = entry_action_param_list[3]
         dst_ip = entry_action_param_list[4]
         vlan = entry_action_param_list[5]
-        return 'vlan {} and src {} and dst {}'.format(vlan, src_ip, dst_ip)
+        return 'ether src {} and ether dst {} and vlan and src {} and dst {}'.format(src_mac, dst_mac, src_ip, dst_ip)
 
     @staticmethod
     def get_port_table_traffic_sender_src_port(interfaces, topology_obj, port_entry_key):
