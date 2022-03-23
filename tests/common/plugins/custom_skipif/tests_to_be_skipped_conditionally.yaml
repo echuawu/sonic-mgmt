@@ -707,6 +707,18 @@ tests/nightly/dynamic_port_breakout:
   - Platform:
     - 3800
 
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
+  - Redmine:
+    - 2941448
+
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_remove_dpb_configuration_interop:
+  - Redmine:
+    - 2941448
+
+tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
+  - Redmine:
+    - 2941448
+
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   - Redmine:
     - 2890871
