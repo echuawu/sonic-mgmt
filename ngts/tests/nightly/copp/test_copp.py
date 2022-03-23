@@ -260,6 +260,11 @@ class CoppBase:
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
             get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
 
+        # restart the timer
+        self.set_counters_short_trap_interval()
+        time.sleep(self.long_interval / 1000)     # millisec to sec
+        self.set_counters_long_trap_interval()
+
         with allure.step(f'Check functionality of non default {primary_traffic_type} limit value after reboot'):
             eval(primary_validation_flow)
         with allure.step(f'Check functionality of non default {secondary_traffic_type} limit value after reboot'):
