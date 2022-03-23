@@ -955,6 +955,23 @@
       - x86_64-nvidia_sn2201-r0
 
 - Errors_list:
+    - '.* ERR swss#vlanmgrd: :- main: Runtime error: \/bin\/bash -c .*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      Redmine:
+      - 3014357
+
+- Errors_list:
+    - '.* ERR swss#intfmgrd: :- setIntfIp: Command .* failed with rc 1.*'
+    - '.* ERR swss#intfmgrd: :- setIntfVrf: Command .* failed with rc 1.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      Redmine:
+      - 3014368
+
+- Errors_list:
     - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
   Conditions:
     - Redmine:

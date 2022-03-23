@@ -181,6 +181,7 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
     Platform:
     - 3700
     - 4600
+    - 3800
     Redmine:
     - 2878715
 
@@ -721,9 +722,19 @@ tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::te
 
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   - Redmine:
+    - 3014416
+  - Redmine:
     - 2890871
     Platform:
     - 5600
+
+tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
+  - Redmine:
+    - 3014416
+
+tests/nightly/lag/test_lag.py::test_lag_min_links:
+  - Redmine:
+    - 3014416
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
@@ -853,6 +864,8 @@ tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
     - simx
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
+  - Redmine:
+    - 3014505
   - Platform:
     - 2201
     - simx
