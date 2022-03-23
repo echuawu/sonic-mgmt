@@ -333,7 +333,19 @@
             "cmd": "sudo cp -f ${nfs_dir}/${TARBALL_NAME} /.autodirect/sw_regression/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
           },
           "skip": false,
-          "on_failure": "stop",
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
+          "name": "move tarball to mtbc shared directory",
+          "module": "com.mellanox.jenkins.generic_modules.RunCmd",
+          "category": "Move Tarball",
+          "node": "MTBC_SYNC",
+          "parameters": {
+            "cmd": "sudo cp -f ${nfs_dir}/${TARBALL_NAME} /.autodirect/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
+          },
+          "skip": false,
+          "on_failure": "ignore",
           "out_of_mail": true
         },
         {
