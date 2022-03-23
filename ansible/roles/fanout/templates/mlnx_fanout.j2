@@ -3,6 +3,9 @@
 {% set management_interface = 'mgmt0' %}
 {% set vlanid_default = '1' %}
 {% set vlanid_offset = 100 %}
+{% if inventory_hostname == 'arc-switch1035'%}
+{% set vlanid_offset = 200 %}
+{% endif %}
 {% set of_tableid = '0' %}
 {% set of_normal_priority = '1' %}
 {% set ofpvid_present = 4096 %}
