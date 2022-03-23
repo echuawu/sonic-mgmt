@@ -3,12 +3,9 @@ import pytest
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
-from ngts.cli_wrappers.sonic.sonic_mac_clis import SonicMacCli
 from ngts.helpers.arp_helper import INTERFACE_TYPE_LIST, \
     clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted
-from ngts.cli_wrappers.common.ip_clis_common import IpCliCommon
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -19,7 +16,8 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
     :param topology_obj: topology object fixture
     :param interfaces: topology object fixture
     """
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, [interfaces.dut_hb_2])
+    cli_obj = topology_obj.players['dut']['cli']
+    dut_original_interfaces_speeds = cli_obj.interface.get_interfaces_speed([interfaces.dut_hb_2])
     interfaces_config_dict = {
         'dut': [{'iface': interfaces.dut_hb_2, 'speed': '10G',
                  'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '10G')}
@@ -64,7 +62,7 @@ def pre_configure_for_arp(engines, topology_obj, interfaces):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def pre_test_interface_data(engines, interfaces):
+def pre_test_interface_data(topology_obj, interfaces):
     """
     Pytest fixture which are doing configuration for test case based for arp test
     :param engines: engines object fixture
@@ -73,37 +71,40 @@ def pre_test_interface_data(engines, interfaces):
     """
     test_interface_data = {}
     for interface_type in INTERFACE_TYPE_LIST:
-        test_interface_data[interface_type] = gen_test_interface_data(engines, interfaces, interface_type)
+        test_interface_data[interface_type] = gen_test_interface_data(topology_obj, interfaces, interface_type)
     yield test_interface_data
 
 
 @pytest.fixture(scope='function', autouse=True)
-def pre_clear_arp(engines):
+def pre_clear_arp(cli_objects):
     """
     Pytest fixture which is to clear the static arp and  dynamic arp before test
-    :param engines: engines object fixture
+    :param cli_objects: cli_objects fixture
     """
     ip_list = ["40.0.0.2", "30.0.0.2"]
-    IpCliCommon.del_static_neigh(engines.dut)
+    cli_objects.dut.ip.del_static_neigh()
     for ip in ip_list:
-        clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted(engines.dut, ip)
+        clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted(cli_objects.dut, ip)
 
 
-def gen_test_interface_data(engines, interfaces, interface_type):
+def gen_test_interface_data(topology_obj, interfaces, interface_type):
     """
     Pytest fixture which is to prepare the interface test data
-    :param engines: engines object fixture
+    :param topology_obj: topology_obj object fixture
     :param interfaces: interfaces object fixture
     :param interface_type:  interface type such as "ethernet", "vlan", "portchannel"
     """
     test_interface_data = {}
+    dut_cli_obj = topology_obj.players['dut']['cli']
+    ha_cli_obj = topology_obj.players['ha']['cli']
+    hb_cli_obj = topology_obj.players['hb']['cli']
     if interface_type == "ethernet":
         test_interface_data["host_ip"] = "30.0.0.2"
         test_interface_data["dut_ip"] = "30.0.0.1"
         test_interface_data["host_interface"] = interfaces.ha_dut_1
         test_interface_data["dut_interface"] = interfaces.dut_ha_1
-        test_interface_data["host_mac"] = SonicMacCli.get_mac_address_for_interface(engines.ha, interfaces.ha_dut_1)
-        test_interface_data["dut_mac"] = SonicMacCli.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_1)
+        test_interface_data["host_mac"] = ha_cli_obj.mac.get_mac_address_for_interface(interfaces.ha_dut_1)
+        test_interface_data["dut_mac"] = dut_cli_obj.mac.get_mac_address_for_interface(interfaces.dut_ha_1)
         test_interface_data["dut_vlan_id"] = "-"
         test_interface_data["host_alias"] = "ha"
     elif interface_type == "vlan":
@@ -111,8 +112,8 @@ def gen_test_interface_data(engines, interfaces, interface_type):
         test_interface_data["dut_ip"] = "40.0.0.1"
         test_interface_data["host_interface"] = interfaces.ha_dut_2
         test_interface_data["dut_interface"] = interfaces.dut_ha_2
-        test_interface_data["host_mac"] = SonicMacCli.get_mac_address_for_interface(engines.ha, interfaces.ha_dut_2)
-        test_interface_data["dut_mac"] = SonicMacCli.get_mac_address_for_interface(engines.dut, interfaces.dut_ha_2)
+        test_interface_data["host_mac"] = ha_cli_obj.mac.get_mac_address_for_interface(interfaces.ha_dut_2)
+        test_interface_data["dut_mac"] = dut_cli_obj.mac.get_mac_address_for_interface(interfaces.dut_ha_2)
         test_interface_data["dut_vlan_id"] = "40"
         test_interface_data["host_alias"] = "ha"
     elif interface_type == "portchannel":
@@ -120,8 +121,8 @@ def gen_test_interface_data(engines, interfaces, interface_type):
         test_interface_data["dut_ip"] = "50.0.0.1"
         test_interface_data["host_interface"] = "bond0"
         test_interface_data["dut_interface"] = "PortChannel0002"
-        test_interface_data["host_mac"] = SonicMacCli.get_mac_address_for_interface(engines.hb, "bond0")
-        test_interface_data["dut_mac"] = SonicMacCli.get_mac_address_for_interface(engines.dut, interfaces.dut_hb_2)
+        test_interface_data["host_mac"] = hb_cli_obj.mac.get_mac_address_for_interface("bond0")
+        test_interface_data["dut_mac"] = dut_cli_obj.mac.get_mac_address_for_interface(interfaces.dut_hb_2)
         test_interface_data["dut_vlan_id"] = "-"
         test_interface_data["host_alias"] = "hb"
 

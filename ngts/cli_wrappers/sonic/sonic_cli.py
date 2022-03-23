@@ -20,31 +20,177 @@ from ngts.cli_wrappers.sonic.sonic_bgp_clis import SonicBgpCli
 from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
 from ngts.cli_wrappers.sonic.sonic_flowcnt_clis import SonicFlowcntCli
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
+from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 
+from ngts.cli_util.stub_engine import StubEngine
+from dotted_dict import DottedDict
 logger = logging.getLogger()
 
 
 class SonicCli:
     def __init__(self, topology):
-        branch = topology.players['dut'].get('branch')
+        self.branch = topology.players['dut'].get('branch')
+        self.engine = topology.players['dut']['engine']
 
-        self.ip = SonicIpCli()
-        self.lldp = SonicLldpCli()
-        self.mac = SonicMacCli()
-        self.vlan = SonicVlanCli(branch=branch)
-        self.lag = SonicLagLacpCli()
-        self.interface = SonicInterfaceCli()
-        self.route = SonicRouteCli()
-        self.vrf = SonicVrfCli()
-        self.chassis = SonicChassisCli()
-        self.general = SonicGeneralCli(branch=branch)
-        self.dhcp_relay = SonicDhcpRelayCli(branch=branch)
-        self.ifconfig = SonicIfconfigCli()
-        self.crm = SonicCrmCli()
-        self.acl = SonicAclCli()
-        self.vxlan = SonicVxlanCli()
-        self.frr = SonicFrrCli()
-        self.bgp = SonicBgpCli()
-        self.counterpoll = SonicCounterpollCli()
-        self.flowcnt = SonicFlowcntCli()
-        self.app_ext = SonicAppExtensionCli()
+        self._ip = None
+        self._arp = None
+        self._lldp = None
+        self._mac = None
+        self._vlan = None
+        self._lag = None
+        self._interface = None
+        self._route = None
+        self._vrf = None
+        self._chassis = None
+        self._general = None
+        self._dhcp_relay = None
+        self._ifconfig = None
+        self._crm = None
+        self._acl = None
+        self._vxlan = None
+        self._frr = None
+        self._bgp = None
+        self._counterpoll = None
+        self._flowcnt = None
+        self._app_ext = None
+        self._p4 = None
+
+    @property
+    def ip(self):
+        if self._ip is None:
+            self._ip = SonicIpCli(engine=self.engine)
+        return self._ip
+
+    @property
+    def arp(self):
+        if self._arp is None:
+            self._arp = SonicArpCli(engine=self.engine)
+        return self._arp
+
+    @property
+    def lldp(self):
+        if self._lldp is None:
+            self._lldp = SonicLldpCli(engine=self.engine)
+        return self._lldp
+
+    @property
+    def mac(self):
+        if self._mac is None:
+            self._mac = SonicMacCli(engine=self.engine)
+        return self._mac
+
+    @property
+    def vlan(self):
+        if self._vlan is None:
+            self._vlan = SonicVlanCli(branch=self.branch, engine=self.engine)
+        return self._vlan
+
+    @property
+    def lag(self):
+        if self._lag is None:
+            self._lag = SonicLagLacpCli(engine=self.engine)
+        return self._lag
+
+    @property
+    def interface(self):
+        if self._interface is None:
+            self._interface = SonicInterfaceCli(engine=self.engine)
+        return self._interface
+
+    @property
+    def route(self):
+        if self._route is None:
+            self._route = SonicRouteCli(engine=self.engine)
+        return self._route
+
+    @property
+    def vrf(self):
+        if self._vrf is None:
+            self._vrf = SonicVrfCli(engine=self.engine)
+        return self._vrf
+
+    @property
+    def chassis(self):
+        if self._chassis is None:
+            self._chassis = SonicChassisCli(engine=self.engine)
+        return self._chassis
+
+    @property
+    def general(self):
+        if self._general is None:
+            self._general = SonicGeneralCli(branch=self.branch, engine=self.engine, cli_obj=self)
+        return self._general
+
+    @property
+    def dhcp_relay(self):
+        if self._dhcp_relay is None:
+            self._dhcp_relay = SonicDhcpRelayCli(branch=self.branch, engine=self.engine, cli_obj=self)
+        return self._dhcp_relay
+
+    @property
+    def ifconfig(self):
+        if self._ifconfig is None:
+            self._ifconfig = SonicIfconfigCli(engine=self.engine)
+        return self._ifconfig
+
+    @property
+    def crm(self):
+        if self._crm is None:
+            self._crm = SonicCrmCli(engine=self.engine)
+        return self._crm
+
+    @property
+    def acl(self):
+        if self._acl is None:
+            self._acl = SonicAclCli(engine=self.engine)
+        return self._acl
+
+    @property
+    def vxlan(self):
+        if self._vxlan is None:
+            self._vxlan = SonicVxlanCli(engine=self.engine)
+        return self._vxlan
+
+    @property
+    def frr(self):
+        if self._frr is None:
+            self._frr = SonicFrrCli(engine=self.engine)
+        return self._frr
+
+    @property
+    def bgp(self):
+        if self._bgp is None:
+            self._bgp = SonicBgpCli(engine=self.engine)
+        return self._bgp
+
+    @property
+    def counterpoll(self):
+        if self._counterpoll is None:
+            self._counterpoll = SonicCounterpollCli(engine=self.engine)
+        return self._counterpoll
+
+    @property
+    def flowcnt(self):
+        if self._flowcnt is None:
+            self._flowcnt = SonicFlowcntCli(engine=self.engine)
+        return self._flowcnt
+
+    @property
+    def app_ext(self):
+        if self._app_ext is None:
+            self._app_ext = SonicAppExtensionCli(engine=self.engine)
+        return self._app_ext
+
+    @property
+    def p4(self):
+        if self._p4 is None:
+            self._p4 = P4SamplingCli(engine=self.engine)
+        return self._p4
+
+
+class SonicCliStub(SonicCli):
+    def __init__(self, topology):
+        stub_topo = DottedDict()
+        stub_topo.players = {'dut': {'engine': StubEngine()}}
+        super().__init__(stub_topo)

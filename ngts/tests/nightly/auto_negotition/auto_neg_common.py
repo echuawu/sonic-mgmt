@@ -47,8 +47,8 @@ class TestAutoNegBase:
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.interfaces_types_dict = interfaces_types_dict
         self.physical_interfaces_types_dict = physical_interfaces_types_dict
-        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic(self.engines.dut)
-        self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf(self.engines.dut)
+        self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic()
+        self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf()
 
     def generate_subset_conf(self, tested_lb_dict):
         """
@@ -261,7 +261,7 @@ class TestAutoNegBase:
                                                   check_adv_parm=True):
         logger.info("Verify Auto negotiation status based on sonic command")
         sonic_actual_conf = \
-            cli_object.interface.parse_show_interfaces_auto_negotiation_status(dut_engine, interface=port)
+            cli_object.interface.parse_show_interfaces_auto_negotiation_status(interface=port)
         self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict,
                                                          actual_conf=sonic_actual_conf[port],
                                                          check_adv_parm=check_adv_parm)
@@ -270,7 +270,7 @@ class TestAutoNegBase:
                                                   ports_aliases_dict, pci_conf):
         port_number = get_alias_number(ports_aliases_dict[port])
         logger.info("Verify Auto negotiation status based on mlxlink command")
-        mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(dut_engine, pci_conf, port_number)
+        mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(pci_conf, port_number)
         self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf)
 
     def compare_actual_and_expected_auto_neg_output(self, expected_conf, actual_conf, check_adv_parm=True):
@@ -321,11 +321,11 @@ class TestAutoNegBase:
         cleanup_list.append((self.configure_interface_type,
                              (engine, cli_object, port, 'none'),
                              {'physical_interface_type': physical_interface_type}))
-        cleanup_list.append((cli_object.interface.set_interface_speed, (engine, port, base_speed)))
+        cleanup_list.append((cli_object.interface.set_interface_speed, (port, base_speed)))
         cleanup_list.append((self.configure_interface_type,
                              (engine, cli_object, port, base_type),
                              {'physical_interface_type': physical_interface_type}))
-        cleanup_list.append((cli_object.interface.config_advertised_speeds, (engine, port, 'all')))
+        cleanup_list.append((cli_object.interface.config_advertised_speeds, (port, 'all')))
         cleanup_list.append((self.configure_advertised_interface_types,
                              (engine, cli_object, port, 'all'),
                              {'physical_interface_type': physical_interface_type}))
@@ -337,7 +337,7 @@ class TestAutoNegBase:
         :return: raise assertion error in case of failure
         """
         retry_call(self.cli_objects.dut.interface.check_ports_status,
-                   fargs=[self.engines.dut, [self.interfaces.dut_ha_1]],
+                   fargs=[[self.interfaces.dut_ha_1]],
                    tries=18, delay=10, logger=logger)
         dut_interfaces_speeds, ha_interfaces_speeds = retry_call(self.get_peer_ports_speeds,
                                                                  fargs=[],
@@ -365,8 +365,7 @@ class TestAutoNegBase:
     def get_peer_ports_speeds(self):
         logger.info("Get base speed settings on ports: {}".format([self.interfaces.dut_ha_1, self.interfaces.ha_dut_1]))
         dut_interfaces_speeds = \
-            self.cli_objects.dut.interface.get_interfaces_speed(self.engines.dut,
-                                                                interfaces_list=[self.interfaces.dut_ha_1])
+            self.cli_objects.dut.interface.get_interfaces_speed(interfaces_list=[self.interfaces.dut_ha_1])
         ha_interfaces_speeds = {self.interfaces.ha_dut_1: dut_interfaces_speeds[self.interfaces.dut_ha_1]}
         return dut_interfaces_speeds, ha_interfaces_speeds
 
@@ -391,7 +390,7 @@ class TestAutoNegBase:
     def toggle_port(self, engine, cli_object, port, cleanup_list):
         logger.info("Toggle port: {}".format(port))
         self.disable_interface(engine, cli_object, port, cleanup_list)
-        cli_object.interface.enable_interface(engine, port)
+        cli_object.interface.enable_interface(port)
 
     def set_peer_port_ip_conf(self, cleanup_list):
         """
@@ -429,8 +428,8 @@ class TestAutoNegBase:
         :return: None
         """
         logger.info("Disable the interface {}".format(interface))
-        cleanup_list.append((cli_object.interface.enable_interface, (engine, interface)))
-        cli_object.interface.disable_interface(engine, interface)
+        cleanup_list.append((cli_object.interface.enable_interface, (interface,)))
+        cli_object.interface.disable_interface(interface)
 
     def auto_neg_checker(self, tested_lb_dict, conf, cleanup_list, set_cleanup=True):
         """
@@ -451,8 +450,7 @@ class TestAutoNegBase:
         """
         with allure.step("Auto negotiation checker"):
             lb_ports_1_list, lb_ports_2_list = self.get_loopback_first_second_ports_lists(tested_lb_dict)
-            base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(self.engines.dut,
-                                                                                         interfaces_list=conf.keys())
+            base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(interfaces_list=conf.keys())
             logger.info("Configure auto negotiation configuration on "
                         "ports(speed,type,advertised speeds,advertised types)")
             self.configure_ports(self.engines.dut, self.cli_objects.dut,
@@ -500,11 +498,11 @@ class TestAutoNegBase:
                 self.configure_interface_type(engine, cli_object, port, 'none',
                                               physical_interface_type=physical_interface_type)
                 cli_object.interface. \
-                    set_interface_speed(engine, port, port_conf_dict[AutonegCommandConstants.SPEED])
+                    set_interface_speed(port, port_conf_dict[AutonegCommandConstants.SPEED])
                 self.configure_interface_type(engine, cli_object, port, port_conf_dict[AutonegCommandConstants.TYPE],
                                               physical_interface_type=physical_interface_type)
                 cli_object.interface. \
-                    config_advertised_speeds(engine, port, port_conf_dict[AutonegCommandConstants.ADV_SPEED])
+                    config_advertised_speeds(port, port_conf_dict[AutonegCommandConstants.ADV_SPEED])
                 self.configure_advertised_interface_types(engine, cli_object, port,
                                                           port_conf_dict[AutonegCommandConstants.ADV_TYPES],
                                                           physical_interface_type=physical_interface_type)
@@ -512,12 +510,12 @@ class TestAutoNegBase:
     @staticmethod
     @skip_for_interface_type_rj45
     def configure_interface_type(engine, cli_object, port, iface_type, physical_interface_type):
-        cli_object.interface.config_interface_type(engine, port, iface_type)
+        cli_object.interface.config_interface_type(port, iface_type)
 
     @staticmethod
     @skip_for_interface_type_rj45
     def configure_advertised_interface_types(engine, cli_object, port, interface_type_list, physical_interface_type):
-        cli_object.interface.config_advertised_interface_types(engine, port, interface_type_list)
+        cli_object.interface.config_advertised_interface_types(port, interface_type_list)
 
     @staticmethod
     def configure_port_auto_neg(engine, cli_object, ports_list, conf, cleanup_list, mode='enabled'):
@@ -533,14 +531,14 @@ class TestAutoNegBase:
         """
         with allure.step('configuring auto negotiation mode {} on ports {}'.format(mode, ports_list)):
             for port in ports_list:
-                cli_object.interface.config_auto_negotiation_mode(engine, port, mode)
+                cli_object.interface.config_auto_negotiation_mode(port, mode)
                 conf[port][AutonegCommandConstants.AUTONEG_MODE] = mode
                 if mode == 'enabled':
                     cleanup_list.append((cli_object.interface.config_auto_negotiation_mode,
-                                         (engine, port, 'disabled')))
+                                         (port, 'disabled')))
                 if mode == 'off':
                     cleanup_list.append((cli_object.interface.config_auto_negotiation_mode,
-                                         (engine, port, 'on')))
+                                         (port, 'on')))
 
     def generate_default_conf(self, tested_lb_dict):
         """

@@ -4,7 +4,7 @@ import random
 import re
 from retry.api import retry_call
 from ngts.cli_util.cli_constants import SonicConstant
-from ngts.tests.nightly.conftest import save_configuration_and_reboot
+from ngts.tests.nightly.conftest import save_configuration_and_reboot, cleanup
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_ports_list_from_loopback_tuple_list, \
     verify_no_breakout, set_dpb_conf, verify_ifaces_speed_and_status, \
     send_ping_and_verify_results, build_remove_dpb_conf
@@ -52,7 +52,7 @@ class TestDPBInterop(DependenciesBase):
                 cleanup(cleanup_list)
             with allure.step(f'Verify interfaces {ports_list} are in up state after breakout is removed'):
                 retry_call(self.cli_object.interface.check_ports_status,
-                           fargs=[self.dut_engine, ports_list],
+                           fargs=[ports_list],
                            tries=3, delay=10)
         except Exception as e:
             raise e
@@ -78,7 +78,7 @@ class TestDPBInterop(DependenciesBase):
         :return: None, raise assertion error in case of failure
         """
         with allure.step(f'Configure breakout without force on port: {port}'):
-            output = self.cli_object.interface.configure_dpb_on_port(self.dut_engine, port, breakout_mode,
+            output = self.cli_object.interface.configure_dpb_on_port(port, breakout_mode,
                                                                      expect_error=True, force=False)
         self.verify_dependencies_in_output(output)
 
@@ -180,7 +180,7 @@ class TestDPBInterop(DependenciesBase):
         """
         default_breakout_mode = self.ports_breakout_modes[port]['default_breakout_mode']
         with allure.step(f'Verify remove breakout without force failed due dependencies configuration on port: {port}'):
-            output = self.cli_object.interface.configure_dpb_on_port(self.dut_engine, port, default_breakout_mode,
+            output = self.cli_object.interface.configure_dpb_on_port(port, default_breakout_mode,
                                                                      expect_error=True, force=False)
         self.verify_dependencies_in_output(output)
         self.verify_remove_breakout_failed(breakout_mode, port)

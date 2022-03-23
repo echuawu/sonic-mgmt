@@ -9,10 +9,6 @@ import pytest
 
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
-from ngts.cli_wrappers.linux.linux_interface_clis import LinuxInterfaceCli
-from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
@@ -41,7 +37,8 @@ CHIP_LAG_MEMBERS_LIM = {
 
 @pytest.mark.reboot_reload
 @allure.title('LAG_LACP core functionality and reboot')
-def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, engines, cleanup_list, platform_params):
+def test_core_functionality_with_reboot(topology_obj, cli_objects, traffic_type, interfaces, engines, cleanup_list,
+                                        platform_params):
     """
     This test case will check the base functionality of LAG/LACP feature.
     Config base configuration as in the picture below.
@@ -51,6 +48,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
     Enable port 2 on the host. Validate port channel was affected.
     Reboot switch and validate.
     :param topology_obj: topology object
+    :param cli_objects: cli_objects object
     :param traffic_type: the type of the traffic
     :param interfaces: interfaces fixture
     :param engines: engines fixture
@@ -71,9 +69,9 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
     """
     dut_cli = topology_obj.players['dut']['cli']
 
-    cleanup_list.append((LinuxInterfaceCli.enable_interface, (engines.hb, interfaces.dut_hb_1,)))
-    cleanup_list.append((LinuxInterfaceCli.enable_interface, (engines.hb, interfaces.dut_hb_2,)))
-    cleanup_list.append((LinuxInterfaceCli.enable_interface, (engines.hb, 'bond0',)))
+    cleanup_list.append((cli_objects.hb.interface.enable_interface, (interfaces.dut_hb_1,)))
+    cleanup_list.append((cli_objects.hb.interface.enable_interface, (interfaces.dut_hb_2,)))
+    cleanup_list.append((cli_objects.hb.interface.enable_interface, ('bond0',)))
 
     # LAG/LACP config which will be used in this test
     lag_lacp_config_dict = {
@@ -103,7 +101,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP1: Disable interface 1 on host, traffic should pass via interface 2'):
-            LinuxInterfaceCli.disable_interface(engines.hb, interfaces.hb_dut_1)
+            cli_objects.hb.interface.disable_interface(interfaces.hb_dut_1)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -113,8 +111,8 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
 
         with allure.step('STEP2: Enable interface 1 and disable interface 2 on host,'
                          ' traffic should pass via interface 1'):
-            LinuxInterfaceCli.enable_interface(engines.hb, interfaces.hb_dut_1)
-            LinuxInterfaceCli.disable_interface(engines.hb, interfaces.hb_dut_2)
+            cli_objects.hb.interface.enable_interface(interfaces.hb_dut_1)
+            cli_objects.hb.interface.disable_interface(interfaces.hb_dut_2)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -123,7 +121,7 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP3: Enable both interfaces on host'):
-            LinuxInterfaceCli.enable_interface(engines.hb, interfaces.hb_dut_2)
+            cli_objects.hb.interface.enable_interface(interfaces.hb_dut_2)
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
@@ -132,11 +130,11 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP4: Reboot dut'):
-            dut_cli.general.save_configuration(engines.dut)
+            dut_cli.general.save_configuration()
             reboot_type = random.choice(get_supported_reboot_reload_types_list(platform=platform_params.platform))
             if re.search('simx', platform_params.setup_name):
                 reboot_type = 'reboot'
-            dut_cli.general.reboot_reload_flow(engines.dut, r_type=reboot_type, topology_obj=topology_obj)
+            dut_cli.general.reboot_reload_flow(r_type=reboot_type, topology_obj=topology_obj)
 
         with allure.step('STEP5: Validate port channel status and send traffic'):
             verify_port_channel_status_with_retry(dut_cli,
@@ -147,13 +145,13 @@ def test_core_functionality_with_reboot(topology_obj, traffic_type, interfaces, 
             traffic_validation(topology_obj, traffic_type)
 
         with allure.step('STEP6: Validate fallback parameter (default - false)'):
-            LinuxInterfaceCli.disable_interface(engines.hb, 'bond0')
+            cli_objects.hb.interface.disable_interface('bond0')
             verify_port_channel_status_with_retry(dut_cli,
                                                   engines.dut,
                                                   PORTCHANNEL_NAME,
                                                   'Dw',
                                                   [(interfaces.dut_hb_1, 'D'), (interfaces.dut_hb_2, 'D')])
-            LinuxInterfaceCli.enable_interface(engines.hb, 'bond0')
+            cli_objects.hb.interface.enable_interface('bond0')
 
         with allure.step('STEP7: Validate configuration of LAG with fallback parameter "true"'):
             cleanup_last_config_in_stack(cleanup_list)  # pop vlan cleanup from stack
@@ -350,7 +348,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
 
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
         max_lag_members = CHIP_LAG_MEMBERS_LIM[chip_type]
-        all_ifaces_info = dut_cli.interface.parse_interfaces_status(engines.dut)
+        all_ifaces_info = dut_cli.interface.parse_interfaces_status()
         # We need to create bond on ifaces with the same type, choose list with ifaces with the same type
         interfaces_types_dict = get_interfaces_by_type_dict(all_ifaces_info)
         test_ifaces_type = get_ifaces_type_which_has_bigger_ifaces_list(interfaces_types_dict)
@@ -359,7 +357,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                                              len(all_interfaces_with_same_type)))
 
         with allure.step('Set same speed to all interfaces'):
-            dut_orig_ifaces_speeds = SonicInterfaceCli.get_interfaces_speed(engines.dut, all_interfaces_with_same_type)
+            dut_orig_ifaces_speeds = dut_cli.interface.get_interfaces_speed(all_interfaces_with_same_type)
             # Get minimal supported speed
             min_speed = min([speed_string_to_int_in_mb(speed) for speed in dut_orig_ifaces_speeds.values()])
             # Get speed for all members and if it's not similar - set all ports to minimal supported speed
@@ -383,7 +381,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
 
         with allure.step('Check that all interfaces in Up state'.format()):
-            retry_call(SonicInterfaceCli.check_ports_status, fargs=[engines.dut, member_interfaces], tries=20, delay=15,
+            retry_call(dut_cli.interface.check_ports_status, fargs=[member_interfaces], tries=20, delay=15,
                        logger=logger)
 
         with allure.step('Validate members status in PortChannel'):
@@ -403,7 +401,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                   expected_ports_status_list,
                                                   tries=10)
         with allure.step('Validate dockers status'):
-            SonicGeneralCli().verify_dockers_are_up(engines.dut)
+            dut_cli.general.verify_dockers_are_up()
     except BaseException as err:
         raise AssertionError(err)
 
@@ -451,10 +449,10 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
             verify_port_channels_ip(dut_cli, engines.dut, ip_expected_info)
 
         with allure.step('Reloading the DUT config using cmd: "config reload -y"'):
-            dut_cli.general.save_configuration(engines.dut)
-            dut_cli.general.reload_configuration(engines.dut)
-            dut_cli.general.verify_dockers_are_up(engines.dut)
-            dut_cli.general.check_link_state(engines.dut, ifaces=topology_obj.players_all_ports['dut'])
+            dut_cli.general.save_configuration()
+            dut_cli.general.reload_configuration()
+            dut_cli.general.verify_dockers_are_up()
+            dut_cli.interface.check_link_state(ifaces=topology_obj.players_all_ports['dut'])
 
         with allure.step('Validation for bug 2435254 - validate lags and ips'
                          ' are configured properly after config reload'):
@@ -577,8 +575,8 @@ def config_speed_dependency(topology_obj, cleanup_list):
     :param cleanup_list: list with functions to cleanup
     """
     duthb2 = topology_obj.ports['dut-hb-2']
-    dut_engine = topology_obj.players['dut']['engine']
-    dut_original_interfaces_speeds = SonicInterfaceCli.get_interfaces_speed(dut_engine, [duthb2])
+    cli_obj = topology_obj.players['dut']['cli']
+    dut_original_interfaces_speeds = cli_obj.interface.get_interfaces_speed([duthb2])
     interfaces_config_dict = {
         'dut': [{'iface': duthb2, 'speed': '10G',
                  'original_speed': dut_original_interfaces_speeds[duthb2]}]
@@ -686,9 +684,9 @@ def add_vlan_conf(engine, cli_obj, vlan_config_dict, cleanup_list):
     :param vlan_config_dict: vlan configuration to add
     :param cleanup_list: list with functions to cleanup
     """
-    cli_obj.vlan.add_port_to_vlan(engine, vlan_config_dict['vlan_member'], vlan_config_dict['vlan_id'])
+    cli_obj.vlan.add_port_to_vlan(vlan_config_dict['vlan_member'], vlan_config_dict['vlan_id'])
     cleanup_list.append((cli_obj.vlan.del_port_from_vlan,
-                         (engine, vlan_config_dict['vlan_member'], vlan_config_dict['vlan_id'])))
+                         (vlan_config_dict['vlan_member'], vlan_config_dict['vlan_id'])))
 
 
 def del_port_from_vlan(dut_engine, cli_obj, port, vlan, cleanup_list):
@@ -699,8 +697,8 @@ def del_port_from_vlan(dut_engine, cli_obj, port, vlan, cleanup_list):
     :param port: port name
     :param cleanup_list: list with functions to cleanup
     """
-    cli_obj.vlan.del_port_from_vlan(dut_engine, port, vlan)
-    cleanup_list.append((cli_obj.vlan.add_port_to_vlan, (dut_engine, port, vlan, 'trunk',)))
+    cli_obj.vlan.del_port_from_vlan(port, vlan)
+    cleanup_list.append((cli_obj.vlan.add_port_to_vlan, (port, vlan, 'trunk',)))
 
 
 def verify_add_member_to_lag_failed_with_err(dut_engine, cli_object, member_port, err_msg):
@@ -713,23 +711,23 @@ def verify_add_member_to_lag_failed_with_err(dut_engine, cli_object, member_port
     :return: None, raise error in case of unexpected result
     """
     with allure.step('Verify lag dependency, adding member failed as expected with error message: {}'.format(err_msg)):
-        output = cli_object.lag.add_port_to_port_channel(dut_engine, member_port, PORTCHANNEL_NAME)
+        output = cli_object.lag.add_port_to_port_channel(member_port, PORTCHANNEL_NAME)
         if not re.search(err_msg, output, re.IGNORECASE):
-            output = cli_object.lag.delete_port_from_port_channel(dut_engine, member_port, PORTCHANNEL_NAME)
+            output = cli_object.lag.delete_port_from_port_channel(member_port, PORTCHANNEL_NAME)
             raise AssertionError("Expected to failed on adding member to LAG "
                                  "with error msg '{}' but output {}".
                                  format(err_msg, output))
 
 
-def get_pkt_to_send(traffic_type, engine, dst_iface):
+def get_pkt_to_send(traffic_type, cli_obj, dst_iface):
     """
     Create scapy packet for validation
     :param traffic_type: the type of the traffic
-    :param engine: device engine
+    :param cli_obj: device cli_obj
     :param dst_iface: destination interface name
     :return: scapy packet
     """
-    dst_mac = LinuxMacCli.get_mac_address_for_interface(engine, dst_iface)
+    dst_mac = cli_obj.mac.get_mac_address_for_interface(dst_iface)
     return BASE_PKT.format(dst_mac, traffic_type)
 
 
@@ -746,7 +744,7 @@ def verify_port_channel_status_with_retry(cli_object, dut_engine, lag_name, lag_
     :param delay: delay time between attempts
     """
     retry_call(cli_object.lag.verify_port_channel_status,
-               fargs=[dut_engine, lag_name, lag_status, expected_ports_status_list],
+               fargs=[lag_name, lag_status, expected_ports_status_list],
                tries=tries,
                delay=delay,
                logger=logger)
@@ -760,7 +758,7 @@ def verify_port_channels_status(cli_object, dut_engine, expected_lag_info):
     :param expected_lag_info: expected port channels information
     :return: None, raise error in case of unexpected result
     """
-    port_channel_info = cli_object.lag.show_interfaces_port_channel(dut_engine)
+    port_channel_info = cli_object.lag.show_interfaces_port_channel()
     verify_show_cmd(port_channel_info, expected_lag_info)
 
 
@@ -784,7 +782,7 @@ def verify_port_channels_ipv4_addresses(cli_object, dut_engine, expected_ip_info
     :param expected_ip_info: expected ip information
     :return: None, raise error in case of unexpected result
     """
-    ip_info = cli_object.ip.show_ip_interfaces(dut_engine)
+    ip_info = cli_object.ip.show_ip_interfaces()
     verify_show_cmd(ip_info, expected_ip_info)
 
 
@@ -796,7 +794,7 @@ def verify_port_channels_ipv6_addresses(cli_object, dut_engine, expected_ip_info
     :param expected_ip_info: expected ip information
     :return: None, raise error in case of unexpected result
     """
-    ip_info = cli_object.ip.show_ipv6_interfaces(dut_engine)
+    ip_info = cli_object.ip.show_ipv6_interfaces()
     verify_show_cmd(ip_info, expected_ip_info)
 
 
@@ -809,8 +807,8 @@ def traffic_validation(topology_obj, traffic_type):
     """
     tcpdump_filter = 'dst 50.0.0.3 and {}'.format(traffic_type.lower())
     hadut1 = topology_obj.ports['ha-dut-1']
-    hb_engine = topology_obj.players['hb']['engine']
-    pkt = get_pkt_to_send(traffic_type, hb_engine, 'bond0')
+    hb_cli_obj = topology_obj.players['hb']['cli']
+    pkt = get_pkt_to_send(traffic_type, hb_cli_obj, 'bond0')
     validation = {'sender': 'ha', 'send_args': {'interface': hadut1 + '.50',
                                                 'packets': pkt, 'count': 100},
                   'receivers':

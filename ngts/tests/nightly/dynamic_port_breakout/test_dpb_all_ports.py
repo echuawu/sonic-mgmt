@@ -7,6 +7,7 @@ import re
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
     is_splittable, set_dpb_conf, verify_ifaces_speed_and_status
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
+from ngts.tests.nightly.conftest import cleanup
 
 logger = logging.getLogger()
 
@@ -47,7 +48,7 @@ class TestDPBOnAllPorts:
             with allure.step(f'Verify interfaces {ports_list} are in up state after breakout is removed'):
                 logger.info(f'Verify interfaces {ports_list} are in up state after breakout is removed')
                 retry_call(self.cli_object.interface.check_ports_status,
-                           fargs=[self.dut_engine, ports_list],
+                           fargs=[ports_list],
                            tries=3, delay=10)
         except Exception as e:
             raise e
@@ -202,4 +203,4 @@ class TestDPBOnAllPorts:
             breakout_ports_conf[breakout_port] = min_breakout_port_supported_speeds
         breakout_ports_interfaces = list(breakout_ports_conf.keys())
         with allure.step(f'set speed {min_breakout_port_supported_speeds} on ports {breakout_ports_interfaces}'):
-            self.cli_object.interface.set_interfaces_speed(self.dut_engine, breakout_ports_conf)
+            self.cli_object.interface.set_interfaces_speed(breakout_ports_conf)

@@ -5,7 +5,6 @@ from retry.api import retry_call
 from ngts.tests.nightly.conftest import get_dut_loopbacks
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, FecConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 logger = logging.getLogger()
 
@@ -23,14 +22,14 @@ def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     yield
 
     logger.info('Starting FEC configuration cleanup')
-    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
 
     logger.info('FEC cleanup completed')
 
 
 @pytest.fixture(scope='session')
 def pci_conf(engines, cli_objects):
-    pci_conf = retry_call(cli_objects.dut.chassis.get_pci_conf, fargs=[engines.dut], tries=6, delay=10)
+    pci_conf = retry_call(cli_objects.dut.chassis.get_pci_conf, fargs=[], tries=6, delay=10)
     return pci_conf
 
 
@@ -44,7 +43,7 @@ def fec_capability_for_dut_ports(topology_obj, engines, cli_objects, interfaces,
     ports += [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
     for port in ports:
         fec_capability_for_dut_ports_dict[port] = \
-            cli_objects.dut.interface.get_interface_supported_fec_modes(engines.dut, port)
+            cli_objects.dut.interface.get_interface_supported_fec_modes(port)
     logger.debug("ports fec capabilities: {}".format(fec_capability_for_dut_ports_dict))
     return fec_capability_for_dut_ports_dict
 
@@ -154,7 +153,7 @@ def tested_dut_to_host_conn(topology_obj, engines, interfaces, cli_objects):
 def dut_ports_number_dict(topology_obj, engines, cli_objects):
     dut_ports_number_dict = {}
     ports = topology_obj.players_all_ports['dut']
-    ports_aliases_dict = cli_objects.dut.interface.parse_ports_aliases_on_sonic(engines.dut)
+    ports_aliases_dict = cli_objects.dut.interface.parse_ports_aliases_on_sonic()
     for port in ports:
         dut_ports_number_dict[port] = get_alias_number(ports_aliases_dict[port])
     return dut_ports_number_dict
@@ -202,7 +201,7 @@ def get_dut_ports_basic_mlxlink_dict(engines, cli_objects, interfaces, tested_lb
     for port in ports:
         port_number = dut_ports_number_dict[port]
         mlxlink_conf = retry_call(cli_objects.dut.interface.parse_port_mlxlink_status,
-                                  fargs=[engines.dut, pci_conf, port_number],
+                                  fargs=[pci_conf, port_number],
                                   tries=6, delay=10, logger=logger)
         port_fec_mode = mlxlink_conf[AutonegCommandConstants.FEC]
         port_width_mode = int(mlxlink_conf[AutonegCommandConstants.WIDTH])
@@ -260,7 +259,7 @@ def get_basic_fec_mode_dict(engines, cli_objects, chip_type, platform_params, fe
     { "Ethernet0" : { "FEC": "rs" ,"Type": "CR4" }, ...}
     """
     basic_fec_mode_dict = {}
-    interfaces_status = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
+    interfaces_status = cli_objects.dut.interface.parse_interfaces_status()
     fec_modes_speed_support = fec_modes_speed_support
     ports_split_mode_dict = get_ports_split_mode_dict(interfaces_status)
     default_fec_mode = SonicConst.FEC_RS_MODE

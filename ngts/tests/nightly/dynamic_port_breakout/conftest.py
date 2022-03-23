@@ -184,18 +184,18 @@ def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, con
             breakout_ports_conf.update(ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode])
 
     set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf)
-    cli_object.interface.configure_dpb_on_ports(dut_engine, conf, force=force)
-    cli_object.interface.enable_interfaces(dut_engine, breakout_ports_conf.keys())
+    cli_object.interface.configure_dpb_on_ports(conf, force=force)
+    cli_object.interface.enable_interfaces(breakout_ports_conf.keys())
     return breakout_ports_conf
 
 
 def set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf):
     for port_remove_dpb_conf in remove_conf:
-        cleanup_list.append((cli_object.interface.configure_dpb_on_ports, (dut_engine, port_remove_dpb_conf,
+        cleanup_list.append((cli_object.interface.configure_dpb_on_ports, (port_remove_dpb_conf,
                                                                            False, True)))
-    cleanup_list.append((cli_object.interface.enable_interfaces, (dut_engine, original_ports_list)))
+    cleanup_list.append((cli_object.interface.enable_interfaces, (original_ports_list,)))
     original_speed_conf_subset = {key: original_speed_conf[key] for key in original_ports_list}
-    cleanup_list.append((cli_object.interface.set_interfaces_speed, (dut_engine, original_speed_conf_subset)))
+    cleanup_list.append((cli_object.interface.set_interfaces_speed, (original_speed_conf_subset,)))
 
 
 def is_splittable(ports_breakout_modes, port_name):
@@ -224,7 +224,7 @@ def verify_ifaces_speed_and_status(cli_object, dut_engine, breakout_ports_conf):
     with allure.step('Verify interfaces are in up state'):
         logger.info('Verify interfaces are in up state')
         retry_call(cli_object.interface.check_ports_status,
-                   fargs=[dut_engine, interfaces_list],
+                   fargs=[interfaces_list],
                    tries=6, delay=10, logger=logger)
     verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf)
     # verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_conf)
@@ -241,7 +241,7 @@ def verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf):
     interfaces_list = list(breakout_ports_conf.keys())
     with allure.step('Verify interfaces speed configuration'):
         logger.info('Verify interfaces speed configuration')
-        actual_speed_conf = cli_object.interface.get_interfaces_speed(dut_engine, interfaces_list)
+        actual_speed_conf = cli_object.interface.get_interfaces_speed(interfaces_list)
         compare_actual_and_expected_speeds(breakout_ports_conf, actual_speed_conf)
 
 
@@ -260,8 +260,7 @@ def verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_co
         for iface in interfaces_list:
             with allure.step(f'Verify interface {iface} transceiver presence'):
                 logger.info(f'Verify interface {iface} transceiver presence')
-                actual_transceiver_presence = cli_object.interface.get_interfaces_transceiver_presence(dut_engine,
-                                                                                                       iface)
+                actual_transceiver_presence = cli_object.interface.get_interfaces_transceiver_presence(iface)
                 retry_call(verify_show_cmd, fargs=[actual_transceiver_presence, [(fr"{iface}\s+present", True)]],
                            tries=3, delay=10, logger=logger)
 
@@ -303,11 +302,11 @@ def verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf):
 
     with allure.step('Verify ports {} are up'.format(ports_list)):
         retry_call(cli_object.interface.check_ports_status,
-                   fargs=[dut_engine, ports_list],
+                   fargs=[ports_list],
                    tries=6, delay=10, logger=logger)
 
     with allure.step('Verify there is no breakout ports: {}'.format(all_breakout_ports)):
-        cmd_output = cli_object.interface.show_interfaces_status(dut_engine)
+        cmd_output = cli_object.interface.show_interfaces_status()
         verify_show_cmd(cmd_output, [(r"{}\s+".format(port), False) for port in all_breakout_ports])
 
 

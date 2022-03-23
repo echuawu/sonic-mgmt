@@ -4,7 +4,6 @@ import pytest
 
 from ngts.tests.nightly.fdb.fdb_helper import traffic_validation, gen_test_interface_data, \
     DUMMY_MACS, verify_mac_saved_to_fdb_table, verify_mac_not_in_fdb_table
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 
 logger = logging.getLogger()
@@ -19,6 +18,7 @@ class TestFdbAdvance:
         self.engines = engines
         self.interfaces = interfaces
         self.players = players
+        self.cli_objects = cli_objects
         self.src_mac = DUMMY_MACS[0]
         self.vlan_id1 = "40"
         self.vlan_id2 = "50"
@@ -39,8 +39,8 @@ class TestFdbAdvance:
         with allure.step(f"Send packet from  ha-dut-2 with the source MAC:{self.src_mac}"):
             self.generate_dynamic_fdb_item(self.vlan_id2)
         with allure.step("Verify there are two fdb item with same mac in different vlan"):
-            verify_mac_saved_to_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
-            verify_mac_saved_to_fdb_table(self.engines, self.vlan_id2, self.src_mac, self.port2)
+            verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id1, self.src_mac, self.port1)
+            verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id2, self.src_mac, self.port2)
 
     @allure.title('Test fdb item will be removed after shutdown the corresponding port')
     def test_fdb_item_be_removed_after_shutdown_corresponding_port(self):
@@ -54,16 +54,16 @@ class TestFdbAdvance:
         try:
             with allure.step("Host A sends a packet to Host B"):
                 self.generate_dynamic_fdb_item(self.vlan_id1)
-                verify_mac_saved_to_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
+                verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id1, self.src_mac, self.port1)
             with allure.step("Shutdown dut-ha-1"):
-                SonicInterfaceCli.disable_interface(self.engines.dut, self.port1)
+                self.cli_objects.dut.interface.disable_interface(self.port1)
             with allure.step("Verify the fdb items related to dut-ha-1 are removed"):
-                verify_mac_not_in_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
+                verify_mac_not_in_fdb_table(self.cli_objects.dut, self.vlan_id1, self.src_mac, self.port1)
 
         except Exception as err:
             raise AssertionError(err)
         finally:
-            SonicInterfaceCli.enable_interface(self.engines.dut, self.port1)
+            self.cli_objects.dut.interface.enable_interface(self.port1)
 
     @allure.title('Test fdb item will be removed after removing the corresponding vlan')
     def test_fdb_item_be_removed_after_removing_corresponding_vlan(self):
@@ -82,11 +82,11 @@ class TestFdbAdvance:
         try:
             with allure.step("Host A sends a packet to Host B"):
                 self.generate_dynamic_fdb_item(self.vlan_id1)
-                verify_mac_saved_to_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
+                verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id1, self.src_mac, self.port1)
             with allure.step(f"Remove vlan {self.vlan_id1}"):
                 VlanConfigTemplate.cleanup(self.topology_obj, vlan_config_dict)
             with allure.step(f"Verify the fdb item related to vlan {self.vlan_id1}  is removed from fdb table "):
-                verify_mac_not_in_fdb_table(self.engines, self.vlan_id1, self.src_mac, self.port1)
+                verify_mac_not_in_fdb_table(self.cli_objects.dut, self.vlan_id1, self.src_mac, self.port1)
 
         except Exception as err:
             raise AssertionError(err)
@@ -97,5 +97,5 @@ class TestFdbAdvance:
         """
         Generate dynamic fdb item
         """
-        interface_data = gen_test_interface_data(self.engines, self.interfaces, vlan_id)
+        interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, vlan_id)
         traffic_validation(self.players, self.interfaces, interface_data, self.src_mac, "icmp", self.receive_packet_counts)

@@ -31,7 +31,7 @@ def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder):
     with allure.step('Generating a sysdump'):
         dut_cli_object = topology_obj.players['dut']['cli']
         dut_engine = topology_obj.players['dut']['engine']
-        tar_file = dut_cli_object.general.generate_techsupport(dut_engine, duration)
+        tar_file = dut_cli_object.general.generate_techsupport(duration)
         logger.info("Dump was created at: {}".format(tar_file))
         tarball_file_name = str(tar_file.replace('/var/dump/', ''))
 

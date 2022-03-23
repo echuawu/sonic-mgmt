@@ -6,21 +6,21 @@ class IfconfigCliCommon(IfconfigCliInterface):
     """
     This class hosts methods which are implemented identically for Linux and SONiC
     """
-    @staticmethod
-    def get_ifconfig(engine, options):
+
+    def __init__(self, engine):
+        self.engine = engine
+
+    def get_ifconfig(self, options):
         """
         Get ifconfig output
-        :param engine: ssh engine object
         :param options: additional options of ifconfig command
         :return: ifconfig output
         """
-        return engine.run_cmd('sudo ifconfig {}'.format(options))
+        return self.engine.run_cmd('sudo ifconfig {}'.format(options))
 
-    @staticmethod
-    def get_interface_ifconfig_details(engine, iface):
+    def get_interface_ifconfig_details(self, iface):
         """
         Parse and show interface ifconfig details
-        :param engine: ssh engine object
         :param iface: Interface name (Example: 'Ethernet120')
         :return: interface object with all parameters
             Interface(name='Ethernet120',
@@ -52,5 +52,5 @@ class IfconfigCliCommon(IfconfigCliInterface):
             Usage example:
                 interface.rx_packets
         """
-        ifdata_obj = IfconfigParser(console_output=IfconfigCliCommon.get_ifconfig(engine, iface))
+        ifdata_obj = IfconfigParser(console_output=self.get_ifconfig(iface))
         return ifdata_obj.get_interface(iface)

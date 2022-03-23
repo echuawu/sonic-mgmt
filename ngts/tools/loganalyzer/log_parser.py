@@ -138,7 +138,7 @@ class DutLogAnalyzer:
         This method converts a (list of) strings to one regular expression.
 
         @summary: Meta characters are escaped by inserting a '\' beforehand
-                  Digits are replaced with the arbitrary '\d+' code
+                  Digits are replaced with the arbitrary '\\d+' code
                   A list is converted into an alteration statement (|)
 
         @param error_string:  the string(s) to be converted into a regular expression

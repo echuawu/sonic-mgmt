@@ -63,9 +63,10 @@ def test_entries_with_different_priority(engines, different_priority_entries, to
     """
     port_entries = different_priority_entries.port_entry
     flow_entries = different_priority_entries.flow_entry
+    cli_obj = topology_obj.players['dut']['cli']
     with allure.step('Check entries are added'):
-        P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
-        P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries)
+        P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
+        P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries)
     with allure.step('send traffic and check which entry should increase counter'):
         port_hit_indices = [len(port_entries) - 1]
         flow_hit_indices = [len(flow_entries) - 1]
@@ -89,16 +90,17 @@ def test_entries_with_same_priority(engines, same_priority_entries, topology_obj
     port_entries = same_priority_entries.port_entry
     flow_entries = same_priority_entries.flow_entry
     pkt_count = 10
+    cli_obj = topology_obj.players['dut']['cli']
     with allure.step('Check entries are added'):
-        P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
-        P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries)
+        P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
+        P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries)
     with allure.step("Clear counters before send traffic"):
-        P4SamplingUtils.clear_statistics(engines.dut)
+        P4SamplingUtils.clear_statistics(cli_obj)
     with allure.step("Send traffic for some of port and flow table"):
         verify_send_traffic(topology_obj, interfaces, port_entries, flow_entries, pkt_count)
     with allure.step("Check the counter of all entries and find the entry which can match"):
-        port_hit_indices = get_hit_entry_list(engines.dut, P4SamplingConsts.PORT_TABLE_NAME, port_entries, pkt_count)
-        flow_hit_indices = get_hit_entry_list(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries, pkt_count)
+        port_hit_indices = get_hit_entry_list(cli_obj, P4SamplingConsts.PORT_TABLE_NAME, port_entries, pkt_count)
+        flow_hit_indices = get_hit_entry_list(cli_obj, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries, pkt_count)
     with allure.step("verify the traffic is mirrored for one entry and can not be mirrored for other entries"):
         verify_send_recv_traffic(topology_obj, interfaces, engines.dut, port_entries, flow_entries, port_hit_indices,
                                  flow_hit_indices)
@@ -136,8 +138,9 @@ def verify_send_recv_traffic(topology_obj, interfaces, engine_dut, port_entries,
     :param port_hit_indices: index list of port table entries which will match traffic
     :param flow_hit_indices: index list of flow table entries which will match traffic
     """
+    cli_obj = topology_obj.players['dut']['cli']
     with allure.step("Clear counters before send traffic"):
-        P4SamplingUtils.clear_statistics(engine_dut)
+        P4SamplingUtils.clear_statistics(cli_obj)
     with allure.step("Send traffic for some of port table entry and do validation"):
         verify_port_table_send_recv_traffic(topology_obj, interfaces, engine_dut, port_entries, port_hit_indices)
     with allure.step("Send traffic for some of port table entry and do validation"):
@@ -166,7 +169,7 @@ def verify_port_table_send_recv_traffic(topology_obj, interfaces, engine_dut, po
     for index in port_hit_indices:
         port_entry_keys_match.append(list(port_entries.keys())[index])
     P4SamplingUtils.verify_entry_counter(
-        engine_dut,
+        topology_obj.players['dut']['cli'],
         P4SamplingConsts.PORT_TABLE_NAME,
         port_entry_keys_match,
         pkt_count)
@@ -174,7 +177,7 @@ def verify_port_table_send_recv_traffic(topology_obj, interfaces, engine_dut, po
     for index in port_miss_indices:
         port_entry_keys_miss.append(list(port_entries.keys())[index])
     P4SamplingUtils.verify_entry_counter(
-        engine_dut,
+        topology_obj.players['dut']['cli'],
         P4SamplingConsts.PORT_TABLE_NAME,
         port_entry_keys_miss,
         0)
@@ -202,7 +205,7 @@ def verify_flow_table_send_recv_traffic(topology_obj, interfaces, engine_dut, fl
     for index in flow_hit_indices:
         flow_entry_keys_match.append(list(flow_entries.keys())[index])
     P4SamplingUtils.verify_entry_counter(
-        engine_dut,
+        topology_obj.players['dut']['cli'],
         P4SamplingConsts.FLOW_TABLE_NAME,
         flow_entry_keys_match,
         pkt_count)
@@ -210,7 +213,7 @@ def verify_flow_table_send_recv_traffic(topology_obj, interfaces, engine_dut, fl
     for index in flow_miss_indices:
         flow_entry_keys_miss.append(list(flow_entries.keys())[index])
     P4SamplingUtils.verify_entry_counter(
-        engine_dut,
+        topology_obj.players['dut']['cli'],
         P4SamplingConsts.FLOW_TABLE_NAME,
         flow_entry_keys_miss,
         0)
@@ -328,11 +331,11 @@ def verify_send_traffic(topology_obj, interfaces, port_entries, flow_entries, pk
     P4SamplingUtils.send_flow_table_traffic(topology_obj, flow_traffic_params_list, pkt_count)
 
 
-def get_hit_entry_list(engine_dut, table_name, entries, expect_count):
+def get_hit_entry_list(cli_obj, table_name, entries, expect_count):
     """
     Check the counter of the entries, return the index list of the entries that will hit.
     This is use when the entries with same prio can match the traffic and need to find which entry should be hitted
-    :param engine_dut: dut ssh engine object
+    :param cli_obj: dut cli_obj object
     :param table_name: table name, flow table name or port table name in p4-sampling
     :param entries: the entries which are used to check the counters
     :param expect_count: expect count
@@ -342,7 +345,7 @@ def get_hit_entry_list(engine_dut, table_name, entries, expect_count):
     entry_keys = list(entries.keys())
     entry_count = len(entry_keys)
     time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
-    hit_counters = P4SamplingCli.show_and_parse_table_counters(engine_dut, table_name)
+    hit_counters = cli_obj.p4.show_and_parse_table_counters(table_name)
     for i in range(entry_count):
         entry_key = entry_keys[i]
         if not hit_counters:

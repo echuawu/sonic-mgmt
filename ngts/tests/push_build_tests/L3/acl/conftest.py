@@ -6,7 +6,7 @@ import ngts.helpers.acl_helper as acl_helper
 
 
 @pytest.fixture(scope='package', autouse=True)
-def acl_configuration(topology_obj, interfaces, acl_table_config_list, engines):
+def acl_configuration(topology_obj, cli_objects, interfaces, acl_table_config_list, engines):
     # VLAN config which will be used in test
     vlan_config_dict = {
         'dut': [{'vlan_id': 120, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
@@ -66,11 +66,11 @@ def acl_configuration(topology_obj, interfaces, acl_table_config_list, engines):
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
     ping_from_host(engines)
-    acl_helper.add_acl_table(engines.dut, acl_table_config_list)
-    acl_helper.add_acl_rules(engines.dut, acl_table_config_list)
+    acl_helper.add_acl_table(cli_objects.dut, acl_table_config_list)
+    acl_helper.add_acl_rules(engines.dut, cli_objects.dut, acl_table_config_list)
     yield
-    acl_helper.clear_acl_rules(engines.dut)
-    acl_helper.remove_acl_table(engines.dut, acl_table_config_list)
+    acl_helper.clear_acl_rules(engines.dut, cli_objects.dut)
+    acl_helper.remove_acl_table(cli_objects.dut, acl_table_config_list)
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)

@@ -25,9 +25,8 @@ def vlan_configuration(topology_obj, cli_objects):
                                 ]
                         }
 
-    dut_engine = topology_obj.players['dut']['engine']
-    cli_objects.dut.ip.del_ip_from_interface(dut_engine, 'PortChannel0001', '30.0.0.1')
-    cli_objects.dut.ip.del_ip_from_interface(dut_engine, 'PortChannel0001', '3000::1', '64')
+    cli_objects.dut.ip.del_ip_from_interface('PortChannel0001', '30.0.0.1')
+    cli_objects.dut.ip.del_ip_from_interface('PortChannel0001', '3000::1', '64')
 
     logger.info('Starting vlan configuration')
     VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
@@ -38,7 +37,7 @@ def vlan_configuration(topology_obj, cli_objects):
     logger.info('Starting vlan test cases configuration cleanup')
     VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
 
-    cli_objects.dut.ip.add_ip_to_interface(dut_engine, 'PortChannel0001', '30.0.0.1')
-    cli_objects.dut.ip.add_ip_to_interface(dut_engine, 'PortChannel0001', '3000::1', '64')
+    cli_objects.dut.ip.add_ip_to_interface('PortChannel0001', '30.0.0.1')
+    cli_objects.dut.ip.add_ip_to_interface('PortChannel0001', '3000::1', '64')
 
     logger.info('vlan cleanup completed')

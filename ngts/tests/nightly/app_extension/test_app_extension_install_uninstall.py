@@ -2,7 +2,7 @@ import re
 import allure
 import logging
 import pytest
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
+
 from ngts.tests.nightly.app_extension.app_extension_helper import \
     verify_app_container_up_and_repo_status_installed, uninstall_app_with_force_and_remove_app_from_repo,\
     verify_app_container_status_none, gen_app_tarball, APP_INFO
@@ -21,7 +21,8 @@ logger = logging.getLogger()
     ],
 )
 @allure.title('App package install and uninstall')
-def test_app_install_uninstall(engines, add_app_into_repo, install_cmd_postfix, version, is_force_uninstalled):
+def test_app_install_uninstall(engines, cli_objects, add_app_into_repo, install_cmd_postfix, version,
+                               is_force_uninstalled):
     """
     This test case is test app install and uninstall, it include following test cases:
     1. install with default version, and uninstall with force
@@ -40,14 +41,14 @@ def test_app_install_uninstall(engines, add_app_into_repo, install_cmd_postfix, 
     try:
         with allure.step("Install app with {}, version={}".format(install_cmd_postfix, version)):
             dut_engine.run_cmd("sudo sonic-package-manager install -y {}".format(install_cmd_postfix), validate=True)
-            verify_app_container_status_none(dut_engine, app_name)
+            verify_app_container_status_none(cli_objects.dut, app_name)
             logger.info("Enable feature of {}".format(app_name))
-            SonicAppExtensionCli.enable_app(dut_engine, app_name)
-            verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version)
+            cli_objects.dut.app_ext.enable_app(app_name)
+            verify_app_container_up_and_repo_status_installed(cli_objects.dut, app_name, version)
 
         with allure.step("Uninstall app"):
             logger.info("Uninstall app with force  is {} ".format(is_force_uninstalled))
-            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, is_force_uninstalled)
+            uninstall_app_with_force_and_remove_app_from_repo(cli_objects.dut, app_name, is_force_uninstalled)
 
     except Exception as err:
         raise AssertionError(err)
@@ -97,7 +98,7 @@ def test_app_install_with_abnormal_package(engines, add_app_into_repo, app_name,
 
 @pytest.mark.app_ext
 @allure.title('Force installing app and skip dependency check')
-def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo):
+def test_app_install_with_force_skip_dependency_check(engines, cli_objects, add_app_into_repo):
     """
     This test case is to test force install package with missing dependency
     1. check corresponding Failed message
@@ -114,13 +115,13 @@ def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo
             expected_msg = ".*ignoring error Package {} requires missing-dependency.*but it is not installed.*".format(app_name)
             msg_pattern = re.compile(expected_msg)
             assert msg_pattern.match(output), "Force install app failed"
-            verify_app_container_status_none(dut_engine, app_name)
+            verify_app_container_status_none(cli_objects.dut, app_name)
             logger.info("Enable feature of {}".format(app_name))
-            SonicAppExtensionCli.enable_app(dut_engine, app_name)
-            verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version)
+            cli_objects.dut.app_ext.enable_app(app_name)
+            verify_app_container_up_and_repo_status_installed(cli_objects.dut, app_name, version)
 
         with allure.step("Force uninstall app"):
-            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, False)
+            uninstall_app_with_force_and_remove_app_from_repo(cli_objects.dut, app_name, False)
 
     except Exception as err:
         raise AssertionError(err)
@@ -128,7 +129,7 @@ def test_app_install_with_force_skip_dependency_check(engines, add_app_into_repo
 
 @pytest.mark.app_ext
 @allure.title('Install app from tarball')
-def test_app_install_from_tarball(engines, add_app_into_repo):
+def test_app_install_from_tarball(engines, cli_objects, add_app_into_repo):
     """
     This test is to install app from tarball
     Firstly prepare a app tarball by docker pull and docker save -o
@@ -143,14 +144,14 @@ def test_app_install_from_tarball(engines, add_app_into_repo):
     try:
         with allure.step("Install app {}:{} from tarball".format(app_name, version)):
             tarball_name = gen_app_tarball(dut_engine, app_repo, app_name, version)
-            SonicAppExtensionCli.install_app_from_tarball(dut_engine, tarball_name)
-            verify_app_container_status_none(dut_engine, app_name)
+            cli_objects.dut.app_ext.install_app_from_tarball(tarball_name)
+            verify_app_container_status_none(cli_objects.dut, app_name)
             logger.info("Enable feature of {}".format(app_name))
-            SonicAppExtensionCli.enable_app(dut_engine, app_name)
-            verify_app_container_up_and_repo_status_installed(dut_engine, app_name, version)
+            cli_objects.dut.app_ext.enable_app(app_name)
+            verify_app_container_up_and_repo_status_installed(cli_objects.dut, app_name, version)
 
         with allure.step("Uninstall app"):
-            uninstall_app_with_force_and_remove_app_from_repo(dut_engine, app_name, False)
+            uninstall_app_with_force_and_remove_app_from_repo(cli_objects.dut, app_name, False)
 
     except Exception as err:
         raise AssertionError(err)

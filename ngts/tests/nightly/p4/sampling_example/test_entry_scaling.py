@@ -9,7 +9,6 @@ from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.tests.push_build_tests.system.test_cpu_ram_hdd_usage import get_cpu_usage_and_processes
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 import yaml
 import os
 import time
@@ -27,7 +26,7 @@ class TestEntryScaling:
 
     @pytest.mark.reboot_reload
     @allure.title('Test 500 entries added for each table')
-    def test_scaling_entries(self, topology_obj, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
+    def test_scaling_entries(self, topology_obj, cli_objects, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
         """
         configure 500 entries for each table, and send traffic for some entry, verify the cpu and memory usage,
         verify the the execution time for the add, show and delete cli command, verify it is added correctly with p4nspect,
@@ -40,12 +39,12 @@ class TestEntryScaling:
         port_params = self.generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         flow_params = self.generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         with allure.step("Enable p4-sampling"):
-            SonicGeneralCli().set_feature_state(engines.dut, P4SamplingConsts.APP_NAME, 'enabled')
+            cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
         with allure.step("Verify cpu and ram usage before the entries added"):
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
         with allure.step("Add {} entries for port table and {} entries for flow table with cli command and "
                          "check execution time".format(count, count)):
-            self.add_multiple_entries(engines.dut, port_params, flow_params)
+            self.add_multiple_entries(cli_object, port_params, flow_params)
         try:
             with allure.step("Verify cpu and ram usage after the entries added"):
                 self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
@@ -54,23 +53,23 @@ class TestEntryScaling:
                 self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
             with allure.step("Save configuration before reboot"):
-                SonicGeneralCli().save_configuration(engines.dut)
+                cli_objects.dut.general.save_configuration()
             with allure.step("Do cold reboot and verify the execution time"):
                 self.do_cold_reboot(engines.dut, topology_obj)
             with allure.step("Check entries are still there and traffic can be mirrored correctly after reboot"):
                 self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
         finally:
             with allure.step("Remove all entries and verify the execution time"):
-                self.remove_all_entries(engines.dut, port_params, flow_params)
+                self.remove_all_entries(cli_objects.dut, port_params, flow_params)
         with allure.step("Check entries are removed "):
-            P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
-            P4SamplingUtils.verify_table_entry(engines.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
+            P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
+            P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
 
         with allure.step("Check cpu and memory usage after the entries are removed"):
             self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
 
         with allure.step("Save configuration before reboot"):
-            SonicGeneralCli().save_configuration(engines.dut)
+            cli_objects.dut.general.save_configuration()
         with allure.step("Do cold reboot and verify the execution time after the entries are cleared"):
             self.do_cold_reboot(engines.dut, topology_obj)
 
@@ -143,10 +142,10 @@ class TestEntryScaling:
         return ret
 
     @staticmethod
-    def add_multiple_entries(engine, port_entry_params, flow_entry_params):
+    def add_multiple_entries(cli_obj, port_entry_params, flow_entry_params):
         """
         add entries with params defined in the entry_params
-        :param engine: ssh engine object
+        :param cli_obj: cli_obj object
         :param port_entry_params: port entry params
         :param flow_entry_params: flow entry params
         :return: None
@@ -165,18 +164,18 @@ class TestEntryScaling:
             flow_key_params_list.append(params)
 
         start_time = datetime.now()
-        P4SamplingCli.add_entries_to_table(engine, P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
-        P4SamplingCli.add_entries_to_table(engine, P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
+        cli_obj.p4.add_entries_to_table(P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
+        cli_obj.p4.add_entries_to_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info("Time take for add {} entries : {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
                                                                        time_take))
 
     @staticmethod
-    def remove_all_entries(engine, port_entry_params, flow_entry_params):
+    def remove_all_entries(cli_obj, port_entry_params, flow_entry_params):
         """
         Remove p4 sampling entries
-        :param engine: ssh engine object
+        :param cli_obj: cli_obj object
         :param port_entry_params: port entry params
         :param flow_entry_params: flow entry params
         :return: None
@@ -192,30 +191,32 @@ class TestEntryScaling:
             flow_key_params_list.append(flow_key_params)
 
         start_time = datetime.now()
-        P4SamplingCli.delete_entries_from_table(engine, P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
-        P4SamplingCli.delete_entries_from_table(engine, P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
+        cli_obj.p4.delete_entries_from_table(P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
+        cli_obj.p4.delete_entries_from_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info("Time take for remove {} entries: {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
                                                                          time_take))
 
     def verify_entries_and_traffic(self, topology_obj, interfaces, engine, port_entries, flow_entries):
-        self.verify_entries_added(engine, port_entries, flow_entries)
+        cli_obj = topology_obj.players['dut']['cli']
+        self.verify_entries_added(engine, cli_obj, port_entries, flow_entries)
         self.verify_send_recv_traffic(topology_obj, interfaces, engine, port_entries, flow_entries)
 
     @staticmethod
-    def verify_entries_added(engine, port_entries, flow_entries):
+    def verify_entries_added(engine, cli_obj, port_entries, flow_entries):
         with allure.step("Verify entries added correctly for port table"):
-            P4SamplingUtils.verify_table_entry(engine, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
+            P4SamplingUtils.verify_table_entry(engine, cli_obj, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
         with allure.step("Verify entries added correctly for flow table"):
-            P4SamplingUtils.verify_table_entry(engine, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries)
+            P4SamplingUtils.verify_table_entry(engine, cli_obj, P4SamplingConsts.FLOW_TABLE_NAME, flow_entries)
 
     @staticmethod
     def verify_send_recv_traffic(topology_obj, interfaces, engine, port_entries, flow_entries):
+        cli_obj = topology_obj.players['dut']['cli']
         with allure.step("Send traffic"):
             pkt_count = 20
             with allure.step("Clear counters before send traffic"):
-                P4SamplingUtils.clear_statistics(engine)
+                P4SamplingUtils.clear_statistics(cli_obj)
             with allure.step("Send traffic for some of port table entries and verify"):
                 # define which entry will be used to verify the traffic, currently use the first and the last one
                 indices = list(set([0, len(port_entries) - 1]))
@@ -228,7 +229,7 @@ class TestEntryScaling:
 
     def do_cold_reboot(self, engine_dut, topology_obj):
         start_time = datetime.now()
-        SonicGeneralCli().reboot_reload_flow(engine_dut, topology_obj=topology_obj)
+        topology_obj.players['dut']['cli'].general.reboot_reload_flow(topology_obj=topology_obj)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info('Time takes for the cold reboot is {} seconds'.format(time_take))

@@ -25,33 +25,34 @@ def stage(request):
     return request.param
 
 
-def test_acl_config(engines, acl_table_config_list):
+def test_acl_config(cli_objects, engines, acl_table_config_list):
     """
     Test the acl tables and rules can be added and removed correctly
-    :param engines: engines fixture
+    :param cli_objects: cli_objects fixture
     :param acl_table_config_list: acl_table_config_list fixture, which is a list of value returned from generate_acl_table
     """
-    engine_dut = engines.dut
+    cli_obj = cli_objects.dut
+    engine = engines.dut
     with allure.step('Verify the acl tables are added'):
-        acl_helper.verify_acl_tables_exist(engine_dut, acl_table_config_list, True)
+        acl_helper.verify_acl_tables_exist(cli_obj, acl_table_config_list, True)
     with allure.step('Verify the acl rules are added'):
-        acl_helper.verify_acl_rules(engine_dut, acl_table_config_list, True)
+        acl_helper.verify_acl_rules(cli_obj, acl_table_config_list, True)
     with allure.step('Remove acl rules'):
-        acl_helper.clear_acl_rules(engine_dut)
+        acl_helper.clear_acl_rules(engine, cli_obj)
     with allure.step('Verify the acl rules are removed'):
-        acl_helper.verify_acl_rules(engine_dut, acl_table_config_list, False)
+        acl_helper.verify_acl_rules(cli_obj, acl_table_config_list, False)
     with allure.step('Delete acl table'):
-        acl_helper.remove_acl_table(engine_dut, acl_table_config_list)
+        acl_helper.remove_acl_table(cli_obj, acl_table_config_list)
     with allure.step('Verify the acl tables are removed'):
-        acl_helper.verify_acl_tables_exist(engine_dut, acl_table_config_list, False)
+        acl_helper.verify_acl_tables_exist(cli_obj, acl_table_config_list, False)
     with allure.step('Add acl table'):
-        acl_helper.add_acl_table(engine_dut, acl_table_config_list)
+        acl_helper.add_acl_table(cli_obj, acl_table_config_list)
     with allure.step('Add acl rules'):
-        acl_helper.add_acl_rules(engine_dut, acl_table_config_list)
+        acl_helper.add_acl_rules(engine, cli_obj, acl_table_config_list)
     with allure.step('Verify the acl tables are added back'):
-        acl_helper.verify_acl_tables_exist(engine_dut, acl_table_config_list, True)
+        acl_helper.verify_acl_tables_exist(cli_obj, acl_table_config_list, True)
     with allure.step('Verify the acl rules are added back'):
-        acl_helper.verify_acl_rules(engine_dut, acl_table_config_list, True)
+        acl_helper.verify_acl_rules(cli_obj, acl_table_config_list, True)
 
 
 def test_acl_traffic_match(topology_obj, engines, interfaces, ip_version, stage):
@@ -175,4 +176,4 @@ def get_mac_port_address(topology_obj, host, port):
     """
     cli_object = topology_obj.players[host]['cli']
     engine = topology_obj.players[host]['engine']
-    return cli_object.mac.get_mac_address_for_interface(engine, port)
+    return cli_object.mac.get_mac_address_for_interface(port)

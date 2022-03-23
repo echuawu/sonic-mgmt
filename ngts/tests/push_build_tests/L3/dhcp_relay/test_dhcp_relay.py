@@ -40,6 +40,7 @@ class TestDHCPRelay:
         self.dut_engine = engines.dut
         self.dut_cli_object = cli_objects.dut
         self.dhcp_client_engine = engines.ha
+        self.dhcp_client_cli_obj = cli_objects.ha
         self.dhcp_server_engine = engines.hb
         self.dhclient_vlan = '690'
         self.hadut2 = interfaces.ha_dut_2
@@ -49,9 +50,8 @@ class TestDHCPRelay:
         self.dhcp_server_ip = '69.0.0.2'
         self.dut_dhclient_vlan_ip = '69.0.1.1'
         self.expected_ip = '69.0.1.150'
-        self.dhclient_mac = cli_objects.ha.mac.get_mac_address_for_interface(self.dhcp_client_engine,
-                                                                             self.dhclient_iface)
-        self.dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(self.dut_engine, self.dut_vlan_iface)
+        self.dhclient_mac = cli_objects.ha.mac.get_mac_address_for_interface(self.dhclient_iface)
+        self.dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(self.dut_vlan_iface)
         self.chaddr = bytes.fromhex(self.dhclient_mac.replace(':', ''))
 
     @pytest.mark.dhcp_relay
@@ -65,14 +65,14 @@ class TestDHCPRelay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.dhcp_client_engine)
+            self.dhcp_client_cli_obj.dhcp.kill_all_dhcp_clients()
 
     @pytest.mark.dhcp_relay
     @pytest.mark.skip(reason='https://github.com/Azure/sonic-utilities/pull/1269')
     def test_dhcp_relay_remove_dhcp_server(self):
         try:
             with allure.step('Remove DHCP relay setting from DUT'):
-                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip,
+                self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_vlan, self.dhcp_server_ip,
                                                               topology_obj=self.topology)
 
             with allure.step('Trying to GET ip address from DHCP server when DHCP relay settings removed'):
@@ -81,8 +81,8 @@ class TestDHCPRelay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.dhcp_client_engine)
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dut_engine, self.dhclient_vlan, self.dhcp_server_ip,
+            self.dhcp_client_cli_obj.dhcp.kill_all_dhcp_clients()
+            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_vlan, self.dhcp_server_ip,
                                                           topology_obj=self.topology)
 
     @pytest.mark.dhcp_relay
@@ -203,7 +203,7 @@ class TestDHCPRelay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.dhcp_client_engine)
+            self.dhcp_client_cli_obj.dhcp.kill_all_dhcp_clients()
 
     @pytest.mark.dhcp_relay
     def test_dhcp_relay_request_message_with_custom_src_port(self):
@@ -383,4 +383,4 @@ class TestDHCPRelay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            LinuxDhcpCli.kill_all_dhcp_clients(self.dhcp_client_engine)
+            self.dhcp_client_cli_obj.dhcp.kill_all_dhcp_clients()

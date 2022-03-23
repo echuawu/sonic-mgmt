@@ -27,7 +27,7 @@ def get_platform_json(engine_dut, cli_object, fail_if_doesnt_exist=True):
      , ...}
     """
     platform_json = {}
-    platform = cli_object.chassis.get_platform(engine_dut)
+    platform = cli_object.chassis.get_platform()
     platform_path = SonicConst.PLATFORM_JSON_PATH.format(PLATFORM=platform)
     platform_detailed_info_output = engine_dut.run_cmd("cat {} ; echo".format(platform_path), print_output=False)
     if re.search('No such file or directory', platform_detailed_info_output):

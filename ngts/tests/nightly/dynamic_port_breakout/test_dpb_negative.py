@@ -6,6 +6,7 @@ from retry.api import retry_call
 from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_options, logger, is_splittable, \
     compare_actual_and_expected_speeds, get_mutual_breakout_modes, send_ping_and_verify_results, \
     set_dpb_conf, verify_ifaces_speed_and_status, verify_no_breakout
+from ngts.tests.nightly.conftest import cleanup
 
 
 class TestDPBNegative:
@@ -90,7 +91,7 @@ class TestDPBNegative:
 
         with allure.step(f'Verify ports {ports_list_after_breakout} are up after wrong breakout removal'):
             retry_call(self.cli_object.interface.check_ports_status,
-                       fargs=[self.dut_engine, ports_list_after_breakout],
+                       fargs=[ports_list_after_breakout],
                        tries=2, delay=2, logger=logger)
 
         with allure.step(f'Remove breakout from ports: {lb} with mode {unbreakout_port_mode}'):
@@ -109,13 +110,13 @@ class TestDPBNegative:
 
     def verify_negative_breakout_configuration(self, ports_list, breakout_mode):
         with allure.step(f'Get speed configuration of ports {ports_list} before breakout'):
-            pre_breakout_speed_conf = self.cli_object.interface.get_interfaces_speed(self.dut_engine, ports_list)
+            pre_breakout_speed_conf = self.cli_object.interface.get_interfaces_speed(ports_list)
         err_msg = r"\[ERROR\]\s+Target\s+mode\s+.*is\s+not\s+available\s+for\s+the\s+port\s+{}"
         with allure.step(f'Verify breakout mode {breakout_mode} on ports {ports_list} fails as expected'):
             for port in ports_list:
                 self.verify_breakout_on_port_failed(port, breakout_mode, err_msg.format(port))
         with allure.step(f'Get speed configuration of ports {ports_list} after breakout'):
-            post_breakout_speed_conf = self.cli_object.interface.get_interfaces_speed(self.dut_engine, ports_list)
+            post_breakout_speed_conf = self.cli_object.interface.get_interfaces_speed(ports_list)
         compare_actual_and_expected_speeds(pre_breakout_speed_conf, post_breakout_speed_conf)
 
     def get_unsplittable_ports_list(self):
@@ -138,7 +139,7 @@ class TestDPBNegative:
         """
         with allure.step(f'Verify breakout mode {breakout_mode} on port {port} '
                          f'failed as expected with error message: {err_msg}'):
-            output = self.cli_object.interface.configure_dpb_on_port(self.dut_engine, port, breakout_mode,
+            output = self.cli_object.interface.configure_dpb_on_port(port, breakout_mode,
                                                                      expect_error=True, force=False)
             if not re.search(err_msg, output, re.IGNORECASE):
                 raise AssertionError(f"Expected breakout mode {breakout_mode} on port {port} "

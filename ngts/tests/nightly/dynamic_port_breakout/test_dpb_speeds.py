@@ -4,6 +4,7 @@ from retry.api import retry_call
 from ngts.tests.nightly.dynamic_port_breakout.conftest import set_dpb_conf, set_ip_conf_for_ping, \
     send_ping_and_verify_results
 from ngts.tests.nightly.dynamic_port_breakout.test_dpb_introp import verify_ifaces_speed_and_status
+from ngts.tests.nightly.conftest import cleanup
 
 
 class TestDPBSpeed:
@@ -41,7 +42,7 @@ class TestDPBSpeed:
                     cleanup(cleanup_list)
                 with allure.step(f'Verify interfaces {lb} are in up state after breakout is removed'):
                     retry_call(self.cli_object.interface.check_ports_status,
-                               fargs=[self.dut_engine, lb],
+                               fargs=[lb],
                                tries=3, delay=10)
 
     def configure_breakout(self, breakout_mode, lb, cleanup_list):
@@ -58,7 +59,7 @@ class TestDPBSpeed:
         with allure.step(f'Configure speed {speed_option} on ports: {interfaces_list}'):
             for port in interfaces_list:
                 breakout_ports_conf.update({port: speed_option})
-            self.cli_object.interface.set_interfaces_speed(self.dut_engine, breakout_ports_conf)
+            self.cli_object.interface.set_interfaces_speed(breakout_ports_conf)
 
     def get_mutual_speeds_option(self, breakout_mode, ports_list):
         """

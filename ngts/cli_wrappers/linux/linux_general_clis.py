@@ -6,5 +6,5 @@ class LinuxGeneralCli(GeneralCliCommon):
     This class is for general cli commands for linux only
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, engine):
+        self.engine = engine

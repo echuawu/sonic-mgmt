@@ -1,7 +1,6 @@
 import logging
 import ipaddress
 
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers.config_db_utils import save_config_db_json, save_config_into_json
 
 logger = logging.getLogger()
@@ -11,11 +10,13 @@ class SonicDhcpRelayCli:
 
     def __new__(cls, **kwargs):
         branch = kwargs['branch']
+        engine = kwargs['engine']
+        cli_obj = kwargs['cli_obj']
 
-        supported_cli_classes = {'default': SonicDhcpRelayCliDefault(),
-                                 'master': SonicDhcpRelayCliMaster(),
-                                 '202012': SonicDhcpRelayCli202012(),
-                                 '202111': SonicDhcpRelayCli202111()}
+        supported_cli_classes = {'default': SonicDhcpRelayCliDefault(engine, cli_obj),
+                                 'master': SonicDhcpRelayCliMaster(engine, cli_obj),
+                                 '202012': SonicDhcpRelayCli202012(engine, cli_obj),
+                                 '202111': SonicDhcpRelayCli202111(engine, cli_obj)}
 
         cli_class = supported_cli_classes.get(branch, supported_cli_classes['default'])
         cli_class_name = cli_class.__class__.__name__
@@ -26,51 +27,45 @@ class SonicDhcpRelayCli:
 
 class SonicDhcpRelayCliDefault:
 
-    @staticmethod
-    def add_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
+    def __init__(self, engine, cli_obj):
+        self.engine = engine
+        self.cli_obj = cli_obj
+
+    def add_dhcp_relay(self, vlan, dhcp_server, **kwargs):
         """
         This method adding DHCP relay entry for VLAN interface
-        :param engine: ssh engine object
         :param vlan: vlan interface ID for which DHCP relay should be added
         :param dhcp_server: DHCP server IP address
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
+        return self.engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
 
-    @staticmethod
-    def del_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
+    def del_dhcp_relay(self, vlan, dhcp_server, **kwargs):
         """
         This method delete DHCP relay entry from VLAN interface
-        :param engine: ssh engine object
         :param vlan: vlan interface ID from which DHCP relay should be deleted
         :param dhcp_server: DHCP server IP address
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
+        return self.engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
 
-    @staticmethod
-    def add_ipv4_dhcp_relay(engine, vlan, dhcp_server):
-        return engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
+    def add_ipv4_dhcp_relay(self, vlan, dhcp_server):
+        return self.engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
 
-    @staticmethod
-    def del_ipv4_dhcp_relay(engine, vlan, dhcp_server):
-        return engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
+    def del_ipv4_dhcp_relay(self, vlan, dhcp_server):
+        return self.engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
 
-    @staticmethod
-    def add_ipv6_dhcp_relay(engine, vlan, dhcp_server):
-        return engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
+    def add_ipv6_dhcp_relay(self, vlan, dhcp_server):
+        return self.engine.run_cmd("sudo config vlan dhcp_relay add {} {}".format(vlan, dhcp_server))
 
-    @staticmethod
-    def del_ipv6_dhcp_relay(engine, vlan, dhcp_server):
-        return engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
+    def del_ipv6_dhcp_relay(self, vlan, dhcp_server):
+        return self.engine.run_cmd("sudo config vlan dhcp_relay del {} {}".format(vlan, dhcp_server))
 
-    @staticmethod
-    def get_ipv4_dhcp_relay_cli_config_dict(engine, cli_obj):
-        return cli_obj.vlan.get_show_vlan_brief_parsed_output(engine)
+    def get_ipv4_dhcp_relay_cli_config_dict(self, cli_obj):
+        return cli_obj.vlan.get_show_vlan_brief_parsed_output()
 
-    @staticmethod
-    def get_ipv6_dhcp_relay_cli_config_dict(engine, cli_obj):
-        return cli_obj.vlan.get_show_vlan_brief_parsed_output(engine)
+    def get_ipv6_dhcp_relay_cli_config_dict(self, cli_obj):
+        return cli_obj.vlan.get_show_vlan_brief_parsed_output()
 
     @staticmethod
     def validate_dhcp_relay_cli_config_ipv4(vlan_brief_parsed_output, vlan, expected_dhcp_servers_list):
@@ -103,11 +98,13 @@ class SonicDhcpRelayCliDefault:
 
 class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
-    @staticmethod
-    def add_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
+    def __init__(self, engine, cli_obj):
+        self.engine = engine
+        self.cli_obj = cli_obj
+
+    def add_dhcp_relay(self, vlan, dhcp_server, **kwargs):
         """
         This method adding DHCP relay entry for VLAN interface
-        :param engine: ssh engine object
         :param vlan: vlan interface ID for which DHCP relay should be added
         :param dhcp_server: DHCP server IP address
         """
@@ -115,15 +112,13 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
         if ip_addr_version == 6:
             topology_obj = kwargs.get('topology_obj')
-            SonicDhcpRelayCliMaster.add_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj)
+            self.add_ipv6_dhcp_relay(vlan, dhcp_server, topology_obj)
         else:
-            SonicDhcpRelayCliMaster.add_ipv4_dhcp_relay(engine, vlan, dhcp_server)
+            self.add_ipv4_dhcp_relay(vlan, dhcp_server)
 
-    @staticmethod
-    def del_dhcp_relay(engine, vlan, dhcp_server, **kwargs):
+    def del_dhcp_relay(self, vlan, dhcp_server, **kwargs):
         """
         This method delete DHCP relay entry from VLAN interface
-        :param engine: ssh engine object
         :param vlan: vlan interface ID from which DHCP relay should be deleted
         :param dhcp_server: DHCP server IP address
         """
@@ -131,22 +126,20 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
         if ip_addr_version == 6:
             topology_obj = kwargs.get('topology_obj')
-            SonicDhcpRelayCliMaster.del_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj)
+            self.del_ipv6_dhcp_relay(vlan, dhcp_server, topology_obj)
         else:
-            SonicDhcpRelayCliMaster.del_ipv4_dhcp_relay(engine, vlan, dhcp_server)
+            self.del_ipv4_dhcp_relay(vlan, dhcp_server)
 
-    @staticmethod
-    def add_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj):
+    def add_ipv6_dhcp_relay(self, vlan, dhcp_server, topology_obj):
         """
         This method adding DHCPv6 relay entry for VLAN interface using DHCPv6 json config
-        :param engine: ssh engine object
         :param vlan: vlan interface ID for which DHCP relay should be added
         :param dhcp_server: DHCP server IP address
         :param topology_obj: topology_obj
         """
         vlan_iface = 'Vlan{}'.format(vlan)
 
-        config_db = SonicGeneralCli().get_config_db_from_running_config(engine)
+        config_db = self.cli_obj.general.get_config_db_from_running_config()
 
         if config_db.get('DHCP_RELAY'):
             available_dhcpv6_servers = config_db['DHCP_RELAY'].get(vlan_iface, {}).get('dhcpv6_servers', [])
@@ -161,36 +154,34 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
         config_name = 'dhcpv6_relay.json'
         # Save config into JSON and upload to DUT
-        path_to_config_on_dut = save_config_into_json(engine, config_dict=config, config_file_name=config_name)
+        path_to_config_on_dut = save_config_into_json(self.engine, config_dict=config, config_file_name=config_name)
         logger.info(f'Adding DHCP relay: {dhcp_server} for VLAN: {vlan}')
-        engine.run_cmd(f'sudo config load -y {path_to_config_on_dut}')
+        self.engine.run_cmd(f'sudo config load -y {path_to_config_on_dut}')
 
         # TODO: Once https://github.com/Azure/sonic-buildimage/issues/9679 fixed - remove "config reload -y" logic
-        SonicGeneralCli().save_configuration(engine)
+        self.cli_obj.general.save_configuration()
         branch = topology_obj.players['dut'].get('branch')
-        SonicGeneralCli(branch=branch).reload_flow(engine, topology_obj=topology_obj, reload_force=True)
+        self.cli_obj.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
-    @staticmethod
-    def del_ipv6_dhcp_relay(engine, vlan, dhcp_server, topology_obj):
+    def del_ipv6_dhcp_relay(self, vlan, dhcp_server, topology_obj):
         """
         This method delete DHCPv6 relay entry from VLAN interface
-        :param engine: ssh engine object
         :param vlan: vlan interface ID from which DHCP relay should be deleted
         :param dhcp_server: DHCP server IP address
         :param topology_obj: topology_obj
         """
         vlan_iface = 'Vlan{}'.format(vlan)
 
-        config_db = SonicGeneralCli().get_config_db_from_running_config(engine)
+        config_db = self.cli_obj.general.get_config_db_from_running_config()
 
-        config_db = SonicDhcpRelayCliMaster.remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
-        config_db = SonicDhcpRelayCliMaster.remove_vlan_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
+        config_db = self.remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
+        config_db = self.remove_vlan_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
         logger.info(f'Removing DHCP relay: {dhcp_server} from VLAN: {vlan}')
 
         # TODO: Once https://github.com/Azure/sonic-buildimage/issues/9679 fixed - remove "config reload -y" logic
-        save_config_db_json(engine, config_db)
+        save_config_db_json(self.engine, config_db)
         branch = topology_obj.players['dut'].get('branch')
-        SonicGeneralCli(branch=branch).reload_flow(engine, topology_obj=topology_obj, reload_force=True)
+        self.cli_obj.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     @staticmethod
     def remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server):
@@ -230,15 +221,14 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
         return config_db
 
-    @staticmethod
-    def parse_show_dhcprelay_helper_ipv6_as_dict(engine):
+    def parse_show_dhcprelay_helper_ipv6_as_dict(self):
         """
         Parse output of command "show dhcprelay_helper ipv6" and return result as dict
         :param engine: ssh engine object
         :return: dict, example: {'Vlan690': ['6900::2', '6900::3'], 'Vlan691': ['6900::2']}
         """
         result = {}
-        output = engine.run_cmd('show dhcprelay_helper ipv6')
+        output = self.engine.run_cmd('show dhcprelay_helper ipv6')
         """
         Example of output:
         -------  -------
@@ -265,13 +255,11 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
         return result
 
-    @staticmethod
-    def get_ipv4_dhcp_relay_cli_config_dict(engine, cli_obj):
-        return cli_obj.vlan.get_show_vlan_brief_parsed_output(engine)
+    def get_ipv4_dhcp_relay_cli_config_dict(self, cli_obj):
+        return cli_obj.vlan.get_show_vlan_brief_parsed_output()
 
-    @staticmethod
-    def get_ipv6_dhcp_relay_cli_config_dict(engine, cli_obj):
-        return cli_obj.dhcp_relay.parse_show_dhcprelay_helper_ipv6_as_dict(engine)
+    def get_ipv6_dhcp_relay_cli_config_dict(self, cli_obj):
+        return cli_obj.dhcp_relay.parse_show_dhcprelay_helper_ipv6_as_dict()
 
     @staticmethod
     def validate_dhcp_relay_cli_config_ipv6(dhcprelay_helper_ipv6_output_dict, vlan, expected_dhcp_servers_list):
@@ -290,8 +278,14 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
 
 
 class SonicDhcpRelayCli202012(SonicDhcpRelayCliMaster):
-    pass
+
+    def __init__(self, engine, cli_obj):
+        self.engine = engine
+        self.cli_obj = cli_obj
 
 
 class SonicDhcpRelayCli202111(SonicDhcpRelayCliMaster):
-    pass
+
+    def __init__(self, engine, cli_obj):
+        self.engine = engine
+        self.cli_obj = cli_obj

@@ -4,8 +4,6 @@ import logging
 import os
 import time
 import pytest
-from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers import system_helpers
 
 logger = logging.getLogger()
@@ -26,38 +24,39 @@ def test_extract_python_coverage(topology_obj, dest):
     """
     try:
         engine = topology_obj.players['dut']['engine']
+        cli_obj = topology_obj.players['dut']['cli']
 
         with allure.step('Get coverage file path'):
-            coverage_file = GeneralCliCommon.echo(engine, f'${{{ENV_COVERAGE_FILE}}}')
+            coverage_file = cli_obj.general.echo(f'${{{ENV_COVERAGE_FILE}}}')
             if not coverage_file:
                 raise Exception('The system is not configured to collect code coverage.\n'
                                 f'The environment variable {ENV_COVERAGE_FILE} is not defined.')
             logger.info(f'Coverage file path: {coverage_file}')
 
         with allure.step('Restart all system services to get coverage for running services'):
-            GeneralCliCommon.systemctl_restart(engine, 'sonic.target')
+            cli_obj.general.systemctl_restart('sonic.target')
             system_helpers.wait_for_all_jobs_done(engine)
 
         coverage_dir = os.path.dirname(coverage_file)
-        hostname = GeneralCliCommon.hostname(engine)
+        hostname = cli_obj.general.hostname()
         timestamp = int(time.time())
         coverage_xml_filename_prefix = f'coverage-{hostname}'
         with allure.step('Create coverage xml report for the host'):
             host_coverage_xml_file = os.path.join(coverage_dir, f'{coverage_xml_filename_prefix}-{timestamp}.xml')
-            create_coverage_xml(engine, coverage_file, host_coverage_xml_file)
+            create_coverage_xml(cli_obj, engine, coverage_file, host_coverage_xml_file)
 
-        containers = GeneralCliCommon.get_running_containers_names(engine)
+        containers = cli_obj.general.get_running_containers_names()
         logger.info(f'Running Docker containers: {containers}')
         for container in containers:
             with allure.step(f'Create coverage xml report for {container} container'):
                 docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
                 container_coverage_xml_file = os.path.join(coverage_dir, f'{coverage_xml_filename_prefix}-{timestamp}-{container}.xml')
-                create_coverage_xml(docker_exec_engine, coverage_file, container_coverage_xml_file)
+                create_coverage_xml(cli_obj, docker_exec_engine, coverage_file, container_coverage_xml_file)
                 coverage_xml_files = system_helpers.list_files(docker_exec_engine, coverage_dir, pattern=coverage_xml_filename_prefix)
                 logger.info(f'Coverage xml files in {container} container: {coverage_xml_files}')
                 for file in coverage_xml_files:
-                    SonicGeneralCli().copy_from_docker(engine, container, file, file)
-                    GeneralCliCommon.rm(docker_exec_engine, file, flags='-f')
+                    cli_obj.general.copy_from_docker(container, file, file)
+                    cli_obj.general.rm(file, flags='-f')
 
         with allure.step(f'Copy coverage xml reports from the system to destination directory'):
             coverage_xml_files = system_helpers.list_files(engine, coverage_dir, pattern=coverage_xml_filename_prefix)
@@ -70,15 +69,16 @@ def test_extract_python_coverage(topology_obj, dest):
                                  dest_file=os.path.join(dest, filename),
                                  file_system=os.path.dirname(file),
                                  direction='get')
-                GeneralCliCommon.rm(engine, file, flags='-f')
+                cli_obj.general.rm(file, flags='-f')
 
     except Exception as err:
         raise AssertionError(err)
 
 
-def create_coverage_xml(engine, coverage_file, coverage_xml_file):
+def create_coverage_xml(cli_obj, engine, coverage_file, coverage_xml_file):
     """
     Checks if coverage files exist, and if so combines them into an xml report.
+    :param cli_obj: cli object
     :param engine: the engine to use
     :param coverage_file: the base name of coverage files.
         For example, with coverage_file='/var/lib/python/coverage/raw', coverage
@@ -95,5 +95,5 @@ def create_coverage_xml(engine, coverage_file, coverage_xml_file):
     if not coverage_files:
         logger.info('Coverage files not found, skipping...')
     else:
-        GeneralCliCommon.coverage_combine(engine)
-        GeneralCliCommon.coverage_xml(engine, coverage_xml_file)
+        cli_obj.general.coverage_combine()
+        cli_obj.general.coverage_xml(coverage_xml_file)

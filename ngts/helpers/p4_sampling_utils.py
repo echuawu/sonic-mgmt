@@ -6,7 +6,6 @@ from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4nspect_utils import get_p4nspect_query_parsed
 from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from datetime import datetime
 import time
 
@@ -20,16 +19,16 @@ TRAFFIC_INTERVAL = P4SamplingConsts.TRAFFIC_INTERVAL
 
 class P4SamplingUtils:
     @staticmethod
-    def clear_statistics(engine):
+    def clear_statistics(cli_obj):
         """
         clear the statistic datas
-        :param engine: ssh engine object
+        :param cli_obj: cli_obj object
         :return: None
         """
         logger.info("Clear the Interface counters before send traffic")
-        SonicInterfaceCli.clear_counters(engine)
+        cli_obj.interface.clear_counters()
         logger.info("Clear the entry counters before send traffic")
-        P4SamplingCli.clear_all_table_counters(engine)
+        cli_obj.p4.clear_all_table_counters()
 
     @staticmethod
     def verify_traffic_hit(topology_obj, engines, interfaces, table_params, count, expect_count):
@@ -100,7 +99,7 @@ class P4SamplingUtils:
                                                                          indices, chksum_type)
         P4SamplingUtils.send_recv_port_table_traffic(topology_obj, port_traffic_params_list, count, expect_count)
         P4SamplingUtils.verify_entry_counter(
-            engine,
+            topology_obj.players['dut']['cli'],
             PORT_TABLE_NAME,
             port_entry_keys,
             expect_count)
@@ -128,13 +127,13 @@ class P4SamplingUtils:
         P4SamplingUtils.send_recv_flow_table_traffic(
             topology_obj, flow_traffic_params_list, count, expect_count)
         P4SamplingUtils.verify_entry_counter(
-            engine,
+            topology_obj.players['dut']['cli'],
             FLOW_TABLE_NAME,
             flow_entry_keys,
             expect_count)
 
     @staticmethod
-    def verify_table_entry(engine, table_name, entries, expected_match=True):
+    def verify_table_entry(engine, cli_obj, table_name, entries, expected_match=True):
         """
         Verify the entries which is added in the table with cli command and p4nspect tool
         :param engine: ssh engine object
@@ -144,16 +143,16 @@ class P4SamplingUtils:
         :return: None
         """
 
-        P4SamplingUtils.verify_cli_table_entry(engine, table_name, entries, expected_match)
+        P4SamplingUtils.verify_cli_table_entry(cli_obj, table_name, entries, expected_match)
         # TODO: un-comment it after the ticket is resolved #2799656:
         #P4SamplingUtils.verify_p4nspect_table_entry(engine, table_name, entries, expected_match)
         engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
 
     @staticmethod
-    def verify_cli_table_entry(engine, table_name, entries, expected_match=True):
+    def verify_cli_table_entry(cli_obj, table_name, entries, expected_match=True):
         """
         Verify the entries which is added in the table with cli command
-        :param engine: ssh engine object
+        :param cli_obj: cli_obj object
         :param table_name: table name
         :param entries: entries params
         :param expected_match: value is True when want to verify the entries added, False to verify the entries removed
@@ -161,7 +160,7 @@ class P4SamplingUtils:
         """
         with allure.step('Get entries with cli command'):
             start_time = datetime.now()
-            entries_added_cli = P4SamplingCli.show_and_parse_table_entries(engine, table_name, exclude_keys=["Rule"])
+            entries_added_cli = cli_obj.p4.show_and_parse_table_entries(table_name, exclude_keys=["Rule"])
             end_time = datetime.now()
             time_used = (end_time - start_time).seconds
             logger.info('Show entries for port table takes {} seconds'.format(time_used))
@@ -303,10 +302,10 @@ class P4SamplingUtils:
             scapy_r.run_validation()
 
     @staticmethod
-    def verify_entry_counter(engine, table_name, entry_keys, expect_count):
+    def verify_entry_counter(cli_obj, table_name, entry_keys, expect_count):
         """
         Verify the counter of the entry
-        :param engine: ssh engine object
+        :param cli_obj: cli_obj object
         :param table_name: table name, flow table name or port table name in p4-sampling
         :param entry_keys: the entry keys to indicate in which entry the counter will be verified
         :param expect_count: expect counter
@@ -314,8 +313,7 @@ class P4SamplingUtils:
         """
 
         time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
-        hit_counters = P4SamplingCli.show_and_parse_table_counters(
-            engine, table_name)
+        hit_counters = cli_obj.p4.show_and_parse_table_counters(table_name)
         for entry_key in entry_keys:
             if not hit_counters:
                 packet_count = 0
@@ -455,9 +453,9 @@ class P4SamplingUtils:
         return "{:#06x}".format(i)
 
     @staticmethod
-    def check_p4_sampling_installed(engine_dut):
-        if SonicAppExtensionCli.verify_version_support_app_ext(engine_dut):
-            app_installed = SonicAppExtensionCli.parse_app_package_list_dict(engine_dut)
+    def check_p4_sampling_installed(cli_obj):
+        if cli_obj.app_ext.verify_version_support_app_ext():
+            app_installed = cli_obj.app_ext.parse_app_package_list_dict()
             if APP_NAME in app_installed:
                 app_install_content = app_installed[APP_NAME]
                 if app_install_content["Status"] == "Installed":

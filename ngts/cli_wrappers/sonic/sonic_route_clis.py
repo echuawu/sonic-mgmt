@@ -6,11 +6,12 @@ from ngts.helpers.network import is_ip_address
 
 class SonicRouteCli(RouteCliCommon):
 
-    @staticmethod
-    def add_del_route(engine, action, dst, via, dst_mask, vrf):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def add_del_route(self, action, dst, via, dst_mask, vrf):
         """
         This method create/remove static IP route
-        :param engine: ssh engine object
         :param action: action which should be executed - add or del
         :param dst: IP address for host or subnet
         :param via: Gateway IP address or interface name
@@ -30,39 +31,33 @@ class SonicRouteCli(RouteCliCommon):
 
         cmd += '{}/{} nexthop {}'.format(dst, dst_mask, via)
 
-        return engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd)
 
-    @staticmethod
-    def add_route(engine, dst, via, dst_mask, vrf=None):
+    def add_route(self, dst, via, dst_mask, vrf=None):
         """
         This method create static IP route
-        :param engine: ssh engine object
         :param dst: IP address for host or subnet
         :param via: Gateway IP address or interface name
         :param dst_mask: mask for dst IP
         :param vrf: vrf name - in case when need to add route in custom vrf
         :return: add_del_route method
         """
-        SonicRouteCli.add_del_route(engine, 'add', dst, via, dst_mask, vrf)
+        self.add_del_route('add', dst, via, dst_mask, vrf)
 
-    @staticmethod
-    def del_route(engine, dst, via, dst_mask, vrf=None):
+    def del_route(self, dst, via, dst_mask, vrf=None):
         """
         This method deletes static IP route
-        :param engine: ssh engine object
         :param dst: IP address for host or subnet
         :param via: Gateway IP address or interface name
         :param dst_mask: mask for dst IP
         :param vrf: vrf name - in case when need to del route in custom vrf
         :return: add_del_route method
         """
-        SonicRouteCli.add_del_route(engine, 'del', dst, via, dst_mask, vrf)
+        self.add_del_route('del', dst, via, dst_mask, vrf)
 
-    @staticmethod
-    def show_ip_route(engine, route_type=None, ipv6=False, route=None, vrf=None):
+    def show_ip_route(self, route_type=None, ipv6=False, route=None, vrf=None):
         """
         This method gets IP routes from device
-        :param engine: ssh engine object
         :param route_type: route type(example: static, bgp)
         :param ipv6: True if need to get IPv6 routes
         :param route: IP address - for which we need to find route(example: 1.1.1.1 or 1.1.1.0/24)
@@ -80,7 +75,7 @@ class SonicRouteCli(RouteCliCommon):
         if route:
             cmd += route
 
-        return engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd)
 
     @staticmethod
     def generate_route_app_data(route_list, mask_list, n_hop_list, ifaces_list, route_app_config_path=None, op='SET'):

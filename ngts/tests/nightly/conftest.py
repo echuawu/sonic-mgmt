@@ -5,7 +5,6 @@ import pytest
 import logging
 
 from retry.api import retry_call
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.helpers import json_file_helper as json_file_helper
 from ngts.constants.constants import InterfacesTypeConstants
 
@@ -89,7 +88,7 @@ def save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, r
     with allure.step('Save configuration and reboot with type: {}'.format(reboot_type)):
         save_configuration(dut_engine, cli_object, cleanup_list)
         logger.info("Reload switch with reboot type: {}".format(reboot_type))
-        cli_object.general.reboot_reload_flow(dut_engine, r_type=reboot_type, ports_list=ports)
+        cli_object.general.reboot_reload_flow(r_type=reboot_type, ports_list=ports)
 
 
 def save_configuration(dut_engine, cli_object, cleanup_list):
@@ -102,7 +101,7 @@ def save_configuration(dut_engine, cli_object, cleanup_list):
     """
     logger.info("saving configuration")
     cleanup_list.append((dut_engine.run_cmd, ('sudo config save -y',)))
-    cli_object.general.save_configuration(dut_engine)
+    cli_object.general.save_configuration()
 
 
 def compare_actual_and_expected(key, expected_val, actual_val):
@@ -142,7 +141,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
           'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
     """
     platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
-    split_mode_supported_speeds = SonicGeneralCli().parse_platform_json(topology_obj, platform_json_info)
+    split_mode_supported_speeds = cli_objects.dut.general.parse_platform_json(topology_obj, platform_json_info)
 
     # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
     convert_100_to_100m_speed(split_mode_supported_speeds)
@@ -150,7 +149,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
         for port in host_ports:
-            port_ethtool_status = host_cli.interface.parse_show_interface_ethtool_status(host_engine, port)
+            port_ethtool_status = host_cli.interface.parse_show_interface_ethtool_status(port)
             port_supported_speeds = port_ethtool_status["supported speeds"]
             if '1G' in port_supported_speeds:
                 port_supported_speeds.remove('1G')
@@ -197,7 +196,7 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
         logger.info('Saving Configuration and preforming {} on dut:'.format(mode))
         if mode == 'reload':
             save_configuration(dut_engine, cli_object, cleanup_list)
-            cli_object.general.reload_flow(dut_engine, ports_list=ports)
+            cli_object.general.reload_flow(ports_list=ports)
         else:
             save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)
 
@@ -237,7 +236,7 @@ def check_cable_compliance_info_updated_for_all_port(topology_obj, engines):
 @pytest.fixture(scope='session')
 def dut_ports_default_speeds_configuration(topology_obj, engines, cli_objects):
     ports = topology_obj.players_all_ports['dut']
-    return cli_objects.dut.interface.get_interfaces_speed(engines.dut, interfaces_list=ports)
+    return cli_objects.dut.interface.get_interfaces_speed(interfaces_list=ports)
 
 
 @pytest.fixture(scope='session')
@@ -266,7 +265,7 @@ def interfaces_status_dict(engines, cli_objects):
     :param cli_objects:  cli objects fixture
     :return: dictionary with parsed output
     """
-    interfaces_status_dict = cli_objects.dut.interface.parse_interfaces_status(engines.dut)
+    interfaces_status_dict = cli_objects.dut.interface.parse_interfaces_status()
     return interfaces_status_dict
 
 

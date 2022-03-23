@@ -26,6 +26,7 @@ class TestFdbBasic:
         self.engines = engines
         self.interfaces = interfaces
         self.players = players
+        self.cli_objects = cli_objects
         self.src_mac = DUMMY_MACS[0]
         self.vlan_id = "40"
         self.receive_packet_counts = [1]
@@ -43,13 +44,13 @@ class TestFdbBasic:
         :param pkt_type: packet type
         """
         with allure.step(f'Host A sends {pkt_type} packet to Host B'):
-            interface_data = gen_test_interface_data(self.engines, self.interfaces, self.vlan_id)
+            interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
             for src_mac in DUMMY_MACS:
                 traffic_validation(self.players, self.interfaces, interface_data, src_mac, pkt_type, self.receive_packet_counts)
 
         with allure.step(f"Verify source mac is saved into fdb table"):
             for src_mac in DUMMY_MACS:
-                verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, src_mac, self.port1)
+                verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id, src_mac, self.port1)
 
     @allure.title('Test fdb aging time expire')
     def test_fdb_aging_time_expire(self, set_fdb_aging_time):
@@ -63,7 +64,7 @@ class TestFdbBasic:
         with allure.step(f'Generate some fdb items'):
             pkt_type = "icmp"
             with allure.step(f'Host A sends {pkt_type} packet to Host B'):
-                interface_data = gen_test_interface_data(self.engines, self.interfaces, self.vlan_id)
+                interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
                 for src_mac in DUMMY_MACS:
                     traffic_validation(self.players, self.interfaces, interface_data, src_mac, pkt_type, self.receive_packet_counts)
 
@@ -72,7 +73,7 @@ class TestFdbBasic:
             logging.info(f" Sleep {fdb_aging_time} to wait fdb aging time expire.....")
             time.sleep(fdb_aging_time)
             for src_mac in DUMMY_MACS:
-                verify_mac_not_in_fdb_table(self.engines, self.vlan_id, src_mac, self.port1)
+                verify_mac_not_in_fdb_table(self.cli_objects.dut, self.vlan_id, src_mac, self.port1)
 
     @allure.title('Test mac move')
     def test_mac_move(self):
@@ -87,15 +88,15 @@ class TestFdbBasic:
         with allure.step(f'Host A sends packet to Host B from ha-dut-1 with tested mac'):
             self.generate_dynamic_fdb_item()
         with allure.step(f'Verify tested mac has been saved into the fdb table with the port dut-ha-1'):
-            verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, self.src_mac, self.port1)
+            verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id, self.src_mac, self.port1)
 
         with allure.step(f"Host A sends packet to Host B from ha-dut-2 with the same mac"):
-            interface_data = gen_test_interface_data(self.engines, self.interfaces, self.vlan_id)
+            interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
             interface_data["sender_interface"] = self.interfaces.ha_dut_2
             traffic_validation(self.players, self.interfaces, interface_data, self.src_mac, "icmp", self.receive_packet_counts)
 
         with allure.step(f"Verify tested mac has been updated into the fdb table with port dut-ha-2"):
-            verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, self.src_mac, self.port2)
+            verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id, self.src_mac, self.port2)
 
     @allure.title('Test fdb forwarding when destination mac in fdb table')
     def test_fdb_forwarding_with_destination_mac_in_fdb_table(self):
@@ -109,7 +110,7 @@ class TestFdbBasic:
         with allure.step('Generate destination mac of Host B in fdb table'):
             self.generate_destination_fdb_item()
         with allure.step('Host A send packet to Host B'):
-            interface_data = gen_test_interface_data(self.engines, self.interfaces, self.vlan_id)
+            interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
             receive_packet_counts = [1, 0]
             traffic_validation(self.players, self.interfaces, interface_data, self.src_mac, "icmp", receive_packet_counts)
 
@@ -122,7 +123,7 @@ class TestFdbBasic:
         3. Verify the packet will broadcast
         """
         with allure.step("Verify the packet will be broadcast from the corresponding port"):
-            interface_data = gen_test_interface_data(self.engines, self.interfaces, self.vlan_id)
+            interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
             interface_data["dst_mac"] = DUMMY_MACS[1]
             interface_data["receiver_interface"] = self.interfaces.hb_dut_2
             receive_packet_counts = [1, 1]
@@ -165,7 +166,7 @@ class TestFdbBasic:
             with allure.step("Generate one dynamic fdb item with the same mac"):
                 self.generate_dynamic_fdb_item()
             with allure.step("Verify static fdb is not updated"):
-                verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, self.src_mac, self.port2, fdb_type="static")
+                verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id, self.src_mac, self.port2, fdb_type="static")
 
         except Exception as err:
             raise AssertionError(err)
@@ -186,8 +187,9 @@ class TestFdbBasic:
 
         with allure.step(f'Verify tested mac has been save into the fdb table with the port dut-ha-1'):
             port = self.interfaces.dut_hb_1
-            src_mac = SonicMacCli.get_mac_address_for_interface(self.engines.hb, self.interfaces.hb_dut_1)
-            verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, src_mac, port)
+            cli_obj = self.topology_obj.players['hb']['cli']
+            src_mac = cli_obj.mac.get_mac_address_for_interface(self.interfaces.hb_dut_1)
+            verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id, src_mac, port)
 
     def send_packet_from_hb(self):
         """
@@ -223,13 +225,13 @@ class TestFdbBasic:
         """
         fdb_conf_set = SonicMacCli.generate_fdb_config(1, self.vlan_id, self.port2, "SET", fdb_type="static")
         SwssContainer.apply_config(self.engines.dut, fdb_conf_set)
-        verify_mac_saved_to_fdb_table(self.engines, self.vlan_id, self.src_mac, self.port2, fdb_type="static")
+        verify_mac_saved_to_fdb_table(self.cli_objects.dut, self.vlan_id, self.src_mac, self.port2, fdb_type="static")
 
     def generate_dynamic_fdb_item(self):
         """
         Generate dynamic fdb item
         """
-        interface_data = gen_test_interface_data(self.engines, self.interfaces, self.vlan_id)
+        interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
         traffic_validation(self.players, self.interfaces, interface_data, self.src_mac, "icmp", self.receive_packet_counts)
 
     def delete_static_fdb_item(self):
@@ -238,4 +240,4 @@ class TestFdbBasic:
         """
         fdb_conf_set = SonicMacCli.generate_fdb_config(1, self.vlan_id, self.port2, "DEL", fdb_type="static")
         SwssContainer.apply_config(self.engines.dut, fdb_conf_set)
-        verify_mac_not_in_fdb_table(self.engines, self.vlan_id, self.src_mac, self.port2, fdb_type="static")
+        verify_mac_not_in_fdb_table(self.cli_objects.dut, self.vlan_id, self.src_mac, self.port2, fdb_type="static")

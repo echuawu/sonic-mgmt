@@ -133,10 +133,10 @@ def generate_acl_table_config(stage, ip_version, port_list, is_mirror=False):
     return acl_table_config
 
 
-def add_acl_table(dut_engine, acl_table_config_list):
+def add_acl_table(cli_obj, acl_table_config_list):
     """
     Create or remove the acl tables
-    :param dut_engine: dut engine ssh object
+    :param cli_obj: dut cli_obj object
     :param acl_table_config_list: acl_table_config_list fixture, which is a list of value returned from generate_acl_table
     :return: None
     """
@@ -147,23 +147,23 @@ def add_acl_table(dut_engine, acl_table_config_list):
         table_type = acl_table_config['table_type']
         stage = acl_table_config['table_stage']
         description = ""
-        SonicAclCli.create_table(dut_engine, table_name, table_type, description, stage, table_ports)
+        cli_obj.acl.create_table(table_name, table_type, description, stage, table_ports)
 
 
-def remove_acl_table(dut_engine, acl_table_config_list):
+def remove_acl_table(cli_obj, acl_table_config_list):
     """
     Remove the acl tables
-    :param dut_engine: dut engine ssh object
+    :param cli_obj: dut cli_obj object
     :param acl_table_config_list: acl_table_config_list fixture, which is a list of value returned from generate_acl_table
     :return: None
     """
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config["table_name"]
         logger.info(f"Removing ACL table: {table_name}")
-        SonicAclCli.remove_table(dut_engine, table_name)
+        cli_obj.acl.remove_table(table_name)
 
 
-def add_acl_rules(dut_engine, acl_table_config_list):
+def add_acl_rules(dut_engine, cli_obj, acl_table_config_list):
     """
     Add the acl rules according to the acl rules defined in the template file, the acl rule template file name for
     each acl table is defined in the acl_table_config_list
@@ -188,10 +188,10 @@ def add_acl_rules(dut_engine, acl_table_config_list):
                              overwrite_file=True,
                              verify_file=False)
         logger.info(f"Applying ACL rules config \"{dut_conf_file_path}\"")
-        SonicAclCli.apply_acl_rules(dut_engine, dut_conf_file_path)
+        cli_obj.acl.apply_acl_rules(dut_conf_file_path)
 
 
-def clear_acl_rules(dut_engine):
+def clear_acl_rules(dut_engine, cli_obj):
     """
     Remove all the acl rules
     :param dut_engine: dut engine ssh object
@@ -205,18 +205,18 @@ def clear_acl_rules(dut_engine):
                          overwrite_file=True,
                          verify_file=False)
     logger.info(f"Tear down ACL rules config \"{dut_conf_file_path}\"")
-    SonicAclCli.apply_config(dut_engine, dut_conf_file_path)
+    cli_obj.acl.apply_config(dut_conf_file_path)
 
 
-def verify_acl_tables_exist(dut_engine, acl_table_config_list, expect_exist):
+def verify_acl_tables_exist(cli_obj, acl_table_config_list, expect_exist):
     """
     Check if the ACL tables exist or not.
-    :param dut_engine: dut engine ssh object
+    :param cli_obj: dut cli_obj object
     :param acl_table_config_list: acl_table_config_list fixture object
     :param expect_exist: True if expect the tables exist, False if not expect the ACL tables exist
     :return: None
     """
-    acl_tables = SonicAclCli.show_and_parse_acl_table(dut_engine)
+    acl_tables = cli_obj.acl.show_and_parse_acl_table()
 
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config['table_name']
@@ -226,15 +226,15 @@ def verify_acl_tables_exist(dut_engine, acl_table_config_list, expect_exist):
             assert (table_name not in acl_tables, f"{table_name} is not removed correctly")
 
 
-def verify_acl_rules(dut_engine, acl_table_config_list, expect_exist):
+def verify_acl_rules(cli_obj, acl_table_config_list, expect_exist):
     """
     Check if the ACL rules exist or not, and check if the content of the rules are same as defined.
-    :param dut_engine: dut engine ssh object
+    :param cli_obj: dut cli_obj object
     :param acl_table_config_list: acl_table_config_list fixture object
     :param expect_exist: True if expect  ACL rules exist, False if not expect the ACL rules exist
     :return: None
     """
-    acl_table_rules = SonicAclCli.show_and_parse_acl_rule(dut_engine)
+    acl_table_rules = cli_obj.acl.show_and_parse_acl_rule()
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config['table_name']
         acl_rule_list = acl_table_rules[table_name] if table_name in acl_table_rules else []
@@ -359,6 +359,7 @@ def verify_acl_traffic(topology_obj, dut_engine, traffic_params, rule_name, is_m
     """
     traffic_type = traffic_params['traffic_type']
     table_name = traffic_params['table_name']
+    cli_obj = topology_obj.players['dut']['cli']
     if traffic_type == 'udp':
         pkt, pkt_filter = generate_udp_pkt(traffic_params)
     elif traffic_type == 'icmp':
@@ -366,7 +367,7 @@ def verify_acl_traffic(topology_obj, dut_engine, traffic_params, rule_name, is_m
     else:
         pkt, pkt_filter = generate_tcp_pkt(traffic_params)
     logger.info(f"The pkt to be sent is: {pkt}")
-    SonicAclCli.clear_acl_counters(dut_engine, table_name)
+    cli_obj.acl.clear_acl_counters(table_name)
     logger.info("dump the flex acl with sx_api_flex_acl_dump before sending traffic")
     dut_engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
     send_recv_traffic(topology_obj, traffic_params, pkt, pkt_filter, expect_received)
@@ -374,7 +375,7 @@ def verify_acl_traffic(topology_obj, dut_engine, traffic_params, rule_name, is_m
     dut_engine.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'")
     acl_rule_expect_match_count = ACLConstants.PKT_COUNT if is_match else 0
     retry_call(verify_acl_rule_count,
-               fargs=[dut_engine, table_name, rule_name, acl_rule_expect_match_count],
+               fargs=[cli_obj, table_name, rule_name, acl_rule_expect_match_count],
                tries=10,
                delay=2,
                logger=logger)
@@ -464,18 +465,18 @@ def send_recv_traffic(topology_obj, traffic_params, pkt, pkt_filter, expect_rece
     scapy_r.run_validation()
 
 
-def verify_acl_rule_count(dut_engine, table_name, rule_name, expected_count):
+def verify_acl_rule_count(cli_obj, table_name, rule_name, expected_count):
     """
     Verify the acl rule count get from the cli command is as expected, if the rule_name is given,
      then verify the pkt count  in specified acl rule equal to expected_count, if rule_name is empty,
      then verify all the acl rules have same pkt count as expected_count, and expected_count is 0.
-    :param dut_engine: dut engine ssh object
+    :param cli_obj: dut cli_obj object
     :param table_name: ACL table name
     :param rule_name: acl rule name
     :param expected_count: expected match packet count
     :return: None
     """
-    acl_rules = SonicAclCli.show_and_parse_acl_rules_counters(dut_engine, table_name)
+    acl_rules = cli_obj.acl.show_and_parse_acl_rules_counters(table_name)
     acl_pkt_count = 0
     for acl_rule in acl_rules[table_name]:
         if rule_name:

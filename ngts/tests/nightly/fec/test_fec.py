@@ -7,7 +7,6 @@ from retry import retry
 from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, compare_actual_and_expected, save_configuration
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts
@@ -37,8 +36,8 @@ class TestFec:
         self.engines = engines
         self.is_simx = "simx" in platform_params.setup_name
         self.cli_objects = cli_objects
-        self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface(self.engines.dut, "eth0")
-        self.dut_hostname = self.cli_objects.dut.chassis.get_hostname(self.engines.dut)
+        self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface("eth0")
+        self.dut_hostname = self.cli_objects.dut.chassis.get_hostname()
         self.tested_lb_dict = tested_lb_dict
         self.tested_lb_dict_for_bug_2705016_flow = tested_lb_dict_for_bug_2705016_flow
         self.tested_dut_to_host_conn = tested_dut_to_host_conn
@@ -81,8 +80,8 @@ class TestFec:
             ip_conf = self.set_peer_port_ip_conf(cleanup_list)
 
         with allure.step("Configure FEC on host - dut connectivities"):
-                logger.info("Configure FEC on host - dut connectivities")
-                self.configure_fec_mode_on_host(cleanup_list)
+            logger.info("Configure FEC on host - dut connectivities")
+            self.configure_fec_mode_on_host(cleanup_list)
 
         with allure.step("Configure and verify FEC with all speed options on dut - host ports"):
             logger.info("Configure and verify FEC with all speed options on dut - host ports")
@@ -150,10 +149,10 @@ class TestFec:
         with allure.step("Verify FEC on dut - host connectivity is UP after correct FEC configuration"):
             self.verify_fec_configuration(conf, lldp_checker=False)
             retry_call(self.verify_fec_configuration_on_host_port,
-                       fargs=[conf[dut_host_port], self.cli_objects.ha, self.engines.ha, self.interfaces.ha_dut_1],
+                       fargs=[conf[dut_host_port], self.cli_objects.ha, self.interfaces.ha_dut_1],
                        tries=6, delay=10, logger=logger)
 
-    def test_fec_bug_2705016(self, cleanup_list, skip_if_active_optical_cable):
+    def test_fec_bug_2705016(self, cli_objects, cleanup_list, skip_if_active_optical_cable):
         reboot_type = 'warm-reboot'
         tested_ports = get_tested_lb_dict_tested_ports(self.tested_lb_dict_for_bug_2705016_flow)
         ports_for_toggle_flow, ports_for_disable_enable_flow = \
@@ -175,7 +174,7 @@ class TestFec:
         with allure.step("Save configuration and warm reboot"):
             save_configuration(self.engines.dut, self.cli_objects.dut, cleanup_list)
             self.engines.dut.reload(['sudo {}'.format(reboot_type)], wait_after_ping=45)
-            SonicGeneralCli().verify_dockers_are_up(self.engines.dut, SonicConst.DOCKERS_LIST)
+            cli_objects.dut.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
 
         with allure.step("Toggle ports: {}".format(ports_for_toggle_flow)):
             self.toggle_ports(ports_for_toggle_flow, cleanup_list)
@@ -184,7 +183,7 @@ class TestFec:
             self.enable_ports(ports_for_disable_enable_flow)
 
         with allure.step("Verify ports: {} are up".format(tested_ports)):
-            SonicGeneralCli().check_link_state(self.engines.dut, tested_ports)
+            cli_objects.dut.interface.check_link_state(tested_ports)
 
         self.verify_fec_configuration(conf)
 
@@ -209,19 +208,19 @@ class TestFec:
     def disable_ports(self, ports, cleanup_list):
         logger.info("Disable ports: {}".format(ports))
         for port in ports:
-            cleanup_list.append((self.cli_objects.dut.interface.enable_interface, (self.engines.dut, port)))
-            self.cli_objects.dut.interface.disable_interface(self.engines.dut, port)
+            cleanup_list.append((self.cli_objects.dut.interface.enable_interface, (port,)))
+            self.cli_objects.dut.interface.disable_interface(port,)
 
     def enable_ports(self, ports):
         logger.info("Enable ports: {}".format(ports))
         for port in ports:
-            self.cli_objects.dut.interface.enable_interface(self.engines.dut, port)
+            self.cli_objects.dut.interface.enable_interface(port)
 
     def toggle_port(self, port, cleanup_list):
         logger.info("Toggle port: {}".format(port))
-        cleanup_list.append((self.cli_objects.dut.interface.enable_interface, (self.engines.dut, port)))
-        self.cli_objects.dut.interface.disable_interface(self.engines.dut, port)
-        self.cli_objects.dut.interface.enable_interface(self.engines.dut, port)
+        cleanup_list.append((self.cli_objects.dut.interface.enable_interface, (port,)))
+        self.cli_objects.dut.interface.disable_interface(port)
+        self.cli_objects.dut.interface.enable_interface(port)
 
     def set_peer_port_ip_conf(self, cleanup_list):
         """
@@ -347,7 +346,7 @@ class TestFec:
         if not self.is_simx:
             with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}"):
                 logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on host dut port: {host_dut_port}")
-                self.verify_fec_configuration_on_host_port(dut_host_conf[dut_host_port], cli_object, engine, host_dut_port)
+                self.verify_fec_configuration_on_host_port(dut_host_conf[dut_host_port], cli_object, host_dut_port)
         with allure.step("Verify traffic on dut - host connectivity"):
             traffic_validation = ip_conf[dut_host_port]
             retry_call(
@@ -390,9 +389,9 @@ class TestFec:
         with allure.step("Configure FEC mode: {} on host port: {} on host: {}".format(fec_mode,
                                                                                       interface,
                                                                                       engine.ip)):
-            cleanup_list.append((cli_object.interface.configure_interface_fec, (engine, interface,
+            cleanup_list.append((cli_object.interface.configure_interface_fec, (interface,
                                                                                 LinuxConsts.FEC_AUTO_MODE)))
-            cli_object.interface.configure_interface_fec(engine, interface, fec_option=fec_mode)
+            cli_object.interface.configure_interface_fec(interface, fec_option=fec_mode)
 
     def verify_fec_configuration_on_host(self, conf):
         for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
@@ -401,12 +400,12 @@ class TestFec:
             interface = tested_dut_host_conn_dict["host_port"]
             dut_port = tested_dut_host_conn_dict["dut_port"]
             expected_conf = conf[dut_port]
-            self.verify_fec_configuration_on_host_port(expected_conf, cli_object, engine, interface)
+            self.verify_fec_configuration_on_host_port(expected_conf, cli_object, interface)
 
     @retry(Exception, tries=6, delay=10)
-    def verify_fec_configuration_on_host_port(self, expected_conf, cli_object, engine, interface):
-        actual_speed = cli_object.interface.parse_show_interface_ethtool_status(engine, interface)["speed"]
-        actual_fec_mode = cli_object.interface.parse_interface_fec(engine, interface)[LinuxConsts.ACTIVE_FEC]
+    def verify_fec_configuration_on_host_port(self, expected_conf, cli_object, interface):
+        actual_speed = cli_object.interface.parse_show_interface_ethtool_status(interface)["speed"]
+        actual_fec_mode = cli_object.interface.parse_interface_fec(interface)[LinuxConsts.ACTIVE_FEC]
         actual_host_port_conf = {
             AutonegCommandConstants.SPEED: actual_speed,
             AutonegCommandConstants.FEC: actual_fec_mode
@@ -416,8 +415,7 @@ class TestFec:
     def validate_traffic(self, ip_conf):
         """
         send ping between dut and host and validate the results
-        :param topology_obj: topology object fixture
-        :param interfaces: dut <-> hosts interfaces fixture
+        :param ip_conf: ip_conf
         :return: raise assertion errors in case of validation errors
         """
         for dut_host_port, traffic_validation in ip_conf.items():
@@ -439,10 +437,10 @@ class TestFec:
                                   interface_type, cleanup_list, set_cleanup=True):
         if set_cleanup:
             self.set_speed_fec_cleanup(port, cleanup_list)
-        self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, 'none')
-        self.cli_objects.dut.interface.set_interface_speed(self.engines.dut, port, speed)
-        self.cli_objects.dut.interface.config_interface_type(self.engines.dut, port, interface_type)
-        self.cli_objects.dut.interface.configure_interface_fec(self.engines.dut, port, tested_fec_mode)
+        self.cli_objects.dut.interface.config_interface_type(port, 'none')
+        self.cli_objects.dut.interface.set_interface_speed(port, speed)
+        self.cli_objects.dut.interface.config_interface_type(port, interface_type)
+        self.cli_objects.dut.interface.configure_interface_fec(port, tested_fec_mode)
         conf[port] = {AutonegCommandConstants.SPEED: speed,
                       AutonegCommandConstants.FEC: tested_fec_mode,
                       AutonegCommandConstants.WIDTH: self.get_interface_width(interface_type),
@@ -471,19 +469,19 @@ class TestFec:
         base_speed = self.dut_ports_basic_speeds_configuration[port]
         base_fec = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.FEC]
         base_interface_type = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE]
-        cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (self.engines.dut, port,
+        cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (port,
                                                                                     'none')))
-        cleanup_list.append((self.cli_objects.dut.interface.set_interface_speed, (self.engines.dut, port, base_speed)))
-        cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (self.engines.dut, port,
+        cleanup_list.append((self.cli_objects.dut.interface.set_interface_speed, (port, base_speed)))
+        cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (port,
                                                                                     base_interface_type)))
-        cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (self.engines.dut,
-                                                                                      port, base_fec)))
+        cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (port, base_fec)))
 
     def update_conf(self, conf):
         for port, port_conf in conf.items():
             base_speed = self.dut_ports_basic_speeds_configuration[port]
             base_fec = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.FEC]
-            base_width = self.get_interface_width(self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE])
+            base_width = \
+                self.get_interface_width(self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE])
             conf[port][AutonegCommandConstants.SPEED] = base_speed
             conf[port][AutonegCommandConstants.FEC] = base_fec
             conf[port][AutonegCommandConstants.WIDTH] = base_width
@@ -510,22 +508,21 @@ class TestFec:
         port_number = self.dut_ports_number_dict[port]
         with allure.step('Verify FEC configuration on port: {} with mlxlink command'.format(port)):
             logger.info('Verify FEC configuration on port: {} with mlxlink command'.format(port))
-            mlxlink_actual_conf = self.cli_objects.dut.interface.parse_port_mlxlink_status(self.engines.dut,
-                                                                                           self.pci_conf,
+            mlxlink_actual_conf = self.cli_objects.dut.interface.parse_port_mlxlink_status(self.pci_conf,
                                                                                            port_number)
             self.compare_actual_and_expected_fec_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf)
 
     def verify_interfaces_status_cmd_output_for_port(self, port, port_conf_dict):
         with allure.step('Verify FEC configuration on port: {} with show interfaces command'.format(port)):
             logger.info('Verify FEC configuration on port: {} with show interfaces command'.format(port))
-            interface_status_actual_conf = self.cli_objects.dut.interface.parse_interfaces_status(self.engines.dut)[port]
+            interface_status_actual_conf = self.cli_objects.dut.interface.parse_interfaces_status()[port]
             self.compare_actual_and_expected_fec_output(expected_conf=port_conf_dict,
                                                         actual_conf=interface_status_actual_conf)
 
     def verify_interfaces_status_on_lldp_table(self, port):
         with allure.step(f'Verify LLDP neighbor info on port: {port} with show lldp neighbor command'):
             logger.info(f'Verify LLDP neighbor info on port: {port} with show lldp neighbor command')
-            lldp_info = self.cli_objects.dut.lldp.parse_lldp_info_for_specific_interface(self.engines.dut, port)
+            lldp_info = self.cli_objects.dut.lldp.parse_lldp_info_for_specific_interface(port)
             port_neighbor = self.dut_ports_interconnects[port]
             verify_lldp_neighbor_info_for_sonic_port(port, lldp_info, self.dut_hostname, self.dut_mac, port_neighbor)
 

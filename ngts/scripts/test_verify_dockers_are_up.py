@@ -2,7 +2,6 @@
 import allure
 import logging
 import pytest
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -17,7 +16,7 @@ def test_verify_dockers_are_up(topology_obj, dockers_list):
     :return: raise assertion error in case of script failure
     """
     try:
-        dut_engine = topology_obj.players['dut']['engine']
-        SonicGeneralCli().verify_dockers_are_up(dut_engine, dockers_list)
+        cli_obj = topology_obj.players['dut']['cli']
+        cli_obj.general.verify_dockers_are_up(dockers_list)
     except Exception as err:
         raise AssertionError(err)

@@ -9,9 +9,10 @@ class SonicVlanCli:
 
     def __new__(cls, **kwargs):
         branch = kwargs['branch']
+        engine = kwargs['engine']
 
-        supported_cli_classes = {'default': SonicVlanCliDefault(),
-                                 '202012': SonicVlanCli202012()}
+        supported_cli_classes = {'default': SonicVlanCliDefault(engine),
+                                 '202012': SonicVlanCli202012(engine)}
 
         cli_class = supported_cli_classes.get(branch, supported_cli_classes['default'])
         cli_class_name = cli_class.__class__.__name__
@@ -22,26 +23,25 @@ class SonicVlanCli:
 
 class SonicVlanCliDefault(VlanCliCommon):
 
-    @staticmethod
-    def configure_vlan_and_add_ports(engine, vlan_info):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def configure_vlan_and_add_ports(self, vlan_info):
         """
         Method which adding VLAN and ports to VLAN on SONiC device
-        :param engine: ssh engine object
         :param vlan_info: vlan info dictionary
         {'vlan_id': vlan id, 'vlan_members': [{port name: vlan mode}]}
         Example: {'vlan_id': 500, 'vlan_members': [{eth1: 'trunk'}]}
         :return: command output
         """
-        SonicVlanCliDefault.add_vlan(engine, vlan_info['vlan_id'])
+        self.add_vlan(vlan_info['vlan_id'])
         for vlan_port_and_mode_dict in vlan_info['vlan_members']:
             for vlan_port, mode in vlan_port_and_mode_dict.items():
-                SonicVlanCliDefault.add_port_to_vlan(engine, vlan_port, vlan_info['vlan_id'], mode)
+                self.add_port_to_vlan(vlan_port, vlan_info['vlan_id'], mode)
 
-    @staticmethod
-    def delete_vlan_and_remove_ports(engine, vlan_info):
+    def delete_vlan_and_remove_ports(self, vlan_info):
         """
         Method which remove ports from VLANs and VLANs on SONiC device
-        :param engine: ssh engine object
         :param vlan_info: vlan info dictionary
         {'vlan_id': vlan id, 'vlan_members': [{port name: vlan mode}]}
         Example: {'vlan_id': 500, 'vlan_members': [{eth1: 'trunk'}]}
@@ -49,126 +49,104 @@ class SonicVlanCliDefault(VlanCliCommon):
         """
         for vlan_port_and_mode_dict in vlan_info['vlan_members']:
             for vlan_port, mode in vlan_port_and_mode_dict.items():
-                SonicVlanCliDefault.del_port_from_vlan(engine, vlan_port, vlan_info['vlan_id'])
-        SonicVlanCliDefault.del_vlan(engine, vlan_info['vlan_id'])
+                self.del_port_from_vlan(vlan_port, vlan_info['vlan_id'])
+        self.del_vlan(vlan_info['vlan_id'])
 
-    @staticmethod
-    def add_vlan(engine, vlan):
+    def add_vlan(self, vlan):
         """
         Method which adding VLAN to SONiC dut
-        :param engine: ssh engine object
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan add {}".format(vlan))
+        return self.engine.run_cmd("sudo config vlan add {}".format(vlan))
 
-    @staticmethod
-    def del_vlan(engine, vlan):
+    def del_vlan(self, vlan):
         """
         Method which removing VLAN from SONiC dut
-        :param engine: ssh engine object
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan del {}".format(vlan))
+        return self.engine.run_cmd("sudo config vlan del {}".format(vlan))
 
-    @staticmethod
-    def add_port_to_vlan(engine, port, vlan, mode='trunk'):
+    def add_port_to_vlan(self, port, vlan, mode='trunk'):
         """
         Method which adding physical port to VLAN on SONiC dut
-        :param engine: ssh engine object
         :param port: network port which should be VLAN member
         :param vlan: vlan ID
         :param mode: port mode - access or trunk
         :return: command output
         """
         if mode == 'trunk':
-            return engine.run_cmd("sudo config vlan member add {} {}".format(vlan, port))
+            return self.engine.run_cmd("sudo config vlan member add {} {}".format(vlan, port))
         elif mode == 'access':
-            return engine.run_cmd("sudo config vlan member add --untagged {} {}".format(vlan, port))
+            return self.engine.run_cmd("sudo config vlan member add --untagged {} {}".format(vlan, port))
         else:
             raise Exception('Incorrect port mode: "{}" provided, expected "trunk" or "access"')
 
-    @staticmethod
-    def del_port_from_vlan(engine, port, vlan):
+    def del_port_from_vlan(self, port, vlan):
         """
         Method which deleting physical port from VLAN on SONiC dut
-        :param engine: ssh engine object
         :param port: network port which should be deleted from VLAN members
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan member del {} {}".format(vlan, port))
+        return self.engine.run_cmd("sudo config vlan member del {} {}".format(vlan, port))
 
-    @staticmethod
-    def show_vlan_config(engine):
+    def show_vlan_config(self):
         """
         This method performs show vlan command
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd("show vlan config")
+        return self.engine.run_cmd("show vlan config")
 
-    @staticmethod
-    def shutdown_vlan(engine, vlan):
+    def shutdown_vlan(self, vlan):
         """
         This method is to shutdown vlan
-        :param engine: ssh engine object
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo ip link set dev Vlan{} down".format(vlan))
+        return self.engine.run_cmd("sudo ip link set dev Vlan{} down".format(vlan))
 
-    @staticmethod
-    def startup_vlan(engine, vlan):
+    def startup_vlan(self, vlan):
         """
         This method is to startup vlan
-        :param engine: ssh engine object
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo ip link set dev Vlan{} up".format(vlan))
+        return self.engine.run_cmd("sudo ip link set dev Vlan{} up".format(vlan))
 
-    @staticmethod
-    def disable_vlan_arp_proxy(engine, vlan):
+    def disable_vlan_arp_proxy(self, vlan):
         """
         This method is to disable arp proxy in vlan
-        :param engine: ssh engine object
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan proxy_arp {} disabled".format(vlan), validate=True)
+        return self.engine.run_cmd("sudo config vlan proxy_arp {} disabled".format(vlan), validate=True)
 
-    @staticmethod
-    def enable_vlan_arp_proxy(engine, vlan):
+    def enable_vlan_arp_proxy(self, vlan):
         """
         This method is to enable arp proxy in vlan
-        :param engine: ssh engine object
         :param vlan: vlan ID
         :return: command output
         """
-        return engine.run_cmd("sudo config vlan proxy_arp {} enabled".format(vlan), validate=True)
+        return self.engine.run_cmd("sudo config vlan proxy_arp {} enabled".format(vlan), validate=True)
 
-    @staticmethod
-    def show_vlan_brief(engine):
+    def show_vlan_brief(self):
         """
         This method performs "show vlan brief"
-        :param engine: ssh engine object
         :return: command output
         """
-        return engine.run_cmd("show vlan brief")
+        return self.engine.run_cmd("show vlan brief")
 
-    @staticmethod
-    def get_show_vlan_brief_parsed_output(engine, show_vlan_brief_output=None):
+    def get_show_vlan_brief_parsed_output(self, show_vlan_brief_output=None):
         """
         This method parses the "show vlan brief" output and returns a dictionary with the parsed data
-        :param engine: ssh engine object
         :param show_vlan_brief_output: output from command "show vlan brief"
         :return: dictionary with parsed data
         """
         if not show_vlan_brief_output:
-            show_vlan_brief_output = SonicVlanCliDefault.show_vlan_brief(engine)
-        show_vlan_brief_parsed_dict = SonicVlanCliDefault.show_vlan_brief_parser(show_vlan_brief_output)
+            show_vlan_brief_output = self.show_vlan_brief()
+        show_vlan_brief_parsed_dict = self.show_vlan_brief_parser(show_vlan_brief_output)
         return show_vlan_brief_parsed_dict
 
     @staticmethod
@@ -240,17 +218,16 @@ class SonicVlanCliDefault(VlanCliCommon):
 
 class SonicVlanCli202012(SonicVlanCliDefault):
 
-    @staticmethod
-    def get_show_vlan_brief_parsed_output(engine, show_vlan_brief_output=None):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def get_show_vlan_brief_parsed_output(self, show_vlan_brief_output=None):
         """
-        This method parses the "show vlan brief" output and returns a dictionary with the parsed data
-        :param engine: ssh engine object
         :param show_vlan_brief_output: output from command "show vlan brief"
         :return: dictionary with parsed data
         """
         if not show_vlan_brief_output:
-            show_vlan_brief_output = SonicVlanCli202012.show_vlan_brief(engine)
-        show_vlan_brief_parsed_dict = SonicVlanCli202012.show_vlan_brief_parser(show_vlan_brief_output,
-                                                                                proxy_arp_index=5,
-                                                                                dhcp_server_index=4)
+            show_vlan_brief_output = self.show_vlan_brief()
+        show_vlan_brief_parsed_dict = self.show_vlan_brief_parser(show_vlan_brief_output, proxy_arp_index=5,
+                                                                  dhcp_server_index=4)
         return show_vlan_brief_parsed_dict

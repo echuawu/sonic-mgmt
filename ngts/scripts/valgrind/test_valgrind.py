@@ -109,7 +109,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
         docker_processes = valgrind_config[DOCKER_PROCESSES_KEY]
         if docker_processes:
             with allure.step('Verify containers are up: {}'.format(docker_processes.keys())):
-                SonicGeneralCli().verify_dockers_are_up(engine, docker_processes.keys())
+                SonicGeneralCli(engine=engine).verify_dockers_are_up(docker_processes.keys())
 
             for (container, processes) in docker_processes.items():
                 docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
@@ -117,7 +117,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
                     clear_valgrind_dir(docker_exec_engine)
 
                     with allure.step(f'Copy valgrind runner into {container} container at {VALGRIND_RUNNER_PATH}'):
-                        SonicGeneralCli().copy_to_docker(engine, container, VALGRIND_RUNNER_PATH, VALGRIND_RUNNER_PATH)
+                        SonicGeneralCli(engine=engine).copy_to_docker(container, VALGRIND_RUNNER_PATH, VALGRIND_RUNNER_PATH)
 
                     with allure.step(f'Install valgrind on {container} container processes: {processes}'):
                         install_valgrind(docker_exec_engine, processes)
@@ -131,7 +131,7 @@ def install_uninstall_valgrind(topology_obj, valgrind_config, install):
 
         if docker_processes:
             with allure.step('Verify containers are up: {}'.format(docker_processes.keys())):
-                SonicGeneralCli().verify_dockers_are_up(engine, docker_processes.keys())
+                SonicGeneralCli(engine=engine).verify_dockers_are_up(docker_processes.keys())
 
     except Exception as err:
         raise AssertionError(err)
@@ -154,9 +154,9 @@ def clear_valgrind_dir(engine):
         to act on a Docker container.
     """
     with allure.step(f'Clear valgrind dir at {VALGRIND_DIR}'):
-        GeneralCliCommon.rm(engine, VALGRIND_DIR, flags='-rf')
-        GeneralCliCommon.mkdir(engine, VALGRIND_DIR, flags='-p')
-        GeneralCliCommon.chmod_by_mode(engine, VALGRIND_DIR, '777', flags='-R')
+        GeneralCliCommon(engine=engine).rm(VALGRIND_DIR, flags='-rf')
+        GeneralCliCommon(engine=engine).mkdir(VALGRIND_DIR, flags='-p')
+        GeneralCliCommon(engine=engine).chmod_by_mode(VALGRIND_DIR, '777', flags='-R')
 
 
 def install_valgrind_package(engine):
@@ -165,11 +165,11 @@ def install_valgrind_package(engine):
     :param engine: the engine to use.
     """
     with allure.step("Install valgrind package"):
-        if GeneralCliCommon.which(engine, 'valgrind'):
+        if GeneralCliCommon(engine=engine).which('valgrind'):
             logger.info('Valgrind package is already installed, skipping...')
         else:
-            GeneralCliCommon.apt_update(engine)
-            GeneralCliCommon.apt_install(engine, 'valgrind', '-y')
+            GeneralCliCommon(engine=engine).apt_update()
+            GeneralCliCommon(engine=engine).apt_install('valgrind', '-y')
             get_process_path(engine, 'valgrind')  # sanity check
 
 
@@ -181,7 +181,7 @@ def get_process_path(engine, process):
     :return: the absolute path of the process.
     :raise Exception: if the process was not found.
     """
-    path = GeneralCliCommon.which(engine, process)
+    path = GeneralCliCommon(engine=engine).which(process)
     if not path:
         raise Exception(f'Process {process} not found')
     return path
@@ -205,10 +205,10 @@ def install_valgrind(engine, processes):
                 logger.info(f'Valgrind is already installed for process {process}, skipping...')
             else:
                 new_process_path = f'{process_path}.bin'
-                GeneralCliCommon.mv(engine, process_path, new_process_path)
-                GeneralCliCommon.cp(engine, VALGRIND_RUNNER_PATH, process_path)
-                GeneralCliCommon.chown_by_ref_file(engine, process_path, new_process_path)
-                GeneralCliCommon.chmod_by_ref_file(engine, process_path, new_process_path)
+                GeneralCliCommon(engine=engine).mv(process_path, new_process_path)
+                GeneralCliCommon(engine=engine).cp(VALGRIND_RUNNER_PATH, process_path)
+                GeneralCliCommon(engine=engine).chown_by_ref_file(process_path, new_process_path)
+                GeneralCliCommon(engine=engine).chmod_by_ref_file(process_path, new_process_path)
                 if not is_valgrind_installed_for_process(engine, process_path):
                     raise Exception(f'Failed to install valgrind for process {process}')
 
@@ -229,7 +229,7 @@ def uninstall_valgrind(engine, processes):
                 logger.info(f'Process {process} already uses its original binary, skipping...')
             else:
                 orig_process_path = get_process_path(engine, f'{process_path}.bin')
-                GeneralCliCommon.mv(engine, orig_process_path, process_path)
+                GeneralCliCommon(engine=engine).mv(orig_process_path, process_path)
                 if is_valgrind_installed_for_process(engine, process_path):
                     raise Exception(f'Failed to uninstall valgrind for process {process}')
 
@@ -242,7 +242,7 @@ def is_valgrind_installed_for_process(engine, process_path):
     :param process_path: the path to the process.
     :return: True if valgrind is installed for the process, False otherwise.
     """
-    return VALGRIND_RUNNER_STAMP == GeneralCliCommon.sed(engine, process_path, f'{VALGRIND_RUNNER_STAMP_LINE_NUM}q;d')
+    return VALGRIND_RUNNER_STAMP == GeneralCliCommon(engine=engine).sed(process_path, f'{VALGRIND_RUNNER_STAMP_LINE_NUM}q;d')
 
 
 def restart_services(engine, services_to_restart):
@@ -257,9 +257,9 @@ def restart_services(engine, services_to_restart):
     if services_to_restart:
         with allure.step(f'Restart system services: {services_to_restart}'):
             for service in services_to_restart:
-                GeneralCliCommon.stop_service(engine, service)
+                GeneralCliCommon(engine=engine).stop_service(service)
                 system_helpers.wait_for_all_jobs_done(engine)
 
             for service in services_to_restart:
-                GeneralCliCommon.start_service(engine, service)
+                GeneralCliCommon(engine=engine).start_service(service)
                 system_helpers.wait_for_all_jobs_done(engine)

@@ -13,8 +13,6 @@ from retry.api import retry_call
 
 from abc import abstractmethod
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
-from ngts.cli_wrappers.sonic.sonic_flowcnt_clis import SonicFlowcntCli
-from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
 from ngts.common.checkers import verify_deviation
 from ngts.tests.nightly.copp.conftest import is_trap_counters_supported
 
@@ -130,15 +128,12 @@ class CoppBase:
         self.host_engine = topology_obj.players['ha']['engine']
         self.dut_cli_object = topology_obj.players['dut']['cli']
         self.host_cli_object = topology_obj.players['ha']['cli']
-        self.src_mac = self.host_cli_object.mac.get_mac_address_for_interface(self.host_engine,
-                                                                              topology_obj.ports['ha-dut-1'])
-        self.dst_mac = self.dut_cli_object.mac.get_mac_address_for_interface(self.dut_engine,
-                                                                             topology_obj.ports['dut-ha-1'])
+        self.src_mac = self.host_cli_object.mac.get_mac_address_for_interface(topology_obj.ports['ha-dut-1'])
+        self.dst_mac = self.dut_cli_object.mac.get_mac_address_for_interface(topology_obj.ports['dut-ha-1'])
         self.validation = None
         self.pre_validation = None
         self.traffic_duration = None
-        self.pre_rx_counts = self.dut_cli_object.ifconfig.get_interface_ifconfig_details(self.dut_engine,
-                                                                                         self.dut_iface).rx_packets
+        self.pre_rx_counts = self.dut_cli_object.ifconfig.get_interface_ifconfig_details(self.dut_iface).rx_packets
         self.tested_protocol = self.get_tested_protocol_name()
         self.post_rx_counts = None
         self.default_cir = None
@@ -165,7 +160,7 @@ class CoppBase:
         """
         # check default burst and rate value
         if self.is_trap_counters_supported:
-            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
+            self.init_trap_names = list(self.dut_cli_object.flowcnt.parse_trap_stats().keys())
             with allure.step('Set short trap interval'):
                 self.set_counters_short_trap_interval()
         with allure.step('Check functionality of default burst limit'):
@@ -211,7 +206,7 @@ class CoppBase:
         """
         # check default rate value
         if self.is_trap_counters_supported:
-            self.init_trap_names = list(SonicFlowcntCli.parse_trap_stats(self.dut_engine).keys())
+            self.init_trap_names = list(self.dut_cli_object.flowcnt.parse_trap_stats().keys())
             with allure.step('Set short trap interval'):
                 self.change_flowcnt_trap_interval(self.short_interval)
         with allure.step('Check functionality of default rate limit'):
@@ -255,10 +250,10 @@ class CoppBase:
             secondary_validation_flow = "self.run_validation_flow(self.default_cbs, self.user_limit, 'rate')"
 
         logger.info('Reboot Switch')
-        self.dut_cli_object.general.save_configuration(self.dut_engine)
-        self.dut_cli_object.general.reboot_reload_flow(self.dut_engine, topology_obj=self.topology)
+        self.dut_cli_object.general.save_configuration()
+        self.dut_cli_object.general.reboot_reload_flow(topology_obj=self.topology)
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
-            get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
+            get_interface_ifconfig_details(self.dut_iface).rx_packets
 
         # restart the timer
         self.set_counters_short_trap_interval()
@@ -281,10 +276,10 @@ class CoppBase:
         :return: None, raise error in case of unexpected result
         """
         logger.info('Reboot Switch')
-        self.dut_cli_object.general.save_configuration(self.dut_engine)
-        self.dut_cli_object.general.reboot_reload_flow(self.dut_engine, topology_obj=self.topology)
+        self.dut_cli_object.general.save_configuration()
+        self.dut_cli_object.general.reboot_reload_flow(topology_obj=self.topology)
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
-            get_interface_ifconfig_details(self.dut_engine, self.dut_iface).rx_packets
+            get_interface_ifconfig_details(self.dut_iface).rx_packets
 
 # -------------------------------------------------------------------------------
 
@@ -339,7 +334,7 @@ class CoppBase:
             self.create_burst_validation(cbs_value)
             pps = cbs_value
         if self.is_trap_counters_supported:
-            SonicFlowcntCli.clear_trap_counters(self.dut_engine)
+            self.dut_cli_object.flowcnt.clear_trap_counters()
         self.send_traffic()
         self.validate_results(pps)
 
@@ -471,8 +466,7 @@ class CoppBase:
         Get results from ifconfig output.
         :return: received counter, calculated PPS
         """
-        self.post_rx_counts = self.dut_cli_object.ifconfig.get_interface_ifconfig_details(self.dut_engine,
-                                                                                          self.dut_iface).rx_packets
+        self.post_rx_counts = self.dut_cli_object.ifconfig.get_interface_ifconfig_details(self.dut_iface).rx_packets
         rx_count = int(self.post_rx_counts) - int(self.pre_rx_counts)
         self.pre_rx_counts = self.post_rx_counts
 
@@ -490,7 +484,7 @@ class CoppBase:
         Get received counter of trap
         :return: received counter
         """
-        trap_stats = SonicFlowcntCli.parse_trap_stats(self.dut_engine)
+        trap_stats = self.dut_cli_object.flowcnt.parse_trap_stats()
         rx_count = trap_stats[self.trap_name]['Packets'].replace(',', '')  # convert from 1,200 format
         logger.info('The flowcnt trap counter is {} '.format(rx_count))
         return rx_count
@@ -525,7 +519,7 @@ class CoppBase:
         os.remove(CONFIG_DB_COPP_CONFIG_NAME)
 
         # apply updated config file
-        self.dut_cli_object.general.load_configuration(self.dut_engine, UPDATED_FILE_PATH)
+        self.dut_cli_object.general.load_configuration(UPDATED_FILE_PATH)
 
 # -------------------------------------------------------------------------------
 
@@ -565,7 +559,7 @@ class CoppBase:
         :param interval: interval value
         :return: None, raise error in case of unexpected result
         """
-        SonicCounterpollCli.set_trap_interval(self.dut_engine, interval)
+        self.dut_cli_object.counterpoll.set_trap_interval(interval)
         self.verify_flowcnt_trap_interval(interval)
 
 # -------------------------------------------------------------------------------
@@ -577,7 +571,7 @@ class CoppBase:
         :param status: expected status value
         :return: None, raise error in case of unexpected result
         """
-        parsed_output = SonicCounterpollCli.parse_counterpoll_show(self.dut_engine)
+        parsed_output = self.dut_cli_object.counterpoll.parse_counterpoll_show()
         assert str(interval) == parsed_output['FLOW_CNT_TRAP_STAT']['Interval (in ms)']
         assert status == parsed_output['FLOW_CNT_TRAP_STAT']['Status']
 
@@ -589,7 +583,7 @@ class CoppBase:
         :param expected_trap_names: expected traps list
         :return: None, raise error in case of unexpected result
         """
-        trap_stats = SonicFlowcntCli.parse_trap_stats(self.dut_engine)
+        trap_stats = self.dut_cli_object.flowcnt.parse_trap_stats()
         delta = list(set(trap_stats.keys()) ^ set(expected_trap_names))
         if delta:
             raise Exception('The list of TRAP NAMEs: {} \nis not as expected: {}'

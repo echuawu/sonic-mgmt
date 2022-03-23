@@ -6,5 +6,5 @@ class SonicIfconfigCli(IfconfigCliCommon):
     This class is for ifconfig cli commands for sonic only
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, engine):
+        self.engine = engine

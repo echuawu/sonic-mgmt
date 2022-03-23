@@ -11,7 +11,7 @@ def test_shutdown_interfaces_on_dut(topology_obj, setup_name, preset):
 
     dut_engine = topology_obj.players['dut']['engine']
     cli_object = topology_obj.players['dut']['cli']
-    ports_status = cli_object.interface.parse_interfaces_status(dut_engine)
+    ports_status = cli_object.interface.parse_interfaces_status()
     shutdown_ifaces = [port for port, port_status_dict in ports_status.items() if port_status_dict['Oper'] == 'down']
     ports_expected_to_be_up = [port for port, port_status_dict in ports_status.items()
                                if port_status_dict['Oper'] == 'up']
@@ -22,9 +22,9 @@ def test_shutdown_interfaces_on_dut(topology_obj, setup_name, preset):
 
         with allure.step("Set interfaces {} as down in config db file: {}".format(shutdown_ifaces, config_db_file)):
             for interface in shutdown_ifaces:
-                cli_object.interface.disable_interface(dut_engine, interface)
-            cli_object.general.save_configuration(dut_engine)
-            config_db_json = cli_object.general.get_config_db(dut_engine)
+                cli_object.interface.disable_interface(interface)
+            cli_object.general.save_configuration()
+            config_db_json = cli_object.general.get_config_db()
             cli_object.general.create_extended_config_db_file(setup_topo_dir_name, config_db_json,
                                                               file_name=config_db_file)
 
@@ -33,5 +33,5 @@ def test_shutdown_interfaces_on_dut(topology_obj, setup_name, preset):
                                                               SonicConst.CONFIG_DB_JSON_PATH))
 
         with allure.step("Reboot the switch with the new configuration and check ports status"):
-            cli_object.general.reload_flow(dut_engine, ports_list=ports_expected_to_be_up, topology_obj=topology_obj)
-            cli_object.general.check_link_state(dut_engine, ifaces=shutdown_ifaces, expected_status="down")
+            cli_object.general.reload_flow(ports_list=ports_expected_to_be_up, topology_obj=topology_obj)
+            cli_object.interface.check_link_state(ifaces=shutdown_ifaces, expected_status="down")

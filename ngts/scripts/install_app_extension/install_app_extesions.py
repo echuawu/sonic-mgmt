@@ -21,16 +21,16 @@ def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_p
     :param topology_obj: topology object fixture
     :param app_extension_dict_path: path to app extension dict
     """
-    dut_engine = topology_obj.players['dut']['engine']
-    skip_reason = install_all_supported_app_extensions(dut_engine, app_extension_dict_path)
+    cli_obj = topology_obj.players['dut']['cli']
+    skip_reason = install_all_supported_app_extensions(cli_obj, app_extension_dict_path)
     if skip_reason:
         pytest.skip(skip_reason)
 
 
-def install_all_supported_app_extensions(dut_engine, app_extension_dict_path):
+def install_all_supported_app_extensions(cli_obj, app_extension_dict_path):
     """
     This function will perform installation of app extensions
-    :param dut_engine: dut engine object
+    :param cli_obj: dut cli_obj object
     :param app_extension_dict_path: path to app extension dict
     :return: return the skip reason if the test need to be skipped, else return None
     """
@@ -38,19 +38,19 @@ def install_all_supported_app_extensions(dut_engine, app_extension_dict_path):
     if not app_extension_dict_path:
         logger.info("app_extension_dict_path is not provided, skip the installing the app extensions")
         skip_reason = 'app_extension_dict_path is not provided'
-    elif SonicAppExtensionCli.verify_version_support_app_ext(dut_engine):
-        app_ext_installer = AppExtensionInstaller(dut_engine, app_extension_dict_path)
+    elif cli_obj.app_ext.verify_version_support_app_ext():
+        app_ext_installer = AppExtensionInstaller(cli_obj, app_extension_dict_path)
         app_ext_installer.install_supported_app_extensions()
-        SonicGeneralCli().save_configuration(dut_engine)
+        cli_obj.general.save_configuration()
     else:
         logger.info("The image does not support app extension")
         skip_reason = 'The image does not support app extension'
     return skip_reason
 
 
-class AppExtensionInstaller():
-    def __init__(self, dut_engine, app_extension_dict_path):
-        self.dut_engine = dut_engine
+class AppExtensionInstaller:
+    def __init__(self, cli_obj, app_extension_dict_path):
+        self.cli_obj = cli_obj
         self.app_extension_dict = self.set_app_extension_dict(app_extension_dict_path)
         self.is_app_extension_present_in_application_list()
         self.syncd_sdk_version = self.get_sdk_version(AppExtensionInstallationConstants.SYNCD_DOCKER)
@@ -97,7 +97,7 @@ class AppExtensionInstaller():
     def install_supported_app_extensions(self):
         log_build_supports_app_ext = 'Build supports app extension'
 
-        SonicBgpCli.shutdown_bgp_all(self.dut_engine)
+        self.cli_obj.bgp.shutdown_bgp_all()
         try:
             with allure.step(log_build_supports_app_ext):
                 logger.info(log_build_supports_app_ext)
@@ -117,14 +117,14 @@ class AppExtensionInstaller():
         except Exception as err:
             raise err
         finally:
-            SonicBgpCli.startup_bgp_all(self.dut_engine)
+            self.cli_obj.bgp.startup_bgp_all()
 
     def uninstall_application(self, app_ext_obj):
         log_uninstall_app_ext_version = f'Uninstalling app extension {app_ext_obj.app_name}'
         with allure.step(log_uninstall_app_ext_version):
-            SonicAppExtensionCli.disable_app(self.dut_engine, app_ext_obj.app_name)
-            SonicAppExtensionCli.uninstall_app(self.dut_engine, app_name=app_ext_obj.app_name)
-            SonicAppExtensionCli.remove_repository(self.dut_engine, app_ext_obj.app_name)
+            self.cli_obj.app_ext.disable_app(app_ext_obj.app_name)
+            self.cli_obj.app_ext.uninstall_app(app_name=app_ext_obj.app_name)
+            self.cli_obj.app_ext.remove_repository(app_ext_obj.app_name)
 
     def install_application(self, app_ext_obj):
         log_install_app_ext_version = f'Installing app extension {app_ext_obj.app_name}'
@@ -138,7 +138,7 @@ class AppExtensionInstaller():
     def is_application_installed(self, app_ext_obj):
         app_installed = False
         requested_version = False
-        app_package_repo_dict = SonicAppExtensionCli.parse_app_package_list_dict(self.dut_engine)
+        app_package_repo_dict = self.cli_obj.app_ext.parse_app_package_list_dict()
         if app_ext_obj.app_name in app_package_repo_dict:
             app_info = app_package_repo_dict[app_ext_obj.app_name]
             if app_info["Status"] == 'Installed':
@@ -160,37 +160,37 @@ class AppExtensionInstaller():
         log_add_app_ext_repo = f'Adding app extension repository {app_ext_obj.repository} on the dut'
         with allure.step(log_add_app_ext_repo):
             logger.info(log_add_app_ext_repo)
-            SonicAppExtensionCli.add_repository(self.dut_engine, app_ext_obj.app_name, app_ext_obj.repository)
+            self.cli_obj.app_ext.add_repository(app_ext_obj.app_name, app_ext_obj.repository)
 
     def install_app_ext(self, app_ext_obj):
         log_install_app_ext_version = f'Installing app extension {app_ext_obj.app_name} ' \
                                       f'version {app_ext_obj.version} on the dut'
         with allure.step(log_install_app_ext_version):
             logger.info(log_install_app_ext_version)
-            SonicAppExtensionCli.install_app(
-                self.dut_engine, app_name=app_ext_obj.app_name,
+            self.cli_obj.app_ext.install_app(
+                app_name=app_ext_obj.app_name,
                 from_repository=f'{app_ext_obj.repository}:{app_ext_obj.version}')
 
     def enable_app_ext(self, app_ext_obj):
         log_enable_ext_app = f'Enabling app extension {app_ext_obj.app_name} on the dut'
         with allure.step(log_enable_ext_app):
             logger.info(log_enable_ext_app)
-            SonicAppExtensionCli.enable_app(self.dut_engine, app_ext_obj.app_name)
+            self.cli_obj.app_ext.enable_app(app_ext_obj.app_name)
 
     def disable_app_ext(self, app_ext_obj):
         log_disable_ext_app = f'Disabling app extension {app_ext_obj.app_name} on the dut'
         with allure.step(log_disable_ext_app):
             logger.info(log_disable_ext_app)
-            SonicAppExtensionCli.disable_app(self.dut_engine, app_ext_obj.app_name)
+            self.cli_obj.app_ext.disable_app(app_ext_obj.app_name)
 
     def check_app_extension_status(self, app_ext_obj):
         log_check_app_ext = f'Checking app extension {app_ext_obj.app_name} on the dut'
         with allure.step(log_check_app_ext):
             logger.info(log_check_app_ext)
             if 'lastrc' in app_ext_obj.version:
-                retry_verify_app_container_up(self.dut_engine, app_ext_obj.app_name)
+                retry_verify_app_container_up(self.cli_obj, app_ext_obj.app_name)
             else:
-                verify_app_container_up_and_repo_status_installed(self.dut_engine, app_ext_obj.app_name,
+                verify_app_container_up_and_repo_status_installed(self.cli_obj, app_ext_obj.app_name,
                                                                   app_ext_obj.version)
 
     def is_sdk_version_app_extension_matches_sonic(self, app_ext_obj):

@@ -61,10 +61,9 @@ def validate_dut_to_hosts_port_up(topology_obj):
     :return: raise assertion error in case of script failure
     """
     logger.info("Validate all the ports from the switch to hosts are up after the pcap was sent.")
-    dut_engine = topology_obj.players['dut']['engine']
     cli_object = topology_obj.players['dut']['cli']
     ports_list = [topology_obj.ports['dut-ha-1'],
                   topology_obj.ports['dut-ha-2'],
                   topology_obj.ports['dut-hb-1'],
                   topology_obj.ports['dut-hb-2']]
-    cli_object.interface.check_ports_status(dut_engine, ports_list, expected_status='up')
+    cli_object.interface.check_ports_status(ports_list, expected_status='up')

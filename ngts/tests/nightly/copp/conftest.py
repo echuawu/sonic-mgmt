@@ -3,10 +3,7 @@ import logging
 import allure
 
 from retry.api import retry_call
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.ip_config_template import IpConfigTemplate
-from ngts.cli_wrappers.sonic.sonic_counterpoll_clis import SonicCounterpollCli
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -22,8 +19,8 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
     logger.info('Starting CoPP Common configuration')
 
     with allure.step('Check that link in UP state'):
-        retry_call(SonicInterfaceCli.check_ports_status,
-                   fargs=[engines.dut, [interfaces.dut_ha_1]],
+        retry_call(cli_objects.dut.interface.check_ports_status,
+                   fargs=[[interfaces.dut_ha_1]],
                    tries=10,
                    delay=10,
                    logger=logger)
@@ -35,7 +32,7 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
     }
 
     logger.info('Disable periodic lldp traffic')
-    cli_objects.ha.general.stop_service(engines.ha, 'lldpad')
+    cli_objects.ha.general.stop_service('lldpad')
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     logger.info('CoPP Common configuration completed')
 
@@ -43,9 +40,9 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
 
     logger.info('Starting CoPP Common configuration cleanup')
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    cli_objects.ha.general.start_service(engines.ha, 'lldpad')
+    cli_objects.ha.general.start_service('lldpad')
 
-    SonicGeneralCli().apply_basic_config(topology_obj, engines.dut, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
 
     logger.info('CoPP Common cleanup completed')
 
@@ -65,15 +62,14 @@ def is_trap_counters_supported(engines):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def flowcnt_trap_configuration(engines, is_trap_counters_supported):
+def flowcnt_trap_configuration(cli_objects, is_trap_counters_supported):
     """
     Pytest fixture which is doing configuration for test case based on flow counters config
-    :param engines: engines fixture
     """
     if is_trap_counters_supported:
-        SonicCounterpollCli.enable_flowcnt_trap(engines.dut)
+        cli_objects.dut.counterpoll.enable_flowcnt_trap()
 
     yield
 
     if is_trap_counters_supported:
-        SonicCounterpollCli.disable_flowcnt_trap(engines.dut)
+        cli_objects.dut.counterpoll.disable_flowcnt_trap()

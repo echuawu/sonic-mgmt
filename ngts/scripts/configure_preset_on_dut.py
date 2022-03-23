@@ -11,7 +11,7 @@ def test_configure_preset_on_dut(topology_obj, setup_name, platform_params, pres
     dut_engine = topology_obj.players['dut']['engine']
     cli_object = topology_obj.players['dut']['cli']
     hwsku = platform_params.hwsku
-    hostname = cli_object.chassis.get_hostname(dut_engine)
+    hostname = cli_object.chassis.get_hostname()
     setup_topo_dir_name = setup_name.replace("_setup", "")
     shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_topo_dir_name)
     config_db_file = "config_db_{}.json".format(preset)
@@ -24,7 +24,7 @@ def test_configure_preset_on_dut(topology_obj, setup_name, platform_params, pres
 
     with allure.step("Update MGMT_INTERFACE on {}".format(config_db_file)):
         logger.info("Update MGMT_INTERFACE on {}".format(config_db_file))
-        cli_object.general.update_config_db_metadata_mgmt_ip(dut_engine, setup_topo_dir_name,
+        cli_object.general.update_config_db_metadata_mgmt_ip(setup_topo_dir_name,
                                                              dut_engine.ip, file_name=config_db_file)
     with allure.step("Update METADATA type on {}".format(config_db_file)):
         logger.info("Update METADATA type on {}".format(config_db_file))
@@ -47,4 +47,4 @@ def test_configure_preset_on_dut(topology_obj, setup_name, platform_params, pres
     with allure.step("Reboot the switch with the new configuration"):
         logger.info("Reboot the switch with the new configuration")
         dut_engine.reload(['sudo reboot'])
-        cli_object.general.verify_dockers_are_up(dut_engine, SonicConst.DOCKERS_LIST)
+        cli_object.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
