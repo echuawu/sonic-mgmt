@@ -34,8 +34,7 @@ class TestEntryScaling:
         """
         count = 12
         cli_object = topology_obj.players['dut']['cli']
-        duthb1_mac = cli_object.mac.get_mac_address_for_interface(
-            engines.dut, topology_obj.ports['dut-hb-1'])
+        duthb1_mac = cli_object.mac.get_mac_address_for_interface(topology_obj.ports['dut-hb-1'])
         port_params = self.generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         flow_params = self.generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         with allure.step("Enable p4-sampling"):

@@ -214,7 +214,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         # add p4 sampling entries, need to check is the p4-sampling is installed or not
         if P4SamplingUtils.check_p4_sampling_installed(cli_objects.dut) and \
                 fixture_helper.is_p4_sampling_supported(platform_params):
-            fixture_helper.add_p4_sampling_entries(engines, p4_sampling_table_params)
+            fixture_helper.add_p4_sampling_entries(cli_objects.dut, p4_sampling_table_params)
         with allure.step('Doing debug logs print'):
             log_debug_info(cli_objects.dut)
 

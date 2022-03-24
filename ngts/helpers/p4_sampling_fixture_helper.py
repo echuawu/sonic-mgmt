@@ -134,10 +134,10 @@ def recover_p4_sampling_entries(cli_obj, port_entries, flow_entries):
             cli_obj.p4.add_entry_to_table(PORT_TABLE_NAME, flow_table_entry_params)
 
 
-def add_p4_sampling_entries(engines, cli_obj, table_params):
+def add_p4_sampling_entries(cli_obj, table_params):
     """
     Add p4 sampling entries with entry params defined in table_params
-    :param engines: engines fixture object
+    :param cli_obj: dut cli object
     :param table_params: table_params fixture object
     """
     cli_obj.app_ext.enable_app(APP_NAME)

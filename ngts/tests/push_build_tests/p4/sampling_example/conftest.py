@@ -45,16 +45,18 @@ def clean_p4_sampling_entries(engines, cli_objects):
 
 
 @pytest.fixture(scope='class', autouse=False)
-def p4_sampling_entries(skipping_p4_sampling_test_case_for_spc1, topology_obj, interfaces, engines, table_params):
+def p4_sampling_entries(skipping_p4_sampling_test_case_for_spc1, topology_obj, interfaces, cli_objects,
+                        engines, table_params):
     """
     Fixture used to add entries and remove entries after test case finish
     :param skipping_p4_sampling_test_case_for_spc1: skipping_p4_sampling_test_case_for_spc1 fixture object
     :param topology_obj: topology_obj fixture object
     :param engines: engines fixture object
+    :param cli_objects: cli_objects fixture
     :param interfaces: interfaces fixture object
     :param table_params: table_params fixture object
     """
-    fixture_helper.add_p4_sampling_entries(engines, table_params)
+    fixture_helper.add_p4_sampling_entries(cli_objects.dut, table_params)
     yield
     fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, table_params)
 

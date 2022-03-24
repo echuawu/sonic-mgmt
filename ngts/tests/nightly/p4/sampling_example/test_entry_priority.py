@@ -6,44 +6,45 @@ import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 import random
 from dotted_dict import DottedDict
 from ngts.constants.constants import P4SamplingEntryConsts
-from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 import time
 
 
 @pytest.fixture(scope='function', autouse=False)
-def different_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac,
+def different_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac, cli_objects,
                                hb_dut_1_mac, dut_ha_1_mac, dut_hb_2_mac):
     """
     Fixture used to add entries and remove entries after test case finish
     :param topology_obj: topology_obj fixture object
     :param engines: engines fixture object
     :param interfaces: interfaces fixture object
+    :param cli_objects: cli_objects fixture
     :param ha_dut_1_mac: ha_dut_1_mac fixture object
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     :param dut_ha_1_mac: dut_ha_1_mac fixture object
     :param dut_hb_2_mac: dut_hb_2_mac fixture object
     """
-    table_param_data = generate_priority_entries(interfaces, engines, ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac,
+    table_param_data = generate_priority_entries(interfaces, cli_objects, ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac,
                                                  dut_hb_2_mac, False)
     yield table_param_data
     fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, table_param_data)
 
 
 @pytest.fixture(scope='function', autouse=False)
-def same_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac,
+def same_priority_entries(topology_obj, interfaces, engines, ha_dut_1_mac, cli_objects,
                           hb_dut_1_mac, dut_ha_1_mac, dut_hb_2_mac):
     """
     Fixture used to add entries and remove entries after test case finish
     :param topology_obj: topology_obj fixture object
     :param engines: engines fixture object
+    :param cli_objects: cli_objects fixture
     :param interfaces: interfaces fixture object
     :param ha_dut_1_mac: ha_dut_1_mac fixture object
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     :param dut_ha_1_mac: dut_ha_1_mac fixture object
     :param dut_hb_2_mac: dut_hb_2_mac fixture object
     """
-    table_param_data = generate_priority_entries(interfaces, engines, ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac,
+    table_param_data = generate_priority_entries(interfaces, cli_objects, ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac,
                                                  dut_hb_2_mac, True)
     yield table_param_data
     fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, table_param_data)
@@ -106,11 +107,11 @@ def test_entries_with_same_priority(engines, same_priority_entries, topology_obj
                                  flow_hit_indices)
 
 
-def generate_priority_entries(interfaces, engines, ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac, dut_hb_2_mac,
+def generate_priority_entries(interfaces, cli_objects, ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac, dut_hb_2_mac,
                               same_prio):
     """
     Fixture used to add entries and remove entries after test case finish
-    :param engines: engines fixture object
+    :param cli_objects: cli_objects fixture object
     :param interfaces: interfaces fixture object
     :param ha_dut_1_mac: ha_dut_1_mac fixture object
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
@@ -123,7 +124,7 @@ def generate_priority_entries(interfaces, engines, ha_dut_1_mac, hb_dut_1_mac, d
     port_params = generate_port_entries_params(1, interfaces, dut_hb_2_mac, hb_dut_1_mac, same_prio)
     table_param_data.port_entry = port_params
     table_param_data.flow_entry = flow_params
-    fixture_helper.add_p4_sampling_entries(engines, table_param_data)
+    fixture_helper.add_p4_sampling_entries(cli_objects.dut, table_param_data)
     return table_param_data
 
 
