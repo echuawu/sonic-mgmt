@@ -3,13 +3,11 @@ import pytest
 import logging
 import allure
 import json
-from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
-from ngts.cli_wrappers.sonic.sonic_bgp_clis import SonicBgpCli
+
 from ngts.constants.constants import AppExtensionInstallationConstants, P4SamplingConsts
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed, \
     retry_verify_app_container_up
 from ngts.scripts.install_app_extension.app_extension_info import AppExtensionInfo
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 
 
 logger = logging.getLogger()
@@ -201,8 +199,8 @@ class AppExtensionInstaller:
             return self.syncd_sdk_version == app_ext_obj.sdk_version
 
     def get_sdk_version(self, docker_name):
-        return self.dut_engine.run_cmd(AppExtensionInstallationConstants.CMD_GET_SDK_VERSION.format(docker_name),
-                                       validate=True)
+        return self.cli_obj.general.engine.run_cmd(
+            AppExtensionInstallationConstants.CMD_GET_SDK_VERSION.format(docker_name), validate=True)
 
 
 class AppExtensionError(Exception):
