@@ -19,9 +19,9 @@ def dhcp_server_configuration(topology_obj, engines):
 
     # DHCP Relay config which will be used in test
     dhcp_relay_config_dict = {
-        'dut': [{'vlan_id': 690, 'dhcp_servers': ['69.0.0.2', '6900::2']}
+        'dut': [{'vlan_id': 690, 'dhcp_servers': ['69.0.0.2', '6900::2']},
                 # Second DHCP relay for check bug: https://github.com/Azure/sonic-buildimage/issues/6053
-                # {'vlan_id': 691, 'dhcp_servers': ['69.0.0.2', '6900::2']}
+                {'vlan_id': 691, 'dhcp_servers': ['69.0.0.2', '6900::2']}
                 ]
     }
 
