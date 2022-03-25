@@ -6,6 +6,7 @@ from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 
 @pytest.mark.build
 @pytest.mark.p4_sampling
+@pytest.mark.usefixtures('p4_sampling_entries')
 class TestEntryBasic:
 
     @allure.title('Test entry added')
@@ -39,7 +40,7 @@ class TestEntryBasic:
             with allure.step("Clear statistics and counters"):
                 P4SamplingUtils.clear_statistics(cli_obj)
             with allure.step("Send packets and verify"):
-                count = 20
+                count = 3
                 P4SamplingUtils.verify_traffic_hit(topology_obj, engines, interfaces, table_params, count, count)
 
     @allure.title('Test entry miss')
@@ -57,6 +58,6 @@ class TestEntryBasic:
             with allure.step("Clear statistics and counters"):
                 P4SamplingUtils.clear_statistics(cli_obj)
             with allure.step("Send packets and verify"):
-                count = 20
+                count = 3
                 expect_count = 0
                 P4SamplingUtils.verify_traffic_miss(topology_obj, engines, interfaces, table_params, count, expect_count)

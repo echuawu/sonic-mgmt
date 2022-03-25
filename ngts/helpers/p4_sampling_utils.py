@@ -216,7 +216,8 @@ class P4SamplingUtils:
                                 [
                                     {'receiver': '{}'.format(port_traffic_params['receiver']),
                                      'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
-                                                      'filter': port_traffic_params['filter'], 'count': expect_mirror_count}}
+                                                      'filter': port_traffic_params['filter'],
+                                                      'count': expect_mirror_count, 'timeout': 60}}
             ]
             }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
@@ -249,7 +250,9 @@ class P4SamplingUtils:
                           [
                                     {'receiver': '{}'.format(flow_traffic_params['receiver']),
                                      'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
-                                                      'filter': flow_traffic_params['filter'], 'count': expect_mirror_count}}
+                                                      'filter': flow_traffic_params['filter'],
+                                                      'count': expect_mirror_count,
+                                                      'timeout': 60}}
             ]
             }
             scapy_r = ScapyChecker(topology_obj.players, validation)
@@ -400,7 +403,8 @@ class P4SamplingUtils:
                             [
                                 {'receiver': '{}'.format(port_traffic_params['receiver']),
                                  'receive_args': {'interface': "{}".format(port_traffic_params['mirror_port']),
-                                                  'filter': port_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
+                                                  'filter': port_traffic_params['filter'], 'operator': operator,
+                                                  'count': expect_count, 'timeout': 60}}
                             ]
                             }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)
@@ -421,7 +425,8 @@ class P4SamplingUtils:
                             [
                                 {'receiver': '{}'.format(flow_traffic_params['receiver']),
                                  'receive_args': {'interface': "{}".format(flow_traffic_params['mirror_port']),
-                                                  'filter': flow_traffic_params['filter'], 'operator': operator, 'count': expect_count}}
+                                                  'filter': flow_traffic_params['filter'], 'operator': operator,
+                                                  'count': expect_count, 'timeout': 60}}
                             ]
                             }
             scapy_r = ScapyChecker(topology_obj.players, validation_r)

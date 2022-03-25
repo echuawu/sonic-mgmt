@@ -183,7 +183,7 @@ def remove_p4_sampling_entries(topology_obj, interfaces, engines, table_params):
         P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, PORT_TABLE_NAME, table_params.flow_entry, False)
         P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, FLOW_TABLE_NAME, table_params.flow_entry, False)
     with allure.step('Send traffic after the entries are removed'):
-        count = 50
+        count = 3
         P4SamplingUtils.verify_traffic_miss(
             topology_obj,
             engines,

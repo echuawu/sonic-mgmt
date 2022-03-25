@@ -90,7 +90,7 @@ def test_entries_with_same_priority(engines, same_priority_entries, topology_obj
     """
     port_entries = same_priority_entries.port_entry
     flow_entries = same_priority_entries.flow_entry
-    pkt_count = 10
+    pkt_count = 3
     cli_obj = topology_obj.players['dut']['cli']
     with allure.step('Check entries are added'):
         P4SamplingUtils.verify_table_entry(engines.dut, cli_obj, P4SamplingConsts.PORT_TABLE_NAME, port_entries)
@@ -157,7 +157,7 @@ def verify_port_table_send_recv_traffic(topology_obj, interfaces, engine_dut, po
     :param port_entries: port table entries
     :param port_hit_indices: index list of port table entries which will match traffic
     """
-    pkt_count = 20
+    pkt_count = 3
     chksum_type = 'match'
     port_indices = list(range(len(port_entries)))
     port_miss_indices = [port_entry_index for port_entry_index in port_indices if port_entry_index not in port_hit_indices]
@@ -193,7 +193,7 @@ def verify_flow_table_send_recv_traffic(topology_obj, interfaces, engine_dut, fl
     :param flow_entries: port table entries
     :param flow_hit_indices: index list of port table entries which will match traffic
     """
-    pkt_count = 20
+    pkt_count = 3
     chksum_type = 'match'
     flow_indices = list(range(len(flow_entries)))
     flow_miss_indices = [i for i in flow_indices if i not in flow_hit_indices]

@@ -213,7 +213,7 @@ class TestEntryScaling:
     def verify_send_recv_traffic(topology_obj, interfaces, engine, port_entries, flow_entries):
         cli_obj = topology_obj.players['dut']['cli']
         with allure.step("Send traffic"):
-            pkt_count = 20
+            pkt_count = 3
             with allure.step("Clear counters before send traffic"):
                 P4SamplingUtils.clear_statistics(cli_obj)
             with allure.step("Send traffic for some of port table entries and verify"):

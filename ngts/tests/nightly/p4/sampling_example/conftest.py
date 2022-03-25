@@ -14,6 +14,7 @@ import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.constants.constants import P4SamplingEntryConsts
+from ngts.constants.constants import P4SamplingConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils, TrafficParams
 logger = logging.getLogger()
 
@@ -50,7 +51,7 @@ def skipping_p4_sampling_test_case(cli_objects):
 
 
 @pytest.fixture(scope='package', autouse=True)
-def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engines, interfaces):
+def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engines, interfaces, cli_objects):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param skipping_p4_sampling_test_case: skipping_p4_sampling_test_case object fixture
@@ -81,6 +82,7 @@ def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engi
     }
 
     logger.info('Starting P4 Sampling configuration')
+    cli_objects.dut.app_ext.enable_app(P4SamplingConsts.APP_NAME)
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
     logger.info('P4 Sampling Common configuration completed')
@@ -88,6 +90,7 @@ def p4_sampling_configuration(skipping_p4_sampling_test_case, topology_obj, engi
     logger.info('Starting P4 Sampling configuration cleanup')
     RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
+    cli_objects.dut.app_ext.disable_app(P4SamplingConsts.APP_NAME)
     logger.info('P4 Sampling cleanup completed')
 
 

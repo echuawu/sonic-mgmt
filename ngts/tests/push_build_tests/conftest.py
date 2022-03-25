@@ -44,7 +44,7 @@ def get_test_app_ext_info(cli_obj):
 
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, platform_params, upgrade_params,
-                            run_config_only, run_test_only, run_cleanup_only, p4_sampling_table_params, shared_params,
+                            run_config_only, run_test_only, run_cleanup_only, shared_params,
                             app_extension_dict_path, acl_table_config_list):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
@@ -57,7 +57,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     :param run_config_only: test run mode run_config_only
     :param run_test_only: test run mode run_test_only
     :param run_cleanup_only: test run mode run_cleanup_only
-    :param p4_sampling_table_params: p4_sampling_table_params fixture
     :param shared_params: fixture which provide dictionary which can be shared between tests
     :param app_extension_dict_path: app_extension_dict_path
     :param acl_table_config_list: acl_table_config_list fixture
@@ -211,10 +210,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
             FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
-        # add p4 sampling entries, need to check is the p4-sampling is installed or not
-        if P4SamplingUtils.check_p4_sampling_installed(cli_objects.dut) and \
-                fixture_helper.is_p4_sampling_supported(platform_params):
-            fixture_helper.add_p4_sampling_entries(cli_objects.dut, p4_sampling_table_params)
         with allure.step('Doing debug logs print'):
             log_debug_info(cli_objects.dut)
 
@@ -268,9 +263,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
         LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
         InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
-        if P4SamplingUtils.check_p4_sampling_installed(cli_objects.dut) and \
-                fixture_helper.is_p4_sampling_supported(platform_params):
-            fixture_helper.remove_p4_sampling_entries(topology_obj, interfaces, engines, p4_sampling_table_params)
         if shared_params.app_ext_is_app_ext_supported:
             app_cleanup(engines.dut, cli_objects.dut, app_name)
         logger.info('Doing config save after cleanup')
@@ -280,19 +272,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
     if skip_tests:
         pytest.skip('Skipping test according to flags: run_config_only/run_test_only/run_cleanup_only')
-
-
-@pytest.fixture(scope='package')
-def p4_sampling_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
-    """
-    Fixture used to create the TableParams object which contains some params used in the testcases
-    :param interfaces: interfaces fixture
-    :param engines : engines fixture object
-    :param topology_obj: topology_obj fixture object
-    :param ha_dut_2_mac: ha_dut_2_mac fixture object
-    :param hb_dut_1_mac: hb_dut_1_mac fixture object
-    """
-    return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
 
 
 def log_debug_info(cli_obj):

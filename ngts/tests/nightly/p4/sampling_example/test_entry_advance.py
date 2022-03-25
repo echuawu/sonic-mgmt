@@ -49,7 +49,7 @@ class TestEntryTraffic:
     @allure.title('Test disable p4-sampling, change the config db file, and re-enable it, the entries can be changed.')
     def test_enable_disable_p4_sampling(self, cli_objects, topology_obj, engines, interfaces, table_params):
         try:
-            pkt_count = 20
+            pkt_count = 3
             with allure.step("Verify that the entries has been added"):
                 P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, PORT_TABLE_NAME, table_params.port_entry, True)
                 P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, FLOW_TABLE_NAME, table_params.flow_entry, True)
