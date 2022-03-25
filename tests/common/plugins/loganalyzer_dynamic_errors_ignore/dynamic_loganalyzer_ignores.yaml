@@ -1191,3 +1191,11 @@
       - 3006222
       Platform:
       - simx
+
+- Errors_list:
+    - '.* ERR coredump_gen_handler.py\[\d+\]: show techsupport failed with exit code 2, stderr: Accquiring lock failed, PID \d+ is active'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity
+      Redmine:
+      - 3017157

@@ -276,6 +276,10 @@ class TestAutoTechSupport:
         test_parameters_dict = {'@{}'.format(current_time): 60, '5 minutes ago': 360, '300 sec': 360}
         since_value = random.choice(list(test_parameters_dict.keys()))
 
+        # force log rotate - because in some cases, when there's no file older than since, there will be no syslog file in techsupport dump
+        with allure.step('Rotate logs'):
+            self.duthost.shell('/usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1')
+
         with allure.step('Validate since value: {}'.format(since_value)):
             with allure.step('Set since value to: {}'.format(since_value)):
                 set_auto_techsupport_global(self.duthost, since=since_value)
@@ -688,26 +692,21 @@ def validate_core_files_inside_techsupport(duthost, techsupport_folder, expected
                                                                                       core_files_inside_techsupport)
 
 
-def validate_techsupport_since(duthost, techsupport_folder, current_time, since_value_in_seconds):
+def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_timestamp):
     """
     Validate that techsupport file does not have logs which are older than value provided in 'since_value_in_seconds'
     :param duthost: duthost object
     :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_r-lionfish-16_20210901_22140
-    :param current_time: date timestamp in format: 2021-11-17 16:42:19.629013
-    :param since_value_in_seconds: integer values, seconds, example: 172800 - it's 2 days
+    :param expected_oldest_log_timestamp: expected oldest log timestamp in datetime format
     :return: pytest.fail - in case when validation failed
     """
-    with allure.step('Checking techsupport logs are since: {} seconds'.format(since_value_in_seconds)):
+    with allure.step('Checking techsupport logs since'):
         oldest_timestamp_datetime = get_oldest_syslog_timestamp(duthost, techsupport_folder)
         logger.debug('Oldest timestamp: {}'.format(oldest_timestamp_datetime))
 
-        timedelta = datetime.timedelta(seconds=since_value_in_seconds)
-        if (current_time - timedelta) > oldest_timestamp_datetime:
-            pytest.fail('Dump contains logs older than expected time, current time: {}, '
-                        'oldest log timestamp: {}, '
-                        'expected oldest timestamp not older than: {} (hh:mm:ss)'.format(current_time,
-                                                                                         oldest_timestamp_datetime,
-                                                                                         timedelta))
+        assert oldest_timestamp_datetime == expected_oldest_log_timestamp, \
+            'Timestamp: {} not equal to expected: {}. --since validation failed'.format(oldest_timestamp_datetime,
+                                                                                        expected_oldest_log_timestamp)
 
 
 def get_oldest_syslog_timestamp(duthost, techsupport_folder):
@@ -768,12 +767,14 @@ def extract_techsupport_tarball_file(duthost, tarball_name):
     Extract techsupport tar file and return path to data extracted from archive
     :param duthost: duthost object
     :param tarball_name: path to tar file, example: /var/dump/sonic_dump_r-lionfish-16_20210901_22140.tar.gz
-    :return: path to folder with techsupport data, example: /var/dump/sonic_dump_r-lionfish-16_20210901_22140
+    :return: path to folder with techsupport data, example: /tmp/sonic_dump_r-lionfish-16_20210901_22140
     """
     with allure.step('Extracting techsupport file: {}'.format(tarball_name)):
-        duthost.shell('tar -xf {} -C /var/dump/'.format(tarball_name))
-        techsupport_folder = tarball_name.split('.')[0]
-    return techsupport_folder
+        dst_folder = '/tmp/'
+        duthost.shell('tar -xf {} -C {}'.format(tarball_name, dst_folder))
+        techsupport_folder = tarball_name.split('.')[0].split('/var/dump/')[1]
+        techsupport_folder_full_path = '{}{}'.format(dst_folder, techsupport_folder)
+    return techsupport_folder_full_path
 
 
 def validate_auto_techsupport_global_config(duthost, state=None, rate_limit_interval=None, max_techsupport_limit=None,
@@ -848,7 +849,7 @@ def validate_auto_techsupport_feature_config(duthost, expected_status_dict=None)
 
 
 def validate_techsupport_generation(duthost, is_techsupport_expected, expected_core_file=None,
-                                    since_value_in_seconds=172800, delay_before_validation=15):
+                                    since_value_in_seconds=172800):
     """
     Validated techsupport generation. Check if techsupport started or not. Check number of files created.
     Check history, check mapping between core files and techsupport files.
@@ -856,11 +857,9 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
     :param is_techsupport_expected: True/False, if expect techsupport - then True
     :param expected_core_file: expected core file name which we will check in techsupport file
     :param since_value_in_seconds: int, value in seconds which used in validation for since parameter, 172800 = 2 days
-    :param delay_before_validation: int, how long wait before do validation
     :return: AssertionError in case of failure
     """
-    time.sleep(delay_before_validation)
-    current_time = datetime.datetime.now()
+    expected_oldest_timestamp_datetime = get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds)
 
     try:
         available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
@@ -912,11 +911,67 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
                                                    expected_core_files_list=[expected_core_file])
 
             logger.info('Checking since value in techsupport file')
-            validate_techsupport_since(duthost, techsupport_folder_path, current_time, since_value_in_seconds)
+            validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_timestamp_datetime)
         except Exception as err:
             raise AssertionError(err)
         finally:
             duthost.shell('sudo rm -rf {}'.format(techsupport_folder_path))
+
+
+def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
+    """
+    Get expected oldest timestamp log which should be included in the techsupport dump
+    :param duthost: duthost object
+    :param since_value_in_seconds: int, value in seconds which used in validation for since parameter
+    :return: datetime timestamp
+    """
+    current_time_str = duthost.shell('date "+%b %d %H:%M"')['stdout']
+    current_time = dateutil.parser.parse(current_time_str)
+
+    syslog_file_list = duthost.shell('sudo ls -l /var/log/syslog*')['stdout'].splitlines()
+
+    syslog_file_name = '/var/log/syslog'
+    oldest_expected_file_diff = 0
+    for syslog_file_entry in syslog_file_list:
+        splited_data = syslog_file_entry.split()
+        file_timestamp = get_syslog_timestamp(splited_data)
+        diff_since_current_time = (current_time - file_timestamp).seconds
+        if diff_since_current_time < since_value_in_seconds:
+            if oldest_expected_file_diff < diff_since_current_time:
+                oldest_expected_file_diff = diff_since_current_time
+                syslog_file_name = splited_data[8]
+
+    expected_oldest_log_line_timestamp = get_first_line_timestamp(duthost, syslog_file_name)
+
+    return expected_oldest_log_line_timestamp
+
+
+def get_syslog_timestamp(splited_data):
+    """
+    Get timestamp when syslog file created
+    :param splited_data: list with output of "ls -l" - splited by space
+    :return: datetime timestamp
+    """
+    month, day, hours = splited_data[5:8]
+    file_timestamp = dateutil.parser.parse('{} {} {}'.format(month, day, hours))
+    return file_timestamp
+
+
+def get_first_line_timestamp(duthost, syslog_file_name):
+    """
+    Get timestamp from first line in log
+    :param duthost: duthost object
+    :param syslog_file_name: syslog file name
+    :return:
+    """
+    if syslog_file_name.endswith('.gz'):
+        first_log_string = duthost.shell('sudo zcat {} | head -n 1'.format(syslog_file_name))['stdout']
+    else:
+        first_log_string = duthost.shell('sudo head -n 1 {}'.format(syslog_file_name))['stdout']
+    expected_oldest_timestamp_str = ' '.join(first_log_string.split()[:3])
+    expected_oldest_log_line_timestamp = dateutil.parser.parse(expected_oldest_timestamp_str)
+
+    return expected_oldest_log_line_timestamp
 
 
 def check_that_techsupport_in_history(duthost, tech_support_name):

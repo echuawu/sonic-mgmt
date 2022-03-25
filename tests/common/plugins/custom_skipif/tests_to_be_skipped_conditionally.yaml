@@ -984,8 +984,6 @@ show_techsupport/test_techsupport.py::test_secret_removed_from_show_techsupport:
 show_techsupport/test_auto_techsupport.py:
   - Branch:
     - 202012
-  - StaticReason:
-    - 'Test skipped because this functionality not supported yet'
 
 iface_namingmode/test_iface_namingmode.py:
   - Redmine:
