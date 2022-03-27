@@ -551,19 +551,21 @@
       - autorestart/test_container_autorestart.py
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[328\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[6100\]- mlnx_get_port_stats_ext: Invalid port counter \d+'
-    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[3364\]- sai_db_create: mlnx_sai_switch.c\[3364\]- sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating'
-    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5044\]- sai_qos_db_create: mlnx_sai_switch.c\[5044\]- sai_qos_db_create: Shared memory of the SAI QOS already exists, destroying it and re-creating'
-    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5192\]- sai_buffer_db_create: mlnx_sai_switch.c\[5192\]- sai_buffer_db_create: Shared memory of the SAI buffer already exists, destroying it and re-creating'
-    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5342\]- sai_acl_db_create: mlnx_sai_switch.c\[5342\]- sai_acl_db_create: Shared memory of the SAI ACL already exists, destroying it and re-creating'
-    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[5445\]- sai_tunnel_db_create: mlnx_sai_switch.c\[5445\]- sai_tunnel_db_create: Shared memory of the SAI TUNNEL already exists, destroying it and re-creating'
+    - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[\d+\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_get_port_stats_ext: Invalid port counter \d+'
+    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- sai_db_create: mlnx_sai_switch.c\[\d+\]- sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[\d+\]- sai_qos_db_create: mlnx_sai_switch.c\[\d+\]- sai_qos_db_create: Shared memory of the SAI QOS already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[\d+\]- sai_buffer_db_create: mlnx_sai_switch.c\[\d+\]- sai_buffer_db_create: Shared memory of the SAI buffer already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[\d+\]- sai_acl_db_create: mlnx_sai_switch.c\[\d+\]- sai_acl_db_create: Shared memory of the SAI ACL already exists, destroying it and re-creating'
+    - '.* WARNING syncd#SAI: \[SAI_SWITCH.WARNING\] mlnx_sai_switch.c\[\d+\]- sai_tunnel_db_create: mlnx_sai_switch.c\[\d+\]- sai_tunnel_db_create: Shared memory of the SAI TUNNEL already exists, destroying it and re-creating'
     - '.* WARNING syncd#SDK: \[SXD_DPT.WARNING\] sxd_dpt_init\(\): Shared memory of the DPT already exists,destroying it and re-creating'
   Conditions:
     - Affected_test_cases:
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - system_health/test_system_health.py
+      - autorestart/test_container_autorestart.py
+      - dhcp_relay/test_dhcp_relay.py::test_interface_binding
       Branch:
         - 202012
 
