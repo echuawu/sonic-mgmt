@@ -722,19 +722,9 @@ tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::te
 
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   - Redmine:
-    - 3014416
-  - Redmine:
     - 2890871
     Platform:
     - 5600
-
-tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
-  - Redmine:
-    - 3014416
-
-tests/nightly/lag/test_lag.py::test_lag_min_links:
-  - Redmine:
-    - 3014416
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
@@ -745,6 +735,12 @@ tests/nightly/copp/test_copp.py:
     - x86_64-nvidia_sn2201-r0
     Redmine:
       - 2972489
+
+tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
+  - Redmine:
+    - 2682609
+    Platform:
+    - simx
 
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
   - Redmine:

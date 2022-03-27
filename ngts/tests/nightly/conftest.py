@@ -48,7 +48,6 @@ def get_dut_loopbacks(topology_obj):
                     dut_loopback_aliases_list))
 
 
-@pytest.fixture(autouse=True)
 def cleanup_list():
     """
     Fixture to execute cleanup after a test has run

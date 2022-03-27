@@ -47,25 +47,21 @@ PROTOCOLS_WIRH_FEW_TRAP_IDS = ['bgp', 'arp', 'dhcp_relay']
 
 # list of tested protocols
 PROTOCOLS_LIST = ["ARP", "IP2ME", "SNMP", "SSH", "LLDP", "LACP", "BGP", "DHCP"]
-
-
-@pytest.fixture(scope='module')
-def protocol_for_reboot_flow():
-    """
-    Randomize protocol for reboot flow
-    :param parser: pytest builtin
-    :return: protocol
-    """
-    protocol_for_reboot_flow = random.choice(PROTOCOLS_LIST)
-    logger.info("Random protocol for testing reboot flow is: {}".format(protocol_for_reboot_flow))
-    return protocol_for_reboot_flow
+protocol_for_reboot_flow = random.choice(PROTOCOLS_LIST)
+logger.info(f"Random protocol for testing reboot flow is: {protocol_for_reboot_flow}\n")
+PROTOCOLS_REBOOT_LIST = []
+for protocol in PROTOCOLS_LIST:
+    if protocol == protocol_for_reboot_flow:
+        PROTOCOLS_REBOOT_LIST.append(f"{protocol}_Reboot")
+    else:
+        PROTOCOLS_REBOOT_LIST.append(protocol)
 
 
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
 @allure.title('CoPP Policer test case')
-@pytest.mark.parametrize("protocol", PROTOCOLS_LIST)
-def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform_params,
+@pytest.mark.parametrize("protocol", PROTOCOLS_REBOOT_LIST)
+def test_copp_policer(topology_obj, protocol, platform_params,
                       sonic_version, is_trap_counters_supported):
     """
     Run CoPP Policer test case, which will check that the policer enforces the rate limit for protocols.
@@ -92,7 +88,6 @@ def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform
     8.6 check in flow counters show that the traps was restored to default
     :param topology_obj: topology object fixture
     :param protocol: tested protocol name
-    :param protocol_for_reboot_flow: protocol name for reboot flow
     :param platform_params: platform parameters
     :param sonic_version: sonic version
     :return: None, raise error in case of unexpected result
@@ -100,12 +95,14 @@ def test_copp_policer(topology_obj, protocol, protocol_for_reboot_flow, platform
     try:
         # CIR (committed information rate) - bandwidth limit set by the policer
         # CBS (committed burst size) - largest burst of packets allowed by the policer
+        reboot = "Reboot" in protocol
+        protocol = protocol.replace("_Reboot", "")
         tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj, sonic_version)')
         tested_protocol_obj.is_trap_counters_supported = is_trap_counters_supported
         if re.search('simx', platform_params.setup_name):
-            tested_protocol_obj.copp_simx_test_runner(protocol_for_reboot_flow)
+            tested_protocol_obj.copp_simx_test_runner(reboot)
         else:
-            tested_protocol_obj.copp_test_runner(protocol_for_reboot_flow)
+            tested_protocol_obj.copp_test_runner(reboot)
 
     except Exception as err:
         raise AssertionError(err)
@@ -151,11 +148,11 @@ class CoppBase:
 
 # -------------------------------------------------------------------------------
 
-    def copp_test_runner(self, protocol_for_reboot_flow):
+    def copp_test_runner(self, reboot_flow):
         """
         Test runner, defines general logic of the test case.
         Note - To validate burst specific traffic type, need to set low rate value in this traffic type.
-        :param protocol_for_reboot_flow: protocol name for reboot flow
+        :param reboot_flow: True if protocol should run with reboot flow, else False
         :return: None, raise error in case of unexpected result
         """
         # check default burst and rate value
@@ -172,11 +169,9 @@ class CoppBase:
         if self.is_trap_counters_supported:
             with allure.step('Set long trap interval'):
                 self.set_counters_long_trap_interval()
-        if protocol_for_reboot_flow.lower() == self.tested_protocol:
+        if reboot_flow:
             self.run_validation_flow_with_reboot()
         else:
-            logger.info('Ignore reboot validation on this protocol, '
-                        'reboot validation will run on: {}'.format(protocol_for_reboot_flow))
             with allure.step('Check functionality of configured burst limit'):
                 self.run_validation_flow(self.user_limit, self.low_limit, 'burst')
             with allure.step('Check functionality of configured rate limit'):
@@ -197,11 +192,11 @@ class CoppBase:
 
 # -------------------------------------------------------------------------------
 
-    def copp_simx_test_runner(self, protocol_for_reboot_flow):
+    def copp_simx_test_runner(self, reboot_flow):
         """
         Test runner for simx platform.
         Note - To validate pps traffic type only, as burst traffic is not supported on simx.
-        :param protocol_for_reboot_flow: protocol name for reboot flow
+        :param reboot_flow: True if protocol should run with reboot flow, else False
         :return: None, raise error in case of unexpected result
         """
         # check default rate value
@@ -216,7 +211,7 @@ class CoppBase:
         if self.is_trap_counters_supported:
             with allure.step('Set long trap interval'):
                 self.change_flowcnt_trap_interval(self.long_interval)
-        if protocol_for_reboot_flow.lower() == self.tested_protocol:
+        if reboot_flow:
             self.run_validation_flow_with_reboot_for_simx()
             with allure.step('Check functionality of default rate limit after reboot flow'):
                 self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
@@ -255,10 +250,11 @@ class CoppBase:
         self.pre_rx_counts = self.dut_cli_object.ifconfig. \
             get_interface_ifconfig_details(self.dut_iface).rx_packets
 
-        # restart the timer
-        self.set_counters_short_trap_interval()
-        time.sleep(self.long_interval / 1000)     # millisec to sec
-        self.set_counters_long_trap_interval()
+        if self.is_trap_counters_supported:
+            # restart the timer
+            self.set_counters_short_trap_interval()
+            time.sleep(self.long_interval / 1000)     # millisec to sec
+            self.set_counters_long_trap_interval()
 
         with allure.step(f'Check functionality of non default {primary_traffic_type} limit value after reboot'):
             eval(primary_validation_flow)
