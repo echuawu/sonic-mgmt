@@ -736,6 +736,12 @@ tests/nightly/copp/test_copp.py:
     Redmine:
       - 2972489
 
+tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
+  - Redmine:
+    - 2682609
+    Platform:
+    - simx
+
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
   - Redmine:
     - 2682609
