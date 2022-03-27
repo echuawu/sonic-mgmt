@@ -8,6 +8,8 @@ from tests.common.utilities import wait_until
 from multiprocessing.dummy import Pool as ThreadPool
 import re
 
+from tests.common.platform.processes_utils import wait_critical_processes
+
 pytestmark = [
     pytest.mark.topology('t1')
 ]
@@ -252,14 +254,3 @@ def test_TSA_B_C_with_no_neighbors(duthost, bgpmon_setup_teardown, nbrhosts, tbi
 
         # Recover to Normal state
         duthost.shell("TSB")
-
-        # Wait until bgp sessions are established on DUT
-        pytest_assert(wait_until(100, 10, 0, duthost.check_bgp_session_state, bgp_neighbors.keys()),
-                      "Not all BGP sessions are established on DUT")
-
-        # Wait until all routes are announced to neighbors
-        pytest_assert(wait_until(300, 3, 0, verify_all_routes_announce_to_neighs,duthost, nbrhosts, routes_4, 4),
-                      "Not all ipv4 routes are announced to neighbors")
-        pytest_assert(wait_until(300, 3, 0, verify_all_routes_announce_to_neighs,duthost, nbrhosts, routes_6, 6),
-                      "Not all ipv6 routes are announced to neighbors")
-
