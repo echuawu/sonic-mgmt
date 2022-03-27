@@ -89,3 +89,25 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
     dut_cli.general.reboot_reload_flow(topology_obj=topology_obj)
 
     logger.info('Lag LACP Test Common cleanup completed')
+
+
+def cleanup(cleanup_list):
+    """
+    execute all the functions in the cleanup list
+    :return: None
+    """
+    cleanup_list.reverse()
+    for func, args in cleanup_list:
+        func(*args)
+
+
+@pytest.fixture(autouse=True)
+def cleanup_list():
+    """
+    Fixture to execute cleanup after a test is run
+    :return: None
+    """
+    cleanup_list = []
+    yield cleanup_list
+    logger.info("------------------test teardown------------------")
+    cleanup(cleanup_list)
