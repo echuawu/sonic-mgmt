@@ -1115,17 +1115,6 @@
       - 2994207
 
 - Errors_list:
-    - '.* ERR swss#orchagent: :- create: Mirror rule references mirror session "neighbor_advertiser" that does not exist yet'
-    - '.* ERR swss#orchagent: :- add: Failed to create ACL rule rule_(nd|arp) in table EVERFLOW.*'
-    - ".* ERR swss#orchagent: :- addOperation: Vxlan tunnel 'neighbor_advertiser' is already exists"
-  Conditions:
-    - Affected_test_cases:
-      - vxlan/test_vnet_route_leak.py
-      - vxlan/test_vnet_vxlan.py
-      Redmine:
-      - 2997615
-
-- Errors_list:
     - '.* ERR kernel.*Failed to query module temperature thresholds'
   Conditions:
     - Redmine:
