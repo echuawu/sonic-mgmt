@@ -114,11 +114,11 @@ def simx_disable_counters(is_simx, engines, cli_objects, topology_obj, sonic_ver
     """
     if is_simx:
         if '202012' not in sonic_version:
-            counterpoll_status_dict = cli_objects.dut.counterpoll.parse_counterpoll_show(engines.dut)
+            counterpoll_status_dict = cli_objects.dut.counterpoll.parse_counterpoll_show()
             for counter, value in counterpoll_status_dict.items():
                 if value['Status'] == 'enable':
-                    cli_objects.dut.counterpoll.disable_counterpoll(engines.dut)
-                    cli_objects.dut.general.reload_flow(engines.dut, topology_obj=topology_obj, reload_force=True)
+                    cli_objects.dut.counterpoll.disable_counterpoll()
+                    cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
                     break
 
 
