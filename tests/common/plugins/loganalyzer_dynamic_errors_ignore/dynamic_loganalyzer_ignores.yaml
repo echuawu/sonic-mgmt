@@ -826,6 +826,16 @@
         - master
 
 - Errors_list:
+    - '.* ERR coredump_gen_handler\.py\[.*\]: show techsupport failed with exit code \d+, stderr: Accquiring lock failed, PID \d+ is active.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      Redmine:
+        - 3019400
+      Branch:
+        - 202111
+
+- Errors_list:
     - '.* ERR memory_checker: \[memory_checker\] Failed to execute the command ''docker stats --no-stream --format \\{\\{.MemUsage\\}\\} .*''. Return code: ''1'''
   Conditions:
     - Affected_test_cases:

@@ -726,6 +726,12 @@ tests/nightly/lag/test_lag.py::test_lag_members_scale:
     Platform:
     - 5600
 
+tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
+  - Redmine:
+    - 3019434
+    Branch:
+    - 202111
+
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
     - 202012
@@ -901,6 +907,10 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     - x86_64-mlnx_msn4600-r0
     Redmine:
     - 3002280
+  - Redmine:
+    - 3016653
+    Branch:
+    - 202111
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
