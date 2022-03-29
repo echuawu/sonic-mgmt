@@ -1,11 +1,11 @@
 import logging
 
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 
 logger = logging.getLogger()
 
 
-class NvueGeneralCli(SonicGeneralCli):
+class NvueGeneralCli(SonicGeneralCliDefault):
     """
     This class is for general cli commands for NVOS only
     Most of the methods are inherited from SonicGeneralCli

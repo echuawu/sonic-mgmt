@@ -101,7 +101,7 @@ def pre_installation_steps(cli_type, sonic_topo, upgrade_only, base_version, tar
     :param dut_name: dut name
     :param ansible_path: path to ansible directory
     """
-    if cli_type == NvueGeneralCli:
+    if cli_type is NvueGeneralCli:
         NvosInstallationSteps.pre_installation_steps()
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, upgrade_only, base_version, target_version,
@@ -137,7 +137,7 @@ def port_installation_steps(cli_type, topology_obj, dut_name, host_name, sonic_t
     :param reboot: reboot fixture
     :param additional_apps: additional_apps fixture
     """
-    if cli_type == NvueGeneralCli:
+    if cli_type is NvueGeneralCli:
         NvosInstallationSteps.post_installation_steps()
     else:
         SonicInstallationSteps.post_installation_steps(cli_type, topology_obj, dut_name, host_name, sonic_topo,
@@ -160,9 +160,9 @@ def get_info_from_topology(topology_obj, workspace_path):
         host_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['hostname']
         cli_type = topology_obj[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
         if cli_type == "NVUE":
-            cli_obj = NvueGeneralCli
+            cli_obj = NvueGeneralCli()
         else:
-            cli_obj = SonicGeneralCli
+            cli_obj = SonicGeneralCli()
         ansible_path = os.path.join(workspace_path, "sonic-mgmt/ansible/")
         setup_info = SetupInfo(dut_name, host_name, cli_obj, cli_type, ansible_path)
     return setup_info
@@ -215,7 +215,7 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, wjh_deb_u
     :return: raise assertion error in case of script failure
     """
 
-    if cli_type == NvueGeneralCli:
+    if cli_type is NvueGeneralCli:
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path)
     else:
