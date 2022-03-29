@@ -29,7 +29,7 @@ def store_techsupport(request, topology_obj, dumps_folder, session_id):
                 dut_cli_object = topology_obj.players['dut']['cli']
                 dut_engine = topology_obj.players['dut']['engine']
                 duration = get_test_duration(request)
-                remote_dump_path = dut_cli_object.general.generate_techsupport(dut_engine, duration)
+                remote_dump_path = dut_cli_object.general.generate_techsupport(duration)
 
                 dest_file = dumps_folder + '/sysdump_' + request.node.name + '.tar.gz'
                 logger.info('Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder))
