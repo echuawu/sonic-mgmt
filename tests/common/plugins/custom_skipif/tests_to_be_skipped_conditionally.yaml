@@ -862,6 +862,10 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
     - 2637874
 
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
+  - Redmine:
+    - 3016877
+    Branch:
+    - 202111
   - Platform:
     - simx
 
@@ -888,6 +892,7 @@ tests/nightly/fec:
     Platform:
     - 4700
     - 4600
+    - 4410
     - 3700
 
 
