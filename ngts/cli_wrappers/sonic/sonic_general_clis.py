@@ -396,16 +396,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.engine.reload(['sudo reboot'])
 
         with allure.step("Apply qos and dynamic buffer config"):
-            # Now all branches above 201911 except for 202106 support the feature
-            # After the 3 PRs below are merged, we can enable qos and dynamic buffer config
-            # https://github.com/Azure/sonic-swss/pull/1986
-            # https://github.com/Azure/sonic-swss/pull/2039
-            # https://github.com/Azure/sonic-swss/pull/2038
-            if "202106" != self.get_image_sonic_version():
-                SonicQosCli.reload_qos(self.engine)
-                SonicQosCli.stop_buffermgrd(self.engine)
-                SonicQosCli.start_buffermgrd(self.engine)
-                self.save_configuration()
+            SonicQosCli.reload_qos(self.engine)
+            SonicQosCli.stop_buffermgrd(self.engine)
+            SonicQosCli.start_buffermgrd(self.engine)
+            self.save_configuration()
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
