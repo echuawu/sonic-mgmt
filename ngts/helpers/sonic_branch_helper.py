@@ -1,7 +1,7 @@
 import logging
 
 from paramiko.ssh_exception import SSHException
-
+from ngts.constants.constants import NvosCliTypes
 logger = logging.getLogger()
 
 
@@ -18,6 +18,15 @@ def get_sonic_branch(topology):
         logger.error(f'Unable to get branch. Assuming that the device is not reachable. Setting the branch as Unknown. '
                      f'Got error: {err}')
     # master branch always has release "none"
+    except Exception as nvueerr:
+        if topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] \
+                in NvosCliTypes.NvueCliTypes:
+            branch = "master"
+            logger.warning(f'unable to run sonic cmd on dut. Assuming that sonic image is not installed on this device '
+                           f'Got error: {nvueerr}')
+        else:
+            raise nvueerr
+
     if branch == "none":
         branch = "master"
     return branch.strip()

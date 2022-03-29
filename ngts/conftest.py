@@ -19,7 +19,7 @@ from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_na
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import PytestConst
+from ngts.constants.constants import PytestConst, NvosCliTypes
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology
@@ -174,13 +174,12 @@ def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
-            if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
+            if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 player_info['cli'] = NvueCli()
+                player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
             else:
                 player_info['cli'] = SonicCli(topology)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
-        elif player_key == 'sl':
-            player_info['cli'] = NvueCli()
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})

@@ -718,3 +718,7 @@ class MarsConstants:
 class PlayeresAliases:
     Aliases_list = ['sl']
     SL = 'sl'
+
+
+class NvosCliTypes:
+    NvueCliTypes = ["NVUE", "MLNX_OS"]
