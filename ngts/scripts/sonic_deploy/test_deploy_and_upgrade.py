@@ -159,8 +159,9 @@ def get_info_from_topology(topology_obj, workspace_path):
         dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
         host_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['hostname']
         cli_type = topology_obj[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
+        engine = topology_obj.players['dut']['engine']
         if cli_type == "NVUE":
-            cli_obj = NvueGeneralCli()
+            cli_obj = NvueGeneralCli(engine)
         else:
             cli_obj = SonicGeneralCli()
         ansible_path = os.path.join(workspace_path, "sonic-mgmt/ansible/")
