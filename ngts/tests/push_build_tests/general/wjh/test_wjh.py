@@ -336,6 +336,9 @@ def check_buffer_info_table(table, entry, drop_reason, table_type, is_dynamic_bu
     latency = "N/A"
     tc_watermark = "N/A"
     latency_watermark = "N/A"
+    latency_exceed_substring = "Latency"
+    tc_watermark_exceed_substring = "TC Watermark >"
+    occupancy_exceed_substring = "Occupancy >"
 
     expected_tc_id = '1' if is_dynamic_buffer else '0'
 
@@ -359,22 +362,26 @@ def check_buffer_info_table(table, entry, drop_reason, table_type, is_dynamic_bu
 
     if (table_type == 'raw'):
         if drop_reason == 'buffer_congestion':
-            if (tc_id == expected_tc_id and tc_usage != "N/A" and int(tc_usage) > 0 and latency == "N/A" and
-                    tc_watermark == "N/A" and latency_watermark == "N/A"):
+            if (tc_id == expected_tc_id and ((occupancy_exceed_substring in tc_usage) or (tc_usage != "N/A" and int(tc_usage) > 0)) and
+                    latency == "N/A" and tc_watermark == "N/A" and latency_watermark == "N/A"):
                 return
         elif drop_reason == 'buffer_latency':
-            if (tc_id == expected_tc_id and tc_usage != "N/A" and int(tc_usage) > 0 and latency != "N/A" and
-                    int(latency) > 0 and tc_watermark == "N/A" and latency_watermark == "N/A"):
+            if (tc_id == expected_tc_id and ((occupancy_exceed_substring in tc_usage) or (tc_usage != "N/A" and int(tc_usage) > 0)) and
+                    ((latency_exceed_substring in latency) or (latency != "N/A" and int(latency) > 0)) and
+                    tc_watermark == "N/A" and latency_watermark == "N/A"):
                 return
 
     elif (table_type == 'agg'):
         if drop_reason == 'buffer_congestion':
-            if (tc_id == expected_tc_id and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
-                    int(tc_watermark) > 0 and latency_watermark == "N/A"):
+            if (tc_id == expected_tc_id and tc_usage == "N/A" and latency == "N/A" and
+                    ((tc_watermark_exceed_substring in tc_watermark) or (tc_watermark != "N/A" and int(tc_watermark))) > 0 and
+                    latency_watermark == "N/A"):
                 return
-        elif (drop_reason == "buffer_latency"):
-            if (tc_id == expected_tc_id and tc_usage == "N/A" and latency == "N/A" and tc_watermark != "N/A" and
-                    int(tc_watermark) > 0 and latency_watermark != "N/A" and int(latency_watermark) > 0):
+        elif (drop_reason == 'buffer_latency'):
+            if (tc_id == expected_tc_id and tc_usage == "N/A" and latency == "N/A" and
+                    ((tc_watermark_exceed_substring in tc_watermark) or (tc_watermark != "N/A" and int(tc_watermark))) > 0 and
+                    latency_watermark != "N/A" and
+                    ((latency_exceed_substring in latency_watermark) or int(latency_watermark) > 0)):
                 return
 
     pytest.fail("Buffer info table is wrong, tc_id = {}, tc_usage = {}, latency = {}, tc_watermark = {}, "
