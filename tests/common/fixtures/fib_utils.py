@@ -195,12 +195,12 @@ def get_fib_info(duthost, dut_cfg_facts, duts_mg_facts):
                                 oports.append([str(duts_mg_facts[asic_index]['minigraph_ptf_indices'][x]) for x in po[ifname]['members']])
                     else:
                         if sub_interfaces.has_key(ifname):
-                            oports.append([str(duts_mg_facts['minigraph_ptf_indices'][ifname.split('.')[0]])])
+                            oports.append([str(duts_mg_facts[asic_index]['minigraph_ptf_indices'][ifname.split('.')[0]])])
                         elif ports.has_key(ifname):
                             if 'role' in ports[ifname] and ports[ifname]['role'] == 'Int':
                                 skip = True
                             else:
-                                oports.append([str(duts_mg_facts['minigraph_ptf_indices'][ifname])])
+                                oports.append([str(duts_mg_facts[asic_index]['minigraph_ptf_indices'][ifname])])
                         else:
                             logger.info("Route point to non front panel port {}:{}".format(k, v))
                             skip = True
