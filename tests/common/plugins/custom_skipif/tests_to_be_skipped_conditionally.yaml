@@ -1162,3 +1162,11 @@ qos/test_buffer.py::test_headroom_override:
     - x86_64-mlnx_msn4700_simx-r0
     Redmine:
       - 3010264
+
+tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
+  - Redmine:
+      - 3016336
+
+tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py::test_gtp_parser_entry_hit:
+  - Redmine:
+      - 2992172

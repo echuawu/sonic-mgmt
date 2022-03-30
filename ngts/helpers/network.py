@@ -73,3 +73,11 @@ def gen_new_mac_based_old_mac(mac):
     new_mac = str(EUI(new_mac_int)).replace("-", ":")
 
     return new_mac
+
+
+def convert_netmask_to_bit_length(netmask):
+    """
+    convert_netmask_to_bit_length('255.255.255.0')
+    24
+    """
+    return sum([bin(int(i)).count('1') for i in netmask.split('.')])

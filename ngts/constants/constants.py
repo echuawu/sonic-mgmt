@@ -644,6 +644,9 @@ class P4ExamplesConsts:
     VXLAN_BM_FEATURE_NAME = "VXLAN_BM"
     VXLAN_BM_ENCAP_TABLE = "p4-vxlan-bm-overlay-router"
     VXLAN_BM_DECAP_TABLE = "p4-vxlan-bm-tenant-forward"
+    GTP_PARSER_TABLE = "p4-gtp"
+    GTP_PARSER_P4NSPECT_TABLE = "match_gtpv1"
+    GTP_PARSER_FEATURE_NAME = "GTP"
 
 
 class AppExtensionInstallationConstants:

@@ -4,9 +4,11 @@ import logging
 from dotted_dict import DottedDict
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.constants.constants import P4ExamplesConsts
+from ngts.helpers.network import convert_netmask_to_bit_length
 
 
-FEATURE_P4C_JSON_MAP = {"VXLAN_BM": "vxlan_bm.json"}
+FEATURE_P4C_JSON_MAP = {"VXLAN_BM": "vxlan_bm.json",
+                        "GTP": "fp_gtp_parse.json"}
 
 
 def get_p4nspect_query_parsed(engine, table_name="", controlblock_name="control_in_port"):
@@ -201,7 +203,7 @@ def format_value_with_name(name, value, port_configs):
     :param port_configs: port config get from the config_db.json
     :return: the format value
     """
-    hex_key_list = ['vlan', 'is_trunc', 'trunc_size', 'vni']
+    hex_key_list = ['vlan', 'is_trunc', 'trunc_size', 'vni', 'teid']
     ipv4_key_list = ['underlay_dip']
     label_port_key_list = ['ingress_port', 'label_port']
     logic_port_key_list = ['pbs_port']
@@ -440,7 +442,7 @@ def parse_entry_in_one_table(engine, table_content):
             continue
         if i == default_entry_index:
             continue
-        key = entry["KEYS (Key | Value | Mask | Type)"][0]["Value"]
+        key = get_key_value_from_json(entry["KEYS (Key | Value | Mask | Type)"])
         values = {}
         action_name = entry["ACTION"]['name']
         values['action'] = action_name
@@ -450,10 +452,53 @@ def parse_entry_in_one_table(engine, table_content):
         values['priority'] = entry["PRIO"]
         for counter in entry["COUNTERS (Name | Type | Items | Value)"]:
             counter_value = counter["Value"]
-            values['byte_count'] = counter_value[1]
-            values['packet_count'] = counter_value[0]
+            if isinstance(counter_value, list):
+                values['packet_count'] = counter_value[0]
+                values['byte_count'] = counter_value[1]
+            else:
+                values['packet_count'] = counter_value
+
         entry_dict[key] = values
     return controlblock_name, table_name, entry_dict
+
+
+def get_key_value_from_json(key_items):
+    """
+    get the key for entry from the p4enspect output
+    :param key_items: key items in list of dict format
+    :return: the entire key
+    Example for input:
+    [
+        {
+            "Key": "headers.inner_ipv4.dst_addr",
+            "Value": "20.2.2.2",
+            "Mask": "255.255.255.0",
+            "Type": "ternary"
+        },
+        {
+            "Key": "headers.gtpv1.teid",
+            "Value": "0x0",
+            "Mask": "0xffff",
+            "Type": "exact"
+        }
+    ]
+    example of the return will be: 20.2.2.2/24 0
+    """
+    key_list = []
+    for key_item in key_items:
+        key_name = key_item["Key"].split('.')[-1]
+        if key_item["Type"] == "ternary":
+            value = format_value_with_name(key_name, key_item["Value"], None)
+            mask = convert_netmask_to_bit_length(key_item["Mask"])
+            key_value = "/".join([value, str(mask)])
+        else:
+            key_value = format_value_with_name(key_name, key_item["Value"], None)
+        key_list.append(key_value)
+        # TODO: there is issue for the return value of teid in p4nspect, so temporarily only use the first key item.
+        #  after the issue fixed, need to remove the break
+        #  https://jirasw.nvidia.com/browse/P4DT-310
+        break
+    return " ".join(key_list)
 
 
 def attach_counters(engine, docker_name=P4ExamplesConsts.APP_NAME, feature_name="", table_name="", controlblock_name=""):
