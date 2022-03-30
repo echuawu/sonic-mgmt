@@ -39,15 +39,11 @@ class TestEntryScaling:
         flow_params = self.generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac)
         with allure.step("Enable p4-sampling"):
             cli_objects.dut.general.set_feature_state(P4SamplingConsts.APP_NAME, 'enabled')
-        with allure.step("Verify cpu and ram usage before the entries added"):
-            self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
+
         with allure.step("Add {} entries for port table and {} entries for flow table with cli command and "
                          "check execution time".format(count, count)):
             self.add_multiple_entries(cli_object, port_params, flow_params)
         try:
-            with allure.step("Verify cpu and ram usage after the entries added"):
-                self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
-
             with allure.step("Check entries are added correctly and traffic can be mirrored correctly"):
                 self.verify_entries_and_traffic(topology_obj, interfaces, engines.dut, port_params, flow_params)
 
@@ -63,9 +59,6 @@ class TestEntryScaling:
         with allure.step("Check entries are removed "):
             P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
             P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
-
-        with allure.step("Check cpu and memory usage after the entries are removed"):
-            self.verify_cpu_ram_usage(engines.dut, expected_cpu_usage_dict, expected_ram_usage_dict)
 
         with allure.step("Save configuration before reboot"):
             cli_objects.dut.general.save_configuration()
