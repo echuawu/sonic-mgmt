@@ -778,6 +778,10 @@ tests/push_build_tests/general/wjh/test_wjh.py:
     - 2939285
     Platform:
     - msn4700_simx
+  - Redmine:
+    - 3008967
+    Platform:
+    - simx
 
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   - Redmine:

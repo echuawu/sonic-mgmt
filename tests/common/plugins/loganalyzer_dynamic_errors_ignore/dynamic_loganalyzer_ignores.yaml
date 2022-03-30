@@ -1184,10 +1184,9 @@
 
 - Errors_list:
     - '.* ERR dhclient\[\d+\]: send_packet: No such device or address'
+    - '.* ERR dhclient\[\d+\]: dhclient\.c:\d+: Failed to send 300 byte long packet over Ethernet\d+ interface\.'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
-      Redmine:
+    - Redmine:
       - 3006222
       Platform:
       - simx
