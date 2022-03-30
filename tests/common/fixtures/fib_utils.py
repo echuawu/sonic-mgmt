@@ -192,7 +192,7 @@ def get_fib_info(duthost, dut_cfg_facts, duts_mg_facts):
                             if 'role' in ports[po[ifname]['members'][0]] and ports[po[ifname]['members'][0]]['role'] == 'Int':
                                 skip = True
                             else:
-                                oports.append([str(duts_mg_facts['minigraph_ptf_indices'][x]) for x in po[ifname]['members']])
+                                oports.append([str(duts_mg_facts[asic_index]['minigraph_ptf_indices'][x]) for x in po[ifname]['members']])
                     else:
                         if sub_interfaces.has_key(ifname):
                             oports.append([str(duts_mg_facts['minigraph_ptf_indices'][ifname.split('.')[0]])])
