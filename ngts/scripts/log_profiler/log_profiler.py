@@ -85,7 +85,7 @@ log_file_path_dict = {"syslog": "/var/log/",
                       "sairedis.rec": "/var/log/swss/"}
 
 
-def elapsed_time_between_two_patterns(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements):
+def elapsed_time_between_two_patterns(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
     first_pattern_time_stamp = None
     second_pattern_time_stamp = None
 
@@ -115,7 +115,7 @@ def elapsed_time_between_two_patterns(check_type, first_pattern, second_pattern,
         test_pass_elements.append("Test {} passed with result: {}, Expected result is: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test])))
 
 
-def presence(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements):
+def presence(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
     for line in log_to_parse:
         if first_pattern in line:
             test_fail_elements.append("Test {} failed, pattern [ {} ] appeared in the log".format(test, first_pattern))
@@ -124,9 +124,22 @@ def presence(check_type, first_pattern, second_pattern, file_to_parse, debug_hin
     test_pass_elements.append("Test {} passed, pattern [ {} ] did not appear in the log".format(test, first_pattern))
 
 
-def elapsed_time_between_first_to_last_one_pattern(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements):
+def elapsed_time_between_first_to_last_one_pattern(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
     pattern_first_time_stamp = None
     pattern_second_time_stamp = None
+
+    # Exception for NEIGHBOR_ENTRIES_CREATION_TIME check, since neighbors can be created after fast-reboot already finished.
+    # In this case we would like to ignore these neighbors and avoid missleading results.
+    # Each neighbor created after the directly connected neighbors can be ignored.
+    if "NEIGHBOR_ENTRIES_CREATION_TIME" in test:
+        first_neighbor_found = False
+        neighbors_ip_lines = dut.run_cmd("redis-cli -n 4 keys '*' | grep BGP_NEIGHBOR", validate=True, print_output=False).splitlines()
+        neighbors_ip_list = []
+        for neighbor_ip_line in neighbors_ip_lines:
+            neighbors_ip_list.append(neighbor_ip_line.split('|')[1])
+        if not len(neighbors_ip_list):
+            test_fail_elements.append("Test {} failed, No directly connected neighbors found".format(test))
+            return
 
     for line in log_to_parse:
         if first_pattern in line:
@@ -134,8 +147,17 @@ def elapsed_time_between_first_to_last_one_pattern(check_type, first_pattern, se
             if pattern_first_time_stamp is None:
                 pattern_first_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
             else:
-                pattern_second_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
+                if "NEIGHBOR_ENTRIES_CREATION_TIME" in test:
+                    if any(neighbor_ip in line for neighbor_ip in neighbors_ip_list):
+                        first_neighbor_found = True
+                        pattern_second_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
+                        continue
+                    if first_neighbor_found and "DST_MAC_ADDRESS" in line:
+                        continue
+                    if first_neighbor_found:
+                        break
 
+                pattern_second_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
     if not pattern_first_time_stamp:
         test_fail_elements.append("Test {} failed, pattern [ {} ] did not appear in the log".format(test, first_pattern))
         return
@@ -152,7 +174,7 @@ def elapsed_time_between_first_to_last_one_pattern(check_type, first_pattern, se
         test_pass_elements.append("Test {} passed with result: {}, Expected result is: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test])))
 
 
-def elapsed_time_between_first_to_last_two_patterns(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements):
+def elapsed_time_between_first_to_last_two_patterns(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
     first_pattern_time_stamp = None
     second_pattern_time_stamp = None
 
@@ -181,7 +203,7 @@ def elapsed_time_between_first_to_last_two_patterns(check_type, first_pattern, s
         test_pass_elements.append("Test {} passed with result: {}, Expected result is: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test])))
 
 
-def elapsed_time_between_two_patterns_iterate(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements):
+def elapsed_time_between_two_patterns_iterate(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
     first_pattern_lines = []
     second_pattern_lines = []
     first_pattern_time_stamp = None
@@ -332,7 +354,7 @@ def test_run_log_profiler(topology_obj, test_files, syslog_start_line, sairedis_
             with allure.step('Running profiler for: {}'.format(test)):
                 # Test call wrapper
                 eval('{check_type}(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, \
-                                    expected_results_data, platform, test, test_pass_elements, test_fail_elements)'.format(check_type=check_type))
+                                    expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut)'.format(check_type=check_type))
 
     with allure.step('Gather results summary'):
         for pass_result in test_pass_elements:
