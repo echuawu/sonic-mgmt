@@ -1184,7 +1184,7 @@
 
 - Errors_list:
     - '.* ERR dhclient\[\d+\]: send_packet: No such device or address'
-    - '.* ERR dhclient\[\d+\]: dhclient\.c:\d+: Failed to send 300 byte long packet over Ethernet\d+ interface\.'
+    - '.* ERR dhclient\[\d+\]: dhclient\.c:\d+: Failed to send \d+ byte long packet over .* interface.*'
   Conditions:
     - Redmine:
       - 3006222
