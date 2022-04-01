@@ -2,7 +2,6 @@ import pytest
 import json
 
 from ngts.constants.constants import P4ExamplesConsts
-from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4ExamplesCli
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
 
 
@@ -79,6 +78,7 @@ def p4_examples_installation(engines, cli_objects, run_test_only):
     Fixture used to install the p4 examples and enable the application, and uninstall the application after test.
     :param engines: engines fixture
     :param run_test_only: run_test_only fixture
+    :param cli_objects: cli_objects fixture
     """
     if not run_test_only:
         cli_objects.dut.app_ext.add_repository(P4ExamplesConsts.APP_NAME, repository_name=P4ExamplesConsts.REPO_NAME)
@@ -91,12 +91,12 @@ def p4_examples_installation(engines, cli_objects, run_test_only):
         cli_objects.dut.app_ext.remove_repository(P4ExamplesConsts.APP_NAME)
 
 
-def verify_running_feature(engine, expected_feature):
+def verify_running_feature(expected_feature, cli_obj):
     """
     Verify the feature running in the p4 docker is as expected
-    :param engine: dut engine ssh object
     :param expected_feature: expected feature name
+    :param cli_obj: cli_obj object
     """
-    running_feature = P4ExamplesCli.get_p4_example_running_feature(engine)
+    running_feature = cli_obj.p4_examples.get_p4_example_running_feature()
     assert running_feature == expected_feature, \
         f"Expect no feature is running, but {running_feature} is running in the {P4ExamplesConsts.APP_NAME}"

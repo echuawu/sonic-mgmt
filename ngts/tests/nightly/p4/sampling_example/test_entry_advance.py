@@ -151,25 +151,25 @@ class TestEntryTraffic:
 
             ingress_ports = self.get_ingress_ports(indices, table_params.port_entry)
             with allure.step("Shutdown port of the ingress port in the port table"):
-                self.shutdown_ports(engines.dut, cli_objects.dut, ingress_ports)
+                self.shutdown_ports(cli_objects.dut, ingress_ports)
             with allure.step("Check traffic can not be received by the mirror port"):
                 self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list, [])
                 self.verify_entries_missed(cli_objects.dut, port_entry_keys, [])
             with allure.step("Startup port of the ingress port in the port table"):
-                self.startup_ports(engines.dut, cli_objects.dut, ingress_ports)
+                self.startup_ports(cli_objects.dut, ingress_ports)
             with allure.step("Check traffic can be received by the mirror port"):
                 self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list, [])
                 self.verify_entries_hit(cli_objects.dut, port_entry_keys, [])
 
             mirror_ports = self.get_mirror_ports(indices, table_params)
             with allure.step("Shutdown the mirror port in the port and flow table"):
-                self.shutdown_ports(engines.dut, cli_objects.dut, mirror_ports)
+                self.shutdown_ports(cli_objects.dut, mirror_ports)
             with allure.step("Check traffic can not be received by the mirror port"):
                 self.verify_traffic_lossed(topology_obj, engines.dut, port_traffic_params_list,
                                            flow_traffic_params_list)
                 self.verify_entries_missed(cli_objects.dut, port_entry_keys, flow_entry_keys)
             with allure.step("Startup the mirror port in the port and flow table"):
-                self.startup_ports(engines.dut, cli_objects.dut, mirror_ports)
+                self.startup_ports(cli_objects.dut, mirror_ports)
             with allure.step("Check traffic can be received by the mirror port"):
                 self.verify_traffic_received(topology_obj, engines.dut, port_traffic_params_list,
                                              flow_traffic_params_list)
@@ -284,7 +284,7 @@ class TestEntryTraffic:
         :return: None
         """
         logger.info("Clear the entry counters before send traffic")
-        cli_obj.p4.clear_all_table_counters()
+        cli_obj.p4_sampling.clear_all_table_counters()
         time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
         pkt_count = int(1 / P4SamplingConsts.TRAFFIC_INTERVAL)
         P4SamplingUtils.verify_entry_counter(cli_obj, PORT_TABLE_NAME, port_entry_keys, pkt_count)
@@ -300,19 +300,18 @@ class TestEntryTraffic:
         :return: None
         """
         logger.info("Clear the entry counters before send traffic")
-        cli_obj.p4.clear_table_counters(PORT_TABLE_NAME)
-        cli_obj.p4.clear_table_counters(FLOW_TABLE_NAME)
+        cli_obj.p4_sampling.clear_table_counters(PORT_TABLE_NAME)
+        cli_obj.p4_sampling.clear_table_counters(FLOW_TABLE_NAME)
         time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
         pkt_count = 0
         P4SamplingUtils.verify_entry_counter(cli_obj, PORT_TABLE_NAME, port_entry_keys, pkt_count)
         P4SamplingUtils.verify_entry_counter(cli_obj, FLOW_TABLE_NAME, flow_entry_keys, pkt_count)
 
     @staticmethod
-    def shutdown_ports(engine_dut, cli_obj, ports):
+    def shutdown_ports(cli_obj, ports):
         """
         shut down the ports
-        :param engine_dut: dut engine ssh object
-        :param cli_obj" cli_obj object
+        :param cli_obj: cli_obj object
         :param ports: list of port to be shutdown
         :return:
         """
@@ -321,10 +320,9 @@ class TestEntryTraffic:
         cli_obj.interface.check_link_state(ports, expected_status="down")
 
     @staticmethod
-    def startup_ports(engine_dut, cli_obj, ports):
+    def startup_ports(cli_obj, ports):
         """
         startup ports
-        :param engine_dut: dut engine ssh object
         :param cli_obj" cli_obj object
         :param ports: list of port to be startup
         :return: None
@@ -336,9 +334,9 @@ class TestEntryTraffic:
     @staticmethod
     def remove_entries(cli_obj, table_params):
         for port_entry_key in table_params.port_entry.keys():
-            cli_obj.p4.delete_entry_from_table(PORT_TABLE_NAME, 'key {}'.format(port_entry_key))
+            cli_obj.p4_sampling.delete_entry_from_table(PORT_TABLE_NAME, 'key {}'.format(port_entry_key))
         for flow_entry_key in table_params.flow_entry.keys():
-            cli_obj.p4.delete_entry_from_table(FLOW_TABLE_NAME, 'key {}'.format(flow_entry_key))
+            cli_obj.p4_sampling.delete_entry_from_table(FLOW_TABLE_NAME, 'key {}'.format(flow_entry_key))
 
     @staticmethod
     def add_entries(cli_obj, table_params):
@@ -347,13 +345,13 @@ class TestEntryTraffic:
             params = port_entry[key]
             port_table_entry_params = 'key {} action {} {} priority {}'.format(key, ACTION_NAME, params.action,
                                                                                params.priority)
-            cli_obj.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params)
+            cli_obj.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params)
         flow_entry = table_params.flow_entry
         for key in flow_entry.keys():
             params = flow_entry[key]
             flow_table_entry_params = 'key {} action {} {} priority {}'.format(
                 key, ACTION_NAME, params.action, params.priority)
-            cli_obj.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params)
+            cli_obj.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params)
 
     @staticmethod
     def get_port_list(topology_obj):

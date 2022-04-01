@@ -1,11 +1,9 @@
 import logging
 import allure
-from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4nspect_utils import get_p4nspect_query_parsed
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from datetime import datetime
 import time
 
@@ -28,7 +26,7 @@ class P4SamplingUtils:
         logger.info("Clear the Interface counters before send traffic")
         cli_obj.interface.clear_counters()
         logger.info("Clear the entry counters before send traffic")
-        cli_obj.p4.clear_all_table_counters()
+        cli_obj.p4_sampling.clear_all_table_counters()
 
     @staticmethod
     def verify_traffic_hit(topology_obj, engines, interfaces, table_params, count, expect_count):
@@ -160,7 +158,7 @@ class P4SamplingUtils:
         """
         with allure.step('Get entries with cli command'):
             start_time = datetime.now()
-            entries_added_cli = cli_obj.p4.show_and_parse_table_entries(table_name, exclude_keys=["Rule"])
+            entries_added_cli = cli_obj.p4_sampling.show_and_parse_table_entries(table_name, exclude_keys=["Rule"])
             end_time = datetime.now()
             time_used = (end_time - start_time).seconds
             logger.info('Show entries for port table takes {} seconds'.format(time_used))
@@ -316,7 +314,7 @@ class P4SamplingUtils:
         """
 
         time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
-        hit_counters = cli_obj.p4.show_and_parse_table_counters(table_name)
+        hit_counters = cli_obj.p4_sampling.show_and_parse_table_counters(table_name)
         for entry_key in entry_keys:
             if not hit_counters:
                 packet_count = 0

@@ -22,7 +22,7 @@ from ngts.cli_wrappers.sonic.sonic_flowcnt_clis import SonicFlowcntCli
 from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCli
 from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
 from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
-from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4GTPParserCli
+from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4GTPParserCli, P4VxlanBMCli, P4ExamplesCli
 from ngts.cli_util.stub_engine import StubEngine
 from dotted_dict import DottedDict
 logger = logging.getLogger()
@@ -54,8 +54,10 @@ class SonicCli:
         self._counterpoll = None
         self._flowcnt = None
         self._app_ext = None
-        self._p4 = None
+        self._p4_sampling = None
         self._p4_gtp = None
+        self._p4_examples = None
+        self._p4_vxlan_bm = None
 
     @property
     def ip(self):
@@ -184,16 +186,28 @@ class SonicCli:
         return self._app_ext
 
     @property
-    def p4(self):
-        if self._p4 is None:
-            self._p4 = P4SamplingCli(engine=self.engine)
-        return self._p4
+    def p4_sampling(self):
+        if self._p4_sampling is None:
+            self._p4_sampling = P4SamplingCli(engine=self.engine)
+        return self._p4_sampling
 
     @property
     def p4_gtp(self):
         if self._p4_gtp is None:
             self._p4_gtp = P4GTPParserCli(engine=self.engine)
         return self._p4_gtp
+
+    @property
+    def p4_examples(self):
+        if self._p4_examples is None:
+            self._p4_examples = P4ExamplesCli(engine=self.engine)
+        return self._p4_examples
+
+    @property
+    def p4_vxlan_bm(self):
+        if self._p4_vxlan_bm is None:
+            self._p4_vxlan_bm = P4VxlanBMCli(engine=self.engine)
+        return self._p4_vxlan_bm
 
 
 class SonicCliStub(SonicCli):

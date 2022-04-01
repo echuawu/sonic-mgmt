@@ -346,7 +346,7 @@ def get_hit_entry_list(cli_obj, table_name, entries, expect_count):
     entry_keys = list(entries.keys())
     entry_count = len(entry_keys)
     time.sleep(P4SamplingConsts.COUNTER_REFRESH_INTERVAL)
-    hit_counters = cli_obj.p4.show_and_parse_table_counters(table_name)
+    hit_counters = cli_obj.p4_sampling.show_and_parse_table_counters(table_name)
     for i in range(entry_count):
         entry_key = entry_keys[i]
         if not hit_counters:

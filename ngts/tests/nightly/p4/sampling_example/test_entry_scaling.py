@@ -5,7 +5,6 @@ from dotted_dict import DottedDict
 from datetime import datetime
 import random
 from ngts.constants.constants import P4SamplingConsts
-from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.tests.push_build_tests.system.test_cpu_ram_hdd_usage import get_cpu_usage_and_processes
@@ -156,8 +155,8 @@ class TestEntryScaling:
             flow_key_params_list.append(params)
 
         start_time = datetime.now()
-        cli_obj.p4.add_entries_to_table(P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
-        cli_obj.p4.add_entries_to_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
+        cli_obj.p4_sampling.add_entries_to_table(P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
+        cli_obj.p4_sampling.add_entries_to_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info("Time take for add {} entries : {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
@@ -183,8 +182,8 @@ class TestEntryScaling:
             flow_key_params_list.append(flow_key_params)
 
         start_time = datetime.now()
-        cli_obj.p4.delete_entries_from_table(P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
-        cli_obj.p4.delete_entries_from_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
+        cli_obj.p4_sampling.delete_entries_from_table(P4SamplingConsts.PORT_TABLE_NAME, port_key_params_list)
+        cli_obj.p4_sampling.delete_entries_from_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
         logger.info("Time take for remove {} entries: {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),

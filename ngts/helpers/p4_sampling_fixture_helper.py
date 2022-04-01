@@ -5,7 +5,6 @@ import time
 
 from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
-from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from dotted_dict import DottedDict
 
@@ -44,10 +43,10 @@ def skipping_p4_sampling_test_case(cli_obj):
         pytest.skip("Skipping p4-sampling test cases as p4-sampling is not installed.")
 
 
-def install_p4_sampling(engine_dut, cli_obj):
+def install_p4_sampling(cli_obj):
     """
     install p4-sampling app
-    :param engine_dut: dut ssh engine object
+    :param cli_obj: cli_obj object
     :return: None
     """
     with allure.step('Check if the repository of the {} added and if it is Installed '.format(APP_NAME)):
@@ -79,6 +78,7 @@ def uninstall_p4_sampling(engine_dut, cli_obj):
     """
     uninstall p4-sampling app
     :param engine_dut: dut ssh engine object
+    :param cli_obj: cli_obj object
     :return: None
     """
     with allure.step('Disable {}'.format(APP_NAME)):
@@ -103,14 +103,14 @@ def clean_p4_sampling_entries(engines, cli_obj):
     """
     cli_obj.app_ext.enable_app(APP_NAME)
     with allure.step('Get existing entries'):
-        port_entries = cli_obj.p4.show_and_parse_table_entries(PORT_TABLE_NAME, exclude_keys=['rule'])
-        flow_entries = cli_obj.p4.show_and_parse_table_entries(FLOW_TABLE_NAME, exclude_keys=['rule'])
+        port_entries = cli_obj.p4_sampling.show_and_parse_table_entries(PORT_TABLE_NAME, exclude_keys=['rule'])
+        flow_entries = cli_obj.p4_sampling.show_and_parse_table_entries(FLOW_TABLE_NAME, exclude_keys=['rule'])
 
     with allure.step('Remove the entries'):
         for port_entry in port_entries:
-            cli_obj.p4.delete_entry_from_table(PORT_TABLE_NAME, 'key {}'.format(port_entry['key']))
+            cli_obj.p4_sampling.delete_entry_from_table(PORT_TABLE_NAME, 'key {}'.format(port_entry['key']))
         for flow_entry in flow_entries:
-            cli_obj.p4.delete_entry_from_table(FLOW_TABLE_NAME, 'key {}'.format(flow_entry['key']))
+            cli_obj.p4_sampling.delete_entry_from_table(FLOW_TABLE_NAME, 'key {}'.format(flow_entry['key']))
     return port_entries, flow_entries
 
 
@@ -126,12 +126,12 @@ def recover_p4_sampling_entries(cli_obj, port_entries, flow_entries):
         for port_entry in port_entries:
             port_table_entry_params = 'key {} action {} {} priority {}'.format(port_entry.key, ACTION_NAME,
                                                                                port_entry.action, port_entry.priority)
-            cli_obj.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params)
+            cli_obj.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params)
         for flow_entry in flow_entries:
             flow_table_entry_params = 'key {} action {} {} priority {}'.format(flow_entry.key, ACTION_NAME,
                                                                                flow_entry.action,
                                                                                flow_entry.priority)
-            cli_obj.p4.add_entry_to_table(PORT_TABLE_NAME, flow_table_entry_params)
+            cli_obj.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, flow_table_entry_params)
 
 
 def add_p4_sampling_entries(cli_obj, table_params):
@@ -148,14 +148,14 @@ def add_p4_sampling_entries(cli_obj, table_params):
             params = port_entry[key]
             port_table_entry_params = 'key {} action {} {} priority {}'.format(key, ACTION_NAME, params.action,
                                                                                params.priority)
-            cli_obj.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params)
+            cli_obj.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params)
     flow_entry = table_params.flow_entry
     with allure.step('Add {} entries for {}'.format(len(flow_entry.keys()), FLOW_TABLE_NAME)):
         for key in flow_entry.keys():
             params = flow_entry[key]
             flow_table_entry_params = 'key {} action {} {} priority {}'.format(
                 key, ACTION_NAME, params.action, params.priority)
-            cli_obj.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params)
+            cli_obj.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params)
 
 
 def remove_p4_sampling_entries(topology_obj, interfaces, engines, table_params):
@@ -172,10 +172,10 @@ def remove_p4_sampling_entries(topology_obj, interfaces, engines, table_params):
     cli_obj = topology_obj.players['dut']['cli']
     with allure.step('Remove {} entries for {}'.format(len(port_entry.keys()), PORT_TABLE_NAME)):
         for port_entry_key in table_params.port_entry.keys():
-            cli_obj.p4.delete_entry_from_table(PORT_TABLE_NAME, 'key {}'.format(port_entry_key))
+            cli_obj.p4_sampling.delete_entry_from_table(PORT_TABLE_NAME, 'key {}'.format(port_entry_key))
     with allure.step('Remove {} entries for {}'.format(len(flow_entry.keys()), FLOW_TABLE_NAME)):
         for flow_entry_key in table_params.flow_entry.keys():
-            cli_obj.p4.delete_entry_from_table(FLOW_TABLE_NAME, 'key {}'.format(flow_entry_key))
+            cli_obj.p4_sampling.delete_entry_from_table(FLOW_TABLE_NAME, 'key {}'.format(flow_entry_key))
 
     with allure.step(
             'Verify entries count in table {} and {} after the added entries are removed'.format(

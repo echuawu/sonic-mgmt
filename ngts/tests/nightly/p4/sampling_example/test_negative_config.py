@@ -80,19 +80,19 @@ class TestNegativeConfig:
                     table_params.port_action_param,
                     table_params.port_priority)
                 with allure.step('Verify add entry to port table output'):
-                    verify_show_cmd(cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                                     expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verifying remove entry from port table output'):
-                    verify_show_cmd(cli_objects.dut.p4.delete_entry_from_table(PORT_TABLE_NAME,
-                                                                               "key {}".format(table_params.port_key)),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.delete_entry_from_table(PORT_TABLE_NAME,
+                                                                                        "key {}".format(table_params.port_key)),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
                 with allure.step('Verifying show entries of port table output'):
-                    verify_show_cmd(cli_objects.dut.p4.show_table_entries(PORT_TABLE_NAME),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.show_table_entries(PORT_TABLE_NAME),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
                 with allure.step('Verifying show counters of port table output'):
-                    verify_show_cmd(cli_objects.dut.p4.show_table_counters(PORT_TABLE_NAME),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.show_table_counters(PORT_TABLE_NAME),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
 
@@ -102,21 +102,21 @@ class TestNegativeConfig:
                                                                                    table_params.flow_action_param,
                                                                                    table_params.flow_priority)
                 with allure.step('Verify add entry to flow table output'):
-                    verify_show_cmd(cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME,
-                                                                          flow_table_entry_params),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME,
+                                                                                   flow_table_entry_params),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
                 with allure.step('Verify remove entry from flow table output'):
-                    verify_show_cmd(cli_objects.dut.p4.delete_entry_from_table(FLOW_TABLE_NAME,
-                                                                               "key {}".format(table_params.flow_key)),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.delete_entry_from_table(FLOW_TABLE_NAME,
+                                                                                        "key {}".format(table_params.flow_key)),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
                 with allure.step('Verify show entries of flow table output'):
-                    verify_show_cmd(cli_objects.dut.p4.show_table_entries(FLOW_TABLE_NAME),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.show_table_entries(FLOW_TABLE_NAME),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
                 with allure.step('Verify show counters of flow table output'):
-                    verify_show_cmd(cli_objects.dut.p4.show_table_counters(FLOW_TABLE_NAME),
+                    verify_show_cmd(cli_objects.dut.p4_sampling.show_table_counters(FLOW_TABLE_NAME),
                                     expected_output_list=[(r'Error: "p4-sampling" feature is disabled, run '
                                                            r'"config feature state p4-sampling enabled"', True)])
         finally:
@@ -152,7 +152,7 @@ class TestNegativeConfig:
                     expect_error_msg_list, port_table_entry_params_list):
                 with allure.step('Verify add entry to port table output with negative key: {}'.format(port_table_entry_params)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
             expect_delete_error_msg_list = ['Error: Missing argument "key"',
                                             'Error: Invalid value for "<key_port>": Illegal port \\S+. '
@@ -166,7 +166,7 @@ class TestNegativeConfig:
                     expect_delete_error_msg_list, port_table_key_param_list):
                 with allure.step('Verify remove entry from port table output with negative key: {}'.format(port_table_key_param)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.delete_entry_from_table(PORT_TABLE_NAME, port_table_key_param),
+                        cli_objects.dut.p4_sampling.delete_entry_from_table(PORT_TABLE_NAME, port_table_key_param),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
         with allure.step('Verify add, delete and show command for the table_flow_sampling'):
@@ -198,7 +198,7 @@ class TestNegativeConfig:
                     expect_error_msg_list, flow_table_entry_params_list):
                 with allure.step('Verify add entry to port table output with negative key: {}'.format(flow_table_entry_params)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
             expect_delete_error_msg_list = ['Error: Missing argument "key"',
@@ -217,7 +217,7 @@ class TestNegativeConfig:
                     expect_delete_error_msg_list, flow_table_key_param_list):
                 with allure.step('Verify remove entry from port table output with negative key: {}'.format(flow_table_key_param)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.delete_entry_from_table(FLOW_TABLE_NAME, flow_table_key_param),
+                        cli_objects.dut.p4_sampling.delete_entry_from_table(FLOW_TABLE_NAME, flow_table_key_param),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
     @allure.title('Test P4 sampling add entry with negative action')
@@ -275,7 +275,7 @@ class TestNegativeConfig:
                     expect_error_msg_list, port_table_entry_params_list):
                 with allure.step('Verify add entry to port table output with negative action: {}'.format(port_table_entry_params)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
         with allure.step('Verify add entry for the table_flow_sampling'):
@@ -331,7 +331,7 @@ class TestNegativeConfig:
                 with allure.step('Verify add entry to flow table output with negative action: {}'.format(
                         flow_table_entry_params)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
     @allure.title('Test P4 sampling add entry with negative priority')
@@ -365,7 +365,7 @@ class TestNegativeConfig:
                 with allure.step('Verify add entry to port table output with negative priority: {}'.format(
                         port_table_entry_params)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
         with allure.step('Verify add entry for the table_flow_sampling'):
@@ -390,7 +390,7 @@ class TestNegativeConfig:
                 with allure.step('Verify add entry to flow table output with negative action: {}'.format(
                         flow_table_entry_params)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
     @allure.title('Test P4 sampling add, delete, show entry and show counters with negative table name')
@@ -417,33 +417,33 @@ class TestNegativeConfig:
                 with allure.step('Verify add entry to table output with negative table name: {} and port table params'.format(
                         table_name)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(table_name, port_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(table_name, port_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step(
                         'Verify add entry to table output with negative table name: {} and flow table params'.format(
                             table_name)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(table_name, flow_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(table_name, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step(
                         'Verify remove entry from table output with negative table name: {} and port table keys'.format(
                             table_name)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.delete_entry_from_table(table_name, "key {}".format(table_params.port_key)),
+                        cli_objects.dut.p4_sampling.delete_entry_from_table(table_name, "key {}".format(table_params.port_key)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step(
                         'Verify remove entry from table output with negative table name: {} and flow table keys'.format(
                             table_name)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.delete_entry_from_table(table_name, "key {}".format(table_params.flow_key)),
+                        cli_objects.dut.p4_sampling.delete_entry_from_table(table_name, "key {}".format(table_params.flow_key)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify show entries of table output with negative table name: {}'.format(table_name)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.show_table_entries(table_name),
+                        cli_objects.dut.p4_sampling.show_table_entries(table_name),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify show counters of table output with negative table name: {}'.format(table_name)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.show_table_counters(table_name),
+                        cli_objects.dut.p4_sampling.show_table_counters(table_name),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
     @allure.title('Test P4 sampling add, delete, show entry and show counters with more args')
@@ -464,11 +464,11 @@ class TestNegativeConfig:
                                                                                       table_params.port_priority, extra_arg)
                 with allure.step('Verify add entry to port table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify remove entry from port table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.delete_entry_from_table(PORT_TABLE_NAME, "key {} {}".format(
+                        cli_objects.dut.p4_sampling.delete_entry_from_table(PORT_TABLE_NAME, "key {} {}".format(
                             table_params.port_key, extra_arg)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify show entries of port table output with extra args: {}'.format(extra_arg)):
@@ -493,12 +493,12 @@ class TestNegativeConfig:
                                                                                       extra_arg)
                 with allure.step('Verify add entry to flow table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
+                        cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify remove entry from flow table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
-                        cli_objects.dut.p4.delete_entry_from_table(FLOW_TABLE_NAME,
-                                                                   "key {} {}".format(table_params.flow_key, extra_arg)),
+                        cli_objects.dut.p4_sampling.delete_entry_from_table(FLOW_TABLE_NAME,
+                                                                            "key {} {}".format(table_params.flow_key, extra_arg)),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])
                 with allure.step('Verify show entries of flow table output with extra args: {}'.format(extra_arg)):
                     verify_show_cmd(
@@ -532,7 +532,7 @@ class TestNegativeConfig:
                                                                                table_params.port_priority)
             with allure.step('Verify add entry to flow table output with non-physical port for ingress port: {}'.format(port)):
                 verify_show_cmd(
-                    cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                    cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                     expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
             expect_error_msg = 'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. ' \
@@ -544,7 +544,7 @@ class TestNegativeConfig:
                                                                                table_params.port_priority)
             with allure.step('Verify add entry to port table output with non-physical port for mirror: {}'.format(port)):
                 verify_show_cmd(
-                    cli_objects.dut.p4.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
+                    cli_objects.dut.p4_sampling.add_entry_to_table(PORT_TABLE_NAME, port_table_entry_params),
                     expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
             expect_error_msg = 'Error: Invalid value for "<l3_mirror_port>": Illegal port \\S+. ' \
@@ -557,7 +557,7 @@ class TestNegativeConfig:
             with allure.step(
                     'Verify add entry to flow table output with non-physical port for mirror: {}'.format(port)):
                 verify_show_cmd(
-                    cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
+                    cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
                     expected_output_list=[(r'{}'.format(expect_error_msg), True)])
 
     @pytest.fixture()
@@ -587,5 +587,5 @@ def test_p4_sampling_not_support_on_spc1(engines, cli_objects, table_params, pla
         params = flow_entry[flow_entry_key]
         flow_table_entry_params = 'key {} action {} {} priority {}'.format(flow_entry_key, ACTION_NAME, params.action,
                                                                            params.priority)
-        verify_show_cmd(cli_objects.dut.p4.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
+        verify_show_cmd(cli_objects.dut.p4_sampling.add_entry_to_table(FLOW_TABLE_NAME, flow_table_entry_params),
                         expected_output_list=[(r'{}'.format(expect_error_msg), True)])

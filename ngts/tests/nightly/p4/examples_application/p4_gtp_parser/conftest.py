@@ -1,7 +1,6 @@
 import pytest
 import logging
 import allure
-from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4ExamplesCli
 from ngts.constants.constants import P4ExamplesConsts
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 
@@ -132,7 +131,7 @@ def p4_gtp_entry_configuration(engines, gtp_table_params, cli_objects):
     :param cli_objects: cli_objects fixture
     """
     with allure.step(f"Start feature {P4ExamplesConsts.GTP_PARSER_FEATURE_NAME} in the p4 examples app"):
-        P4ExamplesCli.start_p4_example_feature(engines.dut, P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        cli_objects.dut.p4_examples.start_p4_example_feature(P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
     with allure.step("Add P4 gtp parser entries"):
         add_gtp_entries(gtp_table_params, cli_objects.dut)
     yield
@@ -145,7 +144,7 @@ def p4_gtp_entry_configuration(engines, gtp_table_params, cli_objects):
         assert len(gtp_entries) == 0, "The gtp entries not cleaned."
 
     with allure.step(f"Stop feature {P4ExamplesConsts.GTP_PARSER_FEATURE_NAME} in the p4 examples app"):
-        P4ExamplesCli.stop_p4_example_feature(engines.dut)
+        cli_objects.dut.p4_examples.stop_p4_example_feature()
 
 
 def add_gtp_entries(gtp_table_params, cli_obj):

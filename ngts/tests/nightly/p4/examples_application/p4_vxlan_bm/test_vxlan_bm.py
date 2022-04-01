@@ -2,7 +2,6 @@ import pytest
 import logging
 import json
 import allure
-from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4ExamplesCli, P4VxlanBMCli
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.constants.constants import P4ExamplesConsts
@@ -178,28 +177,29 @@ def p4_vxlan_bm_configuration(topology_obj, engines, interfaces):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def p4_vxlan_bm_entry_config(engines, table_params):
+def p4_vxlan_bm_entry_config(engines, table_params, cli_objects):
     """
     Fixture used to config the vxlan bm entries
     :param engines: engines fixture
     :param table_params: table_params fixture
+    :param cli_objects: cli_objects fixture
     """
     encap_entry_dict = table_params.encap_table
     decap_entry_dict = table_params.decap_table
-
+    cli_obj = cli_objects.dut
     with allure.step(f"Start feature {P4ExamplesConsts.VXLAN_BM_FEATURE_NAME} in the p4 examples app"):
-        P4ExamplesCli.start_p4_example_feature(engines.dut, P4ExamplesConsts.VXLAN_BM_FEATURE_NAME)
+        cli_obj.p4_examples.start_p4_example_feature(P4ExamplesConsts.VXLAN_BM_FEATURE_NAME)
     with allure.step("Add entries"):
         with allure.step(f"Add entry for the {ENCAP_TABLE_NAME} table"):
             for encap_entry_key, encap_entry_param_dict in encap_entry_dict.items():
                 encap_entry_params = get_encap_entry_params(encap_entry_param_dict)
-                P4VxlanBMCli.add_encap_entry(engines.dut, encap_entry_key, encap_entry_params)
+                cli_obj.p4_vxlan_bm.add_encap_entry(encap_entry_key, encap_entry_params)
             p4nspect_utils.attach_counters(engines.dut, feature_name=P4ExamplesConsts.VXLAN_BM_FEATURE_NAME,
                                            table_name=ENCAP_TABLE_NAME)
         with allure.step(f"Add entry for the {DECAP_TABLE_NAME} table"):
             for decap_entry_key, decap_entry_param_dict in decap_entry_dict.items():
                 decap_entry_params = get_decap_entry_params(decap_entry_param_dict)
-                P4VxlanBMCli.add_decap_entry(engines.dut, decap_entry_key, decap_entry_params)
+                cli_obj.p4_vxlan_bm.add_decap_entry(decap_entry_key, decap_entry_params)
             p4nspect_utils.attach_counters(engines.dut, feature_name=P4ExamplesConsts.VXLAN_BM_FEATURE_NAME,
                                            table_name=DECAP_TABLE_NAME)
 
@@ -209,12 +209,12 @@ def p4_vxlan_bm_entry_config(engines, table_params):
             p4nspect_utils.detach_counters(engines.dut, feature_name=P4ExamplesConsts.VXLAN_BM_FEATURE_NAME,
                                            table_name=DECAP_TABLE_NAME)
             for encap_entry_key in encap_entry_dict:
-                P4VxlanBMCli.delete_encap_entry(engines.dut, encap_entry_key)
+                cli_obj.p4_vxlan_bm.delete_encap_entry(encap_entry_key)
         with allure.step(f"Delete entries for the {DECAP_TABLE_NAME} table"):
             p4nspect_utils.detach_counters(engines.dut, feature_name=P4ExamplesConsts.VXLAN_BM_FEATURE_NAME,
                                            table_name=ENCAP_TABLE_NAME)
             for decap_entry_key in decap_entry_dict:
-                P4VxlanBMCli.delete_decap_entry(engines.dut, decap_entry_key)
+                cli_obj.p4_vxlan_bm.delete_decap_entry(decap_entry_key)
 
     with allure.step("Verify entries can be deleted correctly"):
         with allure.step(f"Verify {ENCAP_TABLE_NAME} entries have be deleted correctly"):
@@ -225,12 +225,12 @@ def p4_vxlan_bm_entry_config(engines, table_params):
             verify_entries_removed(engines.dut, DECAP_TABLE_NAME, table_params.decap_table)
 
     with allure.step(f"Stop feature {P4ExamplesConsts.VXLAN_BM_FEATURE_NAME} in the p4 examples app"):
-        P4ExamplesCli.stop_p4_example_feature(engines.dut)
+        cli_obj.p4_examples.stop_p4_example_feature()
 
 
 @pytest.mark.build
 @pytest.mark.p4_examples
-def test_vxlan_bm_basic(topology_obj, engines, table_params):
+def test_vxlan_bm_basic(topology_obj, engines, table_params, cli_objects):
     """
     Vxlan BM basic test
     :param topology_obj:topology object fixture
@@ -264,7 +264,7 @@ def test_vxlan_bm_basic(topology_obj, engines, table_params):
         verify_entries_not_hit(engines.dut, ENCAP_TABLE_NAME, table_params.encap_table.keys(), 20)
 
     with allure.step("Edit existing entries"):
-        edit_existing_entries(engines.dut, table_params)
+        edit_existing_entries(table_params, cli_objects)
     with allure.step("Very entries have been updated"):
         verify_entries_updated(engines.dut, ENCAP_TABLE_NAME, table_params.encap_table, ENCAP_ENTRY_PARAMS)
         verify_entries_updated(engines.dut, DECAP_TABLE_NAME, table_params.decap_table, DECAP_ENTRY_PARAMS)
@@ -464,11 +464,11 @@ def verify_entries_not_hit(dut_engine, table_name, entry_key_list, expected_coun
             f"The counter for entry {entry_key} is not correct, expect {pkt_count} < {expected_count}"
 
 
-def edit_existing_entries(dut_engine, table_params):
+def edit_existing_entries(table_params, cli_objects):
     """
     Edit the existing entries
-    :param dut_engine: ssh engine object
     :param table_params: table_params fixture object
+    :param cli_objects: cli_objects fixture object
     """
     encap_entry_dict = table_params.encap_table
     decap_entry_dict = table_params.decap_table
@@ -476,10 +476,10 @@ def edit_existing_entries(dut_engine, table_params):
         if "update_params" in encap_entry_param_dict:
             entry_update_param_dict = encap_entry_param_dict['update_params']
             encap_entry_params = get_encap_entry_params(entry_update_param_dict)
-            P4VxlanBMCli.update_encap_entry(dut_engine, encap_entry_key, encap_entry_params)
+            cli_objects.dut.p4_vxlan_bm.update_encap_entry(encap_entry_key, encap_entry_params)
 
     for decap_entry_key, decap_entry_param_dict in decap_entry_dict.items():
         if "update_params" in decap_entry_param_dict:
             entry_update_param_dict = decap_entry_param_dict['update_params']
             decap_entry_params = get_decap_entry_params(entry_update_param_dict)
-            P4VxlanBMCli.update_decap_entry(dut_engine, decap_entry_key, decap_entry_params)
+            cli_objects.dut.p4_vxlan_bm.update_decap_entry(decap_entry_key, decap_entry_params)
