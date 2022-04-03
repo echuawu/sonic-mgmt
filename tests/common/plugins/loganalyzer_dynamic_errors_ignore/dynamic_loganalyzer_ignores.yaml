@@ -104,6 +104,8 @@
       - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
       - vxlan/test_vnet_vxlan.py
       - ecmp/inner_hashing/test_wr_inner_hashing.py
+      - dhcp_relay/test_dhcp_relay.py::test_interface_binding
+      - autorestart/test_container_autorestart.py
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961383
 - Errors_list:
@@ -577,6 +579,7 @@
     - Affected_test_cases:
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - autorestart/test_container_autorestart.py
       Redmine:
         - 2606325
       Branch:
@@ -626,6 +629,7 @@
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - ecmp/inner_hashing/test_wr_inner_hashing.py
       - autorestart/test_container_autorestart.py
+      - dhcp_relay/test_dhcp_relay.py::test_interface_binding
       Redmine:
         - 2619129
 
