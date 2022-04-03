@@ -390,10 +390,17 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         hwsku = platform_params['hwsku']
         shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
-        self.upload_port_config_ini(platform, hwsku, shared_path)
-        self.upload_config_db_file(topology_obj, setup_name, cli_object, hwsku, shared_path)
+        with allure.step("Apply port config ini"):
+            self.upload_port_config_ini(platform, hwsku, shared_path)
 
-        self.engine.reload(['sudo reboot'])
+        with allure.step("Apply config DB"):
+            self.upload_config_db_file(topology_obj, setup_name, cli_object, hwsku, shared_path)
+
+        with allure.step("Updating dhclient lease time"):
+            self.update_dhclient_lease_time()
+
+        with allure.step("Reboot the dut"):
+            self.engine.reload(['sudo reboot'])
 
         with allure.step("Apply qos and dynamic buffer config"):
             SonicQosCli.reload_qos(self.engine)
@@ -606,6 +613,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             f.write('\n')
         os.chmod(new_config_db_json_path, 0o777)
         return file_name
+
+    def update_dhclient_lease_time(self):
+        dhclient_lease_time = 'send dhcp-lease-time 7200;'
+        dhclient_conf_file = '/usr/share/sonic/templates/dhclient.conf.j2'
+        update_dhclient_lease_time_cmd = f"""
+        if grep -q dhcp-lease-time {dhclient_conf_file}; then
+            sudo sed -i 's/^send dhcp-lease-time.*/{dhclient_lease_time}/g' {dhclient_conf_file}
+        else
+            sudo sed -i '/^send host-name = gethostname();/a {dhclient_lease_time}' {dhclient_conf_file}
+        fi
+        """
+        self.engine.run_cmd(update_dhclient_lease_time_cmd, validate=True)
 
     def install_wjh(self, wjh_deb_url):
         wjh_package_local_name = '/home/admin/wjh.deb'
