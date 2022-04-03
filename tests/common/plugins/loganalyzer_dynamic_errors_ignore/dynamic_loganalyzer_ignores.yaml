@@ -231,6 +231,47 @@
       - 202111
       - master
 
+# Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
+- Errors_list:
+    - '.* ERR lldp#lldpmgrd\[\d+\]: unknown operation.*'
+  Conditions:
+    - Affected_test_cases:
+      # Canonical
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/copp/test_copp.py::test_copp_policer
+      - tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_lag_min_links
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
+      # Community
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
+      Redmine:
+      - 3024792
+      Branch:
+      - 202111
+      - master
+
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2943278
 - Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/.*''No such file or directory''.*'
