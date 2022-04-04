@@ -346,8 +346,7 @@ class CoppBase:
         if protocol == 'snmp':
             protocol = 'ip2me'
 
-        # branch 202012 have deprecated format of dhcp trap name
-        if protocol == 'dhcp' and '202012' not in self.sonic_version:
+        if protocol == 'dhcp':
             protocol = 'dhcp_relay'
 
         return protocol
