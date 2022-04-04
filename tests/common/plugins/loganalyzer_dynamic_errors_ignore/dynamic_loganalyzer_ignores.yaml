@@ -1243,3 +1243,13 @@
       - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity
       Redmine:
       - 3017157
+
+- Errors_list:
+    - '.* ERR swss#orchagent: message repeated \d+ times: \[ :- update: Failed to get port by bridge port ID 0x.*.\]'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      Redmine:
+      - 3030960
+      Branch:
+      - 202012
