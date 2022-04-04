@@ -4,7 +4,6 @@ import pytest
 import time
 import logging
 import dateutil.parser
-import datetime
 import random
 import copy
 
@@ -849,17 +848,19 @@ def validate_auto_techsupport_feature_config(duthost, expected_status_dict=None)
 
 
 def validate_techsupport_generation(duthost, is_techsupport_expected, expected_core_file=None,
-                                    since_value_in_seconds=172800):
+                                    since_value_in_seconds=None):
     """
     Validated techsupport generation. Check if techsupport started or not. Check number of files created.
     Check history, check mapping between core files and techsupport files.
     :param duthost: duthost object
     :param is_techsupport_expected: True/False, if expect techsupport - then True
     :param expected_core_file: expected core file name which we will check in techsupport file
-    :param since_value_in_seconds: int, value in seconds which used in validation for since parameter, 172800 = 2 days
+    :param since_value_in_seconds: int, value in seconds which used in validation for since parameter
     :return: AssertionError in case of failure
     """
-    expected_oldest_timestamp_datetime = get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds)
+    expected_oldest_timestamp_datetime = None
+    if since_value_in_seconds:
+        expected_oldest_timestamp_datetime = get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds)
 
     try:
         available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
@@ -911,7 +912,8 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
                                                    expected_core_files_list=[expected_core_file])
 
             logger.info('Checking since value in techsupport file')
-            validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_timestamp_datetime)
+            if expected_oldest_timestamp_datetime:
+                validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_timestamp_datetime)
         except Exception as err:
             raise AssertionError(err)
         finally:
