@@ -42,7 +42,7 @@ class TestAutoNeg(TestAutoNegBase):
             logger.info("Checking default configuration: {}".format(conf))
 
             logger.info("Set auto negotiation mode to disabled on ports before test starts")
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, conf.keys(),
+            self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
                                          conf, cleanup_list, mode='disabled')
 
             logger.info("Enable auto-negotiation with default settings and"
@@ -50,7 +50,7 @@ class TestAutoNeg(TestAutoNegBase):
 
             self.auto_neg_checker(self.tested_lb_dict, conf, cleanup_list)
 
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut,
+            self.configure_port_auto_neg(self.cli_objects.dut,
                                          conf.keys(), conf, cleanup_list, mode='disabled')
 
         with allure.step("Check custom auto neg configuration"):
@@ -70,7 +70,7 @@ class TestAutoNeg(TestAutoNegBase):
 
         with allure.step("Disable auto neg and verify port returns to previous configuration"):
             logger.info("Disable auto negotiation and validate the configuration return to previous setting.")
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, conf.keys(),
+            self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
                                          conf, cleanup_list, mode='disabled')
             self.verify_auto_neg_configuration(conf_backup)
 

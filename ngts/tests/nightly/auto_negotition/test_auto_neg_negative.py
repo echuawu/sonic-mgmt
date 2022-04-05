@@ -96,7 +96,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(interfaces_list=conf.keys())
         with allure.step("Set auto negotiation mode to disabled on ports"):
             logger.info("Set auto negotiation mode to disabled on ports")
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, lb, conf,
+            self.configure_port_auto_neg(self.cli_objects.dut, lb, conf,
                                          cleanup_list, mode='disabled')
         with allure.step("Configure mismatch auto neg values"):
             logger.info("Configure mismatch auto neg values")
@@ -108,7 +108,7 @@ class TestAutoNegNegative(TestAutoNegBase):
                        logger=logger)
         with allure.step("Enable auto neg on ports: {}".format(lb)):
             logger.info("Enable auto neg on ports: {}".format(lb))
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, ports_list=lb, conf=conf,
+            self.configure_port_auto_neg(self.cli_objects.dut, ports_list=lb, conf=conf,
                                          cleanup_list=cleanup_list, mode='enabled')
         with allure.step("verify ports are down due to mismatch"):
             logger.info("verify ports are down due to mismatch")
@@ -190,7 +190,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         tested_lb_dict = {1: [lb]}
         conf = self.get_mismatch_speed_type_conf(lb, split_mode, tested_lb_dict)
         logger.info("verify auto-negotiation fails in case of mismatch advertised types and speeds")
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, conf.keys(),
+        self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
                                      conf, cleanup_list, mode='disabled')
         self.auto_neg_checker(tested_lb_dict, conf, cleanup_list)
 

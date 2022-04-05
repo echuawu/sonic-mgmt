@@ -319,15 +319,15 @@ class TestAutoNegBase:
         base_type = max(matched_types, key=get_interface_cable_width)
         physical_interface_type = self.physical_interfaces_types_dict.get(port)
         cleanup_list.append((self.configure_interface_type,
-                             (engine, cli_object, port, 'none'),
+                             (cli_object, port, 'none'),
                              {'physical_interface_type': physical_interface_type}))
         cleanup_list.append((cli_object.interface.set_interface_speed, (port, base_speed)))
         cleanup_list.append((self.configure_interface_type,
-                             (engine, cli_object, port, base_type),
+                             (cli_object, port, base_type),
                              {'physical_interface_type': physical_interface_type}))
         cleanup_list.append((cli_object.interface.config_advertised_speeds, (port, 'all')))
         cleanup_list.append((self.configure_advertised_interface_types,
-                             (engine, cli_object, port, 'all'),
+                             (cli_object, port, 'all'),
                              {'physical_interface_type': physical_interface_type}))
 
     def auto_neg_toggle_peer_checker(self, conf, cleanup_list):
@@ -346,14 +346,13 @@ class TestAutoNegBase:
         self.configure_peer_ports(conf, dut_interfaces_speeds, ha_interfaces_speeds, cleanup_list)
         self.toggle_port(self.engines.dut, self.cli_objects.dut, self.interfaces.dut_ha_1, cleanup_list)
         logger.info("Enable auto-negotiation on dut interface {}".format(self.interfaces.dut_ha_1))
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut,
-                                     ports_list=[self.interfaces.dut_ha_1], conf=conf,
+        self.configure_port_auto_neg(self.cli_objects.dut, ports_list=[self.interfaces.dut_ha_1], conf=conf,
                                      cleanup_list=cleanup_list, mode='enabled')
         logger.info("Verify speed/type configuration didn't modify while auto neg is off on interface {}"
                     .format(self.interfaces.ha_dut_1))
         self.verify_auto_neg_configuration(conf={self.interfaces.dut_ha_1: conf[self.interfaces.dut_ha_1]})
         logger.info("Enable auto negotiation on host port {}".format(self.interfaces.ha_dut_1))
-        self.configure_port_auto_neg(self.engines.ha, self.cli_objects.ha, ports_list=[self.interfaces.ha_dut_1],
+        self.configure_port_auto_neg(self.cli_objects.ha, ports_list=[self.interfaces.ha_dut_1],
                                      conf=conf, cleanup_list=cleanup_list, mode='on')
         self.toggle_port(self.engines.ha, self.cli_objects.ha, self.interfaces.ha_dut_1, cleanup_list)
         logger.info("Check configuration on ports modify when auto neg is enabled on both ports")
@@ -371,10 +370,10 @@ class TestAutoNegBase:
 
     def disable_auto_neg_on_peer_ports(self, conf, cleanup_list):
         logger.info("Disable auto negotiation on host port {}".format(self.interfaces.ha_dut_1))
-        self.configure_port_auto_neg(self.engines.ha, self.cli_objects.ha, ports_list=[self.interfaces.ha_dut_1],
+        self.configure_port_auto_neg(self.cli_objects.ha, ports_list=[self.interfaces.ha_dut_1],
                                      conf=conf, cleanup_list=cleanup_list, mode='off')
         logger.info("Disable auto-negotiation on dut interface {}".format(self.interfaces.dut_ha_1))
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, ports_list=[self.interfaces.dut_ha_1],
+        self.configure_port_auto_neg(self.cli_objects.dut, ports_list=[self.interfaces.dut_ha_1],
                                      conf=conf, cleanup_list=cleanup_list, mode='disabled')
 
     def configure_peer_ports(self, conf, dut_interfaces_speeds, ha_interfaces_speeds, cleanup_list):
@@ -456,11 +455,11 @@ class TestAutoNegBase:
             self.configure_ports(self.engines.dut, self.cli_objects.dut,
                                  conf, base_interfaces_speeds, cleanup_list, set_cleanup=set_cleanup)
             logger.info("Enable auto negotiation mode on the first port of the loopbacks")
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, lb_ports_1_list, conf, cleanup_list)
+            self.configure_port_auto_neg(self.cli_objects.dut, lb_ports_1_list, conf, cleanup_list)
             logger.info("Check configuration on ports did not modify while auto neg is enabled on one loopback port")
             self.verify_auto_neg_configuration(conf, check_adv_parm=False)
             logger.info("Enable auto negotiation mode on the second port of the loopbacks")
-            self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, lb_ports_2_list, conf, cleanup_list)
+            self.configure_port_auto_neg(self.cli_objects.dut, lb_ports_2_list, conf, cleanup_list)
             self.update_port_conf(conf, conf.keys())
             logger.info("Verify the speed/type change to expected "
                         "result when auto neg is enabled on both loopback ports")
@@ -495,33 +494,32 @@ class TestAutoNegBase:
                 if set_cleanup:
                     self.set_speed_type_cleanup(port, engine, cli_object, base_interfaces_speeds, cleanup_list)
 
-                self.configure_interface_type(engine, cli_object, port, 'none',
+                self.configure_interface_type(cli_object, port, 'none',
                                               physical_interface_type=physical_interface_type)
                 cli_object.interface. \
                     set_interface_speed(port, port_conf_dict[AutonegCommandConstants.SPEED])
-                self.configure_interface_type(engine, cli_object, port, port_conf_dict[AutonegCommandConstants.TYPE],
+                self.configure_interface_type(cli_object, port, port_conf_dict[AutonegCommandConstants.TYPE],
                                               physical_interface_type=physical_interface_type)
                 cli_object.interface. \
                     config_advertised_speeds(port, port_conf_dict[AutonegCommandConstants.ADV_SPEED])
-                self.configure_advertised_interface_types(engine, cli_object, port,
+                self.configure_advertised_interface_types(cli_object, port,
                                                           port_conf_dict[AutonegCommandConstants.ADV_TYPES],
                                                           physical_interface_type=physical_interface_type)
 
     @staticmethod
     @skip_for_interface_type_rj45
-    def configure_interface_type(engine, cli_object, port, iface_type, physical_interface_type):
+    def configure_interface_type(cli_object, port, iface_type, physical_interface_type):
         cli_object.interface.config_interface_type(port, iface_type)
 
     @staticmethod
     @skip_for_interface_type_rj45
-    def configure_advertised_interface_types(engine, cli_object, port, interface_type_list, physical_interface_type):
+    def configure_advertised_interface_types(cli_object, port, interface_type_list, physical_interface_type):
         cli_object.interface.config_advertised_interface_types(port, interface_type_list)
 
     @staticmethod
-    def configure_port_auto_neg(engine, cli_object, ports_list, conf, cleanup_list, mode='enabled'):
+    def configure_port_auto_neg(cli_object, ports_list, conf, cleanup_list, mode='enabled'):
         """
         configure the auto neg mode on the port.
-        :param engine: a ssh connection
         :param cli_object: cli object of engine
         :param ports_list: a list of ports, i.e,
         :param conf: a dictionary of the port auto negotiation default configuration and expected outcome

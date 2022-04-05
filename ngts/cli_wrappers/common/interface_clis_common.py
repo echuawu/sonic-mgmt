@@ -10,13 +10,13 @@ class InterfaceCliCommon(InterfaceCliInterface):
         pass
 
     @staticmethod
-    def config_advertised_speeds(engine, interface, speed_list):
+    def config_advertised_speeds(interface, speed_list):
         pass
 
     @staticmethod
-    def config_interface_type(engine, interface, interface_type):
+    def config_interface_type(interface, interface_type):
         pass
 
     @staticmethod
-    def config_advertised_interface_types(engine, interface, interface_type_list):
+    def config_advertised_interface_types(interface, interface_type_list):
         pass

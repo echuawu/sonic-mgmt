@@ -63,7 +63,7 @@ class TestAutoNegScale(TestAutoNegBase):
             dut_conf[port] = conf[port]
 
         logger.info("Set auto negotiation mode to disabled on ports before test starts")
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, ports,
+        self.configure_port_auto_neg(self.cli_objects.dut, ports,
                                      dut_conf, cleanup_list, mode='disabled')
         logger.info("Get ports default speed settings")
         base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(self.engines.dut,
@@ -73,7 +73,7 @@ class TestAutoNegScale(TestAutoNegBase):
         logger.info("Check auto negotiation was configured correctly")
         self.verify_auto_neg_configuration(dut_conf, check_adv_parm=False)
         logger.info("Set auto negotiation mode to enabled on all ports")
-        self.configure_port_auto_neg(self.engines.dut, self.cli_objects.dut, ports, dut_conf,
+        self.configure_port_auto_neg(self.cli_objects.dut, ports, dut_conf,
                                      cleanup_list, mode='enabled')
         for port, port_conf_dict in dut_conf.items():
             port_conf_dict[AutonegCommandConstants.SPEED] = dut_conf[port]['expected_speed']
