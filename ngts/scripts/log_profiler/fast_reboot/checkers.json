@@ -9,9 +9,9 @@
     },
     "CREATE_SWITCH_TIME": {
         "check_type": "elapsed_time_between_two_patterns",
-        "first_pattern": "SAI_SWITCH_ATTR_INIT_SWITCH",
-        "second_pattern": "SAI_STATUS_SUCCESS|SAI_SWITCH_ATTR_SRC_MAC_ADDRESS",
-        "file_to_parse": "sairedis",
+        "first_pattern": "ready for reset",
+        "second_pattern": "created switch with hwinfo",
+        "file_to_parse": "syslog",
         "debug_hint": "Create switch function execution time is longer than expected",
         "word_pattern_offset": "N/A"
     },
@@ -40,7 +40,7 @@
         "word_pattern_offset": "12"
     },
     "PHY_PORTS_UP_TO_LAGS_UP_TIME": {
-        "check_type": "elapsed_time_between_first_to_last_two_patterns",
+        "check_type": "elapsed_time_between_last_to_last_two_patterns",
         "first_pattern": "sx_netdev_handle_pude_event",
         "second_pattern": "setDistributionOnLagMember",
         "file_to_parse": "syslog",

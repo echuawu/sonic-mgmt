@@ -56,6 +56,9 @@ the test will measure elapsed time between first and last.
 "elapsed_time_between_first_to_last_two_patterns" - Elapsed time between two patterns printed to the log. Each pattern will appear more than once, this
 test will measure elapsed time between first appearance of the first pattern and last appearance of the second pattern.
 
+"elapsed_time_between_last_to_last_two_patterns" - Elapsed time between two patterns printed to the log. Each pattern will appear more than once, this
+test will measure elapsed time between last appearance of the first pattern and last appearance of the second pattern.
+
 "elapsed_time_between_two_patterns" - Elapsed time between two patterns printed to the log.
 
 "elapsed_time_between_two_patterns_iterate" - Elapsed time between two patterns printed to the log with a shared word multiple times. This test will
@@ -183,6 +186,34 @@ def elapsed_time_between_first_to_last_two_patterns(check_type, first_pattern, s
             date_string = get_date_string(file_to_parse, line)
             first_pattern_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
             break
+    if not first_pattern_time_stamp:
+        test_fail_elements.append("Test {} failed, pattern [ {} ] did not appear in the log".format(test, first_pattern))
+        return
+
+    for line in log_to_parse:
+        if second_pattern in line:
+            date_string = get_date_string(file_to_parse, line)
+            second_pattern_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
+    if not second_pattern_time_stamp:
+        test_fail_elements.append("Test {} failed, pattern [ {} ] did not appear in the log".format(test, second_pattern))
+        return
+
+    expected_result = float(expected_results_data[platform][test])
+    time_diff = second_pattern_time_stamp - first_pattern_time_stamp
+    if time_diff.total_seconds() > expected_result:
+        test_fail_elements.append("Test {} failed with result: {}, Expected result is: {}, Reason: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test]), debug_hint))
+    else:
+        test_pass_elements.append("Test {} passed with result: {}, Expected result is: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test])))
+
+
+def elapsed_time_between_last_to_last_two_patterns(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
+    first_pattern_time_stamp = None
+    second_pattern_time_stamp = None
+
+    for line in log_to_parse:
+        if first_pattern in line:
+            date_string = get_date_string(file_to_parse, line)
+            first_pattern_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
     if not first_pattern_time_stamp:
         test_fail_elements.append("Test {} failed, pattern [ {} ] did not appear in the log".format(test, first_pattern))
         return
