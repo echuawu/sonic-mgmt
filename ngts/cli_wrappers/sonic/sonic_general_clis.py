@@ -400,7 +400,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.update_dhclient_lease_time()
 
         with allure.step("Reboot the dut"):
-            self.reboot_reload_flow(topology_obj=topology_obj)
+            self.engine.reload(['sudo reboot'])
+            self.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
 
         with allure.step("Apply qos and dynamic buffer config"):
             SonicQosCli.reload_qos(self.engine)
