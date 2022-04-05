@@ -396,6 +396,11 @@
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_SPEED: \d+.*'
     - '.* ERR swss#orchagent: :- handleSaiSetStatus: Encountered SAI_STATUS_INVALID_ATTR_VALUE_0 in set operation.*'
     - '.* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ speed from \d+ to \d+.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_port_update_speed_sp2: Failed to set port .* rate - Parameter Error.'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_port_update_speed: Failed to apply speed/intf bitmap \[0x.*\] for port\[0x.*\].'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Port rate given is not compatible with the capability rate of the switch.'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Port rate capability validation failed \(Parameter Error\).'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Specified admin rate value is invalid, rc = Parameter Error'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds
