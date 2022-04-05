@@ -85,19 +85,19 @@ def pre_install_base_image(topology_obj, cli_objects, upgrade_params, engines):
         current_base_version, current_target_version = cli_objects.dut.general.get_base_and_target_images(dut_engine)
         if old_target_image != current_target_version:
             if current_base_version == old_target_image:
-                switch_version_by_set_default_image(engines.dut, cli_objects, target_version)
+                switch_version_by_set_default_image(topology_obj, engines.dut, cli_objects, target_version)
             else:
                 cli_objects.dut.general.deploy_image(topology_obj, target_version)
 
 
-def switch_version_by_set_default_image(dut_engine, cli_objects, version):
+def switch_version_by_set_default_image(topology_obj, dut_engine, cli_objects, version):
     """
     Switch version by setting default image and check if switch success or not
     """
     with allure.step("Set {} as default image".format(version)):
         cli_objects.dut.general.set_default_image(dut_engine, version)
     with allure.step('Rebooting the dut'):
-        dut_engine.reload(['sudo reboot'])
+        cli_objects.dut.general.safe_reboot_flow(topology_obj=topology_obj)
     with allure.step('Verifying dut booted with correct image'):
         # installer flavor might change after loading a different version
         delimiter = cli_objects.dut.general.get_installer_delimiter(dut_engine)

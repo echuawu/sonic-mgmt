@@ -23,4 +23,13 @@
       </params>
     </cmd>
   </case>
+  <case>
+    <name> push_gate_ci_sanitizer_checker </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/check_and_store_sanitizer_dump.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals --test_name=push_gate_ci\'"</static_args>
+      </params>
+    </cmd>
+  </case>
 </CASEDEF>

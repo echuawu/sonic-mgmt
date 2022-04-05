@@ -26,7 +26,7 @@ def session_id():
     return session_id
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def dumps_folder(setup_name, session_id):
     """
     Get test artifact folder from environment variables or create according to setup parameters.
@@ -36,6 +36,7 @@ def dumps_folder(setup_name, session_id):
     env_log_folder = os.environ.get(ENV_LOG_FOLDER)
     if not env_log_folder:  # default value is empty string, defined in steps file
         env_log_folder = create_result_dir(setup_name, session_id, CASES_DUMPS_DIR)
+        os.environ[ENV_LOG_FOLDER] = env_log_folder
     return env_log_folder
 
 

@@ -46,5 +46,5 @@ def test_configure_preset_on_dut(topology_obj, setup_name, platform_params, pres
 
     with allure.step("Reboot the switch with the new configuration"):
         logger.info("Reboot the switch with the new configuration")
-        dut_engine.reload(['sudo reboot'])
+        cli_object.general.safe_reboot_flow(topology_obj=topology_obj)
         cli_object.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)

@@ -125,7 +125,7 @@ def cleanup_config(topology_obj, engine, ip_config_dict):
 
 
 @pytest.fixture()
-def static_route_configuration(topology_obj, engines, interfaces, platform_params):
+def static_route_configuration(topology_obj, engines, cli_objects, interfaces, platform_params):
     """
     This function will configure 32766 IPv6 static routes and 32766 IPv6 static routes
     :return: 2 lists with IPv4 and IPv6 addresses
@@ -160,7 +160,7 @@ def static_route_configuration(topology_obj, engines, interfaces, platform_param
     configuration is not released immediately, as a result the consecutive ram checker is failing,
     as it expects smaller values.
     """
-    engines.dut.reload(['sudo reboot'])
+    cli_objects.dut.general.safe_reboot_flow(topology_obj=topology_obj)
 
 
 @pytest.mark.reboot_reload

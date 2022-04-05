@@ -21,7 +21,7 @@ from ngts.scripts.install_app_extension.install_app_extesions import install_all
 from ngts.conftest import update_topology_with_cli_class
 import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
-from ngts.helpers.sonic_branch_helper import update_branch_in_topology
+from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_sanitizer_in_topology
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -198,6 +198,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
     # Update CLI classes based on current SONiC branch
     update_branch_in_topology(topology_obj)
+    update_sanitizer_in_topology(topology_obj)
     update_topology_with_cli_class(topology_obj)
 
     if run_config_only or full_flow_run:
@@ -233,6 +234,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
                 # Update CLI classes based on current SONiC branch
                 update_branch_in_topology(topology_obj)
+                update_sanitizer_in_topology(topology_obj)
                 update_topology_with_cli_class(topology_obj)
 
                 with allure.step('Copying config_db.json from target version'):

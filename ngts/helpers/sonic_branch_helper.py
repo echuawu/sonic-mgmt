@@ -41,3 +41,27 @@ def update_branch_in_topology(topology, branch=None):
     if not branch:
         branch = get_sonic_branch(topology)
     topology.players['dut']['branch'] = branch
+
+
+def update_sanitizer_in_topology(topology):
+    """
+    Method which doing update for SONiC branch in topology object
+    :param topology: topology fixture object
+    :param branch: SONiC branch, example: "202106"
+    """
+    topology.players['dut']['sanitizer'] = is_sanitizer_image(topology)
+
+
+def is_sanitizer_image(topology):
+    dut_engine = topology.players['dut']['engine']
+    is_sanitizer = False
+    try:
+        sanitizer = dut_engine.run_cmd("sonic-cfggen -y /etc/sonic/sonic_version.yml -v asan")
+    except SSHException as err:
+        logger.warning(f'Unable to get sanitizer. Assuming that the device is not reachable. '
+                       f'Setting the sanitizer as False, '
+                       f'Got error: {err}')
+    if sanitizer == "yes":
+        logger.info("The sonic image has sanitizer")
+        is_sanitizer = True
+    return is_sanitizer

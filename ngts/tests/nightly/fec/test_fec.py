@@ -173,7 +173,7 @@ class TestFec:
 
         with allure.step("Save configuration and warm reboot"):
             save_configuration(self.engines.dut, self.cli_objects.dut, cleanup_list)
-            self.engines.dut.reload(['sudo {}'.format(reboot_type)], wait_after_ping=45)
+            self.cli_objects.dut.safe_reboot_flow(topology_obj=self.topology_obj, reboot_type=reboot_type)
             cli_objects.dut.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
 
         with allure.step("Toggle ports: {}".format(ports_for_toggle_flow)):

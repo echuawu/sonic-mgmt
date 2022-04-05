@@ -3,7 +3,7 @@ import logging
 import os
 import allure
 import math
-
+from ngts.constants.constants import PytestConst
 
 logger = logging.getLogger()
 
@@ -19,11 +19,14 @@ def store_techsupport(request, topology_obj, dumps_folder, session_id):
     :param dumps_folder: path to store the logs and sysdump
     :param session_id: MARS session id
     """
+    os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "True"
+
     yield
 
     is_loganalyzer_failed = request.session.config.cache.get('is_loganalyzer_failed', False)
 
-    if request.node.rep_setup.passed and (request.node.rep_call.failed or is_loganalyzer_failed):
+    if request.node.rep_setup.passed and (request.node.rep_call.failed or is_loganalyzer_failed) and \
+            os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) == "True":
         if session_id:
             with allure.step('The test case has failed, generating a sysdump'):
                 dut_cli_object = topology_obj.players['dut']['cli']
@@ -40,9 +43,9 @@ def store_techsupport(request, topology_obj, dumps_folder, session_id):
                                      overwrite_file=True,
                                      verify_file=False)
                 os.chmod(dest_file, 0o777)
-    else:
-        logger.info('###  Session ID was not provided, assuming this is manual run,'
-                    ' sysdump will not be created  ###')
+        else:
+            logger.info('###  Session ID was not provided, assuming this is manual run,'
+                        ' sysdump will not be created  ###')
 
 
 def get_test_duration(request):

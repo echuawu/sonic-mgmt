@@ -13,7 +13,7 @@ logger = logging.getLogger()
 @pytest.mark.reboot_reload
 @pytest.mark.app_ext
 @allure.title('App delay to start after reboot ')
-def test_app_start_delay_after_reboot(add_app_into_repo, cli_objects):
+def test_app_start_delay_after_reboot(topology_obj, add_app_into_repo, cli_objects):
     """
     This test case is app delay to start after reboot, when manifest include the following info:
         {
@@ -34,7 +34,7 @@ def test_app_start_delay_after_reboot(add_app_into_repo, cli_objects):
             cli_objects.dut.app_ext.enable_app(app_name)
         with allure.step("Save config and reboot"):
             cli_objects.dut.general.save_configuration()
-            dut_engine.reload(['sudo reboot '], wait_after_ping=45)
+            cli_objects.dut.general.safe_reboot_flow(topology_obj=topology_obj)
             cli_objects.dut.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
             logger.info("Wait {} seconds to verify {} container is up".format(delay_time, app_name))
             time.sleep(delay_time)

@@ -12,6 +12,7 @@ class PytestConst:
     CUSTOM_TEST_SKIP_PLATFORM_TYPE = 'dynamic_tests_skip_platform_type'
     CUSTOM_TEST_SKIP_BRANCH_NAME = 'dynamic_tests_skip_branch_name'
     LA_DYNAMIC_IGNORES_LIST = 'LA_DYNAMIC_IGNORES_LIST'
+    GET_DUMP_AT_TEST_FALIURE = "GET_DUMP"
 
 
 class SonicConst:
@@ -51,6 +52,7 @@ class SonicConst:
 
     MINIGRAPH_XML = 'minigraph.xml'
     MINIGRAPH_XML_PATH = SONIC_CONFIG_FOLDER + MINIGRAPH_XML
+    SANITIZER_FOLDER_PATH = "/var/log/asan"
 
 
 class CliType:

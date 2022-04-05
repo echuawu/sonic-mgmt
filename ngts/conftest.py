@@ -22,7 +22,7 @@ from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import PytestConst, NvosCliTypes
 from ngts.tools.infra import get_platform_info
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
-from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology
+from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
 
 
 logger = logging.getLogger()
@@ -73,6 +73,9 @@ def pytest_addoption(parser):
     parser.addoption('--wjh_deb_url', action='store', default=None, help='URL path to WJH deb package')
     parser.addoption("--session_id", action="store", default=None, help="Number of mars session id.")
     parser.addoption("--mars_key_id", action="store", default=None, help="mars key id.")
+    parser.addoption("--test_name", action="store", default=None,
+                     help="a parameter for script check_and_store_sanitizer_dump.py, "
+                          "will check for sanitizer failures and store dump under test name")
     parser.addoption("--tech_support_duration", action="store", default=None, help="duration of tech support for test")
     parser.addoption(PytestConst.run_config_only_arg, action='store_true', help='If set then only the configuration '
                                                                                 'part defined in the push_build '
@@ -150,6 +153,7 @@ def topology_obj(setup_name, request):
     # Update CLI classes according to the current SONiC branch
     branch = request.session.config.cache.get(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
     update_branch_in_topology(topology, branch)
+    update_sanitizer_in_topology(topology)
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
 

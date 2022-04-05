@@ -22,7 +22,7 @@ def test_switch_sonic_image(topology_obj, setup_name):
             delimiter = cli_obj.general.get_installer_delimiter()
             cli_obj.general.set_default_image(target_image, delimiter)
         with allure.step('Rebooting the dut'):
-            dut_engine.reload(['sudo reboot'])
+            cli_obj.general.reboot_flow(topology_obj=topology_obj)
         with allure.step('Verifying dut booted with correct image'):
             delimiter = cli_obj.general.get_installer_delimiter()
             image_list = cli_obj.general.get_sonic_image_list(delimiter)

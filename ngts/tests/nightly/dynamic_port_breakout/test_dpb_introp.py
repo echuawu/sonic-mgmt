@@ -129,7 +129,8 @@ class TestDPBInterop(DependenciesBase):
         :return: raise assertion error in case validation failed after reboot
         """
         interfaces_list = list(breakout_ports_conf.keys())
-        save_configuration_and_reboot(self.dut_engine, self.cli_object, interfaces_list, cleanup_list, reboot_type)
+        save_configuration_and_reboot(self.topology_obj, self.dut_engine, self.cli_object,
+                                      interfaces_list, cleanup_list, reboot_type)
         send_ping_and_verify_results(self.topology_obj, self.dut_engine, cleanup_list,
                                      self.tested_modes_lb_conf.values())
 

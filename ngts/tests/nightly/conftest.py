@@ -75,7 +75,7 @@ def cleanup(cleanup_list):
             func(*args)
 
 
-def save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type):
+def save_configuration_and_reboot(topology_obj, dut_engine, cli_object, ports, cleanup_list, reboot_type):
     """
     save configuration and reboot
     :param dut_engine: ssh connection to dut
@@ -88,7 +88,7 @@ def save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, r
     with allure.step('Save configuration and reboot with type: {}'.format(reboot_type)):
         save_configuration(dut_engine, cli_object, cleanup_list)
         logger.info("Reload switch with reboot type: {}".format(reboot_type))
-        cli_object.general.reboot_reload_flow(r_type=reboot_type, ports_list=ports)
+        cli_object.general.reboot_reload_flow(r_type=reboot_type, topology_obj=topology_obj, ports_list=ports)
 
 
 def save_configuration(dut_engine, cli_object, cleanup_list):
@@ -198,7 +198,7 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
             save_configuration(dut_engine, cli_object, cleanup_list)
             cli_object.general.reload_flow(ports_list=ports)
         else:
-            save_configuration_and_reboot(dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)
+            save_configuration_and_reboot(topology_obj, dut_engine, cli_object, ports, cleanup_list, reboot_type=mode)
 
 
 @pytest.fixture()
