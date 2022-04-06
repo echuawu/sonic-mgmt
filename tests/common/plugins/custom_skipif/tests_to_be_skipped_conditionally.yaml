@@ -883,8 +883,8 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
       - 2934351
   - Branch:
     - 202111
-    Redmine:
-      - 2973608
+    GitHub:
+      - https://github.com/Azure/sonic-buildimage/issues/10419
 
 # Ignore test due to issue - dhcpv6 relay forward malformed packet
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
