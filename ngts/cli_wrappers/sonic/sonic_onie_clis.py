@@ -34,6 +34,7 @@ class SonicOnieCli:
         self.ip = host_ip
         self.engine = None
         self.latest_onie_version = ''
+        self.latest_onie_url = ''
         self.fw_pkg_path = fw_pkg_path
         self.platform_params = platform_params
         self.create_engine()
@@ -132,24 +133,11 @@ class SonicOnieCli:
                 self.confirm_onie_boot_mode_update()
                 # restore engine after reboot
                 self.create_engine(True)
-                onie_updater_url = SPECIAL_ONIE_UPDATER_URL.get(self.platform_params.filtered_platform.upper(),
-                                                                BASE_ONIE_UPDATER_URL)
-                onie_updater_url = onie_updater_url.\
-                    format(self.cut_console_baud_rate_from_onie_version(self.latest_onie_version))
-                self.run_cmd_set([f'onie-self-update {onie_updater_url}'])
+                self.run_cmd_set([f'onie-self-update {self.latest_onie_url}'])
                 self.post_reboot_delay()
         else:
             with allure.step(f"Doesn't required ONIE installation"):
                 logger.info(f"Doesn't required ONIE installation")
-
-    @staticmethod
-    def cut_console_baud_rate_from_onie_version(onie_version):
-        """
-        Cut console baud rate(9600 or 115200) from onie version
-        :param onie_version:
-        :return: onie version without baud rate
-        """
-        return '-'.join(onie_version.split('-')[:-1])
 
     def required_onie_installation(self):
         onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
@@ -167,6 +155,7 @@ class SonicOnieCli:
                 for onie_version_info in onie_info_list:
                     if self.latest_onie_version < onie_version_info["version"]:
                         self.latest_onie_version = onie_version_info["version"]
+                        self.latest_onie_url = onie_version_info["firmware"]
             else:
                 logger.warning(f"The specified platform {self.platform_params.filtered_platform.upper()} not in the"
                                f" provided firmware package file {self.fw_pkg_path}")
