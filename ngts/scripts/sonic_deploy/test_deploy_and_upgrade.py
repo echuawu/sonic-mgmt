@@ -81,19 +81,19 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
                      is_shutdown_bgp=is_shutdown_bgp, fw_pkg_path=fw_pkg_path, cli_type=setup_info.cli_obj)
 
         port_installation_steps(setup_info.cli_obj, topology_obj, setup_info.dut_name, setup_info.host_name, sonic_topo,
-                                deploy_fanout, onyx_image_url, setup_info.ansible_path, port_number, recover_by_reboot, setup_name,
-                                platform_params, deploy_type, apply_base_config, target_version, wjh_deb_url,
-                                is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path, reboot,
-                                additional_apps)
+                                deploy_fanout, onyx_image_url, setup_info.ansible_path, port_number, recover_by_reboot,
+                                setup_name, platform_params, deploy_type, apply_base_config, target_version,
+                                wjh_deb_url, is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path,
+                                reboot, additional_apps)
 
     except Exception as err:
         raise AssertionError(err)
 
 
-def pre_installation_steps(cli_type, sonic_topo, upgrade_only, base_version, target_version, dut_name, ansible_path):
+def pre_installation_steps(cli_obj, sonic_topo, upgrade_only, base_version, target_version, dut_name, ansible_path):
     """
     Pre-installation steps
-    :param cli_type: Sonic or NVOS cli object
+    :param cli_obj: Sonic or NVOS cli object
     :param sonic_topo: sonic_topo fixture
     :param upgrade_only: upgrade_only fixture (True/False)
     :param base_version: base_version fixture
@@ -101,20 +101,21 @@ def pre_installation_steps(cli_type, sonic_topo, upgrade_only, base_version, tar
     :param dut_name: dut name
     :param ansible_path: path to ansible directory
     """
-    if cli_type is NvueGeneralCli:
+    type_tmp = type(cli_obj)
+    if type_tmp is NvueGeneralCli:
         NvosInstallationSteps.pre_installation_steps()
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, upgrade_only, base_version, target_version,
                                                       dut_name, ansible_path)
 
 
-def port_installation_steps(cli_type, topology_obj, dut_name, host_name, sonic_topo, deploy_fanout, onyx_image_url,
+def port_installation_steps(cli_obj, topology_obj, dut_name, host_name, sonic_topo, deploy_fanout, onyx_image_url,
                             ansible_path, port_number, recover_by_reboot, setup_name, platform_params, deploy_type,
                             apply_base_config, target_version, wjh_deb_url, is_shutdown_bgp, reboot_after_install,
                             deploy_only_target, fw_pkg_path, reboot, additional_apps):
     """
     Post-installation steps
-    :param cli_type: Sonic or NVOS cli object
+    :param cli_obj: Sonic or NVOS cli object
     :param topology_obj: topology object
     :param dut_name: dut name
     :param host_name: host name
@@ -137,10 +138,11 @@ def port_installation_steps(cli_type, topology_obj, dut_name, host_name, sonic_t
     :param reboot: reboot fixture
     :param additional_apps: additional_apps fixture
     """
-    if cli_type is NvueGeneralCli:
+    type_tmp = type(cli_obj)
+    if type_tmp is NvueGeneralCli:
         NvosInstallationSteps.post_installation_steps()
     else:
-        SonicInstallationSteps.post_installation_steps(cli_type, topology_obj, dut_name, host_name, sonic_topo,
+        SonicInstallationSteps.post_installation_steps(cli_obj, topology_obj, dut_name, host_name, sonic_topo,
                                                        deploy_fanout, onyx_image_url, ansible_path, port_number,
                                                        recover_by_reboot, setup_name, platform_params, deploy_type,
                                                        apply_base_config, target_version, wjh_deb_url, is_shutdown_bgp,
@@ -215,8 +217,8 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, wjh_deb_u
     :param cli_type: NVUE or SONIC cli object
     :return: raise assertion error in case of script failure
     """
-
-    if cli_type is NvueGeneralCli:
+    type_tmp = type(cli_type)
+    if type_tmp is NvueGeneralCli:
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path)
     else:

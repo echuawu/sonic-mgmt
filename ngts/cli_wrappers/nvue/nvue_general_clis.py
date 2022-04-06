@@ -14,8 +14,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def __init__(self, engine):
         self.engine = engine
 
-    @staticmethod
-    def verify_dockers_are_up(dockers_list=None):
+    def verify_dockers_are_up(self, dockers_list=None):
         """
         Verifying the dockers are in up state during a specific time interval
         :param dockers_list: list of dockers to check
@@ -24,8 +23,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         # TODO: To implement the flow
         pass
 
-    @staticmethod
-    def verify_installed_extensions_running():
+    def verify_installed_extensions_running(self, cli_object):
         """
         This method is not relevant for NVOS (at least for now)
         """
