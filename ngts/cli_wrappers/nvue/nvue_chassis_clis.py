@@ -17,3 +17,9 @@ class NvueChassisCli(ChassisCliCommon):
         :return: the cmd output
         """
         return engine.run_cmd("show platform summary")
+
+    def get_hostname(self):
+        """
+        This method is abstractmethod and should be implemented in child classes
+        """
+        pass

@@ -179,7 +179,7 @@ def update_topology_with_cli_class(topology):
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
-                player_info['cli'] = NvueCli()
+                player_info['cli'] = NvueCli(topology)
                 player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
             else:
                 player_info['cli'] = SonicCli(topology)

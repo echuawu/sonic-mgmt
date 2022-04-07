@@ -28,3 +28,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         This method is not relevant for NVOS (at least for now)
         """
         pass
+
+    def show_version(self):
+        return self.engine.run_cmd('show version')
