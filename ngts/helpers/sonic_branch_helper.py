@@ -55,6 +55,7 @@ def update_sanitizer_in_topology(topology):
 def is_sanitizer_image(topology):
     dut_engine = topology.players['dut']['engine']
     is_sanitizer = False
+    sanitizer = None
     try:
         sanitizer = dut_engine.run_cmd("sonic-cfggen -y /etc/sonic/sonic_version.yml -v asan")
     except SSHException as err:
