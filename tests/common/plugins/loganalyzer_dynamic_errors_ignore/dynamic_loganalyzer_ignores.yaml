@@ -259,6 +259,7 @@
       - tests/nightly/lag/test_lag.py::test_lags_scale
       - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers
       # Community
       - pc/test_po_update.py::test_po_update_io_no_loss
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
