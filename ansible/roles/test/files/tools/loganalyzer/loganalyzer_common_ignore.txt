@@ -94,4 +94,3 @@ r, ".* ERR pmon#sensord: Error getting sensor data: dps460\/#\d+: Kernel interfa
 r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Failed to query PWM duty.*"
 r, '.* ERR swss#orchagent: :- create: Mirror rule references mirror session "neighbor_advertiser" that does not exist yet'
 r, ".* ERR swss#orchagent: :- add: Failed to create ACL rule rule_(nd|arp) in table EVERFLOW.*"
-r, ".* ERR swss#orchagent: :- addOperation: Vxlan tunnel 'neighbor_advertiser' is already exists"
