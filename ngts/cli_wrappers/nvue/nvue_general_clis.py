@@ -31,3 +31,12 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
     def show_version(self):
         return self.engine.run_cmd('show version')
+
+    @staticmethod
+    def apply_config(engine):
+        """
+        Apply configuration
+        :param engine: ssh engine object
+        """
+        logging.info("Running 'nv config apply' on dut")
+        return engine.run_cmd('nv config apply')

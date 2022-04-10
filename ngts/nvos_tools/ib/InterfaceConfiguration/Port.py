@@ -1,0 +1,128 @@
+import logging
+from .IbInterface import IbInterface
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
+from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from .nvos_consts import IbInterfaceConsts
+
+logger = logging.getLogger()
+
+
+class PortRequirements:
+    default_port_requirements = {IbInterfaceConsts.NAME: "",
+                                 IbInterfaceConsts.DESCRIPTION: "",
+                                 IbInterfaceConsts.LINK_MTU: "",
+                                 IbInterfaceConsts.LINK_SPEED: "",
+                                 IbInterfaceConsts.LINK_IB_SPEED: "",
+                                 IbInterfaceConsts.LINK_STATE: "",
+                                 IbInterfaceConsts.LINK_LOGICAL_PORT_STATE: "",
+                                 IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE: "",
+                                 IbInterfaceConsts.TYPE: ""}
+    port_requirements = None
+
+    def __init__(self):
+        self.port_requirements = self.default_port_requirements
+
+    def set_port_name(self, name):
+        self.port_requirements[IbInterfaceConsts.NAME] = name
+
+    def set_port_description(self, description):
+        self.port_requirements[IbInterfaceConsts.DESCRIPTION] = description
+
+    def set_port_speed(self, speed):
+        self.port_requirements[IbInterfaceConsts.LINK_SPEED] = speed
+
+    def set_port_ib_speed(self, ib_speed):
+        self.port_requirements[IbInterfaceConsts.LINK_IB_SPEED] = ib_speed
+
+    def set_port_state(self, state):
+        self.port_requirements[IbInterfaceConsts.LINK_STATE] = state
+
+    def set_port_type(self, req_type):
+        self.port_requirements[IbInterfaceConsts.TYPE] = req_type
+
+
+class Port:
+    name = ""
+    show_output_dictionary = {}
+    name_in_redis = ""
+    ib_interface = None
+
+    def __init__(self, name, show_output_dictionary, name_in_redis):
+        self.name = name
+        self.show_output_dictionary = show_output_dictionary
+        self.name_in_redis = name_in_redis
+        self.ib_interface = IbInterface(self)
+
+    @staticmethod
+    def get_list_of_ports(dut_engine=None, port_requirements_object=None):
+        """
+        Returns a list of port according to port_requirements
+        :param dut_engine: ssh dut engine
+        :param port_requirements_object: PortRequirements object
+        :return: a list of Port objects
+        """
+        if not dut_engine:
+            dut_engine = TestToolkit.engines.dut
+
+        logging.info("get_list_of_ports - Searching for relevant ports")
+        output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            Port.show_interface(dut_engine)).verify_result()
+
+        port_list = []
+
+        if not port_requirements_object or not port_requirements_object.port_requirements:
+            logging.info("get_list_of_ports - port_requirements not provided. Selecting all ports.")
+            for port_name in output_dictionary.keys():
+                port_list.append(Port(port_name, "", ""))
+            return port_list
+
+        for port_name, port_details in output_dictionary.items():
+            select_port = True
+
+            for field_name, port_requirements_list in port_requirements_object.port_requirements.items():
+
+                if field_name == IbInterfaceConsts.NAME and port_requirements_list and \
+                   port_requirements_list != port_name:
+                    select_port = False
+                    break
+                elif port_requirements_list and field_name in port_details.keys() and \
+                        port_details[field_name] != port_requirements_list:
+                    select_port = False
+                    break
+
+            if select_port:
+                port_list.append(Port(port_name, {}, ""))
+                logging.info("get_list_of_ports - port {port_name} meets the requirements".format(port_name=port_name))
+
+        return port_list
+
+    def update_output_dictionary(self, dut_engine=None):
+        """
+        Execute "show" command and create the output dictionary for a specific port
+        :param dut_engine: ssh engine
+        """
+        if not dut_engine:
+            dut_engine = TestToolkit.engines.dut
+
+        logging.info("Updating output dictionary of '{port_name}' port".format(port_name=self.name))
+        self.show_output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
+            Port.show_interface(dut_engine, self.name)).get_returned_value()
+
+    @staticmethod
+    def show_interface(dut_engine=None, port_names="", output_format=OutputFormat.json):
+        """
+        Executes show interface
+        :param output_format: OutputFormat
+        :param port_names: ports on which to run show command
+        :param dut_engine: ssh engine
+        :return: str/json output
+        """
+        if not dut_engine:
+            dut_engine = TestToolkit.engines.dut
+
+        logging.info("Executing show interface")
+        return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
+                                                              port_name=port_names,
+                                                              output_format=output_format)
