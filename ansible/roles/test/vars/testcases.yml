@@ -93,7 +93,7 @@ testcases:
     warm-reboot:
       filename: warm-reboot.yml
       vtestbed_compatible: no
-      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120]
+      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120, t0-56]
       required_vars:
           ptf_host:
           vm_hosts:
@@ -101,7 +101,7 @@ testcases:
     warm-reboot-sad:
       filename: warm-reboot-sad.yml
       vtestbed_compatible: no
-      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120]
+      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120, t0-56]
       required_vars:
           ptf_host:
           vm_hosts:
@@ -109,7 +109,7 @@ testcases:
     warm-reboot-multi-sad:
       filename: warm-reboot-multi-sad.yml
       vtestbed_compatible: no
-      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120]
+      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120, t0-56]
       required_vars:
           ptf_host:
           vm_hosts:
