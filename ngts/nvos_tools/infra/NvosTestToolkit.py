@@ -1,5 +1,6 @@
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import ApiType
 import logging
+import allure
 
 logger = logging.getLogger()
 
@@ -15,17 +16,29 @@ class TestToolkit:
                ApiType.REST_IB: "REST", ApiType.REST_GENERAL: "REST", ApiType.REST_SHOW_CMDS: "REST"}
 
     @staticmethod
+    def update_tested_ports(tested_ports):
+        with allure.step("Update tested ports in TestTookit"):
+            TestToolkit.tested_ports = tested_ports
+
+    @staticmethod
+    def update_engines(engines):
+        with allure.step("Update engines object in TestTookit"):
+            TestToolkit.engines = engines
+
+    @staticmethod
     def update_apis(api_type):
-        if api_type == ApiType.NVUE:
-            TestToolkit.api_ib = ApiType.NVUE_IB
-            TestToolkit.api_show = ApiType.NVUE_SHOW_CMDS
-            TestToolkit.api_general = ApiType.NVUE_GENERAL
-        else:
-            TestToolkit.api_ib = ApiType.REST_IB
-            TestToolkit.api_show = ApiType.REST_SHOW_CMDS
-            TestToolkit.api_general = ApiType.REST_GENERAL
+        with allure.step("Update apis in TestTookit"):
+            if api_type == ApiType.NVUE:
+                TestToolkit.api_ib = ApiType.NVUE_IB
+                TestToolkit.api_show = ApiType.NVUE_SHOW_CMDS
+                TestToolkit.api_general = ApiType.NVUE_GENERAL
+            else:
+                TestToolkit.api_ib = ApiType.REST_IB
+                TestToolkit.api_show = ApiType.REST_SHOW_CMDS
+                TestToolkit.api_general = ApiType.REST_GENERAL
 
     @staticmethod
     def update_port_output_dictionary(port_obj, engine=None):
-        logging.info("Running 'show' command before returning fields' value")
-        port_obj.update_output_dictionary(engine if engine else TestToolkit.engines.dut)
+        with allure.step("Run 'show' command and update output dictionary"):
+            logging.info("Run 'show' command and update output dictionary")
+            port_obj.update_output_dictionary(engine if engine else TestToolkit.engines.dut)

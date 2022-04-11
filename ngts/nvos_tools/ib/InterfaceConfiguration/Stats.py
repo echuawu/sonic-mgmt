@@ -3,6 +3,7 @@ from .nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from .nvos_consts import ApiObject
 import logging
+import allure
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 
 logger = logging.getLogger()
@@ -44,8 +45,9 @@ class Stats(ConfigurationBase):
         """
         Clears interface counters
         """
-        return ApiObject[TestToolkit.api_ib].clear_stats(engine=dut_engine,
-                                                         port_name=self.port_obj.name)
+        with allure.step('Clear stats'):
+            return ApiObject[TestToolkit.api_ib].clear_stats(engine=dut_engine,
+                                                             port_name=self.port_obj.name)
 
     def show_interface_link_stats(self, dut_engine=None, output_format=OutputFormat.json):
         """
@@ -54,13 +56,14 @@ class Stats(ConfigurationBase):
         :param output_format: OutputFormat
         :return: str output
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
+        with allure.step('Execute show interface stats'):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
 
-        return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                              port_name=self.port_obj.name,
-                                                              interface_hierarchy=self.output_hierarchy,
-                                                              output_format=output_format)
+            return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
+                                                                  port_name=self.port_obj.name,
+                                                                  interface_hierarchy=self.output_hierarchy,
+                                                                  output_format=output_format)
 
 
 class StatsBase(ConfigurationBase):

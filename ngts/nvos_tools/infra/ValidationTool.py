@@ -1,6 +1,7 @@
 import logging
 from .ResultObj import ResultObj
 from .DatabaseReaderTool import DatabaseReaderTool
+import allure
 
 logger = logging.getLogger()
 
@@ -16,26 +17,27 @@ class ValidationTool:
         :param should_be_found: True if str_to_search_for should be found in the output. False - otherwise
         :return: ResultObj
         """
-        logging.info("Searching for specified str in provided output")
-        result_obj = ResultObj(True, "")
-        if not show_cmd_output or not str_to_search_for:
-            result_obj.result = False
-            result_obj.info = "Invalid input"
-            return result_obj
+        with allure.step('Verify `{str}` {can} be found in provided output str'.format(str=str_to_search_for,
+                                                                                       can="can" if should_be_found else "can't")):
+            result_obj = ResultObj(True, "")
+            if not show_cmd_output or not str_to_search_for:
+                result_obj.result = False
+                result_obj.info = "Invalid input"
+                return result_obj
 
-        if str_to_search_for in show_cmd_output:
-            if should_be_found:
-                result_obj.info = "{str_to_search_for} was found".format(str_to_search_for=str_to_search_for)
+            if str_to_search_for in show_cmd_output:
+                if should_be_found:
+                    result_obj.info = "{str_to_search_for} was found".format(str_to_search_for=str_to_search_for)
+                else:
+                    result_obj.result = False
+                    result_obj.info = "{str_to_search_for} was found while it should not".format(str_to_search_for=str_to_search_for)
             else:
-                result_obj.result = False
-                result_obj.info = "{str_to_search_for} was found while it should not".format(str_to_search_for=str_to_search_for)
-        else:
-            if should_be_found:
-                result_obj.result = False
-                result_obj.info = "{str_to_search_for} was not found".format(str_to_search_for=str_to_search_for)
-            else:
-                result_obj.info = "{str_to_search_for} was not found as expected".format(str_to_search_for=str_to_search_for)
-        return result_obj
+                if should_be_found:
+                    result_obj.result = False
+                    result_obj.info = "{str_to_search_for} was not found".format(str_to_search_for=str_to_search_for)
+                else:
+                    result_obj.info = "{str_to_search_for} was not found as expected".format(str_to_search_for=str_to_search_for)
+            return result_obj
 
     @staticmethod
     def verify_filed_exist_in_json_output(json_output, keys_to_search_for, should_be_found=True):
@@ -46,31 +48,32 @@ class ValidationTool:
         :param should_be_found: True if key_str_to_search_for should be found in the output. False - otherwise
         :return: ResultObj
         """
-        logging.info("Searching for specified key in provided json output")
-        result_obj = ResultObj(True, "")
-        if not json_output or not keys_to_search_for or len(keys_to_search_for) == 0:
-            result_obj.result = False
-            result_obj.info = "Invalid input"
+        with allure.step('Verify field `{field}` {exist} in json output'.format(field=keys_to_search_for,
+                                                                                exist="exists" if should_be_found else "doesn't exist")):
+            result_obj = ResultObj(True, "")
+            if not json_output or not keys_to_search_for or len(keys_to_search_for) == 0:
+                result_obj.result = False
+                result_obj.info = "Invalid input"
+                return result_obj
+
+            for key in keys_to_search_for:
+                if key in json_output.keys():
+                    if should_be_found:
+                        logging.info("'{str_to_search_for}' field was found".format(str_to_search_for=key))
+                    else:
+                        result_obj.result = False
+                        result_obj.info = "'{str_to_search_for}' field was found while it should not".format(
+                            str_to_search_for=key)
+                        break
+                else:
+                    if should_be_found:
+                        result_obj.result = False
+                        result_obj.info = "'{str_to_search_for}' field was not found".format(str_to_search_for=key)
+                        break
+                    else:
+                        logging.info("'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
+
             return result_obj
-
-        for key in keys_to_search_for:
-            if key in json_output.keys():
-                if should_be_found:
-                    logging.info("'{str_to_search_for}' field was found".format(str_to_search_for=key))
-                else:
-                    result_obj.result = False
-                    result_obj.info = "'{str_to_search_for}' field was found while it should not".format(
-                        str_to_search_for=key)
-                    break
-            else:
-                if should_be_found:
-                    result_obj.result = False
-                    result_obj.info = "'{str_to_search_for}' field was not found".format(str_to_search_for=key)
-                    break
-                else:
-                    logging.info("'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
-
-        return result_obj
 
     @staticmethod
     def verify_field_value_in_output(output_dictionary, field_name, expected_value, should_be_equal=True):
@@ -82,30 +85,30 @@ class ValidationTool:
         :param should_be_equal: True if the value of field_name should be equal to expected_value. False - otherwise
         :return:
         """
-        logging.info("Verifying that the value of the field is equal to expected")
-
-        result_obj = ResultObj(True, "")
-        if field_name not in output_dictionary.keys():
-            result_obj.result = False
-            result_obj.info = "Field {field_name} can't be found".format(field_name=field_name)
-
-        if output_dictionary[field_name].strip() == expected_value.strip():
-            if should_be_equal:
-                logging.info("The value of {field_name} is '{expected_value}' as expected".format(
-                    field_name=field_name, expected_value=expected_value))
-            else:
+        with allure.step('Verify the value of {field} is {no}equal to {expected} as expected'.format(
+                         field=field_name, expected=expected_value, no="" if should_be_equal else "not ")):
+            result_obj = ResultObj(True, "")
+            if field_name not in output_dictionary.keys():
                 result_obj.result = False
-                result_obj.info = "The value of {field_name} is equal to '{expected_value}' while it should not".format(
-                    field_name=field_name, expected_value=expected_value)
-        else:
-            if should_be_equal:
-                result_obj.result = False
-                result_obj.info = "The value of {field_name} is not '{expected_value}'".format(
-                    field_name=field_name, expected_value=expected_value)
+                result_obj.info = "Field {field_name} can't be found".format(field_name=field_name)
+
+            if output_dictionary[field_name].strip() == expected_value.strip():
+                if should_be_equal:
+                    logging.info("The value of {field_name} is '{expected_value}' as expected".format(
+                        field_name=field_name, expected_value=expected_value))
+                else:
+                    result_obj.result = False
+                    result_obj.info = "The value of {field_name} is equal to '{expected_value}' while it " \
+                                      "should not".format(field_name=field_name, expected_value=expected_value)
             else:
-                logging.info("The value of {field_name} is not '{expected_value}' as expected".format(
-                    field_name=field_name, expected_value=expected_value))
-        return result_obj
+                if should_be_equal:
+                    result_obj.result = False
+                    result_obj.info = "The value of {field_name} is not '{expected_value}'".format(
+                        field_name=field_name, expected_value=expected_value)
+                else:
+                    logging.info("The value of {field_name} is not '{expected_value}' as expected".format(
+                        field_name=field_name, expected_value=expected_value))
+            return result_obj
 
     @staticmethod
     def verify_field_value_in_db(field_name_in_db, expected_value, database_name, should_be_equal=True):
@@ -117,31 +120,34 @@ class ValidationTool:
         :param should_be_equal: True if the value of field_name should be equal to expected_value. False - otherwise
         :return: ResultObj
         """
-        logging.info("Verifying that the value of the field in database is equal to expected")
-        result_obj = DatabaseReaderTool.read_from_database(database_name, field_name_in_db)
-        if not result_obj:
+        with allure.step("Verify the value of '{field}' in database '{database_name}' is {no}equal to '{value}' "
+                         "as expected".format(field=field_name_in_db, database_name=database_name,
+                                              value=expected_value, no="" if should_be_equal else "not ")):
+            result_obj = DatabaseReaderTool.read_from_database(database_name, field_name_in_db)
+            if not result_obj:
+                return result_obj
+
+            value_in_database = result_obj.returned_value
+            result_obj = ResultObj(True, "")
+
+            if value_in_database == expected_value:
+                if should_be_equal:
+                    logging.info("The value of {field_name_in_db} is '{expected_value}' as expected".format(
+                        field_name_in_db=field_name_in_db, expected_value=expected_value))
+                else:
+                    result_obj.result = False
+                    result_obj.info = "The value of {field_name_in_db} is equal to '{expected_value} while " \
+                                      "it should not'".format(field_name_in_db=field_name_in_db,
+                                                              expected_value=expected_value)
+            else:
+                if should_be_equal:
+                    result_obj.result = False
+                    result_obj.info = "The value of {field_name_in_db} is not '{expected_value}'".format(
+                        field_name_in_db=field_name_in_db, expected_value=expected_value)
+                else:
+                    logging.info("The value of {field_name_in_db} is not equal to '{expected_value} as "
+                                 "expected'".format(field_name_in_db=field_name_in_db, expected_value=expected_value))
             return result_obj
-
-        value_in_database = result_obj.returned_value
-        result_obj = ResultObj(True, "")
-
-        if value_in_database == expected_value:
-            if should_be_equal:
-                logging.info("The value of {field_name_in_db} is '{expected_value}' as expected".format(
-                    field_name_in_db=field_name_in_db, expected_value=expected_value))
-            else:
-                result_obj.result = False
-                result_obj.info = "The value of {field_name_in_db} is equal to '{expected_value} while it should not'".\
-                    format(field_name_in_db=field_name_in_db, expected_value=expected_value)
-        else:
-            if should_be_equal:
-                result_obj.result = False
-                result_obj.info = "The value of {field_name_in_db} is not '{expected_value}'".format(
-                    field_name_in_db=field_name_in_db, expected_value=expected_value)
-            else:
-                logging.info("The value of {field_name_in_db} is not equal to '{expected_value} as expected'".format(
-                    field_name_in_db=field_name_in_db, expected_value=expected_value))
-        return result_obj
 
     @staticmethod
     def compare_values(value1, value2):

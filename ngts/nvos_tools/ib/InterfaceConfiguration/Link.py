@@ -5,6 +5,7 @@ from .Stats import Stats
 from .IbInterfaceDecorators import *
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+import allure
 
 
 class Link(ConfigurationBase):
@@ -118,10 +119,11 @@ class Link(ConfigurationBase):
         :param output_format: OutputFormat
         :return: str output
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
+        with allure.step('Execute show interface link'):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
 
-        return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                              port_name=self.port_obj.name,
-                                                              interface_hierarchy=self.output_hierarchy,
-                                                              output_format=output_format)
+            return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
+                                                                  port_name=self.port_obj.name,
+                                                                  interface_hierarchy=self.output_hierarchy,
+                                                                  output_format=output_format)

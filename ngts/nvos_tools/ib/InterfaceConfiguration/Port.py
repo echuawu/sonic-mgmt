@@ -5,6 +5,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from .nvos_consts import IbInterfaceConsts
+import allure
 
 logger = logging.getLogger()
 
@@ -63,52 +64,54 @@ class Port:
         :param port_requirements_object: PortRequirements object
         :return: a list of Port objects
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
+        with allure.step('Search for ports that meet provided requirements'):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
 
-        logging.info("get_list_of_ports - Searching for relevant ports")
-        output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
-            Port.show_interface(dut_engine)).verify_result()
+            logging.info("get_list_of_ports - Searching for relevant ports")
+            output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+                Port.show_interface(dut_engine)).verify_result()
 
-        port_list = []
+            port_list = []
 
-        if not port_requirements_object or not port_requirements_object.port_requirements:
-            logging.info("get_list_of_ports - port_requirements not provided. Selecting all ports.")
-            for port_name in output_dictionary.keys():
-                port_list.append(Port(port_name, "", ""))
+            if not port_requirements_object or not port_requirements_object.port_requirements:
+                logging.info("get_list_of_ports - port_requirements not provided. Selecting all ports.")
+                for port_name in output_dictionary.keys():
+                    port_list.append(Port(port_name, "", ""))
+                return port_list
+
+            for port_name, port_details in output_dictionary.items():
+                select_port = True
+
+                for field_name, port_requirements_list in port_requirements_object.port_requirements.items():
+
+                    if field_name == IbInterfaceConsts.NAME and port_requirements_list and \
+                       port_requirements_list != port_name:
+                        select_port = False
+                        break
+                    elif port_requirements_list and field_name in port_details.keys() and \
+                            port_details[field_name] != port_requirements_list:
+                        select_port = False
+                        break
+
+                if select_port:
+                    port_list.append(Port(port_name, {}, ""))
+                    logging.info("get_list_of_ports - port {port_name} meets the requirements".format(port_name=port_name))
+
             return port_list
-
-        for port_name, port_details in output_dictionary.items():
-            select_port = True
-
-            for field_name, port_requirements_list in port_requirements_object.port_requirements.items():
-
-                if field_name == IbInterfaceConsts.NAME and port_requirements_list and \
-                   port_requirements_list != port_name:
-                    select_port = False
-                    break
-                elif port_requirements_list and field_name in port_details.keys() and \
-                        port_details[field_name] != port_requirements_list:
-                    select_port = False
-                    break
-
-            if select_port:
-                port_list.append(Port(port_name, {}, ""))
-                logging.info("get_list_of_ports - port {port_name} meets the requirements".format(port_name=port_name))
-
-        return port_list
 
     def update_output_dictionary(self, dut_engine=None):
         """
         Execute "show" command and create the output dictionary for a specific port
         :param dut_engine: ssh engine
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
+        with allure.step('Execute "show" command and create the output dictionary for a specific port'):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
 
-        logging.info("Updating output dictionary of '{port_name}' port".format(port_name=self.name))
-        self.show_output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-            Port.show_interface(dut_engine, self.name)).get_returned_value()
+            logging.info("Updating output dictionary of '{port_name}' port".format(port_name=self.name))
+            self.show_output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
+                Port.show_interface(dut_engine, self.name)).get_returned_value()
 
     @staticmethod
     def show_interface(dut_engine=None, port_names="", output_format=OutputFormat.json):
@@ -119,10 +122,11 @@ class Port:
         :param dut_engine: ssh engine
         :return: str/json output
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
+        with allure.step('Execute show interface'):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
 
-        logging.info("Executing show interface")
-        return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                              port_name=port_names,
-                                                              output_format=output_format)
+            logging.info("Executing show interface")
+            return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
+                                                                  port_name=port_names,
+                                                                  output_format=output_format)

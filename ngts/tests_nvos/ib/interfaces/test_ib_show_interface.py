@@ -20,12 +20,11 @@ def test_ib_show_interface_name(engines):
     2. Run 'nv show interface <name>' on selected port
     3. Verify the required fields are presented in the output
     """
-    with allure.step('Update dut engine object'):
-        TestToolkit.engines = engines
+    TestToolkit.update_engines(engines)
 
-    with allure.step('Choose an active random port'):
-        selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
-        TestToolkit.tested_ports = [selected_port]
+    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+
+    TestToolkit.update_tested_ports([selected_port])
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
@@ -44,19 +43,16 @@ def test_ib_show_interface_all(engines):
     2. Select a random port from the output
     3. Verify the required fields are presented in the output
     """
-    with allure.step('Update dut engine object'):
-        TestToolkit.engines = engines
+    TestToolkit.update_engines(engines)
 
-    with allure.step('Run \'nv show -output json interface\''):
-        output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
-            Port.show_interface()).get_returned_value()
+    output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+        Port.show_interface()).get_returned_value()
 
-    with allure.step('Choose a random port'):
-        selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="",
-                                                                   requested_ports_type="ib").get_returned_value()
-        TestToolkit.tested_ports = [selected_port]
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="",
+                                                               requested_ports_type="ib").get_returned_value()
+    TestToolkit.update_tested_ports([selected_port])
 
-        assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
+    assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
@@ -74,12 +70,11 @@ def test_ib_show_interface_name_link(engines):
     2. Run 'nv show interface <name> link' on selected port
     3. Verify the required fields are presented in the output
     """
-    with allure.step('Update dut engine object'):
-        TestToolkit.engines = engines
+    TestToolkit.update_engines(engines)
 
-    with allure.step('Choose an active random port'):
-        selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
-        TestToolkit.tested_ports = [selected_port]
+    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+
+    TestToolkit.update_tested_ports([selected_port])
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
@@ -100,12 +95,11 @@ def test_ib_show_interface_name_pluggable(engines):
     2. Run 'nv show interface <name> pluggable' on selected port
     3. Verify the required fields are presented in the output
     """
-    with allure.step('Update dut engine object'):
-        TestToolkit.engines = engines
+    TestToolkit.update_engines(engines)
 
-    with allure.step('Choose an active random port'):
-        selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
-        TestToolkit.tested_ports = [selected_port]
+    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+
+    TestToolkit.update_tested_ports([selected_port])
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
@@ -126,12 +120,11 @@ def test_ib_show_interface_name_stats(engines):
     2. Run 'nv show interface <name> link stats' on selected port
     3. Verify the required fields are presented in the output
     """
-    with allure.step('Update dut engine object'):
-        TestToolkit.engines = engines
+    TestToolkit.update_engines(engines)
 
-    with allure.step('Choose an active random port'):
-        selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
-        TestToolkit.tested_ports = [selected_port]
+    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+
+    TestToolkit.update_tested_ports([selected_port])
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):

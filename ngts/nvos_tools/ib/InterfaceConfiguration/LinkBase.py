@@ -5,6 +5,7 @@ from .IbInterfaceDecorators import *
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 import logging
+import allure
 
 logger = logging.getLogger()
 
@@ -36,16 +37,20 @@ class LinkBaseOperational(LinkBase, CmdBase):
         LinkBase.__init__(self, port_obj, label, description, field_name_in_db, output_hierarchy)
 
     def set(self, value, dut_engine=None, apply=True):
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
-        return CmdBase.set_interface(engine=dut_engine, field_name=self.label, output_hierarchy=self.output_hierarchy,
-                                     value=value, apply=apply, port_name=self.port_obj.name)
+        with allure.step('Set selected port ‘{field}‘ to ‘{value}’'.format(field=self.label, value=value)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+            return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
+                                         output_hierarchy=self.output_hierarchy,
+                                         value=value, apply=apply, port_name=self.port_obj.name)
 
     def unset(self, dut_engine=None, apply=True):
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
-        return CmdBase.unset_interface(engine=dut_engine, field_name=self.label, output_hierarchy=self.output_hierarchy,
-                                       apply=apply, port_name=self.port_obj.name)
+        with allure.step('Unset selected port ‘{field}‘'.format(field=self.label)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+            return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
+                                           output_hierarchy=self.output_hierarchy,
+                                           apply=apply, port_name=self.port_obj.name)
 
 
 class Speed(LinkBaseOperational):
@@ -119,10 +124,11 @@ class State(LinkBaseOperational):
         Executes show interface
         :return: str output
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
+        with allure.step('Execute show interface link'):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
 
-        ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                       port_name=TestToolkit.tested_ports,
-                                                       interface_hierarchy=self.output_hierarchy,
-                                                       output_format=output_format)
+            ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
+                                                           port_name=TestToolkit.tested_ports,
+                                                           interface_hierarchy=self.output_hierarchy,
+                                                           output_format=output_format)
