@@ -26,7 +26,7 @@
 
         <info> Continuous_Warm_Reboot Case </info>
         <name> continuous_warm_reboot </name>
-        <tout> 6500 </tout>
+        <tout> 7200 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level info --show-capture=no -ra --showlocals -v  --reboot_type=warm --continuous_reboot_count=5 --continuous_reboot_delay=600\'" --test-scripts platform_tests/test_cont_warm_reboot.py </static_args>
