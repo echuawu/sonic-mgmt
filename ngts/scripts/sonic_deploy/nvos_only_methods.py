@@ -1,6 +1,8 @@
 import logging
 import allure
-
+from ngts.cli_wrappers.nvue.nvue_interface_show_clis import NvueInterfaceShowClis
+import json
+import time
 
 logger = logging.getLogger()
 
@@ -15,12 +17,32 @@ class NvosInstallationSteps:
         pass
 
     @staticmethod
-    def post_installation_steps():
+    def post_installation_steps(topology_obj):
         """
         Post-installation steps for NVOS NOS
         :return:
         """
-        pass
+        with allure.step('Waiting till NVOS become functional'):
+            assert NvosInstallationSteps.wait_for_nvos_to_become_functional(topology_obj), "Timeout " \
+                "occurred while waiting for " \
+                "NVOS to complete the initialization"
+
+    @staticmethod
+    def wait_for_nvos_to_become_functional(topology_obj):
+        """
+        Waiting for NVOS to complete the init and become functional after the installation
+        :return: Bool
+        """
+        dut_engine = topology_obj.players['dut']['engine']
+        timeout = 120
+        while timeout > 0:
+            res_str = NvueInterfaceShowClis.show_interface(dut_engine, "")
+            if "command not found" in res_str:
+                time.sleep(5)
+                timeout = timeout - 5
+            else:
+                return True
+        return False
 
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,

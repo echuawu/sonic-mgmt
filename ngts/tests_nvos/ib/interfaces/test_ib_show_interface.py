@@ -28,7 +28,7 @@ def test_ib_show_interface_name(engines):
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-        selected_port.update_output_dictionary(TestToolkit.engines .dut)
+        selected_port.update_output_dictionary()
         validate_one_port_show_output(selected_port)
 
 

@@ -140,7 +140,7 @@ def port_installation_steps(cli_obj, topology_obj, dut_name, host_name, sonic_to
     """
     type_tmp = type(cli_obj)
     if type_tmp is NvueGeneralCli:
-        NvosInstallationSteps.post_installation_steps()
+        NvosInstallationSteps.post_installation_steps(topology_obj)
     else:
         SonicInstallationSteps.post_installation_steps(cli_obj, topology_obj, dut_name, host_name, sonic_topo,
                                                        deploy_fanout, onyx_image_url, ansible_path, port_number,
