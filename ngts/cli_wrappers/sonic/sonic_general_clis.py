@@ -154,7 +154,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if not topology_obj:
             raise Exception('topology_obj must be passed to reboot_flow method')
         if not ports_list:
-            ports_list = topology_obj.players_all_ports['dut']
+            ports_list = topology_obj.players_all_ports.get('dut', ['Ethernet0'])
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
@@ -178,7 +178,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if not (ports_list or topology_obj):
             raise Exception('ports_list or topology_obj must be passed to reload_flow method')
         if not ports_list:
-            ports_list = topology_obj.players_all_ports['dut']
+            ports_list = topology_obj.players_all_ports.get('dut', ['Ethernet0'])
         with allure.step('Reloading dut'):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)
