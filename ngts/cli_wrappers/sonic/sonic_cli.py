@@ -23,6 +23,7 @@ from ngts.cli_wrappers.sonic.sonic_app_extension_clis import SonicAppExtensionCl
 from ngts.cli_wrappers.sonic.sonic_arp_clis import SonicArpCli
 from ngts.cli_wrappers.sonic.sonic_p4_sampling_clis import P4SamplingCli
 from ngts.cli_wrappers.sonic.sonic_p4_examples_clis import P4GTPParserCli, P4VxlanBMCli, P4ExamplesCli
+from ngts.cli_wrappers.sonic.sonic_sfputil_clis import SonicSfputilCli
 from ngts.cli_util.stub_engine import StubEngine
 from dotted_dict import DottedDict
 logger = logging.getLogger()
@@ -58,6 +59,7 @@ class SonicCli:
         self._p4_gtp = None
         self._p4_examples = None
         self._p4_vxlan_bm = None
+        self._sfputil = None
 
     @property
     def ip(self):
@@ -208,6 +210,12 @@ class SonicCli:
         if self._p4_vxlan_bm is None:
             self._p4_vxlan_bm = P4VxlanBMCli(engine=self.engine)
         return self._p4_vxlan_bm
+
+    @property
+    def sfputil(self):
+        if self._sfputil is None:
+            self._sfputil = SonicSfputilCli(engine=self.engine)
+        return self._sfputil
 
 
 class SonicCliStub(SonicCli):

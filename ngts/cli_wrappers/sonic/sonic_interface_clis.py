@@ -242,12 +242,12 @@ class SonicInterfaceCli(InterfaceCliCommon):
             result[interface] = interfaces_data[interface]['MTU']
         return result
 
-    def show_interfaces_alias(self):
+    def show_interfaces_alias(self, validate=False):
         """
         This method return output of "show interfaces alias" command
         :return: command output
         """
-        return self.engine.run_cmd('show interfaces alias')
+        return self.engine.run_cmd('show interfaces alias', validate=validate)
 
     def parse_ports_aliases_on_sonic(self):
         """
@@ -385,14 +385,13 @@ class SonicInterfaceCli(InterfaceCliCommon):
         return self.engine.run_cmd("sudo config interface advertised-types {interface_name} {interface_type_list}"
                                    .format(interface_name=interface, interface_type_list=interface_type_list))
 
-    def show_interfaces_auto_negotiation_status(self, interface=''):
+    def show_interfaces_auto_negotiation_status(self, interface='', validate=False):
         """
         show interfaces auto negotiation status for specific interface or all interfaces.
         :param interface: i.e, Ethernet0 or empty string '' for all interfaces
         :return: the command output
         """
-        return self.engine.run_cmd("sudo show interfaces autoneg status {interface_name}"
-                                   .format(interface_name=interface))
+        return self.engine.run_cmd(f"sudo show interfaces autoneg status {interface}", validate=validate)
 
     def parse_show_interfaces_auto_negotiation_status(self, interface=''):
         """
@@ -513,3 +512,54 @@ class SonicInterfaceCli(InterfaceCliCommon):
 
                 return interface
         return None
+
+    def show_interfaces_counters(self, validate=False):
+        """
+        show interfaces counters
+        :return: the command output
+        """
+        return self.engine.run_cmd("sudo show interfaces counters", validate=validate)
+
+    def show_interfaces_counters_detailed(self, interface, validate=False):
+        """
+        show interfaces counters detailed
+        :param interface: port name, i.e Ethernet0
+        :return: the command output
+        """
+        return self.engine.run_cmd(f"sudo show interfaces counters detailed {interface}", validate=validate)
+
+    def show_interfaces_counters_errors(self, validate=False):
+        """
+        show interfaces counters errors
+        :return: the command output
+        """
+        return self.engine.run_cmd("sudo show interfaces counters errors", validate=validate)
+
+    def show_interfaces_counters_rates(self, validate=False):
+        """
+        show interfaces counters rates
+        :return: the command output
+        """
+        return self.engine.run_cmd("sudo show interfaces counters rates", validate=validate)
+
+    def show_interfaces_counters_description(self, interface='', validate=False):
+        """
+        show interfaces description
+        :param interface: port name, i.e Ethernet0
+        :return: the command output
+        """
+        return self.engine.run_cmd(f"sudo show interfaces description {interface}", validate=validate)
+
+    def show_interfaces_naming_mode(self, validate=False):
+        """
+        show interfaces naming mode
+        :return: the command output
+        """
+        return self.engine.run_cmd("sudo show interfaces naming_mode", validate=validate)
+
+    def show_interfaces_neighbor_expected(self, validate=False):
+        """
+        show interfaces neighbor expected
+        :return: the command output
+        """
+        return self.engine.run_cmd("sudo show interfaces neighbor expected", validate=validate)

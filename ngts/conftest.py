@@ -20,7 +20,7 @@ from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import PytestConst, NvosCliTypes
-from ngts.tools.infra import get_platform_info
+from ngts.tools.infra import get_platform_info, get_devinfo
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
 
@@ -40,7 +40,9 @@ def pytest_sessionstart(session):
 def pytest_collection(session):
 
     topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
-    devinfo = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription']
+    logger.debug('Get switch devdescription from Noga')
+    switch_attributes = topology.players['dut']['attributes'].noga_query_data['attributes']
+    devinfo = get_devinfo(switch_attributes)
 
     platform = json.loads(devinfo).get('platform')
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_PLATFORM_TYPE, platform)
@@ -262,7 +264,7 @@ def platform_params(show_platform_summary, setup_name):
     """
     platform_data = DottedDict()
     platform_data.platform = show_platform_summary['platform']
-    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4}|mqm\d{4})", show_platform_summary['platform'], re.IGNORECASE).group(1)
+    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4}|mqm\d{4}|mbf.*c)", show_platform_summary['platform'], re.IGNORECASE).group(1)
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name
     platform_data.asic_type = show_platform_summary["asic_type"]

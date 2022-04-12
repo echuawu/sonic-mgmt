@@ -69,13 +69,22 @@ def create_result_dir(setup_name, session_id, suffix_path_name):
 
 
 def get_platform_info(topology_obj):
+    switch_attributes = topology_obj.players['dut']['attributes'].noga_query_data['attributes']
+    devinfo = get_devinfo(switch_attributes)
     try:
-        show_platform_summary_dict = json.loads(
-            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
+        show_platform_summary_dict = json.loads(devinfo)
     except json.decoder.JSONDecodeError:
         err_msg = 'NOGA Attribute Devdescription is empty! Fetched data: {}' \
                   ' It should look like: {"hwsku":"ACS-MSN3700","platform":' \
-                  '"x86_64-mlnx_msn3700-r0"}'.format(
-                      topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['devdescription'])
+                  '"x86_64-mlnx_msn3700-r0"}'.format(devinfo)
         raise Exception(err_msg)
     return show_platform_summary_dict
+
+
+def get_devinfo(switch_attributes):
+    next_key = 'BF Switch' if is_sonic_dpu(switch_attributes) else 'Specific'
+    return switch_attributes[next_key]['devdescription']
+
+
+def is_sonic_dpu(switch_attributes):
+    return 'BF Switch' in switch_attributes

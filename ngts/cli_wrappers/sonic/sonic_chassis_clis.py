@@ -36,3 +36,16 @@ class SonicChassisCli(ChassisCliCommon):
     def get_pci_conf(self):
         mst_status = self.show_mst_status()
         return re.search("(.*pciconf0)", mst_status).group(1)
+
+    def parse_platform_summary(self):
+        """
+        Parse the output of "show platform summary"
+        :return: dict, example: {'HwSKU': 'ACS-MSN4410', 'ASIC Count': '1', 'ASIC': 'mellanox'...}
+
+        """
+        platform_summary_dict = {}
+        platform_summary = self.show_platform_summary()
+        for line in platform_summary.splitlines():
+            split_line = line.split(": ")
+            platform_summary_dict.update({split_line[0]: split_line[1]})
+        return platform_summary_dict

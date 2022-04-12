@@ -10,10 +10,12 @@ import pathlib
 import json
 from retry import retry
 from shutil import copyfile
+from collections import namedtuple
 from ngts.constants.constants import LinuxConsts, ConfigDbJsonConst, SonicConst
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 logger = logging.getLogger("sonic_split_configuration_script")
 
 
@@ -126,7 +128,13 @@ def apply_base_configuration_from_user(args):
     save_port_config_ini_file(args)
     config_db_path = save_config_db(args, updated_init_config_db)
     load_configuration_files_to_switch(engine, port_config_ini_path, config_db_path, platform, hwsku)
-    SonicGeneralCli(engine=engine).update_config_db_metadata_mgmt_ip(args.configuration_path_dst, args.switch_ip)
+
+    # create required cli_obj for SonicGeneralCli
+    topology = namedtuple('Topology', ['players'])
+    players = {'dut': {'engine': engine}}
+    cli_obj = SonicCli(topology=topology(players))
+
+    SonicGeneralCli(engine=engine, cli_obj=cli_obj).update_config_db_metadata_mgmt_ip(args.configuration_path_dst, args.switch_ip)
     engine.reload(reload_cmd_set=['sudo reboot'])
 
 

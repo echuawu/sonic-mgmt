@@ -3,7 +3,6 @@ import csv
 import os
 import xml.etree.ElementTree as ET
 import logging
-import re
 import sys
 import shutil
 import json
@@ -268,15 +267,21 @@ def get_hwsku_from_noga_res(noga_resource):
     @summary: Parse HWSKU value from Noga HWSKU string
     """
     hwsku = None
+    switch_attributes = noga_resource["attributes"]
+    next_key = 'BF Switch' if is_sonic_dpu(switch_attributes) else 'Specific'
     try:
-        hwsku = json.loads(noga_resource["attributes"]["Specific"]["devdescription"])["hwsku"]
+        hwsku = json.loads(switch_attributes[next_key]["devdescription"])["hwsku"]
     except json.decoder.JSONDecodeError:
         err_msg = 'NOGA Attribute Devdescription is empty! Fetched data: {}' \
                   ' It should look like: {"hwsku":"ACS-MSN3700","platform":' \
-                  '"x86_64-mlnx_msn3700-r0"}'.format(noga_resource["attributes"]["Specific"]["devdescription"])
+                  '"x86_64-mlnx_msn3700-r0"}'.format(switch_attributes[next_key]["devdescription"])
         raise (err_msg)
 
     return hwsku
+
+
+def is_sonic_dpu(switch_attributes):
+    return 'BF Switch' in switch_attributes
 
 
 def get_system_eeprom_info(dut):

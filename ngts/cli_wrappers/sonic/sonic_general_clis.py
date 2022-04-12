@@ -687,8 +687,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             return True
         return False
 
-    def show_version(self):
-        return self.engine.run_cmd('show version')
+    def show_version(self, validate=False):
+        return self.engine.run_cmd('show version', validate=validate)
 
     def parse_platform_json(self, topology_obj, platform_json_obj, parse_by_breakout_modes=False):
         """
