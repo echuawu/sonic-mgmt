@@ -193,9 +193,9 @@
       - 202111
       - master
 
-# Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 2961385
+# Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3038882
 - Errors_list:
-    - '.* ERR container: docker cmd: kill for .* failed with 404 Client Error for .* Not Found \("No such container: sflow"\)'
+    - '.* ERR \/container: docker cmd: kill for sflow failed with 404 Client Error: Not Found \("No such container: sflow"\)'
   Conditions:
     - Affected_test_cases:
       # Canonical
@@ -228,10 +228,9 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
       Redmine:
-      - 2961385
+      - 3038882
       Branch:
-      - 202111
-      - master
+      - 202012
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
 - Errors_list:
