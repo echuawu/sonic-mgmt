@@ -49,6 +49,31 @@ def tested_modes_lb_conf(topology_obj, ports_breakout_modes):
     return get_random_lb_breakout_conf(topology_obj, ports_breakout_modes)
 
 
+@pytest.fixture(scope='module', autouse=True)
+def dpb_configuration(topology_obj, setup_name, engines, cli_objects, platform_params):
+    """
+    Pytest fixture which will clean QoS configuration from the dut before DPB test
+    and will configure Qos and dynamic buffer configuration after DPB tests finished
+
+    """
+    logger.info("Remove qos and dynamic buffer configuration before DPB tests")
+    with allure.step("Remove qos and dynamic buffer configuration before DPB tests"):
+        cli_objects.dut.qos.clear_qos()
+        cli_objects.dut.general.save_configuration()
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+
+    yield
+
+    logger.info('Apply qos and dynamic buffer configuration after DPB tests finished')
+    with allure.step("Apply qos and dynamic buffer configuration after DPB tests finished"):
+        cli_objects.dut.qos.reload_qos()
+        cli_objects.dut.qos.stop_buffermgrd()
+        cli_objects.dut.qos.start_buffermgrd()
+        cli_objects.dut.general.save_configuration()
+
+    logger.info('DPB tests completed')
+
+
 def get_random_lb_breakout_conf(topology_obj, ports_breakout_modes):
     """
     :return: A dictionary with different loopback for each supported breakout modes.

@@ -24,7 +24,6 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
-from ngts.cli_wrappers.sonic.sonic_qos_clis import SonicQosCli
 from ngts.tools.infra import ENV_LOG_FOLDER
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 
@@ -413,9 +412,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
 
         with allure.step("Apply qos and dynamic buffer config"):
-            SonicQosCli.reload_qos(self.engine)
-            SonicQosCli.stop_buffermgrd(self.engine)
-            SonicQosCli.start_buffermgrd(self.engine)
+            cli_object.qos.reload_qos()
+            cli_object.qos.stop_buffermgrd()
+            cli_object.qos.start_buffermgrd()
             self.save_configuration()
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
