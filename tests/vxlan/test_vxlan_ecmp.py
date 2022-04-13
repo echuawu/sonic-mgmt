@@ -1165,7 +1165,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
             raise
 
-def test_vxlan_remove_add_underlay_default(self, setUp, minigraph_facts, encap_type):
+    def test_vxlan_remove_add_underlay_default(self, setUp, minigraph_facts, encap_type):
         '''
            tc13: remove the underlay default route.
         '''
