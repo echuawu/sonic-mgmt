@@ -691,21 +691,25 @@ def validate_core_files_inside_techsupport(duthost, techsupport_folder, expected
                                                                                       core_files_inside_techsupport)
 
 
-def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_timestamp):
+def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_line_timestamps_list):
     """
     Validate that techsupport file does not have logs which are older than value provided in 'since_value_in_seconds'
     :param duthost: duthost object
     :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_r-lionfish-16_20210901_22140
-    :param expected_oldest_log_timestamp: expected oldest log timestamp in datetime format
+    :param expected_oldest_log_line_timestamps_list: list of expected(possible) oldest log timestamp in datetime format
     :return: pytest.fail - in case when validation failed
     """
     with allure.step('Checking techsupport logs since'):
         oldest_timestamp_datetime = get_oldest_syslog_timestamp(duthost, techsupport_folder)
         logger.debug('Oldest timestamp: {}'.format(oldest_timestamp_datetime))
 
-        assert oldest_timestamp_datetime == expected_oldest_log_timestamp, \
-            'Timestamp: {} not equal to expected: {}. --since validation failed'.format(oldest_timestamp_datetime,
-                                                                                        expected_oldest_log_timestamp)
+        assert oldest_timestamp_datetime in expected_oldest_log_line_timestamps_list, \
+            'Timestamp: {} not in expected list: {}. --since validation failed'.format(oldest_timestamp_datetime,
+                                                                                       expected_oldest_log_line_timestamps_list)
+
+        available_syslogs_list = duthost.shell('sudo ls -l {}/log/syslog*'.format(techsupport_folder))['stdout'].splitlines()
+        assert len(available_syslogs_list) <= len(expected_oldest_log_line_timestamps_list), \
+            'Number of syslog files in techsupport bigger than expected'
 
 
 def get_oldest_syslog_timestamp(duthost, techsupport_folder):
@@ -858,9 +862,10 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
     :param since_value_in_seconds: int, value in seconds which used in validation for since parameter
     :return: AssertionError in case of failure
     """
-    expected_oldest_timestamp_datetime = None
+    expected_oldest_log_line_timestamps_list = None
     if since_value_in_seconds:
-        expected_oldest_timestamp_datetime = get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds)
+        expected_oldest_log_line_timestamps_list = get_expected_oldest_timestamp_datetime(duthost,
+                                                                                          since_value_in_seconds)
 
     try:
         available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
@@ -912,8 +917,8 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
                                                    expected_core_files_list=[expected_core_file])
 
             logger.info('Checking since value in techsupport file')
-            if expected_oldest_timestamp_datetime:
-                validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_timestamp_datetime)
+            if expected_oldest_log_line_timestamps_list:
+                validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_log_line_timestamps_list)
         except Exception as err:
             raise AssertionError(err)
         finally:
@@ -932,20 +937,30 @@ def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
 
     syslog_file_list = duthost.shell('sudo ls -l /var/log/syslog*')['stdout'].splitlines()
 
-    syslog_file_name = '/var/log/syslog'
-    oldest_expected_file_diff = 0
+    syslogs_creation_date_dict = {}
+    syslog_file_name_index = 8
     for syslog_file_entry in syslog_file_list:
         splited_data = syslog_file_entry.split()
         file_timestamp = get_syslog_timestamp(splited_data)
-        diff_since_current_time = (current_time - file_timestamp).seconds
-        if diff_since_current_time < since_value_in_seconds:
-            if oldest_expected_file_diff < diff_since_current_time:
-                oldest_expected_file_diff = diff_since_current_time
-                syslog_file_name = splited_data[8]
+        syslog_file_name = splited_data[syslog_file_name_index]
+        if syslogs_creation_date_dict.get(file_timestamp):
+            syslogs_creation_date_dict[file_timestamp].append(syslog_file_name)
+        else:
+            syslogs_creation_date_dict[file_timestamp] = [syslog_file_name]
 
-    expected_oldest_log_line_timestamp = get_first_line_timestamp(duthost, syslog_file_name)
+    # Sorted from new to old
+    syslogs_sorted = sorted(syslogs_creation_date_dict.keys(), reverse=True)
+    expected_files_in_techsupport_list = []
+    for date in syslogs_sorted:
+        expected_files_in_techsupport_list.extend(syslogs_creation_date_dict[date])
+        if (current_time - date).seconds > since_value_in_seconds:
+            break
 
-    return expected_oldest_log_line_timestamp
+    expected_oldest_log_line_timestamps_list = []
+    for syslog_file_path in expected_files_in_techsupport_list:
+        expected_oldest_log_line_timestamps_list.append(get_first_line_timestamp(duthost, syslog_file_path))
+
+    return expected_oldest_log_line_timestamps_list
 
 
 def get_syslog_timestamp(splited_data):
