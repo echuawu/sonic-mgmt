@@ -1242,6 +1242,16 @@
       - simx
 
 - Errors_list:
+    - '.* ERR systemd\[\d+\]: Failed to start what-just-happened container'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route
+      - tests/push_build_tests/general/wjh/test_wjh.py
+      - tests/push_build_tests/system/test_cpu_ram_hdd_usage.py
+      Redmine:
+      - 3038334
+      
+- Errors_list:
     - '.* ERR coredump_gen_handler.py\[\d+\]: show techsupport failed with exit code 2, stderr: Accquiring lock failed, PID \d+ is active'
   Conditions:
     - Affected_test_cases:
