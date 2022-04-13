@@ -342,7 +342,7 @@
           "category": "Move Tarball",
           "node": "MTBC_SYNC",
           "parameters": {
-            "cmd": "sudo scp -f ${nfs_dir}/${TARBALL_NAME} root@mtbc-stm-003:/auto/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
+            "cmd": "sudo scp ${nfs_dir}/${TARBALL_NAME} root@mtbc-stm-003:/auto/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
           },
           "skip": false,
           "on_failure": "ignore",
