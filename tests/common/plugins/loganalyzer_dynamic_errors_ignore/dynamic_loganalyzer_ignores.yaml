@@ -112,7 +112,6 @@
     - '.* resctrl: L3 allocation detected'
     - '.* resctrl: L3DATA allocation detected'
     - '.* resctrl: L3CODE allocation detected'
-    - '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
   Conditions:
     - Affected_test_cases:
       # Canonical
@@ -148,7 +147,7 @@
       - vxlan/test_vnet_vxlan.py
       - ecmp/inner_hashing/test_wr_inner_hashing.py
       Redmine:
-      - 2961383
+      - 3042449
       Branch:
       - 202111
       - master
