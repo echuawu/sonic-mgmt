@@ -194,10 +194,12 @@ def test_scale_static_route(cli_objects, engines, players, interfaces, static_ro
         # TODO: Workaround for bug https://redmine.mellanox.com/issues/2350931
         validation_create_arp_ipv4 = {'sender': 'hb', 'args': {'interface': interfaces.hb_dut_1, 'count': 3,
                                                                'dst': '160.0.0.1'}}
-        PingChecker(players, validation_create_arp_ipv4).run_validation()
+        retry_call(PingChecker(players, validation_create_arp_ipv4).run_validation, fargs=[], tries=2, delay=5,
+                   logger=logger)
         validation_create_arp_ipv6 = {'sender': 'hb', 'args': {'interface': interfaces.hb_dut_1, 'count': 3,
                                                                'dst': '1600::1'}}
-        PingChecker(players, validation_create_arp_ipv6).run_validation()
+        retry_call(PingChecker(players, validation_create_arp_ipv6).run_validation, fargs=[], tries=2, delay=5,
+                   logger=logger)
         # TODO: End workaround for bug https://redmine.mellanox.com/issues/2350931
 
         with allure.step('Check static routes IPv4 on switch by sending traffic'):
