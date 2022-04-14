@@ -71,12 +71,45 @@
     </case>
 
     <case>
-        <info> Test Check SFP Presence Case </info>
-        <name> sfp_presence </name>
+        <info> Test Check SFP Transceiver Presence Case </info>
+        <name> sfp_transceiver_presence_ifaces </name>
         <tout> 1200 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/mellanox/test_check_sfp_presence.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Test Check SFP Transceiver Presence And Eeprom Case </info>
+        <name> sfp_transceiver_presence_eeprom </name>
+        <tout> 600 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_show_intf_xcvr.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Test Check SFP Show Presence And Eeprom Case </info>
+        <name> sfpshow_presence_eeprom </name>
+        <tout> 600 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_sfpshow.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Test Check SFP Show Presence And Eeprom Case </info>
+        <name> sfputil_presence_eeprom_errorStatus </name>
+        <tout> 600 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"not test_check_sfputil_reset and not test_check_sfputil_low_power_mode\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_sfputil.py </static_args>
              </params>
         </cmd>
     </case>
