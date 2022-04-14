@@ -1207,3 +1207,12 @@ tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
 tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py::test_gtp_parser_entry_hit:
   - Redmine:
       - 2992172
+
+platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
+  - Redmine:
+    - 3042689
+    Branch:
+    - 202111
+    Platform:
+    - msn4600c
+    - msn3800
