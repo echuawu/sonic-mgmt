@@ -1133,6 +1133,12 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_
   - Redmine:
     - 3006650
 
+tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_unsupported_breakout_mode:
+  - Redmine:
+    - 3042266
+    Branch:
+    - 202111
+
 tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speeds_on_dpb:
   - Redmine:
     - 3006650
