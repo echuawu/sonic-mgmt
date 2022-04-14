@@ -1241,6 +1241,17 @@
       - simx
 
 - Errors_list:
+    - '.* ERR dhclient\[\d+\]: receive_packet failed on .*: Network is down'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay::test_dhcp6_relay_multiple_dhcp_servers
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay::test_dhcp6_relay_remove_dhcp_server
+      Redmine:
+        - 3042682
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR systemd\[\d+\]: Failed to start what-just-happened container'
   Conditions:
     - Affected_test_cases:
