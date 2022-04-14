@@ -158,11 +158,6 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         logger.info(f'Adding DHCP relay: {dhcp_server} for VLAN: {vlan}')
         self.engine.run_cmd(f'sudo config load -y {path_to_config_on_dut}')
 
-        # TODO: Once https://github.com/Azure/sonic-buildimage/issues/9679 fixed - remove "config reload -y" logic
-        self.cli_obj.general.save_configuration()
-        branch = topology_obj.players['dut'].get('branch')
-        self.cli_obj.general.reload_flow(topology_obj=topology_obj, reload_force=True)
-
     def del_ipv6_dhcp_relay(self, vlan, dhcp_server, topology_obj):
         """
         This method delete DHCPv6 relay entry from VLAN interface

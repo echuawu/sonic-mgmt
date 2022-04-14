@@ -1248,9 +1248,11 @@
       - tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route
       - tests/push_build_tests/general/wjh/test_wjh.py
       - tests/push_build_tests/system/test_cpu_ram_hdd_usage.py
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py
       Redmine:
       - 3038334
-      
+
 - Errors_list:
     - '.* ERR coredump_gen_handler.py\[\d+\]: show techsupport failed with exit code 2, stderr: Accquiring lock failed, PID \d+ is active'
   Conditions:
