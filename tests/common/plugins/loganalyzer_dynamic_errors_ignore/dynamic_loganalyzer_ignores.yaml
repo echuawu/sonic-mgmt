@@ -222,6 +222,9 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
+      - copp/test_copp.py::TestCOPP::test_add_new_trap
+      - copp/test_copp.py::TestCOPP::test_remove_trap
+      - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
       Redmine:
       - 3024792
       Branch:
