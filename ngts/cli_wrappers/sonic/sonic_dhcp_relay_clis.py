@@ -1,5 +1,6 @@
 import logging
 import ipaddress
+import json
 
 from ngts.helpers.config_db_utils import save_config_db_json, save_config_into_json
 
@@ -139,24 +140,22 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         """
         vlan_iface = 'Vlan{}'.format(vlan)
 
-        config_db = self.cli_obj.general.get_config_db_from_running_config()
+        available_dhcp_relays = self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HGETALL "DHCP_RELAY|{vlan_iface}"')
+        available_dhcp_relays_dict = json.loads(available_dhcp_relays.replace('\'', '"'))
 
-        if config_db.get('DHCP_RELAY'):
-            available_dhcpv6_servers = config_db['DHCP_RELAY'].get(vlan_iface, {}).get('dhcpv6_servers', [])
-            dhcpv6_servers_list = available_dhcpv6_servers + [dhcp_server]
-            config = {'DHCP_RELAY': {vlan_iface: {'dhcpv6_servers': dhcpv6_servers_list}},
-                      'VLAN': {vlan_iface: {'dhcpv6_servers': dhcpv6_servers_list}}
-                      }
-        else:
-            config = {'DHCP_RELAY': {vlan_iface: {'dhcpv6_servers': [dhcp_server]}},
-                      'VLAN': {vlan_iface: {'dhcpv6_servers': [dhcp_server]}}
-                      }
+        dhcpv6_servers = dhcp_server
+        if available_dhcp_relays_dict.get('dhcpv6_servers@'):
+            available_dhcp_servers = available_dhcp_relays_dict['dhcpv6_servers@']
+            dhcpv6_servers = f'{available_dhcp_servers},{dhcp_server}'
 
-        config_name = 'dhcpv6_relay.json'
-        # Save config into JSON and upload to DUT
-        path_to_config_on_dut = save_config_into_json(self.engine, config_dict=config, config_file_name=config_name)
         logger.info(f'Adding DHCP relay: {dhcp_server} for VLAN: {vlan}')
-        self.engine.run_cmd(f'sudo config load -y {path_to_config_on_dut}')
+        self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HSET "DHCP_RELAY|{vlan_iface}" '
+                            f'"dhcpv6_servers@" "{dhcpv6_servers}"')
+        self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HSET "VLAN|{vlan_iface}" '
+                            f'"dhcpv6_servers@" "{dhcpv6_servers}"')
+
+        self.engine.run_cmd('sudo config save -y')
+        self.engine.run_cmd('sudo service dhcp_relay restart')
 
     def del_ipv6_dhcp_relay(self, vlan, dhcp_server, topology_obj):
         """
@@ -167,59 +166,28 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         """
         vlan_iface = 'Vlan{}'.format(vlan)
 
-        config_db = self.cli_obj.general.get_config_db_from_running_config()
+        available_dhcp_relays = self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HGETALL "DHCP_RELAY|{vlan_iface}"')
+        available_dhcp_relays_dict = json.loads(available_dhcp_relays.replace('\'', '"'))
+        available_dhcp_servers_list = available_dhcp_relays_dict['dhcpv6_servers@'].split(',')
+        available_dhcp_servers_list.remove(dhcp_server)
+        dhcpv6_servers = ','.join(available_dhcp_servers_list)
 
-        config_db = self.remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
-        config_db = self.remove_vlan_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server)
         logger.info(f'Removing DHCP relay: {dhcp_server} from VLAN: {vlan}')
+        if dhcpv6_servers:
+            self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HSET "DHCP_RELAY|{vlan_iface}" '
+                                f'"dhcpv6_servers@" "{dhcpv6_servers}"')
+            self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HSET "VLAN|{vlan_iface}" '
+                                f'"dhcpv6_servers@" "{dhcpv6_servers}"')
+        else:
+            self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB DEL "DHCP_RELAY|{vlan_iface}"')
+            self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HDEL "VLAN|{vlan_iface}" "dhcpv6_servers@"')
 
-        # TODO: Once https://github.com/Azure/sonic-buildimage/issues/9679 fixed - remove "config reload -y" logic
-        save_config_db_json(self.engine, config_db)
-        branch = topology_obj.players['dut'].get('branch')
-        self.cli_obj.general.reload_flow(topology_obj=topology_obj, reload_force=True)
-
-    @staticmethod
-    def remove_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server):
-        """
-        Remove DHCP_RELAY settings from config_db.json dictionary
-        :param config_db: dict with config_db.json data
-        :param vlan_iface: Vlan interface from which will be removed DHCPv6 relay settings
-        :param dhcp_server: DHCPv6 server IP which will be removed
-        :return: config_db dictionary with removed DHCPv6 relay settings
-        """
-        config_db['DHCP_RELAY'][vlan_iface]['dhcpv6_servers'].remove(dhcp_server)
-
-        if not config_db['DHCP_RELAY'][vlan_iface]['dhcpv6_servers']:
-            config_db['DHCP_RELAY'][vlan_iface].pop('dhcpv6_servers')
-
-        if not config_db['DHCP_RELAY'][vlan_iface]:
-            config_db['DHCP_RELAY'].pop(vlan_iface)
-
-        if not config_db['DHCP_RELAY']:
-            config_db.pop('DHCP_RELAY')
-
-        return config_db
-
-    @staticmethod
-    def remove_vlan_dhcp_relay_in_config_db(config_db, vlan_iface, dhcp_server):
-        """
-        Remove DHCPv6 relay settings from VLAN section in config_db.json
-        :param config_db: dict with config_db.json data
-        :param vlan_iface: Vlan interface from which will be removed DHCPv6 relay settings
-        :param dhcp_server: DHCPv6 server IP which will be removed
-        :return: config_db dictionary with removed DHCPv6 relay settings
-        """
-        config_db['VLAN'][vlan_iface]['dhcpv6_servers'].remove(dhcp_server)
-
-        if not config_db['VLAN'][vlan_iface]['dhcpv6_servers']:
-            config_db['VLAN'][vlan_iface].pop('dhcpv6_servers')
-
-        return config_db
+        self.engine.run_cmd('sudo config save -y')
+        self.engine.run_cmd('sudo service dhcp_relay restart')
 
     def parse_show_dhcprelay_helper_ipv6_as_dict(self):
         """
         Parse output of command "show dhcprelay_helper ipv6" and return result as dict
-        :param engine: ssh engine object
         :return: dict, example: {'Vlan690': ['6900::2', '6900::3'], 'Vlan691': ['6900::2']}
         """
         result = {}
