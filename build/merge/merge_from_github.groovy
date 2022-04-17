@@ -12,7 +12,7 @@ def run_step(name, ci_tools) {
 
         //copy commit msg
         if (!fileExists(".git/hooks/commit-msg")) {
-            ci_tools.run_sh('''scp -p -P 29418 10.7.77.140:hooks/commit-msg ".git/hooks/"''')
+            ci_tools.run_sh('''scp -p -P 29418 l-sw-gerrit-01.mtl.labs.mlnx:hooks/commit-msg ".git/hooks/"''')
         }
         ci_tools.run_sh("git remote add upstream ${env.GITHUB_REPOSITORY} && git fetch upstream")
         try {

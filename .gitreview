@@ -1,5 +1,5 @@
 [gerrit]
-host=10.7.77.140
+host=l-sw-gerrit-01.mtl.labs.mlnx
 project=switchx/sonic/sonic-mgmt
 track=true
 usepushurl=true

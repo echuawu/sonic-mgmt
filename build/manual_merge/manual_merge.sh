@@ -25,12 +25,12 @@ echo "LOCAL_BRANCH=${LOCAL_BRANCH}"
 echo "GITHUB_BRANCH=${GITHUB_BRANCH}"
 
 echo "Cloning sonic-mgmt (branch ${LOCAL_BRANCH}) into $(tmp_dir)"
-git clone -b ${LOCAL_BRANCH} "ssh://10.7.77.140:29418/switchx/sonic/sonic-mgmt" -b ${LOCAL_BRANCH} ${tmp_dir}
+git clone -b ${LOCAL_BRANCH} "ssh://l-sw-gerrit-01.mtl.labs.mlnx:29418/switchx/sonic/sonic-mgmt" -b ${LOCAL_BRANCH} ${tmp_dir}
 cd ${tmp_dir} || exit 1
 FILE=".git/hooks/commit-msg"
 if [[ ! -f "$FILE" ]]; then
     echo "$FILE does not exists. copying commit message"
-    scp -p -P 29418 10.7.77.140:hooks/commit-msg ".git/hooks/"
+    scp -p -P 29418 l-sw-gerrit-01.mtl.labs.mlnx:hooks/commit-msg ".git/hooks/"
 fi
 echo "merging upstream/${GITHUB_BRANCH}"
 git remote add upstream ${GITHUB_REPOSITORY} && git fetch upstream
