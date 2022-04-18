@@ -1084,6 +1084,7 @@
 - Errors_list:
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
     - '.* ERR kernel: \[.*\] hwmon hwmon\d+: Failed to query module temperature sensor.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query temp sensor.*'
     - '.* ERR pmon#thermalctld: Failed to read from file /run/hw-management/thermal/module.*_temp_fault - OSError.*'
   Conditions:
     - Redmine:
@@ -1249,3 +1250,15 @@
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py
+
+- Errors_list:
+    - ".*ERR wjhcli: :- connect: connect() failed to connect to daemon: No such file or directory.*"
+  Conditions:
+    - Redmine:
+        - 3044595
+
+- Errors_list:
+    - ".*Failed to add device '/dev/sda3' to watch: Operation not permitted.*"
+  Conditions:
+    - Redmine:
+        - 3044633
