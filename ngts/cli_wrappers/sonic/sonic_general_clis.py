@@ -330,7 +330,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         hyper_engine = topology_obj.players['hyper']['engine']
 
         with allure.step('Installing image by "bfb-install" on server'):
-            LinuxGeneralCli(hyper_engine).install_bfb_image(image_path=image_path, rshim=rshim)
+            LinuxGeneralCli(hyper_engine).install_bfb_image(image_path=image_path, rshim_num=rshim)
 
         # Broken engine after install. Disconnect it. In next run_cmd, it will connect back
         self.engine.disconnect()
