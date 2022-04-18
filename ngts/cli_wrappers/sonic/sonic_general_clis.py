@@ -11,6 +11,7 @@ from retry.api import retry_call
 
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
+from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
@@ -24,7 +25,6 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
-from ngts.cli_wrappers.sonic.sonic_qos_clis import SonicQosCli
 
 
 logger = logging.getLogger()
@@ -219,7 +219,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             # Try to get extended docker list for DUT type ToRRouter
             try:
                 config_db = self.get_config_db()
-                if config_db['DEVICE_METADATA']['localhost']['type'] == 'ToRRouter':
+                if config_db['DEVICE_METADATA']['localhost']['type'] == 'ToRRouter' \
+                        and not self.is_bluefield(config_db['DEVICE_METADATA']['localhost']['hwsku']):
                     dockers_list = SonicConst.DOCKERS_LIST_TOR
             except json.JSONDecodeError:
                 logger.warning('Can not get device type from config_db.json. Unable to parse config_db.json file')
@@ -254,6 +255,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if deploy_type == 'onie':
             self.deploy_onie(image_path, in_onie, fw_pkg_path, platform_params)
+
+        if deploy_type == 'bfb':
+            self.deploy_bfb(image_path, topology_obj)
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
@@ -320,6 +324,21 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step('Configure dhclient on simx dut'):
                 self.engine.run_cmd('sudo dhclient', validate=True)
 
+    def deploy_bfb(self, image_path, topology_obj):
+        sonic_cli_ssh_connect_timeout = 30
+        rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['Parent_device_NIC_name']
+        hyper_engine = topology_obj.players['hyper']['engine']
+
+        with allure.step('Installing image by "bfb-install" on server'):
+            LinuxGeneralCli(hyper_engine).install_bfb_image(image_path=image_path, rshim=rshim)
+
+        # Broken engine after install. Disconnect it. In next run_cmd, it will connect back
+        self.engine.disconnect()
+
+        with allure.step('Waiting for CLI bring-up after instalation'):
+            logger.info('Waiting for CLI bring-up after instalation')
+            time.sleep(sonic_cli_ssh_connect_timeout)
+
     def deploy_onie(self, image_path, in_onie=False, fw_pkg_path=None, platform_params=None):
         if not in_onie:
             with allure.step('Setting boot order to onie'):
@@ -329,7 +348,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         SonicOnieCli(self.engine.ip, fw_pkg_path, platform_params).update_onie()
         self.install_image_onie(self.engine.ip, image_path)
 
-    def install_image_onie(self, dut_ip, image_url):
+    @staticmethod
+    def install_image_onie(dut_ip, image_url):
         sonic_cli_ssh_connect_timeout = 10
 
         with allure.step('Installing image by "onie-nos-install"'):
@@ -396,7 +416,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         with allure.step("Reboot the dut"):
             self.engine.reload(['sudo reboot'])
-            self.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
+            self.verify_dockers_are_up()
 
         with allure.step("Apply qos and dynamic buffer config"):
             self.cli_obj.qos.reload_qos()
@@ -519,11 +539,17 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def update_config_db_breakout_cfg(self, topology_obj, setup_name, hwsku, config_db_json_file_name):
         init_config_db_json = self.get_init_config_db_json_obj(hwsku)
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name)
-        if init_config_db_json.get("BREAKOUT_CFG"):
+        if init_config_db_json.get("BREAKOUT_CFG") and not self.is_bluefield(hwsku):
             config_db_json = self.update_breakout_cfg(topology_obj, init_config_db_json, config_db_json, hwsku)
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
-    def get_config_db_json_obj(self, setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
+    @staticmethod
+    def is_bluefield(hwsku):
+        bluefield_hwsku = 'mbf2h536c'
+        return bluefield_hwsku in hwsku.lower()
+
+    @staticmethod
+    def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
         config_db_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, config_db_json_file_name))
         with open(config_db_path) as config_db_json_file:
             config_db_json = json.load(config_db_json_file)
@@ -589,12 +615,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                                                unsplit_ports_split_num,
                                                parsed_platform_json_by_breakout_modes)
 
-    def update_port_breakout_cfg_mode(self, breakout_cfg_dict, port, config_db_json,
+    @staticmethod
+    def update_port_breakout_cfg_mode(breakout_cfg_dict, port, config_db_json,
                                       split_num, parsed_platform_json_by_breakout_modes):
         breakout_cfg_dict[port]["brkout_mode"] = get_port_current_breakout_mode(config_db_json, port, split_num,
                                                                                 parsed_platform_json_by_breakout_modes)
 
-    def create_extended_config_db_file(self, setup_name, config_db_json, file_name=SonicConst.EXTENDED_CONFIG_DB_PATH):
+    @staticmethod
+    def create_extended_config_db_file(setup_name, config_db_json, file_name=SonicConst.EXTENDED_CONFIG_DB_PATH):
         new_config_db_json_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH,
                                                    setup_name,
                                                    file_name))
@@ -712,7 +740,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                             ports_speeds_by_modes_info[port] = get_split_mode_supported_speeds(breakout_modes)
         return ports_speeds_by_modes_info
 
-    def generate_mock_ports_speeds(self, topology_obj, parse_by_breakout_modes=False):
+    @staticmethod
+    def generate_mock_ports_speeds(topology_obj, parse_by_breakout_modes=False):
         if parse_by_breakout_modes:
             raise AssertionError("This version doesn't support platform.json,\n"
                                  "there no mock option for interfaces breakout mode option")

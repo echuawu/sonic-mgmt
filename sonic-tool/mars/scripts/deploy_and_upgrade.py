@@ -615,8 +615,9 @@ def main():
         retry_call(deploy_minigprah, fargs=[ansible_path, mgmt_docker_engine, args.dut_name, args.sonic_topo,
                                             args.recover_by_reboot], tries=3, delay=30, logger=logger)
 
-    post_install_check(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
-                       sonic_topo=args.sonic_topo)
+    if 'sonic_bluefield' not in args.setup_name:
+        post_install_check(ansible_path=ansible_path, mgmt_docker_engine=mgmt_docker_engine, dut_name=args.dut_name,
+                           sonic_topo=args.sonic_topo)
 
     if image_urls["target_version"] and args.deploy_only_target == 'no':
         logger.info("Target version is defined, upgrade switch again to the target version.")
