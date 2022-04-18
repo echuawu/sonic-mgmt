@@ -22,7 +22,7 @@ def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     yield
 
     logger.info('Starting FEC configuration cleanup')
-    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, setup_name, platform_params)
 
     logger.info('FEC cleanup completed')
 

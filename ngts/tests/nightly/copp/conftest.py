@@ -42,7 +42,7 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
     cli_objects.ha.general.start_service('lldpad')
 
-    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, setup_name, platform_params)
 
     logger.info('CoPP Common cleanup completed')
 

@@ -24,8 +24,8 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
-from ngts.tools.infra import ENV_LOG_FOLDER
-from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
+from ngts.cli_wrappers.sonic.sonic_qos_clis import SonicQosCli
+
 
 logger = logging.getLogger()
 DUMMY_COMMAND = 'echo dummy_command'
@@ -37,9 +37,10 @@ class SonicGeneralCli:
         branch = kwargs.get('branch')
         engine = kwargs['engine']
         cli_obj = kwargs.get('cli_obj')
+        dut_alias = kwargs.get('dut_alias', 'dut')
 
-        supported_cli_classes = {'default': SonicGeneralCliDefault(engine, cli_obj),
-                                 '202012': SonicGeneralCli202012(engine, cli_obj)}
+        supported_cli_classes = {'default': SonicGeneralCliDefault(engine, cli_obj, dut_alias),
+                                 '202012': SonicGeneralCli202012(engine, cli_obj, dut_alias)}
 
         cli_class = supported_cli_classes.get(branch, supported_cli_classes['default'])
         cli_class_name = cli_class.__class__.__name__
@@ -53,9 +54,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     This class is for general cli commands for sonic only
     """
 
-    def __init__(self, engine, cli_obj):
+    def __init__(self, engine, cli_obj, dut_alias):
         self.engine = engine
         self.cli_obj = cli_obj
+        self.dut_alias = dut_alias
 
     def show_feature_status(self):
         """
@@ -150,21 +152,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param wait_after_ping: how long in second wait after ping before ssh connection
         :return: None, raise error in case of unexpected result
         """
-        if not topology_obj:
-            raise Exception('topology_obj must be passed to reboot_flow method')
+        if not (ports_list or topology_obj):
+            raise Exception('ports_list or topology_obj must be passed to reboot_flow method')
         if not ports_list:
-            ports_list = topology_obj.players_all_ports.get('dut')
+            ports_list = topology_obj.players_all_ports[self.dut_alias]
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
-            self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
+            self.engine.reload(['sudo {}'.format(reboot_type)], wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
-
-    def safe_reboot_flow(self, topology_obj, reboot_type='reboot', wait_after_ping=45):
-        self.engine.reload([f'sudo {reboot_type}'], wait_after_ping=wait_after_ping)
-        sanitizer = topology_obj.players['dut']['sanitizer']
-        if sanitizer:
-            test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
-            dumps_folder = os.environ.get(ENV_LOG_FOLDER)
-            check_sanitizer_and_store_dump(self.engine, dumps_folder, test_name)
 
     def reload_flow(self, ports_list=None, topology_obj=None, reload_force=False):
         """
@@ -177,7 +171,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if not (ports_list or topology_obj):
             raise Exception('ports_list or topology_obj must be passed to reload_flow method')
         if not ports_list:
-            ports_list = topology_obj.players_all_ports.get('dut')
+            ports_list = topology_obj.players_all_ports[self.dut_alias]
         with allure.step('Reloading dut'):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)
@@ -248,7 +242,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             output = self.engine.run_cmd('sudo generate_dump -s \"-{} seconds\"'.format(duration))
             return output.splitlines()[-1]
 
-    def do_installation(self, topology_obj, dut_engine, image_path, deploy_type, fw_pkg_path, platform_params):
+    def do_installation(self, topology_obj, image_path, deploy_type, fw_pkg_path, platform_params):
         with allure.step('Preparing switch for installation'):
             in_onie = self.prepare_for_installation(topology_obj)
 
@@ -264,21 +258,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
                      reboot_after_install=None, fw_pkg_path=None):
-        dut_engine = topology_obj.players['dut']['engine']
-        cli_object = topology_obj.players['dut']['cli']
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
             with allure.step("Trying to install sonic image"):
-                self.do_installation(topology_obj, dut_engine, image_path, deploy_type,
-                                     fw_pkg_path, platform_params)
+                self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
         except OnieInstallationError:
             with allure.step("Catched exception OnieInstallationError during install. Perform reboot and trying again"):
                 logger.error('Catched exception OnieInstallationError during install. Perform reboot and trying again')
                 self.remote_reboot(topology_obj)
                 logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
-                self.do_installation(topology_obj, dut_engine, image_path, deploy_type)
+                self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
@@ -286,7 +277,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if apply_base_config:
             with allure.step("Apply port_config.ini and config_db.json"):
-                self.apply_basic_config(topology_obj, cli_object, setup_name, platform_params)
+                self.apply_basic_config(topology_obj, setup_name, platform_params)
 
         if wjh_deb_url:
             with allure.step("Installing wjh deb url"):
@@ -295,7 +286,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Validate dockers are up"):
             self.verify_dockers_are_up()
         with allure.step("Validate app extensions are up"):
-            self.verify_installed_extensions_running(cli_object)
+            self.verify_installed_extensions_running()
         self.configure_dhclient_if_simx()
 
     def deploy_sonic(self, image_path, is_skipping_migrating_package=False):
@@ -357,7 +348,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             time.sleep(sonic_cli_ssh_connect_timeout)
 
     def check_is_alive_and_revive(self, topology_obj):
-        ip = topology_obj.players['dut']['engine'].ip
+        ip = self.engine.ip
         try:
             logger.info('Checking whether device is alive')
             ping_till_alive(should_be_alive=True, destination_host=ip, tries=2)
@@ -369,9 +360,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         return True
 
     def remote_reboot(self, topology_obj):
-        ip = topology_obj.players['dut']['engine'].ip
+        ip = self.engine.ip
         logger.info('Executing remote reboot')
-        cmd = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
+        cmd = topology_obj.players[self.dut_alias]['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
         _, _, rc = run_process_on_host(cmd)
         if rc == InfraConst.RC_SUCCESS:
             ping_till_alive(should_be_alive=True, destination_host=ip)
@@ -380,29 +371,25 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def prepare_for_installation(self, topology_obj):
         switch_in_onie = False
-        dut_engine = topology_obj.players['dut']['engine']
         self.check_is_alive_and_revive(topology_obj)
         try:
             # Checking if device is in sonic
-            dut_engine.run_cmd(DUMMY_COMMAND, validate=True)
+            self.engine.run_cmd(DUMMY_COMMAND, validate=True)
         except netmiko.ssh_exception.NetmikoAuthenticationException:
             self.if_other_credentials_used_set_boot_order_onie()
             logger.info('Next boot set to onie succeed')
 
-            SonicOnieCli(dut_engine.ip).confirm_onie_boot_mode_install()
+            SonicOnieCli(self.engine.ip).confirm_onie_boot_mode_install()
             switch_in_onie = True
         return switch_in_onie
 
-    def apply_basic_config(self, topology_obj, cli_object, setup_name, platform_params):
+    def apply_basic_config(self, topology_obj, setup_name, platform_params):
         platform = platform_params['platform']
         hwsku = platform_params['hwsku']
         shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
-        with allure.step("Apply port config ini"):
-            self.upload_port_config_ini(platform, hwsku, shared_path)
-
-        with allure.step("Apply config DB"):
-            self.upload_config_db_file(topology_obj, setup_name, cli_object, hwsku, shared_path)
+        self.upload_port_config_ini(platform, hwsku, shared_path)
+        self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
 
         with allure.step("Updating dhclient lease time"):
             self.update_dhclient_lease_time()
@@ -412,9 +399,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
 
         with allure.step("Apply qos and dynamic buffer config"):
-            cli_object.qos.reload_qos()
-            cli_object.qos.stop_buffermgrd()
-            cli_object.qos.start_buffermgrd()
+            self.cli_obj.qos.reload_qos()
+            self.cli_obj.qos.stop_buffermgrd()
+            self.cli_obj.qos.start_buffermgrd()
             self.save_configuration()
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
@@ -423,12 +410,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                                                            SonicConst.PORT_CONFIG_INI,
                                                            switch_config_ini_path))
 
-    def upload_config_db_file(self, topology_obj, setup_name, cli_object, hwsku, shared_path):
-        config_db_file = self.get_updated_config_db(topology_obj, setup_name, cli_object, hwsku)
+    def upload_config_db_file(self, topology_obj, setup_name, hwsku, shared_path):
+        config_db_file = self.get_updated_config_db(topology_obj, setup_name, hwsku)
         self.engine.run_cmd(
             'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH))
 
-    def get_updated_config_db(self, topology_obj, setup_name, cli_object, hwsku):
+    def get_updated_config_db(self, topology_obj, setup_name, hwsku):
         config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
         base_config_db_json = self.get_config_db_json_obj(setup_name)
         self.create_extended_config_db_file(setup_name, base_config_db_json, file_name=config_db_file_name)
@@ -440,7 +427,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                                              config_db_file_name)
         default_mtu = "9100"
         self.update_config_db_port_mtu_config(setup_name, default_mtu, config_db_file_name)
-        self.update_config_db_breakout_cfg(topology_obj, setup_name, cli_object, hwsku, config_db_file_name)
+        self.update_config_db_breakout_cfg(topology_obj, setup_name, hwsku, config_db_file_name)
         return config_db_file_name
 
     def update_config_db_features(self, setup_name, hwsku, config_db_json_file_name):
@@ -529,13 +516,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 return False
         return True
 
-    def update_config_db_breakout_cfg(self, topology_obj, setup_name,
-                                      cli_object, hwsku, config_db_json_file_name):
+    def update_config_db_breakout_cfg(self, topology_obj, setup_name, hwsku, config_db_json_file_name):
         init_config_db_json = self.get_init_config_db_json_obj(hwsku)
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name)
         if init_config_db_json.get("BREAKOUT_CFG"):
-            config_db_json = self.update_breakout_cfg(topology_obj, cli_object, init_config_db_json, config_db_json,
-                                                      hwsku)
+            config_db_json = self.update_breakout_cfg(topology_obj, init_config_db_json, config_db_json, hwsku)
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def get_config_db_json_obj(self, setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
@@ -556,22 +541,20 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         data = self.engine.run_cmd(f'cat {hwsku_path}')
         return json.loads(data)
 
-    def update_breakout_cfg(self, topology_obj, cli_object,
-                            init_config_db_json, config_db_json, hwsku):
+    def update_breakout_cfg(self, topology_obj, init_config_db_json, config_db_json, hwsku):
         """
         This function updates the config_sb.json file with BREAKOUT_CFG section.
         In cases of systems where the consecutive port is unmapped after split of 4,
         the static split ports of 4, will not be include in the BREAKOUT_CFG.
 
         :param topology_obj: a topology object fixture
-        :param cli_object: a cli obj of the dut
         :param init_config_db_json: a json object of the initial config_db.json file on the dut
         :param config_db_json: a json object of the config_db.json file on the dut
         :param hwsku:  hwsku of the dut  i.e, Mellanox-SN2700
         :return: the name of the updated config_db.json file with BREAKOUT_CFG section
         """
         breakout_cfg_dict = init_config_db_json.get("BREAKOUT_CFG")
-        platform_json_obj = json_file_helper.get_platform_json(self.engine, cli_object)
+        platform_json_obj = json_file_helper.get_platform_json(self.engine, self.cli_obj)
         parsed_platform_json_by_breakout_modes = self.parse_platform_json(topology_obj, platform_json_obj,
                                                                           parse_by_breakout_modes=True)
         split_ports_for_update = get_all_split_ports_parents(config_db_json)
@@ -686,8 +669,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             return True
         return False
 
-    def show_version(self, validate=False):
-        return self.engine.run_cmd('show version', validate=validate)
+    def show_version(self):
+        return self.engine.run_cmd('show version')
 
     def parse_platform_json(self, topology_obj, platform_json_obj, parse_by_breakout_modes=False):
         """
@@ -722,7 +705,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 lane_count = len(lanes)
                 breakout_ports = ["Ethernet{}".format(port_start_index + i) for i in range(lane_count)]
                 for port in breakout_ports:
-                    if port in topology_obj.players_all_ports['dut']:
+                    if port in topology_obj.players_all_ports[self.dut_alias]:
                         if parse_by_breakout_modes:
                             ports_speeds_by_modes_info[port] = get_split_mode_supported_breakout_modes(breakout_modes)
                         else:
@@ -796,14 +779,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         return base_image, target_image
 
-    def verify_installed_extensions_running(self, cli_obj):
+    def verify_installed_extensions_running(self):
         """
         Verify installed mellanox app_extension to image exist in docker ps output
-        :param cli_obj: cli_obj object
         :return: None if successful, otherwise Exception
         """
-        if cli_obj.app_ext.verify_version_support_app_ext():
-            installed_mellanox_ext = get_installed_mellanox_extensions(cli_obj)
+        if self.cli_obj.app_ext.verify_version_support_app_ext():
+            installed_mellanox_ext = get_installed_mellanox_extensions(self.cli_obj)
             if installed_mellanox_ext:
                 retry_call(self._verify_dockers_are_up,
                            fargs=[installed_mellanox_ext],
@@ -843,9 +825,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
 
-    def __init__(self, engine, cli_obj):
+    def __init__(self, engine, cli_obj, dut_alias):
         self.engine = engine
         self.cli_obj = cli_obj
+        self.dut_alias = dut_alias
 
     def reload_flow(self, ports_list=None, topology_obj=None, reload_force=False):
         """
@@ -858,7 +841,7 @@ class SonicGeneralCli202012(SonicGeneralCliDefault):
         if not (ports_list or topology_obj):
             raise Exception('ports_list or topology_obj must be passed to reload_flow method')
         if not ports_list:
-            ports_list = topology_obj.players_all_ports['dut']
+            ports_list = topology_obj.players_all_ports[self.dut_alias]
         with allure.step('Reloading dut'):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)

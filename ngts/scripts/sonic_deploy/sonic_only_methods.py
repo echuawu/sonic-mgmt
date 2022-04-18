@@ -6,8 +6,8 @@ import allure
 
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants
-from ngts.scripts.sonic_deploy.community_only_methods import deploy_fanout_config, generate_minigraph, \
-    deploy_minigprah, reboot_validation, execute_script
+from ngts.scripts.sonic_deploy.community_only_methods import generate_minigraph, deploy_minigprah, reboot_validation, \
+    execute_script
 from retry.api import retry_call
 
 logger = logging.getLogger()
@@ -16,21 +16,27 @@ logger = logging.getLogger()
 class SonicInstallationSteps:
 
     @staticmethod
-    def pre_installation_steps(sonic_topo, upgrade_only, base_version, target_version, dut_name, ansible_path):
+    def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number):
         """
         Pre-installation steps for SONIC
         :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
-        :param upgrade_only: bool value
         :param base_version: base version
         :param target_version: target version if provided
-        :param dut_name: dut_name
-        :param ansible_path: path to ansible directory
+        :param setup_info: dictionary with setup info
         """
-        if sonic_topo and sonic_topo != 'ptf-any' and upgrade_only:
+        if is_community(sonic_topo):
+            ansible_path = setup_info['ansible_path']
             # Get ptf docker tag
             ptf_tag = SonicInstallationSteps.get_ptf_tag_sonic(base_version, target_version)
-            # Recover topology
-            SonicInstallationSteps.recover_topology(ansible_path, dut_name, sonic_topo, ptf_tag)
+
+            with allure.step('Remove topologies'):
+                for dut in setup_info['duts']:
+                    SonicInstallationSteps.remove_topologies(ansible_path=ansible_path, dut_name=dut['dut_name'])
+
+            dut_name = setup_info['duts'][0]['dut_name']
+            setup_name = setup_info['setup_name']
+            SonicInstallationSteps.add_topology(ansible_path, setup_name, dut_name, sonic_topo, ptf_tag)
+            generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, port_number)
 
     @staticmethod
     def get_ptf_tag_sonic(base_version, target_version):
@@ -69,7 +75,7 @@ class SonicInstallationSteps:
         return ptf_tag
 
     @staticmethod
-    def recover_topology(ansible_path, dut_name, sonic_topo, ptf_tag):
+    def remove_topologies(ansible_path, dut_name):
         """
         Method which add cEOS dockers and topo in case of community setup
         """
@@ -81,10 +87,15 @@ class SonicInstallationSteps:
                 cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name,
                                                                                           TOPO=topology)
                 logger.info("Running CMD: {}".format(cmd))
-                execute_script(cmd, ansible_path)
+                execute_script(cmd, ansible_path, validate=False)
 
+    @staticmethod
+    def add_topology(ansible_path, setup_name, dut_name, sonic_topo, ptf_tag):
+        with allure.step('Adding topolgy: {}'.format(sonic_topo)):
+            if sonic_topo == 'dualtor':
+                dut_name = setup_name
             logger.info("Add topology")
-            cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e" \
+            cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
                   "ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
             logger.info("Running CMD: {}".format(cmd))
             execute_script(cmd, ansible_path)
@@ -95,7 +106,7 @@ class SonicInstallationSteps:
         Method which doing post install checks: check ports status, check dockers status, etc.
         """
         with allure.step("Post install check"):
-            post_install_validation = "ansible-playbook -i inventory --limit {SWITCH}-{TOPO} " \
+            post_install_validation = "ansible-playbook -i inventory --limit {SWITCH} " \
                                       "post_upgrade_check.yml -e " \
                                       "topo={TOPO} -b -vvv".format(SWITCH=dut_name, TOPO=sonic_topo)
             logger.info("Performing post-install validation by running: {}".format(post_install_validation))
@@ -120,10 +131,9 @@ class SonicInstallationSteps:
         Method which doing WJH installation on DUT
         """
         logger.info("Starting installation of SONiC what-just-happened")
-        cmd = "ansible-playbook install_wjh.yml -i inventory --limit {SWITCH}-{TOPO} \
-                            -e testbed_name={SWITCH}-{TOPO} -e testbed_type={TOPO} \
-                            -e wjh_deb_url={PATH} -vvv".format(SWITCH=dut_name, TOPO=sonic_topo,
-                                                               PATH=wjh_deb_url)
+        cmd = "ansible-playbook install_wjh.yml -i inventory --limit {SWITCH} " \
+              "-e testbed_name={SWITCH}-{TOPO} -e testbed_type={TOPO} " \
+              "-e wjh_deb_url={PATH} -vvv".format(SWITCH=dut_name, TOPO=sonic_topo, PATH=wjh_deb_url)
         execute_script(cmd, ansible_path)
 
     @staticmethod
@@ -156,71 +166,65 @@ class SonicInstallationSteps:
         return is_app_ext_dict
 
     @staticmethod
-    def post_installation_steps(cli, topology_obj, dut_name, host_name, sonic_topo, deploy_fanout, onyx_image_url, ansible_path,
-                                port_number, recover_by_reboot, setup_name, platform_params, deploy_type,
-                                apply_base_config, target_version, wjh_deb_url, is_shutdown_bgp, reboot_after_install,
-                                deploy_only_target, fw_pkg_path, reboot, additional_apps):
+    def post_installation_steps(topology_obj, sonic_topo,
+                                recover_by_reboot, setup_name, platform_params,
+                                apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
+                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info):
         """
         Post-installation steps
-        :param cli: Sonic cli object
         :param topology_obj: topology object
-        :param dut_name: dut_name
-        :param host_name: host_name
         :param sonic_topo: sonic_topo fixture
-        :param deploy_fanout: deploy_fanout fixture
-        :param onyx_image_url: onyx_image_url fixture
-        :param ansible_path: path to ansible directory
-        :param port_number: port number
         :param recover_by_reboot: bool value
         :param setup_name: setup_name from NOGA
         :param platform_params: platform_params
-        :param deploy_type: deploy_type
         :param apply_base_config: apply_base_config
         :param target_version: target_version
-        :param wjh_deb_url: WJH url
         :param is_shutdown_bgp: bool value
         :param reboot_after_install:  bool value
         :param deploy_only_target:  bool value
         :param fw_pkg_path: path to FW pkg
         :param reboot: reboot fixture
         :param additional_apps: additional_apps fixture
+        :param setup_info: dictionary with setup info
         """
-        # Community only steps - Deploy fanout
-        SonicInstallationSteps.deploy_fanout_sonic(sonic_topo, deploy_fanout,
-                                                   onyx_image_url, ansible_path, host_name,
-                                                   dut_name, port_number, recover_by_reboot)
+        ansible_path = setup_info['ansible_path']
 
-        # Post install check
-        SonicInstallationSteps.post_install_check_sonic(sonic_topo, dut_name, ansible_path)
+        # Community only steps
+        if is_community(sonic_topo):
+            for dut in setup_info['duts']:
+                deploy_minigprah(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
+                                 recover_by_reboot=recover_by_reboot)
 
-        # Upgrade switch to the target version
-        SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj,
-                                              dut_name=dut_name, setup_name=setup_name,
-                                              platform_params=platform_params,
-                                              sonic_topo=sonic_topo, deploy_type=deploy_type,
-                                              apply_base_config=apply_base_config,
-                                              target_version=target_version, wjh_deb_url=wjh_deb_url,
-                                              is_shutdown_bgp=is_shutdown_bgp, ansible_path=ansible_path,
-                                              reboot_after_install=reboot_after_install,
-                                              deploy_only_target=deploy_only_target,
-                                              fw_pkg_path=fw_pkg_path, cli=cli)
+            for dut in setup_info['duts']:
+                SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
+                                                                ansible_path=ansible_path)
 
-        # Reboot validation
-        SonicInstallationSteps.reboot_validation_sonic(dut_name=dut_name,
-                                                       sonic_topo=sonic_topo, reboot=reboot, ansible_path=ansible_path)
+        for dut in setup_info['duts']:
+            SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj, dut_name=dut['dut_name'],
+                                                  setup_name=setup_name, platform_params=platform_params,
+                                                  sonic_topo=sonic_topo, deploy_type='sonic',
+                                                  apply_base_config=apply_base_config, target_version=target_version,
+                                                  is_shutdown_bgp=is_shutdown_bgp, ansible_path=ansible_path,
+                                                  reboot_after_install=reboot_after_install,
+                                                  deploy_only_target=deploy_only_target, fw_pkg_path=fw_pkg_path,
+                                                  cli=dut['cli_obj'])
 
-        # Install WJH is requested
-        SonicInstallationSteps.install_wjh_sonic(dut_name=dut_name,
-                                                 sonic_topo=sonic_topo, additional_apps=additional_apps,
-                                                 ansible_path=ansible_path)
+        for dut in setup_info['duts']:
+            SonicInstallationSteps.reboot_validation_sonic(dut_name=dut['dut_name'], sonic_topo=sonic_topo,
+                                                           reboot=reboot, ansible_path=ansible_path)
 
-        # Install supported app extension
-        SonicInstallationSteps.install_app_extension_sonic(dut_name=dut_name,
-                                                           setup_name=setup_name, additional_apps=additional_apps,
-                                                           ansible_path=ansible_path)
+        for dut in setup_info['duts']:
+            if SonicInstallationSteps.is_additional_apps_argument_is_deb_package(additional_apps):
+                SonicInstallationSteps.install_wjh_sonic(dut_name=dut['dut_name'], sonic_topo=sonic_topo,
+                                                         additional_apps=additional_apps, ansible_path=ansible_path)
+            else:
+                if SonicInstallationSteps.is_additional_apps_argument_is_app_ext_dict(additional_apps):
+                    SonicInstallationSteps.install_app_extension_sonic(dut_name=dut['dut_name'], setup_name=setup_name,
+                                                                       additional_apps=additional_apps,
+                                                                       ansible_path=ansible_path)
 
     @staticmethod
-    def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, wjh_deb_url, deploy_type,
+    def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,
                      apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path):
         """
         This method will deploy sonic image on the dut.
@@ -228,7 +232,6 @@ class SonicInstallationSteps:
         :param setup_name: setup_name from NOGA
         :param platform_params: platform_params
         :param image_url: path to sonic version to be installed
-        :param wjh_deb_url: wjh_deb_url
         :param deploy_type: deploy_type
         :param apply_base_config: apply_base_config
         :param reboot_after_install: reboot_after_install
@@ -255,7 +258,7 @@ class SonicInstallationSteps:
             with allure.step('Deploy sonic image on the dut'):
                 cli.deploy_image(topology_obj=topology_obj, image_path=image_url, apply_base_config=apply_base_config,
                                  setup_name=setup_name, platform_params=platform_params,
-                                 wjh_deb_url=wjh_deb_url, deploy_type=deploy_type,
+                                 deploy_type=deploy_type,
                                  reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
         except Exception as err:
             raise AssertionError(err)
@@ -266,32 +269,6 @@ class SonicInstallationSteps:
                     dut_engine.run_cmd('sudo config bgp startup all', validate=True)
 
     @staticmethod
-    def deploy_fanout_sonic(sonic_topo, deploy_fanout, onyx_image_url, ansible_path, host_name, dut_name,
-                            port_number, recover_by_reboot):
-        """
-        Deploy fanout on sonic switch
-        :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
-        :param deploy_fanout: bool value
-        :param onyx_image_url: url path to onyx image
-        :param ansible_path: path to ansible directory
-        :param host_name: host name
-        :param dut_name: dut name
-        :param port_number: port number
-        :param recover_by_reboot: bool value
-        :return:
-        """
-        if sonic_topo != 'ptf-any':
-            if deploy_fanout:
-                with allure.step('Deploy fanout'):
-                    deploy_fanout_config(onyx_image_url=onyx_image_url, ansible_path=ansible_path, host_name=host_name)
-            with allure.step('Generate Minigraph'):
-                generate_minigraph(ansible_path=ansible_path, dut_name=dut_name, sonic_topo=sonic_topo,
-                                   port_number=port_number)
-            with allure.step('Deploy Minigraph'):
-                retry_call(deploy_minigprah, fargs=[ansible_path, dut_name, sonic_topo, recover_by_reboot],
-                           tries=3, delay=30, logger=logger)
-
-    @staticmethod
     def post_install_check_sonic(sonic_topo, dut_name, ansible_path):
         """
         Method which doing post install checks: check ports status, check dockers status, etc.
@@ -299,13 +276,12 @@ class SonicInstallationSteps:
         :param dut_name: dut name
         :param ansible_path: path to ansible directory
         """
-        if sonic_topo != 'ptf-any':
-            SonicInstallationSteps.post_install_check(ansible_path=ansible_path, dut_name=dut_name,
-                                                      sonic_topo=sonic_topo)
+        SonicInstallationSteps.post_install_check(ansible_path=ansible_path, dut_name=dut_name,
+                                                  sonic_topo=sonic_topo)
 
     @staticmethod
     def upgrade_switch(topology_obj, dut_name, setup_name, platform_params, sonic_topo, deploy_type,
-                       apply_base_config, target_version, wjh_deb_url, is_shutdown_bgp, ansible_path,
+                       apply_base_config, target_version, is_shutdown_bgp, ansible_path,
                        reboot_after_install, deploy_only_target, fw_pkg_path, cli):
         """
         Upgrade switch to the target version
@@ -317,7 +293,6 @@ class SonicInstallationSteps:
         :param deploy_type: deploy type - 'onie', 'sonic'
         :param apply_base_config: bool value
         :param target_version: path to target version
-        :param wjh_deb_url: WJH url
         :param is_shutdown_bgp: bool value
         :param ansible_path: path to ansible directory
         :param reboot_after_install: bool value
@@ -330,12 +305,13 @@ class SonicInstallationSteps:
                 logger.info("Target version is defined, upgrade switch again to the target version.")
                 SonicInstallationSteps.deploy_image(topology_obj=topology_obj, setup_name=setup_name,
                                                     image_url=target_version, platform_params=platform_params,
-                                                    wjh_deb_url=wjh_deb_url, deploy_type=deploy_type,
+                                                    deploy_type=deploy_type,
                                                     apply_base_config=apply_base_config,
                                                     reboot_after_install=reboot_after_install,
                                                     is_shutdown_bgp=is_shutdown_bgp, fw_pkg_path=fw_pkg_path, cli=cli)
-                SonicInstallationSteps.post_install_check(ansible_path=ansible_path, dut_name=dut_name,
-                                                          sonic_topo=sonic_topo)
+                if is_community(sonic_topo):
+                    SonicInstallationSteps.post_install_check(ansible_path=ansible_path, dut_name=dut_name,
+                                                              sonic_topo=sonic_topo)
 
     @staticmethod
     def reboot_validation_sonic(dut_name, sonic_topo, reboot, ansible_path):
@@ -358,12 +334,11 @@ class SonicInstallationSteps:
         :param additional_apps: additional apps
         :param ansible_path: path to ansible directory
         """
-        if SonicInstallationSteps.is_additional_apps_argument_is_deb_package(additional_apps):
-            wjh_deb_url_arg = '{}{}'.format(MarsConstants.HTTTP_SERVER_FIT69, additional_apps)
-            if wjh_deb_url_arg:
-                with allure.step("Install WJH"):
-                    SonicInstallationSteps.install_wjh(ansible_path=ansible_path, dut_name=dut_name,
-                                                       sonic_topo=sonic_topo, wjh_deb_url=wjh_deb_url_arg)
+        wjh_deb_url_arg = '{}{}'.format(MarsConstants.HTTTP_SERVER_FIT69, additional_apps)
+        if wjh_deb_url_arg:
+            with allure.step("Install WJH"):
+                SonicInstallationSteps.install_wjh(ansible_path=ansible_path, dut_name=dut_name,
+                                                   sonic_topo=sonic_topo, wjh_deb_url=wjh_deb_url_arg)
 
     @staticmethod
     def install_app_extension_sonic(dut_name, setup_name, additional_apps, ansible_path):
@@ -374,11 +349,14 @@ class SonicInstallationSteps:
         :param additional_apps: additional apps
         :param ansible_path: path to ansible directory
         """
-        if SonicInstallationSteps.is_additional_apps_argument_is_app_ext_dict(additional_apps):
-            app_extension_dict_path = additional_apps
-            if app_extension_dict_path:
-                with allure.step("Install supported app extension"):
-                    SonicInstallationSteps.install_supported_app_extensions(ansible_path=ansible_path,
-                                                                            setup_name=setup_name,
-                                                                            app_extension_dict_path=app_extension_dict_path,
-                                                                            dut_name=dut_name)
+        app_extension_dict_path = additional_apps
+        if app_extension_dict_path:
+            with allure.step("Install supported app extension"):
+                SonicInstallationSteps.install_supported_app_extensions(ansible_path=ansible_path,
+                                                                        setup_name=setup_name,
+                                                                        app_extension_dict_path=app_extension_dict_path,
+                                                                        dut_name=dut_name)
+
+
+def is_community(sonic_topo):
+    return sonic_topo != 'ptf-any'

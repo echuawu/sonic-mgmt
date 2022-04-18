@@ -20,7 +20,7 @@ def auto_neg_configuration(topology_obj, setup_name, engines, cli_objects, platf
     yield
 
     logger.info('Starting Auto Neg configuration cleanup')
-    cli_objects.dut.general.apply_basic_config(topology_obj, cli_objects.dut, setup_name, platform_params)
+    cli_objects.dut.general.apply_basic_config(topology_obj, setup_name, platform_params)
 
     logger.info('Auto Neg cleanup completed')
 

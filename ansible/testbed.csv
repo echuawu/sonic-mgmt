@@ -1,5 +1,6 @@
 # conf-name,group-name,topo,ptf_image_name,ptf,ptf_ip,ptf_ipv6,server,vm_base,dut,comment
 sonic-dual-tor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,[arc-switch1004;arc-switch1025],Dual-TOR testbed
+sonic-dual-tor-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,[arc-switch1004;arc-switch1025],Dual-TOR testbed
 
 arc-switch1038-t0,vm-t1,t0,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,VM0101,arc-switch1038,Mellanox MTR testbed
 arc-switch1038-t0-64-32,vm-t1,t0-64-32,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,arc-switch1038,Mellanox MTR testbed
@@ -24,13 +25,15 @@ arc-switch1025-t0-64-32,vm-t1,t0-64-32,docker-ptf-mlnx,ptf-1025,10.213.84.213/16
 arc-switch1025-t1,vm-t1,t1,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,VM0601,arc-switch1025,Mellanox MTR testbed
 arc-switch1025-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,VM0601,arc-switch1025,Mellanox MTR testbed
 arc-switch1025-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,VM0601,arc-switch1025,Mellanox MTR testbed
+arc-switch1025-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.84.213/16,,server_7,VM0701,arc-switch1025,Mellanox MTR testbed
 
 arc-switch1004-t0,vm-t1,t0,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
 arc-switch1004-t0-56,vm-t1,t0-56,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
 arc-switch1004-t0-56-po2vlan,vm-t1,t0-56-po2vlan,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
 arc-switch1004-t1,vm-t1,t1,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
 arc-switch1004-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
-arc-switch1004-ptf32, vm-t1,ptf32,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
+arc-switch1004-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
+arc-switch1004-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
 
 r-leopard-58-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-58,10.213.103.5/16,,server_11,VM1101,r-leopard-58,Mellanox MTR testbed
 r-leopard-58-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-leopard-58,10.213.103.5/16,,server_11,VM1101,r-leopard-58,Mellanox MTR testbed
@@ -202,5 +205,4 @@ r-ocelot-07-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_5
 r-tigon-17-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-tigon-17,Mellanox MTR testbed
 r-alligator-04-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-alligator-04,Mellanox MTR testbed
 r-buffalo-04-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-04,Mellanox MTR testbed
-c-anaconda-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,c-anaconda-02,Mellanox MTBC testbed
-r-r740-03-bf2-sonic-01-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-r740-03-bf2-sonic-01,Mellanox MTR testbed
+

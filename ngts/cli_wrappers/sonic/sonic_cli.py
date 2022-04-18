@@ -31,9 +31,10 @@ logger = logging.getLogger()
 
 
 class SonicCli:
-    def __init__(self, topology):
+    def __init__(self, topology, dut_alias='dut'):
+        self.dut_alias = dut_alias
         self.branch = topology.players['dut'].get('branch')
-        self.engine = topology.players['dut']['engine']
+        self.engine = topology.players[self.dut_alias]['engine']
 
         self._ip = None
         self._arp = None
@@ -126,7 +127,8 @@ class SonicCli:
     @property
     def general(self):
         if self._general is None:
-            self._general = SonicGeneralCli(branch=self.branch, engine=self.engine, cli_obj=self)
+            self._general = SonicGeneralCli(branch=self.branch, engine=self.engine, cli_obj=self,
+                                            host_alias=self.dut_alias)
         return self._general
 
     @property

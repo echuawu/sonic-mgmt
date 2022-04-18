@@ -29,5 +29,6 @@ mux_simulator_http_port:
     vms-kvm-dual-t0: 8080
 
     sonic-dual-tor: 8083
+    sonic-dual-tor-dualtor: 8083
 
     #### Add your own port assignment after here ###

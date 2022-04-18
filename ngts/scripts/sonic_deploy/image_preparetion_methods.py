@@ -108,7 +108,6 @@ def get_sonic_branch(image_path):
     :return: branch, example: master
     """
     branch_part_index = 1
-    branch_index = 0
     real_path = os.path.realpath(image_path)
-    branch = real_path.split('/auto/sw_system_release/sonic/')[branch_part_index].split('.')[branch_index]
+    branch = real_path.split('/auto/sw_system_release/sonic/')[branch_part_index][:6]
     return branch

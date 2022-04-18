@@ -21,7 +21,7 @@ def pytest_addoption(parser):
     :param parser: pytest builtin
     """
     logger.info('Parsing deploy type')
-    parser.addoption('--deploy_type', action='store', choices=['onie', 'sonic'], required=True, default='onie',
+    parser.addoption('--deploy_type', action='store', choices=['onie', 'sonic'], required=False, default='onie',
                      help='Deploy type')
     logger.info('Parsing apply_base_config')
     parser.addoption('--apply_base_config', action='store', required=False, default=None,
@@ -79,6 +79,8 @@ def pytest_addoption(parser):
     logger.info('Parsing additional-apps')
     parser.addoption("--additional-apps", help="Specify url to WJH debian package or JSON data of app extensions",
                      default="", action="store")
+    parser.addoption("--wjh-deb-url", help="Specify url to WJH debian package", default="", action="store")
+
     logger.info('Parsing workspace-path')
     parser.addoption("--workspace-path", help="Specify workspace path",
                      default="/root/mars/workspace/", action="store")
@@ -257,6 +259,16 @@ def reboot(request):
     :return: reboot
     """
     return request.config.getoption('--reboot')
+
+
+@pytest.fixture(scope='session')
+def wjh_deb_url(request):
+    """
+    Method for getting the WJH from pytest arguments
+    :param request: pytest builtin
+    :return: wjh-deb-url
+    """
+    return request.config.getoption('--wjh-deb-url')
 
 
 @pytest.fixture(scope='session')

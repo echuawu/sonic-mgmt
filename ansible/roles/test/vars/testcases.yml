@@ -93,7 +93,7 @@ testcases:
     warm-reboot:
       filename: warm-reboot.yml
       vtestbed_compatible: no
-      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120, t0-56]
+      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120]
       required_vars:
           ptf_host:
           vm_hosts:
@@ -101,7 +101,7 @@ testcases:
     warm-reboot-sad:
       filename: warm-reboot-sad.yml
       vtestbed_compatible: no
-      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120, t0-56]
+      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120]
       required_vars:
           ptf_host:
           vm_hosts:
@@ -109,7 +109,7 @@ testcases:
     warm-reboot-multi-sad:
       filename: warm-reboot-multi-sad.yml
       vtestbed_compatible: no
-      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120, t0-56]
+      topologies: [t0, t0-64, t0-64-32, t0-116, t0-120]
       required_vars:
           ptf_host:
           vm_hosts:
@@ -259,7 +259,7 @@ testcases:
 
     reboot:
       filename: reboot.yml
-      topologies: [t0, t0-52, t0-56, t0-64, t0-64-32, t0-116, t0-120, t1, t1-lag, t1-64-lag, t1-64-lag-clet, ptf32, ptf64, ptf-any]
+      topologies: [dualtor, t0, t0-52, t0-56, t0-64, t0-64-32, t0-116, t0-120, t1, t1-lag, t1-64-lag, t1-64-lag-clet, ptf32, ptf64, ptf-any]
 
     repeat_harness:
       filename: repeat_harness.yml
