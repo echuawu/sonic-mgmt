@@ -668,6 +668,12 @@ vxlan/test_vxlan_ecmp.py:
   - Branch:
     - 202106
 
+#lldp
+lldp/test_lldp.py::test_lldp_neighbor:
+  - Redmine:
+      - 3024709
+    Branch:
+      - 202111
 
 ########## Canonical ##########
 # Nightly
