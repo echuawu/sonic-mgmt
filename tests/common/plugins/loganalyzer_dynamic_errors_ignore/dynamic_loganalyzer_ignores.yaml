@@ -1128,7 +1128,7 @@
     - '.* ERR pmon#xcvrd: message repeated \d+ times: \[ Got unrecognized event \d+, ignored\]'
   Conditions:
     - Affected_test_cases:
-      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode
+      - platform_tests/sfp/test_sfputil.py
       Redmine:
       - 2994207
 
