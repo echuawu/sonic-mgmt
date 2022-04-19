@@ -25,6 +25,8 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
+from ngts.tools.infra import ENV_LOG_FOLDER
+from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 
 
 logger = logging.getLogger()
@@ -157,8 +159,16 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if not ports_list:
             ports_list = topology_obj.players_all_ports[self.dut_alias]
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
-            self.engine.reload(['sudo {}'.format(reboot_type)], wait_after_ping=wait_after_ping)
+            self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
+
+    def safe_reboot_flow(self, topology_obj, reboot_type='reboot', wait_after_ping=45):
+        self.engine.reload([f'sudo {reboot_type}'], wait_after_ping=wait_after_ping)
+        sanitizer = topology_obj.players['dut']['sanitizer']
+        if sanitizer:
+            test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
+            dumps_folder = os.environ.get(ENV_LOG_FOLDER)
+            check_sanitizer_and_store_dump(self.engine, dumps_folder, test_name)
 
     def reload_flow(self, ports_list=None, topology_obj=None, reload_force=False):
         """
