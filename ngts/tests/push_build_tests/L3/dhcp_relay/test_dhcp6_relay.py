@@ -251,10 +251,10 @@ class TestDHCP6Relay:
                              'iface: {}'.format(self.dhclient_second_iface)):
                 logger.info('Trying to get IPv6 address - when IPv6 relay settings removed from first VLAN - '
                             'second dhcp client vlan')
-                verify_dhcp6_client_output(engine=self.engines.ha,
-                                           dhclient_cmd='timeout 10 {}'.format(self.run_dhclient_second_iface),
-                                           dhclient_iface=self.dhclient_second_iface,
-                                           expected_ip=self.expected_second_vlan_ip)
+                retry_call(verify_dhcp6_client_output,
+                           fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_second_iface),
+                                  self.dhclient_second_iface, self.expected_second_vlan_ip],
+                           tries=3, delay=5)
 
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_second_vlan)):
                 self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_second_vlan, '6900::2',
