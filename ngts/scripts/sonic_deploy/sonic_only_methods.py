@@ -141,7 +141,7 @@ class SonicInstallationSteps:
         app_extension_path_str = ''
         if app_extension_dict_path:
             app_extension_path_str = '--app_extension_dict_path={}'.format(app_extension_dict_path)
-        cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} {ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
+        cmd = "{ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
               " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results " \
               " --disable_loganalyzer {app_extension_path_str} " \
               " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extesions.py". \
