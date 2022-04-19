@@ -664,6 +664,22 @@ ecmp/inner_hashing:
     - msn2
 
 #vxlan
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_underlay_ecmp::test_vxlan_modify_underlay_default[v4_in_v6-1]:
+  - Redmine:
+    - 3045245
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_underlay_ecmp::test_vxlan_modify_underlay_default[v4_in_v6-2]:
+  - Redmine:
+    - 3045245
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_underlay_ecmp::test_vxlan_modify_underlay_default[v6_in_v6-1]:
+  - Redmine:
+    - 3045245
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_underlay_ecmp::test_vxlan_modify_underlay_default[v6_in_v6-2]:
+  - Redmine:
+    - 3045245
+
 vxlan/test_vxlan_ecmp.py:
   - Branch:
     - 202106

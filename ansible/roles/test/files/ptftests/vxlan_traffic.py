@@ -158,13 +158,11 @@ class VXLAN(BaseTest):
             if self.packet_count > MINIMUM_PACKETS_FOR_ECMP_VALIDATION:
                 tolerance = 0.01
                 for nh_address in returned_ip_addresses.keys():
-                    if (1.0 - tolerance) * self.packet_count <= returned_ip_addresses[nh_address] <= (
-                            1.0 + tolerance) * self.packet_count:
+                    if (1.0-tolerance) * self.packet_count <= returned_ip_addresses[nh_address] <= (1.0+tolerance) * self.packet_count:
                         pass
                     else:
                         raise RuntimeError("ECMP nexthop address: {} received too less or too many of the "
-                                           "packets expected. Expected:{}, received on that address:{}".format(
-                            nh_address, self.packet_count, returned_ip_addresses[nh_address]))
+                            "packets expected. Expected:{}, received on that address:{}".format(nh_address, self.packet_count, returned_ip_addresses[nh_address]))
 
     def test_encap(self, ptf_port, vni, ptf_addr, destination, nhs, test_ecn=False, vlan=0):
         rv = True
@@ -191,8 +189,7 @@ class VXLAN(BaseTest):
                 for i in range(self.packet_count):
                     tcp_sport = get_incremental_value('tcp_sport')
                     valid_combination = True
-                    if isinstance(ip_address(destination), ipaddress.IPv4Address) and isinstance(ip_address(ptf_addr),
-                                                                                                 ipaddress.IPv4Address):
+                    if isinstance(ip_address(destination), ipaddress.IPv4Address) and isinstance(ip_address(ptf_addr), ipaddress.IPv4Address):
                         pkt_opts = {
                             "pktlen": pkt_len,
                             "eth_dst": self.dut_mac,
@@ -208,8 +205,7 @@ class VXLAN(BaseTest):
                         pkt_opts['ip_ttl'] = 63
                         pkt_opts['eth_src'] = self.dut_mac
                         exp_pkt = simple_tcp_packet(**pkt_opts)
-                    elif isinstance(ip_address(destination), ipaddress.IPv6Address) and isinstance(ip_address(ptf_addr),
-                                                                                                   ipaddress.IPv6Address):
+                    elif isinstance(ip_address(destination), ipaddress.IPv6Address) and isinstance(ip_address(ptf_addr), ipaddress.IPv6Address):
                         pkt_opts = {
                             "pktlen": pkt_len,
                             "eth_dst": self.dut_mac,
@@ -222,7 +218,6 @@ class VXLAN(BaseTest):
                         pkt_opts.update(options_v6)
                         pkt = simple_tcpv6_packet(**pkt_opts)
                         pkt_opts['ipv6_hlim'] = 63
-                        pkt_opts['eth_dst'] = self.dut_mac
                         pkt_opts['eth_src'] = self.dut_mac
                         exp_pkt = simple_tcpv6_packet(**pkt_opts)
                     else:

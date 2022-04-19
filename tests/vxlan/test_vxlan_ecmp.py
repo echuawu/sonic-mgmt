@@ -208,9 +208,11 @@ def get_ethernet_to_neighbors(neighbor_type, minigraph_data):
 
     pattern = re.compile("{}$".format(neighbor_type))
     ret_list = []
+
     for intf in minigraph_data['minigraph_neighbors']:
         if pattern.search(minigraph_data['minigraph_neighbors'][intf]['name']):
             ret_list.append(intf)
+
     return ret_list
 
 @allure.step
@@ -357,9 +359,9 @@ def apply_config_in_swss(duthost, config, name="swss_"):
 
     duthost.copy(content=config, dest="/tmp/{}".format(filename))
     duthost.shell('docker exec -i swss swssconfig /dev/stdin < /tmp/{}'.format(filename))
+    time.sleep(int(0.0005*getsizeof(config)) + 1)
     if not Constants['KEEP_TEMP_FILES']:
         duthost.shell("rm /tmp/{}".format(filename))
-    time.sleep(1)
 
 @allure.step
 def get_list_of_nexthops(number, af, prefix=100):
@@ -482,6 +484,8 @@ def bgp_established(duthost, ignore_list=[]):
         if v['state'] != 'established' and k not in ignore_list:
             logger.info("Neighbor %s not established yet: %s", k, v['state'])
             return False
+    # Now wait for the routes to be updated.
+    time.sleep(10)
     return True
 
 @allure.step
@@ -645,7 +649,7 @@ def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts, tb
                 redis_string = "PORTCHANNEL_INTERFACE"
             data['duthost'].shell("redis-cli -n 4 hdel \"{}|{}\" vnet_name".format(redis_string, intf))
 
-    # Our setup code re-uses same vnets for v4inv4 and v6inv4.
+    # This script's setup code re-uses same vnets for v4inv4 and v6inv4.
     # There will be same vnet in multiple encap types.
     # So remove vnets *after* removing the routes first.
     for encap_type in SUPPORTED_ENCAP_TYPES:
@@ -678,7 +682,6 @@ class Test_VxLAN:
             },
             indent=4), dest=config_filename)
 
-        time.sleep(int(0.00005*getsizeof(self.setup[encap_type]['dest_to_nh_map'])) + 1)
         ptf_runner(self.setup['ptfhost'],
                    "ptftests",
                    "vxlan_traffic.VXLAN",
@@ -1131,7 +1134,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             downed_ports = get_corresponding_ports(selected_intfs, minigraph_facts)
             self.setup[encap_type]['t2_ports'] = list(set(all_t2_ports) - set(downed_ports))
             downed_bgp_neighbors = get_downed_bgp_neighbors(selected_intfs, minigraph_facts)
-            pytest_assert(wait_until(300, 30, 10, bgp_established, self.setup['duthost'], downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
             self.dump_self_info_and_run_ptf("tc12", encap_type, True, packet_count=1000)
 
             logger.info("Reverse the action: bring up the selected_intfs and shutdown others.")
@@ -1142,7 +1145,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             for intf in remaining_interfaces:
                 self.setup['duthost'].shell("sudo config interface shutdown {}".format(intf))
             downed_bgp_neighbors = get_downed_bgp_neighbors(remaining_interfaces, minigraph_facts)
-            pytest_assert(wait_until(300, 30, 10, bgp_established, self.setup['duthost'], downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
             self.setup[encap_type]['t2_ports'] = get_corresponding_ports(selected_intfs, minigraph_facts)
             self.dump_self_info_and_run_ptf("tc12", encap_type, True, packet_count=1000)
 
@@ -1150,7 +1153,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             for intf in all_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
             logger.info("Wait for all bgp is up.")
-            pytest_assert(wait_until(300, 30, 10, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
             logger.info("Verify traffic flows after recovery.")
             self.setup[encap_type]['t2_ports'] = all_t2_ports
             self.dump_self_info_and_run_ptf("tc12", encap_type, True, packet_count=1000)
@@ -1160,7 +1163,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             self.setup[encap_type]['t2_ports'] = all_t2_ports
             for intf in all_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
-            pytest_assert(wait_until(300, 30, 10, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
             raise
 
     def test_vxlan_remove_add_underlay_default(self, setUp, minigraph_facts, encap_type):
