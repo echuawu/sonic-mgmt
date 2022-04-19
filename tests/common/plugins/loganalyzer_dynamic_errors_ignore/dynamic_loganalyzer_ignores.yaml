@@ -1262,3 +1262,15 @@
   Conditions:
     - Redmine:
         - 3044633
+
+- Errors_list:
+    - ".*ERR pmon#psud: sensor -s does not recover PSU threshold sensor after 5 seconds.*"
+  Conditions:
+    - Redmine:
+        - 3042689
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/psu1_fan_max - ValueError\("invalid literal for int\(\) with base 10:.*"\).*'
+  Conditions:
+    - Redmine:
+        - 3045534
