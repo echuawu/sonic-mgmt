@@ -27,6 +27,7 @@ mux_simulator_http_port:
 
     # For vs setup
     vms-kvm-dual-t0: 8080
+    vms-kvm-dual-mixed: 8082
 
     sonic-dual-tor: 8083
     sonic-dual-tor-dualtor: 8083

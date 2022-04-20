@@ -67,4 +67,3 @@ def loganalyzer(duthosts, request):
         return
     logging.info("Starting to analyse on all DUTs")
     parallel_run(analyze_logs, [analyzers, markers], {}, duthosts, timeout=120)
-
