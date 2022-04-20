@@ -1227,6 +1227,9 @@ platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
     - 3042689
     Branch:
     - 202111
+    - master
     Platform:
     - msn4600c
     - msn3800
+    - msn3700
+    - msn3700c
