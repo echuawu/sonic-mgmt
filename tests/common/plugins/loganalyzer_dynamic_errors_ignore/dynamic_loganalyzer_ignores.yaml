@@ -1252,7 +1252,7 @@
       - autorestart/test_container_autorestart.py
 
 - Errors_list:
-    - ".*ERR wjhcli: :- connect: connect() failed to connect to daemon: No such file or directory.*"
+    - '.*ERR wjhcli: :- connect: connect\(\) failed to connect to daemon: No such file or directory.*'
   Conditions:
     - Redmine:
         - 3044595
@@ -1274,3 +1274,16 @@
   Conditions:
     - Redmine:
         - 3045534
+
+- Errors_list:
+    - '.*ERR pmon#xcvrd.*: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
+  Conditions:
+    - Redmine:
+        - 3016938
+
+- Errors_list:
+    - '.*ERR healthd: Failed to read from file /var/run/hw-management/led/led_status_capability - FileNotFoundError.*'
+  Conditions:
+    - Redmine:
+        - 3046455
+
