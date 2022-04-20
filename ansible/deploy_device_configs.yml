@@ -1,7 +1,7 @@
 - name: Set specific HWSKU device configs
   set_fact:
     device_configs:
-      arc-switch1038:
+      10.210.25.41:
         port_config:
            src: "roles/sonicv2/files/ssw/ACS-MSN3700/port_config1038.ini"
            dest: "/usr/share/sonic/device/x86_64-mlnx_msn3700-r0/ACS-MSN3700/port_config.ini"
