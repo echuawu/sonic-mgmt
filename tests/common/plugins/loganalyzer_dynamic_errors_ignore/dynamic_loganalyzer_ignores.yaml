@@ -735,3 +735,8 @@
     - Redmine:
         - 3046455
 
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Receive PMPE error event on module \d+: status 3 error type 1.*'
+  Conditions:
+    - Redmine:
+      - 2976288
