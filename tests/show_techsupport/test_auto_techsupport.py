@@ -873,30 +873,23 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
         available_tech_support_files = []
 
     if is_techsupport_expected:
-        expected_techsupport_files_num = 1
+        expected_techsupport_files = True
         assert is_techsupport_generation_in_expected_state(duthost, expected_in_progress=True), \
             'Expected techsupport generation not started or expected number of processes does not match actual number'
         wait_until(300, 10, 0, is_techsupport_generation_in_expected_state, duthost, False)
     else:
         assert is_techsupport_generation_in_expected_state(duthost, expected_in_progress=False), \
             'Unexpected techsupport generation in progress'
-        expected_techsupport_files_num = 0
+        expected_techsupport_files = False
 
-    try:
-        new_available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
-    except RunAnsibleModuleFail:
-        new_available_tech_support_files = []
-    new_techsupport_files_list = list(set(new_available_tech_support_files) - set(available_tech_support_files))
-    new_techsupport_files_num = len(new_techsupport_files_list)
-    logger.info('New files created: {} expected: {}'.format(new_techsupport_files_num,
-                                                            expected_techsupport_files_num))
-    assert new_techsupport_files_num == expected_techsupport_files_num, \
-        'Number of new techsupport files {} does not match number of expected {} files'.format(
-            new_techsupport_files_num,
-            expected_techsupport_files_num)
+    if expected_techsupport_files:
+        # techsupport file creation may took some time after generate dump process already finished
+        assert wait_until(300, 10, 0, is_new_techsupport_file_generated, duthost, available_tech_support_files), \
+            'New expected techsupport file was not generated'
 
     # Do validation for history
     if expected_core_file:
+        new_techsupport_files_list = get_new_techsupport_files_list(duthost, available_tech_support_files)
         tech_support_file_path = new_techsupport_files_list[0]
         tech_support_name = tech_support_file_path.split('.')[0].lstrip('/var/dump/')
         logger.info('Doing validation for techsupport : {}'.format(tech_support_name))
@@ -923,6 +916,39 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
             raise AssertionError(err)
         finally:
             duthost.shell('sudo rm -rf {}'.format(techsupport_folder_path))
+
+
+def is_new_techsupport_file_generated(duthost, available_tech_support_files):
+    """
+    Check if new techsupport dump created
+    :param duthost: duthost object
+    :param available_tech_support_files: list of already available techsupport files
+    :return: True in case when new techsupport file created
+    """
+    logger.info('Checking that new techsupport file created')
+    new_techsupport_files_list = get_new_techsupport_files_list(duthost, available_tech_support_files)
+    new_techsupport_files_num = len(new_techsupport_files_list)
+
+    if new_techsupport_files_num == 1:
+        return True
+
+    return False
+
+
+def get_new_techsupport_files_list(duthost, available_tech_support_files):
+    """
+    Get list of new created techsupport files
+    :param duthost: duthost object
+    :param available_tech_support_files: list of already available techsupport files
+    :return: list of new techsupport files
+    """
+    try:
+        new_available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
+    except RunAnsibleModuleFail:
+        new_available_tech_support_files = []
+    new_techsupport_files_list = list(set(new_available_tech_support_files) - set(available_tech_support_files))
+
+    return new_techsupport_files_list
 
 
 def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
