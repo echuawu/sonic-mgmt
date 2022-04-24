@@ -39,17 +39,15 @@ def test_ib_interface_state(engines):
 
     selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True)
 
-    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                      selected_port.ib_interface.link.state.
-                                                      field_name_in_db[DataBaseNames.CONFIG_DB],
-                                                      expected_value=NvosConsts.LINK_STATE_DOWN,
-                                                      database_name=DataBaseNames.CONFIG_DB).verify_result()
+    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
+                                                  field_name_in_db[DataBaseNames.CONFIG_DB],
+                                                  expected_value=NvosConsts.LINK_STATE_DOWN,
+                                                  database_name=DataBaseNames.CONFIG_DB).verify_result()
 
-    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                      selected_port.ib_interface.link.state.
-                                                      field_name_in_db[DataBaseNames.STATE_DB],
-                                                      expected_value=NvosConsts.LINK_STATE_DOWN,
-                                                      database_name=DataBaseNames.STATE_DB).verify_result()'''
+    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
+                                                  field_name_in_db[DataBaseNames.STATE_DB],
+                                                  expected_value=NvosConsts.LINK_STATE_DOWN,
+                                                  database_name=DataBaseNames.STATE_DB).verify_result()'''
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -58,23 +56,21 @@ def test_ib_interface_state(engines):
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
-    '''Tools.TrafficGeneratorTool.send_traffic().verify_result(False)'''
+    '''Tools.TrafficGeneratorTool.send_ib_traffic().verify_result(False)'''
 
     selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True)
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
-    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                              selected_port.ib_interface.link.state.
-                                                              field_name_in_db[DataBaseNames.CONFIG_DB],
-                                                              expected_value=NvosConsts.LINK_STATE_UP,
-                                                              database_name=DataBaseNames.CONFIG_DB).verify_result()
+    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
+                                                  field_name_in_db[DataBaseNames.CONFIG_DB],
+                                                  expected_value=NvosConsts.LINK_STATE_UP,
+                                                  database_name=DataBaseNames.CONFIG_DB).verify_result()
 
-    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                              selected_port.ib_interface.link.state.
-                                                              field_name_in_db[DataBaseNames.STATE_DB],
-                                                              expected_value=NvosConsts.LINK_STATE_UP,
-                                                              database_name=DataBaseNames.STATE_DB).verify_result()'''
+    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
+                                                  field_name_in_db[DataBaseNames.STATE_DB],
+                                                  expected_value=NvosConsts.LINK_STATE_UP,
+                                                  database_name=DataBaseNames.STATE_DB).verify_result()'''
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()

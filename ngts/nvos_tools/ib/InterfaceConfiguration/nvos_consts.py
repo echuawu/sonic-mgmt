@@ -8,6 +8,10 @@ class InternalNvosConsts:
     OPERATIONAL_INDEX = 0
     APPLIED_INDEX = 1
     DEFAULT_TIMEOUT = 120   # in MS
+    IB_TRAFFIC_SENDER_INTERFACE = "h1p1"
+    IB_TRAFFIC_RECEIVER_INTERFACE = "h2p1"
+    IB_TRAFFIC_LAT_TYPE = "ib_send_lat"
+    IB_TRAFFIC_IPOIB_TYPE = "ping_over_ib"
 
 
 class NvosConsts:
