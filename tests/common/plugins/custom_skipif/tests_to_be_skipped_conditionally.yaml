@@ -690,6 +690,75 @@ vxlan/test_vxlan_ecmp.py:
   - Branch:
     - 202106
 
+# sub port interfaces
+# Sub interfaces feature is only supported by master branch for now
+sub_port_interfaces/test_show_subinterface.py:
+  - Branch:
+      - 201911
+      - 202012
+
+sub_port_interfaces/test_sub_port_interfaces.py:
+  - Branch:
+      - 201911
+      - 202012
+
+sub_port_interfaces/test_sub_port_l2_forwarding.py:
+  - Branch:
+      - 201911
+      - 202012
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_valid_vlan[port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_invalid_vlan[port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_admin_status_down_disables_forwarding[port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_max_numbers_of_sub_ports[port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_mtu_inherited_from_parent_port[port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_vlan_config_impact[port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports[same-port_in_lag-TCP-UDP-ICMP]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports[different-port_in_lag-TCP-UDP-ICMP]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports_and_port[svi-port_in_lag-TCP-UDP-ICMP]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports_and_port[l3-port_in_lag-TCP-UDP-ICMP]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports[same-port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports[different-port_in_lag]:
+  - Redmine:
+      - 3042428
+
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports[port_in_lag]:
+  - Redmine:
+      - 3042428
+
 #lldp
 lldp/test_lldp.py::test_lldp_neighbor:
   - Redmine:
