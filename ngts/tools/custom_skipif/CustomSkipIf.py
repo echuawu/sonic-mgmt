@@ -1,13 +1,5 @@
-import sys
-import os
-import logging
+from ngts.tools.infra import update_sys_path_by_community_plugins_path
 
-logger = logging.getLogger()
+update_sys_path_by_community_plugins_path()
 
-path = os.path.abspath(__file__)
-sonic_mgmt_path = path.split('/ngts/')[0]
-community_plugins_path = '/tests/common/plugins/custom_skipif'
-full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
-sys.path.append(full_path_to_community_plugins)
-
-from CustomSkipIf import pytest_runtest_setup  # noqa: E402
+from plugins.custom_skipif.CustomSkipIf import pytest_runtest_setup  # noqa: E402

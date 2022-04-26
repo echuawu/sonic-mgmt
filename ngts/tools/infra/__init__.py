@@ -1,6 +1,7 @@
 import pytest
 import pathlib
 import os
+import sys
 import logging
 import json
 
@@ -15,7 +16,7 @@ CASES_DUMPS_DIR = 'cases_dumps'
 CASES_SYSLOG_DIR = 'cases_syslog'
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def session_id():
     """
     Get MARS session id from environment variables
@@ -88,3 +89,12 @@ def get_devinfo(switch_attributes):
 
 def is_sonic_dpu(switch_attributes):
     return 'BF Switch' in switch_attributes
+
+
+def update_sys_path_by_community_plugins_path():
+    path = os.path.abspath(__file__)
+    sonic_mgmt_path = path.split('/ngts/')[0]
+    community_plugins_path = '/tests/common'
+    full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
+    if full_path_to_community_plugins not in sys.path:
+        sys.path.append(full_path_to_community_plugins)

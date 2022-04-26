@@ -1,15 +1,10 @@
-import sys
-import os
+from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
+from ngts.tools.infra import update_sys_path_by_community_plugins_path
 
-path = os.path.abspath(__file__)
-sonic_mgmt_path = path.split('/ngts/')[0]
-community_plugins_path = '/tests/common/plugins/'
-full_path_to_community_plugins = sonic_mgmt_path + community_plugins_path
-sys.path.append(full_path_to_community_plugins)
+update_sys_path_by_community_plugins_path()
 
-from allure_server import pytest_addoption, pytest_sessionfinish, pytest_terminal_summary, \
+from plugins.allure_server import pytest_addoption, pytest_sessionfinish, pytest_terminal_summary, \
     cache_pytest_session_run_cmd, attach_pytest_specific_test_run_cmd_to_allure_report  # noqa: E402
-from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases  # noqa: E402
 
 
 def pytest_sessionstart(session):

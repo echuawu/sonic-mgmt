@@ -136,3 +136,9 @@ r, ".* ERR swss#orchagent: :- add: Failed to create ACL rule rule_(nd|arp) in ta
 r, ".* resctrl: L3 allocation detected"
 r, ".* resctrl: L3DATA allocation detected"
 r, ".* resctrl: L3CODE allocation detected"
+
+# 4 regexps below from ngts/tools/loganalyzer/loganalyzer_temporal_ignore.txt
+r, ".* ERR swss#orchagent: :- update: Failed to get port by bridge port ID.*"
+r, ".* INFO bgp#supervisord .* ERRO pool .* event buffer overflowed.*"
+r, ".* ERR bgp#/supervisor-proc-exit-listener: Syntax of the line .* in critical_processes file is incorrect.*"
+r, ".* ERR swss#orchagent: .* FdbOrch .* Failed to locate vlan.*port from bv_id"

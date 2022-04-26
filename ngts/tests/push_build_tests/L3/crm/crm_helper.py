@@ -9,10 +9,12 @@ import tempfile
 import math
 from jinja2 import Template
 
-from ngts.tools.loganalyzer.loganalyzer import LogAnalyzer
-from ngts.constants.constants import LoganalyzerConsts
 from retry.api import retry_call
 from ngts.cli_util.sonic_docker_utils import SwssContainer
+from ngts.tools.infra import update_sys_path_by_community_plugins_path
+
+update_sys_path_by_community_plugins_path()
+from plugins.loganalyzer.loganalyzer import LogAnalyzer  # noqa: E402
 
 
 AVAILABLE_TOLERANCE = 0.02
@@ -230,15 +232,12 @@ def get_used_percent(crm_used, crm_available):
     return crm_used * 100 / (crm_used + crm_available)
 
 
-def verify_thresholds(env, test_name, la_log_folder, **kwargs):
+def verify_thresholds(env, test_name, **kwargs):
     """
     Verifies that WARNING message logged if there are any resources that exceeds a pre-defined threshold value.
     Verifies the following threshold parameters: percentage, actual used, actual free
     """
-    loganalyzer = LogAnalyzer(dut_engine=env.dut_engine,
-                              marker_prefix=test_name,
-                              log_folder=la_log_folder,
-                              log_file=LoganalyzerConsts.LOG_FILE_NAME)
+    loganalyzer = LogAnalyzer(ansible_host=env.duthost, marker_prefix=test_name)
     crm_avail = kwargs['crm_avail']
 
     # Used random selection of thresholds which shoudl be verified, as full thresholds verification takes much time to verify
@@ -287,8 +286,6 @@ def verify_thresholds(env, test_name, la_log_folder, **kwargs):
             env.dut_engine.run_cmd(cmd)
             # Make sure CRM counters updated
             time.sleep(env.MAX_CRM_UPDATE_TIME)
-        # Create folder which was remove by LA,as verification performed in loop
-        os.makedirs(la_log_folder, exist_ok=True)
 
 
 def get_full_stat(env):

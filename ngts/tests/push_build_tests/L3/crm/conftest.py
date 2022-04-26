@@ -9,10 +9,11 @@ logger = logging.getLogger()
 
 
 @pytest.fixture(scope='module')
-def env(topology_obj, setup_name, platform_params):
+def env(duthosts, topology_obj, setup_name, platform_params):
     """ Fixture which contains DUT - engine and CLI objects """
     class Collector:
         pass
+    Collector.duthost = duthosts[0]
     Collector.dut_engine = topology_obj.players['dut']['engine']
     Collector.sonic_cli = topology_obj.players['dut']['cli']
     Collector.vlan_iface_69 = 'Vlan69'

@@ -172,8 +172,9 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     logger.info("Try to remove existing docker container anyway")
     conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
 
-    cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} \
-        --name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
+    cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
+                "--env ANSIBLE_CONFIG=/root/mars/workspace/sonic-mgmt/ansible/ansible.cfg " \
+                "--name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
     cmd = cmd_tmplt.format(
         CONTAINER_MOUNTPOINTS=container_mountpoints,
         CONTAINER_NAME=container_name,
@@ -381,7 +382,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.82'}
+    default_list = {'docker-ngts': '1.2.83'}
     return default_list.get(docker_name, latest)
 
 def send_takeover_notification(topo):

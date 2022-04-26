@@ -58,7 +58,8 @@ def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
 
     with allure.step('STEP2: Trigger SDK health event at dut'):
         duthost.run_cmd('docker exec -it syncd python mellanox_sdk_trigger_event_script.py')
-        loganalyzer.expect_regex.extend(["Health event happened, severity"])
+        for dut in loganalyzer:
+            loganalyzer[dut].expect_regex.extend(["Health event happened, severity"])
 
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):
         number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)

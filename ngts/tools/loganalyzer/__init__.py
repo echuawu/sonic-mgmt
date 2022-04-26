@@ -1,90 +1,65 @@
-import logging
-import pytest
 import os
-import time
+import pytest
+import logging
 
-from .loganalyzer import LogAnalyzer, LogAnalyzerError, DisableLogrotateCronContext
-from ngts.constants.constants import LoganalyzerConsts
+from pytest_ansible.errors import AnsibleConnectionFailure
+from ngts.tools.infra import update_sys_path_by_community_plugins_path
 
+update_sys_path_by_community_plugins_path()
+
+from devices.sonic import SonicHost  # noqa: E402
 
 logger = logging.getLogger()
-TEMP_IGNORE = os.path.join(os.path.dirname(__file__), "loganalyzer_temporal_ignore.txt")
-LOCAL_LOGS_DIR_TEMPLATE = "/tmp/test_run-{}"
 
 
-def pytest_addoption(parser):
-    parser.addoption("--disable_loganalyzer", action="store_true", default=False,
-                     help="disable loganalyzer analysis for 'loganalyzer' fixture")
+def pytest_cmdline_main(config):
+    """
+    Pytest hook which adds default parameters, required for pytest-ansible module
+    We define ansible_host_pattern with stub string, which will be updated later by dut hostname. In other case will
+    need to provide additional pytest argument with dut hostname
+    :param config: pytest build-in
+    """
+    path = os.path.abspath(__file__)
+    sonic_mgmt_path = path.split('/ngts/')[0]
+    config.option.ansible_inventory = sonic_mgmt_path + '/ansible/inventory'
+    config.option.ansible_host_pattern = 'stub_string'
 
 
-@pytest.fixture(autouse=True)
-def loganalyzer(topology_obj, request, loganalyzer_log_folder):
+@pytest.fixture(scope='session')
+def ansible_adhoc(request, topology_obj):
+    """
+    Return an inventory initialization method.
+    :param request: pytest build-in
+    :param topology_obj:  topology_obj fixture
+    :return: ansible host initialization object
+    """
 
-    request.session.config.cache.set('is_loganalyzer_failed', False)
+    dut_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+    request.config.option.ansible_host_pattern = dut_hostname
 
-    if request.config.getoption("--disable_loganalyzer") or "disable_loganalyzer" in request.keywords:
-        logger.info("Log analyzer is disabled")
-        yield
-        return
+    plugin = request.config.pluginmanager.getplugin("ansible")
 
-    marker = None
-    dut_engine = topology_obj.players['dut']['engine']
-    hostname = topology_obj.players['dut']['cli'].chassis.get_hostname()
+    def init_host_mgr(**kwargs):
+        return plugin.initialize(request.config, request, **kwargs)
+    return init_host_mgr
 
-    with DisableLogrotateCronContext(dut_engine):
-        # Force rotate logs
-        dut_engine.run_cmd("sudo /usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1")
 
-    loganalyzer = LogAnalyzer(dut_engine=dut_engine,
-                              marker_prefix=request.node.name,
-                              log_folder=loganalyzer_log_folder,
-                              log_file=LoganalyzerConsts.LOG_FILE_NAME)
-
-    logger.info("Add start marker into DUT syslog")
-    marker = loganalyzer.init()
-    logger.info("Loading log analyzer configs")
-    # Read existed common regular expressions located with legacy loganalyzer module
-    loganalyzer.load_common_config()
-
-    yield loganalyzer
-
-    # Skip LogAnalyzer if case is skipped
-    if "rep_call" in request.node.__dict__ and request.node.rep_call.skipped or \
-            "rep_setup" in request.node.__dict__ and request.node.rep_setup.skipped:
-        return
+@pytest.fixture(scope="session")
+def duthosts(ansible_adhoc, topology_obj):
+    """
+    Emulate duhosts fixure from community
+    :param ansible_adhoc: ansible_adhoc fixture
+    :param topology_obj: topology_obj fixture
+    :return: list of ansible engines
+    """
+    dut_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
     try:
-        loganalyzer.analyze(marker)
-    except LogAnalyzerError as err:
-        request.session.config.cache.set('is_loganalyzer_failed', True)
-        raise err
+        dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname)
+    except AnsibleConnectionFailure as err:
+        logger.error(f'DUT not reachable. Can not create DUT ansible engine. Error: {err}')
+        dut_ansible_engine = None
+
+    return [dut_ansible_engine]
 
 
-@pytest.fixture(autouse=True)
-def loganalyzer_load_temporal_ignore(loganalyzer):
-    """
-    Extend loganalyzer common ignore regexp by custom regexps if such defined.
-    """
-    if loganalyzer:
-        ignore_reg_exp = loganalyzer.parse_regexp_file(src=TEMP_IGNORE)
-        loganalyzer.ignore_regex.extend(ignore_reg_exp)
-    yield
-
-
-@pytest.fixture(autouse=True)
-def loganalyzer_log_folder(log_folder, session_id, request):
-    log_path = None
-    # If MARS run, store syslog in shared location
-    if session_id:
-        if log_folder:
-            # Store syslog in shared location in case of MARS run
-            log_path = os.path.join(log_folder, request.node.name)
-            os.makedirs(log_path, exist_ok=True)
-        else:
-            logger.error("'log_folder' fixure is empty - {}".format(log_folder))
-    # If manual run, store syslog in /tmp folder of the running host
-    else:
-        log_path = LOCAL_LOGS_DIR_TEMPLATE.format(time.strftime("%Y-%m-%d-%H:%M:%S", time.gmtime()))
-        log_path = os.path.join(log_path, request.node.name)
-        os.makedirs(log_path, exist_ok=True)
-    logger.info("Loganalyzer log folder - '{}'".format(log_path))
-    return log_path
+from plugins.loganalyzer import pytest_addoption, loganalyzer  # noqa: E402
