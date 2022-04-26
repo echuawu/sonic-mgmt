@@ -280,6 +280,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         except OnieInstallationError:
             with allure.step("Catched exception OnieInstallationError during install. Perform reboot and trying again"):
                 logger.error('Catched exception OnieInstallationError during install. Perform reboot and trying again')
+                self.engine.disconnect()
                 self.remote_reboot(topology_obj)
                 logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)

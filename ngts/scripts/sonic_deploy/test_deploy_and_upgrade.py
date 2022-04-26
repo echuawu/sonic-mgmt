@@ -82,6 +82,8 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
 
         for dut in setup_info['duts']:
             with allure.step('Install image on DUT: {}'.format(dut['host_name'])):
+                # Disconnect ssh connection, prevent "Socket is closed" in case when pre step took more than 15 min
+                topology_obj.players[dut['dut_alias']]['engine'].disconnect()
                 deploy_image(topology_obj=topology_obj, setup_name=setup_name, image_url=base_version_url,
                              platform_params=platform_params, deploy_type=deploy_type,
                              apply_base_config=apply_base_config,
