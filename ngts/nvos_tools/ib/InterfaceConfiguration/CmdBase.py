@@ -2,6 +2,8 @@ import logging
 import allure
 from .nvos_consts import NvosConsts, InternalNvosConsts, ApiObject
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj, IssueType
 
 logger = logging.getLogger()
 
@@ -11,45 +13,54 @@ class CmdBase:
     wait_for_state = NvosConsts.LINK_STATE_UP
     timeout = InternalNvosConsts.DEFAULT_TIMEOUT
 
-    def set(self, dut_engine, value, apply=True):
+    def set(self, dut_engine, value, apply=True, user_input=''):
         """
         Set command
         """
         raise Exception("Not implemented")
 
-    def unset(self, dut_engine, apply=True):
+    def unset(self, dut_engine, apply=True, user_input=''):
         """
         Unset command
         """
         raise Exception("Not implemented")
 
     @staticmethod
-    def set_interface(engine, port_name, field_name, output_hierarchy, value, apply=True):
+    def set_interface(engine, port_name, field_name, output_hierarchy, value, apply=True, user_input=''):
         if not value:
             logging.error("{field_name} value to set is empty".format(field_name=field_name))
-            raise Exception("{field_name} value is empty")
+            return ResultObj(False, "{field_name} value is empty", None, IssueType.TestIssue)
+
         logging.info("setting {field_name} to: '{value}' using {api} API".format(value=value, field_name=field_name,
                                                                                  api=TestToolkit.
                                                                                  api_str[TestToolkit.api_ib]))
         with allure.step("setting {field_name} to: '{value}'".format(value=value, field_name=field_name)):
-            ret_str = ApiObject[TestToolkit.api_ib].set_interface(engine=engine, port_name=port_name,
-                                                                  interface=output_hierarchy, value=value)
+            result_obj = SendCommandTool.execute_command(engine,
+                                                         ApiObject[TestToolkit.api_ib].set_interface,
+                                                         user_input, engine, port_name,
+                                                         output_hierarchy, value)
 
-        if apply:
+        if result_obj.result and apply:
             with allure.step("Applying configuration"):
-                ApiObject[TestToolkit.api_general].apply_config(engine)
+                result_obj = SendCommandTool.execute_command(engine,
+                                                             ApiObject[TestToolkit.api_general].apply_config,
+                                                             user_input, engine)
 
-        return ret_str
+        return result_obj
 
     @staticmethod
-    def unset_interface(engine, port_name, field_name, output_hierarchy, apply=True):
+    def unset_interface(engine, port_name, field_name, output_hierarchy, apply=True, user_input=''):
         logging.info("un-setting {field_name} using {api} API".format(field_name=field_name,
                                                                       api=TestToolkit.api_str[TestToolkit.api_ib]))
         with allure.step("un-setting {field_name}".format(field_name=field_name)):
-            ret_str = ApiObject[TestToolkit.api_ib].unset_interface(engine, port_name, output_hierarchy)
+            result_obj = SendCommandTool.execute_command(engine,
+                                                         ApiObject[TestToolkit.api_ib].unset_interface,
+                                                         user_input, engine, port_name, output_hierarchy)
 
-        if apply:
+        if result_obj.result and apply:
             with allure.step("Applying configuration"):
-                ApiObject[TestToolkit.api_general].apply_config(engine)
+                result_obj = SendCommandTool.execute_command(engine,
+                                                             ApiObject[TestToolkit.api_general].apply_config,
+                                                             user_input, engine)
 
-        return ret_str
+        return result_obj

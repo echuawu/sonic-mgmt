@@ -3,6 +3,7 @@ from .nvos_consts import IbInterfaceConsts
 from .IbInterfaceDecorators import *
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 import allure
 
 
@@ -75,10 +76,11 @@ class Pluggable(ConfigurationBase):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                                  port_name=self.port_obj.name,
-                                                                  interface_hierarchy=self.output_hierarchy,
-                                                                  output_format=output_format)
+            return SendCommandTool.execute_command(dut_engine,
+                                                   ApiObject[TestToolkit.api_show].show_interface,
+                                                   '',
+                                                   dut_engine, self.port_obj.name, self.output_hierarchy,
+                                                   output_format).get_returned_value()
 
 
 class PluggableBase(ConfigurationBase):

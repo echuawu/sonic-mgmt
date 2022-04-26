@@ -1,6 +1,7 @@
 from .ConfigurationBase import ConfigurationBase
 from .nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from .nvos_consts import ApiObject
 import logging
 import allure
@@ -45,9 +46,13 @@ class Stats(ConfigurationBase):
         """
         Clears interface counters
         """
+        if not dut_engine:
+            dut_engine = TestToolkit.engines.dut
+
         with allure.step('Clear stats'):
-            return ApiObject[TestToolkit.api_ib].clear_stats(engine=dut_engine,
-                                                             port_name=self.port_obj.name)
+            return SendCommandTool.execute_command(dut_engine,
+                                                   ApiObject[TestToolkit.api_ib].clear_stats, '',
+                                                   dut_engine, self.port_obj.name)
 
     def show_interface_link_stats(self, dut_engine=None, output_format=OutputFormat.json):
         """
@@ -60,10 +65,11 @@ class Stats(ConfigurationBase):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                                  port_name=self.port_obj.name,
-                                                                  interface_hierarchy=self.output_hierarchy,
-                                                                  output_format=output_format)
+            return SendCommandTool.execute_command(dut_engine,
+                                                   ApiObject[TestToolkit.api_show].show_interface,
+                                                   '',
+                                                   dut_engine, self.port_obj.name, self.output_hierarchy,
+                                                   output_format).get_returned_value()
 
 
 class StatsBase(ConfigurationBase):

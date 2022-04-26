@@ -37,7 +37,7 @@ def test_ib_interface_state(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True)
+    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
 
     '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
                                                   field_name_in_db[DataBaseNames.CONFIG_DB],
@@ -58,7 +58,7 @@ def test_ib_interface_state(engines):
 
     '''Tools.TrafficGeneratorTool.send_ib_traffic().verify_result(False)'''
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True)
+    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
@@ -103,7 +103,7 @@ def test_ib_interface_state_invalid(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    ret_str = selected_port.ib_interface.link.state.set(value='invalid_value', apply=False)
+    ret_str = selected_port.ib_interface.link.state.set(value='invalid_value', apply=False).verify_result()
     assert "error" in ret_str and "invalid choice" in ret_str, "The command should fail"
 
     '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
@@ -150,9 +150,9 @@ def test_ib_interface_state_unset(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True)
+    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
 
-    selected_port.ib_interface.link.state.unset(apply=True)
+    selected_port.ib_interface.link.state.unset(apply=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 

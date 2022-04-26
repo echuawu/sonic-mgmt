@@ -4,6 +4,7 @@ from .CmdBase import CmdBase
 from .IbInterfaceDecorators import *
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 import logging
 import allure
 
@@ -36,21 +37,38 @@ class LinkBaseOperational(LinkBase, CmdBase):
     def __init__(self, port_obj, label, description, field_name_in_db, output_hierarchy):
         LinkBase.__init__(self, port_obj, label, description, field_name_in_db, output_hierarchy)
 
-    def set(self, value, dut_engine=None, apply=True):
+    def set(self, value, dut_engine=None, apply=True, user_input=''):
+        """
+        Set current field with provided value
+        :param user_input: user input
+        :param value: value to set
+        :param dut_engine: ssh dut engine
+        :param apply: true to apply configuration
+        :return: ResultObj
+        """
         with allure.step('Set selected port ‘{field}‘ to ‘{value}’'.format(field=self.label, value=value)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
                                          output_hierarchy=self.output_hierarchy,
-                                         value=value, apply=apply, port_name=self.port_obj.name)
+                                         value=value, apply=apply, port_name=self.port_obj.name,
+                                         user_input=user_input)
 
-    def unset(self, dut_engine=None, apply=True):
+    def unset(self, dut_engine=None, apply=True, user_input=''):
+        """
+        Unset current field
+        :param user_input: user input
+        :param dut_engine: ssh dut engine
+        :param apply: true to apply configuration
+        :return: ResultObj
+        """
         with allure.step('Unset selected port ‘{field}‘'.format(field=self.label)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
                                            output_hierarchy=self.output_hierarchy,
-                                           apply=apply, port_name=self.port_obj.name)
+                                           apply=apply, port_name=self.port_obj.name,
+                                           user_input=user_input)
 
 
 class Speed(LinkBaseOperational):
@@ -128,7 +146,8 @@ class State(LinkBaseOperational):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                           port_name=TestToolkit.tested_ports,
-                                                           interface_hierarchy=self.output_hierarchy,
-                                                           output_format=output_format)
+            return SendCommandTool.execute_command(dut_engine,
+                                                   ApiObject[TestToolkit.api_show].show_interface,
+                                                   '',
+                                                   dut_engine, TestToolkit.tested_ports, self.output_hierarchy,
+                                                   output_format).get_returned_value()
