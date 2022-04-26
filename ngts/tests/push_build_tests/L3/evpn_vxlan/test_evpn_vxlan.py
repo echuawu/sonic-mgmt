@@ -72,7 +72,6 @@ class TestEvpnVxlan:
         self.dut_mac, self.ha_br_500100_mac, self.ha_br_500101_mac, self.hb_br_500100_mac, self.hb_bond0_101_mac = \
             get_used_mac_addresses
 
-    @pytest.mark.skip('Test not supported. Once EVPN VXLAN will be supported - need to remove skip')
     @pytest.mark.build
     @pytest.mark.push_gate
     @allure.title('Test EVPN VXLAN Basic')

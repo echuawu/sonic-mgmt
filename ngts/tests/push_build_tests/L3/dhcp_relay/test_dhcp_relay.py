@@ -68,7 +68,6 @@ class TestDHCPRelay:
             self.dhcp_client_cli_obj.dhcp.kill_all_dhcp_clients()
 
     @pytest.mark.dhcp_relay
-    @pytest.mark.skip(reason='https://github.com/Azure/sonic-utilities/pull/1269')
     def test_dhcp_relay_remove_dhcp_server(self):
         try:
             with allure.step('Remove DHCP relay setting from DUT'):
@@ -332,7 +331,6 @@ class TestDHCPRelay:
             raise AssertionError(err)
 
     @pytest.mark.dhcp_relay
-    @pytest.mark.skip(reason='https://github.com/Azure/sonic-utilities/pull/1269')
     def test_dhcp_relay_multiple_dhcp_servers(self, configure_additional_dhcp_server):
         """
         This test will check DHCP Relay functionality in case when multiple DHCP servers configured

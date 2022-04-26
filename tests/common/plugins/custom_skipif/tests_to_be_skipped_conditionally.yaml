@@ -1239,3 +1239,11 @@ platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
     - msn3800
     - msn3700
     - msn3700c
+
+tests/nightly/p4/sampling_example/test_entry_advance.py:
+  - StaticReason:
+    - 'Test not supported. Skip until all config_db.json file will be updated with breakout_cfg section'
+
+tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
+  - StaticReason:
+    - 'Test not supported. Once EVPN VXLAN will be supported - need to remove skip'

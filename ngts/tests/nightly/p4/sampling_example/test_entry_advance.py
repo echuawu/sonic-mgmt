@@ -85,7 +85,6 @@ class TestEntryTraffic:
         finally:
             cli_objects.dut.app_ext.enable_app(APP_NAME)
 
-    @pytest.mark.skip(reason="skip until all config_db.json file will be updated with breakout_cfg section")
     @allure.title('Test Dynamic port breakout on the port used in the entries..')
     def test_dpb_on_port_used_by_p4_entries(self, cli_objects, topology_obj, engines, interfaces, table_params, loganalyzer):
 
