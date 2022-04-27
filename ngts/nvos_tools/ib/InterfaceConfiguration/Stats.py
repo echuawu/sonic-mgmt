@@ -50,8 +50,7 @@ class Stats(ConfigurationBase):
             dut_engine = TestToolkit.engines.dut
 
         with allure.step('Clear stats'):
-            return SendCommandTool.execute_command(dut_engine,
-                                                   ApiObject[TestToolkit.api_ib].clear_stats, '',
+            return SendCommandTool.execute_command(ApiObject[TestToolkit.api_ib].clear_stats,
                                                    dut_engine, self.port_obj.name)
 
     def show_interface_link_stats(self, dut_engine=None, output_format=OutputFormat.json):
@@ -65,9 +64,7 @@ class Stats(ConfigurationBase):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            return SendCommandTool.execute_command(dut_engine,
-                                                   ApiObject[TestToolkit.api_show].show_interface,
-                                                   '',
+            return SendCommandTool.execute_command(ApiObject[TestToolkit.api_show].show_interface,
                                                    dut_engine, self.port_obj.name, self.output_hierarchy,
                                                    output_format).get_returned_value()
 

@@ -37,10 +37,9 @@ class LinkBaseOperational(LinkBase, CmdBase):
     def __init__(self, port_obj, label, description, field_name_in_db, output_hierarchy):
         LinkBase.__init__(self, port_obj, label, description, field_name_in_db, output_hierarchy)
 
-    def set(self, value, dut_engine=None, apply=True, user_input=''):
+    def set(self, value, dut_engine=None, apply=True):
         """
         Set current field with provided value
-        :param user_input: user input
         :param value: value to set
         :param dut_engine: ssh dut engine
         :param apply: true to apply configuration
@@ -51,13 +50,11 @@ class LinkBaseOperational(LinkBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
                                          output_hierarchy=self.output_hierarchy,
-                                         value=value, apply=apply, port_name=self.port_obj.name,
-                                         user_input=user_input)
+                                         value=value, apply=apply, port_name=self.port_obj.name)
 
-    def unset(self, dut_engine=None, apply=True, user_input=''):
+    def unset(self, dut_engine=None, apply=True):
         """
         Unset current field
-        :param user_input: user input
         :param dut_engine: ssh dut engine
         :param apply: true to apply configuration
         :return: ResultObj
@@ -67,8 +64,7 @@ class LinkBaseOperational(LinkBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
                                            output_hierarchy=self.output_hierarchy,
-                                           apply=apply, port_name=self.port_obj.name,
-                                           user_input=user_input)
+                                           apply=apply, port_name=self.port_obj.name)
 
 
 class Speed(LinkBaseOperational):
@@ -146,8 +142,6 @@ class State(LinkBaseOperational):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            return SendCommandTool.execute_command(dut_engine,
-                                                   ApiObject[TestToolkit.api_show].show_interface,
-                                                   '',
+            return SendCommandTool.execute_command(ApiObject[TestToolkit.api_show].show_interface,
                                                    dut_engine, TestToolkit.tested_ports, self.output_hierarchy,
                                                    output_format).get_returned_value()

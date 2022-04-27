@@ -76,9 +76,7 @@ class Pluggable(ConfigurationBase):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            return SendCommandTool.execute_command(dut_engine,
-                                                   ApiObject[TestToolkit.api_show].show_interface,
-                                                   '',
+            return SendCommandTool.execute_command(ApiObject[TestToolkit.api_show].show_interface,
                                                    dut_engine, self.port_obj.name, self.output_hierarchy,
                                                    output_format).get_returned_value()
 

@@ -46,7 +46,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         """
         pass
 
-    def show_version(self):
+    def show_version(self, validate=False):
         return self.engine.run_cmd('show version')
 
     @staticmethod
@@ -56,4 +56,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         :param engine: ssh engine object
         """
         logging.info("Running 'nv config apply' on dut")
-        return engine.run_cmd('nv config apply')
+        output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"], tries_after_run_cmd=1)
+        if 'Declined apply after warnings' in output:
+            output = "Error: " + output
+        return output
