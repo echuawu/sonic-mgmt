@@ -111,7 +111,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     :param setup_info: dictionary with setup info
     """
     cli_type = setup_info['duts'][0]['cli_obj']
-    if cli_type is NvueGeneralCli:
+    if isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.pre_installation_steps()
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number)
@@ -139,8 +139,8 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
     :param setup_info: dictionary with setup info
     """
     dut_cli_obj = setup_info['duts'][0]['cli_obj']
-    if dut_cli_obj is NvueGeneralCli:
-        NvosInstallationSteps.post_installation_steps()
+    if isinstance(dut_cli_obj, NvueGeneralCli):
+        NvosInstallationSteps.post_installation_steps(topology_obj)
     else:
         SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                                                        setup_name, platform_params,
@@ -224,7 +224,7 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
     :return: raise assertion error in case of script failure
     """
 
-    if cli_type is NvueGeneralCli:
+    if isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path)
     else:

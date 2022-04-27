@@ -23,7 +23,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         # TODO: To implement the flow
         pass
 
-    def verify_installed_extensions_running(self, cli_object):
+    def verify_installed_extensions_running(self):
         """
         This method is not relevant for NVOS (at least for now)
         """
