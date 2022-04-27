@@ -1,6 +1,8 @@
 import requests
 import logging
 import yaml
+import errno
+import tarfile
 import os
 
 from CustomSkipIf import CustomSkipIf
@@ -19,14 +21,22 @@ class SkipIf(CustomSkipIf):
         Get GitHub API credentials
         :return: dictionary with GitHub credentials {'user': aaa, 'api_token': 'bbb'}
         """
-        cred_file_name = 'credentials.yaml'
-        cred_folder_path = os.path.dirname(__file__)
-        cred_file_path = os.path.join(cred_folder_path, cred_file_name)
-
-        with open(cred_file_path) as cred_file:
-            cred = yaml.load(cred_file, Loader=yaml.FullLoader).get(self.name)
-
-        return cred
+        if not os.path.exists('/tmp/github_token/credentials.yaml'):
+            cred_tarfile_name = 'credentials.tar.gz'
+            cred_folder_path = os.path.dirname(__file__)
+            gh_token_path = os.path.join(cred_folder_path, cred_tarfile_name)
+            try:
+                os.mkdir("/tmp/github_token")
+            except OSError as e:
+                # if already exists, that's fine
+                if not e.errno == errno.EEXIST:
+                    logger.warning('Directory create error type: {}'.format(e.errno))
+                    raise AssertionError(f"Problem in creating temporary directory: /tmp/github_token. \n{e}")
+            with tarfile.open(gh_token_path, "r:gz") as f:
+                f.extractall("/tmp/github_token")
+        with open('/tmp/github_token/credentials.yaml', 'r') as gb_token:
+            cred = yaml.load(gb_token, Loader=yaml.FullLoader).get(self.name)
+            return cred
 
     def is_skip_required(self, skip_dict_result):
         """

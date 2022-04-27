@@ -1,12 +1,16 @@
 import os
+import tarfile
+import errno
 import yaml
 import requests
 import argparse
 import datetime
+import logging
 BASE_URL = "https://api.github.com"
 BASE_PR_SEARCH_URL = "https://api.github.com/search/issues?q=type:pr + repo:Azure/sonic-mgmt"
 TEAM_MEMBERS = ['nhe-NV', 'ppikh', "JibinBao", "roysr-nv", "AntonHryshchuk", "ihorchekh", "slutati1536"]
 
+logger = logging.getLogger()
 
 class GitHubApi:
     """
@@ -79,13 +83,25 @@ def get_cred():
     Get GitHub API credentials
     :return: dictionary with GitHub credentials {'user': aaa, 'api_token': 'bbb'}
     """
-    cred_file_name = 'credentials.yaml'
-    cred_folder_path = os.path.dirname(__file__)
-    cred_file_path = os.path.join(cred_folder_path, cred_file_name)
     name = "GitHub"
-    with open(cred_file_path) as cred_file:
-        cred = yaml.load(cred_file, Loader=yaml.FullLoader).get(name)
-    return cred
+    if not os.path.exists('/tmp/github_token/credentials.yaml'):
+        cred_tarfile_name = 'credentials.tar.gz'
+        path_list = os.path.abspath('.').split(os.path.sep)
+        rootdir = os.path.sep.join(path_list[:-2])
+        # credentials.tar.gz locates under folder 'tests/common/plugins/custom_skipif'
+        gh_token_path = os.path.join(rootdir, 'tests/common/plugins/custom_skipif', cred_tarfile_name)
+        try:
+            os.mkdir("/tmp/github_token")
+        except OSError as e:
+            # if already exists, that's fine
+            if not e.errno == errno.EEXIST:
+                logger.warning('Directory create error type: {}'.format(e.errno))
+                raise AssertionError(f"Problem in creating temporary directory: /tmp/github_token. \n{e}")
+        with tarfile.open(gh_token_path, "r:gz") as f:
+            f.extractall("/tmp/github_token")
+    with open('/tmp/github_token/credentials.yaml', 'r') as gb_token:
+        cred = yaml.load(gb_token, Loader=yaml.FullLoader).get(name)
+        return cred
 
 
 if __name__ == "__main__":
