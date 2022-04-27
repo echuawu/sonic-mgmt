@@ -55,10 +55,10 @@ def test_existence_of_tables_in_databases(engines):
     """
     with allure.step("Validate no missing database default tables"):
         err_flag = True
-        storage = [Database('APPL_DB', DatabaseConst.APPL_DB_ID, DatabaseConst.APPL_DB_TABLES_DICT),
-                   Database('ASIC_DB', DatabaseConst.ASIC_DB_ID, DatabaseConst.ASIC_DB_TABLES_DICT),
-                   Database('COUNTERS_DB', DatabaseConst.COUNTERS_DB_ID, DatabaseConst.COUNTERS_DB_TABLES_DICT),
-                   Database('CONFIG_DB', DatabaseConst.CONIFG_DB_ID, DatabaseConst.CONIFG_DB_TABLES_DICT)]
+        storage = [Database(DatabaseConst.APPL_DB_NAME, DatabaseConst.APPL_DB_ID, DatabaseConst.APPL_DB_TABLES_DICT),
+                   Database(DatabaseConst.ASIC_DB_NAME, DatabaseConst.ASIC_DB_ID, DatabaseConst.ASIC_DB_TABLES_DICT),
+                   Database(DatabaseConst.COUNTERS_DB_NAME, DatabaseConst.COUNTERS_DB_ID, DatabaseConst.COUNTERS_DB_TABLES_DICT),
+                   Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONIFG_DB_TABLES_DICT)]
 
         for database_obj in storage:
             res_obj = database_obj.verify_num_of_tables_in_database(engines.dut)
@@ -75,11 +75,9 @@ def test_ports_are_up(engines):
     :return: None, raise error in case one or more ports are down
     """
     with allure.step("Validate all ports status is up"):
-        err_flag = True
-        output = DatabaseReaderTool.get_all_table_names_in_database(engines.dut, 'CONFIG_DB', 'IB_PORT').returned_value
-        for table_name in output:
-            obj = DatabaseReaderTool.read_from_database('CONFIG_DB', engines.dut, table_name, 'admin_status')
-            if obj.returned_value != NvosConst.PORT_STATUS:
-                err_flag = False
-                logger.error("port {table_name} is down \n".format(table_name=table_name))
-        assert err_flag, "one or more ports are down"
+        config_db = Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONIFG_DB_TABLES_DICT)
+        field_name = NvosConst.PORT_STATUS_LABEL
+        expected_value = NvosConst.PORT_STATUS
+        table_name_substring = NvosConst.PORT_CONFIG_DB_TABLES_PREFIX
+        res_obj = config_db.verify_filed_value_in_all_tables(engines.dut, table_name_substring, field_name, expected_value)
+        assert res_obj.result, "one or more ports are down"

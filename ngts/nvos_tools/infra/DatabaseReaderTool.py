@@ -1,7 +1,7 @@
 import logging
 from .ResultObj import ResultObj
 from .NvosTestToolkit import TestToolkit
-from ngts.constants.constants_nvos import NvosConst
+from ngts.constants.constants_nvos import NvosConst, DatabaseConst
 import re
 logger = logging.getLogger()
 EMPTY_ARRAY = '(empty array)'
@@ -61,7 +61,7 @@ class DatabaseReaderTool:
         :return: Boolean value
         """
 
-        all_data_bases = NvosConst.DataBase_DICTIONARY.keys()
+        all_data_bases = DatabaseReaderTool.DATABASE_DICTIONARY.keys()
         return database_name in all_data_bases
 
     @staticmethod
@@ -99,7 +99,7 @@ class DatabaseReaderTool:
         :param database_name: database name
         :return: database id in redis
         """
-        return NvosConst.DataBase_DICTIONARY[database_name]
+        return DatabaseReaderTool.DATABASE_DICTIONARY[database_name]
 
     @staticmethod
     def redis_cmd_output_parser(database_table):
@@ -123,3 +123,10 @@ class DatabaseReaderTool:
         output_list = re.findall('"(.*)"\n', database_table + '\n')
         database_dic = {output_list[i]: output_list[i + 1] for i in range(0, len(output_list), 2)}
         return database_dic
+
+    DATABASE_DICTIONARY = {DatabaseConst.APPL_DB_NAME: DatabaseConst.APPL_DB_ID,
+                           DatabaseConst.ASIC_DB_NAME: DatabaseConst.ASIC_DB_ID,
+                           DatabaseConst.COUNTERS_DB_NAME: DatabaseConst.COUNTERS_DB_ID,
+                           DatabaseConst.CONFIG_DB_NAME: DatabaseConst.CONFIG_DB_ID,
+                           DatabaseConst.STATE_DB_NAME: DatabaseConst.STATE_DB_ID
+                           }

@@ -1,8 +1,14 @@
 class DatabaseConst:
+    APPL_DB_NAME = "APPL_DB"
+    ASIC_DB_NAME = "ASIC_DB"
+    COUNTERS_DB_NAME = "COUNTERS_DB"
+    CONFIG_DB_NAME = "CONFIG_DB"
+    STATE_DB_NAME = "STATE_DB"
+
     APPL_DB_ID = 0
     ASIC_DB_ID = 1
     COUNTERS_DB_ID = 2
-    CONIFG_DB_ID = 4
+    CONFIG_DB_ID = 4
     STATE_DB_ID = 6
     '''
      for each database we need:
@@ -51,10 +57,5 @@ class NvosConst:
                      'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
                      'syncd-ibv0.service', 'pmon.service']
     DOCKERS_LIST = ['nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
-    DATABASE_LIST = ["APPL_DB", "ASIC_DB", "COUNTERS_DB", "CONFIG_DB"]
-    DataBase_DICTIONARY = {"APPL_DB": DatabaseConst.APPL_DB_ID,
-                           "ASIC_DB": DatabaseConst.ASIC_DB_ID,
-                           "COUNTERS_DB": DatabaseConst.COUNTERS_DB_ID,
-                           "CONFIG_DB": DatabaseConst.CONIFG_DB_ID,
-                           "STATE_DB": DatabaseConst.STATE_DB_ID
-                           }
+    PORT_STATUS_LABEL = 'admin_status'
+    PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
