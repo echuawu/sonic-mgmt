@@ -697,6 +697,16 @@ lldp/test_lldp.py::test_lldp_neighbor:
     Branch:
       - 202111
 
+#host vlan
+vlan/test_host_vlan.py:
+  - Redmine:
+      - 3047936
+    Branch:
+      - 202111
+      - 202012
+    Platform:
+      - 2700
+
 ########## Canonical ##########
 # Nightly
 
