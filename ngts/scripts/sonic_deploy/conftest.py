@@ -21,7 +21,7 @@ def pytest_addoption(parser):
     :param parser: pytest builtin
     """
     logger.info('Parsing deploy type')
-    parser.addoption('--deploy_type', action='store', choices=['onie', 'sonic', 'bfb'], required=False, default='onie',
+    parser.addoption('--deploy_type', action='store', choices=['onie', 'sonic', 'bfb', 'pxe'], required=False, default='onie',
                      help='Deploy type')
     logger.info('Parsing apply_base_config')
     parser.addoption('--apply_base_config', action='store', required=False, default=None,

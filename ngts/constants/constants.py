@@ -727,3 +727,10 @@ class PlayeresAliases:
 
 class NvosCliTypes:
     NvueCliTypes = ["NVUE", "MLNX_OS"]
+
+
+class BluefieldConstants:
+    BASE_SLINK_BF_IMAGE = '/auto/sw_system_release/sonic/sonic_dpu_config/images/{}/Image'
+    BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
+    BMC_USER = 'root'
+    BMC_PASS = '3tango11'

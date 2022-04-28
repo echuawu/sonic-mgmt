@@ -17,7 +17,7 @@ from infra.tools.validations.traffic_validations.ping.send import ping_till_aliv
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.exceptions.real_issue import RealIssue
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
-    AppExtensionInstallationConstants, DefaultCredentialConstants
+    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds, get_all_unsplit_ports
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -269,6 +269,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if deploy_type == 'bfb':
             self.deploy_bfb(image_path, topology_obj)
 
+        if deploy_type == 'pxe':
+            self.deploy_pxe(image_path, topology_obj, platform_params['hwsku'])
+
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
                      reboot_after_install=None, fw_pkg_path=None):
@@ -349,6 +352,79 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Waiting for CLI bring-up after instalation'):
             logger.info('Waiting for CLI bring-up after instalation')
             time.sleep(sonic_cli_ssh_connect_timeout)
+
+    def deploy_pxe(self, image_path, topology_obj, hwsku):
+        bf_cli_ssh_connect_timeout = 60
+        bf_cli_ssh_connect_bringup = 480
+        if not self.is_bluefield(hwsku):
+            raise Exception('The installation via PXE available only for Bluefield Devices')
+
+        self.update_bf_slinks_to_files(image_path, topology_obj)
+
+        bmc_cli_obj = self.get_bf_bmc_cli_obj(topology_obj)
+        bmc_cli_obj.set_next_boot_pxe_bf()
+        bmc_cli_obj.remote_reboot_bf()
+
+        with allure.step(f'Waiting for CLI down f{bf_cli_ssh_connect_timeout} seconds'):
+            logger.info(f'Waiting for CLI down {bf_cli_ssh_connect_timeout} seconds')
+            time.sleep(bf_cli_ssh_connect_timeout)
+
+        with allure.step(f'Waiting {bf_cli_ssh_connect_bringup} seconds'
+                         f' and start to check if CLI connection is available'):
+            logger.info(f'Waiting {bf_cli_ssh_connect_bringup} seconds'
+                        f' and start to check if CLI connection is available')
+            time.sleep(bf_cli_ssh_connect_bringup)
+            retry_call(self.check_bf_cli_connection,
+                       fargs=[],
+                       tries=12,
+                       delay=60,
+                       logger=logger)
+
+    def check_bf_cli_connection(self):
+        """
+        This function checks the connection to switch via mgmt.
+        During installation the Bluefield have flapped ping,
+        so it can't be checked in regular way.
+
+        :return: exception if connection not available
+        """
+        self.engine.disconnect()
+        self.engine.run_cmd(DUMMY_COMMAND, validate=True)
+
+    def update_bf_slinks_to_files(self, image_path, topology_obj):
+        """
+        This function updating the symbolic links to Image and initramfs files
+          for Bluefield device to required version.
+        These links used by grub file via PXE boot.
+        """
+        if image_path.startswith('http'):
+            image_path = '/auto' + image_path.split('/auto')[1]
+
+        image_path = os.path.realpath(image_path)  # in case provided image as symbolic link(for example the latest)
+
+        pxe_dir_path = image_path[:image_path.rfind('/')] + '/pxe'
+        switch_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+
+        slink_image = BluefieldConstants.BASE_SLINK_BF_IMAGE.format(switch_name)
+        slink_initramfs = BluefieldConstants.BASE_SLINK_BF_INITRAMFS.format(switch_name)
+
+        self.update_bf_slink(slink_image, pxe_dir_path, 'Image')
+        self.update_bf_slink(slink_initramfs, pxe_dir_path, 'initramfs')
+
+    @staticmethod
+    def update_bf_slink(slink, pxe_dir_path, file):
+        if os.path.exists(slink):
+            os.remove(slink)
+        create_slink_cmd = f'ln -s {pxe_dir_path}/{file} {slink}'
+        os.system(create_slink_cmd)
+
+    @staticmethod
+    def get_bf_bmc_cli_obj(topology_obj):
+        bmc_ip = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['BF Switch']['bmc']
+        bmc_engine = LinuxSshEngine(ip=bmc_ip,
+                                    username=BluefieldConstants.BMC_USER,
+                                    password=BluefieldConstants.BMC_PASS)
+        return LinuxGeneralCli(bmc_engine)
 
     def deploy_onie(self, image_path, in_onie=False, fw_pkg_path=None, platform_params=None):
         if not in_onie:

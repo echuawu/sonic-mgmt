@@ -15,6 +15,7 @@ class LinuxGeneralCli(GeneralCliCommon):
     def install_bfb_image(self, image_path, rshim_num):
         """
         Instalation of BFB image on Bluefield from Server
+        To use this method, the class must be created with hypervisor engine
         :param image_path: path to image
         :param rshim_num: the number of RSHIM on server
         :return: output
@@ -31,3 +32,19 @@ class LinuxGeneralCli(GeneralCliCommon):
         except Exception as e:
             logger.error(f"Command: {cmd} failed with error {e} when was expected to pass")
             raise AssertionError(f"Command: {cmd} failed with error {e} when was expected to pass")
+
+    def set_next_boot_pxe_bf(self):
+        """
+        Sets boot mode of Bluefield to PXE
+        To use this method, the class must be created with BMC engine
+        :return: command output
+        """
+        return self.engine.run_cmd("ipmitool chassis bootparam set bootflag force_pxe")
+
+    def remote_reboot_bf(self):
+        """
+        Remote reboot for Bluefield Device
+        To use this method, the class must be created with BMC engine
+        :return: command output
+        """
+        return self.engine.run_cmd("ipmitool chassis power cycle")
