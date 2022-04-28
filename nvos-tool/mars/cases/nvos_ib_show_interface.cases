@@ -16,7 +16,7 @@
   </global>
 
   <case>
-    <name> IB interface state test </name>
+    <name> IB interface show test </name>
     <info> </info>
     <cmd>
       <params>
