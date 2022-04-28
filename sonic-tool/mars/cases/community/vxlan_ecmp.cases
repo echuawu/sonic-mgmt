@@ -15,7 +15,35 @@
     </global>
 
     <case>
-        <info> Overlay ECMP for T1 test case </info>
+        <info> Overlay ECMP for T1: daily cases </info>
+        <name> test_vxlan_ecmp </name>
+        <tout> 3600 </tout>
+        <ignore>
+            <ignore_by_tag> TAG_ISSU_DISABLED </ignore_by_tag>
+             <condition>
+                <key> skip_weekend_cases </key>
+                <op> != </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level info --show-capture=no -ra --showlocals -k=\"not underlay_ecmp and not random_hash\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <ignore>
+            <ignore_by_tag> TAG_ISSU_DISABLED </ignore_by_tag>
+             <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
+
+        <info> Overlay ECMP for T1: weekend cases </info>
         <name> test_vxlan_ecmp </name>
         <tout> 9000 </tout>
         <cmd>

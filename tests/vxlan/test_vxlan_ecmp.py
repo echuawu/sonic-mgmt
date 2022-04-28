@@ -26,8 +26,6 @@
         total_number_of_nexthops    : Maximum number of all nexthops for every destination combined(per encap_type).
         vxlan_port                                : Global vxlan port (UDP port) to be used for the DUT. Default: 4789
 '''
-import allure
-import pytest
 import time
 import re
 import ipaddress
@@ -36,6 +34,7 @@ import logging
 from datetime import datetime
 from sys import getsizeof
 
+import pytest
 
 from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory  # lgtm[py/unused-import]
 from tests.common.helpers.assertions import pytest_assert
@@ -72,7 +71,6 @@ pytestmark = [
     pytest.mark.sanity_check(post_check=True)
 ]
 
-@allure.step
 def create_vxlan_tunnel(duthost, minigraph_data, af, tunnel_name=None, src_ip=None):
     '''
         Function to create a vxlan tunnel. The arguments:
@@ -99,7 +97,6 @@ def create_vxlan_tunnel(duthost, minigraph_data, af, tunnel_name=None, src_ip=No
     apply_config_in_dut(duthost, config, name="vxlan_tunnel_"+ af)
     return tunnel_name
 
-@allure.step
 def apply_config_in_dut(duthost, config, name="vxlan"):
     '''
         The given json(config) will be copied to the DUT and loaded up.
@@ -114,7 +111,6 @@ def apply_config_in_dut(duthost, config, name="vxlan"):
     if not Constants['KEEP_TEMP_FILES']:
         duthost.shell("rm {}".format(filename))
 
-@allure.step
 def get_dut_loopback_address(duthost, minigraph_data, af):
     '''
         Returns the IP address of the Loopback interface in DUT, from minigraph.
@@ -130,14 +126,13 @@ def get_dut_loopback_address(duthost, minigraph_data, af):
 
     raise RuntimeError("Couldnot find the {} loopback address for the DUT:{} from minigraph.".format(af, duthost.hostname))
 
-@allure.step
 def select_required_interfaces(duthost, number_of_required_interfaces, minigraph_data, af):
     '''
      Pick the required number of interfaces to use for tests.
      These interfaces will be selected based on if they are currently running a established BGP.
-     The interfaces will be picked from the T1 facing side.
+     The interfaces will be picked from the T0 facing side.
     '''
-    bgp_interfaces = get_all_interfaces_running_bgp(duthost, minigraph_data)
+    bgp_interfaces = get_all_interfaces_running_bgp(duthost, minigraph_data, "T0")
     interface_ip_table = minigraph_data['minigraph_interfaces']
     if interface_ip_table:
         available_interfaces = interface_ip_table
@@ -168,7 +163,6 @@ def select_required_interfaces(duthost, number_of_required_interfaces, minigraph
     else:
         raise RuntimeError("There is no Ethernet interface running BGP. Pls run this test on any T1 topology.")
 
-@allure.step
 def get_portchannels_to_neighbors(duthost, neighbor_type, minigraph_data):
     '''
         A function to get the list of portchannels connected to BGP neighbors of given type(T0 or T2).
@@ -196,7 +190,6 @@ def get_portchannels_to_neighbors(duthost, neighbor_type, minigraph_data):
 
     return return_list
 
-@allure.step
 def get_ethernet_to_neighbors(neighbor_type, minigraph_data):
     '''
         A function to get the list of Ethernet interfaces connected to BGP neighbors of given type(T0 or T2).
@@ -215,7 +208,6 @@ def get_ethernet_to_neighbors(neighbor_type, minigraph_data):
 
     return ret_list
 
-@allure.step
 def assign_intf_ip_address(selected_interfaces, af):
     intf_ip_map = {}
     for intf in selected_interfaces:
@@ -223,22 +215,21 @@ def assign_intf_ip_address(selected_interfaces, af):
         intf_ip_map[intf] = ip
     return intf_ip_map
 
-@allure.step
-def get_all_interfaces_running_bgp(duthost, minigraph_data):
+def get_all_interfaces_running_bgp(duthost, minigraph_data, neighbor_type):
     bgp_neigh_list = duthost.bgp_facts()['ansible_facts']['bgp_neighbors']
     minigraph_ip_interfaces = minigraph_data['minigraph_interfaces'] + minigraph_data['minigraph_portchannel_interfaces']
     peer_addr_map = {}
+    pattern = re.compile("{}$".format(neighbor_type))
     for x in    minigraph_ip_interfaces:
         peer_addr_map[x['peer_addr']] = {x['attachto'] : x['addr']}
 
     ret_list = {}
     for x, entry in peer_addr_map.iteritems():
-        if bgp_neigh_list[x]['state'] == 'established':
+        if bgp_neigh_list[x]['state'] == 'established' and pattern.search(bgp_neigh_list[x]['description']):
             ret_list[x] = entry
 
     return ret_list
 
-@allure.step
 def configure_vnet_neighbors(duthost, intf_to_ip_map, minigraph_data, af):
     '''
         setup the vnet neighbor ip addresses.
@@ -273,7 +264,6 @@ def configure_vnet_neighbors(duthost, intf_to_ip_map, minigraph_data, af):
 
     return return_dict
 
-@allure.step
 def create_vnets(duthost, tunnel_name, vnet_count=1, scope=None, vni_base=10000, vnet_name_prefix="Vnet"):
     return_dict = {}
     scope_entry = ""
@@ -295,7 +285,6 @@ def create_vnets(duthost, tunnel_name, vnet_count=1, scope=None, vni_base=10000,
     apply_config_in_dut(duthost, full_config, "vnets_"+tunnel_name)
     return return_dict
 
-@allure.step
 def setup_vnet_intf(duthost, selected_interfaces, vnet_list, minigraph_data):
     if len(selected_interfaces) != len(vnet_list):
         raise RuntimeError("Different number of interfaces and vnets, not supported yet")
@@ -331,7 +320,6 @@ def setup_vnet_intf(duthost, selected_interfaces, vnet_list, minigraph_data):
     apply_config_in_dut(duthost, full_config, "vnet_intf")
     return ret_list
 
-@allure.step
 def configure_vxlan_switch(duthost, vxlan_port=4789, dutmac=None):
     if dutmac == None:
         #dutmac = duthost.facts['router_mac']
@@ -350,7 +338,6 @@ def configure_vxlan_switch(duthost, vxlan_port=4789, dutmac=None):
 '''.format(vxlan_port, dutmac)
     apply_config_in_swss(duthost, switch_config, "vnet_switch")
 
-@allure.step
 def apply_config_in_swss(duthost, config, name="swss_"):
     if Constants['DEBUG']:
         filename = name + ".json"
@@ -363,14 +350,12 @@ def apply_config_in_swss(duthost, config, name="swss_"):
     if not Constants['KEEP_TEMP_FILES']:
         duthost.shell("rm /tmp/{}".format(filename))
 
-@allure.step
 def get_list_of_nexthops(number, af, prefix=100):
     nexthop_list = []
     for i in range(number):
         nexthop_list.append(get_ip_address(af=af, netid=prefix, hostid=10))
     return nexthop_list
 
-@allure.step
 def create_vnet_routes(duthost, vnet_list, dest_af, nh_af, nhs_per_destination=1, number_of_available_nexthops=100, number_of_ecmp_nhs=1000, dest_net_prefix=150, nexthop_prefix=100):
     '''
         This configures the VNET_TUNNEL_ROUTES structure. It precalculates the required number of
@@ -406,7 +391,6 @@ def create_vnet_routes(duthost, vnet_list, dest_af, nh_af, nhs_per_destination=1
     set_routes_in_dut(duthost, dest_to_nh_map, dest_af, "SET")
     return dest_to_nh_map
 
-@allure.step
 def get_outer_layer_version(encap_type):
     match = re.search("in_(v[46])", encap_type)
     if match:
@@ -414,7 +398,6 @@ def get_outer_layer_version(encap_type):
     else:
         raise RuntimeError("Invalid format for encap_type:{}".format(encap_type))
 
-@allure.step
 def get_payload_version(encap_type):
     match = re.search("(v[46])_in_v", encap_type)
     if match:
@@ -422,7 +405,6 @@ def get_payload_version(encap_type):
     else:
         raise RuntimeError("Invalid format for encap_type:{}".format(encap_type))
 
-@allure.step
 def create_single_route(vnet, dest, mask, nhs, op):
     '''
         Create a single route entry for vnet, for the given dest, through the endpoints:nhs, op:SET/DEL
@@ -435,7 +417,6 @@ def create_single_route(vnet, dest, mask, nhs, op):
     }}'''.format(vnet, dest, mask, ",".join(nhs), op)
 
 Address_Count = 0
-@allure.step
 def get_ip_address(af, hostid=1, netid=100):
     global Address_Count
     third_octet = Address_Count % 255
@@ -448,7 +429,6 @@ def get_ip_address(af, hostid=1, netid=100):
         # :0: gets removed in the IPv6 addresses. Adding a to octets, to avoid it.
         return "fddd:a{}:a{}::a{}:{}".format(first_octet, second_octet, third_octet, hostid)
 
-@allure.step
 def set_routes_in_dut(duthost, dest_to_nh_map, dest_af, op):
     config_list = []
     for vnet in dest_to_nh_map.keys():
@@ -458,7 +438,6 @@ def set_routes_in_dut(duthost, dest_to_nh_map, dest_af, op):
     full_config = '[' + "\n,".join(config_list) + '\n]'
     apply_config_in_swss(duthost, full_config, op+"_routes")
 
-@allure.step
 def get_t2_ports(duthost, minigraph_data):
     '''
         In T1 topology, any port connected to the T2 BGP neighbors are needed.
@@ -477,7 +456,6 @@ def get_t2_ports(duthost, minigraph_data):
         ret_list.append(minigraph_data["minigraph_ptf_indices"][iface])
     return ret_list
 
-@allure.step
 def bgp_established(duthost, ignore_list=[]):
     bgp_facts = duthost.bgp_facts()['ansible_facts']
     for k, v in bgp_facts['bgp_neighbors'].items():
@@ -488,7 +466,6 @@ def bgp_established(duthost, ignore_list=[]):
     time.sleep(10)
     return True
 
-@allure.step
 def get_downed_bgp_neighbors(shut_intf_list, minigraph_data):
     '''
         Get the list of bgp neighbors that should be down,
@@ -501,7 +478,6 @@ def get_downed_bgp_neighbors(shut_intf_list, minigraph_data):
                 ret_list.append(m_intf['peer_addr'])
     return ret_list
 
-@allure.step
 def get_corresponding_ports(shut_intf_list, minigraph_data):
     '''
        This is for tests that shutdown some of the T2 ports.
@@ -518,7 +494,6 @@ def get_corresponding_ports(shut_intf_list, minigraph_data):
     return_list = [minigraph_data["minigraph_ptf_indices"][iface] for iface in eth_ifaces_list]
     return return_list
 
-@allure.step
 def get_ethernet_ports(intf_list, minigraph_data):
     '''
         The given interface list can be either Ethernet or Portchannel.
@@ -645,7 +620,7 @@ def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts, tb
 
         for intf in data[encap_type]['selected_interfaces']:
             redis_string = "INTERFACE"
-            if "PortChannel" in intf > 0:
+            if "PortChannel" in intf:
                 redis_string = "PORTCHANNEL_INTERFACE"
             data['duthost'].shell("redis-cli -n 4 hdel \"{}|{}\" vnet_name".format(redis_string, intf))
 
@@ -662,7 +637,7 @@ def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts, tb
 
 
 class Test_VxLAN:
-    @allure.step
+
     def dump_self_info_and_run_ptf(self, tcname, encap_type, expect_encap_success, packet_count=4):
         '''
            Just a wrapper for dump_info_to_ptf to avoid entering 30 lines everytime.
@@ -793,7 +768,6 @@ class Test_VxLAN_ecmp_create(Test_VxLAN):
         logger.info("Verify the configs work and traffic flows correctly.")
         self.dump_self_info_and_run_ptf("tc5", encap_type, True)
 
-    @allure.step
     def setup_route2_ecmp_group_b(self, encap_type):
         if self.setup[encap_type].get('tc5_dest', None):
             return
@@ -844,7 +818,6 @@ class Test_VxLAN_ecmp_create(Test_VxLAN):
 
 class Test_VxLAN_NHG_Modify(Test_VxLAN):
 
-    @allure.step
     def setup_route2_single_endpoint(self, encap_type):
         if self.setup[encap_type].get('tc8_dest', None):
             return
@@ -865,7 +838,6 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         apply_config_in_swss(self.setup['duthost'], tc8_config, "vnet_route_tc8_"+encap_type)
         self.setup[encap_type]['tc8_dest'] = tc8_new_dest
 
-    @allure.step
     def setup_route2_shared_endpoints(self, encap_type):
         if self.setup[encap_type].get('tc9_dest', None):
             return
@@ -1185,13 +1157,13 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             for intf in all_intfs:
                 self.setup['duthost'].shell("sudo config interface shutdown {}".format(intf))
 
+            time.sleep(10)
             logger.info("Verify that traffic is not flowing through.")
-            self.dump_self_info_and_run_ptf("tc12", encap_type, False)
+            self.dump_self_info_and_run_ptf("tc13", encap_type, False)
 
             '''
                tc14: Re-add the underlay default route.
             '''
-
             logger.info("Bring up the T2 interfaces.")
             for intf in all_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
@@ -1200,7 +1172,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
 
             logger.info("Verify the traffic is flowing through, again.")
-            self.dump_self_info_and_run_ptf("tc12", encap_type, True, packet_count=1000)
+            self.dump_self_info_and_run_ptf("tc14", encap_type, True, packet_count=1000)
 
         except Exception:
             logger.info("If anything goes wrong in the try block, atleast bring the intf back up.")

@@ -38,15 +38,13 @@ logger = logging.getLogger(__name__)
 # Some constants used in this code
 MIN_PACKET_COUNT = 4
 MINIMUM_PACKETS_FOR_ECMP_VALIDATION = 300
-TEST_ECN = False
-
+TEST_ECN = True
 
 def get_incremental_value(key):
     global VARS
     # We would like to use the ports from 1234 to 65535
     VARS[key] = max(1234, (VARS[key] + 1) % 65535)
     return VARS[key]
-
 
 def read_ptf_macs():
     addrs = {}
@@ -56,7 +54,6 @@ def read_ptf_macs():
                 addrs[intf] = fp.read().strip()
 
     return addrs
-
 
 class VXLAN(BaseTest):
     def __init__(self):
@@ -114,9 +111,9 @@ class VXLAN(BaseTest):
             neighbors = [self.config_data['neighbors'][t0_intf]]
             ptf_port = self.topo_data['minigraph_facts']['minigraph_ptf_indices'][t0_intf]
             vnet = self.config_data['vnet_intf_map'][t0_intf]
-            vni = self.config_data['vnet_vni_map'][vnet]
+            vni  = self.config_data['vnet_vni_map'][vnet]
             for addr in neighbors:
-                for destination, nh in self.config_data['dest_to_nh_map'][vnet].iteritems():
+                for destination,nh in self.config_data['dest_to_nh_map'][vnet].iteritems():
                     self.test_encap(ptf_port, vni, addr, destination, nh, test_ecn=TEST_ECN)
 
     def cmd(self, cmds):
@@ -174,11 +171,12 @@ class VXLAN(BaseTest):
             else:
                 tagged = False
 
-            options = {'ip_ecn': 0}
-            options_v6 = {'ipv6_ecn': 0}
+            options =  {'ip_ecn' : 0}
+            options_v6 = {'ipv6_ecn' : 0}
             if test_ecn:
-                options = {'ip_ecn': random.randint(0, 3)}
-                options_v6 = {'ipv6_ecn': random.randint(0, 3)}
+                ecn = random.randint(0, 3)
+                options = {'ip_ecn' : ecn}
+                options_v6 = {'ipv6_ecn' : ecn}
 
             # ECMP support, assume it is a string of comma seperated list of addresses.
             returned_ip_addresses = {}
@@ -194,12 +192,12 @@ class VXLAN(BaseTest):
                             "pktlen": pkt_len,
                             "eth_dst": self.dut_mac,
                             "eth_src": self.ptf_mac_addrs['eth%d' % ptf_port],
-                            "ip_dst": destination,
-                            "ip_src": ptf_addr,
-                            "ip_id": 105,
-                            "ip_ttl": 64,
-                            "tcp_sport": tcp_sport,
-                            "tcp_dport": VARS['tcp_dport']}
+                            "ip_dst":destination,
+                            "ip_src":ptf_addr,
+                            "ip_id":105,
+                            "ip_ttl":64,
+                            "tcp_sport":tcp_sport,
+                            "tcp_dport":VARS['tcp_dport']}
                         pkt_opts.update(options)
                         pkt = simple_tcp_packet(**pkt_opts)
                         pkt_opts['ip_ttl'] = 63
@@ -207,14 +205,14 @@ class VXLAN(BaseTest):
                         exp_pkt = simple_tcp_packet(**pkt_opts)
                     elif isinstance(ip_address(destination), ipaddress.IPv6Address) and isinstance(ip_address(ptf_addr), ipaddress.IPv6Address):
                         pkt_opts = {
-                            "pktlen": pkt_len,
-                            "eth_dst": self.dut_mac,
-                            "eth_src": self.ptf_mac_addrs['eth%d' % ptf_port],
-                            "ipv6_dst": destination,
-                            "ipv6_src": ptf_addr,
-                            "ipv6_hlim": 64,
-                            "tcp_sport": tcp_sport,
-                            "tcp_dport": VARS['tcp_dport']}
+                            "pktlen":pkt_len,
+                            "eth_dst":self.dut_mac,
+                            "eth_src":self.ptf_mac_addrs['eth%d' % ptf_port],
+                            "ipv6_dst":destination,
+                            "ipv6_src":ptf_addr,
+                            "ipv6_hlim":64,
+                            "tcp_sport":tcp_sport,
+                            "tcp_dport":VARS['tcp_dport']}
                         pkt_opts.update(options_v6)
                         pkt = simple_tcpv6_packet(**pkt_opts)
                         pkt_opts['ipv6_hlim'] = 63
@@ -222,7 +220,7 @@ class VXLAN(BaseTest):
                         exp_pkt = simple_tcpv6_packet(**pkt_opts)
                     else:
                         valid_combination = False
-                    udp_sport = 1234  # Use entropy_hash(pkt), it will be ignored in the test later.
+                    udp_sport = 1234 # Use entropy_hash(pkt), it will be ignored in the test later.
                     udp_dport = self.vxlan_port
                     if isinstance(ip_address(host_address), ipaddress.IPv4Address):
                         encap_pkt = simple_vxlan_packet(
@@ -271,7 +269,7 @@ class VXLAN(BaseTest):
 
                     if self.expect_encap_success:
                         _, received_pkt = verify_packet_any_port(self, masked_exp_pkt, self.t2_ports)
-                        scapy_pkt = scapy.Ether(received_pkt)
+                        scapy_pkt  = scapy.Ether(received_pkt)
                         # Store every destination that was received.
                         if isinstance(ip_address(host_address), ipaddress.IPv6Address):
                             dest_ip = scapy_pkt['IPv6'].dst
