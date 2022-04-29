@@ -10,7 +10,7 @@ from .vnet_constants import *
 logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
-def scaled_vnet_params(request):
+def scaled_vnet_params(duthost, request):
     """
     Fixture to get CLI parameters for scaled vnet testing
 
@@ -28,6 +28,9 @@ def scaled_vnet_params(request):
     params[NUM_VNET_KEY] = request.config.option.num_vnet
     params[NUM_ROUTES_KEY] = request.config.option.num_routes
     params[NUM_ENDPOINTS_KEY] = request.config.option.num_endpoints
+    if duthost.sonic_release in ["202012", "202106", "202111"] and \
+            (params[NUM_ROUTES_KEY] > 3000 or params[NUM_ENDPOINTS_KEY] > 3000):
+        pytest.skip("More than 3k scale test is not supported on {} and other legacy branches: 202012, 202106 and 202111".format(duthost.sonic_release))
     return params
 
 @pytest.fixture(scope="module")
