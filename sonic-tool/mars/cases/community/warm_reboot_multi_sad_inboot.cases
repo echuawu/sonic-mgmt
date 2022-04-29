@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> Warm Reboot Multi Sad Inboot Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> warm-reboot-multi-sad-inboot</name>
             <owner> </owner>
         </Test>

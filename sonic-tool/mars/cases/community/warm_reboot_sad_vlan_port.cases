@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> Warm Reboot Sad Vlan Port Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> warm-reboot-sad-vlan-port</name>
             <owner> </owner>
         </Test>

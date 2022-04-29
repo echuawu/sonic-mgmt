@@ -34,9 +34,7 @@
             <!-- OPTIONAL TAGS -->
             <!--<tags> TAG NAME </tags>-->
             <pre></pre>
-            <ignore>
-                <ignore_by_tag> TAG_TOPOLOGY_NOT_APPLICABLE </ignore_by_tag>
-            </ignore>
+            <ignore></ignore>
             <post></post>
         </Case>
     </global>

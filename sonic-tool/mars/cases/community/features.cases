@@ -4,7 +4,6 @@
     <global>
         <Test>
             <info> Features Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> features </name>
             <owner></owner>
             <pre></pre>

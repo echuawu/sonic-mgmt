@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> PORT_Toggle Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> port_toggle</name>
             <owner> </owner>
         </Test>

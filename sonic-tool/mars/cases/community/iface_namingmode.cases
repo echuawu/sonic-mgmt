@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> Interface naming mode test </info>
-            <!--Must be the test case name in sonic-mgmt/tests/iface_namingmode/test_iface_namingmode.py-->
             <name> iface_namingmode </name>
             <owner> SONiC </owner>
         </Test>

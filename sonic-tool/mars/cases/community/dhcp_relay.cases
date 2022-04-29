@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> Dhcp Relay Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> dhcp_relay </name>
             <owner> SONiC </owner>
             <pre></pre>

@@ -11,7 +11,7 @@
 			<!-- OPTIONAL TAGS -->
 			<tags> RPC_QOS_COPP </tags>
 			<ignore>
-                		<condition>
+                <condition>
 					<key> run_rpc_image </key>
 					<op> == </op>
 					<value>  no </value>

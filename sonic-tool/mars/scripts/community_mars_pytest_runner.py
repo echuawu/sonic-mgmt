@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import time
+import re
 
 # Third-party libs
 from xml.etree import ElementTree
@@ -147,7 +148,22 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
         allure_proj = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=False)
-
+        # If the test case contains a topology mark, add --topology parameter to the pytest raw option
+        # This is to support topology variations
+        sonic_mgmt_path = os.path.abspath(__file__).split('/')[0:-4]
+        sonic_mgmt_path.extend(['tests', self.test_scripts])
+        test_script_fullpath = '/'.join(sonic_mgmt_path)
+        topology_mark_pattern = r'pytest\.mark\.topology\(.+\)'
+        try:
+            with open(test_script_fullpath) as test_script_file:
+                for line in test_script_file:
+                    if re.search(topology_mark_pattern, line):
+                        if self.sonic_topo:
+                            self.convert_topos()
+                            self.raw_options += " --topology %s" % self.topology
+                        break
+        except Exception as e:
+            self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
         cmd = "py.test {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
@@ -205,6 +221,13 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                 self.Logger.warning("Failed to get junit xml test report %s from remote player" % self.report_file)
         return ErrorCode.SUCCESS
 
+    def convert_topos(self):
+        # Convert the topology name to topology type(for example, t0-64 to t0)
+        # and append type "any" for 'any' type in the topology mark
+        testbed_type_index = 0
+        topos = [self.sonic_topo.split('-')[testbed_type_index]]
+        topos.append("any")
+        self.topology = ",".join(topos)
 
     def collect_allure_report_data(self):
         self.Logger.info('Going to upload allure data to server')

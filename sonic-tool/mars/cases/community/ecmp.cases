@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> ECMP Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> ecmp </name>
             <owner> SONiC </owner>
             <pre></pre>
@@ -20,13 +19,6 @@
         <info> FG_ECMP Case </info>
         <name> fg_ecmp </name>
         <tout> 3600 </tout>
-        <ignore>
-            <condition>
-                <key> topology </key>
-                <op> not in </op>
-                <value> ["t0"] </value>
-            </condition>
-        </ignore>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts ecmp/test_fgnhg.py </static_args>

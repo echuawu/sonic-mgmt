@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> LAG_2 Test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> lag_2 </name>
             <owner> </owner>
             <pre></pre>

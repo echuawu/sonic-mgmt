@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> Dip Sip test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> dip_sip </name>
             <owner> SONiC </owner>
         </Test>

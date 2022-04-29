@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> What Just Happened test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> wjh </name>
             <owner> </owner>
             <pre></pre>

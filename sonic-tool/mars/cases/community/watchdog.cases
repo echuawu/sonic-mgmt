@@ -3,7 +3,6 @@
     <global>
         <Test>
             <info> Watchdog test </info>
-            <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> watchdog </name>
             <owner> SONiC </owner>
             <pre></pre>
