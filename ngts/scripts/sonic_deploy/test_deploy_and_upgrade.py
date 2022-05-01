@@ -96,7 +96,7 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
                                 target_version=target_version, is_shutdown_bgp=True,
                                 reboot_after_install=reboot_after_install, deploy_only_target=deploy_only_target,
                                 fw_pkg_path=fw_pkg_path, reboot=reboot, additional_apps=additional_apps,
-                                setup_info=setup_info)
+                                setup_info=setup_info, workspace_path=workspace_path)
 
     except Exception as err:
         raise AssertionError(err)
@@ -120,7 +120,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                             setup_name, platform_params, apply_base_config, target_version,
                             is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path, reboot,
-                            additional_apps, setup_info):
+                            additional_apps, setup_info, workspace_path):
     """
     Post-installation steps
     :param topology_obj: topology object
@@ -137,10 +137,11 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
     :param reboot: reboot fixture
     :param additional_apps: additional_apps fixture
     :param setup_info: dictionary with setup info
+    :param workspace_path: workspace_path fixture
     """
     dut_cli_obj = setup_info['duts'][0]['cli_obj']
     if isinstance(dut_cli_obj, NvueGeneralCli):
-        NvosInstallationSteps.post_installation_steps(topology_obj)
+        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path)
     else:
         SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                                                        setup_name, platform_params,

@@ -3,6 +3,8 @@ import allure
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import NvueInterfaceShowClis
 import json
 import time
+import shutil
+import os
 
 logger = logging.getLogger()
 
@@ -17,11 +19,20 @@ class NvosInstallationSteps:
         pass
 
     @staticmethod
-    def post_installation_steps(topology_obj):
+    def post_installation_steps(topology_obj, workspace_path):
         """
         Post-installation steps for NVOS NOS
         :return:
         """
+        with allure.step('Replace minigraph_facts.py replaced in ansible/library'):
+            source_py = os.path.join(workspace_path, "sonic-mgmt/sonic-tool/sonic_ngts/scripts/minigraph_facts.py")
+            destination_path = os.path.join(workspace_path, "sonic-mgmt/ansible/library/minigraph_facts.py")
+            try:
+                shutil.os.system('sudo cp "{source}" "destination"'.format(source=source_py,
+                                                                           destination=destination_path))
+            except BaseException:
+                logger.warning("Failed to replace minigraph_facts.py in ansible path. Community tests will fail.")
+
         with allure.step('Waiting till NVOS become functional'):
             assert NvosInstallationSteps.wait_for_nvos_to_become_functional(topology_obj), "Timeout " \
                 "occurred while waiting for " \

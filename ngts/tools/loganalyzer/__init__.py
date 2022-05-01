@@ -4,11 +4,12 @@ import logging
 
 from pytest_ansible.errors import AnsibleConnectionFailure
 from ngts.tools.infra import update_sys_path_by_community_plugins_path
+from ngts.constants.constants import NvosCliTypes
+from devices.sonic import SonicHost
+from plugins.loganalyzer import pytest_addoption, loganalyzer
+
 
 update_sys_path_by_community_plugins_path()
-
-from devices.sonic import SonicHost  # noqa: E402
-
 logger = logging.getLogger()
 
 
@@ -52,14 +53,13 @@ def duthosts(ansible_adhoc, topology_obj):
     :param topology_obj: topology_obj fixture
     :return: list of ansible engines
     """
+    dut_ansible_engine = None
     dut_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-    try:
-        dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname)
-    except AnsibleConnectionFailure as err:
-        logger.error(f'DUT not reachable. Can not create DUT ansible engine. Error: {err}')
-        dut_ansible_engine = None
+    if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] not in \
+            NvosCliTypes.NvueCliTypes:
+        try:
+            dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname)
+        except AnsibleConnectionFailure as err:
+            logger.error(f'DUT not reachable. Can not create DUT ansible engine. Error: {err}')
 
     return [dut_ansible_engine]
-
-
-from plugins.loganalyzer import pytest_addoption, loganalyzer  # noqa: E402

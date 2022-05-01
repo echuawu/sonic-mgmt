@@ -111,6 +111,7 @@
       <Device Hostname="r-buffalo-04" HwSku="ACS-MSN4800" Type="DevSonic"/>
       <Device Hostname="r-r740-03-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="c-anaconda-02" HwSku="ACS-MSN3700C" Type="DevSonic" />
+      <Device Hostname="jaguar-119" HwSku="ACS-MQM8700" Type="DevSonic"/>
     </Devices>
     <DeviceInterfaceLinks>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1007" EndPort="ethernet 1/1" StartDevice="arc-switch1038" StartPort="Ethernet0"/>

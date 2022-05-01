@@ -22,7 +22,16 @@
 			</post>
 		</Case>
 	</global>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_adjust_switch_for_community_tests.cases </cases>
+	</test>
+
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_community_platform.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/Restore_origin_setup_after_adjustments_for_community_tests.cases </cases>
 	</test>
 </DBDEF>
