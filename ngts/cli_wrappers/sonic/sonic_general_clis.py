@@ -354,26 +354,27 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             time.sleep(sonic_cli_ssh_connect_timeout)
 
     def deploy_pxe(self, image_path, topology_obj, hwsku):
-        bf_cli_ssh_connect_timeout = 60
         bf_cli_ssh_connect_bringup = 480
         if not self.is_bluefield(hwsku):
             raise Exception('The installation via PXE available only for Bluefield Devices')
 
+        with allure.step('Installing image by PXE'):
+            logger.info('Installing image by PXE')
+
         self.update_bf_slinks_to_files(image_path, topology_obj)
 
         bmc_cli_obj = self.get_bf_bmc_cli_obj(topology_obj)
-        bmc_cli_obj.set_next_boot_pxe_bf()
-        bmc_cli_obj.remote_reboot_bf()
+        with allure.step('Set net boot to PXE'):
+            bmc_cli_obj.set_next_boot_pxe_bf()
+        with allure.step('Reboot remotely the dut'):
+            bmc_cli_obj.remote_reboot_bf()
 
-        with allure.step(f'Waiting for CLI down f{bf_cli_ssh_connect_timeout} seconds'):
-            logger.info(f'Waiting for CLI down {bf_cli_ssh_connect_timeout} seconds')
-            time.sleep(bf_cli_ssh_connect_timeout)
-
-        with allure.step(f'Waiting {bf_cli_ssh_connect_bringup} seconds'
-                         f' and start to check if CLI connection is available'):
-            logger.info(f'Waiting {bf_cli_ssh_connect_bringup} seconds'
-                        f' and start to check if CLI connection is available')
+        with allure.step(f'Wait {bf_cli_ssh_connect_bringup} seconds for downloading the image'):
+            logger.info(f'Wait {bf_cli_ssh_connect_bringup} seconds for downloading the image')
             time.sleep(bf_cli_ssh_connect_bringup)
+
+        with allure.step('Start to check if CLI connection is available'):
+            logger.info('Start to check if CLI connection is available')
             retry_call(self.check_bf_cli_connection,
                        fargs=[],
                        tries=12,
@@ -397,6 +398,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
           for Bluefield device to required version.
         These links used by grub file via PXE boot.
         """
+        with allure.step('Update soft links to Image and initramfs files'):
+            logger.info('Update soft links to Image and initramfs files')
+
         if image_path.startswith('http'):
             image_path = '/auto' + image_path.split('/auto')[1]
 
@@ -413,6 +417,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     @staticmethod
     def update_bf_slink(slink, pxe_dir_path, file):
+        logger.info(f'Update symbolic link {slink} to the file {pxe_dir_path}/{file}')
         if os.path.exists(slink):
             os.remove(slink)
         create_slink_cmd = f'ln -s {pxe_dir_path}/{file} {slink}'
