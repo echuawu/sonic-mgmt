@@ -364,7 +364,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.update_bf_slinks_to_files(image_path, topology_obj)
 
         bmc_cli_obj = self.get_bf_bmc_cli_obj(topology_obj)
-        with allure.step('Set net boot to PXE'):
+        with allure.step('Set next boot to PXE'):
             bmc_cli_obj.set_next_boot_pxe_bf()
         with allure.step('Reboot remotely the dut'):
             bmc_cli_obj.remote_reboot_bf()

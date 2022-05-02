@@ -24,6 +24,7 @@ def test_bf_sanity(cli_objects, topology_obj, platform_params):
     with allure.step("validation of platform summaty output"):
         validate_platform_summary(cli_objects, platform_params)
 
+    # currently oper state is down
     # with allure.step('Check the list and status of ports in "show interfaces status" output'):
     #     cli_objects.dut.interface.check_ports_status(topology_obj.players_all_ports['dut'])
 
@@ -38,20 +39,20 @@ def test_bf_sanity(cli_objects, topology_obj, platform_params):
         compare_sfputil_and_ifaces_transceiver_relusts(sfputil_res, transceiver_res)
 
     with allure.step('Verify no traceback in sfputil/interfaces transceiver lpmode/fwversion/error-status'):
-        # cli_objects.dut.sfputil.get_sfputil_lpmode(validate=True)
-        # cli_objects.dut.interface.get_interfaces_transceiver_lpmode(validate=True)
+        # cli_objects.dut.sfputil.get_sfputil_lpmode(validate=True)   # currently not implemented
+        # cli_objects.dut.interface.get_interfaces_transceiver_lpmode(validate=True) # currently not implemented
         cli_objects.dut.sfputil.get_sfputil_error_status(validate=True)
-        # cli_objects.dut.interface.get_interfaces_transceiver_error_status(validate=True)
-        # cli_objects.dut.sfputil.get_sfputil_fwversion('Ethernet0')
+        cli_objects.dut.interface.get_interfaces_transceiver_error_status(validate=True)
+        # cli_objects.dut.sfputil.get_sfputil_fwversion('Ethernet0')    # currently has traceback
 
     with allure.step('Verify no traceback in show interfaces cmds'):
         cli_objects.dut.interface.show_interfaces_alias(validate=True)
         cli_objects.dut.interface.show_interfaces_auto_negotiation_status(validate=True)
-        # cli_objects.dut.interface.show_interfaces_counters(validate=True)
-        # cli_objects.dut.interface.show_interfaces_counters_detailed(random_iface, validate=True)
-        # cli_objects.dut.interface.show_interfaces_counters_errors(validate=True)
-        # cli_objects.dut.interface.show_interfaces_counters_rates(validate=True)
-        # cli_objects.dut.interface.show_interfaces_counters_description(validate=True)
+        cli_objects.dut.interface.show_interfaces_counters(validate=True)
+        cli_objects.dut.interface.show_interfaces_counters_detailed(random_iface, validate=True)
+        cli_objects.dut.interface.show_interfaces_counters_errors(validate=True)
+        cli_objects.dut.interface.show_interfaces_counters_rates(validate=True)
+        cli_objects.dut.interface.show_interfaces_counters_description(validate=True)
         cli_objects.dut.interface.show_interfaces_naming_mode(validate=True)
         cli_objects.dut.interface.show_interfaces_neighbor_expected(validate=True)
 

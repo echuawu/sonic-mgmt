@@ -195,7 +195,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
                                            headers_ofset=0, len_ofset=1, data_ofset_from_start=2,
                                            data_ofset_from_end=None, column_ofset=2, output_key='Port')
 
-    def get_interfaces_transceiver_error_status(self, interface=''):
+    def get_interfaces_transceiver_error_status(self, interface='', validate=False):
         """
         :param interface:  interfaces name, example: 'Ethernet0'
         :return: interface transceiver error-status,
@@ -205,7 +205,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         Ethernet0  N/A
         """
         cmd = f'show interfaces transceiver error-status {interface}'
-        return self.engine.run_cmd(cmd)
+        return self.engine.run_cmd(cmd, validate=validate)
 
     def parse_interfaces_transceiver_error_status(self, interface='',
                                                   interfaces_transceiver_error_status_output=None):
