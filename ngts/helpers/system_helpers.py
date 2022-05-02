@@ -22,7 +22,7 @@ class PrefixEngine():
 
 
 def list_files(engine, path, pattern=''):
-    files = GeneralCliCommon.ls(engine, path, flags='-1').splitlines()
+    files = GeneralCliCommon(engine).ls(path, flags='-1').splitlines()
     return [os.path.join(path, file) for file in files if re.search(pattern, file)]
 
 

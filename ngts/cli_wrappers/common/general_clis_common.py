@@ -61,8 +61,8 @@ class GeneralCliCommon(GeneralCliInterface):
     def echo(self, string, flags=''):
         return self.engine.run_cmd(f'echo {flags} {string}')
 
-    def ls(self, path, flags=''):
-        return self.engine.run_cmd(f'ls {flags} {path}')
+    def ls(self, path, flags='', validate=False):
+        return self.engine.run_cmd(f'ls {flags} {path}', validate=validate)
 
     def mv(self, src_path, dst_path, flags=''):
         return self.engine.run_cmd(f'mv {flags} {src_path} {dst_path}')
@@ -107,3 +107,12 @@ class GeneralCliCommon(GeneralCliInterface):
 
     def coverage_xml(self, outfile, flags=''):
         return self.engine.run_cmd(f'coverage xml -o {outfile} {flags}', validate=True)
+
+    def tar(self, flags=''):
+        return self.engine.run_cmd(f'tar {flags}')
+
+    def pip3_install(self, package, flags=''):
+        return self.engine.run_cmd(f'pip3 {flags} install {package}', validate=True)
+
+    def gcovr(self, paths='', flags=''):
+        return self.engine.run_cmd(f'gcovr {flags} {paths}', validate=True)
