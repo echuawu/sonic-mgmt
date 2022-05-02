@@ -768,3 +768,11 @@
   Conditions:
     - Redmine:
       - 2976288
+
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to get minimum ambient temperature, use pessimistic instead.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/test_platform_info.py::test_show_platform_temperature_mocked
+      Redmine:
+      - 3058264
