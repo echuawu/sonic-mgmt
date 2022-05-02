@@ -32,6 +32,6 @@
 	</test>
 
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/Restore_origin_setup_after_adjustments_for_community_tests.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/restore_origin_setup_after_adjustments_for_community_tests.cases </cases>
 	</test>
 </DBDEF>

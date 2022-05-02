@@ -28,8 +28,11 @@ class NvosInstallationSteps:
             source_py = os.path.join(workspace_path, "sonic-mgmt/sonic-tool/sonic_ngts/scripts/minigraph_facts.py")
             destination_path = os.path.join(workspace_path, "sonic-mgmt/ansible/library/minigraph_facts.py")
             try:
-                shutil.os.system('sudo cp "{source}" "destination"'.format(source=source_py,
-                                                                           destination=destination_path))
+                shutil.os.system('sudo cp "{source}" "{destination}"'.format(source=source_py,
+                                                                             destination=destination_path))
+                logger.info("minigraph_facts.py was replaced in ansible/library")
+                logger.info("source path: " + source_py)
+                logger.info("destination path: " + destination_path)
             except BaseException:
                 logger.warning("Failed to replace minigraph_facts.py in ansible path. Community tests will fail.")
 
