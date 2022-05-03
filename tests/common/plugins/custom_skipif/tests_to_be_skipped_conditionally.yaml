@@ -189,6 +189,8 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
     - 2878715
   - Branch:
     - 202012
+    - master
+    - 202111
     Redmine:
     - 3018635
     Platform:
@@ -835,6 +837,8 @@ tests/nightly/lag/test_lag.py::test_lag_members_scale:
     - 4600
     Branch:
     - 202012
+    - master
+    - 202111
 
 
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
