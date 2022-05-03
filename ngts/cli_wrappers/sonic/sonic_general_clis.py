@@ -508,12 +508,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         with allure.step("Reboot the dut"):
             self.engine.reload(['sudo reboot'])
+            if reload_before_qos:
+                with allure.step("Reload the dut"):
+                    self.reload_configuration(force=True)
             self.verify_dockers_are_up()
-
-        if reload_before_qos:
-            with allure.step("Reload the dut"):
-                self.reload_configuration(force=True)
-                self.verify_dockers_are_up()
 
         with allure.step("Apply qos and dynamic buffer config"):
             self.cli_obj.qos.reload_qos()
