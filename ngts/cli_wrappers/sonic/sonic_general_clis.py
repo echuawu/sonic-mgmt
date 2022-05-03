@@ -495,7 +495,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             switch_in_onie = True
         return switch_in_onie
 
-    def apply_basic_config(self, topology_obj, setup_name, platform_params):
+    def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False):
         platform = platform_params['platform']
         hwsku = platform_params['hwsku']
         shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
@@ -509,6 +509,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Reboot the dut"):
             self.engine.reload(['sudo reboot'])
             self.verify_dockers_are_up()
+
+        if reload_before_qos:
+            with allure.step("Reload the dut"):
+                self.reload_configuration(force=True)
+                self.verify_dockers_are_up()
 
         with allure.step("Apply qos and dynamic buffer config"):
             self.cli_obj.qos.reload_qos()
