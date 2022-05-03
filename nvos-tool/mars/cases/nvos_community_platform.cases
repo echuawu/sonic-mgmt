@@ -16,7 +16,7 @@
 
   <case>
         <info> Test Show Platform Summary </info>
-        <name> show_platform </name>
+        <name> show_platform_summary</name>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -27,7 +27,7 @@
 
     <case>
         <info> Test Show Platform - ssdhealth </info>
-        <name> show_platform </name>
+        <name> show_platform_ssdhealth </name>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -38,7 +38,7 @@
 
     <case>
         <info> Test Show Platform -  psustatus </info>
-        <name> show_platform </name>
+        <name> show_platform_psustatus </name>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -49,7 +49,7 @@
 
     <case>
         <info> Test Show Platform - psustatus_json </info>
-        <name> show_platform </name>
+        <name> show_platform_psustatus_json </name>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -60,7 +60,7 @@
 
     <case>
         <info> Test Show Platform - fan </info>
-        <name> show_platform </name>
+        <name> show_platform_fan </name>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -71,7 +71,7 @@
 
     <case>
         <info> Test Show Platform - temperature </info>
-        <name> show_platform </name>
+        <name> show_platform_temperature </name>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -82,7 +82,7 @@
 
     <case>
         <info> Test Show Platform - firmware_status </info>
-        <name> show_platform </name>
+        <name> show_platform_firmware_status </name>
         <tout> 300 </tout>
         <cmd>
              <params>
