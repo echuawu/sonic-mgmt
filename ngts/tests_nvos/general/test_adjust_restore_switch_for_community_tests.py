@@ -26,6 +26,7 @@ def test_adjust_switch_for_community_tests(topology_obj):
         line_to_write = '{origin_path} $1 $2 $3 | tail -n +3'.format(origin_path=path_to_show_cmd_orig)
         engine.run_cmd("sudo touch {origin_path}".format(origin_path=path_to_show_cmd))
         engine.run_cmd("sudo chmod 777 {origin_path}".format(origin_path=path_to_show_cmd))
+        engine.run_cmd("sudo echo \'#!/bin/sh\' >> {file}".format(line=line_to_write, file=path_to_show_cmd))
         engine.run_cmd("sudo echo \'{line}\' >> {file}".format(line=line_to_write, file=path_to_show_cmd))
 
 
