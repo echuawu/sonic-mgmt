@@ -100,6 +100,9 @@ def pytest_addoption(parser):
     # FWUtil options
     parser.addoption('--fw-pkg', action='store', help='Firmware package file')
 
+    # Snake test SKU options
+    parser.addoption('--sku', action='store', help='Name of SKU to test')
+
     ############################
     # pfc_asym options         #
     ############################
