@@ -94,15 +94,22 @@
       <Device Hostname="r-anaconda-simx-129" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-anaconda-simx-134" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-anaconda-simx-139" HwSku="ACS-MSN3700" Type="DevSonic"/>
+      <Device Hostname="r-anaconda-simx-137" HwSku="ACS-MSN3700" Type="DevSonic"/>
+      <Device Hostname="r-anaconda-simx-14" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-buffalo-simx-28" HwSku="ACS-MSN4800" Type="DevSonic"/>
       <Device Hostname="r-buffalo-simx-165" HwSku="ACS-MSN4800" Type="DevSonic"/>
       <Device Hostname="r-buffalo-simx-169" HwSku="ACS-MSN4800" Type="DevSonic"/>
       <Device Hostname="r-leopard-simx-69" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-simx-74" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-simx-79" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="r-leopard-simx-18" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="r-leopard-simx-22" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-13" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-18" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-23" HwSku="ACS-MSN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-simx-129" HwSku="ACS-MSN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-simx-133" HwSku="ACS-MSN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-simx-10" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-spider-05" HwSku="ACS-MSN2410" Type="DevSonic"/>
       <Device Hostname="r-tigris-22" HwSku="ACS-MSN3800" Type="DevSonic"/>
       <Device Hostname="r-ocelot-07" HwSku="ACS-MSN4410" Type="DevSonic"/>
