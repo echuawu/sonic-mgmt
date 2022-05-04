@@ -1,11 +1,8 @@
 import requests
 import logging
-import yaml
-import errno
-import tarfile
-import os
 
 from CustomSkipIf import CustomSkipIf
+from ngts.tools.infra.token_handler import get_cred
 
 logger = logging.getLogger()
 
@@ -14,29 +11,7 @@ class SkipIf(CustomSkipIf):
     def __init__(self, ignore_list, pytest_item_obj):
         super(SkipIf, self).__init__(ignore_list, pytest_item_obj)
         self.name = 'GitHub'
-        self.credentials = self.get_cred()
-
-    def get_cred(self):
-        """
-        Get GitHub API credentials
-        :return: dictionary with GitHub credentials {'user': aaa, 'api_token': 'bbb'}
-        """
-        if not os.path.exists('/tmp/github_token/credentials.yaml'):
-            cred_tarfile_name = 'credentials.tar.gz'
-            cred_folder_path = os.path.dirname(__file__)
-            gh_token_path = os.path.join(cred_folder_path, cred_tarfile_name)
-            try:
-                os.mkdir("/tmp/github_token")
-            except OSError as e:
-                # if already exists, that's fine
-                if not e.errno == errno.EEXIST:
-                    logger.warning('Directory create error type: {}'.format(e.errno))
-                    raise AssertionError(f"Problem in creating temporary directory: /tmp/github_token. \n{e}")
-            with tarfile.open(gh_token_path, "r:gz") as f:
-                f.extractall("/tmp/github_token")
-        with open('/tmp/github_token/credentials.yaml', 'r') as gb_token:
-            cred = yaml.load(gb_token, Loader=yaml.FullLoader).get(self.name)
-            return cred
+        self.credentials = get_cred(self.name)
 
     def is_skip_required(self, skip_dict_result):
         """

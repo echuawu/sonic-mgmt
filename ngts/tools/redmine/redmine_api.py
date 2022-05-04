@@ -1,5 +1,5 @@
 import requests
-
+from ngts.tools.infra.token_handler import get_cred
 
 INACTIVE_STATE = 'Closed'
 ROOT_ISSUE = 'root_issue'
@@ -29,7 +29,7 @@ def get_issues_status(issues_list):
     """
     # TODO: use credentials from dedicated user
     redmine_api_url = 'https://redmine.mellanox.com/issues/mars_statuses.json'
-    api_key = '590fab44410de0fbacccff5c9f41bf4eb12f1165'
+    api_key = get_cred("Redmine").get('api_token')
     headers = {
         'Content-Type': "application/json",
         'X-Redmine-API-Key': api_key

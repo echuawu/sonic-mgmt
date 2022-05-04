@@ -1,11 +1,8 @@
-import os
-import tarfile
-import errno
-import yaml
 import requests
 import argparse
 import datetime
 import logging
+from ngts.tools.infra.token_handler import get_cred
 BASE_URL = "https://api.github.com"
 BASE_PR_SEARCH_URL = "https://api.github.com/search/issues?q=type:pr + repo:Azure/sonic-mgmt"
 TEAM_MEMBERS = ['nhe-NV', 'ppikh', "JibinBao", "roysr-nv", "AntonHryshchuk", "ihorchekh", "slutati1536"]
@@ -78,32 +75,6 @@ class GitHubApi:
                     print(f"        {file['filename']}")
 
 
-def get_cred():
-    """
-    Get GitHub API credentials
-    :return: dictionary with GitHub credentials {'user': aaa, 'api_token': 'bbb'}
-    """
-    name = "GitHub"
-    if not os.path.exists('/tmp/github_token/credentials.yaml'):
-        cred_tarfile_name = 'credentials.tar.gz'
-        path_list = os.path.abspath('.').split(os.path.sep)
-        rootdir = os.path.sep.join(path_list[:-2])
-        # credentials.tar.gz locates under folder 'tests/common/plugins/custom_skipif'
-        gh_token_path = os.path.join(rootdir, 'tests/common/plugins/custom_skipif', cred_tarfile_name)
-        try:
-            os.mkdir("/tmp/github_token")
-        except OSError as e:
-            # if already exists, that's fine
-            if not e.errno == errno.EEXIST:
-                logger.warning('Directory create error type: {}'.format(e.errno))
-                raise AssertionError(f"Problem in creating temporary directory: /tmp/github_token. \n{e}")
-        with tarfile.open(gh_token_path, "r:gz") as f:
-            f.extractall("/tmp/github_token")
-    with open('/tmp/github_token/credentials.yaml', 'r') as gb_token:
-        cred = yaml.load(gb_token, Loader=yaml.FullLoader).get(name)
-        return cred
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.description = "Please input the parameter of last merge date"
@@ -111,7 +82,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     default_last_merge_date = (datetime.datetime.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d")
     last_merge_date = args.last_merge_date if args.last_merge_date else default_last_merge_date
-    cred = get_cred()
+    cred = get_cred("GitHub")
     github_api = GitHubApi(cred.get('user'), cred.get('api_token'))
     print("\n-----------------------------PR opened by our team ---------------------------------------")
     github_api.get_pr_open_from_nvidia_verification_team()
