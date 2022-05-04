@@ -1,4 +1,8 @@
 ########## Community ##########
+platform_tests:
+  - Platform:
+    - simx
+
 # Autoneg
 platform_tests/test_auto_negotiation.py:
   - Platform:
@@ -903,6 +907,12 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_nexthop:
   - Redmine:
     - 3030870
+    Platform:
+    - simx
+
+tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_acl:
+  - Redmine:
+    - 3046459
     Platform:
     - simx
 
