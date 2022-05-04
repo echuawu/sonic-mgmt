@@ -979,7 +979,7 @@ def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
     expected_files_in_techsupport_list = []
     for date in syslogs_sorted:
         expected_files_in_techsupport_list.extend(syslogs_creation_date_dict[date])
-        if (current_time - date).seconds > since_value_in_seconds:
+        if (current_time - date).seconds > since_value_in_seconds and current_time > date:
             break
 
     expected_oldest_log_line_timestamps_list = []
