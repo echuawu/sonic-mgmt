@@ -1136,6 +1136,14 @@ drop_packets/test_wjh.py:
       - 202111
       - master
 
+drop_packets/test_drop_counters.py::test_equal_smac_dmac_drop:
+  - Redmine:
+    - 3061096
+
+drop_packets/test_drop_counters.py::test_multicast_smac_drop:
+  - Redmine:
+    - 3061096
+
 platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
   - Platform:
     - x86_64-nvidia_sn2201-r0
