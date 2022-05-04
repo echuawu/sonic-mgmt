@@ -64,12 +64,14 @@ def import_setup_to_noga(topology_dir_name, setup_name, setup_group):
     :param setup_name: the setup name in noga, e.g. SONiC_tigris_r-tigris-06
     :param setup_group: the group the setup belong to in Noga, i.e. SONiC_Canonical
     """
-    cmd = "/mswg/projects/swvt/Noga/import_mars_topology.sh -f {}/topology.xml -n {} -g" \
-          " Sagi -s {} -S MTR".format(topology_dir_name, setup_name, setup_group)
-    rc = os.system(cmd)
-    if rc:
-        logger.error('failed to import setup to Noga')
-        logger.error('CMD: {}'.format(cmd))
+    script_cmd = f"/mswg/projects/swvt/Noga/import_mars_topology.sh -f {topology_dir_name}/topology.xml " \
+                 f"-n {setup_name} -g Sagi -s {setup_group} -S MTR"
+    cmd = f"sshpass -p 3tango ssh -o 'StrictHostKeyChecking no' -t root@{STM_IP} '{script_cmd}'"
+    logger.info(f"CMD: {cmd}")
+    try:
+        subprocess.check_output(cmd, shell=True)
+    except Exception as e:
+        raise Exception(f"failed to import setup to Noga, error: {e}")
 
 
 def scp_file_to_stm(file_path):

@@ -428,10 +428,35 @@ class TopologyManager:
                                                                sonic_mgmt=self.setup_entities['sonic_mgmt'])
         new_setup_topology_file_path = os.path.join(self.sonic_topology_dir, 'topology.xml')
         create_file(new_setup_topology_file_path, sonic_topology_output, set_permission='666')
-        sonic_setup_template = get_xml_template('setup_template.txt')
+        setup_template_file = 'simx_setup_template.txt' if 'simx' in self.setup_name else 'setup_template.txt'
+        sonic_setup_template = get_xml_template(setup_template_file)
         sonic_setup_output = sonic_setup_template.render(hypervisor=self.setup_entities['sonic_mgmt'], tm=self, dut=self.dut)
         new_setup_file_path = os.path.join(self.sonic_setup_dir, '{}.setup'.format(self.setup_name))
         create_file(new_setup_file_path, sonic_setup_output, set_permission='666')
+        self.create_ci_build_setup_files()
+
+    def create_ci_build_setup_files(self):
+        if 'CI' in self.setup_name:
+            switch_entity = list(self.switches.values()).pop()
+            chip_type = switch_entity.chip_type
+            chip_type = "{}1".format(chip_type) if chip_type == 'SPC' else chip_type
+            ci_setup_template_file = 'ci_setup_template.txt'
+            release_setup_template_file = 'release_setup_template.txt'
+            if 'simx' in self.setup_name:
+                ci_setup_template_file = 'simx_ci_setup_template.txt'
+                release_setup_template_file = 'simx_release_setup_template.txt'
+            ci_sonic_setup_template = get_xml_template(ci_setup_template_file)
+            ci_sonic_setup_output = ci_sonic_setup_template.render(hypervisor=self.setup_entities['sonic_mgmt'],
+                                                                   tm=self, dut=self.dut)
+            new_setup_file_path = os.path.join(self.sonic_setup_dir, 'SONIC_{}_mini_mars_ci.setup'.format(chip_type))
+            create_file(new_setup_file_path, ci_sonic_setup_output, set_permission='666')
+            release_sonic_setup_template = get_xml_template(release_setup_template_file)
+            release_sonic_setup_output = \
+                release_sonic_setup_template.render(hypervisor=self.setup_entities['sonic_mgmt'],
+                                                    tm=self, dut=self.dut)
+            new_setup_file_path = os.path.join(self.sonic_setup_dir, 'SONIC_{}_mini_mars_release.setup'.format(chip_type))
+            create_file(new_setup_file_path, release_sonic_setup_output, set_permission='666')
+
 
     def creat_json_file_to_noga(self):
         self.collect_data_for_noga()
