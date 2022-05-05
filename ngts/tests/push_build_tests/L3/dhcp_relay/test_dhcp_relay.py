@@ -156,7 +156,8 @@ class TestDHCPRelay:
                                                                             'count': 1}}
                                                   ]
                                                   }
-                ScapyChecker(self.players, validation_decline_default_vrf).run_validation()
+                scapy_checker = ScapyChecker(self.players, validation_decline_default_vrf)
+                retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=5, logger=logger)
         except BaseException as err:
             raise AssertionError(err)
 
