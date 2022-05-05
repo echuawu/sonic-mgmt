@@ -9,9 +9,9 @@ from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
 from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
+from ngts.constants.constants import PlayeresAliases
 
 logger = logging.getLogger()
-DUTS = ['dut', 'dut-b']
 
 
 @pytest.mark.disable_loganalyzer
@@ -162,7 +162,7 @@ def get_info_from_topology(topology_obj, workspace_path):
 
     with allure.step("Create setup_info object"):
         for host in topology_obj.players:
-            if host in DUTS:
+            if host in PlayeresAliases.duts_list:
                 dut_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
                 dut_alias = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Description']
                 host_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']['hostname']
