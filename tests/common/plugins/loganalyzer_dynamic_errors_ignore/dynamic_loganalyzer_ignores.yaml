@@ -514,6 +514,7 @@
     - Affected_test_cases:
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       Redmine:
         - 2966714
       Branch:
