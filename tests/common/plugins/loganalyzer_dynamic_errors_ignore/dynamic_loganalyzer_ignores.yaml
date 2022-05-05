@@ -324,7 +324,7 @@
         - 2940773
 
 - Errors_list:
-    - '.*WARNING syncd#SDK: [HOST_INTERFACE.WARNING] Receive event of FW SOS*'
+    - '.*WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
