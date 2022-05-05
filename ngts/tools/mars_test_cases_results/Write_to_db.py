@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from .mars_data import SonicMarsData
 from .Connect_to_MSSQL import ConnectMSSQL
 from datetime import datetime
+import logging
+logger = logging.getLogger()
 
 
 class MarsConnectDB(ConnectMSSQL):
@@ -28,11 +30,14 @@ class MarsConnectDB(ConnectMSSQL):
         self.disconnect_db()
 
     def insert_session(self):
-
-        insert = r"INSERT INTO [dbo].[mars_respond]([session_id], [mars_key_id] ,[mars_name] ,[mars_result],[allure_url]) VALUES (" + \
+        insert = r"INSERT INTO [dbo].[mars_respond]([session_id], [mars_key_id] ,[mars_name] ,[mars_result],[allure_url], [skip_reason]) VALUES (" + \
                  str(self.data.session_id) + ", '" + self.data.mars_key_id + "', '" + self.data.name + "', '" + \
-                 self.data.result + "', '" + self.data.allure_url + "')"
-        self.query_insert(insert)
+                 self.data.result + "', '" + self.data.allure_url + "','" + self.data.skip_reason + "' )"
+        logger.info('Inserting: {} to MARS SQL DB'.format(insert))
+        try:
+            self.query_insert(insert)
+        except Exception as e:
+            logger.error(e)
 
     def clear_db(self):
         if self.conn is None:

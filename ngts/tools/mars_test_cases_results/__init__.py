@@ -14,6 +14,7 @@ MARS_KEY_ID = "mars_key_id"
 ALLURE_URL = "allure_url"
 NAME = "name"
 RESULT = "result"
+SKIP_REASON = "skip_reason"
 
 
 def pytest_addoption(parser):
@@ -40,12 +41,13 @@ def create_metadata_dir(session_id, cli_type):
     return folder_path
 
 
-def create_test_record(session_id, mars_key_id, test_name, result, allure_url):
+def create_test_record(session_id, mars_key_id, test_name, result, skipreason, allure_url):
     test_record = {}
     test_record.update({SESSION_ID: session_id})
     test_record.update({MARS_KEY_ID: mars_key_id})
     test_record.update({NAME: test_name})
     test_record.update({RESULT: result})
+    test_record.update({SKIP_REASON: skipreason})
     test_record.update({ALLURE_URL: allure_url})
     return test_record
 
@@ -74,12 +76,13 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     mars_key_id = config.cache.get(MARS_KEY_ID, None)
     cli_type = config.cache.get('CLI_TYPE', CliType.SONIC)
     if valid_tests_data(report_url, session_id, mars_key_id):
-        tests_results = parse_tests_results(terminalreporter)
+        tests_results, tests_skipreason = parse_tests_results(terminalreporter)
         for test_case_name, test_result in tests_results.items():
             json_obj.append(create_test_record(session_id,
                                                mars_key_id,
                                                test_case_name,
                                                test_result,
+                                               tests_skipreason[test_case_name],
                                                report_url))
         logger.debug("Tests results to be exported to SQL DB: {}".format(json_obj))
         dump_json_to_file(json_obj, session_id, mars_key_id, cli_type)
@@ -89,7 +92,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 def dump_json_to_file(json_obj, session_id, mars_key_id, cli_type):
     folder_path = create_metadata_dir(session_id, cli_type)
     json_file_path = os.path.join(folder_path, "{}_mars_sql_data.json".format(mars_key_id))
-    logger.info("Damp json test results to file")
+    logger.info("Dump json test results to file")
     with open(json_file_path, 'w') as f:
         json.dump(json_obj, f)
     logger.info("Result were saved at file: {}".format(json_file_path))
@@ -125,8 +128,37 @@ def parse_tests_results(terminalreporter):
     {'tests/push_build_tests/L2/fdb/test_fdb.py::test_push_gate_fdb': 'passed'}
     """
     tests_results = {}
+    tests_skipreason = {}
     stats_keys = ['skipped', 'passed', 'failed', 'error']
     for key in stats_keys:
         for test_obj in terminalreporter.stats.get(key, []):
-            tests_results.update({test_obj.nodeid: test_obj.outcome})
-    return tests_results
+            skipreason = ""
+            result = test_obj.outcome
+            if key == "skipped":
+                result, skipreason = get_skip_type_reason(test_obj)
+            tests_results.update({test_obj.nodeid: result})
+            tests_skipreason.update({test_obj.nodeid: skipreason})
+    return tests_results, tests_skipreason
+
+
+def get_skip_type_reason(test_obj):
+
+    skipped_flavors = {
+        "skipped_platform": "Test skipped due to Platform:",
+        "skipped_rm": "Test skipped due to Redmine:",
+        "skipped_branch": "Test skipped due to Branch:",
+        "skipped_github": "Test skipped due to GitHub:",
+        "skipped_topo": "test requires topology in Mark"
+    }
+    _, _, skipreason = test_obj.longrepr
+    logger.debug("The skip reason for {} is : {}".format(test_obj.nodeid, skipreason))
+    if skipreason.startswith("Skipped: "):
+        skipreason = skipreason[9:].replace("'", "")
+
+    skipped_type = test_obj.outcome
+    for skipped_flavor, skipreason_key in skipped_flavors.items():
+        if skipreason_key in skipreason:
+            skipped_type = skipped_flavor
+            break
+    logger.debug("The skip type for {} is : {}".format(test_obj.nodeid, skipped_type))
+    return skipped_type, str(skipreason)
