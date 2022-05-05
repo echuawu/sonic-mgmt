@@ -320,6 +320,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      - show_techsupport/test_techsupport.py::test_techsupport
       Redmine:
         - 2940773
 
