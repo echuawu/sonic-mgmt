@@ -1231,7 +1231,10 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::tes
 
 scripts/log_profiler/log_profiler.py:
   - Redmine:
-    - 2943264
+    - 3061352
+    Branch:
+    - master
+    - 202111
 
 tests/nightly/rj45/test_rj45.py:
   - Platform:
