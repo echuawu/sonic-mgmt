@@ -1102,6 +1102,16 @@ pfcwd/test_pfcwd_warm_reboot.py:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
 
+platform_tests/test_advanced_reboot.py::test_warm_reboot:
+  - Redmine:
+      - 3060946
+    Branch:
+      - master
+      - 202111
+    Platform:
+      - x86_64-mlnx_msn3700-r0
+      - x86_64-mlnx_msn3800-r0
+
 sflow/test_sflow.py::TestReboot::testWarmreboot:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/4817
