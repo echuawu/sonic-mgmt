@@ -2,7 +2,7 @@ import requests
 import argparse
 import datetime
 import logging
-from ngts.tools.infra.token_handler import get_cred
+from ngts.tools.token_handler.token_handler import get_cred
 BASE_URL = "https://api.github.com"
 BASE_PR_SEARCH_URL = "https://api.github.com/search/issues?q=type:pr + repo:Azure/sonic-mgmt"
 TEAM_MEMBERS = ['nhe-NV', 'ppikh', "JibinBao", "roysr-nv", "AntonHryshchuk", "ihorchekh", "slutati1536"]

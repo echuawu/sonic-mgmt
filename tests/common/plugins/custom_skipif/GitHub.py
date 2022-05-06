@@ -2,7 +2,7 @@ import requests
 import logging
 
 from CustomSkipIf import CustomSkipIf
-from ngts.tools.infra.token_handler import get_cred
+from ngts.tools.token_handler.token_handler import get_cred
 
 logger = logging.getLogger()
 

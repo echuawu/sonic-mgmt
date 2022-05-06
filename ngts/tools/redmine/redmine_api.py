@@ -1,5 +1,5 @@
 import requests
-from ngts.tools.infra.token_handler import get_cred
+from ngts.tools.token_handler.token_handler import get_cred
 
 INACTIVE_STATE = 'Closed'
 ROOT_ISSUE = 'root_issue'
