@@ -510,31 +510,15 @@ def apply_balancing_config(duthost, ptfhost, ptfadapter, define_sub_ports_config
 
 
 @pytest.fixture
-def reload_dut_config(request, duthost, define_sub_ports_configuration):
+def reload_dut_config(duthost):
     """
-    DUT's configuration reload on teardown
+    DUT's configuration reload on teardown for a single case
 
     Args:
-        request: pytest request object
         duthost: DUT host object
-        define_sub_ports_configuration: Dictonary of parameters for configuration DUT
     """
     yield
-    sub_ports = define_sub_ports_configuration['sub_ports']
-    dut_ports = define_sub_ports_configuration['dut_ports']
-    cfg_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
-    existing_sub_ports = cfg_facts.get("VLAN_SUB_INTERFACE", {})
-    for sub_port in sub_ports:
-        if sub_port in existing_sub_ports:
-            remove_sub_port(duthost, sub_port, sub_ports[sub_port]['ip'])
-
-    py_assert(check_sub_port(duthost, sub_ports.keys(), True), "Some sub-port were not deleted")
-
-    if 'port_in_lag' in request.node.name:
-        for lag_port in dut_ports.values():
-            remove_lag_port(duthost, cfg_facts, lag_port)
-
-    duthost.shell('sudo config load -y /etc/sonic/config_db.json')
+    config_reload(duthost, safe_reload=True)
 
 
 @pytest.fixture
@@ -574,4 +558,4 @@ def teardown_test_class(duthost):
         duthost: DUT host object
     """
     yield
-    config_reload(duthost)
+    config_reload(duthost, safe_reload=True)
