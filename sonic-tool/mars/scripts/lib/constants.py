@@ -29,6 +29,11 @@ SONIC_MGMT_MOUNTPOINTS = {
     '/.autodirect/sw_regression/system/NVOS/MARS': '/.autodirect/sw_regression/system/NVOS/MARS'
 }
 
+SONIC_MGMT_MOUNTPOINTS_MTBC = {
+    '/auto/sw_regression/mtbcsw/system/SONIC/MARS': '/auto/sw_regression/mtbcsw/system/SONIC/MARS',
+    '/.autodirect/sw_regression/mtbcsw/system/SONIC/MARS': '/.autodirect/sw_regression/mtbcsw/system/SONIC/MARS'
+}
+MTBC_SERVER_LIST = ['dev-r730-01', '10.75.206.120', 'dev-r730-02', '10.75.207.40', 'dev-r730-03', '10.75.207.5']
 VER_SDK_PATH = "/opt/ver_sdk"
 EXTRA_PACKAGE_PATH_LIST = ["/usr/lib64/python2.7/site-packages"]
 
