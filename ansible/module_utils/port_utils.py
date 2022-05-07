@@ -124,7 +124,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_id=None):
     elif (hwsku == "Mellanox-SN2700" or hwsku == "ACS-MSN2700") or \
          (hwsku == "ACS-MSN3700") or (hwsku == "ACS-MSN3700C") or \
          (hwsku == "ACS-MSN3800") or (hwsku == "Mellanox-SN3800-D112C8") or \
-         (hwsku == "ACS-MSN4700") or (hwsku == "ACS-MSN4600C") or (hwsku == "Mellanox-SN4600C-D112C8") or \
+         (hwsku == "ACS-MSN4700") or (hwsku == "ACS-MSN4600C") or (hwsku == "Mellanox-SN4600C-D112C8") or (hwsku == "Mellanox-SN4600C-C64") or \
          (hwsku == "ACS-MSN3420"):
         if hostname == "arc-switch1038":
             for i in range(1, 17):

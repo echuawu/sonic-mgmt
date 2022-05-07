@@ -19,7 +19,7 @@
       <Device Hostname="r-tigris-13" HwSku="Mellanox-SN3800-D112C8" Type="DevSonic"/>
       <Device Hostname="r-leopard-01" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-tigon-04" HwSku="Mellanox-SN4600C-D112C8" Type="DevSonic"/>
-      <Device Hostname="r-tigon-11" HwSku="ACS-MSN4600C" Type="DevSonic"/>
+      <Device Hostname="r-tigon-11" HwSku="Mellanox-SN4600C-C64" Type="DevSonic"/>
       <Device Hostname="r-tigon-20" HwSku="ACS-MSN4600C" Type="DevSonic"/>
       <Device Hostname="r-tigon-19" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1005" HwSku="MLNX-OS" Type="FanoutLeaf"/>
