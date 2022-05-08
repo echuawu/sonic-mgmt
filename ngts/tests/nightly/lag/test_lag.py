@@ -343,7 +343,6 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
     """
     try:
         dut_cli = topology_obj.players['dut']['cli']
-
         del_port_from_vlan(engines.dut, dut_cli, interfaces.dut_ha_1, '50', cleanup_list)
 
         chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
@@ -355,6 +354,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
         all_interfaces_with_same_type = interfaces_types_dict[test_ifaces_type]
         member_interfaces = random.sample(all_interfaces_with_same_type, min(max_lag_members,
                                                                              len(all_interfaces_with_same_type)))
+        lb_member_interfaces = get_lag_lb_members(interfaces, member_interfaces)
 
         with allure.step('Set same speed to all interfaces'):
             dut_orig_ifaces_speeds = dut_cli.interface.get_interfaces_speed(all_interfaces_with_same_type)
@@ -374,14 +374,20 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                 }
                 add_interface_conf(topology_obj, interfaces_config_dict, cleanup_list)
 
+        with allure.step('Disable all member loopback interfaces'):
+            dut_cli.interface.disable_interfaces(lb_member_interfaces)
+            cleanup_list.append((dut_cli.interface.enable_interfaces, (lb_member_interfaces,)))
+
         with allure.step('Create PortChannel with all ports as members'):
             lag_config_dict = {
                 'dut': [{'type': 'lacp', 'name': PORTCHANNEL_NAME, 'members': member_interfaces}]
             }
             add_lag_conf(topology_obj, lag_config_dict, cleanup_list)
 
-        with allure.step('Check that all interfaces in Up state'.format()):
-            retry_call(dut_cli.interface.check_ports_status, fargs=[member_interfaces], tries=20, delay=15,
+        with allure.step('Check that all interfaces in Up state'):
+            retry_call(dut_cli.interface.check_ports_status,
+                       fargs=[list(set(member_interfaces).difference(lb_member_interfaces))],
+                       tries=20, delay=15,
                        logger=logger)
 
         with allure.step('Validate members status in PortChannel'):
@@ -402,6 +408,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
                                                   tries=10)
         with allure.step('Validate dockers status'):
             dut_cli.general.verify_dockers_are_up()
+
     except BaseException as err:
         raise AssertionError(err)
 
@@ -472,6 +479,17 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
             )
     except BaseException as err:
         raise AssertionError(err)
+
+
+def get_lag_lb_members(interfaces, member_interfaces):
+    """
+    :param interfaces: host-dut/dut-host ports dict
+    :param member_interfaces: a list of lag member ports
+    :return: a list of lag members which are connected as loopback
+    """
+    dut_host_ifaces = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
+    lb_member_interfaces = list(set(member_interfaces).difference(dut_host_ifaces))
+    return lb_member_interfaces
 
 
 def get_lags_scale_configuration(number_of_lags):

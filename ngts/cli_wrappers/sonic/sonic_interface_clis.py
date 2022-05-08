@@ -46,6 +46,15 @@ class SonicInterfaceCli(InterfaceCliCommon):
         """
         return self.engine.run_cmd("sudo config interface shutdown {}".format(interface))
 
+    def disable_interfaces(self, interfaces_list):
+        """
+        This method disables a list of network interfaces
+        :param interfaces_list: a list of interfaces which should be disabled, example: ["Ethernet0", "Ethernet4"]
+        :return: none
+        """
+        for interface in interfaces_list:
+            self.disable_interface(interface)
+
     def set_interface_speed(self, interface, speed):
         """
         Method which setting interface speed
