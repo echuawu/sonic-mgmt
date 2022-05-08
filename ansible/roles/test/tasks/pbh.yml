@@ -1,0 +1,4 @@
+- name: run test
+  include_tasks: roles/test/tasks/pytest_runner.yml
+  vars:
+    test_node: ecmp/inner_hashing/test_inner_hashing.py

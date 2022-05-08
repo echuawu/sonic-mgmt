@@ -71,6 +71,10 @@ testcases:
       required_vars:
           ptf_host:
 
+    pbh:
+      filename: pbh.yml
+      topologies: [t0, t0-16, t0-52, t0-56, t0-64, t0-64-32, t0-116, t0-120]
+
     ecn_wred:
       filename: ecn_wred.yml
       topologies: [t0, t1, t1-lag]
