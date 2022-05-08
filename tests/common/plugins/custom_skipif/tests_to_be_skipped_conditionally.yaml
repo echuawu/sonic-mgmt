@@ -127,18 +127,17 @@ platform_tests/fwutil/test_fwutil.py:
     Redmine:
     - 3009789
 
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next:
+  - StaticReason:
+    - 'Test flow is covered by push gate with upgrade flow'
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
-  - Redmine:
-    - 3020849
   - Redmine:
     - 2382365
     Platform:
     - 2100
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
-  - Redmine:
-    - 3020849
   - Redmine:
     - 2382365
     Platform:
@@ -160,8 +159,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
   - Redmine:
-    - 3020849
-  - Redmine:
     - 2382365
     Platform:
     - 2100
@@ -169,14 +166,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
     - 2962311
     Platform:
     - 4600c
-
-platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next:
-  - Redmine:
-    - 3020849
-  - Redmine:
-    - 2382365
-    Platform:
-    - 2100
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
@@ -831,15 +820,6 @@ tests/nightly/lag/test_lag.py::test_lag_members_scale:
     - 2890871
     Platform:
     - 5600
-  - Redmine:
-    - 3028429
-    Platform:
-    - 3420
-    - 4600
-    Branch:
-    - 202012
-    - master
-    - 202111
 
 
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
