@@ -921,20 +921,19 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
 
-# Ignore test due to issue - "config load -y" will not apply DHCP and require reload all configuration
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
-  - Branch:
-    - master
-    Redmine:
-      - 2920544
-  - Branch:
-    - 202012
-    Redmine:
-      - 2934348
-  - Branch:
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_basic_dhcp6_relay:
+  - Redmine:
+    - 3065507
+    Branch:
     - 202111
-    GitHub:
-      - https://github.com/Azure/sonic-buildimage/issues/9679
+    - master
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
+  - Redmine:
+    - 3065507
+    Branch:
+    - 202111
+    - master
 
 # Ignore test due to issue - "config load -y" will not apply DHCP and require reload all configuration
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
@@ -957,14 +956,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     - master
     Redmine:
       - 2922412
-  - Branch:
-    - 202012
-    Redmine:
-      - 2934353
-  - Branch:
+  - Redmine:
+    - 3065507
+    Branch:
     - 202111
-    GitHub:
-      - https://github.com/Azure/sonic-buildimage/issues/9690
+    - master
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   - Redmine:
