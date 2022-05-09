@@ -827,6 +827,7 @@ tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
     - 3019434
     Branch:
     - 202111
+    - master
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
