@@ -519,6 +519,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.cli_obj.qos.start_buffermgrd()
             self.save_configuration()
 
+        with allure.step("Enable INFO logging on swss"):
+            self.enable_info_logging_on_docker(docker_name='swss')
+            self.save_configuration()
+
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
         self.engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path,
@@ -945,6 +949,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.engine.ip, username=DefaultCredentialConstants.OTHER_SONIC_USER, password=password)
             if self.is_dummy_command_succeed():
                 return engine
+
+    def enable_info_logging_on_docker(self, docker_name):
+        self.engine.run_cmd(f"{docker_name}loglevel -l INFO -a")
 
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
