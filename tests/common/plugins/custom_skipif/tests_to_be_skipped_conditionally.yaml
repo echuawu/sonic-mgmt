@@ -962,6 +962,8 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     Branch:
     - 202111
     - master
+  - Branch:
+    - 202012
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   - Redmine:
@@ -1075,6 +1077,7 @@ pfcwd/test_pfcwd_warm_reboot.py:
     Branch:
       - master
       - 202111
+      - 202012
     Platform:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
@@ -1085,6 +1088,7 @@ arp/test_wr_arp.py:
     Branch:
       - master
       - 202111
+      - 202012
     Platform:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
@@ -1095,6 +1099,7 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
     Branch:
       - master
       - 202111
+      - 202012
     Platform:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
@@ -1335,3 +1340,7 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
     - 3065836
     Branch:
       - master
+
+scripts/test_verify_fanout_version.py::test_verify_fanout_version:
+  - Redmine:
+    - 3058927
