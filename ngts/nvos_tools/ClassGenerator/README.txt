@@ -6,4 +6,4 @@ https://wikinox.mellanox.com/display/SW/NVOS+Verification+-+How+to+create+releva
 How to use:
      1. Save relevant yaml openApi definitions in partial.yaml file
      2. Run 'YamlToClassGenerator' script while the partial.yaml file located in the same directory
-     3. Classes that need to be defined can be found in python_classes.py file
+     3. Classes according to provided openAPI definition will be created in the relevant directories.
