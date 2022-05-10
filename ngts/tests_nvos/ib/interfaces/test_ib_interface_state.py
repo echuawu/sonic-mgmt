@@ -39,6 +39,8 @@ def test_ib_interface_state(engines):
 
     selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
 
+    selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_DOWN).verify_result()
+
     '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
                                                   field_name_in_db[DataBaseNames.CONFIG_DB],
                                                   expected_value=NvosConsts.LINK_STATE_DOWN,

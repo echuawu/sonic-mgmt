@@ -92,6 +92,7 @@ class RandomizationTool:
                 selected_port = random.choice(all_relevant_ports)
                 result_obj.returned_value.append(selected_port)
                 logging.info("selected port: {selected_port}".format(selected_port=selected_port.name))
+                allure.step("selected port: {selected_port}".format(selected_port=selected_port.name))
                 all_relevant_ports.remove(selected_port)
 
             result_obj.result = True
@@ -144,6 +145,7 @@ class RandomizationTool:
                 selected_value = random.choice(list_of_values_to_select_from)
                 result_obj.returned_value.append(selected_value)
                 logging.info("selected value: {selected_value}".format(selected_value=selected_value))
+                allure.step("selected value: {selected_value}".format(selected_value=selected_value))
                 list_of_values_to_select_from.remove(selected_value)
 
             result_obj.result = True

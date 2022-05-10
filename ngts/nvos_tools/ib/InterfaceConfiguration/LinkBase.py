@@ -45,7 +45,8 @@ class LinkBaseOperational(LinkBase, CmdBase):
         :param apply: true to apply configuration
         :return: ResultObj
         """
-        with allure.step('Set selected port ‘{field}‘ to ‘{value}’'.format(field=self.label, value=value)):
+        with allure.step('Set ‘{field}‘ to ‘{value}’ for {port_name}'.format(field=self.label, value=value,
+                                                                             port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
@@ -59,7 +60,7 @@ class LinkBaseOperational(LinkBase, CmdBase):
         :param apply: true to apply configuration
         :return: ResultObj
         """
-        with allure.step('Unset selected port ‘{field}‘'.format(field=self.label)):
+        with allure.step('Unset ‘{field}‘ for {port_name}'.format(field=self.label, port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
@@ -138,7 +139,7 @@ class State(LinkBaseOperational):
         Executes show interface
         :return: str output
         """
-        with allure.step('Execute show interface link'):
+        with allure.step('Execute show interface link for {port_name}'.format(port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 

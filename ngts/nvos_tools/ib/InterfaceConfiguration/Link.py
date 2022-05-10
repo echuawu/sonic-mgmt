@@ -120,7 +120,7 @@ class Link(ConfigurationBase):
         :param output_format: OutputFormat
         :return: str output
         """
-        with allure.step('Execute show interface link'):
+        with allure.step('Execute show interface link for {port_name}'.format(port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 

@@ -96,7 +96,7 @@ class Port:
 
                 if select_port:
                     port_list.append(Port(port_name, {}, ""))
-                    logging.info("get_list_of_ports - port {port_name} meets the requirements".format(port_name=port_name))
+                    logging.info("get_list_of_ports - {port_name} meets the requirements".format(port_name=port_name))
 
             return port_list
 
@@ -105,11 +105,12 @@ class Port:
         Execute "show" command and create the output dictionary for a specific port
         :param dut_engine: ssh engine
         """
-        with allure.step('Execute "show" command and create the output dictionary for a specific port'):
+        with allure.step('Execute "show" command and create the output dictionary for {port_name}'.format(
+                port_name=self.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            logging.info("Updating output dictionary of '{port_name}' port".format(port_name=self.name))
+            logging.info("Updating output dictionary of '{port_name}'".format(port_name=self.name))
             self.show_output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
                 Port.show_interface(dut_engine, self.name)).get_returned_value()
 
@@ -122,11 +123,11 @@ class Port:
         :param dut_engine: ssh engine
         :return: str/json output
         """
-        with allure.step('Execute show interface'):
+        with allure.step('Execute show interface for {port_names}'.format(port_names=port_names)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            logging.info("Executing show interface")
+            logging.info("Executing show interface for {port_names}".format(port_names=port_names))
             return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
                                                                   port_name=port_names,
                                                                   output_format=output_format)

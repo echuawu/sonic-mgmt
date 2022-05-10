@@ -27,8 +27,10 @@ class IbInterface:
         self.link = Link(port_obj)
 
     def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT):
-        with allure.step("Wait for port '{port}' to reach state '{state}' (timeout: {timeout})".format(
+        with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
                 port=self.port_obj.name, state=state, timeout=timeout)):
+            logger.info("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
+                port=self.port_obj.name, state=state, timeout=timeout))
             if not engine:
                 engine = TestToolkit.engines.dut
 
@@ -38,9 +40,11 @@ class IbInterface:
                 timer -= 2
 
             if self.port_obj.ib_interface.link.state.get_operational(engine) == state:
-                return ResultObj(True, "port '{port}' successfully reached state '{state}'".format(
+                logger.info("'{port}' successfully reached state '{state}'".format(
+                    port=self.port_obj.name, state=state))
+                return ResultObj(True, "'{port}' successfully reached state '{state}'".format(
                                  port=self.port_obj.name, state=state))
 
             if timer <= 0:
-                return ResultObj(False, "Timeout occurred while waiting for port '{port}' to reach state 'state'".format(
+                return ResultObj(False, "Timeout occurred while waiting for '{port}' to reach state 'state'".format(
                                  port=self.port_obj.name, state=state))

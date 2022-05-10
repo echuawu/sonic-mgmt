@@ -49,7 +49,7 @@ class Stats(ConfigurationBase):
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
 
-        with allure.step('Clear stats'):
+        with allure.step('Clear stats for {port_name}'.format(port_name=self.port_obj.name)):
             return SendCommandTool.execute_command(ApiObject[TestToolkit.api_ib].clear_stats,
                                                    dut_engine, self.port_obj.name)
 
@@ -60,7 +60,7 @@ class Stats(ConfigurationBase):
         :param output_format: OutputFormat
         :return: str output
         """
-        with allure.step('Execute show interface stats'):
+        with allure.step('Execute show interface stats for {port_name}'.format(port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
