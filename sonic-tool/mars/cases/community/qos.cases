@@ -6,6 +6,28 @@
             <!--Must be the test case name in sonic-mgmt/ansible/roles/test/vars/testcases.yml-->
             <name> qos_sai </name>
             <owner> </owner>
+            <pre>
+                <type> reg_exec_func </type>
+                <name> work around: Disable counterpoll </name>
+                <mars_cmd_func> run_on_stm </mars_cmd_func>
+                <ignore_pre_fail> True </ignore_pre_fail>
+                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
+                <tout> 300 </tout>
+                <params>
+                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/change_counterpoll_status.py </cmd>
+                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --setup-name [[conf:extra_info.setup_name]]  --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --counterpoll-action disable </cmd_params>
+                </params>
+            </pre>
+			<post>
+                <type> reg_exec_func </type>
+                <name> work around: Disable counterpoll  </name>
+                <mars_cmd_func> run_on_stm </mars_cmd_func>
+                <tout> 300 </tout>
+                <params>
+                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/change_counterpoll_status.py </cmd>
+                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --counterpoll-action enable </cmd_params>
+                </params>
+            </post>
         </Test>
         <Case>
             <tags> QOS </tags>
