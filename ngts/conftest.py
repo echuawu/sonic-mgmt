@@ -257,6 +257,12 @@ def sonic_branch(topology_obj):
 
 
 @pytest.fixture(scope='session')
+def is_sanitizer_image(topology_obj):
+    update_sanitizer_in_topology(topology_obj)
+    return topology_obj.players['dut']['sanitizer']
+
+
+@pytest.fixture(scope='session')
 def platform_params(show_platform_summary, setup_name):
     """
     Method for getting all platform related data

@@ -16,6 +16,7 @@ from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.constants.constants import PytestConst
 
 logger = logging.getLogger()
+RAM_USAGE_ASAN_COEFFICIENT = 4
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -159,7 +160,7 @@ def expected_cpu_usage_dict(platform, sonic_branch):
 
 
 @pytest.fixture(scope='session')
-def expected_ram_usage_dict(platform, sonic_branch):
+def expected_ram_usage_dict(platform, sonic_branch, is_sanitizer_image):
     """
     Pytest fixture which used to return the expected ram usage dictionary
     :param platform: platform fixture
@@ -167,7 +168,8 @@ def expected_ram_usage_dict(platform, sonic_branch):
     :return: expected ram usage dictionary
     """
     expected_ram_usage_file = "expected_ram_usage.yaml"
-    return get_expected_cpu_or_ram_usage_dict(expected_ram_usage_file, sonic_branch, platform)
+    return get_expected_cpu_or_ram_usage_dict(expected_ram_usage_file, sonic_branch,
+                                              platform, is_sanitizer_image)
 
 
 @pytest.fixture(scope='session')
@@ -180,12 +182,14 @@ def platform(platform_params):
     return platform_params.hwsku.split('-')[platform_index]
 
 
-def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_branch, platform):
+def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_branch, platform,
+                                       is_sanitizer_image=False):
     """
     Get the expected cpu or ram usage dictionary
     :param expected_cpu_or_ram_usage_file: yaml file name
     :param sonic_branch: sonic branch
     :param platform: platform
+    :param is_sanitizer_image: True if dut has a asan image, False otherwise
     :return: expected cpu or ram usage dictionary
     """
     file_folder = "push_build_tests/system/"
@@ -196,4 +200,20 @@ def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_bra
     default_branch = "master"
     branch = sonic_branch if sonic_branch in expected_cpu_or_ram_usage_dict.keys() else default_branch
     expected_cpu_or_ram_usage_dict = expected_cpu_or_ram_usage_dict[branch][platform]
+    update_ram_usage_for_sanitizer_image(expected_cpu_or_ram_usage_file, is_sanitizer_image,
+                                         expected_cpu_or_ram_usage_dict)
     return expected_cpu_or_ram_usage_dict
+
+
+def update_ram_usage_for_sanitizer_image(expected_cpu_or_ram_usage_file,
+                                         is_sanitizer_image, expected_cpu_or_ram_usage_dict):
+    """
+    RAM usage for syncd on asan image is expected to be higher, that's why
+    the fix is to update the threshold for syncd if it's a sanitizer image.
+    :param expected_cpu_or_ram_usage_file: i.e, "expected_ram_usage.yaml" or "expected_cpu_usage.yaml"
+    :param is_sanitizer_image: True if dut has a sanitizer image, else False
+    :param expected_cpu_or_ram_usage_dict: a dictinart with expected ram usage/ cpu usage
+    :return: none
+    """
+    if is_sanitizer_image and expected_cpu_or_ram_usage_file == "expected_ram_usage.yaml":
+        expected_cpu_or_ram_usage_dict['syncd'] *= RAM_USAGE_ASAN_COEFFICIENT
