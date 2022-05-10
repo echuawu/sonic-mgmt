@@ -1079,6 +1079,16 @@ pfcwd/test_pfcwd_warm_reboot.py:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
 
+arp/test_wr_arp.py:
+  - Redmine:
+      - 3060946
+    Branch:
+      - master
+      - 202111
+    Platform:
+      - x86_64-mlnx_msn3700-r0
+      - x86_64-mlnx_msn3800-r0
+
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   - Redmine:
       - 3060946
