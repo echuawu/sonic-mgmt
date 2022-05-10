@@ -1222,6 +1222,11 @@ scripts/log_profiler/log_profiler.py:
     Branch:
     - master
     - 202111
+  - Branch:
+    - 202012
+    Redmine:
+    - 3067418
+    - 3067432
 
 tests/nightly/rj45/test_rj45.py:
   - Platform:
