@@ -367,6 +367,8 @@
       - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       - ecmp/inner_hashing/test_wr_inner_hashing.py
       - autorestart/test_container_autorestart.py
+      - copp/test_copp.py::TestCOPP::test_no_policer
+      - copp/test_copp.py::TestCOPP::test_policer
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[\d+\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
@@ -384,6 +386,8 @@
       - system_health/test_system_health.py
       - autorestart/test_container_autorestart.py
       - dhcp_relay/test_dhcp_relay.py::test_interface_binding
+      - copp/test_copp.py::TestCOPP::test_no_policer
+      - copp/test_copp.py::TestCOPP::test_policer
       Branch:
         - 202012
 
@@ -404,6 +408,8 @@
       - ecmp/inner_hashing/test_wr_inner_hashing.py
       - autorestart/test_container_autorestart.py
       - dhcp_relay/test_dhcp_relay.py::test_interface_binding
+      - copp/test_copp.py::TestCOPP::test_no_policer
+      - copp/test_copp.py::TestCOPP::test_policer
       Redmine:
         - 2619129
 
