@@ -222,6 +222,8 @@ class SonicInstallationSteps:
                     SonicInstallationSteps.install_app_extension_sonic(dut_name=dut['dut_name'], setup_name=setup_name,
                                                                        additional_apps=additional_apps,
                                                                        ansible_path=ansible_path)
+        for dut in setup_info['duts']:
+            SonicInstallationSteps.enable_info_logging(cli=dut['cli_obj'])
 
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,
@@ -356,6 +358,17 @@ class SonicInstallationSteps:
                                                                         setup_name=setup_name,
                                                                         app_extension_dict_path=app_extension_dict_path,
                                                                         dut_name=dut_name)
+
+    @staticmethod
+    def enable_info_logging(cli):
+        """
+        This method will enable INFO logging on swss and will save configuration.
+        :param cli : SONIC cli object
+        :return: none
+        """
+        with allure.step("Enable INFO logging on swss"):
+            cli.enable_info_logging_on_docker(docker_name='swss')
+            cli.save_configuration()
 
 
 def is_community(sonic_topo):
