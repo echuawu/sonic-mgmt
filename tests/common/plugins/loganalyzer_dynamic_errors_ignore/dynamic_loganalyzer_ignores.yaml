@@ -790,3 +790,12 @@
       - platform_tests/test_platform_info.py::test_show_platform_temperature_mocked
       Redmine:
       - 3058264
+
+- Errors_list:
+    - '.* ERR syncd#SDK:.*command \d+ not found in api_cmd_db.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
+      Redmine:
+      - 3068928
+
