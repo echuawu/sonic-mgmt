@@ -16,7 +16,8 @@ from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.constants.constants import PytestConst
 
 logger = logging.getLogger()
-RAM_USAGE_ASAN_COEFFICIENT = 4
+RAM_SYNCD_USAGE_ASAN_COEFFICIENT = 4
+CPU_SDK_USAGE_SIMX_COEFFICIENT = 3
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -148,15 +149,18 @@ def run_cleanup_only(request):
 
 
 @pytest.fixture(scope='session')
-def expected_cpu_usage_dict(platform, sonic_branch):
+def expected_cpu_usage_dict(platform, sonic_branch, is_simx, chip_type):
     """
     Pytest fixture which used to return the expected cpu usage dictionary
     :param platform: platform fixture
     :param sonic_branch: sonic branch fixture
+    :param is_simx: True if dut is a simx switch, else False
+    :param chip_type: dut chip type
     :return: expected cpu usage dictionary
     """
     expected_cpu_usage_file = "expected_cpu_usage.yaml"
-    return get_expected_cpu_or_ram_usage_dict(expected_cpu_usage_file, sonic_branch, platform)
+    return get_expected_cpu_or_ram_usage_dict(expected_cpu_usage_file, sonic_branch, platform,
+                                              is_simx=is_simx, chip_type=chip_type)
 
 
 @pytest.fixture(scope='session')
@@ -165,11 +169,12 @@ def expected_ram_usage_dict(platform, sonic_branch, is_sanitizer_image):
     Pytest fixture which used to return the expected ram usage dictionary
     :param platform: platform fixture
     :param sonic_branch: sonic branch fixture
+    :param is_sanitizer_image: True if dut has a sanitizer image, else False
     :return: expected ram usage dictionary
     """
     expected_ram_usage_file = "expected_ram_usage.yaml"
     return get_expected_cpu_or_ram_usage_dict(expected_ram_usage_file, sonic_branch,
-                                              platform, is_sanitizer_image)
+                                              platform, is_sanitizer_image=is_sanitizer_image)
 
 
 @pytest.fixture(scope='session')
@@ -183,13 +188,15 @@ def platform(platform_params):
 
 
 def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_branch, platform,
-                                       is_sanitizer_image=False):
+                                       is_sanitizer_image=False, is_simx=False, chip_type=None):
     """
     Get the expected cpu or ram usage dictionary
     :param expected_cpu_or_ram_usage_file: yaml file name
     :param sonic_branch: sonic branch
     :param platform: platform
     :param is_sanitizer_image: True if dut has a asan image, False otherwise
+    :param is_simx: True if dut is a simx switch, else False
+    :param chip_type: dut chip type
     :return: expected cpu or ram usage dictionary
     """
     file_folder = "push_build_tests/system/"
@@ -202,6 +209,8 @@ def get_expected_cpu_or_ram_usage_dict(expected_cpu_or_ram_usage_file, sonic_bra
     expected_cpu_or_ram_usage_dict = expected_cpu_or_ram_usage_dict[branch][platform]
     update_ram_usage_for_sanitizer_image(expected_cpu_or_ram_usage_file, is_sanitizer_image,
                                          expected_cpu_or_ram_usage_dict)
+    update_cpu_usage_for_simx(expected_cpu_or_ram_usage_file, is_simx,
+                              chip_type, expected_cpu_or_ram_usage_dict)
     return expected_cpu_or_ram_usage_dict
 
 
@@ -216,4 +225,18 @@ def update_ram_usage_for_sanitizer_image(expected_cpu_or_ram_usage_file,
     :return: none
     """
     if is_sanitizer_image and expected_cpu_or_ram_usage_file == "expected_ram_usage.yaml":
-        expected_cpu_or_ram_usage_dict['syncd'] *= RAM_USAGE_ASAN_COEFFICIENT
+        expected_cpu_or_ram_usage_dict['syncd'] *= RAM_SYNCD_USAGE_ASAN_COEFFICIENT
+
+
+def update_cpu_usage_for_simx(expected_cpu_or_ram_usage_file, is_simx, chip_type, expected_cpu_or_ram_usage_dict):
+    """
+    CPU usage for sx_sdk on SIMX spc3 setups is expected to be higher, that's why
+    the fix is to update the threshold for sx_sdk if it's a simx and SPC3.
+    :param expected_cpu_or_ram_usage_file: i.e, "expected_ram_usage.yaml" or "expected_cpu_usage.yaml"
+    :param is_simx: True if dut is a simx switch, else False
+    :param chip_type: dut chip type
+    :param expected_cpu_or_ram_usage_dict: a dictinart with expected ram usage/ cpu usage
+    :return: none
+    """
+    if is_simx and expected_cpu_or_ram_usage_file == "expected_cpu_usage.yaml" and chip_type == 'SPC3':
+        expected_cpu_or_ram_usage_dict['sx_sdk'] *= CPU_SDK_USAGE_SIMX_COEFFICIENT
