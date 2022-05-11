@@ -1,9 +1,9 @@
 import allure
 import logging
 import pytest
+from retry import retry
 
 from ngts.constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.nvos_tools.infra.DatabaseReaderTool import DatabaseReaderTool
 from ngts.nvos_tools.database.database import Database
 logger = logging.getLogger()
 
@@ -61,11 +61,19 @@ def test_existence_of_tables_in_databases(engines):
                    Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONIFG_DB_TABLES_DICT)]
 
         for database_obj in storage:
-            res_obj = database_obj.verify_num_of_tables_in_database(engines.dut)
-            if not res_obj.result:
-                logger.error(res_obj.info)
+            try:
+                validate_database_tables(engines, database_obj)
+            except Exception:
                 err_flag = False
+
         assert err_flag, "one or more default tables are missing"
+
+
+@retry(Exception, tries=3, delay=5)
+def validate_database_tables(engines, database_obj):
+    res_obj = database_obj.verify_num_of_tables_in_database(engines.dut)
+    assert res_obj.result, res_obj.info
+    return True
 
 
 @pytest.mark.init_flow

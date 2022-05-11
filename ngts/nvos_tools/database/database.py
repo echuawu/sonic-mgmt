@@ -7,7 +7,7 @@ logger = logging.getLogger()
 
 
 class Database:
-    def __init__(self, name, id, tables):
+    def __init__(self, name, id, tables=None):
         self.name = name
         self.id = id
         self.tables = tables
@@ -23,8 +23,10 @@ class Database:
             output = DatabaseReaderTool.get_all_table_names_in_database(dut_engine, self.name, table_name).returned_value
             if len(output) not in num_of_tables:
                 result_obj.result = False
-                result_obj.info += "in {database_name} one or more tables are missing with prefix {table_name}\n" \
-                    .format(database_name=self.name, table_name=table_name)
+                result_obj.info += "tables that contains {table_name} in {database_name} are {value} not " \
+                                   "{expected_value} as expected".format(database_name=self.name, table_name=table_name,
+                                                                         value=len(output),
+                                                                         expected_value=num_of_tables)
         return result_obj
 
     def verify_filed_value_in_all_tables(self, dut_engine, table_name_substring, field_name, expected_value):
