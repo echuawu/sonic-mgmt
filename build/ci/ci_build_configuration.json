@@ -9,7 +9,8 @@
     "build_propertiesFile=build/common/build.properties",
     "PIPELINE_FORCE_CLEAN=true",
     "PRIORITY_NUMBER=4",
-    "TARBALL_NAME=SONIC_MGMT_TAR.db.1.tgz"
+    "TARBALL_NAME=SONIC_MGMT_TAR.db.1.tgz",
+    "OFFICIAL_TESTS=CI_TESTS"
   ],
   "phases": [
     {
@@ -173,6 +174,23 @@
           "out_of_mail": true
         },
         {
+          "name": "Allocate setup QTM",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@QTM",
+          "parameters": {
+            "queue_id": "devops_nvos_ci_qtm",
+            "priority": "1",
+            "setup_type": "CI_NVOS_QTM",
+            "setup_var": "CI_NVOS_QTM_SETUP",
+            "device_var": "SWITCH_JAGUAR",
+            "setup_requirements": "group_name:Sagi,sub_group:CI,setup_status:enable"
+          },
+          "skip": "${SKIP_NVOS_BAT}",
+          "on_failure": "stop",
+          "out_of_mail": true
+        },
+        {
           "name": "BAT Community SPC",
           "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
           "category": "BAT",
@@ -248,6 +266,25 @@
           "out_of_mail": false
         },
         {
+          "name": "BAT QTM",
+          "module": "/auto/sw_system_release/ci/nos/nvos/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@QTM",
+          "parameters": {
+            "matrix_row": "IB",
+            "matrix_col": "QTM",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_NVOS_QTM_SETUP}",
+            "setup_conf_file_path": "/auto/sysgwork/G/MARS_conf/stm_10_7_225_113/setups/${CI_NVOS_QTM_SETUP}/",
+            "target_version": "${NVOS_BIN}",
+            "base_version": "${NVOS_BIN}",
+            "custom_tarball_name": "${nfs_dir}/${TARBALL_NAME}"
+          },
+          "skip": "${SKIP_NVOS_BAT}",
+          "on_failure": "stop",
+          "out_of_mail": false
+        },
+        {
           "name": "Free community setup",
           "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
           "category": "Clean",
@@ -293,6 +330,19 @@
           "node": "MINI_MARS@SPC3",
           "parameters": {
             "setup_name": "${CI_SONIC_SPC3_SETUP}"
+          },
+          "skip": false,
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
+          "name": "Free QTM setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@QTM",
+          "parameters": {
+            "setup_name": "${CI_NVOS_QTM_SETUP}"
           },
           "skip": false,
           "finally": true,

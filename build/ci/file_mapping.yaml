@@ -1,4 +1,11 @@
-BAT_ONLY:
+COMMON_BAT_ONLY:
   - tests/platform_tests
   - ngts
+
+NVOS_BAT_ONLY:
+  - nvos-tools
+  - ngts/tests_nvos
+
+SONIC_BAT_ONLY:
+  - ngts/tests
   - sonic-tool

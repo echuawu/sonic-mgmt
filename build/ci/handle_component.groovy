@@ -14,6 +14,14 @@ def run_step(name, ci_tools) {
             ci_tools.insert_test_result_to_matrix(name, "ETH Community", "SPC", "Skipped=status")
 
         }
+
+        if (env.GERRIT_BRANCH == "develop" && env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") || env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") )){
+            print "'NVOS' related files were changed. Will run NVOS BAT."
+            env.NVOS_BIN = "/auto/sw_system_release/nos/nvos/lastrc_master/images/nvos.bin"
+        } else {
+            env.SKIP_NVOS_BAT = true
+            ci_tools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
+        }
         return true
     }
     catch (Throwable exc) {
