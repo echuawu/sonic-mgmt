@@ -51,6 +51,10 @@
     </test>
 
     <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_slb.cases </cases>
+    </test>
+
+    <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_multipath_relax.cases </cases>
     </test>
 
