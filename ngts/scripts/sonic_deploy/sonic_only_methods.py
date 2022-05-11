@@ -223,6 +223,8 @@ class SonicInstallationSteps:
                                                                        additional_apps=additional_apps,
                                                                        ansible_path=ansible_path)
         for dut in setup_info['duts']:
+            # Disconnect ssh connection, prevent "Socket is closed" in case when previous steps did reboot
+            topology_obj.players[dut['dut_alias']]['engine'].disconnect()
             SonicInstallationSteps.enable_info_logging(cli=dut['cli_obj'])
 
     @staticmethod
