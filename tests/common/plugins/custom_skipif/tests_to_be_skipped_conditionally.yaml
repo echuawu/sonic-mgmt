@@ -59,33 +59,6 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     - msn3
     - msn4
 
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_used_ecmp_next_hop:
-  - Redmine:
-    - 2979736
-    Branch:
-    - master
-    - 202111
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_unused_ecmp_next_hop:
-  - Redmine:
-    - 2979736
-    Branch:
-    - master
-    - 202111
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_neighbor_mac_change:
-  - Redmine:
-    - 2979736
-    Branch:
-    - master
-    - 202111
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_basic_forwarding:
-  - Redmine:
-    - 2979736
-    Branch:
-    - master
-    - 202111
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
