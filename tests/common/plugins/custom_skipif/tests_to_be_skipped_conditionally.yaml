@@ -1202,12 +1202,6 @@ tests/nightly/app_extension:
   - Redmine:
     - 2984113
 
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
-  - Redmine:
-    - 3002304
-    Platform:
-    - msn2410
-
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_hdd_usage:
   - Platform:
     - x86_64-mlnx_msn4600c-r0
