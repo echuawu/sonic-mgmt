@@ -35,7 +35,7 @@ class Link(ConfigurationBase):
                                    field_name_in_db={},
                                    output_hierarchy=IbInterfaceConsts.LINK)
 
-        Link.logical_port_state = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_LOGICAL_PORT_STATE,
+        self.logical_port_state = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_LOGICAL_PORT_STATE,
                                            description='The state shows if the HCA port is up, ' +
                                                        'and if it\'s been discovered by the subnet manager',
                                            field_name_in_db={},
@@ -43,75 +43,75 @@ class Link(ConfigurationBase):
                                                level1=IbInterfaceConsts.LINK,
                                                level2=IbInterfaceConsts.LINK_LOGICAL_PORT_STATE))
 
-        Link.physical_port_state = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE,
+        self.physical_port_state = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE,
                                             description="The state of the cable",
                                             field_name_in_db={},
                                             output_hierarchy="{level1} {level2}".format(
                                                         level1=IbInterfaceConsts.LINK,
                                                         level2=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE))
 
-        Link.state = State(port_obj=port_obj)
+        self.state = State(port_obj=self.port_obj)
 
-        Link.breakout = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_BREAKOUT,
+        self.breakout = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_BREAKOUT,
                                  description="sub-divide or disable ports (only valid on plug interfaces)",
                                  field_name_in_db={},
                                  output_hierarchy="{level1} {level2}".format(
                                      level1=IbInterfaceConsts.LINK,
                                      level2=IbInterfaceConsts.LINK_BREAKOUT))
 
-        Link.ib_speed = IbSpeed(port_obj=port_obj)
+        self.ib_speed = IbSpeed(port_obj=self.port_obj)
 
-        Link.supported_ib_speeds = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS,
+        self.supported_ib_speeds = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS,
                                             description="interface infiniband negotiation speeds",
                                             field_name_in_db={},
                                             output_hierarchy="{level1} {level2}".format(
                                                 level1=IbInterfaceConsts.LINK,
                                                 level2=IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS))
 
-        Link.speed = Speed(port_obj=port_obj)
+        self.speed = Speed(port_obj=self.port_obj)
 
-        Link.supported_speeds = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_SUPPORTED_SPEEDS,
+        self.supported_speeds = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_SUPPORTED_SPEEDS,
                                          description="interface negotiation speeds",
                                          field_name_in_db={},
                                          output_hierarchy="{level1} {level2}".format(
                                              level1=IbInterfaceConsts.LINK,
                                              level2=IbInterfaceConsts.LINK_SUPPORTED_SPEEDS))
 
-        Link.supported_lanes = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_SUPPORTED_LANES,
+        self.supported_lanes = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_SUPPORTED_LANES,
                                         description="interface configured lanes",
                                         field_name_in_db={},
                                         output_hierarchy="{level1} {level2}".format(
                                             level1=IbInterfaceConsts.LINK,
                                             level2=IbInterfaceConsts.LINK_SUPPORTED_LANES))
 
-        Link.lanes = Lanes(port_obj=port_obj)
+        self.lanes = Lanes(port_obj=self.port_obj)
 
-        Link.max_supported_mtu = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU,
+        self.max_supported_mtu = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU,
                                           description="interface max mtu",
                                           field_name_in_db={},
                                           output_hierarchy="{level1} {level2}".format(
                                               level1=IbInterfaceConsts.LINK,
                                               level2=IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU))
 
-        Link.mtu = Mtu(port_obj=port_obj)
+        self.mtu = Mtu(port_obj=self.port_obj)
 
-        Link.vl_admin_capabilities = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_VL_ADMIN_CAPABILITIES,
+        self.vl_admin_capabilities = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_VL_ADMIN_CAPABILITIES,
                                               description="interface configured VL",
                                               field_name_in_db={},
                                               output_hierarchy="{level1} {level2}".format(
                                                   level1=IbInterfaceConsts.LINK,
                                                   level2=IbInterfaceConsts.LINK_VL_ADMIN_CAPABILITIES))
 
-        Link.operational_vls = OpVls(port_obj=port_obj)
+        self.operational_vls = OpVls(port_obj=self.port_obj)
 
-        Link.ib_subnet = LinkBase(port_obj=port_obj, label=IbInterfaceConsts.LINK_IB_SUBNET,
+        self.ib_subnet = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_IB_SUBNET,
                                   description="interface infiniband subnet",
                                   field_name_in_db={},
                                   output_hierarchy="{level1} {level2}".format(
                                       level1=IbInterfaceConsts.LINK,
                                       level2=IbInterfaceConsts.LINK_IB_SUBNET))
 
-        Link.stats = Stats(port_obj=port_obj)
+        self.stats = Stats(port_obj=self.port_obj)
 
     def show_interface_link(self, dut_engine=None, output_format=OutputFormat.json):
         """

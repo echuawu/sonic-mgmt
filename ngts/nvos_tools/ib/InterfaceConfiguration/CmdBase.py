@@ -31,10 +31,11 @@ class CmdBase:
             logging.error("{field_name} value to set is empty".format(field_name=field_name))
             return ResultObj(False, "{field_name} value is empty", None, IssueType.TestIssue)
 
-        logging.info("setting {field_name} to: '{value}' using {api} API".format(value=value, field_name=field_name,
-                                                                                 api=TestToolkit.
-                                                                                 api_str[TestToolkit.api_ib]))
-        with allure.step("setting {field_name} to: '{value}'".format(value=value, field_name=field_name)):
+        logging.info("setting '{field_name}' of '{port_name}' to: '{value}' using {api}".format(
+            value=value, field_name=field_name, api=TestToolkit.api_str[TestToolkit.api_ib], port_name=port_name))
+        with allure.step("setting '{field_name}' of '{port_name}' to: '{value}'".format(value=value,
+                                                                                        field_name=field_name,
+                                                                                        port_name=port_name)):
             result_obj = SendCommandTool.execute_command(ApiObject[TestToolkit.api_ib].set_interface,
                                                          engine, port_name,
                                                          output_hierarchy, value)
@@ -48,9 +49,10 @@ class CmdBase:
 
     @staticmethod
     def unset_interface(engine, port_name, field_name, output_hierarchy, apply=True):
-        logging.info("un-setting {field_name} using {api} API".format(field_name=field_name,
-                                                                      api=TestToolkit.api_str[TestToolkit.api_ib]))
-        with allure.step("un-setting {field_name}".format(field_name=field_name)):
+        logging.info("un-setting '{field_name}' of '{port_name}' using {api}".format(
+            field_name=field_name, api=TestToolkit.api_str[TestToolkit.api_ib], port_name=port_name))
+        with allure.step("un-setting '{field_name}' for '{port_name}'".format(field_name=field_name,
+                                                                              port_name=port_name)):
             result_obj = SendCommandTool.execute_command(ApiObject[TestToolkit.api_ib].unset_interface,
                                                          engine, port_name, output_hierarchy)
 

@@ -1,5 +1,5 @@
 import logging
-from .ResultObj import ResultObj
+from .ResultObj import ResultObj, IssueType
 from .DatabaseReaderTool import DatabaseReaderTool
 import allure
 
@@ -19,7 +19,7 @@ class ValidationTool:
         """
         with allure.step('Verify `{str}` {can} be found in provided output str'.format(str=str_to_search_for,
                                                                                        can="can" if should_be_found else "can't")):
-            result_obj = ResultObj(True, "")
+            result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
             if not show_cmd_output or not str_to_search_for:
                 result_obj.result = False
                 result_obj.info = "Invalid input"
@@ -50,7 +50,7 @@ class ValidationTool:
         """
         with allure.step('Verify field `{field}` {exist} in json output'.format(field=keys_to_search_for,
                                                                                 exist="exists" if should_be_found else "doesn't exist")):
-            result_obj = ResultObj(True, "")
+            result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
             if not json_output or not keys_to_search_for or len(keys_to_search_for) == 0:
                 result_obj.result = False
                 result_obj.info = "Invalid input"
@@ -87,7 +87,7 @@ class ValidationTool:
         """
         with allure.step('Verify the value of {field} is {no}equal to {expected} as expected'.format(
                          field=field_name, expected=expected_value, no="" if should_be_equal else "not ")):
-            result_obj = ResultObj(True, "")
+            result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
             if field_name not in output_dictionary.keys():
                 result_obj.result = False
                 result_obj.info = "Field {field_name} can't be found".format(field_name=field_name)
@@ -128,7 +128,7 @@ class ValidationTool:
                 return result_obj
 
             value_in_database = result_obj.returned_value
-            result_obj = ResultObj(True, "")
+            result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
 
             if value_in_database == expected_value:
                 if should_be_equal:

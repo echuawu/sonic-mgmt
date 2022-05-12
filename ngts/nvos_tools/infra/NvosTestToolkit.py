@@ -18,6 +18,7 @@ class TestToolkit:
     @staticmethod
     def update_tested_ports(tested_ports):
         with allure.step("Update tested ports in TestTookit"):
+            logging.info("Testes port/s: " + str(tested_ports))
             TestToolkit.tested_ports = tested_ports
 
     @staticmethod
@@ -36,6 +37,7 @@ class TestToolkit:
                 TestToolkit.api_ib = ApiType.REST_IB
                 TestToolkit.api_show = ApiType.REST_SHOW_CMDS
                 TestToolkit.api_general = ApiType.REST_GENERAL
+            logging.info("API updated to: " + api_type)
 
     @staticmethod
     def update_port_output_dictionary(port_obj, engine=None):

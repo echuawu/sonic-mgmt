@@ -21,10 +21,10 @@ class IbInterface:
 
     def __init__(self, port_obj):
         self.port_obj = port_obj
-        self.description = Description(port_obj)
-        self.type = Type(port_obj)
-        self.pluggable = Pluggable(port_obj)
-        self.link = Link(port_obj)
+        self.description = Description(self.port_obj)
+        self.type = Type(self.port_obj)
+        self.pluggable = Pluggable(self.port_obj)
+        self.link = Link(self.port_obj)
 
     def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
