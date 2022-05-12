@@ -15,28 +15,6 @@
     </global>
 
     <case>
-        <info> AUTO_TECHSUPPORT Case </info>
-        <name> auto_techsupport </name>
-        <tout> 3600 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no  -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts show_techsupport/test_auto_techsupport.py</static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <info> AUTO_TECHSUPPORT Case </info>
-        <name> techsupport_no_secret </name>
-        <tout> 3600 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no  -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts show_techsupport/test_techsupport_no_secret.py</static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
         <info> SHOW_TECHSUPPORT Case </info>
         <name> show_techsupport </name>
         <tout> 3600 </tout>
