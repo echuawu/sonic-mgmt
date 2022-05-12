@@ -2,6 +2,7 @@
 import allure
 import logging
 import pytest
+from retry import retry
 from ngts.constants.constants import SonicConst
 
 logger = logging.getLogger()
@@ -26,7 +27,10 @@ def test_apply_basic_conf(topology_obj, setup_name, platform_params, is_simx):
             require_to_reload_before_qos = require_to_configure_machine_conf(is_simx, platform_params.platform)
             cli_object.general.apply_basic_config(topology_obj, setup_name, platform_params,
                                                   reload_before_qos=require_to_reload_before_qos)
+        with allure.step("Verify dockers are up after configuration is applied"):
             cli_object.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
+        with allure.step("Verify expected ports exist on DUT"):
+            check_ports_exist(topology_obj, cli_object)
     except Exception as err:
         raise AssertionError(err)
 
@@ -58,3 +62,15 @@ def configure_machine_conf(dut_engine, is_simx, platform_params):
             dut_engine.run_cmd(f"sudo sed -i "
                                f"'s/.*onie_platform=.*/onie_platform="
                                f"x86_64-nvidia_{platform_params.filtered_platform}_simx-r0/' /host/machine.conf")
+
+
+@retry(Exception, tries=6, delay=10)
+def check_ports_exist(topology_obj, cli_object):
+    expected_ports_list = topology_obj.players_all_ports['dut']
+    ports_status = cli_object.interface.parse_interfaces_status()
+    missing_ports = []
+    for port in expected_ports_list:
+        if not ports_status.get(port):
+            missing_ports.append(port)
+    if missing_ports:
+        raise AssertionError(f"show interfaces status doesn't show status of ports: {missing_ports}")
