@@ -10,7 +10,7 @@
     "PIPELINE_FORCE_CLEAN=true",
     "PRIORITY_NUMBER=4",
     "TARBALL_NAME=SONIC_MGMT_TAR.db.1.tgz",
-    "OFFICIAL_TESTS=CI_TESTS"
+    "OFFICIAL_TESTS=SONIC_MGMT"
   ],
   "phases": [
     {
@@ -271,7 +271,7 @@
           "category": "BAT",
           "node": "MINI_MARS@QTM",
           "parameters": {
-            "matrix_row": "IB",
+            "matrix_row": "IB_NVOS",
             "matrix_col": "QTM",
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_NVOS_QTM_SETUP}",

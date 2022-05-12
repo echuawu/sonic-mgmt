@@ -20,7 +20,7 @@ def run_step(name, ci_tools) {
             env.NVOS_BIN = "/auto/sw_system_release/nos/nvos/lastrc_master/images/nvos.bin"
         } else {
             env.SKIP_NVOS_BAT = true
-            ci_tools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
+            ci_tools.insert_test_result_to_matrix(name, "IB NVOS", "QTM", "Skipped=status")
         }
         return true
     }
