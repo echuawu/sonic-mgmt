@@ -56,11 +56,11 @@
         "word_pattern_offset": "N/A"
     },
     "FDB_ENTRIES_CREATION_TIME": {
-        "check_type": "elapsed_time_between_first_to_last_one_pattern",
-        "first_pattern": "mlnx_create_fdb_entry",
-        "second_pattern": "N/A",
+        "check_type": "overall_execution_time_two_patterns_iterate",
+        "first_pattern": "Create FDB entry",
+        "second_pattern": " Created FDB entry",
         "file_to_parse": "syslog",
         "debug_hint": "FDB entries creation execution time is longer than expected",
-        "word_pattern_offset": "N/A"
+        "word_pattern_offset": "15"
     }
 }

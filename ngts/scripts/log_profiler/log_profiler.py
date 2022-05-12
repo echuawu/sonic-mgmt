@@ -4,12 +4,12 @@ Analyze SONiC logs with defined checkers and expected results.
 
 Command example:
 
-PYTHONPATH=/devts:/root/mars/workspace/sonic-mgmt/ /ngts_venv/bin/pytest --setup_name=r-leopard-01_setup --rootdir=/root/mars/workspace/sonic-mgmt//ngts
- -c /root/mars/workspace/sonic-mgmt//ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results
-/root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py --test_files fast_reboot --syslog_start_line /sbin/kexec
- --sairedis_start_line INIT_VIEW /root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py
+PYTHONPATH=/devts:/root/mars/workspace/sonic-mgmt/ /ngts_venv/bin/pytest --setup_name=r-tigon-04_setup --rootdir=/root/mars/workspace/sonic-mgmt//ngts
+ -c /root/mars/workspace/sonic-mgmt//ngts/pytest.ini --log-level=INFO --disable_loganalyzer --clean-alluredir --alluredir=/tmp/allure-results/root/mars
+/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py /root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py --test_files fast_reboot
+ --syslog_start_line /sbin/kexec --sairedis_start_line INIT_VIEW
 
-This script is executed on the STM node. It establishes SSH connection to the DUT and gets the two latest 'syslog' and 'sairedis.rec'
+This script is executed on sonic-mgmt container. It establishes SSH connection to the DUT and gets the four latest 'syslog' and 'sairedis.rec'
 files output. Purpose is to check software components performance by calculating execution time between log prints timestamps.
 The execution time will be the time difference between two log prints patterns provided by the checker and the result criteria determined
 by the expected result of this checker (by platform).
@@ -68,6 +68,11 @@ Example of one iteration would be the time elapsed between admin to oper up on i
 
 "presence" - Check that a certain pattern does not appear in the log.
 
+"overall_execution_time_two_patterns_iterate" - Cumulative time between two patterns printed to the log with a shared word multiple times. This test will
+iteratively measure the cumulative elapsed time between appearance of the first pattern and appearance of the second pattern by a shared word printed on both lines,
+for example FDB create and created time for all FDB entries in the log.
+Example of one iteration would be the time elapsed between create of FDB entry and created message of this FDB entry for entry '[72:06:00:01:00:16]'.
+
 """
 
 # Builtin libs
@@ -78,6 +83,7 @@ import json
 import allure
 import logging
 from datetime import datetime
+from datetime import timedelta
 
 logger = logging.getLogger()
 
@@ -285,6 +291,63 @@ def elapsed_time_between_two_patterns_iterate(check_type, first_pattern, second_
         # If inner loop finished, the shared word couldn't be found
         if not two_patterns_match:
             test_fail_elements.append("Test {} failed, shared word [ {} ] didn't appear in any of pattern [ {} ] lines".format(test, shared_word, second_pattern))
+
+
+def overall_execution_time_two_patterns_iterate(check_type, first_pattern, second_pattern, file_to_parse, debug_hint, word_pattern_offset, log_to_parse, expected_results_data, platform, test, test_pass_elements, test_fail_elements, dut):
+    first_pattern_lines = []
+    second_pattern_lines = []
+    first_pattern_time_stamp = None
+    second_pattern_time_stamp = None
+    total_time = timedelta()
+    expected_result = float(expected_results_data[platform][test])
+
+    for line in log_to_parse:
+        if first_pattern in line:
+            first_pattern_lines.append(line)
+        elif second_pattern in line:
+            second_pattern_lines.append(line)
+
+    if len(first_pattern_lines) == 0:
+        test_fail_elements.append("Test {} failed, pattern [ {} ] did not appear in the log".format(test, first_pattern))
+        return
+    if len(second_pattern_lines) == 0:
+        test_fail_elements.append("Test {} failed, pattern [ {} ] did not appear in the log".format(test, second_pattern))
+        return
+
+    for first_pattern_line in first_pattern_lines:
+        two_patterns_match = False
+        # Get shared word from line by offset param
+        shared_word = str(first_pattern_line.split()[int(word_pattern_offset)])
+        date_string = get_date_string(file_to_parse, first_pattern_line)
+        first_pattern_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
+
+        for second_pattern_line in second_pattern_lines:
+            if shared_word in second_pattern_line:
+                date_string = get_date_string(file_to_parse, second_pattern_line)
+                second_pattern_time_stamp = datetime.strptime(date_string, timestamp_translator[file_to_parse])
+
+                time_diff = second_pattern_time_stamp - first_pattern_time_stamp
+                total_time = total_time + time_diff
+                second_pattern_lines.remove(second_pattern_line)
+
+                if total_time.total_seconds() > expected_result:
+                    test_fail_elements.append("Test {} failed with result: {}, Expected result is: {}, Reason: {}".format(test, str(total_time.total_seconds()), float(expected_results_data[platform][test]), debug_hint))
+                    return
+                else:
+                    two_patterns_match = True
+                    break
+            else:
+                continue
+
+        # If inner loop finished, the shared word couldn't be found
+        if not two_patterns_match:
+            test_fail_elements.append("Test {} failed, shared word [ {} ] didn't appear in any of pattern [ {} ] lines".format(test, shared_word, second_pattern))
+            return
+
+    if total_time.total_seconds() > expected_result:
+        test_fail_elements.append("Test {} failed with result: {}, Expected result is: {}, Reason: {}".format(test, str(time_diff.total_seconds()), float(expected_results_data[platform][test]), debug_hint))
+    else:
+        test_pass_elements.append("Test {} passed with result: {}, Expected result is: {}".format(test, str(total_time.total_seconds()), float(expected_results_data[platform][test])))
 
 
 def get_log_lines(log_file_name, log_start_pattern, dut):
