@@ -10,7 +10,7 @@
     "PIPELINE_FORCE_CLEAN=true",
     "PRIORITY_NUMBER=4",
     "TARBALL_NAME=SONIC_MGMT_TAR.db.1.tgz",
-    "OFFICIAL_TESTS=CI_TESTS"
+    "OFFICIAL_TESTS=SONIC_MGMT"
   ],
   "phases": [
     {
