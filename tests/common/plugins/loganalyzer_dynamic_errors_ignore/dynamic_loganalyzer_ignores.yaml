@@ -369,6 +369,7 @@
       - autorestart/test_container_autorestart.py
       - copp/test_copp.py::TestCOPP::test_no_policer
       - copp/test_copp.py::TestCOPP::test_policer
+      - route/test_static_route.py::test_static_route_ecmp
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[\d+\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
@@ -388,6 +389,7 @@
       - dhcp_relay/test_dhcp_relay.py::test_interface_binding
       - copp/test_copp.py::TestCOPP::test_no_policer
       - copp/test_copp.py::TestCOPP::test_policer
+      - route/test_static_route.py::test_static_route_ecmp
       Branch:
         - 202012
 
@@ -410,6 +412,7 @@
       - dhcp_relay/test_dhcp_relay.py::test_interface_binding
       - copp/test_copp.py::TestCOPP::test_no_policer
       - copp/test_copp.py::TestCOPP::test_policer
+      - route/test_static_route.py::test_static_route_ecmp
       Redmine:
         - 2619129
 
