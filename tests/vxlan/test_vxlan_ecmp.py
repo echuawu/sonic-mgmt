@@ -26,6 +26,7 @@
         total_number_of_nexthops    : Maximum number of all nexthops for every destination combined(per encap_type).
         vxlan_port                                : Global vxlan port (UDP port) to be used for the DUT. Default: 4789
 '''
+
 import time
 import re
 import ipaddress
@@ -456,12 +457,26 @@ def get_t2_ports(duthost, minigraph_data):
         ret_list.append(minigraph_data["minigraph_ptf_indices"][iface])
     return ret_list
 
-def bgp_established(duthost, ignore_list=[]):
+def bgp_established(duthost, down_list=[]):
     bgp_facts = duthost.bgp_facts()['ansible_facts']
     for k, v in bgp_facts['bgp_neighbors'].items():
-        if v['state'] != 'established' and k not in ignore_list:
-            logger.info("Neighbor %s not established yet: %s", k, v['state'])
-            return False
+        if v['state'] == 'established':
+            if k in down_list:
+                # The neighbor is supposed to be down, and is actually up.
+                logger.info("Neighbor %s is established, but should be down.", k)
+                return False
+            else:
+                # The neighbor is supposed to be up, and is actually up.
+                continue
+        else:
+            if k in down_list:
+                # The neighbor is supposed to be down, and is actually down.
+                continue
+            else:
+                # The neighbor is supposed to be up, but is actually down.
+                logger.info("Neighbor %s is not yet established, has state: %s", k, v['state'])
+                return False
+
     # Now wait for the routes to be updated.
     time.sleep(10)
     return True
@@ -509,14 +524,9 @@ def get_ethernet_ports(intf_list, minigraph_data):
 
     return ret_list
 
-
-@pytest.fixture(scope="module", params=SUPPORTED_ENCAP_TYPES)
-def encap_type(request):
-    yield request.param
-
-
 @pytest.fixture(scope="module")
-def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts, tbinfo, encap_type):
+def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts,
+          tbinfo):
 
     global Constants
     # Should I keep the temporary files copied to DUT?
@@ -532,8 +542,6 @@ def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts, tb
     Constants['DUT_HOSTID'] = request.config.option.dut_hostid
 
     logger.info("Constants to be used in the script:%s", Constants)
-
-    SUPPORTED_ENCAP_TYPES = [encap_type]
 
     data = {}
     data['ptfhost'] = ptfhost
@@ -635,7 +643,7 @@ def setUp(duthosts, ptfhost, request, rand_one_dut_hostname, minigraph_facts, tb
     for tunnel in tunnel_names.values():
         data['duthost'].shell("redis-cli -n 4 del \"VXLAN_TUNNEL|{}\"".format(tunnel))
 
-
+@pytest.mark.parametrize("encap_type", SUPPORTED_ENCAP_TYPES)
 class Test_VxLAN:
 
     def dump_self_info_and_run_ptf(self, tcname, encap_type, expect_encap_success, packet_count=4):
@@ -984,7 +992,7 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         '''
         self.setup = setUp
         self.setup_route2_shared_different_endpoints(encap_type)
-        self.dump_self_info_and_run_ptf("tc9", encap_type, True)
+        self.dump_self_info_and_run_ptf("tc9.2", encap_type, True)
 
     def test_vxlan_remove_ecmp_route2(self, setUp, encap_type):
         '''
@@ -1077,12 +1085,12 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
         # After that, bring down all the other t2 interfaces, other than the ones used in the first step.
         # This will force a modification to the underlay default routes nexthops.
 
-        all_intfs = list(get_portchannels_to_neighbors(self.setup['duthost'], "T2", minigraph_facts))
-        if not all_intfs:
-            all_intfs = get_ethernet_to_neighbors("T2", minigraph_facts)
-        logger.info("Dumping T2 link info: {}".format(all_intfs))
-        if not all_intfs:
-            raise RuntimeError("no interface found connected to t2 neighbors. pls check the testbed, aborting.")
+        all_t2_intfs = list(get_portchannels_to_neighbors(self.setup['duthost'], "T2", minigraph_facts))
+        if not all_t2_intfs:
+            all_t2_intfs = get_ethernet_to_neighbors("T2", minigraph_facts)
+        logger.info("Dumping T2 link info: {}".format(all_t2_intfs))
+        if not all_t2_intfs:
+            raise RuntimeError("No interface found connected to t2 neighbors. pls check the testbed, aborting.")
 
         # Keep a copy of the internal housekeeping list of t2 ports.
         # This is the full list of DUT ports connected to T2 neighbors.
@@ -1099,30 +1107,30 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
             # when ecmp_path_count == 1, it is non-ecmp. The switching happens between ecmp and non-ecmp.
             # Otherwise, the switching happens within ecmp only.
             for i in range(ecmp_path_count):
-                selected_intfs.append(all_intfs[i])
+                selected_intfs.append(all_t2_intfs[i])
 
             for intf in selected_intfs:
                 self.setup['duthost'].shell("sudo config interface shutdown {}".format(intf))
             downed_ports = get_corresponding_ports(selected_intfs, minigraph_facts)
             self.setup[encap_type]['t2_ports'] = list(set(all_t2_ports) - set(downed_ports))
             downed_bgp_neighbors = get_downed_bgp_neighbors(selected_intfs, minigraph_facts)
-            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], down_list=downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
             self.dump_self_info_and_run_ptf("tc12", encap_type, True, packet_count=1000)
 
             logger.info("Reverse the action: bring up the selected_intfs and shutdown others.")
             for intf in selected_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
             logger.info("Shutdown other interfaces.")
-            remaining_interfaces = list(set(all_intfs) - set(selected_intfs))
+            remaining_interfaces = list(set(all_t2_intfs) - set(selected_intfs))
             for intf in remaining_interfaces:
                 self.setup['duthost'].shell("sudo config interface shutdown {}".format(intf))
             downed_bgp_neighbors = get_downed_bgp_neighbors(remaining_interfaces, minigraph_facts)
-            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], down_list=downed_bgp_neighbors), "BGP neighbors didn't come up after all interfaces have been brought up.")
             self.setup[encap_type]['t2_ports'] = get_corresponding_ports(selected_intfs, minigraph_facts)
             self.dump_self_info_and_run_ptf("tc12", encap_type, True, packet_count=1000)
 
             logger.info("Recovery. Bring all up, and verify traffic works.")
-            for intf in all_intfs:
+            for intf in all_t2_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
             logger.info("Wait for all bgp is up.")
             pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
@@ -1133,7 +1141,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
         except Exception:
             # If anything goes wrong in the try block, atleast bring the intf back up.
             self.setup[encap_type]['t2_ports'] = all_t2_ports
-            for intf in all_intfs:
+            for intf in all_t2_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
             pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
             raise
@@ -1141,31 +1149,35 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
     def test_vxlan_remove_add_underlay_default(self, setUp, minigraph_facts, encap_type):
         '''
            tc13: remove the underlay default route.
+           tc14: add the underlay default route.
         '''
         self.setup = setUp
 
         logger.info("Find all the underlay default routes' interfaces. This means all T2 interfaces.")
-        all_intfs = list(get_portchannels_to_neighbors(self.setup['duthost'], "T2", minigraph_facts))
-        if not all_intfs:
-            all_intfs = get_ethernet_to_neighbors("T2", minigraph_facts)
-        logger.info("Dumping T2 link info: {}".format(all_intfs))
-        if not all_intfs:
-            raise RuntimeError("no interface found connected to t2 neighbors. pls check the testbed, aborting.")
+        all_t2_intfs = list(get_portchannels_to_neighbors(self.setup['duthost'], "T2", minigraph_facts))
+        if not all_t2_intfs:
+            all_t2_intfs = get_ethernet_to_neighbors("T2", minigraph_facts)
+        logger.info("Dumping T2 link info: {}".format(all_t2_intfs))
+        if not all_t2_intfs:
+            raise RuntimeError("No interface found connected to t2 neighbors. pls check the testbed, aborting.")
 
         try:
             logger.info("Bring down the T2 interfaces.")
-            for intf in all_intfs:
+            for intf in all_t2_intfs:
                 self.setup['duthost'].shell("sudo config interface shutdown {}".format(intf))
+            downed_bgp_neighbors = get_downed_bgp_neighbors(all_t2_intfs, minigraph_facts)
+            pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost'], down_list=downed_bgp_neighbors),
+                          "BGP neighbors have not reached the required state after T2 intf are shutdown.")
 
-            time.sleep(10)
             logger.info("Verify that traffic is not flowing through.")
             self.dump_self_info_and_run_ptf("tc13", encap_type, False)
 
             '''
                tc14: Re-add the underlay default route.
             '''
+
             logger.info("Bring up the T2 interfaces.")
-            for intf in all_intfs:
+            for intf in all_t2_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
 
             logger.info("Wait for all bgp is up.")
@@ -1176,7 +1188,7 @@ class Test_VxLAN_underlay_ecmp(Test_VxLAN):
 
         except Exception:
             logger.info("If anything goes wrong in the try block, atleast bring the intf back up.")
-            for intf in all_intfs:
+            for intf in all_t2_intfs:
                 self.setup['duthost'].shell("sudo config interface startup {}".format(intf))
             pytest_assert(wait_until(300, 30, 0, bgp_established, self.setup['duthost']), "BGP neighbors didn't come up after all interfaces have been brought up.")
             raise

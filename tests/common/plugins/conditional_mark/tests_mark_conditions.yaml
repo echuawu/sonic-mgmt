@@ -33,6 +33,13 @@ cacl/test_cacl_application.py::test_cacl_application:
 #######################################
 copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot:
   xfail:
+    reason: "'Add always_enabled field to coppmgr' is not merged into 202012 yet, a 'strict' param will remind us to remove this mark condition by setting 'xpass' as 'fail'"
+    strict: True
+    conditions:
+      - "release in ['202012']"
+
+copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot:
+  skip:
     reason: "'Add always_enabled field to coppmgr' is not merged into 202012 yet"
     conditions:
       - "release in ['202012']"
@@ -42,7 +49,7 @@ copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot:
 #######################################
 decap/test_decap.py::test_decap[ttl=pipe, dscp=pipe]:
   skip:
-    reason: "Not supported on broadcom after 201911 release and mellanox all releases"
+    reason: "Not supported on broadcom after 201911 release, mellanox all releases and cisco-8000 all releases"
     conditions:
       - "(asic_type in ['broadcom'] and release not in ['201811', '201911']) or (asic_type in ['mellanox'])"
 
@@ -51,6 +58,14 @@ decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform]:
     reason: "Not supported on backend and broadcom before 202012 release"
     conditions:
       - "(topo_name in ['t1-backend', 't0-backend']) or (asic_type in ['broadcom'] and release in ['201811', '201911'])"
+
+decap/test_decap.py::test_decap[ttl=uniform, dscp=pipe]:
+  skip:
+    reason: "Not supported uniform ttl mode"
+
+decap/test_decap.py::test_decap[ttl=uniform, dscp=uniform]:
+  skip:
+    reason: "Not supported uniform ttl mode"
 
 #######################################
 #####         dhcpv6_relay        #####
@@ -76,15 +91,15 @@ dualtor/test_orchagent_standby_tor_downstream.py::test_downstream_standby_mux_to
 #######################################
 ecmp/inner_hashing/test_inner_hashing.py:
   skip:
-    reason: "This test can't run on 202012 branch since change in sonic-utility is not backport into 202012 branch yet"
+    reason: "This test can only run on master branch since change in sonic-utility is not backport into 202012 branch yet"
     conditions:
-      - "branch in ['202012']"
+      - "branch not in ['master']"
 
 ecmp/inner_hashing/test_wr_inner_hashing.py:
   skip:
-    reason: "This test can't run on 202012 branch since change in sonic-utility is not backport into 202012 branch yet"
+    reason: "This test can only run on master branch since change in sonic-utility is not backport into 202012 branch yet"
     conditions:
-      - "branch in ['202012']"
+      - "branch not in ['master']"
 
 #######################################
 #####         everflow            #####
@@ -147,6 +162,15 @@ ntp/test_ntp.py::test_ntp_long_jump_disabled:
   xfail:
     strict: True
     reason: "Known NTP bug"
+
+#######################################
+#####           pfc               #####
+#######################################
+pfc/test_unknown_mac.py:
+  skip:
+    reason: In cisco-8000 platform, a packet with unknown MAC will be flooded, not dropped. This case will not pass in cisco-8000.
+    conditions:
+      - "asic_type in ['cisco-8000']"
 
 #######################################
 #####         pfc_asym            #####
@@ -336,7 +360,12 @@ system_health/test_system_health.py::test_service_checker_with_process_exit:
 #######################################
 vxlan/test_vxlan_ecmp.py:
   skip:
-    reason: "VxLAN ECMP test is not yet supported on multi-ASIC platform. Also this test can only run on 4600c, 4700 and 8102."
+    reason: "VxLAN ECMP test is not yet supported on multi-ASIC platform. Also this test can only run on 4600c and 8102."
     conditions:
-      - "(is_multi_asic==True) or (platform not in ['x86_64-mlnx_msn4600c-r0', 'x86_64-mlnx_msn4700-r0', 'x86_64-8102_64h_o-r0'])"
+      - "(is_multi_asic==True) or (platform not in ['x86_64-mlnx_msn4600c-r0', 'x86_64-8102_64h_o-r0'])"
 
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint:
+  skip:
+    reason: "This test can only run on 4600c and 8102"
+    conditions:
+      - "platform not in ['x86_64-mlnx_msn4600c-r0', 'x86_64-8102_64h_o-r0']"

@@ -9,7 +9,7 @@ To save test time, the script randomly chooses 3 ports to do following test:
 import logging
 import pytest
 import random
-import re
+
 from natsort import natsorted
 from tests.common.config_reload import config_reload
 from tests.common.helpers.assertions import pytest_assert, pytest_require
@@ -17,6 +17,7 @@ from tests.common.helpers.dut_ports import decode_dut_port_name
 from tests.common.utilities import wait_until
 from tests.platform_tests.link_flap.link_flap_utils import build_test_candidates
 from tests.common.utilities import skip_release
+from tests.common.platform.interface_utils import get_physical_port_indices
 
 pytestmark = [
     pytest.mark.topology('any'),
@@ -437,33 +438,3 @@ class MlnxCableSupportedSpeedsHelper(object):
         speeds = list(set([speed.split('G')[0] + '000' for speed in speeds_str.split(',')]))
         cls.supported_speeds[(duthost, dut_port_name)] = speeds
         return speeds
-
-    @classmethod
-    def get_port_index_for_mlxlink(cls, duthost, dut_port_name):
-        """
-        Returns port index for mlxlink command
-        :param duthost: MultiAsicSonicHost object
-        :param dut_port_name: portname, Example: 'Ethernet20'
-        :return: '5'
-        """
-        if dut_port_name in duthost.facts['interfaces']:
-            port_name = dut_port_name
-        else:
-            port_name = cls.find_port_name(duthost, dut_port_name)
-        index_list = duthost.facts['interfaces'][port_name]['index']
-        index = index_list.split(',')[0]
-        return index
-
-    @classmethod
-    def find_port_name(cls, duthost, dut_port_name):
-        """
-        Returns port_name of the split port present in the minigraph,
-        :param duthost: MultiAsicSonicHost object
-        :param dut_port_name: Ethernet2
-        :return: Ethernet0
-        """
-        ind = re.search('\d+', dut_port_name).group()
-        for i in range(1, 8):
-            port_name = 'Ethernet{}'.format(int(ind)-i)
-            if port_name in duthost.facts['interfaces']:
-                return port_name
