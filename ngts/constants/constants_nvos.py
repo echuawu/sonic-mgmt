@@ -38,7 +38,7 @@ class DatabaseConst:
     CONIFG_DB_TABLES_DICT = {
         "IB_PORT": [40, 64],
         "BREAKOUT_CFG": [40, 64],
-        "FEATURE": [11],
+        "FEATURE": [12],
         "CONFIG_DB_INITIALIZED": [1],
         "DEVICE_METADATA": [1],
         "XCVRD_LOG": [1],
