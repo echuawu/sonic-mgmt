@@ -27,16 +27,6 @@ pfc_asym/test_pfc_asym.py::test_pfc_asym_on_handle_pfc_all_prio:
   - Redmine:
     - 2918636
 
-copp/test_copp.py::TestCOPP::test_add_new_trap:
-  - Redmine:
-    - 2982183
-    Branch:
-    - 202012
-
-pfc_asym/test_pfc_asym.py:
-  - Redmine:
-    - 2971459
-
 # ecmp
 ecmp/test_fgnhg.py:
   - Redmine:
@@ -91,14 +81,6 @@ platform_tests/fwutil/test_fwutil.py:
     - 202012
     - 202106
     - 201911
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972407
-  - Platform:
-    - 2700
-    Redmine:
-    - 3009789
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next:
   - StaticReason:
@@ -115,30 +97,18 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
     - 2382365
     Platform:
     - 2100
-  - Redmine:
-    - 2962311
-    Platform:
-    - 4600c
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
   - Redmine:
     - 2382365
     Platform:
     - 2100
-  - Redmine:
-    - 2962311
-    Platform:
-    - 4600c
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
   - Redmine:
     - 2382365
     Platform:
     - 2100
-  - Redmine:
-    - 2962311
-    Platform:
-    - 4600c
 
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
@@ -149,11 +119,6 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   - Branch:
-    - master
-    - 202111
-    Redmine:
-    - 2878715
-  - Branch:
     - 202012
     - master
     - 202111
@@ -163,15 +128,6 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
     - 4600c
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
-  - Branch:
-    - master
-    - 202111
-    Platform:
-    - 3700
-    - 4600
-    - 3800
-    Redmine:
-    - 2878715
   - Redmine:
     - 3030936
     Branch:
@@ -210,38 +166,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_fans:
     - 2829184
     Platform:
     - 2201
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_psus:
-  - Redmine:
-    - 2994085
-    Platform:
-    - 2100
-    - 2010
-    Branch:
-    - 202111
-  - Redmine:
-    - 2877294
-    Platform:
-    - 2100
-    - 2010
-    Branch:
-    - master
-
-platform_tests/api/test_psu.py::TestPsuApi::test_get_name:
-  - Redmine:
-    - 2994085
-    Platform:
-    - 2100
-    - 2010
-    Branch:
-    - 202111
-  - Redmine:
-    - 2877294
-    Platform:
-    - 2100
-    - 2010
-    Branch:
-    - master
 
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
   - Branch:
@@ -735,27 +659,11 @@ tests/nightly/auto_negotition:
     - simx
     - 3800
 
-tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
-  - Redmine:
-    - 3011200
-    Branch:
-    - 202111
-
-tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port:
-  - Redmine:
-    - 3011200
-    Branch:
-    - 202111
-
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   - Redmine:
     - 3011349
     Branch:
     - 202111
-
-tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_config_advertised_speeds:
-  - Redmine:
-    - 2859972
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
@@ -788,13 +696,6 @@ tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::te
   - Redmine:
     - 2941448
 
-tests/nightly/lag/test_lag.py::test_lag_members_scale:
-  - Redmine:
-    - 2890871
-    Platform:
-    - 5600
-
-
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
   - Redmine:
     - 3019434
@@ -806,12 +707,6 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
     - 202012
 
-tests/nightly/copp/test_copp.py:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972489
-
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
   - Redmine:
     - 2682609
@@ -821,24 +716,6 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
   - Redmine:
     - 2682609
-    Platform:
-    - simx
-
-tests/nightly/copp/test_copp.py::test_copp_policer[DHCP]:
-  - Redmine:
-    - 3018560
-    Branch:
-    - 202012
-
-tests/nightly/copp/test_copp.py::test_copp_policer[DHCP_Reboot]:
-  - Redmine:
-    - 3018560
-    Branch:
-    - 202012
-
-tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_dynamic_mac_learning[lldp]:
-  - Redmine:
-    - 2939294
     Platform:
     - simx
 
@@ -856,10 +733,6 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
     - simx
 
 tests/push_build_tests/general/wjh/test_wjh.py:
-  - Redmine:
-    - 2939285
-    Platform:
-    - msn4700_simx
   - Redmine:
     - 3008967
     Platform:
@@ -900,17 +773,9 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
 # Ignore test due to issue - "config load -y" will not apply DHCP and require reload all configuration
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
   - Branch:
-    - master
-    Redmine:
-      - 2920544
-  - Branch:
     - 202012
     Redmine:
       - 2934348
-  - Branch:
-    - 202111
-    GitHub:
-      - https://github.com/Azure/sonic-buildimage/issues/9679
 
 # Ignore test due to issue - dhcpv6 relay forward malformed packet
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
@@ -931,18 +796,7 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
     - 2637874
 
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
-  - Redmine:
-    - 3016877
-    Branch:
-    - 202111
   - Platform:
-    - simx
-
-tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
-  - Redmine:
-    - 3014505
-  - Platform:
-    - 2201
     - simx
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
@@ -974,17 +828,6 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   - Platform:
     - simx
-  - Platform:
-    - x86_64-mlnx_msn4600c-r0
-    - x86_64-mlnx_msn4410-r0
-    - x86_64-mlnx_msn4700-r0
-    - x86_64-mlnx_msn4600-r0
-    Redmine:
-    - 3002280
-  - Redmine:
-    - 3016653
-    Branch:
-    - 202111
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
@@ -1003,10 +846,6 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
     - 201911
     - 202012
     - 202106
-  - Redmine:
-    - 2994124
-    Branch:
-      - 202111
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
   - Branch:
@@ -1019,18 +858,6 @@ qos/test_buffer.py:
     - x86_64-mlnx_msn2700-r0
     - StaticReason:
       - 'Test skipped because MSN SKU not support those tests'
-  - Platform:
-    - x86_64-mlnx_msn2700_simx-r0
-    Redmine:
-      - 3006934
-
-snmp/test_snmp_phy_entity.py::test_transceiver_info:
-  - Redmine:
-    - 2929579
-    Branch:
-      - master
-    Platform:
-      - x86_64-mlnx_msn4700-r0
 
 pfcwd/test_pfcwd_warm_reboot.py:
   - Redmine:
@@ -1065,36 +892,9 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
 
-sflow/test_sflow.py::TestReboot::testWarmreboot:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/4817
-    Branch:
-      - master
-    Platform:
-      - x86_64-mlnx_msn2700-r0
-
-show_techsupport/test_techsupport.py::test_secret_removed_from_show_techsupport:
-  - Redmine:
-    - 2934654
-    Branch:
-      - master
-
 show_techsupport/test_auto_techsupport.py:
   - Branch:
     - 202012
-
-iface_namingmode/test_iface_namingmode.py:
-  - Redmine:
-    - 2938601
-    Platform:
-      - x86_64-mlnx_msn4700-r0
-
-drop_packets/test_wjh.py:
-  - Redmine:
-    - 2956616
-    Branch:
-      - 202111
-      - master
 
 drop_packets/test_drop_counters.py::test_equal_smac_dmac_drop:
   - Redmine:
@@ -1104,77 +904,11 @@ drop_packets/test_drop_counters.py::test_multicast_smac_drop:
   - Redmine:
     - 3061096
 
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_name:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972419
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972419
-  - Redmine:
-    - 3001927
-    Platform:
-    - msn4600c
-    Branch:
-    - 202012
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972481
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_name:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972489
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_num_fans:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972489
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_name:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972489
-
-platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2972400
-
-platform_tests/api/test_watchdog.py::TestWatchdogApi::test_arm_too_big_timeout:
-  - Platform:
-    - x86_64-nvidia_sn2201-r0
-    Redmine:
-      - 2976345
-
 tests/nightly/copp:
   - Redmine:
     - 2980204
     Platform:
     - simx
-
-tests/nightly/app_extension:
-  - Redmine:
-    - 2984113
-
-tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_hdd_usage:
-  - Platform:
-    - x86_64-mlnx_msn4600c-r0
-    - x86_64-mlnx_msn4410-r0
-    - x86_64-mlnx_msn4600-r0
-    Redmine:
-    - 3002280
 
 scripts/log_profiler/log_profiler.py:
   - Redmine:
@@ -1194,72 +928,15 @@ tests/nightly/rj45/test_rj45.py:
     - x86_64-nvidia_sn4
     - x86_64-nvidia_sn5
   - Redmine:
-    - 3005540
     - 3005591
 
 tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_ports_breakout_after_wrong_removal:
   - Redmine:
     - 3006650
 
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_unsupported_breakout_mode:
-  - Redmine:
-    - 3042266
-    Branch:
-    - 202111
-
 tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speeds_on_dpb:
   - Redmine:
     - 3006650
-
-copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-04-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-11-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[arc-switch1025-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[arc-switch1038-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-copp/test_copp.py::TestCOPP::test_no_policer[r-leopard-01-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[r-leopard-58-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[r-tigon-20-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-copp/test_copp.py::TestCOPP::test_no_policer[r-tigris-04-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[r-tigris-13-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[arc-switch1004-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[mtbc-sonic-03-2700-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[mtbc-sonic-01-2410-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
-
-copp/test_copp.py::TestCOPP::test_no_policer[arc-mtbc-1001-DHCP6]:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5329
 
 qos/test_buffer.py::test_headroom_override:
   - Platform:
@@ -1275,18 +952,6 @@ tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
 tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py::test_gtp_parser_entry_hit:
   - Redmine:
       - 2992172
-
-platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
-  - Redmine:
-    - 3042689
-    Branch:
-    - 202111
-    - master
-    Platform:
-    - msn4600c
-    - msn3800
-    - msn3700
-    - msn3700c
 
 tests/nightly/p4/sampling_example/test_entry_advance.py:
   - StaticReason:
@@ -1305,3 +970,7 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
 scripts/test_verify_fanout_version.py::test_verify_fanout_version:
   - Redmine:
     - 3058927
+
+crm/test_crm.py::test_crm_nexthop_group:
+  - Redmine:
+    - 3070820
