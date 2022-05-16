@@ -13,7 +13,7 @@ AddRouteForNTP () {
     ADD_ROUTE=$(${SONIC_SSH_CMD} sudo ip route add ${NTP_IP} via ${GATEWAY_IP})
 }
 
-if [[ "${SWITCH}" = "arc-mtbc-1001" ]]; then
+if [[ "${SWITCH}" = "c-panther-01" ]]; then
     AddRouteForNTP
 fi
 

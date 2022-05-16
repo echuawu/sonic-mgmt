@@ -440,12 +440,13 @@ mts-sonic-dut-t0 ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN270
 mts-sonic-dut-t1-lag ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN2700 iface_speed=100000 serial_console="telnet 10.9.103.13 7022" ptf_host=mts-ptf ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-9-74-52
 mts-sonic-dut-ptf32 ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN2700 iface_speed=100000 serial_console="telnet 10.9.103.13 7022" ptf_host=mts-ptf ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-9-74-52
 
-# MTBC testbed arc-mtbc-1001 topologies
-arc-mtbc-1001 ansible_host=10.75.206.180  sonic_version=v2  sonic_hwsku=ACS-MSN2410 iface_speed=25000 serial_console="ssh -l rcon:2028 10.75.68.208" ptf_host=ptf-mtbc01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
-arc-mtbc-1001-t0  ansible_host=10.75.206.180  sonic_version=v2  sonic_hwsku=ACS-MSN2410 iface_speed=25000 serial_console="ssh -l rcon:2028 10.75.68.208" ptf_host=ptf-mtbc01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
-arc-mtbc-1001-t1  ansible_host=10.75.206.180  sonic_version=v2  sonic_hwsku=ACS-MSN2410 iface_speed=25000 serial_console="ssh -l rcon:2028 10.75.68.208" ptf_host=ptf-mtbc01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
-arc-mtbc-1001-t1-lag  ansible_host=10.75.206.180  sonic_version=v2  sonic_hwsku=ACS-MSN2410 iface_speed=25000 serial_console="ssh -l rcon:2028 10.75.68.208" ptf_host=ptf-mtbc01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
-arc-mtbc-1001-ptf32   ansible_host=10.75.206.180  sonic_version=v2  sonic_hwsku=ACS-MSN2410 iface_speed=25000 serial_console="ssh -l rcon:2028 10.75.68.208" ptf_host=ptf-mtbc01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
+# MTBC testbed c-panther-01 topologies
+c-panther-01 ansible_host=10.75.71.81  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 iface_speed=100000 serial_console="ssh -l root:2006 10.75.68.214" ptf_host=ptf-c-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-211
+c-panther-01-t0  ansible_host=10.75.71.81  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 iface_speed=100000 serial_console="ssh -l root:2006 10.75.68.214" ptf_host=ptf-c-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-211
+c-panther-01-t0-56  ansible_host=10.75.71.81  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 iface_speed=100000 serial_console="ssh -l root:2006 10.75.68.214" ptf_host=ptf-c-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-211
+c-panther-01-t1  ansible_host=10.75.71.81  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 iface_speed=100000 serial_console="ssh -l root:2006 10.75.68.214" ptf_host=ptf-c-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-211
+c-panther-01-t1-lag  ansible_host=10.75.71.81  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 iface_speed=100000 serial_console="ssh -l root:2006 10.75.68.214" ptf_host=ptf-c-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-211
+c-panther-01-ptf32   ansible_host=10.75.71.81  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D48C8 iface_speed=100000 serial_console="ssh -l root:2006 10.75.68.214" ptf_host=ptf-c-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-211
 
 # MTBC testbed mtbc-sonic-01-2410 topologies
 mtbc-sonic-01-2410 ansible_host=10.75.71.4  sonic_version=v2  sonic_hwsku=ACS-MSN2410 iface_speed=25000 serial_console="ssh -l rcon:2022 10.75.68.208" ptf_host=ptf-mtbc02 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-204
@@ -491,7 +492,7 @@ arc-switch1007 ansible_host=arc-switch1007 ansible_ssh_user=admin ansible_ssh_pa
 r-leopard-59 ansible_host=r-leopard-59 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 arc-switch1035 ansible_host=arc-switch1035 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 arc-switch1039 ansible_host=arc-switch1039 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-arc-switchmtbc01 ansible_host=arc-switchmtbc01 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
+c-panther-02 ansible_host=c-panther-02 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 arc-switchmtbc02 ansible_host=arc-switchmtbc02 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 mtbc-sonic-02-2700 ansible_host=mtbc-sonic-02-2700 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-panther-03 ansible_host=r-panther-03 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
@@ -679,12 +680,13 @@ mts-sonic-dut-t1
 mts-sonic-dut-t1-lag
 mts-sonic-dut-ptf32
 
-# MTBC arc-mtbc-1001 topologies
-arc-mtbc-1001
-arc-mtbc-1001-t0
-arc-mtbc-1001-t1
-arc-mtbc-1001-t1-lag
-arc-mtbc-1001-ptf32
+# MTBC c-panther-01 topologies
+c-panther-01
+c-panther-01-t0
+c-panther-01-t0-56
+c-panther-01-t1
+c-panther-01-t1-lag
+c-panther-01-ptf32
 
 # MTBC mtbc-sonic-01-2410 topologies
 mtbc-sonic-01-2410
@@ -1079,19 +1081,20 @@ mts-sonic-dut-t1
 mts-sonic-dut-t1-lag
 mts-sonic-dut-ptf32
 
-# MTBC arc-mtbc-1001 topologies
-arc-mtbc-1001
-arc-mtbc-1001-t0
-arc-mtbc-1001-t1
-arc-mtbc-1001-t1-lag
-arc-mtbc-1001-ptf32
-
 # MTBC mtbc-sonic-01-2410 topologies
 mtbc-sonic-01-2410
 mtbc-sonic-01-2410-t0
 mtbc-sonic-01-2410-t1
 mtbc-sonic-01-2410-t1-lag
 mtbc-sonic-01-2410-ptf32
+
+# MTBC c-panther-01 topologies
+c-panther-01
+c-panther-01-t0
+c-panther-01-t0-56
+c-panther-01-t1
+c-panther-01-t1-lag
+c-panther-01-ptf32
 
 # MTBC mtbc-sonic-03-2700 topologies
 mtbc-sonic-03-2700
@@ -1198,8 +1201,8 @@ ptf-dummy ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
 # MTR dev setup PTF host
 ptf-arc-host61-005 ansible_host=arc-host61-005 ansible_ssh_user=root ansible_ssh_pass=3tango
 
-# MTBC arc-mtbc-1001 PTF host
-ptf-mtbc01 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
+# MTBC c-panther-01 PTF host
+ptf-c-panther-01 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
 10.75.206.220 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
 
 # MTBC mtbc-sonic-01-2410 PTF host
