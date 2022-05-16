@@ -99,14 +99,18 @@ class SonicDevice(LinuxDeviceBase):
 
         platform = facts["platform"]
         hwsku = facts["hwsku"]
+        try:
+            sai_profile = "/usr/share/sonic/device/%s/%s/sai.profile" % (platform, hwsku)
+            cmd = "basename $(cat {} | grep SAI_INIT_CONFIG_FILE | cut -d'=' -f2)".format(sai_profile)
+            sai_xml_filename = self.run(cmd).stdout.strip()
+            sai_xml_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, sai_xml_filename)
 
-        sai_profile = "/usr/share/sonic/device/%s/%s/sai.profile" % (platform, hwsku)
-        cmd = "basename $(cat {} | grep SAI_INIT_CONFIG_FILE | cut -d'=' -f2)".format(sai_profile)
-        sai_xml_filename = self.run(cmd).stdout.strip()
-        sai_xml_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, sai_xml_filename)
+            pattern = "<issu-enabled> *1 *<\/issu-enabled>"
+            output = self.run('egrep "%s" %s | wc -l' % (pattern, sai_xml_path)).stdout.strip()
+        except Exception as err:
+            self.logger.info("'issu_enabled' failed with error:\n%s" % str(err))
+            return False
 
-        pattern = "<issu-enabled> *1 *<\/issu-enabled>"
-        output = self.run('egrep "%s" %s | wc -l' % (pattern, sai_xml_path)).stdout.strip()
         return True if output == "1" else False
 
     def get_service_props(self, service, props=["ActiveState", "SubState"]):

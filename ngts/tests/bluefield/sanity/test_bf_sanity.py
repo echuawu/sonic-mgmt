@@ -18,6 +18,12 @@ def test_bf_sanity(cli_objects, topology_obj, platform_params):
     """
     random_iface = random.choice(topology_obj.players_all_ports['dut'])
 
+    with allure.step("Verify error message in not supported commands"):
+        exp_msg = "This functionality is currently not implemented for this platform"
+        validate_expected_msg(cli_objects.dut.sfputil.get_sfputil_lpmode(), exp_msg)
+        validate_expected_msg(cli_objects.dut.interface.get_interfaces_transceiver_lpmode(), exp_msg)
+        validate_expected_msg(cli_objects.dut.interface.get_interfaces_transceiver_lpmode(random_iface), exp_msg)
+
     with allure.step("Verify no traceback in show version cmd"):
         cli_objects.dut.general.show_version(validate=True)
 
@@ -39,11 +45,8 @@ def test_bf_sanity(cli_objects, topology_obj, platform_params):
         compare_sfputil_and_ifaces_transceiver_relusts(sfputil_res, transceiver_res)
 
     with allure.step('Verify no traceback in sfputil/interfaces transceiver lpmode/fwversion/error-status'):
-        # cli_objects.dut.sfputil.get_sfputil_lpmode(validate=True)   # currently not implemented
-        # cli_objects.dut.interface.get_interfaces_transceiver_lpmode(validate=True) # currently not implemented
         cli_objects.dut.sfputil.get_sfputil_error_status(validate=True)
         cli_objects.dut.interface.get_interfaces_transceiver_error_status(validate=True)
-        # cli_objects.dut.sfputil.get_sfputil_fwversion('Ethernet0')    # currently has traceback
 
     with allure.step('Verify no traceback in show interfaces cmds'):
         cli_objects.dut.interface.show_interfaces_alias(validate=True)
@@ -76,3 +79,7 @@ def validate_platform_summary(cli_objects, platform_params):
 def compare_sfputil_and_ifaces_transceiver_relusts(sfputil_res, transceiver_res):
     assert (sfputil_res == transceiver_res, f"sfputil and interfaces transceiver are different.\n"
                                             f"sfputil: {sfputil_res}\ninterfaces transceiver: {transceiver_res}")
+
+
+def validate_expected_msg(output, exp_msg):
+    assert exp_msg in output, f"Expected message:\n{exp_msg}\n not found in the output:\n{output}"
