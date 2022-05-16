@@ -6,6 +6,8 @@ str-acs-serv-01,10.251.0.245/23,TestServ,Server
 r-tigon-14,10.210.25.188/22,ACS-MSN4600C,FanoutLeaf
 r-tigon-19,10.210.24.182/22,ACS-MSN4600C,FanoutLeaf
 r-tigon-20,10.210.24.183/22,ACS-MSN4600C,DevSonic
+r-tigon-21,10.210.24.193/22,ACS-MSN4600C,DevSonic
+r-tigon-22,10.210.24.194/22,ACS-MSN4600C,FanoutLeaf
 arc-switch1039,10.210.25.47/24,Mellanox-2700,DevSonic
 arc-switch1007,10.210.25.42/24,Mellanox-2700,DevSonic
 arc-switch1005,10.210.24.23/24,Mellanox-2700,DevSonic

@@ -46,6 +46,9 @@ R-MGTSWH-185 ansible_host=r-mgtswh-185
 [vm_host_17]
 R-R640-10 ansible_host=r-r640-10
 
+[vm_host_18]
+R-R640-13 ansible_host=r-r640-13
+
 [vm_host_50]
 DEV-R-VRT-232 ansible_host=dev-r-vrt-232
 
@@ -72,6 +75,7 @@ vm_host_14
 vm_host_15
 vm_host_16
 vm_host_17
+vm_host_18
 vm_host_50
 vm_host_52
 vm_host_54
@@ -658,6 +662,40 @@ VM1730 ansible_host=10.215.18.213
 VM1731 ansible_host=10.215.18.214
 VM1732 ansible_host=10.215.18.215
 
+[vms_18]
+VM1801 ansible_host=10.215.20.123
+VM1802 ansible_host=10.215.20.124
+VM1803 ansible_host=10.215.20.125
+VM1804 ansible_host=10.215.20.126
+VM1805 ansible_host=10.215.20.127
+VM1806 ansible_host=10.215.20.128
+VM1807 ansible_host=10.215.20.129
+VM1808 ansible_host=10.215.20.130
+VM1809 ansible_host=10.215.20.131
+VM1810 ansible_host=10.215.20.132
+VM1811 ansible_host=10.215.20.133
+VM1812 ansible_host=10.215.20.134
+VM1813 ansible_host=10.215.20.135
+VM1814 ansible_host=10.215.20.136
+VM1815 ansible_host=10.215.20.137
+VM1816 ansible_host=10.215.20.138
+VM1817 ansible_host=10.215.20.139
+VM1818 ansible_host=10.215.20.140
+VM1819 ansible_host=10.215.20.141
+VM1820 ansible_host=10.215.20.142
+VM1821 ansible_host=10.215.20.143
+VM1822 ansible_host=10.215.20.144
+VM1823 ansible_host=10.215.20.145
+VM1824 ansible_host=10.215.20.146
+VM1825 ansible_host=10.215.20.147
+VM1826 ansible_host=10.215.20.148
+VM1827 ansible_host=10.215.20.149
+VM1828 ansible_host=10.215.20.150
+VM1829 ansible_host=10.215.20.151
+VM1830 ansible_host=10.215.20.152
+VM1831 ansible_host=10.215.20.153
+VM1832 ansible_host=10.215.20.154
+
 [vms_50]
 VM5001 ansible_host=10.212.232.5
 VM5002 ansible_host=10.212.232.6
@@ -693,6 +731,7 @@ vms_14
 vms_15
 vms_16
 vms_17
+vms_18
 vms_50
 vms_52
 vms_54
@@ -810,6 +849,13 @@ vms_17
 [server_17:vars]
 host_var_file=host_vars/R-R640-10.yml
 
+[server_18:children]
+vm_host_18
+vms_18
+
+[server_18:vars]
+host_var_file=host_vars/R-R640-13.yml
+
 [server_50:children]
 vm_host_50
 vms_50
@@ -860,6 +906,7 @@ server_14
 server_15
 server_16
 server_17
+server_18
 server_50
 server_52
 server_54
