@@ -14,7 +14,7 @@ from retry.api import retry_call
 from abc import abstractmethod
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from ngts.common.checkers import verify_deviation
-from ngts.tests.nightly.copp.conftest import is_trap_counters_supported
+
 
 logger = logging.getLogger()
 
@@ -38,8 +38,6 @@ RATE_TRAFFIC_MULTIPLIER = 4
 BURST_TRAFFIC_MULTIPLIER = 30
 RATE_TRAFFIC_DURATION = 10
 BURST_TRAFFIC_DURATION = 0.06
-SIMX_USER_CBS = 150
-SIMX_USER_CIR = 100
 
 PROTOCOLS_IN_COPP_TRAP = ['bgp', 'lacp', 'arp', 'lldp', 'dhcp_relay', 'ip2me']
 PROTOCOLS_WIRH_FEW_TRAP_IDS = ['bgp', 'arp', 'dhcp_relay']
@@ -62,7 +60,7 @@ for protocol in PROTOCOLS_LIST:
 @allure.title('CoPP Policer test case')
 @pytest.mark.parametrize("protocol", PROTOCOLS_REBOOT_LIST)
 def test_copp_policer(topology_obj, protocol, platform_params,
-                      sonic_version, is_trap_counters_supported):
+                      sonic_version, is_simx, is_trap_counters_supported):
     """
     Run CoPP Policer test case, which will check that the policer enforces the rate limit for protocols.
     The test flow:
@@ -97,9 +95,9 @@ def test_copp_policer(topology_obj, protocol, platform_params,
         # CBS (committed burst size) - largest burst of packets allowed by the policer
         reboot = "Reboot" in protocol
         protocol = protocol.replace("_Reboot", "")
-        tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj, sonic_version)')
+        tested_protocol_obj = eval(protocol + 'Test' + '(topology_obj, sonic_version, is_simx)')
         tested_protocol_obj.is_trap_counters_supported = is_trap_counters_supported
-        if re.search('simx', platform_params.setup_name):
+        if is_simx:
             tested_protocol_obj.copp_simx_test_runner(reboot)
         else:
             tested_protocol_obj.copp_test_runner(reboot)
@@ -115,9 +113,10 @@ class CoppBase:
     Base CoPP class
     """
 
-    def __init__(self, topology_obj, sonic_version):
+    def __init__(self, topology_obj, sonic_version, is_simx):
         self.topology = topology_obj
         self.sonic_version = sonic_version
+        self.is_simx = is_simx
         self.sender = 'ha'
         self.host_iface = topology_obj.ports['ha-dut-1']
         self.dut_iface = topology_obj.ports['dut-ha-1']
@@ -138,13 +137,17 @@ class CoppBase:
         self.low_limit = 150
         self.user_limit = None
         self.trap_name = None
+        self.default_simx_cir = None
         self.is_trap_counters_supported = None
         self.short_interval = 1001
         self.long_interval = 20000
         self.interval_type = None
         self.init_trap_names = None
         self.removed_trap_ids = None
-        self.flowcnt_deviation = 0.01
+        self.flowcnt_deviation = 0.05 if self.is_simx else 0.01
+        self.canonical_threshold = 0.25
+        self.simx_threshold = 0.35
+        self.used_threshold = self.simx_threshold if self.is_simx else self.canonical_threshold
 
 # -------------------------------------------------------------------------------
 
@@ -205,7 +208,7 @@ class CoppBase:
             with allure.step('Set short trap interval'):
                 self.change_flowcnt_trap_interval(self.short_interval)
         with allure.step('Check functionality of default rate limit'):
-            self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
+            self.run_validation_flow(self.default_cbs, self.default_simx_cir)
 
         # check non default rate limit value with reboot
         if self.is_trap_counters_supported:
@@ -214,7 +217,7 @@ class CoppBase:
         if reboot_flow:
             self.run_validation_flow_with_reboot_for_simx()
             with allure.step('Check functionality of default rate limit after reboot flow'):
-                self.run_validation_flow(SIMX_USER_CBS, SIMX_USER_CIR)
+                self.run_validation_flow(self.default_cbs, self.default_simx_cir)
 
         if self.is_trap_counters_supported:
             with allure.step('Check interop between CoPP and flow counters'):
@@ -419,11 +422,10 @@ class CoppBase:
         """
         with allure.step('Validate results'):
             rx_ifconfig_count, rx_ifconfig_pps = self.get_ifconfig_results()
-
-            # We use +- 25% threshold due to not possible to be more precise
-            with allure.step("Verify that received ifconfig pps({}) is in allowed rate: {} +-25%"
-                             .format(rx_ifconfig_pps, expected_pps)):
-                verify_deviation(rx_ifconfig_pps, expected_pps, 0.25)
+            # We use +- 25% threshold (35% on simx) due to not possible to be more precise
+            with allure.step(f"Verify that received ifconfig pps({rx_ifconfig_pps}) "
+                             f"is in allowed rate: {expected_pps} +-{self.used_threshold}%"):
+                verify_deviation(rx_ifconfig_pps, expected_pps, self.used_threshold)
 
             if self.is_trap_counters_supported:
                 self.validate_flowcnt_results(rx_ifconfig_count)
@@ -440,7 +442,8 @@ class CoppBase:
 
         if self.interval_type == LONG_INTERVAL:
             try:
-                with allure.step("Verify rx counters from ifconfig and flow counters trap in allowed deviation +-1%"):
+                with allure.step(f"Verify rx counters from ifconfig and "
+                                 f"flow counters trap in allowed deviation +-{self.flowcnt_deviation * 100}%"):
                     verify_deviation(rx_trap_count, rx_ifconfig_count, self.flowcnt_deviation)
                     raise Exception("The flow counters updated before long interval time elapsed")
             except AssertionError as err:
@@ -448,10 +451,12 @@ class CoppBase:
                             ' wait this time {}ms and check again '.format(self.long_interval))
                 time.sleep(int(self.long_interval) / 1000)  # interval in msec
                 rx_trap_count = self.get_flowcnt_trap_results()
-                with allure.step("Verify rx counters from ifconfig and flow counters trap in allowed deviation +-1%"):
+                with allure.step(f"Verify rx counters from ifconfig and "
+                                 f"flow counters trap in allowed deviation +-{self.flowcnt_deviation * 100}%"):
                     verify_deviation(rx_trap_count, rx_ifconfig_count, self.flowcnt_deviation)
         else:
-            with allure.step("Verify rx counters from ifconfig and flow counters trap in allowed deviation +-1%"):
+            with allure.step(f"Verify rx counters from ifconfig and "
+                             f"flow counters trap in allowed deviation +-{self.flowcnt_deviation * 100}%"):
                 verify_deviation(rx_trap_count, rx_ifconfig_count, self.flowcnt_deviation)
 
 # -------------------------------------------------------------------------------
@@ -592,10 +597,11 @@ class ARPTest(CoppBase):
     ARP class/test extends the basic CoPP class with specific validation for ARP protocol
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
+        self.default_simx_cir = 200
         self.user_limit = 1000
         self.dst_mac = 'ff:ff:ff:ff:ff:ff'
 
@@ -637,11 +643,12 @@ class SNMPTest(CoppBase):
     SNMP class/test extends the basic CoPP class with specific validation for SNMP protocol
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         # TODO trapped as ip2me. Mellanox should add support for SNMP trap. update values accordingly
         self.default_cir = 6000
         self.default_cbs = 1000
+        self.default_simx_cir = 200
         self.user_limit = 600
         self.trap_name = 'ip2me'
         logger.info("The tested protocol SNMP have too big default value for burst, "
@@ -685,10 +692,11 @@ class IP2METest(CoppBase):
     IP2ME class/test extends the basic CoPP class with specific validation for IP2ME packets type
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 6000
         self.default_cbs = 1000
+        self.default_simx_cir = 200
         self.user_limit = 600
         self.trap_name = 'ip2me'
         logger.info("The tested protocol IP2ME have too big default value for burst, "
@@ -723,10 +731,11 @@ class SSHTest(CoppBase):
     SSH class/test extends the basic CoPP class with specific validation for SSH packet type
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
+        self.default_simx_cir = 200
         self.user_limit = 1000
         self.trap_name = 'ssh'
 
@@ -757,11 +766,12 @@ class LLDPTest(CoppBase):
     LLDP class/test extends the basic CoPP class with specific validation for LLDP packet type
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
         self.user_limit = 1000
+        # TODO: need to update self.default_simx_cir - was not possible before because #2682609
         # noise from origin lldp traffic. if disable LLDP, the traffic will not be moved to cpu/counters
         self.flowcnt_deviation = 0.15
         self.trap_name = 'lldp'
@@ -793,10 +803,11 @@ class LACPTest(CoppBase):
     LACP class/test extends the basic CoPP class with specific validation for LACP packet type
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
+        self.default_simx_cir = 220
         self.user_limit = 1000
         self.trap_name = 'lacp'
 
@@ -827,10 +838,11 @@ class BGPTest(CoppBase):
     BGP class/test extends the basic CoPP class with specific validation for BGP packet type
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
+        self.default_simx_cir = 160
         self.user_limit = 1000
 
 # -------------------------------------------------------------------------------
@@ -868,10 +880,11 @@ class DHCPTest(CoppBase):
     DHCP class/test extends the basic CoPP class with specific validation for DHCP packet type
     """
 
-    def __init__(self, topology_obj, sonic_version):
-        CoppBase.__init__(self, topology_obj, sonic_version)
+    def __init__(self, topology_obj, sonic_version, is_simx):
+        CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
+        self.default_simx_cir = 200
         self.user_limit = 1000
 
 # -------------------------------------------------------------------------------
