@@ -32,18 +32,16 @@ def show_version(cli_objects):
 @pytest.fixture(scope='session')
 def engines(topology_obj):
     engines_data = DottedDict()
-    engines_data.dut = topology_obj.players['dut']['engine']
-    engines_data.ha = topology_obj.players['ha']['engine']
-    engines_data.hb = topology_obj.players['hb']['engine']
+    for player in topology_obj.players:
+        engines_data[player] = topology_obj.players[player]['engine']
     return engines_data
 
 
 @pytest.fixture(scope='session')
 def cli_objects(topology_obj):
     cli_obj_data = DottedDict()
-    cli_obj_data.dut = topology_obj.players['dut']['cli']
-    cli_obj_data.ha = topology_obj.players['ha']['cli']
-    cli_obj_data.hb = topology_obj.players['hb']['cli']
+    for player in topology_obj.players:
+        cli_obj_data[player] = topology_obj.players[player]['cli']
     return cli_obj_data
 
 
