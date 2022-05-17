@@ -20,7 +20,7 @@ def test_bugs_status():
 
 
 @pytest.mark.init_flow
-def test_system_sevices(engines):
+def test_system_services(engines):
     """
     Verifying the NVOS system services are in active state
     TODO
