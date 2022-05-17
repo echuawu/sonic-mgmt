@@ -1,10 +1,10 @@
 import allure
 import logging
 import pytest
-from retry import retry
 
-from ngts.constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.nvos_tools.database.database import Database
+from ngts.constants.constants_nvos import NvosConst
+from ngts.nvos_tools.Devices.BaseDevice import JaguarSwitch
+
 logger = logging.getLogger()
 
 
@@ -54,26 +54,9 @@ def test_existence_of_tables_in_databases(engines):
     :return: None, raise error in case one or more tables are missed
     """
     with allure.step("Validate no missing database default tables"):
-        err_flag = True
-        storage = [Database(DatabaseConst.APPL_DB_NAME, DatabaseConst.APPL_DB_ID, DatabaseConst.APPL_DB_TABLES_DICT),
-                   Database(DatabaseConst.ASIC_DB_NAME, DatabaseConst.ASIC_DB_ID, DatabaseConst.ASIC_DB_TABLES_DICT),
-                   Database(DatabaseConst.COUNTERS_DB_NAME, DatabaseConst.COUNTERS_DB_ID, DatabaseConst.COUNTERS_DB_TABLES_DICT),
-                   Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONFIG_DB_TABLES_DICT)]
-
-        for database_obj in storage:
-            try:
-                validate_database_tables(engines, database_obj)
-            except Exception:
-                err_flag = False
-
-        assert err_flag, "one or more default tables are missing"
-
-
-@retry(Exception, tries=3, delay=5)
-def validate_database_tables(engines, database_obj):
-    res_obj = database_obj.verify_num_of_tables_in_database(engines.dut)
-    assert res_obj.result, res_obj.info
-    return True
+        device = JaguarSwitch()
+        res_obj = device.verify_databases(engines.dut)
+        assert res_obj, res_obj.info
 
 
 @pytest.mark.init_flow
@@ -83,9 +66,6 @@ def test_ports_are_up(engines):
     :return: None, raise error in case one or more ports are down
     """
     with allure.step("Validate all ports status is up"):
-        config_db = Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONFIG_DB_TABLES_DICT)
-        field_name = NvosConst.PORT_STATUS_LABEL
-        expected_value = NvosConst.PORT_STATUS_UP
-        table_name_substring = NvosConst.PORT_CONFIG_DB_TABLES_PREFIX
-        res_obj = config_db.verify_filed_value_in_all_tables(engines.dut, table_name_substring, field_name, expected_value)
-        assert res_obj.result, "one or more ports are down"
+        device = JaguarSwitch()
+        res_obj = device.verify_ib_ports_state(engines.dut, NvosConst.PORT_STATUS_UP)
+        assert res_obj.result, res_obj.info

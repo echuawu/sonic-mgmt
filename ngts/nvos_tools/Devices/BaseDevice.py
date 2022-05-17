@@ -1,7 +1,8 @@
-from abc import abstractmethod, ABCMeta, ABC
+import re
 import logging
+from retry import retry
+from abc import abstractmethod, ABCMeta, ABC
 from ngts.constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.nvos_tools.infra.DatabaseReaderTool import DatabaseReaderTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
@@ -35,6 +36,7 @@ class BaseDevice:
     def _init_dockers(self):
         pass
 
+    @retry(Exception, tries=3, delay=5)
     def verify_databases(self, dut_engine):
         """
         validate the redis includes all expected tables
@@ -43,48 +45,87 @@ class BaseDevice:
         """
         result_obj = ResultObj(True, "")
         for db_name, db_id in self.available_databases.items():
+            if db_name == DatabaseConst.STATE_DB_NAME:
+                continue
+
             table_info = self.available_tables[db_id]
             for table_name, expected_entries in table_info.items():
-                output = DatabaseReaderTool.get_all_table_names_in_database(dut_engine, db_name,
-                                                                            table_name).returned_value
+                output = self.get_all_table_names_in_database(dut_engine, db_name, table_name).returned_value
                 if len(output) != expected_entries:
                     result_obj.result = False
                     result_obj.info += "DB: {db_name}, Table: {table_name}. Table count mismatch, Expected: {expected} != Actual {actual}\n" \
                         .format(db_name=db_name, table_name=table_name, expected=str(expected_entries),
                                 actual=str(len(output)))
+
         return result_obj
 
-    def _verify_value_in_table(self, dut_engine, db_name, table_name, field_name, expected_value):
+    def verify_ib_ports_state(self, dut_engine, expected_port_state):
+        result_obj = self._verify_value_in_table(dut_engine, DatabaseConst.CONFIG_DB_NAME, "IB_PORT",
+                                                 NvosConst.PORT_STATUS_LABEL, expected_port_state)
+        return result_obj
+
+    def get_database_id(self, db_name):
+        return self.available_databases[db_name]
+
+    def _verify_value_in_table(self, dut_engine, db_name, table_name_prefix, field_name, expected_value):
         """
         :param db_name: Database name
-        :param table_name: table name
+        :param table_name_prefix: table name
         :param dut_engine: the dut engine
         :param field_name: the field name in the table
         :param expected_value: an expected value for the field
         :return: result_obj
         """
         result_obj = ResultObj(True, "")
-        obj = DatabaseReaderTool.read_from_database(db_name, dut_engine, table_name, field_name)
-        if obj.verify_result() != expected_value:
-            result_obj.result = False
-            logger.error("{field_name} value in {table_name} DB {database_name} is {obj_value} not {expected_value}"
-                         " as expected \n".format(field_name=field_name, table_name=table_name,
-                                                  database_name=db_name, obj_value=obj.returned_value,
-                                                  expected_value=expected_value))
+        output = self.get_all_table_names_in_database(dut_engine, db_name, table_name_prefix).returned_value
+        for table_name in output:
+            obj = self.read_from_database(db_name, dut_engine, table_name, field_name)
+            if obj.verify_result() != expected_value:
+                result_obj.result = False
+                logger.error("{field_name} value in {table_name} DB {database_name} is {obj_value} not {expected_value}"
+                             " as expected \n".format(field_name=field_name, table_name=table_name,
+                                                      database_name=db_name, obj_value=obj.returned_value,
+                                                      expected_value=expected_value))
         if not result_obj.result:
-            result_obj.info = "Value Mismatch"
+            result_obj.info = "one or more fields are not as expected"
         return result_obj
 
-    def verify_ib_ports_state(self, dut_engine, expected_port_state, ib_ports_to_check=None):
-        if ib_ports_to_check is None:
-            ib_ports_to_check = range(self.ib_ports_num())
-
+    def read_from_database(self, database_name, engine, table_name, field_name=None):
+        """
+        Read the value of required field in specified database
+        :param engine: dut engine
+        :param database_name: the name of the database
+        :param table_name: the table name in the given database
+        :param field_name: the field name in table
+        :return: ResultObj
+        """
         result_obj = ResultObj(True, "")
-        for i in ib_ports_to_check:
-            port_result = self._verify_value_in_table(dut_engine, DatabaseConst.CONFIG_DB_NAME, "IB_PORT",
-                                                      NvosConst.PORT_STATUS_LABEL, expected_port_state)
-            if not port_result.result:
-                result_obj.result = False
+        if database_name not in self.available_databases.keys():
+            result_obj.result = False
+            result_obj.info += "{database_name} can't be found in Redis".format(database_name=database_name)
+            return result_obj
+
+        cmd = "redis-cli -n {database_name} hgetall {table_name}".format(
+            table_name='"' + table_name + '"', database_name=self.get_database_id(database_name))
+
+        output = engine.run_cmd(cmd)
+        output_list = re.findall('"(.*)"\n', output + '\n')
+        database_dic = {output_list[i]: output_list[i + 1] for i in range(0, len(output_list), 2)}
+        result_obj.returned_value = database_dic[field_name] if field_name else database_dic
+        return result_obj
+
+    def get_all_table_names_in_database(self, engine, database_name, table_name_substring='.'):
+        """
+        :param engine: dut engine
+        :param database_name: database name
+        :param table_name_substring: full or partial table name
+        :return: any database table that includes the substring, if table_name_substring is none we will return all the tables
+        """
+        result_obj = ResultObj(True, "")
+        cmd = "redis-cli -n {database_name} keys * | grep {prefix}".format(
+            database_name=self.get_database_id(database_name), prefix=table_name_substring)
+        output = engine.run_cmd(cmd)
+        result_obj.returned_value = output.splitlines()
         return result_obj
 
 
@@ -119,7 +160,8 @@ class BaseSwitch(BaseDevice, ABC):
             {
                 DatabaseConst.APPL_DB_ID:
                     {"IB_PORT_TABLE:Infiniband": self.ib_ports_num(),
-                     "ALIAS_PORT_MAP": 1},
+                     "ALIAS_PORT_MAP": self.ib_ports_num(),
+                     "IB_PORT_TABLE:Port": 2},
                 DatabaseConst.ASIC_DB_ID:
                     {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() + 1,
                      "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 1,
@@ -134,7 +176,7 @@ class BaseSwitch(BaseDevice, ABC):
                 DatabaseConst.CONFIG_DB_ID:
                     {"IB_PORT": self.ib_ports_num(),
                      "BREAKOUT_CFG": self.ib_ports_num(),
-                     "FEATURE": 11,
+                     "FEATURE": 12,
                      "CONFIG_DB_INITIALIZED": 1,
                      "DEVICE_METADATA": 1,
                      "XCVRD_LOG": 1,
