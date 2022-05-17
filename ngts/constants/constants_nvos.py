@@ -1,3 +1,4 @@
+
 class DatabaseConst:
     APPL_DB_NAME = "APPL_DB"
     ASIC_DB_NAME = "ASIC_DB"
@@ -35,7 +36,7 @@ class DatabaseConst:
         "COUNTERS_PORT_NAME_MAP": [1],
         "COUNTERS:oid": [40, 64]
     }
-    CONIFG_DB_TABLES_DICT = {
+    CONFIG_DB_TABLES_DICT = {
         "IB_PORT": [40, 64],
         "BREAKOUT_CFG": [40, 64],
         "FEATURE": [12],
@@ -49,9 +50,12 @@ class DatabaseConst:
 
 class NvosConst:
 
+    PORT_STATUS_UP = 'up'
+    PORT_STATUS_DOWN = 'down'
+
     DOCKER_STATUS = 'Up'
     SERVICE_STATUS = 'active'
-    PORT_STATUS = 'up'
+
     SERVICES_LIST = ['docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
                      'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
                      'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',

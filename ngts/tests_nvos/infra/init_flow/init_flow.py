@@ -58,7 +58,7 @@ def test_existence_of_tables_in_databases(engines):
         storage = [Database(DatabaseConst.APPL_DB_NAME, DatabaseConst.APPL_DB_ID, DatabaseConst.APPL_DB_TABLES_DICT),
                    Database(DatabaseConst.ASIC_DB_NAME, DatabaseConst.ASIC_DB_ID, DatabaseConst.ASIC_DB_TABLES_DICT),
                    Database(DatabaseConst.COUNTERS_DB_NAME, DatabaseConst.COUNTERS_DB_ID, DatabaseConst.COUNTERS_DB_TABLES_DICT),
-                   Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONIFG_DB_TABLES_DICT)]
+                   Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONFIG_DB_TABLES_DICT)]
 
         for database_obj in storage:
             try:
@@ -83,9 +83,9 @@ def test_ports_are_up(engines):
     :return: None, raise error in case one or more ports are down
     """
     with allure.step("Validate all ports status is up"):
-        config_db = Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONIFG_DB_TABLES_DICT)
+        config_db = Database(DatabaseConst.CONFIG_DB_NAME, DatabaseConst.CONFIG_DB_ID, DatabaseConst.CONFIG_DB_TABLES_DICT)
         field_name = NvosConst.PORT_STATUS_LABEL
-        expected_value = NvosConst.PORT_STATUS
+        expected_value = NvosConst.PORT_STATUS_UP
         table_name_substring = NvosConst.PORT_CONFIG_DB_TABLES_PREFIX
         res_obj = config_db.verify_filed_value_in_all_tables(engines.dut, table_name_substring, field_name, expected_value)
         assert res_obj.result, "one or more ports are down"
