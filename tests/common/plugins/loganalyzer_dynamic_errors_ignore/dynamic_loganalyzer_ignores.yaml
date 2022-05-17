@@ -644,19 +644,35 @@
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_trunk_mode
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_access_with_trunk_mode
+      - tests/push_build_tests/general/wjh/test_wjh.py::test_l1_agg_drop
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      Redmine:
+      - 3074216
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- update: FdbOrch MOVE notification: Failed to locate vlan port from bv_id .*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_trunk_mode
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_access_with_trunk_mode
       - tests/push_build_tests/general/wjh/test_wjh.py::test_l1_agg_drop
       - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port
       Redmine:
-      - 2834968
+      - 3074230
 
 - Errors_list:
     - '.* ERR swss#orchagent: :- update: Unsupported FDB Flush: .*'
   Conditions:
     - Affected_test_cases:
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_trunk_mode
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_access_with_trunk_mode
       - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port
       - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_4094_5
+      - tests/nightly/fdb/test_fdb_advance.py::TestFdbAdvance::test_fdb_item_be_removed_after_removing_corresponding_vlan
       Redmine:
-      - 2532373
+      - 3074219
 
 - Errors_list:
     - '.* ERR kernel.*Failed to query module temperature thresholds'
