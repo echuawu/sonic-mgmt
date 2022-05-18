@@ -4,7 +4,6 @@ from .SendCommandTool import SendCommandTool
 from .OutputParsingTool import OutputParsingTool
 from .TrafficGeneratorTool import TrafficGeneratorTool
 from .ValidationTool import ValidationTool
-from .DatabaseReaderTool import DatabaseReaderTool
 
 
 class Tools:
@@ -14,4 +13,3 @@ class Tools:
     OutputParsingTool = OutputParsingTool()
     TrafficGeneratorTool = TrafficGeneratorTool()
     ValidationTool = ValidationTool()
-    DatabaseReaderTool = DatabaseReaderTool()

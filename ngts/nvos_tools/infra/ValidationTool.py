@@ -1,6 +1,5 @@
 import logging
 from .ResultObj import ResultObj, IssueType
-from .DatabaseReaderTool import DatabaseReaderTool
 import allure
 
 logger = logging.getLogger()
@@ -108,45 +107,6 @@ class ValidationTool:
                 else:
                     logging.info("The value of {field_name} is not '{expected_value}' as expected".format(
                         field_name=field_name, expected_value=expected_value))
-            return result_obj
-
-    @staticmethod
-    def verify_field_value_in_db(field_name_in_db, expected_value, database_name, should_be_equal=True):
-        """
-        Verify that the value of the field in specified database is equal to expected
-        :param field_name_in_db: field name to check its' value
-        :param expected_value: expected value of the field
-        :param database_name: database name to search in
-        :param should_be_equal: True if the value of field_name should be equal to expected_value. False - otherwise
-        :return: ResultObj
-        """
-        with allure.step("Verify the value of '{field}' in database '{database_name}' is {no}equal to '{value}' "
-                         "as expected".format(field=field_name_in_db, database_name=database_name,
-                                              value=expected_value, no="" if should_be_equal else "not ")):
-            result_obj = DatabaseReaderTool.read_from_database(database_name, field_name_in_db)
-            if not result_obj:
-                return result_obj
-
-            value_in_database = result_obj.returned_value
-            result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
-
-            if value_in_database == expected_value:
-                if should_be_equal:
-                    logging.info("The value of {field_name_in_db} is '{expected_value}' as expected".format(
-                        field_name_in_db=field_name_in_db, expected_value=expected_value))
-                else:
-                    result_obj.result = False
-                    result_obj.info = "The value of {field_name_in_db} is equal to '{expected_value} while " \
-                                      "it should not'".format(field_name_in_db=field_name_in_db,
-                                                              expected_value=expected_value)
-            else:
-                if should_be_equal:
-                    result_obj.result = False
-                    result_obj.info = "The value of {field_name_in_db} is not '{expected_value}'".format(
-                        field_name_in_db=field_name_in_db, expected_value=expected_value)
-                else:
-                    logging.info("The value of {field_name_in_db} is not equal to '{expected_value} as "
-                                 "expected'".format(field_name_in_db=field_name_in_db, expected_value=expected_value))
             return result_obj
 
     @staticmethod
