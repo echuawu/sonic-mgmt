@@ -53,13 +53,9 @@ class NvosConst:
     PORT_STATUS_UP = 'up'
     PORT_STATUS_DOWN = 'down'
 
-    DOCKER_STATUS = 'Up'
-    SERVICE_STATUS = 'active'
+    DOCKER_STATUS_UP = 'Up'
+    SERVICE_STATUS_ACTIVE = 'active'
 
-    SERVICES_LIST = ['docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
-                     'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
-                     'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
-                     'syncd-ibv0.service', 'pmon.service']
     DOCKERS_LIST = ['nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"

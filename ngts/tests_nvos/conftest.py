@@ -1,6 +1,7 @@
 import pytest
 import logging
 
+from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import ApiType
 from dotted_dict import DottedDict
@@ -17,6 +18,14 @@ def engines(topology_obj):
     if "hb" in topology_obj.players:
         engines_data.hb = topology_obj.players['hb']['engine']
     return engines_data
+
+
+@pytest.fixture(scope='session')
+def devices(topology_obj):
+    devices_date = DottedDict()
+    dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
+    devices_date.dut = DeviceFactory.create_device(dut_name)
+    return devices_date
 
 
 @pytest.fixture(scope='session', autouse=True)

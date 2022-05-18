@@ -1,9 +1,7 @@
 import allure
 import logging
 import pytest
-
 from ngts.constants.constants_nvos import NvosConst
-from ngts.nvos_tools.Devices.BaseDevice import JaguarSwitch
 
 logger = logging.getLogger()
 
@@ -20,7 +18,7 @@ def test_bugs_status():
 
 
 @pytest.mark.init_flow
-def test_system_services(engines):
+def test_system_services(engines, devices):
     """
     Verifying the NVOS system services are in active state
     TODO
@@ -37,35 +35,28 @@ def test_system_services(engines):
     Run sudo systemctl is-active hw-management and validate hw_management is active"
     :return: None, raise error in case one or more services are inactive
     """
-    err_flag = True
     with allure.step("Validate services are active"):
-        for service in NvosConst.SERVICES_LIST:
-            cmd_output = engines.dut.run_cmd('systemctl --type=service | grep {}'.format(service))
-            if NvosConst.SERVICE_STATUS not in cmd_output:
-                logger.error("{service} service is not {service}active \n".format(service=NvosConst.SERVICE_STATUS))
-                err_flag = False
-        assert err_flag, "one or more services are not active"
+        res_obj = devices.dut.verify_services(engines.dut)
+        assert res_obj.result, res_obj.info
 
 
 @pytest.mark.init_flow
-def test_existence_of_tables_in_databases(engines):
+def test_existence_of_tables_in_databases(engines, devices):
     """
     Verifying the NVOS Databases created the correct tables in redis
     :return: None, raise error in case one or more tables are missed
     """
     with allure.step("Validate no missing database default tables"):
-        device = JaguarSwitch()
-        res_obj = device.verify_databases(engines.dut)
-        assert res_obj, res_obj.info
+        res_obj = devices.dut.verify_databases(engines.dut)
+        assert res_obj.result, res_obj.info
 
 
 @pytest.mark.init_flow
-def test_ports_are_up(engines):
+def test_ports_are_up(engines, devices):
     """
     Verifying the NVOS ports are up
     :return: None, raise error in case one or more ports are down
     """
     with allure.step("Validate all ports status is up"):
-        device = JaguarSwitch()
-        res_obj = device.verify_ib_ports_state(engines.dut, NvosConst.PORT_STATUS_UP)
+        res_obj = devices.dut.verify_ib_ports_state(engines.dut, NvosConst.PORT_STATUS_UP)
         assert res_obj.result, res_obj.info

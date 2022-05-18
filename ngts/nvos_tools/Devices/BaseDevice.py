@@ -60,8 +60,18 @@ class BaseDevice:
         return result_obj
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):
-        result_obj = self._verify_value_in_table(dut_engine, DatabaseConst.CONFIG_DB_NAME, "IB_PORT",
+        result_obj = self._verify_value_in_table(dut_engine, DatabaseConst.CONFIG_DB_NAME,
+                                                 NvosConst.PORT_CONFIG_DB_TABLES_PREFIX,
                                                  NvosConst.PORT_STATUS_LABEL, expected_port_state)
+        return result_obj
+
+    def verify_services(self, dut_engine):
+        result_obj = ResultObj(True, "")
+        for service in self.available_services:
+            cmd_output = dut_engine.run_cmd('systemctl --type=service | grep {}'.format(service))
+            if NvosConst.SERVICE_STATUS_ACTIVE not in cmd_output:
+                result_obj.result = False
+                result_obj.info += "{service} service is not active \n".format(service=NvosConst.SERVICE_STATUS_ACTIVE)
         return result_obj
 
     def get_database_id(self, db_name):
@@ -186,15 +196,15 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_services(self):
         BaseDevice._init_services(self)
-        self.available_services.append(
-            ('docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
-             'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
-             'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
-             'syncd-ibv0.service', 'pmon.service'))
+        self.available_services.extend((
+            'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
+            'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
+            'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
+            'syncd-ibv0.service', 'pmon.service'))
 
     def _init_dockers(self):
         BaseDevice._init_services(self)
-        self.available_dockers.append(('nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database'))
+        self.available_dockers.extend(('nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database'))
 
 
 # -------------------------- Gorilla Switch ----------------------------

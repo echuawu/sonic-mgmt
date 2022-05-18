@@ -35,7 +35,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         err_flag = True
         for docker in dockers_list:
             cmd_output = self.engine.run_cmd('docker ps | grep {}'.format(docker))
-            if NvosConst.DOCKER_STATUS not in cmd_output:
+            if NvosConst.DOCKER_STATUS_UP not in cmd_output:
                 logger.error("{} docker is not up".format(docker))
                 err_flag = False
         assert err_flag, "one or more dockers are down"
