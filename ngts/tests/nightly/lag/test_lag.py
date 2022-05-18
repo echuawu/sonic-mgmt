@@ -582,7 +582,7 @@ def get_ip_dependency_err_msg(interface):
     :param interface: interface name
     :return: expected error message
     """
-    err_msg = '{} has ip address 50.0.0.10/24 configured'.format(interface)
+    err_msg = '{} has ip address configured'.format(interface)
     return err_msg
 
 
