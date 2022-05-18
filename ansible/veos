@@ -49,6 +49,9 @@ R-R640-10 ansible_host=r-r640-10
 [vm_host_18]
 R-R640-13 ansible_host=r-r640-13
 
+[vm_host_19]
+R-R640-14 ansible_host=r-r640-14
+
 [vm_host_50]
 DEV-R-VRT-232 ansible_host=dev-r-vrt-232
 
@@ -76,6 +79,7 @@ vm_host_15
 vm_host_16
 vm_host_17
 vm_host_18
+vm_host_19
 vm_host_50
 vm_host_52
 vm_host_54
@@ -696,6 +700,40 @@ VM1830 ansible_host=10.215.20.152
 VM1831 ansible_host=10.215.20.153
 VM1832 ansible_host=10.215.20.154
 
+[vms_19]
+VM1901 ansible_host=10.215.20.64
+VM1902 ansible_host=10.215.20.65
+VM1903 ansible_host=10.215.20.66
+VM1904 ansible_host=10.215.20.67
+VM1905 ansible_host=10.215.20.68
+VM1906 ansible_host=10.215.20.69
+VM1907 ansible_host=10.215.20.70
+VM1908 ansible_host=10.215.20.71
+VM1909 ansible_host=10.215.20.72
+VM1910 ansible_host=10.215.20.73
+VM1911 ansible_host=10.215.20.74
+VM1912 ansible_host=10.215.20.75
+VM1913 ansible_host=10.215.20.76
+VM1914 ansible_host=10.215.20.77
+VM1915 ansible_host=10.215.20.78
+VM1916 ansible_host=10.215.20.79
+VM1917 ansible_host=10.215.20.80
+VM1918 ansible_host=10.215.20.81
+VM1919 ansible_host=10.215.20.82
+VM1920 ansible_host=10.215.20.83
+VM1921 ansible_host=10.215.20.84
+VM1922 ansible_host=10.215.20.85
+VM1923 ansible_host=10.215.20.86
+VM1924 ansible_host=10.215.20.87
+VM1925 ansible_host=10.215.20.88
+VM1926 ansible_host=10.215.20.89
+VM1927 ansible_host=10.215.20.90
+VM1928 ansible_host=10.215.20.91
+VM1929 ansible_host=10.215.20.92
+VM1930 ansible_host=10.215.20.93
+VM1931 ansible_host=10.215.20.94
+VM1932 ansible_host=10.215.20.95
+
 [vms_50]
 VM5001 ansible_host=10.212.232.5
 VM5002 ansible_host=10.212.232.6
@@ -732,6 +770,7 @@ vms_15
 vms_16
 vms_17
 vms_18
+vms_19
 vms_50
 vms_52
 vms_54
@@ -856,6 +895,13 @@ vms_18
 [server_18:vars]
 host_var_file=host_vars/R-R640-13.yml
 
+[server_19:children]
+vm_host_19
+vms_19
+
+[server_19:vars]
+host_var_file=host_vars/R-R640-14.yml
+
 [server_50:children]
 vm_host_50
 vms_50
@@ -907,6 +953,7 @@ server_15
 server_16
 server_17
 server_18
+server_19
 server_50
 server_52
 server_54

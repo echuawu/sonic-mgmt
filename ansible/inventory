@@ -406,6 +406,19 @@ r-tigon-21-t1-64-lag ansible_host=10.210.24.193 sonic_version=v2 sonic_hwsku=Mel
 r-tigon-21-ptf32 ansible_host=10.210.24.193 sonic_version=v2 sonic_hwsku=Mellanox-SN4600C-D112C8 iface_speed=100000 fanout_switch=r-tigon-22 ptf_host=ptf-r-tigon-21 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp32_interface_to_front_map.ini" dut_mac="1C:34:DA:CF:56:00" pdu_host=pdu-10-208-2-11
 r-tigon-21-ptf64 ansible_host=10.210.24.193 sonic_version=v2 sonic_hwsku=Mellanox-SN4600C-D112C8 iface_speed=100000 fanout_switch=r-tigon-22 ptf_host=ptf-r-tigon-21 ptf_portmap="roles/test/files/mlnx/ptf-map/default_fp64_interface_to_front_map.ini" dut_mac="1C:34:DA:CF:56:00" pdu_host=pdu-10-208-2-11
 
+# MTR testbed r-tigris-26 topologies
+r-tigris-26 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" pdu_host=pdu-10-208-0-182
+r-tigris-26-t0 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t0-16 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t0-52 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t0-56 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t0-64 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t1 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t1-lag ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-t1-64-lag ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-ptf32 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+r-tigris-26-ptf64 ansible_host=10.210.24.128 sonic_version=v2 sonic_hwsku=Mellanox-SN3800-D112C8 iface_speed=50000 fanout_switch=r-tigris-27 ptf_host=ptf-r-tigris-26 ptf_portmap="roles/test/files/mlnx/ptf-map/r-tigris-26_interface_to_front_map.ini" dut_mac="08:c0:eb:b1:bc:7e" pdu_host=pdu-10-208-0-18
+
 # MTS testbed mts-sonic-dut topologies
 mts-sonic-dut ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN2700 iface_speed=100000 serial_console="telnet 10.9.103.13 7022" ptf_host=mts-ptf ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-9-74-52
 mts-sonic-dut-t1 ansible_host=10.9.74.46 sonic_version=v2 sonic_hwsku=ACS-MSN2700 iface_speed=100000 serial_console="telnet 10.9.103.13 7022" ptf_host=mts-ptf ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-9-74-52
@@ -468,6 +481,7 @@ arc-switchmtbc02 ansible_host=arc-switchmtbc02 ansible_ssh_user=admin ansible_ss
 mtbc-sonic-02-2700 ansible_host=mtbc-sonic-02-2700 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-panther-03 ansible_host=r-panther-03 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-tigris-17 ansible_host=r-tigris-17 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
+r-tigris-27 ansible_host=r-tigris-27 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-tigris-23 ansible_host=r-tigris-23 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-tigon-19 ansible_host=r-tigon-19 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-tigon-22 ansible_host=r-tigon-22 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
@@ -615,6 +629,19 @@ r-tigon-21-t1-lag
 r-tigon-21-t1-64-lag
 r-tigon-21-ptf32
 r-tigon-21-ptf64
+
+# MTR r-tigris-26 topologies
+r-tigris-26
+r-tigris-26-t0
+r-tigris-26-t0-16
+r-tigris-26-t0-52
+r-tigris-26-t0-56
+r-tigris-26-t0-64
+r-tigris-26-t1
+r-tigris-26-t1-lag
+r-tigris-26-t1-64-lag
+r-tigris-26-ptf32
+r-tigris-26-ptf64
 
 # MTS testbed mts-sonic-dut topologies
 mts-sonic-dut
@@ -982,6 +1009,19 @@ r-tigon-21-t1-64-lag
 r-tigon-21-ptf32
 r-tigon-21-ptf64
 
+# MTR r-tigris-26 topologies
+r-tigris-26
+r-tigris-26-t0
+r-tigris-26-t0-16
+r-tigris-26-t0-52
+r-tigris-26-t0-56
+r-tigris-26-t0-64
+r-tigris-26-t1
+r-tigris-26-t1-lag
+r-tigris-26-t1-64-lag
+r-tigris-26-ptf32
+r-tigris-26-ptf64
+
 # MTR r-anaconda-81 topologies
 r-anaconda-81
 r-anaconda-81-t0
@@ -1098,6 +1138,10 @@ ptf-r-tigon-20 ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass
 # MTR r-tigon-21 PTF host
 ptf-r-tigon-21 ansible_host=10.215.20.122 ansible_ssh_user=root ansible_ssh_pass=root
 10.215.20.122 ansible_host=10.215.20.122 ansible_ssh_user=root ansible_ssh_pass=root
+
+# MTR r-tigris-26 PTF host
+ptf-r-tigris-26 ansible_host=10.215.20.61 ansible_ssh_user=root ansible_ssh_pass=root
+10.215.20.61 ansible_host=10.215.20.61 ansible_ssh_user=root ansible_ssh_pass=root
 
 # MTR r-lionfish-07, r-tigris-06 and other canonical DUTs PTF host
 ptf-dummy ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
