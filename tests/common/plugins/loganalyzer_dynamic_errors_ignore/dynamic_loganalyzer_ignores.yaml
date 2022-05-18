@@ -172,6 +172,18 @@
       - simx
 
 - Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c.*'
+    - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file.*'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\].*dump .*failed.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
+      Redmine:
+        - 3075643
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR hostcfgd: sonic-kdump-config --disable - failed: return code - 1, output:#012None'
     - '.* ERR hostcfgd: sonic-kdump-config --memory 0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M - failed: return code - 1, output:#012None'
   Conditions:

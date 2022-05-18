@@ -652,6 +652,12 @@ vlan/test_host_vlan.py:
 ########## Canonical ##########
 # Nightly
 
+tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
+  - Platform:
+    - simx
+    - StaticReason:
+      - 'warm reboot is not supported on simx setups'
+
 tests/nightly/auto_negotition:
   - Branch:
     - 202012
@@ -720,6 +726,13 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
     - simx
 
 # PushGate
+tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer:
+  - Redmine:
+    - 3060771
+    Platform:
+    - simx
+
+
 tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_match:
   - Redmine:
     - 2939326
@@ -776,6 +789,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     - 202012
     Redmine:
       - 2934348
+  - Branch:
+    - 202111
+    - master
+    Redmine:
+      - 3075545
 
 # Ignore test due to issue - dhcpv6 relay forward malformed packet
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
