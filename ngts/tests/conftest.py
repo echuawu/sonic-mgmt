@@ -17,7 +17,7 @@ from ngts.constants.constants import PytestConst
 
 logger = logging.getLogger()
 RAM_SYNCD_USAGE_ASAN_COEFFICIENT = 4
-CPU_SDK_USAGE_SIMX_COEFFICIENT = 3
+CPU_SDK_USAGE_SIMX_COEFFICIENT = 6
 
 
 @pytest.fixture(scope='session', autouse=True)
