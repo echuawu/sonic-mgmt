@@ -319,6 +319,29 @@ master:
     nbrmgrd: 5
     vxlanmgrd: 5
     sensord: 10
+  # SPC4
+  SN5600: # Moose/Albatross
+    total: 4000
+    sx_sdk: 1100
+    syncd: 300
+    redis-server: 70
+    snmpd: 20
+    zebra: 60
+    bgpd: 50
+    bgpcfgd: 30
+    bgpmon: 20
+    fpmsyncd: 5
+    orchagent: 30
+    ntpd: 5
+    neighsyncd: 5
+    vlanmgrd: 5
+    intfmgrd: 5
+    portmgrd: 5
+    buffermgrd: 5
+    vrfmgrd: 5
+    nbrmgrd: 5
+    vxlanmgrd: 5
+    sensord: 10
 202106:
   # SPC1
   SN2201: # Alligator
