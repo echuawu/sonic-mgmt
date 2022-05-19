@@ -1462,6 +1462,7 @@
     </DevicesL3Info>
     <DevicesL3Info Hostname="r-tigon-22">
       <ManagementIPInterface Name="ManagementIp" Prefix="10.210.24.194/22"/>
+    </DevicesL3Info>
     <DevicesL3Info Hostname="r-tigris-27">
       <ManagementIPInterface Name="ManagementIp" Prefix="10.210.24.174/22"/>
     </DevicesL3Info>
