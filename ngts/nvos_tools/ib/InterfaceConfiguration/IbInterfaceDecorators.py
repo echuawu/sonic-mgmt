@@ -1,7 +1,6 @@
 import logging
 import sys
 
-from .nvos_consts import ApiObject
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
@@ -25,7 +24,7 @@ def pre_collect():
     """
     logging.info("Collecting data before executing the command")
     logging.info("--------------------------------------------")
-    output = ApiObject[TestToolkit.api_show].show_interface()
+    output = Port.api_obj[TestToolkit.tested_api].show_interface()
     logging.info(output)
     logging.info("--------------------------------------------")
 
@@ -38,7 +37,7 @@ def post_collect(was_exception, exception=None):
     try:
         logging.log("Collecting data after command execution")
         logging.info("--------------------------------------------")
-        output = ApiObject[TestToolkit.api_show].show_interface()
+        output = Port.api_obj[TestToolkit.tested_api].show_interface()
         logging.info(output)
         logging.info("--------------------------------------------")
     except BaseException:

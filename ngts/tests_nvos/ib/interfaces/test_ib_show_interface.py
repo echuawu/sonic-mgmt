@@ -20,8 +20,6 @@ def test_ib_show_interface_name(engines):
     2. Run 'nv show interface <name>' on selected port
     3. Verify the required fields are presented in the output
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
@@ -43,8 +41,6 @@ def test_ib_show_interface_all(engines):
     2. Select a random port from the output
     3. Verify the required fields are presented in the output
     """
-    TestToolkit.update_engines(engines)
-
     output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
         Port.show_interface()).get_returned_value()
 
@@ -70,8 +66,6 @@ def test_ib_show_interface_name_link(engines):
     2. Run 'nv show interface <name> link' on selected port
     3. Verify the required fields are presented in the output
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
@@ -95,8 +89,6 @@ def test_ib_show_interface_name_pluggable(engines):
     2. Run 'nv show interface <name> pluggable' on selected port
     3. Verify the required fields are presented in the output
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
@@ -120,8 +112,6 @@ def test_ib_show_interface_name_stats(engines):
     2. Run 'nv show interface <name> link stats' on selected port
     3. Verify the required fields are presented in the output
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])

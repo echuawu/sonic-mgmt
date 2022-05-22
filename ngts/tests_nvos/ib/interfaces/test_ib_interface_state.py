@@ -31,8 +31,6 @@ def test_ib_interface_state(engines):
     11. Verify the configuration applied by running “show” command
     12. Send traffic through selected port
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
@@ -40,16 +38,6 @@ def test_ib_interface_state(engines):
     selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_DOWN).verify_result()
-
-    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
-                                                  field_name_in_db[DataBaseNames.CONFIG_DB],
-                                                  expected_value=NvosConsts.LINK_STATE_DOWN,
-                                                  database_name=DataBaseNames.CONFIG_DB).verify_result()
-
-    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
-                                                  field_name_in_db[DataBaseNames.STATE_DB],
-                                                  expected_value=NvosConsts.LINK_STATE_DOWN,
-                                                  database_name=DataBaseNames.STATE_DB).verify_result()'''
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -63,16 +51,6 @@ def test_ib_interface_state(engines):
     selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
-
-    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
-                                                  field_name_in_db[DataBaseNames.CONFIG_DB],
-                                                  expected_value=NvosConsts.LINK_STATE_UP,
-                                                  database_name=DataBaseNames.CONFIG_DB).verify_result()
-
-    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=selected_port.ib_interface.link.state.
-                                                  field_name_in_db[DataBaseNames.STATE_DB],
-                                                  expected_value=NvosConsts.LINK_STATE_UP,
-                                                  database_name=DataBaseNames.STATE_DB).verify_result()'''
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -99,26 +77,12 @@ def test_ib_interface_state_invalid(engines):
     4. Verify the new value remain original in StateDB
     5. Verify the value remain original by running “show” command
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
     ret_str = selected_port.ib_interface.link.state.set(value='invalid_value', apply=False).verify_result()
     assert "error" in ret_str and "invalid choice" in ret_str, "The command should fail"
-
-    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                      selected_port.ib_interface.link.state.
-                                                      field_name_in_db[DataBaseNames.CONFIG_DB],
-                                                      expected_value=NvosConsts.LINK_STATE_UP,
-                                                      database_name=DataBaseNames.CONFIG_DB).verify_result()
-
-    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                      selected_port.ib_interface.link.state.
-                                                      field_name_in_db[DataBaseNames.STATE_DB],
-                                                      expected_value=NvosConsts.LINK_STATE_UP,
-                                                      database_name=DataBaseNames.STATE_DB).verify_result()'''
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -146,8 +110,6 @@ def test_ib_interface_state_unset(engines):
     6. Verify the new value remain original in StateDB
     7. Verify the value remain original by running “show” command
     """
-    TestToolkit.update_engines(engines)
-
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
@@ -157,18 +119,6 @@ def test_ib_interface_state_unset(engines):
     selected_port.ib_interface.link.state.unset(apply=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
-
-    '''Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                      selected_port.ib_interface.link.state.
-                                                      field_name_in_db[DataBaseNames.CONFIG_DB],
-                                                      expected_value=NvosConsts.LINK_STATE_UP,
-                                                      database_name=DataBaseNames.CONFIG_DB).verify_result()
-
-    Tools.ValidationTool.verify_field_value_in_db(field_name_in_db=
-                                                      selected_port.ib_interface.link.state.
-                                                      field_name_in_db[DataBaseNames.STATE_DB],
-                                                      expected_value=NvosConsts.LINK_STATE_UP,
-                                                      database_name=DataBaseNames.STATE_DB).verify_result()'''
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()

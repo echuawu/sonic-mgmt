@@ -1,7 +1,3 @@
-from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.cli_wrappers.nvue.nvue_interface_show_clis import NvueInterfaceShowClis
-
 
 class InternalNvosConsts:
     # Output dictionary
@@ -17,25 +13,6 @@ class InternalNvosConsts:
 class NvosConsts:
     LINK_STATE_UP = "up"
     LINK_STATE_DOWN = "down"
-
-
-class ApiType:
-    NVUE = "nvue"
-    REST = "rest"
-    NVUE_IB = 0
-    REST_IB = 1
-    NVUE_GENERAL = 3
-    REST_GENERAL = 4
-    NVUE_SHOW_CMDS = 5
-    REST_SHOW_CMDS = 6
-
-
-ApiObject = {ApiType.NVUE_IB: NvueIbInterfaceCli,
-             ApiType.REST_IB: None,
-             ApiType.NVUE_GENERAL: NvueGeneralCli,
-             ApiType.REST_GENERAL: None,
-             ApiType.NVUE_SHOW_CMDS: NvueInterfaceShowClis,
-             ApiType.REST_SHOW_CMDS: None}
 
 
 class IbInterfaceConsts:

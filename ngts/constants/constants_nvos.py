@@ -59,3 +59,20 @@ class NvosConst:
     DOCKERS_LIST = ['nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
+
+
+class ApiType:
+    NVUE = "NVUE"
+    OPENAPI = "OpenApi"
+
+
+class OutputFormat:
+    auto = 'auto'
+    json = 'json'
+    yaml = 'yaml'
+
+
+class OpenApiReqType:
+    GET = 'GET'
+    PATCH = 'PATCH'
+    DELETE = 'DELETE'

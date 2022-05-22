@@ -50,13 +50,20 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return self.engine.run_cmd('show version')
 
     @staticmethod
-    def apply_config(engine):
+    def apply_config(engine, is_mgmt_port=False):
         """
         Apply configuration
         :param engine: ssh engine object
+        :param is_mgmt_port: True if mgmt port is changed ,false otherwise
         """
         logging.info("Running 'nv config apply' on dut")
-        output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"], tries_after_run_cmd=1)
-        if 'Declined apply after warnings' in output:
-            output = "Error: " + output
+        if is_mgmt_port:
+            output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
+                                        tries_after_run_cmd=1)
+            if 'Declined apply after warnings' in output:
+                output = "Error: " + output
+            elif 'y: command not found' in output and 'applied' in output:
+                output = 'applied'
+        else:
+            output = engine.run_cmd('nv config apply')
         return output

@@ -4,7 +4,10 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from .nvos_consts import IbInterfaceConsts
+from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
+from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
+from ngts.constants.constants_nvos import ApiType
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 import allure
 
 logger = logging.getLogger()
@@ -49,6 +52,7 @@ class Port:
     show_output_dictionary = {}
     name_in_redis = ""
     ib_interface = None
+    api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
 
     def __init__(self, name, show_output_dictionary, name_in_redis):
         self.name = name
@@ -128,6 +132,6 @@ class Port:
                 dut_engine = TestToolkit.engines.dut
 
             logging.info("Executing show interface for {port_names}".format(port_names=port_names))
-            return ApiObject[TestToolkit.api_show].show_interface(engine=dut_engine,
-                                                                  port_name=port_names,
-                                                                  output_format=output_format)
+            return Port.api_obj[TestToolkit.tested_api].show_interface(engine=dut_engine,
+                                                                       port_name=port_names,
+                                                                       output_format=output_format)

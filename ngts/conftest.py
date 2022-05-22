@@ -91,6 +91,7 @@ def pytest_addoption(parser):
                      help='''Provide path to application extensions json file.
                           'Example of content: {"p4-sampling":"harbor.mellanox.com/sonic-p4/p4-sampling:0.2.0",
                                       "what-just-happened":"harbor.mellanox.com/sonic-wjh/docker-wjh:1.0.1"} ''')
+    parser.addoption("--nvos_api_type", action="store", default='nvue', help="nvue/openapi")
 
 
 @pytest.fixture(scope="package")
@@ -329,3 +330,13 @@ def cleanup_last_config_in_stack(cleanup_list):
     """
     func, args = cleanup_list.pop()
     func(*args)
+
+
+@pytest.fixture(scope="session")
+def nvos_api_type(request):
+    """
+    Method for getting nvos_api_type from pytest arguments
+    :param request: pytest builtin
+    :return: nvos_api_type argument value
+    """
+    return request.config.getoption('--nvos_api_type')

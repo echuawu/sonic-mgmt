@@ -1,12 +1,7 @@
 import logging
+from ngts.constants.constants_nvos import OutputFormat
 
 logger = logging.getLogger()
-
-
-class OutputFormat:
-    auto = 'auto'
-    json = 'json'
-    yaml = 'yaml'
 
 
 class NvueInterfaceShowClis:
@@ -14,7 +9,7 @@ class NvueInterfaceShowClis:
     @staticmethod
     def show_interface(engine, port_name, interface_hierarchy="", output_format=OutputFormat.json):
         """
-        Displays the configuration ans the status of the interface
+        Displays the configuration and the status of the interface
         :param engine: ssh engine object
         :param port_name: the name of the port/ports
         :param output_format: format of the output: auto(table), json or yaml. OutputFormat object is expected

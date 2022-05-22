@@ -1,4 +1,6 @@
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import ApiType
+from ngts.constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.cli_wrappers.openapi.openapi_general_clis import OpenApiGeneralCli
 import logging
 import allure
 
@@ -7,13 +9,9 @@ logger = logging.getLogger()
 
 class TestToolkit:
     tested_ports = None
-    api_ib = ApiType.NVUE_IB
-    api_show = ApiType.NVUE_SHOW_CMDS
-    api_general = ApiType.NVUE_GENERAL
     engines = None
-
-    api_str = {ApiType.NVUE_IB: "NVUE", ApiType.NVUE_SHOW_CMDS: "NVUE", ApiType.NVUE_GENERAL: "NVUE",
-               ApiType.REST_IB: "REST", ApiType.REST_GENERAL: "REST", ApiType.REST_SHOW_CMDS: "REST"}
+    tested_api = ApiType.NVUE
+    GeneralApi = {ApiType.NVUE: NvueGeneralCli, ApiType.OPENAPI: OpenApiGeneralCli}
 
     @staticmethod
     def update_tested_ports(tested_ports):
@@ -28,15 +26,8 @@ class TestToolkit:
 
     @staticmethod
     def update_apis(api_type):
-        with allure.step("Update apis in TestTookit"):
-            if api_type == ApiType.NVUE:
-                TestToolkit.api_ib = ApiType.NVUE_IB
-                TestToolkit.api_show = ApiType.NVUE_SHOW_CMDS
-                TestToolkit.api_general = ApiType.NVUE_GENERAL
-            else:
-                TestToolkit.api_ib = ApiType.REST_IB
-                TestToolkit.api_show = ApiType.REST_SHOW_CMDS
-                TestToolkit.api_general = ApiType.REST_GENERAL
+        with allure.step("Update api in TestTookit to " + api_type):
+            TestToolkit.tested_api = api_type
             logging.info("API updated to: " + api_type)
 
     @staticmethod

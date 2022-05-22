@@ -51,7 +51,7 @@ class LinkBaseOperational(LinkBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
                                          output_hierarchy=self.output_hierarchy,
-                                         value=value, apply=apply, port_name=self.port_obj.name)
+                                         value=value, apply=apply, port_obj=self.port_obj)
 
     def unset(self, dut_engine=None, apply=True):
         """
@@ -65,7 +65,7 @@ class LinkBaseOperational(LinkBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
                                            output_hierarchy=self.output_hierarchy,
-                                           apply=apply, port_name=self.port_obj.name)
+                                           apply=apply, port_obj=self.port_obj)
 
 
 class Speed(LinkBaseOperational):
@@ -143,6 +143,6 @@ class State(LinkBaseOperational):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            return SendCommandTool.execute_command(ApiObject[TestToolkit.api_show].show_interface,
+            return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
                                                    dut_engine, TestToolkit.tested_ports, self.output_hierarchy,
                                                    output_format).get_returned_value()

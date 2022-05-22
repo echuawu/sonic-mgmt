@@ -3,7 +3,7 @@ import logging
 
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import ApiType
+from ngts.constants.constants_nvos import ApiType
 from dotted_dict import DottedDict
 
 logger = logging.getLogger()
@@ -17,6 +17,8 @@ def engines(topology_obj):
         engines_data.ha = topology_obj.players['ha']['engine']
     if "hb" in topology_obj.players:
         engines_data.hb = topology_obj.players['hb']['engine']
+
+    TestToolkit.update_engines(engines_data)
     return engines_data
 
 
@@ -29,9 +31,13 @@ def devices(topology_obj):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def api_type():
-    logger.info('updating API type to: ' + ApiType.NVUE)
-    TestToolkit.update_apis(ApiType.NVUE)
+def api_type(nvos_api_type):
+    apitype = ApiType.NVUE
+    if nvos_api_type.lower() == "openapi":
+        apitype = ApiType.OPENAPI
+
+    logger.info('updating API type to: ' + apitype)
+    TestToolkit.update_apis(apitype)
 
 
 @pytest.fixture(scope='session')
