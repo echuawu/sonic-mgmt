@@ -333,6 +333,15 @@ platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_led
     - x86_64-mlnx_msn
     - x86_64-nvidia
 
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
+  - Redmine:
+    - 3071698
+    Platform:
+      - msn4
+    Branch:
+      - 202111
+      - master
+
 platform_tests/api/test_sfp.py::TestSfpApi::test_get_name:
   - Platform:
     - x86_64-mlnx_msn
