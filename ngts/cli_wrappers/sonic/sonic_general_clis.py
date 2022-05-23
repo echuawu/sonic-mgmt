@@ -503,9 +503,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.upload_port_config_ini(platform, hwsku, shared_path)
         self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
 
-        with allure.step("Updating dhclient lease time"):
-            self.update_dhclient_lease_time()
-
         with allure.step("Reboot the dut"):
             self.engine.reload(['sudo reboot'])
             if reload_before_qos:
@@ -528,12 +525,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
         self.engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path,
                                                            SonicConst.PORT_CONFIG_INI,
-                                                           switch_config_ini_path))
+                                                           switch_config_ini_path), validate=True)
 
     def upload_config_db_file(self, topology_obj, setup_name, hwsku, shared_path):
         config_db_file = self.get_updated_config_db(topology_obj, setup_name, hwsku)
         self.engine.run_cmd(
-            'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH))
+            'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH), validate=True)
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku):
         config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
