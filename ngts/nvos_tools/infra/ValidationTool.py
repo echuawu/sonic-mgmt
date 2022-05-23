@@ -39,10 +39,10 @@ class ValidationTool:
             return result_obj
 
     @staticmethod
-    def verify_filed_exist_in_json_output(json_output, keys_to_search_for, should_be_found=True):
+    def verify_field_exist_in_json_output(json_output, keys_to_search_for, should_be_found=True):
         """
         Searching for specified str in provided json output
-        :param json_output: json output string
+        :param json_output: json dictionary
         :param keys_to_search_for: list of keys to search for
         :param should_be_found: True if key_str_to_search_for should be found in the output. False - otherwise
         :return: ResultObj

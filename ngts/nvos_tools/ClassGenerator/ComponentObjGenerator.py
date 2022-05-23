@@ -19,8 +19,9 @@ class Component:
     unset_method = False
     list_of_next_components = []
     resource_path = ''
+    parent_obj = None
 
-    def __init__(self, name, resource_path):
+    def __init__(self, name, parent_obj):
         self.name = name
         self.param_list = []
         self.show_method = False
@@ -28,10 +29,11 @@ class Component:
         self.unset_method = False
         self.set_param = ''
         self.list_of_next_components = []
-        self.resource_path = resource_path
+        self.resource_path = "/" + name
+        self.parent_obj = parent_obj
 
 
-classes_list = Component("root", "root")
+classes_list = Component("root", None)
 
 
 def get_component_obj(label, list_of_component_objects):
@@ -71,21 +73,25 @@ def update_component_data(component_obj, component_data):
 
 def add_classes_to_dictionary(component_data, split_label, resource_path):
     temp_ptr = classes_list
+    parent_ptr = None
 
     for label in split_label:
         if label.startswith('{') and label.endswith('}'):
             temp_label = label.strip('{}')
             if temp_label not in temp_ptr.param_list:
                 temp_ptr.param_list.append(temp_label)
+                temp_ptr.resource_path += "/" + label
             continue
 
         component_ptr = get_component_obj(label, temp_ptr.list_of_next_components)
 
         if not component_ptr:
-            new_component = Component(label, resource_path)
+            new_component = Component(label, parent_ptr)
             if split_label.index(label) == len(split_label) - 1:
                 update_component_data(new_component, component_data)
             temp_ptr.list_of_next_components.append(new_component)
             temp_ptr = temp_ptr.list_of_next_components[0]
+            parent_ptr = new_component
         else:
             temp_ptr = component_ptr
+            parent_ptr = component_ptr

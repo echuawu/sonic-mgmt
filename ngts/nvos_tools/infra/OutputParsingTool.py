@@ -248,3 +248,14 @@ class OutputParsingTool:
         with allure.step('Create a dictionary according to provided JSON output of "show system" commands'):
             output_dictionary = json.loads(output_json)
         return output_dictionary
+
+    @staticmethod
+    def parse_json_str_to_dictionary(output_json):
+        """
+        Creates a dictionary according to provided JSON string
+        :param output_json: json output
+        :return: a dictionary
+        """
+        with allure.step('Create a dictionary according to provided JSON string'):
+            output_dictionary = json.loads(output_json)
+            return ResultObj(True, "", output_dictionary)

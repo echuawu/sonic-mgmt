@@ -131,7 +131,7 @@ def validate_interface_fields(selected_port, output_dictionary):
                           selected_port.ib_interface.description.label,
                           selected_port.ib_interface.link.label,
                           selected_port.ib_interface.pluggable.label]
-        Tools.ValidationTool.verify_filed_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
 def validate_link_fields(selected_port, output_dictionary):
@@ -150,7 +150,7 @@ def validate_link_fields(selected_port, output_dictionary):
                           selected_port.ib_interface.link.physical_port_state.label,
                           selected_port.ib_interface.link.operational_vls.label,
                           selected_port.ib_interface.link.vl_admin_capabilities.label]
-        Tools.ValidationTool.verify_filed_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
 def validate_pluggable_fields(selected_port, output_dictionary):
@@ -161,7 +161,7 @@ def validate_pluggable_fields(selected_port, output_dictionary):
                           selected_port.ib_interface.pluggable.vendor_pn.label,
                           selected_port.ib_interface.pluggable.vendor_rev.label,
                           selected_port.ib_interface.pluggable.vendor_sn.label]
-        Tools.ValidationTool.verify_filed_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
 def validate_stats_fields(selected_port, output_dictionary):
@@ -177,7 +177,7 @@ def validate_stats_fields(selected_port, output_dictionary):
                           selected_port.ib_interface.link.stats.out_errors.label,
                           selected_port.ib_interface.link.stats.out_pkts.label,
                           selected_port.ib_interface.link.stats.out_wait.label]
-        Tools.ValidationTool.verify_filed_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
 def validate_one_port_show_output(selected_port):
@@ -205,4 +205,4 @@ def validate_one_port_in_show_all_ports(selected_port, output_dictionary):
                       selected_port.ib_interface.link.state.label,
                       selected_port.ib_interface.type.label,
                       selected_port.ib_interface.description.label]
-    Tools.ValidationTool.verify_filed_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+    Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()

@@ -84,13 +84,19 @@ def add_inner_class_params(component, py_class_file):
 
 def add_method(method_name, py_class_file, resource_path):
     py_class_file.write('    def {method_name}(self, op_param=""): \n'.format(method_name=method_name))
-    py_class_file.write('        with allure.step(\'Execute {method_name} for {resource_path}\'):\n'.format(
-                        method_name=method_name, resource_path=resource_path))
+    py_class_file.write('            assert "{method_name} does not implemented for {resource_path}"\n\n'.
+                        format(method_name=method_name, resource_path=resource_path))
+
+    '''py_class_file.write('    def {method_name}(self, op_param=""): \n'.format(method_name=method_name))
+    py_class_file.write('        with allure.step(\'Execute {method_name} for '.format(method_name=method_name))
+    py_class_file.write('{resource_path}\'.format(resource_path=self.get_resource_path())):\n')
 
     cmd_line = 'SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].{method_name}, ' \
-               'TestToolkit.engines.dut, self.resource_path, op_param).get_returned_value()'.format(
+               'TestToolkit.engines.dut, \n' \
+               '                                                   ' \
+               'self.get_resource_path(), op_param).get_returned_value()'.format(
                    method_name=method_name)
-    py_class_file.write('            return {}\n\n'.format(cmd_line))
+    py_class_file.write('            return {}\n\n'.format(cmd_line))'''
 
 
 def add_params(params, py_class_file):
@@ -99,25 +105,34 @@ def add_params(params, py_class_file):
     py_class_file.write('\n')
 
 
+def add_get_resource_path(py_class_file, param_name):
+    py_class_file.write('    def get_resource_path(self):\n')
+    py_class_file.write('        self_path = self._resource_path.format({param_name}=self.{param_name}).rstrip("/")\n'.
+                        format(param_name=param_name))
+
+    py_class_file.write('        return "{parent_path}{self_path}".format('
+                        '\n            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", '
+                        'self_path=self_path)\n\n')
+
+
 def add_init(component, py_class_file, root_class_name, resource_path):
     param_list = []
     if len(component.list_of_next_components) != 0:
         for component_name in component.list_of_next_components:
             param_list.append(component_name.name)
 
-    py_class_file.write('    def __init__(self):\n')
+    py_class_file.write('    def __init__(self, parent_obj):\n')
     for param in param_list:
-        py_class_file.write('        self.{param} = {param_class}()\n'.format(param=param,
-                                                                              param_class=param.capitalize()))
+        py_class_file.write('        self.{param} = {param_class}(self)\n'.format(param=param,
+                                                                                  param_class=param.capitalize()))
 
     line_str = "ApiType.NVUE: Nvue{name}Cli, ApiType.OPENAPI: OpenApi{name}Cli".format(
         name=root_class_name.capitalize())
     py_class_file.write('        self.api_obj = {' + line_str + '}\n')
 
-    py_class_file.write("        self.resource_path = '{}'\n".format(
+    py_class_file.write("        self._resource_path = '{}'\n".format(
         resource_path if root_class_name != component.name else "/" + root_class_name))
-
-    py_class_file.write('\n')
+    py_class_file.write("        self.parent_obj = parent_obj\n\n")
 
 # --------------------------------------------------------------------------------------------------
 
@@ -137,11 +152,11 @@ def create_nvue_clis(path_to_nvue_cli, root_class_name, isnewfie, addshow=True, 
             nvue_cli_file = open(path_to_nvue_cli, 'a')
 
         if addshow:
-            add_nvue_method(nvue_cli_file, SHOW_METHOD_NAME)
+            add_nvue_method(nvue_cli_file, SHOW_METHOD_NAME, "show")
         if addset:
-            add_nvue_method(nvue_cli_file, SET_METHOD_NAME)
+            add_nvue_method(nvue_cli_file, SET_METHOD_NAME, "set")
         if addunset:
-            add_nvue_method(nvue_cli_file, UNSET_METHOD_NAME)
+            add_nvue_method(nvue_cli_file, UNSET_METHOD_NAME, "unset")
     except Exception as ex:
         print("Failed to create nvue cli: " + ex)
     finally:
@@ -158,11 +173,21 @@ def create_nvue_cli_class(nvue_cli_file, root_class_name):
     nvue_cli_file.write("class {}:\n\n".format(nvue_class_name))
 
 
-def add_nvue_method(nvue_cli_file, method_str):
+def add_nvue_method(nvue_cli_file, method_str, nvue_request_type):
     print('-adding show method')
     nvue_cli_file.write("    @staticmethod\n")
     nvue_cli_file.write(method_str)
-    nvue_cli_file.write('        cmd = "TO DO: ADD CMD COMMAND"\n')
+
+    nvue_cli_file.write("        path = resource_path.replace('/', ' ')\n")
+    cmd = "        cmd = \"nv {request_type} ".format(request_type=nvue_request_type)
+    if nvue_request_type == "show":
+        cmd += "--output {output_format} "
+    cmd += '{path} {params}\".\\\n            format('
+    if nvue_request_type == "show":
+        cmd += 'output_format=output_format, '
+    cmd += 'path=path, params=op_param)\n'
+
+    nvue_cli_file.write(cmd)
     nvue_cli_file.write('        logging.info("Running \'{cmd}\' on dut using NVUE".format(cmd=cmd))\n')
     nvue_cli_file.write('        return engine.run_cmd(cmd)\n\n')
 
@@ -305,11 +330,14 @@ def define_classes(component, root_class_name, base_directory):
             print('-add init method')
             add_init(component, py_class_file, root_class_name, component.resource_path)
 
-            if component.set_method:
+            if component.param_list and len(component.param_list) > 0:
+                add_get_resource_path(py_class_file, component.param_list[0])
+
+            if not component.set_method:
                 print('-add set method')
                 add_method('set', py_class_file, component.resource_path)
 
-            if component.unset_method:
+            if not component.unset_method:
                 print('-add unset method')
                 add_method('unset', py_class_file, component.resource_path)
 
