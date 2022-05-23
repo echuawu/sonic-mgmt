@@ -117,6 +117,7 @@ class CoppBase:
         self.topology = topology_obj
         self.sonic_version = sonic_version
         self.is_simx = is_simx
+        self.chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
         self.sender = 'ha'
         self.host_iface = topology_obj.ports['ha-dut-1']
         self.dut_iface = topology_obj.ports['dut-ha-1']
@@ -601,7 +602,8 @@ class ARPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        self.default_simx_cir = 200
+        default_simx_cir_per_chip = {'SPC': 300, 'SPC2': 270, 'SPC3': 200}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
         self.dst_mac = 'ff:ff:ff:ff:ff:ff'
 
@@ -648,7 +650,8 @@ class SNMPTest(CoppBase):
         # TODO trapped as ip2me. Mellanox should add support for SNMP trap. update values accordingly
         self.default_cir = 6000
         self.default_cbs = 1000
-        self.default_simx_cir = 200
+        default_simx_cir_per_chip = {'SPC': 240, 'SPC2': 220, 'SPC3': 200}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 600
         self.trap_name = 'ip2me'
         logger.info("The tested protocol SNMP have too big default value for burst, "
@@ -696,7 +699,8 @@ class IP2METest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 6000
         self.default_cbs = 1000
-        self.default_simx_cir = 200
+        default_simx_cir_per_chip = {'SPC': 320, 'SPC2': 300, 'SPC3': 200}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 600
         self.trap_name = 'ip2me'
         logger.info("The tested protocol IP2ME have too big default value for burst, "
@@ -735,7 +739,8 @@ class SSHTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        self.default_simx_cir = 200
+        default_simx_cir_per_chip = {'SPC': 320, 'SPC2': 300, 'SPC3': 200}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
         self.trap_name = 'ssh'
 
@@ -807,7 +812,8 @@ class LACPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        self.default_simx_cir = 220
+        default_simx_cir_per_chip = {'SPC': 380, 'SPC2': 300, 'SPC3': 220}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
         self.trap_name = 'lacp'
 
@@ -842,7 +848,8 @@ class BGPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        self.default_simx_cir = 160
+        default_simx_cir_per_chip = {'SPC': 220, 'SPC2': 200, 'SPC3': 160}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
 
 # -------------------------------------------------------------------------------
@@ -884,7 +891,8 @@ class DHCPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        self.default_simx_cir = 200
+        default_simx_cir_per_chip = {'SPC': 330, 'SPC2': 280, 'SPC3': 200}
+        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
 
 # -------------------------------------------------------------------------------
