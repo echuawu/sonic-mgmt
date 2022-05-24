@@ -337,8 +337,10 @@
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
       - show_techsupport/test_techsupport.py::test_techsupport
+      - platform_tests/sfp/test_sfputil.py
+      - show_techsupport/test_auto_techsupport.py
       Redmine:
-        - 2940773
+        - 2915388
 
 - Errors_list:
     - '.*WARNING syncd#SDK: \[HOST_INTERFACE\.WARNING\] Receive event of FW SOS.*'
