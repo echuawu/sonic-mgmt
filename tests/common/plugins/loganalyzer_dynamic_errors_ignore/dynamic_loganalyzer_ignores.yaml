@@ -339,6 +339,7 @@
       - show_techsupport/test_techsupport.py::test_techsupport
       - platform_tests/sfp/test_sfputil.py
       - show_techsupport/test_auto_techsupport.py
+
       Redmine:
         - 2915388
 
@@ -634,7 +635,7 @@
     - '.* ERR pmon#thermalctld: Failed to read from file /run/hw-management/thermal/module.*_temp_fault - OSError.*'
   Conditions:
     - Redmine:
-      - 2976349
+      - 2856406
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_port_by_log_id: Failed lookup port config by log id.*'
