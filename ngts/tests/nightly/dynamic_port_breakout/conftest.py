@@ -64,14 +64,10 @@ def dpb_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
 
     yield
 
-    logger.info('Apply qos and dynamic buffer configuration after DPB tests finished')
-    with allure.step("Apply qos and dynamic buffer configuration after DPB tests finished"):
-        cli_objects.dut.qos.stop_buffermgrd()
-        cli_objects.dut.qos.reload_qos()
-        cli_objects.dut.qos.start_buffermgrd()
-        cli_objects.dut.general.save_configuration()
+    logger.info('Starting DPB configuration cleanup')
+    cli_objects.dut.general.apply_basic_config(topology_obj, setup_name, platform_params)
 
-    logger.info('DPB tests completed')
+    logger.info('DPB cleanup completed')
 
 
 def get_random_lb_breakout_conf(topology_obj, ports_breakout_modes):
