@@ -1,9 +1,9 @@
 import re
 import logging
-from retry import retry
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+import time
 
 logger = logging.getLogger()
 
@@ -36,13 +36,13 @@ class BaseDevice:
     def _init_dockers(self):
         pass
 
-    @retry(Exception, tries=3, delay=5)
     def verify_databases(self, dut_engine):
         """
         validate the redis includes all expected tables
         :param dut_engine: ssh dut engine
         Return result_obj with True result if all tables exists, False and a relevant info if one or more tables are missing
         """
+        time.sleep(10)
         result_obj = ResultObj(True, "")
         for db_name, db_id in self.available_databases.items():
             if db_name == DatabaseConst.STATE_DB_NAME:
