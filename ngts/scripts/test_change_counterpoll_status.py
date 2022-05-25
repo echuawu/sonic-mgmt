@@ -28,12 +28,12 @@ def test_change_counterpoll_status(topology_obj, action):
                 if action == "enable":
                     if value['Status'] == 'disable':
                         dut_cli_object.counterpoll.enable_counterpoll()
-                        dut_cli_object.general.reload_flow(topology_obj=topology_obj, reload_force=True)
+                        dut_cli_object.general.reload_configuration(force=True)
                         break
                 elif action == "disable":
                     if value['Status'] == 'enable':
                         dut_cli_object.counterpoll.disable_counterpoll()
-                        dut_cli_object.general.reload_flow(topology_obj=topology_obj, reload_force=True)
+                        dut_cli_object.general.reload_configuration(force=True)
                         break
         with allure.step("Verify counterpoll status is {}".format(action)):
             veify_counter_status(dut_cli_object, excepted_status=action)
