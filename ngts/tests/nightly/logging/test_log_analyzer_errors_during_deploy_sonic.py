@@ -60,12 +60,10 @@ def get_oldest_syslog_id(engine):
     with allure.step('Getting oldest syslog file ID'):
         syslogs_list = engine.run_cmd('sudo ls /var/log/syslog*').split()
         list_of_file_ids = []
-        for syslog in syslogs_list:
-            try:
-                _, id, _ = syslog.split('.')
-                list_of_file_ids.append(int(id))
-            except ValueError:
-                pass
+        for syslog_name in syslogs_list:
+            for s in syslog_name.split('.'):
+                if s.isdigit():
+                    list_of_file_ids.append(int(s))
         # Get first element - which is bigger(oldest syslog file index) that other
         oldest_syslog_id = sorted(list_of_file_ids, reverse=True)[0]
         logger.info(f'Oldest syslog file id is: {oldest_syslog_id}')
