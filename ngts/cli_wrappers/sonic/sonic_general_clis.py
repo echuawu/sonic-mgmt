@@ -229,8 +229,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             # Try to get extended docker list for DUT type ToRRouter
             try:
                 config_db = self.get_config_db()
-                if config_db['DEVICE_METADATA']['localhost']['type'] == 'ToRRouter' \
-                        and not self.is_bluefield(config_db['DEVICE_METADATA']['localhost']['hwsku']):
+                if self.is_bluefield(config_db['DEVICE_METADATA']['localhost']['hwsku']):
+                    dockers_list = SonicConst.DOCKERS_LIST_BF
+                elif config_db['DEVICE_METADATA']['localhost']['type'] == 'ToRRouter':
                     dockers_list = SonicConst.DOCKERS_LIST_TOR
             except json.JSONDecodeError:
                 logger.warning('Can not get device type from config_db.json. Unable to parse config_db.json file')
