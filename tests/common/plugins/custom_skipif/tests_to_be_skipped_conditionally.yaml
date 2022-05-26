@@ -913,9 +913,19 @@ platform_tests/test_advanced_reboot.py::test_warm_reboot:
       - x86_64-mlnx_msn3700-r0
       - x86_64-mlnx_msn3800-r0
 
+platform_tests/test_cpu_memory_usage.py:
+  - Redmine:
+    - 3084909
+    Platform:
+      - nvda_bf
+
 show_techsupport/test_auto_techsupport.py:
   - Branch:
     - 202012
+  - Redmine:
+    - 3075438
+    Platform:
+      - nvda_bf
 
 drop_packets/test_drop_counters.py::test_equal_smac_dmac_drop:
   - Redmine:
