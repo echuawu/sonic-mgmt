@@ -331,7 +331,7 @@ master:
     bgpcfgd: 30
     bgpmon: 20
     fpmsyncd: 5
-    orchagent: 30
+    orchagent: 50
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
@@ -978,7 +978,7 @@ master:
     bgpcfgd: 30
     bgpmon: 20
     fpmsyncd: 5
-    orchagent: 30
+    orchagent: 50
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
