@@ -674,11 +674,21 @@ tests/nightly/auto_negotition:
     - simx
     - 3800
 
+tests/nightly/auto_negotition/test_auto_neg.py:
+  - Redmine:
+    - 3085051
+    platform:
+    - 2201
+
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   - Redmine:
     - 3011349
     Branch:
     - 202111
+  - Redmine:
+    - 3085051
+    platform:
+    - 2201
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
