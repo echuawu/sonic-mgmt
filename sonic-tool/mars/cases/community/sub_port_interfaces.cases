@@ -27,9 +27,9 @@
     </case>
 
     <case>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Valid Vlan Case </info>
+        <name> packet_routed_with_valid_vlan </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_valid_vlan </static_args>
@@ -38,9 +38,9 @@
     </case>
 
     <case>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Invalid Vlan Case </info>
+        <name> packet_routed_with_invalid_vlan </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_invalid_vlan </static_args>
@@ -49,9 +49,9 @@
     </case>
 
     <case>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Untagged Case </info>
+        <name> untagged_packet_not_routed </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_untagged_packet_not_routed </static_args>
@@ -67,9 +67,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Admin Down Case </info>
+        <name> admin_status_down_disables_forwarding </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_admin_status_down_disables_forwarding </static_args>
@@ -85,8 +85,8 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
+        <info> Sub Port Interfaces Max Sub Ports Case </info>
+        <name> max_numbers_of_sub_ports </name>
         <tout> 7200 </tout>
         <cmd>
             <params>
@@ -103,9 +103,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Mtu Case </info>
+        <name> mtu_inherited_from_parent_port </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_mtu_inherited_from_parent_port </static_args>
@@ -121,9 +121,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Vlan Config Case </info>
+        <name> vlan_config_impact </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_vlan_config_impact </static_args>
@@ -139,9 +139,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Route Between Sub Ports Case </info>
+        <name> routing_between_sub_ports </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports </static_args>
@@ -157,9 +157,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Remove Sub Ports Case </info>
+        <name> routing_between_sub_ports_unaffected_by_sub_ports_removal </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports_unaffected_by_sub_ports_removal </static_args>
@@ -175,9 +175,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Rout Between Sub Ports and Port Case </info>
+        <name> routing_between_sub_ports_and_port </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports_and_port </static_args>
@@ -193,9 +193,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Tunneling Case </info>
+        <name> tunneling_between_sub_ports </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports </static_args>
@@ -204,9 +204,9 @@
     </case>
 
     <case>
-        <info> Sub Port Interfaces Case </info>
-        <name> sub_port_interface </name>
-        <tout> 7200 </tout>
+        <info> Sub Port Interfaces Load Balancing Case </info>
+        <name> balancing_sub_ports </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--topology [[conf:extra_info.topology]] --log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports </static_args>
