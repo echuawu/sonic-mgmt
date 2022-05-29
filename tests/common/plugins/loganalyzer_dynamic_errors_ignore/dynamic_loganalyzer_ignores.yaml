@@ -444,6 +444,16 @@
         - 3010810
 
 - Errors_list:
+    - '.*ERR teamd#teamsyncd: :- poll_descriptors: readData error: Unable to initialize team socket: Cannot assign requested address'
+  Conditions:
+    - Affected_test_cases:
+      - autorestart/test_container_autorestart.py
+      Redmine:
+        - 3071644
+      GitHub:
+        - https://github.com/Azure/sonic-buildimage/issues/10867
+
+- Errors_list:
     - '.* WARNING syncd#SDK: \[SAI_TUNNEL.WARNING\] mlnx_sai_tunnel.c\[\d+\]- mlnx_sdk_fill_tunnel_ttl_data: TTL uniform model is not supported for non-ipinip type on Spectrum 1, using default settings in switch'
   Conditions:
     - Redmine:
