@@ -67,3 +67,11 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         else:
             output = engine.run_cmd('nv config apply')
         return output
+
+    @staticmethod
+    def reboot(engine):
+        """
+        Rebooting the switch
+        """
+        logger.info('Reboot Switch')
+        return engine.run_cmd('sudo reboot')

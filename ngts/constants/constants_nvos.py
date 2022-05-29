@@ -76,3 +76,49 @@ class OpenApiReqType:
     GET = 'GET'
     PATCH = 'PATCH'
     DELETE = 'DELETE'
+
+
+class SystemConsts:
+    HOSTNAME = 'hostname'
+    REBOOT = 'reboot'
+    BUILD = 'build'
+    PLATFORM = 'platform'
+    PRODUCT_NAME = 'product-name'
+    PRODUCT_RELEASE = 'product-release'
+    SWAP_MEMORY = 'swap-memory'
+    SYSTEM_MEMORY = 'system-memory'
+    UPTIME = 'uptime'
+    TIMEZONE = 'timezone'
+
+    PRE_LOGIN_MESSAGE = 'pre-login'
+    POST_LOGIN_MESSAGE = 'post-login'
+
+    REBOOT_HISTORY = 'history'
+    REBOOT_REASON = 'reason'
+
+    VERSION_BUILD_DATE = 'build-date'
+    VERSION_BUILT_BY = 'built-by'
+    VERSION_IMAGE = 'image'
+    VERSION_KERNEL = 'kernel'
+
+    HOSTNAME_DEFAULT_VALUE = 'nvos'
+    PRE_LOGIN_MESSAGE_DEFAULT_VALUE = "NVOS switch"
+    POST_LOGIN_MESSAGE_DEFAULT_VALUE = "\\n \u2588\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2557   " \
+                                       "\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 " \
+                                       "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\\n " \
+                                       "\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551\u2588\u2588\u2551   " \
+                                       "\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557" \
+                                       "\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\\n \u2588\u2588\u2554\u2588" \
+                                       "\u2588\u2557 \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588" \
+                                       "\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588" \
+                                       "\u2557\\n \u2588\u2588\u2551\u255a\u2588\u2588\u2557\u2588\u2588\u2551\u255a" \
+                                       "\u2588\u2588\u2557 \u2588\u2588\u2554\u255d\u2588\u2588\u2551   \u2588\u2588" \
+                                       "\u2551\u255a\u2550\u2550\u2550\u2550\u2588\u2588\u2551\\n \u2588\u2588\u2551 " \
+                                       "\u255a\u2588\u2588\u2588\u2588\u2551" \
+                                       " \u255a\u2588\u2588\u2588\u2588\u2554\u255d " \
+                                       "\u255a\u2588\u2588\u2588\u2588\u2588" \
+                                       "\u2588\u2554\u255d\u2588\u2588\u2588\u2588" \
+                                       "\u2588\u2588\u2588\u2551\\n \u255a" \
+                                       "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d" \
+                                       "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
+                                       " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"

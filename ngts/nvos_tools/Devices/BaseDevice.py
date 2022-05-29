@@ -1,8 +1,10 @@
 import re
 import logging
+from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.constants.constants_nvos import SystemConsts
 import time
 
 logger = logging.getLogger()
@@ -15,10 +17,12 @@ class BaseDevice:
         self.available_tables = {}
         self.available_services = []
         self.available_dockers = []
+        self.constants = {}
 
         self._init_available_databases()
         self._init_services()
         self._init_dockers()
+        self._init_contants()
 
     @abstractmethod
     def _init_available_databases(self):
@@ -34,6 +38,10 @@ class BaseDevice:
 
     @abstractmethod
     def _init_dockers(self):
+        pass
+
+    @abstractmethod
+    def _init_contants(self):
         pass
 
     def verify_databases(self, dut_engine):
@@ -205,6 +213,20 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_dockers(self):
         BaseDevice._init_services(self)
         self.available_dockers.extend(('nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database'))
+
+    def _init_contants(self):
+        BaseDevice._init_contants(self)
+        Constants = namedtuple('Constants', ['system'])
+        system_dic = {
+            'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
+                       SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
+                       SystemConsts.UPTIME, SystemConsts.TIMEZONE],
+            'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
+            'reboot': [SystemConsts.REBOOT_HISTORY, SystemConsts.REBOOT_REASON],
+            'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
+                        SystemConsts.VERSION_KERNEL]
+        }
+        self.constants = Constants(system_dic)
 
 
 # -------------------------- Gorilla Switch ----------------------------

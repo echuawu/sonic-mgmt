@@ -125,3 +125,14 @@ class ValidationTool:
         elif value1 == value2:
             result_obj = ResultObj(True, "The values are equal", True)
         return result_obj
+
+    @staticmethod
+    def verify_all_fileds_value_exist_in_output_dictionary(output_dictionary):
+        with allure.step('Verify all the fields values are not None'):
+            result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
+            for key, value in output_dictionary.items():
+                if not value:
+                    result_obj.result = False
+                    result_obj.info += "The value of {field_name} not as expected".format(
+                        field_name=key)
+            return result_obj
