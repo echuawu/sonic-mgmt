@@ -34,7 +34,7 @@ def have_sanitizer_failed(dut_engine):
     :return: return True if sanitizer had detected memory leaks
     """
     check_sanitizer_folder_cmd = \
-        f"""[ "$(ls -A {SonicConst.SANITIZER_FOLDER_PATH})" ] && echo 'Not Empty' || echo 'Empty'"""
+        f"""[ "$(sudo ls -A {SonicConst.SANITIZER_FOLDER_PATH})" ] && echo 'Not Empty' || echo 'Empty'"""
     res = dut_engine.run_cmd(check_sanitizer_folder_cmd)
     return res == 'Not Empty'
 
