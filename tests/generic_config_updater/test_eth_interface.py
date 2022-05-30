@@ -194,6 +194,7 @@ def test_replace_fec(duthost, ensure_dut_readiness, fec):
     logger.info("tmpfile {}".format(tmpfile))
 
     try:
+        duthost.shell(cmd='config interface fec Ethernet0 none')
         output = apply_patch(duthost, json_data=json_patch, dest_file=tmpfile)
         expect_op_success(duthost, output)
         current_status_fec = check_interface_status(duthost, "FEC")
