@@ -877,3 +877,15 @@
       - 30844763
       Platform:
       - nvda_bf
+
+- Errors_list:
+    - '.* ERR hostcfgd: sonic-kdump-config --num_dumps.*'
+    - '.* ERR dhclient\[\d+\]: receive_packet failed on.*'
+    - '.* ERR dhclient\[\d+\]: dhclient.c:\d+: Failed to send.*'
+    - '.* ERR dhclient\[\d+\]: send_packet.*: No such device*'
+    - '.* ERR dhclient\[\d+\]: dhc\d+: send_packet\d+.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3061632
