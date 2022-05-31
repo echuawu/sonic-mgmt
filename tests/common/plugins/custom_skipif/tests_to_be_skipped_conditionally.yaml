@@ -937,6 +937,14 @@ show_techsupport/test_auto_techsupport.py:
     Platform:
       - nvda_bf
 
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity:
+  - Redmine:
+    - 3083731
+
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[core]:
+  - Redmine:
+    - 3083731
+
 drop_packets/test_drop_counters.py::test_equal_smac_dmac_drop:
   - Redmine:
     - 3061096
