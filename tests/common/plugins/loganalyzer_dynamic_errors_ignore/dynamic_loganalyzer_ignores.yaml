@@ -873,6 +873,7 @@
   Conditions:
     - Affected_test_cases:
       - platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom
+      - show_techsupport/test_techsupport_no_secret.py
       Redmine:
       - 30844763
       Platform:
