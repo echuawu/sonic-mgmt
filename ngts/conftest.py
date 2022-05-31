@@ -78,6 +78,9 @@ def pytest_addoption(parser):
     parser.addoption("--test_name", action="store", default=None,
                      help="a parameter for script check_and_store_sanitizer_dump.py, "
                           "will check for sanitizer failures and store dump under test name")
+    parser.addoption("--send_mail", action="store", default=False,
+                     help="a boolean parameter for script check_and_store_sanitizer_dump.py, "
+                          "will send mail with the sanitizer failures")
     parser.addoption("--tech_support_duration", action="store", default=None, help="duration of tech support for test")
     parser.addoption(PytestConst.run_config_only_arg, action='store_true', help='If set then only the configuration '
                                                                                 'part defined in the push_build '

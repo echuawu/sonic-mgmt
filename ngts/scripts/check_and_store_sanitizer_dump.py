@@ -4,9 +4,16 @@ import logging
 import pytest
 from datetime import datetime
 from retry.api import retry_call
-from ngts.constants.constants import SonicConst, PytestConst
+from ngts.constants.constants import SonicConst, PytestConst, NvosCliTypes
+import tarfile
+import re
+import smtplib
+from email.mime.text import MIMEText
 
 logger = logging.getLogger()
+SENDER_MAIL = 'noreply@sanitizer.com'
+NVOS_MAIL = 'ncaro-staff@exchange.nvidia.com'
+NVIDIA_MAIL_SERVER = 'mail.nvidia.com'
 
 
 @pytest.fixture(scope='function')
@@ -18,6 +25,18 @@ def test_name(request):
     :return: the test name, i.e, push_gate
     """
     return request.config.getoption('--test_name')
+
+
+@pytest.fixture(scope='function')
+def send_mail(request):
+    """
+    Method for getting the send_mail boolean parameter for script check_and_store_sanitizer_dump.py,
+    true, to send the report by mail
+    :param request: pytest buildin
+    :return: True/False, True to send mail.
+    """
+    value = request.config.getoption('--send_mail')
+    return True if value in ['t', 'T', 'True', 'true', 'TRUE'] else False
 
 
 def check_sanitizer_and_store_dump(dut_engine, dumps_folder, test_name):
@@ -93,8 +112,89 @@ def check_dump_folder_for_existing_sanitizer_files(dut_engine, dumps_folder):
     return files_list
 
 
+def aggregate_asan_and_send_mail(mail_address, sanitizer_dump_path, extract_path, setup_name):
+    """
+    aggregate the asan files from the sanitizer_dump_path - its a tar file.
+    extract it to extract_path
+    send mail for each daemon with failures , and a summary mail to mail_address
+    :param mail_address: mail address to send the mail to
+    :param sanitizer_dump_path: the path of the tar file of the asan files
+    :param extract_path: path of a directory to extract the file there
+    :param setup_name: the setup name
+    """
+    extract_path = "{}/{}".format(extract_path, "asan")
+    logger.info(f"extract files to {extract_path}")
+    asan_files_dict = aggregate_asan_files(sanitizer_dump_path, extract_path)
+    try:
+        s = smtplib.SMTP(NVIDIA_MAIL_SERVER)
+        for daemon in asan_files_dict.keys():
+            email_contents = orgenize_email_content('\n\n'.join(asan_files_dict[daemon]),
+                                                    "Sanitizer errors on daemon {}, on setup {}".format(daemon, setup_name),
+                                                    mail_address)
+            logger.info(f"sending mail about daemon {daemon}")
+            s.sendmail(SENDER_MAIL, email_contents['To'], email_contents.as_string())
+
+        text = 'Sanitizer found errors on daemons: \n{}\nYou should get mail for each daemon\n' \
+               'All the ASAN files are here: {}\nTar file:{}'.format(asan_files_dict.keys(), extract_path, sanitizer_dump_path)
+        summary_email_contents = orgenize_email_content(text, "Sanitizer report on setup {}".format(setup_name), mail_address)
+        s.sendmail(SENDER_MAIL, summary_email_contents['To'], summary_email_contents.as_string())
+    finally:
+        s.quit()
+
+
+def orgenize_email_content(content, subject, mail_address):
+    email_contents = MIMEText(content)
+    email_contents['Subject'] = subject
+    email_contents['To'] = mail_address
+    return email_contents
+
+
+def aggregate_asan_files(sanitizer_dump_path, extract_path):
+    '''
+    aggregate all the asan files that are related to the same daemon and save it in a dictionary
+    :param sanitizer_dump_path: the path of the tar file of the asan files
+    :param extract_path: path of a directory to extract the file there
+    :return:
+        asan_files_dict = {
+                    'syncd': 'sanitizer error ....',
+                    'portsyncd' : 'sanitizer error ....',
+                    }
+    '''
+    try:
+        tar = tarfile.open(sanitizer_dump_path, 'r')
+        tar.extractall(extract_path)
+        asan_files_dict = {}
+        for file in tar:
+            # take just the daemon name from the file name ( file:2022-05-29_07-59-20_syncd-asan.log.17 , so daemon name: syncd)
+            daemon_name = re.findall(r"([a-z]*)-asan", file.name)
+            if daemon_name:
+                daemon_name = daemon_name[0]
+                file_path = extract_path + file.name.replace('./', '/')
+                cmd = f"cat {file_path} "
+                lines = f"file: {file_path}"
+                lines += os.popen(cmd).read()
+                tmp_list = asan_files_dict.get(daemon_name, [])
+                tmp_list.append(lines)
+                asan_files_dict[daemon_name] = tmp_list
+    finally:
+        tar.close()
+    return asan_files_dict
+
+
+def get_mail_address(topology_obj):
+    '''
+    :param topology_obj: topology object of the setup
+    :return: the mail address to send the report to.
+            if its a NVOS system , send to NVOS_EMAILS
+    '''
+    mail_address = ''
+    if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
+        mail_address = NVOS_MAIL
+    return mail_address
+
+
 @pytest.mark.disable_loganalyzer
-def test_sanitizer(topology_obj, dumps_folder, test_name):
+def test_sanitizer(topology_obj, dumps_folder, test_name, send_mail, setup_name):
     if topology_obj.players['dut']['sanitizer']:
         os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
         dut_engine = topology_obj.players['dut']['engine']
@@ -113,6 +213,10 @@ def test_sanitizer(topology_obj, dumps_folder, test_name):
                 if sanitizer_dump_path:
                     logger.warning(f"Sanitizer had failed when preforming reboot, "
                                    f"sanitizer dump is at {sanitizer_dump_path}")
+                if send_mail:
+                    mail_address = get_mail_address(topology_obj)
+                    with allure.step(f'Sending mail with the sanitizer failures to {mail_address}'):
+                        aggregate_asan_and_send_mail(mail_address, sanitizer_dump_path, dumps_folder, setup_name)
                 raise AssertionError(f"Sanitizer has failed - please check saved dumps at {dumps_folder}")
     else:
         logger.info("Image doesn't include sanitizer - script is not checking for sanitizer dumps")
