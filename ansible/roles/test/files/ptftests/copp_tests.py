@@ -145,11 +145,16 @@ class ControlPlaneBaseTest(BaseTest):
 
         time.sleep(self.DEFAULT_RECEIVE_WAIT_TIME)  # Wait a little bit for all the packets to make it through
         recv_count = testutils.count_matched_packets(self, packet, recv_intf[1], recv_intf[0], timeout=10)
+        self.log("####### Debug stuck issue, will remove it later. 111 ##########")
 
         post_test_ptf_tx_counter = self.dataplane.get_counters(*send_intf)
+        self.log("####### Debug stuck issue, will remove it later.222 ##########")
         post_test_ptf_rx_counter = self.dataplane.get_counters(*recv_intf)
+        self.log("####### Debug stuck issue, will remove it later. 333 ##########")
         post_test_nn_tx_counter = self.dataplane.get_nn_counters(*send_intf)
+        self.log("####### Debug stuck issue, will remove it later. 444 ##########")
         post_test_nn_rx_counter = self.dataplane.get_nn_counters(*recv_intf)
+        self.log("####### Debug stuck issue, will remove it later. 555 ##########")
 
         ptf_tx_count = int(post_test_ptf_tx_counter[1] - pre_test_ptf_tx_counter[1])
         nn_tx_count = int(post_test_nn_tx_counter[1] - pre_test_nn_tx_counter[1])
