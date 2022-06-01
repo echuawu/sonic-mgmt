@@ -6,6 +6,8 @@ from retry import retry
 
 logger = logging.getLogger()
 
+counterpoll_name_list = ["flowcnt-trap", "pg-drop", "port", "port-buffer-drop", "queue", "rif", "acl", "tunnel", "watermark"]
+
 
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("action", ["enable", "disable"])
@@ -23,18 +25,17 @@ def test_change_counterpoll_status(topology_obj, action):
     try:
         dut_cli_object = topology_obj.players['dut']['cli']
         with allure.step(" {} counterpoll status".format(action)):
-            counterpoll_status_dict = dut_cli_object.counterpoll.parse_counterpoll_show()
-            for counter, value in counterpoll_status_dict.items():
+            for counter_name in counterpoll_name_list:
                 if action == "enable":
-                    if value['Status'] == 'disable':
-                        dut_cli_object.counterpoll.enable_counterpoll()
-                        dut_cli_object.general.reload_configuration(force=True)
-                        break
+                    try:
+                        dut_cli_object.counterpoll.enable_counterpoll(counter_name)
+                    except Exception as err:
+                        logging.error(err)
                 elif action == "disable":
-                    if value['Status'] == 'enable':
-                        dut_cli_object.counterpoll.disable_counterpoll()
-                        dut_cli_object.general.reload_configuration(force=True)
-                        break
+                    try:
+                        dut_cli_object.counterpoll.disable_counterpoll(counter_name)
+                    except Exception as err:
+                        logging.error(err)
         with allure.step("Verify counterpoll status is {}".format(action)):
             veify_counter_status(dut_cli_object, excepted_status=action)
     except Exception as err:

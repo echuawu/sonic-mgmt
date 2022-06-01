@@ -10,18 +10,19 @@ class SonicCounterpollCli(CounterpollCliCommon):
     def __init__(self, engine):
         self.engine = engine
 
-    def disable_counterpoll(self):
+    def disable_counterpoll(self, counterpoll_name="config-db"):
         """
         Disable counterpoll on SONIC
         """
-        cmd = 'sudo counterpoll config-db disable'
+
+        cmd = 'sudo counterpoll {} disable'.format(counterpoll_name)
         return self.engine.run_cmd(cmd)
 
-    def enable_counterpoll(self):
+    def enable_counterpoll(self, counterpoll_name="config-db"):
         """
         Enable counterpoll on SONIC
         """
-        cmd = 'sudo counterpoll config-db enable'
+        cmd = 'sudo counterpoll {} enable'.format(counterpoll_name)
         return self.engine.run_cmd(cmd)
 
     def show(self):
