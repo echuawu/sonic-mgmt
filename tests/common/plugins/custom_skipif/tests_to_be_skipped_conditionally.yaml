@@ -1013,7 +1013,3 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
 scripts/test_verify_fanout_version.py::test_verify_fanout_version:
   - Redmine:
     - 3058927
-
-crm/test_crm.py::test_crm_nexthop_group:
-  - Redmine:
-    - 3070820
