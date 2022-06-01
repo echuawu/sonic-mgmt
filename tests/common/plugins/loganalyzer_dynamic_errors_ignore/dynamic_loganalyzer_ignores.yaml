@@ -816,6 +816,7 @@
         - 3044595
 
 - Errors_list:
+    - ".*Failed to add device '/dev/sda' to watch: Operation not permitted.*"
     - ".*Failed to add device '/dev/sda3' to watch: Operation not permitted.*"
   Conditions:
     - Redmine:
