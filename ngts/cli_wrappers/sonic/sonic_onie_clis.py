@@ -35,6 +35,7 @@ class SonicOnieCli:
         self.engine = None
         self.latest_onie_version = ''
         self.latest_onie_url = ''
+        self.is_nos_installed = False
         self.fw_pkg_path = fw_pkg_path
         self.platform_params = platform_params
         self.create_engine()
@@ -79,6 +80,15 @@ class SonicOnieCli:
         boot_info_output, _ = self.run_cmd_set([get_boot_info_cmd])
         if f'boot_reason={mode}' not in boot_info_output:
             logger.info(f'Changing the ONIE boot mode to {mode}')
+            self.is_nos_installed, _ = self.run_cmd_set(['ls /dev/sda3'])
+            if self.is_nos_installed:
+                # If NOS installed - set GRUB force boot into ONIE
+                cmds_list = ['mkdir /boot',
+                             'mount /dev/sda3  /boot/',
+                             'grub-editenv /boot/grub/grubenv set next_entry=ONIE',
+                             'mount LABEL=ONIE-BOOT /mnt/onie-boot',
+                             'onie-nos-mode -c -v']
+                self.run_cmd_set(cmds_list)
             self.run_cmd_set([f'onie-boot-mode -o {mode}'])
             self.reboot()
         else:
@@ -133,6 +143,12 @@ class SonicOnieCli:
                 self.confirm_onie_boot_mode_update()
                 # restore engine after reboot
                 self.create_engine(True)
+                if self.is_nos_installed:
+                    # If NOS installed - set GRUB force boot into ONIE
+                    cmds_list = ['mkdir /boot',
+                                 'mount /dev/sda3  /boot/',
+                                 'grub-editenv /boot/grub/grubenv set next_entry=ONIE']
+                    self.run_cmd_set(cmds_list)
                 self.run_cmd_set([f'onie-self-update {self.latest_onie_url}'])
                 self.post_reboot_delay()
         else:
