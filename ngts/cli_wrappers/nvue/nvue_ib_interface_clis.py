@@ -7,7 +7,7 @@ logger = logging.getLogger()
 class NvueIbInterfaceCli:
 
     @staticmethod
-    def set_interface(engine, port_name, interface, value):
+    def set_interface(engine, port_name, interface, field_name, value):
         """
         Execute set interface command
         cmd: nv set interface <port_name> <interface> <value>

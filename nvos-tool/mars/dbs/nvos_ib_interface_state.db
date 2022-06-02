@@ -25,4 +25,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_ib_interface_state.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_ib_interface_state_openapi.cases </cases>
+	</test>
 </DBDEF>

@@ -5,6 +5,7 @@ from .IbInterfaceDecorators import *
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.constants.constants_nvos import ApiType
 import logging
 import allure
 
@@ -146,3 +147,18 @@ class State(LinkBaseOperational):
             return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
                                                    dut_engine, TestToolkit.tested_ports, self.output_hierarchy,
                                                    output_format).get_returned_value()
+
+    def set(self, value, dut_engine=None, apply=True):
+        with allure.step('Set ‘state‘ to ‘{value}’ for {port_name}'.format(value=value, port_name=self.port_obj.name)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+
+            value_to_use = value
+            field_name_to_use = self.label
+            if TestToolkit.tested_api == ApiType.OPENAPI:
+                value_to_use = {}
+                field_name_to_use = value
+
+            return CmdBase.set_interface(engine=dut_engine, field_name=field_name_to_use,
+                                         output_hierarchy=self.output_hierarchy,
+                                         value=value_to_use, apply=apply, port_obj=self.port_obj)

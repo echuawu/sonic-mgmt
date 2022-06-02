@@ -3,6 +3,7 @@ import allure
 from .nvos_consts import NvosConsts, InternalNvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.ResultObj import ResultObj, IssueType
 
 logger = logging.getLogger()
@@ -27,10 +28,6 @@ class CmdBase:
 
     @staticmethod
     def set_interface(engine, port_obj, field_name, output_hierarchy, value, apply=True):
-        if not value:
-            logging.error("{field_name} value to set is empty".format(field_name=field_name))
-            return ResultObj(False, "{field_name} value is empty", None, IssueType.TestIssue)
-
         logging.info("setting '{field_name}' of '{port_name}' to: '{value}' using {api}".format(
             value=value, field_name=field_name, api=TestToolkit.tested_api, port_name=port_obj.name))
         with allure.step("setting '{field_name}' of '{port_name}' to: '{value}'".format(value=value,
@@ -38,9 +35,9 @@ class CmdBase:
                                                                                         port_name=port_obj.name)):
             result_obj = SendCommandTool.execute_command(port_obj.api_obj[TestToolkit.tested_api].set_interface,
                                                          engine, port_obj.name,
-                                                         output_hierarchy, value)
+                                                         output_hierarchy, field_name, value)
 
-        if result_obj.result and apply:
+        if TestToolkit.tested_api == ApiType.NVUE and result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, engine)
@@ -56,7 +53,7 @@ class CmdBase:
             result_obj = SendCommandTool.execute_command(port_obj.api_obj[TestToolkit.tested_api].unset_interface,
                                                          engine, port_obj.name, output_hierarchy)
 
-        if result_obj.result and apply:
+        if TestToolkit.tested_api == ApiType.NVUE and result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, engine)

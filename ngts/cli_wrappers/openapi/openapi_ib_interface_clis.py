@@ -5,7 +5,7 @@ from ngts.constants.constants_nvos import OutputFormat, OpenApiReqType
 class OpenApiIbInterfaceCli:
 
     @staticmethod
-    def set_interface(engine, port_name, interface, value):
+    def set_interface(engine, port_name, interface, field_name, value):
         """
         Execute set interface command
         cmd: nv set interface <port_name> <interface> <value>
@@ -20,7 +20,7 @@ class OpenApiIbInterfaceCli:
                                                    '/interface/{interface_id}{resource_path}'.format(
                                                        interface_id=port_name,
                                                        resource_path="/" + resource_path if resource_path else ''),
-                                                   value)
+                                                   field_name, value)
 
     @staticmethod
     def unset_interface(engine, port_name, interface):
@@ -36,7 +36,8 @@ class OpenApiIbInterfaceCli:
                                                    OpenApiReqType.DELETE, engine.ip,
                                                    '/interface/{interface_id}{resource_path}'.format(
                                                        interface_id=port_name,
-                                                       resource_path="/" + resource_path if resource_path else ''))
+                                                       resource_path="/" + resource_path if resource_path else ''),
+                                                   "", None)
 
     @staticmethod
     def clear_stats(engine, port_name):

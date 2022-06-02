@@ -50,9 +50,10 @@ class ValidationTool:
         with allure.step('Verify field `{field}` {exist} in json output'.format(field=keys_to_search_for,
                                                                                 exist="exists" if should_be_found else "doesn't exist")):
             result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
-            if not json_output or not keys_to_search_for or len(keys_to_search_for) == 0:
+            if not keys_to_search_for or len(keys_to_search_for) == 0:
                 result_obj.result = False
                 result_obj.info = "Invalid input"
+                result_obj.issue_type = IssueType.TestIssue
                 return result_obj
 
             for key in keys_to_search_for:

@@ -2,7 +2,7 @@ import os
 from ngts.constants.constants_nvos import OpenApiReqType
 
 SHOW_METHOD_NAME = '    def show(engine, resource_path, op_param="", output_format=OutputFormat.json):\n'
-SET_METHOD_NAME = '    def set(engine, resource_path, op_param=""):\n'
+SET_METHOD_NAME = '    def set(engine, resource_path, op_param_name="", op_param_value=""):\n'
 UNSET_METHOD_NAME = '    def unset(engine, resource_path, op_param=""):\n'
 
 NVUE_WRAPPER_FILENAME = 'nvue_{}_clis'
@@ -83,8 +83,11 @@ def add_inner_class_params(component, py_class_file):
 
 
 def add_method(method_name, py_class_file, resource_path):
-    py_class_file.write('    def {method_name}(self, op_param=""): \n'.format(method_name=method_name))
-    py_class_file.write('            assert "{method_name} does not implemented for {resource_path}"\n\n'.
+    if method_name == 'set':
+        py_class_file.write('\n    def set(self, op_param_name="", op_param_value=""): \n')
+    else:
+        py_class_file.write('\n    def {method_name}(self, op_param=""): \n'.format(method_name=method_name))
+    py_class_file.write('        raise Exception("{method_name} is not implemented for {resource_path}")\n'.
                         format(method_name=method_name, resource_path=resource_path))
 
     '''py_class_file.write('    def {method_name}(self, op_param=""): \n'.format(method_name=method_name))
@@ -106,13 +109,13 @@ def add_params(params, py_class_file):
 
 
 def add_get_resource_path(py_class_file, param_name):
-    py_class_file.write('    def get_resource_path(self):\n')
+    py_class_file.write('\n    def get_resource_path(self):\n')
     py_class_file.write('        self_path = self._resource_path.format({param_name}=self.{param_name}).rstrip("/")\n'.
                         format(param_name=param_name))
 
     py_class_file.write('        return "{parent_path}{self_path}".format('
                         '\n            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", '
-                        'self_path=self_path)\n\n')
+                        'self_path=self_path)\n')
 
 
 def add_init(component, py_class_file, root_class_name, resource_path):
@@ -132,14 +135,14 @@ def add_init(component, py_class_file, root_class_name, resource_path):
 
     py_class_file.write("        self._resource_path = '{}'\n".format(
         resource_path if root_class_name != component.name else "/" + root_class_name))
-    py_class_file.write("        self.parent_obj = parent_obj\n\n")
+    py_class_file.write("        self.parent_obj = parent_obj\n")
 
 # --------------------------------------------------------------------------------------------------
 
 
 # ----- CLI wrapper creation -------------------------------------------------------------------
 
-def create_nvue_clis(path_to_nvue_cli, root_class_name, isnewfie, addshow=True, addset=True, addunset=True):
+def create_nvue_clis(path_to_nvue_cli, root_class_name, isnewfie):
     print('-creating nvue clis')
 
     nvue_cli_file = None
@@ -150,13 +153,6 @@ def create_nvue_clis(path_to_nvue_cli, root_class_name, isnewfie, addshow=True, 
             create_nvue_cli_class(nvue_cli_file, root_class_name)
         else:
             nvue_cli_file = open(path_to_nvue_cli, 'a')
-
-        if addshow:
-            add_nvue_method(nvue_cli_file, SHOW_METHOD_NAME, "show")
-        if addset:
-            add_nvue_method(nvue_cli_file, SET_METHOD_NAME, "set")
-        if addunset:
-            add_nvue_method(nvue_cli_file, UNSET_METHOD_NAME, "unset")
     except Exception as ex:
         print("Failed to create nvue cli: " + ex)
     finally:
@@ -166,11 +162,14 @@ def create_nvue_clis(path_to_nvue_cli, root_class_name, isnewfie, addshow=True, 
 
 def create_nvue_cli_class(nvue_cli_file, root_class_name):
     nvue_cli_file.write("import logging\n")
-    nvue_cli_file.write("from ngts.constants.constants_nvos import OutputFormat\n\n")
+    nvue_cli_file.write("from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli\n\n")
     nvue_cli_file.write("logger = logging.getLogger()\n\n\n")
 
     nvue_class_name = NVUE_WRAPPER_CLASSNAME.format(root_class_name.capitalize())
-    nvue_cli_file.write("class {}:\n\n".format(nvue_class_name))
+    nvue_cli_file.write("class {}(NvueBaseCli):\n\n".format(nvue_class_name))
+
+    nvue_cli_file.write("    def __init__(self):\n")
+    nvue_cli_file.write('        self.cli_name = "{}"\n'.format(root_class_name.capitalize()))
 
 
 def add_nvue_method(nvue_cli_file, method_str, nvue_request_type):
@@ -185,7 +184,7 @@ def add_nvue_method(nvue_cli_file, method_str, nvue_request_type):
     cmd += '{path} {params}\".\\\n            format('
     if nvue_request_type == "show":
         cmd += 'output_format=output_format, '
-    cmd += 'path=path, params=op_param)\n'
+    cmd += 'path=path, params={})\n'.format('op_param_value' if nvue_request_type == 'set' else 'op_param')
 
     nvue_cli_file.write(cmd)
     nvue_cli_file.write('        logging.info("Running \'{cmd}\' on dut using NVUE".format(cmd=cmd))\n')
@@ -201,29 +200,18 @@ def create_nvue_cli_wrapper(root_class_name):
     if not os.path.isfile(path_to_nvue_cli):
         create_nvue_clis(path_to_nvue_cli, root_class_name, True)
     else:
-        with open(path_to_nvue_cli, 'r') as nvue_cli_file:
-            file_content = nvue_cli_file.read()
-            addshow = False
-            addset = False
-            addunset = False
-            if SHOW_METHOD_NAME not in file_content:
-                addshow = True
-            if SET_METHOD_NAME not in file_content:
-                addset = True
-            if UNSET_METHOD_NAME not in file_content:
-                addunset = True
-        create_nvue_clis(path_to_nvue_cli, root_class_name, False, addshow, addset, addunset)
+        create_nvue_clis(path_to_nvue_cli, root_class_name, False)
 
 
 def create_openapi_cli_class(openapi_cli_file, root_class_name):
     openapi_cli_file.write("import logging\n")
-    openapi_cli_file.write("from ngts.constants.constants_nvos import OutputFormat\n")
-    openapi_cli_file.write("from .openapi_command_builder import OpenApiCommandHelper\n")
-    openapi_cli_file.write("from ngts.constants.constants_nvos import OpenApiReqType\n\n")
+    openapi_cli_file.write("from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli\n")
     openapi_cli_file.write("logger = logging.getLogger()\n\n\n")
 
     nvue_class_name = OPENAPI_WRAPPER_CLASSNAME.format(root_class_name.capitalize())
-    openapi_cli_file.write("class {}:\n\n".format(nvue_class_name))
+    openapi_cli_file.write("class {}(OpenApiBaseCli):\n\n".format(nvue_class_name))
+    openapi_cli_file.write("    def __init__(self):\n")
+    openapi_cli_file.write('        self.cli_name = "{}"\n'.format(root_class_name.capitalize()))
 
 
 def _get_openapi_request(method):
@@ -247,28 +235,23 @@ def add_openapi_method(openapi_cli_file, method_str, method):
 
     run_cmd = "        return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, " \
               "\n                                                   " \
-              "{method}, engine.ip, resource_path, op_param)".format(method=openapi_type)
+              "{method}, engine.ip, resource_path, {str_param})".format(method=openapi_type,
+                                                                        str_param='op_param_name, op_param_value' if method == OpenApiReqType.PATCH else 'op_param')
     openapi_cli_file.write('{}\n\n'.format(run_cmd))
 
 
-def create_openapi_clis(path_to_openapie_cli, root_class_name, isnewfie, addshow=True, addset=True, addunset=True):
+def create_openapi_clis(path_to_openapi_cli, root_class_name, isnewfie, addshow=True, addset=True, addunset=True):
     print('-creating openApi clis')
 
     openapi_cli_file = None
 
     try:
         if isnewfie:
-            openapi_cli_file = open(path_to_openapie_cli, 'w')
+            openapi_cli_file = open(path_to_openapi_cli, 'w')
             create_openapi_cli_class(openapi_cli_file, root_class_name)
         else:
-            openapi_cli_file = open(path_to_openapie_cli, 'r')
+            openapi_cli_file = open(path_to_openapi_cli, 'r')
 
-        if addshow:
-            add_openapi_method(openapi_cli_file, SHOW_METHOD_NAME, OpenApiReqType.GET)
-        if addset:
-            add_openapi_method(openapi_cli_file, SET_METHOD_NAME, OpenApiReqType.PATCH)
-        if addunset:
-            add_openapi_method(openapi_cli_file, UNSET_METHOD_NAME, OpenApiReqType.DELETE)
     except Exception as ex:
         print("Failed to create nvue cli: " + str(ex))
     finally:
@@ -285,18 +268,7 @@ def create_openapi_cli_wrapper(root_class_name):
     if not os.path.isfile(path_to_openapi_cli):
         create_openapi_clis(path_to_openapi_cli, root_class_name, True)
     else:
-        with open(path_to_openapi_cli, 'r') as openapi_cli_file:
-            file_content = openapi_cli_file.read()
-            addshow = False
-            addset = False
-            addunset = False
-            if SHOW_METHOD_NAME not in file_content:
-                addshow = True
-            if SET_METHOD_NAME not in file_content:
-                addset = True
-            if UNSET_METHOD_NAME not in file_content:
-                addunset = True
-        create_openapi_clis(path_to_openapi_cli, root_class_name, False, addshow, addset, addunset)
+        create_openapi_clis(path_to_openapi_cli, root_class_name, False)
 
 
 def create_cli_wrappers(root_class_name):

@@ -1,6 +1,7 @@
 from ngts.nvos_tools.infra.ResultObj import ResultObj, IssueType
 
-invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments"]
+invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
+                   "error: unrecognized arguments", "invalid choice"]
 timeout_cmd_str = ['Timeout while waiting for client response']
 
 
@@ -12,15 +13,15 @@ class SendCommandTool:
         Check executed command output and return a ResultObj
         """
         if cmd_output:
-            for cmd_str in invalid_cmd_str:
-                if cmd_str in cmd_output:
-                    return ResultObj(False, "Command failed with the following output: \n" + cmd_output, None,
+            for err_msg in invalid_cmd_str:
+                if err_msg in str(cmd_output):
+                    return ResultObj(False, "Command failed with the following output: \n" + str(cmd_output), None,
                                      IssueType.PossibleBug)
-            for cmd_str in timeout_cmd_str:
-                if cmd_str in cmd_output:
-                    return ResultObj(False, "Timeout occurred with the following output: \n" + cmd_output, None,
+            for timeout_msg in timeout_cmd_str:
+                if timeout_msg in str(cmd_output):
+                    return ResultObj(False, "Timeout occurred with the following output: \n" + str(cmd_output), None,
                                      IssueType.TestIssue)
-        return ResultObj(True, "", cmd_output)
+        return ResultObj(True, "", str(cmd_output))
 
     @staticmethod
     def execute_command(command_to_execute, *args):

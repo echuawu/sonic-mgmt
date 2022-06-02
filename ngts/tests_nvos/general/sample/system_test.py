@@ -15,14 +15,15 @@ def test_system_sample(engines):
     """
     system = System(None)
 
-    with allure.step("Update ignore id to <ignore_id>"):
-        system.config.apply.ignore.ignore_id = "<ignore_id>"
+    snippet_name = "test-snippet-1"
+    snippet_value = {
+        "file": "/tmp/test-snippet-1",
+        "content": "hello world - snippet-1",
+        "permissions": "0777"
+    }
+    system.config.snippet.set(snippet_name, snippet_value)
 
-    ignore_str = '<ignore_str>'
-
-    system.config.apply.ignore.set(ignore_str)
-
-    output = system.config.apply.ignore.show()
+    output = system.config.snippet.show()
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
 
-    ValidationTool.verify_field_exist_in_json_output(output_dictionary, [ignore_str]).verify_result()
+    ValidationTool.verify_field_exist_in_json_output(output_dictionary, [snippet_name]).verify_result()
