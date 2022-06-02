@@ -5,7 +5,6 @@ import pytest
 import logging
 
 from retry.api import retry_call
-from ngts.helpers import json_file_helper as json_file_helper
 from ngts.constants.constants import InterfacesTypeConstants
 
 logger = logging.getLogger()
@@ -28,24 +27,6 @@ def disable_ssh_client_alive_interval(topology_obj):
 
     engine.run_cmd('sudo sed -i "s/ClientAliveInterval 0/ClientAliveInterval 900/g" /etc/ssh/sshd_config')
     engine.run_cmd('sudo service ssh restart')
-
-
-def get_dut_loopbacks(topology_obj):
-    """
-    :return: a list of ports tuple which are connected as loopbacks on dut
-    i.e,
-    [('Ethernet4', 'Ethernet8'), ('Ethernet40', 'Ethernet36'), ...]
-    """
-    dut_loopbacks = {}
-    pattern = r"dut-lb\d+-\d"
-    for alias, connected_alias in topology_obj.ports_interconnects.items():
-        if dut_loopbacks.get(connected_alias):
-            continue
-        if re.search(pattern, alias):
-            dut_loopbacks[alias] = connected_alias
-    dut_loopback_aliases_list = dut_loopbacks.items()
-    return list(map(lambda lb_tuple: (topology_obj.ports[lb_tuple[0]], topology_obj.ports[lb_tuple[1]]),
-                    dut_loopback_aliases_list))
 
 
 @pytest.fixture()
@@ -113,51 +94,6 @@ def compare_actual_and_expected(key, expected_val, actual_val):
     """
     assert str(expected_val) == str(actual_val), \
         "Compared {} result failed: actual - {}, expected - {}".format(key, actual_val, expected_val)
-
-
-@pytest.fixture(scope='session')
-def hosts_ports(engines, cli_objects, interfaces):
-    hosts_ports = {engines.ha: (cli_objects.ha, [interfaces.ha_dut_1, interfaces.ha_dut_2]),
-                   engines.hb: (cli_objects.hb, [interfaces.hb_dut_1, interfaces.hb_dut_2])}
-    return hosts_ports
-
-
-@pytest.fixture(scope='session')
-@pytest.mark.usefixtures("hosts_ports")
-def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports):
-    """
-    :param topology_obj: topology object fixture
-    :param engines: setup engines fixture
-    :param cli_objects: cli objects fixture
-    :param interfaces: host <-> dut interfaces fixture
-    :param hosts_ports: a dictionary with hosts engine, cli_object and ports
-    :return: a dictionary with available breakout options on all setup ports (included host ports)
-    format : {<port_name> : {<split type>: {[<supported speeds]}
-
-    i.e,  {'Ethernet0': {1: {'100G', '50G', '40G', '10G', '25G'},
-                        2: {'40G', '10G', '25G', '50G'},
-                        4: {'10G', '25G'}},
-          ...
-          'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
-    """
-    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
-    split_mode_supported_speeds = cli_objects.dut.general.parse_platform_json(topology_obj, platform_json_info)
-
-    # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
-    convert_100_to_100m_speed(split_mode_supported_speeds)
-
-    for host_engine, host_info in hosts_ports.items():
-        host_cli, host_ports = host_info
-        for port in host_ports:
-            port_ethtool_status = host_cli.interface.parse_show_interface_ethtool_status(port)
-            port_supported_speeds = port_ethtool_status["supported speeds"]
-            if '1G' in port_supported_speeds:
-                port_supported_speeds.remove('1G')
-                # TODO: bug 2966698 fix only on latest kernel - kernel update is unplanned for now
-                # TODO: please remove this if statement once issue is resolved
-            split_mode_supported_speeds[port] = \
-                {1: port_supported_speeds}
-    return split_mode_supported_speeds
 
 
 def convert_100_to_100m_speed(split_mode_supported_speeds):

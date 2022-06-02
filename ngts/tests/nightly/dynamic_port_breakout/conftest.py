@@ -6,7 +6,7 @@ import re
 from retry.api import retry_call
 from ngts.constants.constants import SonicConst
 from ngts.helpers.dependencies_helpers import DependenciesBase
-from ngts.tests.nightly.conftest import get_dut_loopbacks
+from ngts.tests.conftest import get_dut_loopbacks
 from ngts.helpers.breakout_helpers import get_dut_breakout_modes
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 

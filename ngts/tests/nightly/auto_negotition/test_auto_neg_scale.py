@@ -3,7 +3,7 @@ import pytest
 
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
-from ngts.tests.nightly.conftest import get_dut_loopbacks
+from ngts.tests.conftest import get_dut_loopbacks
 
 logger = logging.getLogger()
 

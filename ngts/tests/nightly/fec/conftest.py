@@ -2,7 +2,7 @@ import pytest
 import logging
 import random
 from retry.api import retry_call
-from ngts.tests.nightly.conftest import get_dut_loopbacks
+from ngts.tests.conftest import get_dut_loopbacks
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, FecConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
 

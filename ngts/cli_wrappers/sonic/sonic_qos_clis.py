@@ -6,13 +6,16 @@ class SonicQosCli:
     def __init__(self, engine):
         self.engine = engine
 
-    def reload_qos(self):
+    def reload_qos(self, ports_list=[]):
         """
         This method is to reload qos
-        :param engine: ssh engine object
+        :param ports_list: if provided a port lists, reload qos configuration only on ports in list
         :return: command output
         """
-        return self.engine.run_cmd('sudo config qos reload ', validate=True)
+        cmd_suffix = ""
+        if ports_list:
+            cmd_suffix = f"--ports {','.join(ports_list)}"
+        return self.engine.run_cmd(f'sudo config qos reload {cmd_suffix}', validate=True)
 
     def clear_qos(self):
         """

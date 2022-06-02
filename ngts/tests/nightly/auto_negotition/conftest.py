@@ -4,7 +4,7 @@ import os
 import re
 
 from ngts.constants.constants import InterfacesTypeConstants
-from ngts.tests.nightly.conftest import get_dut_loopbacks
+from ngts.tests.conftest import get_dut_loopbacks
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 
 logger = logging.getLogger()

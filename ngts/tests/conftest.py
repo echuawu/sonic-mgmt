@@ -5,6 +5,7 @@ conftest.py
 Defines the methods and fixtures which will be used by pytest for only canonical setups.
 
 """
+import re
 
 import pytest
 import os
@@ -14,6 +15,8 @@ from dotted_dict import DottedDict
 
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.constants.constants import PytestConst
+from ngts.helpers import json_file_helper
+from ngts.tests.nightly.conftest import convert_100_to_100m_speed
 
 logger = logging.getLogger()
 RAM_SYNCD_USAGE_ASAN_COEFFICIENT = 4
@@ -238,3 +241,66 @@ def update_cpu_usage_for_simx(expected_cpu_or_ram_usage_file, is_simx, chip_type
     """
     if is_simx and expected_cpu_or_ram_usage_file == "expected_cpu_usage.yaml" and chip_type == 'SPC3':
         expected_cpu_or_ram_usage_dict['sx_sdk'] *= CPU_SDK_USAGE_SIMX_COEFFICIENT
+
+
+def get_dut_loopbacks(topology_obj):
+    """
+    :return: a list of ports tuple which are connected as loopbacks on dut
+    i.e,
+    [('Ethernet4', 'Ethernet8'), ('Ethernet40', 'Ethernet36'), ...]
+    """
+    dut_loopbacks = {}
+    pattern = r"dut-lb\d+-\d"
+    for alias, connected_alias in topology_obj.ports_interconnects.items():
+        if dut_loopbacks.get(connected_alias):
+            continue
+        if re.search(pattern, alias):
+            dut_loopbacks[alias] = connected_alias
+    dut_loopback_aliases_list = dut_loopbacks.items()
+    return list(map(lambda lb_tuple: (topology_obj.ports[lb_tuple[0]], topology_obj.ports[lb_tuple[1]]),
+                    dut_loopback_aliases_list))
+
+
+@pytest.fixture(scope='session')
+@pytest.mark.usefixtures("hosts_ports")
+def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports):
+    """
+    :param topology_obj: topology object fixture
+    :param engines: setup engines fixture
+    :param cli_objects: cli objects fixture
+    :param interfaces: host <-> dut interfaces fixture
+    :param hosts_ports: a dictionary with hosts engine, cli_object and ports
+    :return: a dictionary with available breakout options on all setup ports (included host ports)
+    format : {<port_name> : {<split type>: {[<supported speeds]}
+
+    i.e,  {'Ethernet0': {1: {'100G', '50G', '40G', '10G', '25G'},
+                        2: {'40G', '10G', '25G', '50G'},
+                        4: {'10G', '25G'}},
+          ...
+          'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
+    """
+    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
+    split_mode_supported_speeds = cli_objects.dut.general.parse_platform_json(topology_obj, platform_json_info)
+
+    # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
+    convert_100_to_100m_speed(split_mode_supported_speeds)
+
+    for host_engine, host_info in hosts_ports.items():
+        host_cli, host_ports = host_info
+        for port in host_ports:
+            port_ethtool_status = host_cli.interface.parse_show_interface_ethtool_status(port)
+            port_supported_speeds = port_ethtool_status["supported speeds"]
+            if '1G' in port_supported_speeds:
+                port_supported_speeds.remove('1G')
+                # TODO: bug 2966698 fix only on latest kernel - kernel update is unplanned for now
+                # TODO: please remove this if statement once issue is resolved
+            split_mode_supported_speeds[port] = \
+                {1: port_supported_speeds}
+    return split_mode_supported_speeds
+
+
+@pytest.fixture(scope='session')
+def hosts_ports(engines, cli_objects, interfaces):
+    hosts_ports = {engines.ha: (cli_objects.ha, [interfaces.ha_dut_1, interfaces.ha_dut_2]),
+                   engines.hb: (cli_objects.hb, [interfaces.hb_dut_1, interfaces.hb_dut_2])}
+    return hosts_ports
