@@ -110,6 +110,26 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
     Platform:
     - 2100
 
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
+  - Redmine:
+    - 3083715
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
+  - Redmine:
+    - 3083715
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_bad_config:
+  - Redmine:
+    - 3083715
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_bad_config:
+  - Redmine:
+    - 3083715
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_bad_path:
+  - Redmine:
+    - 3083715
+
 # Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
   - Redmine:
@@ -774,6 +794,30 @@ tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   - Platform:
     - 2201
 
+tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_basic_dhcp6_relay:
+  - Redmine:
+    - 3094848
+    Branch:
+    - 202111
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp6_relay_multiple_dhcp_servers:
+  - Redmine:
+    - 3094848
+    Branch:
+    - 202111
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp6_relay_remove_dhcp_server:
+  - Redmine:
+    - 3094848
+    Branch:
+    - 202111
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcpv6_relay_client_request_with_malformed_payload:
+  - Redmine:
+    - 3094848
+    Branch:
+    - 202111
+
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
@@ -944,6 +988,14 @@ show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity:
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[core]:
   - Redmine:
     - 3083731
+
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[techsupport]:
+  - Redmine:
+    - 3095406
+
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval:
+  - Redmine:
+    - 3095406
 
 drop_packets/test_drop_counters.py::test_equal_smac_dmac_drop:
   - Redmine:
