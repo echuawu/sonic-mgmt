@@ -1,4 +1,3 @@
-import allure
 import re
 import pytest
 import time
@@ -9,6 +8,11 @@ import copy
 
 from tests.common.errors import RunAnsibleModuleFail
 from tests.common.utilities import wait_until
+
+try:
+    import allure
+except ImportError:
+    pytest.skip('Allure library not available. Skipping tests')
 
 logger = logging.getLogger(__name__)
 
@@ -26,32 +30,6 @@ DEFAULT_MAX_CORE_LIMIT = 5
 DEFAULT_SINCE = '2 days ago'
 
 CMD_GET_AUTO_TECH_SUPPORT_HISTORY_REDIS_KEYS = 'sudo redis-cli --raw -n 6  KEYS AUTO_TECHSUPPORT*'
-
-
-@pytest.fixture(autouse=True, scope='class')
-def tmp_workaround(duthosts, rand_one_dut_hostname):
-    """
-    Fixture - temporary workaround for errors:
-    libyang[0]: Duplicated instance of \"profile_list\" leaf-list (\"e\").
-    (path: /sonic-buffer-port-egress-profile-list:sonic-buffer-port-egress-profile-list/
-    BUFFER_PORT_EGRESS_PROFILE_LIST/BUFFER_PORT_EGRESS_PROFILE_LIST_LIST[port='Ethernet0']/profile_list[.='e'])\n
-    Aborted!
-    Related to GitHub issue: https://github.com/Azure/sonic-buildimage/issues/9801
-    """
-    duthost = duthosts[rand_one_dut_hostname]
-    ingress_file = 'sonic-buffer-port-ingress-profile-list.yang'
-    egress_file = 'sonic-buffer-port-egress-profile-list.yang'
-    ingress_full_path = '/usr/local/yang-models/{}'.format(ingress_file)
-    egress_full_path = '/usr/local/yang-models/{}'.format(egress_file)
-    home_folder = '/home/admin/'
-
-    duthost.shell('sudo mv {} {}'.format(ingress_full_path, home_folder))
-    duthost.shell('sudo mv {} {}'.format(egress_full_path, home_folder))
-
-    yield
-
-    duthost.shell('sudo mv {}{} {}'.format(home_folder, ingress_file, ingress_full_path))
-    duthost.shell('sudo mv {}{} {}'.format(home_folder, egress_file, egress_full_path))
 
 
 def cleanup(cleanup_list):
@@ -691,25 +669,21 @@ def validate_core_files_inside_techsupport(duthost, techsupport_folder, expected
                                                                                       core_files_inside_techsupport)
 
 
-def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_line_timestamps_list):
+def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_timestamp):
     """
     Validate that techsupport file does not have logs which are older than value provided in 'since_value_in_seconds'
     :param duthost: duthost object
     :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_r-lionfish-16_20210901_22140
-    :param expected_oldest_log_line_timestamps_list: list of expected(possible) oldest log timestamp in datetime format
+    :param expected_oldest_log_timestamp: expected oldest log timestamp in datetime format
     :return: pytest.fail - in case when validation failed
     """
     with allure.step('Checking techsupport logs since'):
         oldest_timestamp_datetime = get_oldest_syslog_timestamp(duthost, techsupport_folder)
         logger.debug('Oldest timestamp: {}'.format(oldest_timestamp_datetime))
 
-        assert oldest_timestamp_datetime in expected_oldest_log_line_timestamps_list, \
-            'Timestamp: {} not in expected list: {}. --since validation failed'.format(oldest_timestamp_datetime,
-                                                                                       expected_oldest_log_line_timestamps_list)
-
-        available_syslogs_list = duthost.shell('sudo ls -l {}/log/syslog*'.format(techsupport_folder))['stdout'].splitlines()
-        assert len(available_syslogs_list) <= len(expected_oldest_log_line_timestamps_list), \
-            'Number of syslog files in techsupport bigger than expected'
+        assert oldest_timestamp_datetime == expected_oldest_log_timestamp, \
+            'Timestamp: {} not equal to expected: {}. --since validation failed'.format(oldest_timestamp_datetime,
+                                                                                        expected_oldest_log_timestamp)
 
 
 def get_oldest_syslog_timestamp(duthost, techsupport_folder):
@@ -862,10 +836,9 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
     :param since_value_in_seconds: int, value in seconds which used in validation for since parameter
     :return: AssertionError in case of failure
     """
-    expected_oldest_log_line_timestamps_list = None
+    expected_oldest_timestamp_datetime = None
     if since_value_in_seconds:
-        expected_oldest_log_line_timestamps_list = get_expected_oldest_timestamp_datetime(duthost,
-                                                                                          since_value_in_seconds)
+        expected_oldest_timestamp_datetime = get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds)
 
     try:
         available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
@@ -873,23 +846,30 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
         available_tech_support_files = []
 
     if is_techsupport_expected:
-        expected_techsupport_files = True
+        expected_techsupport_files_num = 1
         assert is_techsupport_generation_in_expected_state(duthost, expected_in_progress=True), \
             'Expected techsupport generation not started or expected number of processes does not match actual number'
         wait_until(300, 10, 0, is_techsupport_generation_in_expected_state, duthost, False)
     else:
         assert is_techsupport_generation_in_expected_state(duthost, expected_in_progress=False), \
             'Unexpected techsupport generation in progress'
-        expected_techsupport_files = False
+        expected_techsupport_files_num = 0
 
-    if expected_techsupport_files:
-        # techsupport file creation may took some time after generate dump process already finished
-        assert wait_until(300, 10, 0, is_new_techsupport_file_generated, duthost, available_tech_support_files), \
-            'New expected techsupport file was not generated'
+    try:
+        new_available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
+    except RunAnsibleModuleFail:
+        new_available_tech_support_files = []
+    new_techsupport_files_list = list(set(new_available_tech_support_files) - set(available_tech_support_files))
+    new_techsupport_files_num = len(new_techsupport_files_list)
+    logger.info('New files created: {} expected: {}'.format(new_techsupport_files_num,
+                                                            expected_techsupport_files_num))
+    assert new_techsupport_files_num == expected_techsupport_files_num, \
+        'Number of new techsupport files {} does not match number of expected {} files'.format(
+            new_techsupport_files_num,
+            expected_techsupport_files_num)
 
     # Do validation for history
     if expected_core_file:
-        new_techsupport_files_list = get_new_techsupport_files_list(duthost, available_tech_support_files)
         tech_support_file_path = new_techsupport_files_list[0]
         tech_support_name = tech_support_file_path.split('.')[0].lstrip('/var/dump/')
         logger.info('Doing validation for techsupport : {}'.format(tech_support_name))
@@ -910,45 +890,12 @@ def validate_techsupport_generation(duthost, is_techsupport_expected, expected_c
                                                    expected_core_files_list=[expected_core_file])
 
             logger.info('Checking since value in techsupport file')
-            if expected_oldest_log_line_timestamps_list:
-                validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_log_line_timestamps_list)
+            if expected_oldest_timestamp_datetime:
+                validate_techsupport_since(duthost, techsupport_folder_path, expected_oldest_timestamp_datetime)
         except Exception as err:
             raise AssertionError(err)
         finally:
             duthost.shell('sudo rm -rf {}'.format(techsupport_folder_path))
-
-
-def is_new_techsupport_file_generated(duthost, available_tech_support_files):
-    """
-    Check if new techsupport dump created
-    :param duthost: duthost object
-    :param available_tech_support_files: list of already available techsupport files
-    :return: True in case when new techsupport file created
-    """
-    logger.info('Checking that new techsupport file created')
-    new_techsupport_files_list = get_new_techsupport_files_list(duthost, available_tech_support_files)
-    new_techsupport_files_num = len(new_techsupport_files_list)
-
-    if new_techsupport_files_num == 1:
-        return True
-
-    return False
-
-
-def get_new_techsupport_files_list(duthost, available_tech_support_files):
-    """
-    Get list of new created techsupport files
-    :param duthost: duthost object
-    :param available_tech_support_files: list of already available techsupport files
-    :return: list of new techsupport files
-    """
-    try:
-        new_available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
-    except RunAnsibleModuleFail:
-        new_available_tech_support_files = []
-    new_techsupport_files_list = list(set(new_available_tech_support_files) - set(available_tech_support_files))
-
-    return new_techsupport_files_list
 
 
 def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
@@ -963,30 +910,20 @@ def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
 
     syslog_file_list = duthost.shell('sudo ls -l /var/log/syslog*')['stdout'].splitlines()
 
-    syslogs_creation_date_dict = {}
-    syslog_file_name_index = 8
+    syslog_file_name = '/var/log/syslog'
+    oldest_expected_file_diff = 0
     for syslog_file_entry in syslog_file_list:
         splited_data = syslog_file_entry.split()
         file_timestamp = get_syslog_timestamp(splited_data)
-        syslog_file_name = splited_data[syslog_file_name_index]
-        if syslogs_creation_date_dict.get(file_timestamp):
-            syslogs_creation_date_dict[file_timestamp].append(syslog_file_name)
-        else:
-            syslogs_creation_date_dict[file_timestamp] = [syslog_file_name]
+        diff_since_current_time = (current_time - file_timestamp).seconds
+        if diff_since_current_time < since_value_in_seconds:
+            if oldest_expected_file_diff < diff_since_current_time:
+                oldest_expected_file_diff = diff_since_current_time
+                syslog_file_name = splited_data[8]
 
-    # Sorted from new to old
-    syslogs_sorted = sorted(syslogs_creation_date_dict.keys(), reverse=True)
-    expected_files_in_techsupport_list = []
-    for date in syslogs_sorted:
-        expected_files_in_techsupport_list.extend(syslogs_creation_date_dict[date])
-        if (current_time - date).seconds > since_value_in_seconds and current_time > date:
-            break
+    expected_oldest_log_line_timestamp = get_first_line_timestamp(duthost, syslog_file_name)
 
-    expected_oldest_log_line_timestamps_list = []
-    for syslog_file_path in expected_files_in_techsupport_list:
-        expected_oldest_log_line_timestamps_list.append(get_first_line_timestamp(duthost, syslog_file_path))
-
-    return expected_oldest_log_line_timestamps_list
+    return expected_oldest_log_line_timestamp
 
 
 def get_syslog_timestamp(splited_data):
