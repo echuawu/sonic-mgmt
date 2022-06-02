@@ -759,6 +759,10 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
     - simx
 
 # PushGate
+tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
+  - Branch:
+    - 202012
+
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer:
   - Redmine:
     - 3060771

@@ -59,6 +59,8 @@ def tested_ports(topology_obj, split_mode_supported_speeds):
     return tested_ports_list
 
 
+@pytest.mark.build
+@pytest.mark.push_gate
 @allure.title('tests functionality of CLI command "sudo config qos reload --ports"')
 def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested_ports):
     """
