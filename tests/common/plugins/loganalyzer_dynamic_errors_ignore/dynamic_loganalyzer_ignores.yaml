@@ -797,6 +797,7 @@
       - 3030960
       Branch:
       - 202012
+      - 202111
 
 - Errors_list:
     - '.* ERR wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
