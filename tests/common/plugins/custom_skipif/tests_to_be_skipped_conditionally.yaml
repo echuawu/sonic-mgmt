@@ -1047,6 +1047,10 @@ qos/test_buffer.py::test_headroom_override:
     Redmine:
       - 3010264
 
+qos/test_buffer.py::test_buffer_deployment:
+  - Redmine:
+    - 3097949
+
 tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
   - Redmine:
       - 3016336
