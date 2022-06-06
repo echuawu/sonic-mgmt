@@ -128,12 +128,23 @@ class ValidationTool:
         return result_obj
 
     @staticmethod
-    def verify_all_fileds_value_exist_in_output_dictionary(output_dictionary):
-        with allure.step('Verify all the fields values are not None'):
+    def verify_all_fileds_value_exist_in_output_dictionary(output_dictionary, expected_fields):
+        with allure.step('Verify all the fields values are not None and includes all expected fields'):
+
             result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
+
+            if not all(field in list(output_dictionary.keys()) for field in expected_fields):
+                result_obj.result = False
+                result_obj.info += "the next fields are missing on the device constants {missing} ".format(
+                    missing=output_dictionary.keys() - expected_fields)
+
+            if not all(field in expected_fields for field in list(output_dictionary.keys())):
+                result_obj.result = False
+                result_obj.info += "the next fields are missing on the cmd output {missing}".format(
+                    missing=expected_fields - output_dictionary.keys())
+
             for key, value in output_dictionary.items():
                 if not value:
                     result_obj.result = False
-                    result_obj.info += "The value of {field_name} not as expected".format(
-                        field_name=key)
+                    result_obj.info += "The value of {field_name} not as expected".format(field_name=key)
             return result_obj

@@ -4,7 +4,7 @@ import allure
 from ngts.nvos_tools.general.system.System import *
 from ngts.constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 logger = logging.getLogger()
 
 
@@ -24,9 +24,10 @@ def test_system(engines, devices):
             11. verify hostname changed to ""nvos"
     """
     with allure.step('Run show system command and verify that each field has a value'):
-        system = System(devices.dut)
+        system = System()
         system.update_output_dictionary(engines.dut)
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(system.output_dictionary).verify_result()
+        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+            system.output_dictionary, system.get_expected_fields(devices.dut)).verify_result()
 
     with allure.step('Run set system hostname command and verify that hostname is updated'):
         new_hostname_value = "NOS-NVOS"
@@ -64,9 +65,10 @@ def test_system_message(engines, devices):
             12. verify pre-login changed to default value
     """
     with allure.step('Run show system message command and verify that each field has a value'):
-        system = System(devices.dut)
+        system = System()
         system.message.update_output_dictionary(engines.dut)
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(system.message.output_dictionary).verify_result()
+        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+            system.message.output_dictionary, system.message.get_expected_fields(devices.dut)).verify_result()
 
     with allure.step('Run set system message pre-login command and verify that pre-login is updated'):
         ValidationTool.verify_field_value_in_output(system.message.output_dictionary, SystemConsts.PRE_LOGIN_MESSAGE,
@@ -105,9 +107,10 @@ def test_show_system_version(engines, devices):
         2. validate values in db
     """
     with allure.step('Run show system command and verify that each field has a value'):
-        system = System(devices.dut)
+        system = System()
         system.version.update_output_dictionary(engines.dut)
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(system.version.output_dictionary).verify_result()
+        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+            system.version.output_dictionary, system.version.get_expected_fields(devices.dut)).verify_result()
 
 
 def test_show_system_reboot(engines, devices):
@@ -121,9 +124,10 @@ def test_show_system_reboot(engines, devices):
             6. validate all fields have the new values
     """
     with allure.step('Run show system reboot command and verify that each field has a value'):
-        system = System(devices.dut)
+        system = System()
         system.reboot.update_output_dictionary(engines.dut)
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(system.reboot.output_dictionary).verify_result()
+        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+            system.reboot.output_dictionary, system.reboot.get_expected_fields(devices.dut)).verify_result()
 
 
 def test_show_system_config():

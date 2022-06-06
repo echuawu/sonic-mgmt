@@ -89,6 +89,7 @@ class SystemConsts:
     SYSTEM_MEMORY = 'system-memory'
     UPTIME = 'uptime'
     TIMEZONE = 'timezone'
+    VERSION = 'version'
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'

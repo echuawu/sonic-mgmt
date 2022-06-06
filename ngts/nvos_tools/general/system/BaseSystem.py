@@ -1,30 +1,26 @@
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
+from ngts.constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 
 class BaseSystem:
-    api_obj = None
+    api_obj = {ApiType.NVUE: NvueBaseCli, ApiType.OPENAPI: OpenApiBaseCli}
     output_dictionary = None
     resource_path = None
 
-    def __init__(self, device, resource_path=""):
-        self.api_obj = NvueSystemCli
+    def __init__(self, resource_path=""):
         self.resource_path = resource_path
 
-        self._init_output_dictionary(device)
-
-    def _init_output_dictionary(self, device):
+    def get_expected_fields(self, device):
         const_path = self.resource_path if self.resource_path != "" else "system"
-        system_constant_list = device.constants.system[const_path]
-        none_values = len(system_constant_list) * [None]
-        self.output_dictionary = dict(zip(system_constant_list, none_values))
+        return device.constants.system[const_path]
 
     def update_output_dictionary(self, engine):
-        output = OutputParsingTool.parse_show_output_to_dictionary(self.show(engine))
-        for key in self.output_dictionary.keys():
-            self.output_dictionary[key] = output[key]
+        self.output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(self.show(engine)).get_returned_value()
 
     def show(self, engine):
-        return SendCommandTool.execute_command(self.api_obj.show,
-                                               engine, self.resource_path + " ").get_returned_value()
+        return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show,
+                                               engine, 'system ' + self.resource_path).get_returned_value()

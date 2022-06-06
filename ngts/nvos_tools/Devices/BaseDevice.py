@@ -220,7 +220,7 @@ class BaseSwitch(BaseDevice, ABC):
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
-                       SystemConsts.UPTIME, SystemConsts.TIMEZONE],
+                       SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.VERSION],
             'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
             'reboot': [SystemConsts.REBOOT_HISTORY, SystemConsts.REBOOT_REASON],
             'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
