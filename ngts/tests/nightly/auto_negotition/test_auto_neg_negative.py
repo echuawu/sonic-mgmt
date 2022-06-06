@@ -189,6 +189,9 @@ class TestAutoNegNegative(TestAutoNegBase):
         lb = self.tested_lb_dict[split_mode][first_lb]
         tested_lb_dict = {1: [lb]}
         conf = self.get_mismatch_speed_type_conf(lb, split_mode, tested_lb_dict)
+        for port in lb:
+            self.cli_objects.dut.interface.config_advertised_speeds(port, "all")
+            self.cli_objects.dut.interface.config_advertised_interface_types(port, "all")
         logger.info("verify auto-negotiation fails in case of mismatch advertised types and speeds")
         self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
                                      conf, cleanup_list, mode='disabled')

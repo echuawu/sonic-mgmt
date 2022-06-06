@@ -39,6 +39,7 @@ def cleanup_list():
 
     yield cleanup_list
 
+    logger.info("------------------test teardown------------------")
     cleanup(cleanup_list)
 
 
