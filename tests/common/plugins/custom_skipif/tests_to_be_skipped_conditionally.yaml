@@ -1079,3 +1079,9 @@ lldp/test_lldp.py::test_lldp_neighbor:
     Branch:
     - 202111
 
+qos/test_qos_sai.py::testQosSaiQSharedWatermark:
+  - Redmine:
+    - 3097795
+    Branch:
+    - 202111
+
