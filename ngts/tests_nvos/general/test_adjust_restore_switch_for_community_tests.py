@@ -19,6 +19,10 @@ def test_adjust_switch_for_community_tests(topology_obj):
         path_to_show_cmd = engine.run_cmd("which show")
         path_to_show_cmd_orig = path_to_show_cmd + '.orig'
         # sudo cp /usr/local/bin/show /usr/local/bin/show.orig
+        try:
+            output = engine.run_cmd("sudo rm {}".format(path_to_show_cmd_orig))
+        except Exception:
+            logging.warning("Failed to remove show.orig file: " + output)
         engine.run_cmd("sudo cp {origin} {new_name}".format(origin=path_to_show_cmd, new_name=path_to_show_cmd_orig))
 
     with allure.step("Create new show script"):
@@ -43,4 +47,4 @@ def test_restore_origin_setup_after_adjustments_for_community_tests(topology_obj
         if "No such file or directory" not in engine.run_cmd("ls {}".format(origin_show_path)):
             engine.run_cmd("sudo rm {}".format(new_show_path))
             engine.run_cmd("sudo cp {origin} {new_name}".format(origin=origin_show_path, new_name=new_show_path))
-            engine.run_cmd("sudo rm {}".format(origin_show_path))
+#            engine.run_cmd("sudo rm {}".format(origin_show_path))
