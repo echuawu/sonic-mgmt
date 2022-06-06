@@ -15,17 +15,12 @@ platform_tests/test_sensors.py::test_sensors:
     - 2815265
 
 # pfc_asym(RPC)
-pfc_asym/test_pfc_asym.py::test_pfc_asym_off_tx_pfc:
-  - Redmine:
-    - 2918636
+pfc_asym/test_pfc_asym.py:
+  - Platform:
+    - msn2
+    - StaticReason:
+        - 'Test skipped because the performance of SPC1 fanout switch is not high enough to generate pfc storm'
 
-pfc_asym/test_pfc_asym.py::test_pfc_asym_on_tx_pfc:
-  - Redmine:
-    - 2918636
-
-pfc_asym/test_pfc_asym.py::test_pfc_asym_on_handle_pfc_all_prio:
-  - Redmine:
-    - 2918636
 
 # ecmp
 ecmp/test_fgnhg.py:
