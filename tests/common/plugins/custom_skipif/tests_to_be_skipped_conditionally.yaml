@@ -1089,3 +1089,6 @@ qos/test_qos_sai.py::testQosSaiQSharedWatermark:
     Branch:
     - 202111
 
+crm/test_crm.py::test_crm_nexthop_group:
+ - Redmine:
+   - 3098701
