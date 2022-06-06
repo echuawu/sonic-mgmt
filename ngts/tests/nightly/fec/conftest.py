@@ -13,18 +13,34 @@ FEC_MODE_LIST = [SonicConst.FEC_RS_MODE, SonicConst.FEC_FC_MODE, SonicConst.FEC_
 
 
 @pytest.fixture(scope='module', autouse=True)
-def fec_configuration(topology_obj, setup_name, engines, cli_objects, platform_params):
+def fec_configuration(topology_obj, interfaces, setup_name, engines, cli_objects, platform_params,
+                      tested_lb_dict, tested_lb_dict_for_bug_2705016_flow):
     """
     Pytest fixture which will clean all fec configuration leftover from the dut
 
     """
-
+    tested_ports = []
+    tested_dut_host_ports = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1]
+    tested_ports += get_tested_ports(tested_lb_dict)
+    tested_ports += get_tested_ports(tested_lb_dict_for_bug_2705016_flow)
+    tested_ports += tested_dut_host_ports
+    for port in tested_ports:
+        cli_objects.dut.interface.config_auto_negotiation_mode(port, mode="disabled")
     yield
 
     logger.info('Starting FEC configuration cleanup')
     cli_objects.dut.general.apply_basic_config(topology_obj, setup_name, platform_params)
 
     logger.info('FEC cleanup completed')
+
+
+def get_tested_ports(tested_lb_dict):
+    tested_ports = []
+    for split_mode, fec_conf_dict in tested_lb_dict.items():
+        for fec_mode, lb_list in fec_conf_dict.items():
+            for lb in lb_list:
+                tested_ports += list(lb)
+    return tested_ports
 
 
 @pytest.fixture(scope='session')
