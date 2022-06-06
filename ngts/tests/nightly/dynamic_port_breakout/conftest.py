@@ -49,7 +49,7 @@ def tested_modes_lb_conf(topology_obj, ports_breakout_modes):
     return get_random_lb_breakout_conf(topology_obj, ports_breakout_modes)
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def dpb_configuration(topology_obj, setup_name, engines, cli_objects, platform_params):
     """
     Pytest fixture which will clean QoS configuration from the dut before DPB test

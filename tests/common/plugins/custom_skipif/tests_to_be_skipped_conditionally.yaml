@@ -723,12 +723,18 @@ tests/nightly/dynamic_port_breakout:
     - 4410
   - Platform:
     - 3800
+
+tests/nightly/dynamic_port_breakout/test_dpb_speeds.py:
   - Redmine:
     - 2960190
 
-tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py:
+tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_ports_breakout_after_wrong_removal:
   - Redmine:
-    - 2934289
+    - 2960190
+
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py:
+  - Redmine:
+    - 2960190
 
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
   - Redmine:
@@ -740,6 +746,12 @@ tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
     - 202012
+
+tests/nightly/copp:
+  - Redmine:
+    - 2980204
+    Platform:
+    - simx
 
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
   - Redmine:
@@ -1040,10 +1052,6 @@ tests/nightly/rj45/test_rj45.py:
     - x86_64-nvidia_sn5
   - Redmine:
     - 3005591
-
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_ports_breakout_after_wrong_removal:
-  - Redmine:
-    - 3006650
 
 tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speeds_on_dpb:
   - Redmine:
