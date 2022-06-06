@@ -7,6 +7,7 @@ def pre(name, ci_tools) {
 
 def run_step(name, ci_tools) {
     try {
+        print "Component match = ${env.CHANGED_COMPONENTS}"
         if (env.RUN_COMMUNITY_REGRESSION && env.RUN_COMMUNITY_REGRESSION.toBoolean() == true &&  env.CHANGED_COMPONENTS && env.CHANGED_COMPONENTS.contains("NoMatch")) {
             print "Topic \"RUN_COMMUNITY_REGRESSION=true\" and changed files triggered community regression tests"
         } else {
@@ -17,10 +18,10 @@ def run_step(name, ci_tools) {
 
         if (env.GERRIT_BRANCH == "develop" && env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") || env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") )){
             print "'NVOS' related files were changed. Will run NVOS BAT."
-            env.NVOS_BIN = (ci_tools.run_sh_return_output("ls /auto/sw_system_release/nos/nvos/lastrc_master/images/nvos-amd64*.bin")).trim()
+            env.NVOS_BIN = "/auto/sw_system_release/nos/nvos/lastrc_master/images/nvos.bin"
         } else {
             env.SKIP_NVOS_BAT = true
-            ci_tools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
+            ci_tools.insert_test_result_to_matrix(name, "IB NVOS", "QTM", "Skipped=status")
         }
         return true
     }

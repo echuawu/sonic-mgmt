@@ -3,7 +3,7 @@ COMMON_BAT_ONLY:
   - ngts
 
 NVOS_BAT_ONLY:
-  - nvos-tools
+  - nvos-tool
   - ngts/tests_nvos
 
 SONIC_BAT_ONLY:
