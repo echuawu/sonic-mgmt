@@ -615,6 +615,10 @@ class TestPfcwdFunc(SetupPfcwdFunc):
         loganalyzer.expect_regex.extend([EXPECT_PFC_WD_DETECT_RE])
         loganalyzer.match_regex = []
 
+        pfc_stat = dut.command("pfcstat")["stdout"]
+        pfcwd_stat = dut.command("show pfcwd stats")["stdout"]
+        logger.info("Debug: Before  start pfcwd pfc_stat: {}".format(pfc_stat))
+        logger.info("Debug: Before start pfcwd pfc_wd_stat: {}".format(pfcwd_stat))
         if action != "dontcare":
             start_wd_on_ports(dut, port, restore_time, detect_time, action)
 
@@ -886,6 +890,10 @@ class TestPfcwdFunc(SetupPfcwdFunc):
                  pytest.fail(str(e))
 
              finally:
+                 pfc_stat = self.dut.command("pfcstat")["stdout"]
+                 pfcwd_stat = self.dut.command("show pfcwd stats")["stdout"]
+                 logger.info("Debug: After start pfcwd pfc_stat: {}".format(pfc_stat))
+                 logger.info("Debug: After start pfcwd pfc_wd_stat: {}".format(pfcwd_stat))
                  if self.storm_hndle:
                      logger.info("--- Stop PFC storm on port {}".format(port))
                      self.storm_hndle.stop_storm()
