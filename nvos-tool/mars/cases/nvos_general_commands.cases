@@ -3,9 +3,9 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> NVOS ngci </name>
-      <info> NVOS ngci </info>
-      <owner> Dror Brook </owner>
+      <name> System Commands </name>
+      <info> System Commands </info>
+      <owner> Rowadia Mahameed </owner>
     </Test>
     <Case>
       <tags> commit_push_gate </tags>
@@ -16,8 +16,9 @@
   </global>
 
   <case>
+    <info> System Commands </info>
     <name> System Commands </name>
-    <info> </info>
+    <tout> 1200 </tout>
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/general_commands/test_show_system.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>

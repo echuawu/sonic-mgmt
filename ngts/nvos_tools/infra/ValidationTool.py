@@ -146,5 +146,5 @@ class ValidationTool:
             for key, value in output_dictionary.items():
                 if not value:
                     result_obj.result = False
-                    result_obj.info += "The value of {field_name} not as expected".format(field_name=key)
+                    result_obj.info += "The value of {field_name} is None".format(field_name=key)
             return result_obj
