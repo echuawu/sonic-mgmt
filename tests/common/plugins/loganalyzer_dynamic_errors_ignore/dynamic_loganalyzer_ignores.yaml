@@ -893,3 +893,35 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3061632
+
+- Errors_list:
+    - '.* ERR healthd: Container folder does not exist.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/app_extension/test_app_extension_upgrade.py
+      Redmine:
+      - 3099493
+
+- Errors_list:
+    - '.*ERR lldp#lldpmgrd\[\d+\]: unknown operation.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_port_by_log_id: Failed lookup port config.*'
+    - '.*ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_queue_cfg_lookup: Filed to lookup queue.*'
+    - '.*ERR syncd#SDK: :- collectQueueCounters: QUEUE_WATERMARK_STAT_COUNTER: failed to get stats of queue.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py
+      Redmine:
+      - 3099410
+
+- Errors_list:
+    - '.*ERR syncd#SDK: :- setEndTime: event .?create:SAI_OBJECT_TYPE_SWITCH.*'
+    - '.*ERR syncd#SDK: :- logEventData: op: create, key: SAI_OBJECT_TYPE_SWITCH.*'
+    - '.*ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_FDB_EVENT_NOTIFY.*'
+    - '.*ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY.*'
+    - '.*ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY.*'
+
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fec/test_fec.py
+      Redmine:
+      - 3061632

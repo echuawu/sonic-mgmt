@@ -880,6 +880,14 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   - Platform:
     - 2201
 
+tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
+  - Redmine:
+    - 3099814
+
+tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
+  - Redmine:
+    - 3099814
+
 tests/nightly/fec:
   - Branch:
     - 202012
