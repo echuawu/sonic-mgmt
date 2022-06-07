@@ -24,7 +24,7 @@ SWITCH_MODELS = {
         "psus": {
             "number": 2,
             "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[0]
+            "capabilities": PSU_CAPABILITIES[1]
         },
         "cpu_pack": {
             "number": 1
@@ -41,8 +41,8 @@ SWITCH_MODELS = {
                 "number": 2
             },
             "module": {
-                "start": 1,
-                "number": 52
+                "start": 49,
+                "number": 4
             },
             "psu": {
                 "start": 1,
