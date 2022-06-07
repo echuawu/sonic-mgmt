@@ -151,7 +151,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         # If the test case contains a topology mark, add --topology parameter to the pytest raw option
         # This is to support topology variations
         sonic_mgmt_path = os.path.abspath(__file__).split('/')[0:-4]
-        sonic_mgmt_path.extend(['tests', self.test_scripts])
+        test_script_path = self.test_scripts.split('::')[0]
+        sonic_mgmt_path.extend(['tests', test_script_path])
         test_script_fullpath = '/'.join(sonic_mgmt_path)
         topology_mark_pattern = r'pytest\.mark\.topology\(.+\)'
         try:
