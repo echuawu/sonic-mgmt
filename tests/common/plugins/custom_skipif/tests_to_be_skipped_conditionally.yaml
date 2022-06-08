@@ -1043,6 +1043,12 @@ tests/nightly/dynamic_port_breakout/test_dpb_speeds.py::TestDPBSpeed::test_speed
   - Redmine:
     - 3006650
 
+tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
+  - Redmine:
+    - 3099739
+    Platform:
+    - x86_64-mlnx_msn4600c-r0
+
 qos/test_buffer.py::test_headroom_override:
   - Platform:
     - x86_64-mlnx_msn3700_simx-r0

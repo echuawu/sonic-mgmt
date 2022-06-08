@@ -922,3 +922,13 @@
       - tests/nightly/fec/test_fec.py
       Redmine:
       - 3061632
+
+- Errors_list:
+    - '.*ERR bgp#bgpcfgd: Directory: Can.?t remove key .?PortChannel.*'
+    - '.*ERR bgp#bgpcfgd: Directory: Can.?t remove key .?Vlan.*'
+
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+      - 3101252
