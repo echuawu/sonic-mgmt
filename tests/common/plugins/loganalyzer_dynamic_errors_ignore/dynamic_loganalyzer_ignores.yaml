@@ -916,7 +916,6 @@
     - '.*ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_FDB_EVENT_NOTIFY.*'
     - '.*ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY.*'
     - '.*ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY.*'
-
   Conditions:
     - Affected_test_cases:
       - tests/nightly/fec/test_fec.py
@@ -926,9 +925,20 @@
 - Errors_list:
     - '.*ERR bgp#bgpcfgd: Directory: Can.?t remove key .?PortChannel.*'
     - '.*ERR bgp#bgpcfgd: Directory: Can.?t remove key .?Vlan.*'
-
   Conditions:
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py
       Redmine:
       - 3101252
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Receive PMPE unknown event on module \d+: status 5'
+    - '.* ERR pmon#xcvrd: message repeated \d+ times: \[ Receive PMPE unknown event on module \d+: status 5\]'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      Redmine:
+      - 3101770
+      Platform:
+      - sn2201
