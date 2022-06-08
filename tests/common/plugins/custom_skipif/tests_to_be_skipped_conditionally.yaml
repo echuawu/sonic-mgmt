@@ -1124,3 +1124,15 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
 crm/test_crm.py::test_crm_nexthop_group:
  - Redmine:
    - 3098701
+
+platform_tests/mellanox/test_thermal_control.py::test_psu_absence_policy:
+  - Redmine:
+    - 3101530
+    Platform:
+    - sn2201
+
+platform_tests/mellanox/test_thermal_control.py::test_set_psu_fan_speed:
+  - Redmine:
+    - 3101533
+    Platform:
+    - sn2201
