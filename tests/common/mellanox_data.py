@@ -51,6 +51,9 @@ SWITCH_MODELS = {
             "cpu_pack": {
                 "number": 1
             },
+            "cpu_ambient": {
+                "number": 1
+            },
             "asic_ambient": {
                 "number": 1
             },
