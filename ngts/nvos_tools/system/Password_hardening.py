@@ -10,6 +10,7 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 class Password_hardening(BaseComponent):
 
     def __init__(self, parent_obj):
+        BaseComponent.__init__(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/password-hardening'
         self.parent_obj = parent_obj
