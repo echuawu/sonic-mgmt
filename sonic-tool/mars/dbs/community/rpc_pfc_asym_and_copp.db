@@ -72,4 +72,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/pfc_asym.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/copp.cases </cases>
+    </test>
+
 </DBDEF>
