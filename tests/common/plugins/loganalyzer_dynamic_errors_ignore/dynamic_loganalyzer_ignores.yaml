@@ -874,11 +874,8 @@
     - '.*ERR kernel:.* mlx5_core .* mlx5e_get_module_info: cable type not recognized:.*'
     - '.*ERR kernel: .* mlx5_core .* mlx5_query_module_eeprom:.* Module ID not recognized:.*'
   Conditions:
-    - Affected_test_cases:
-      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom
-      - show_techsupport/test_techsupport_no_secret.py
-      Redmine:
-      - 30844763
+    - Redmine:
+      - 3084763
       Platform:
       - nvda_bf
 
