@@ -673,6 +673,15 @@ vlan/test_host_vlan.py:
     Platform:
       - sn2
 
+#Generic config update and rollback
+generic_config_updater/test_eth_interface.py::test_eth_interface_admin_change[down]:
+  - Redmine:
+      - 3099709
+
+generic_config_updater/test_portchannel_interface.py:
+  - Redmine:
+      - 3067876
+
 ########## Canonical ##########
 # Nightly
 
