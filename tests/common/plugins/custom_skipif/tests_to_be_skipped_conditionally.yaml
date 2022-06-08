@@ -991,6 +991,12 @@ show_techsupport/test_auto_techsupport.py:
     Platform:
       - nvda_bf
 
+process_monitoring/test_critical_process_monitoring.py:
+  - Redmine:
+    - 3101433
+    Platform:
+      - nvda_bf
+
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity:
   - Redmine:
     - 3083731
