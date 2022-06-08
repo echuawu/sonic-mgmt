@@ -790,10 +790,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param cli_object: cli_object
         """
         platform = cli_object.chassis.get_platform()
-        # if msn2 in platform, it's spc1. e.g. x86_64-mlnx_msn2700-r0
-        if 'msn2' in platform:
-            return True
-        return False
+        # if sn2 in platform, it's spc1. e.g. x86_64-mlnx_msn2700-r0
+        return 'sn2' in platform
 
     def show_version(self, validate=False):
         return self.engine.run_cmd('show version', validate=validate)
