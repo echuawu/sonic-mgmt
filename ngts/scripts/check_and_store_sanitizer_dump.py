@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 
 logger = logging.getLogger()
 SENDER_MAIL = 'noreply@sanitizer.com'
-NVOS_MAIL = 'ncaro-staff@exchange.nvidia.com'
+NVOS_MAIL = 'nbu-system-sw-mlnxos20-ext@exchange.nvidia.com'
 NVIDIA_MAIL_SERVER = 'mail.nvidia.com'
 
 
