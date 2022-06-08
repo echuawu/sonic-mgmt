@@ -228,6 +228,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         testbed_type_index = 0
         topos = [self.sonic_topo.split('-')[testbed_type_index]]
         topos.append("any")
+        topos.append("util")  # this is only for test_pretest and test_nbr_health
         self.topology = ",".join(topos)
 
     def collect_allure_report_data(self):
