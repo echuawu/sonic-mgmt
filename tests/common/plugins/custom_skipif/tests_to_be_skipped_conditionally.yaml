@@ -150,13 +150,8 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
     - 202111
 
 
-# Test doing check for /var/run/hw-management/thermal/fan{}_status which does not exist
-platform_tests/test_reboot.py:
-  - Redmine:
-    - 2829184
-    Platform:
-    - 2201
 # Ignore - test not supported on boxer(msn2010) device
+platform_tests/test_reboot.py:
   - Platform:
     - 2010
 
@@ -169,6 +164,10 @@ platform_tests/test_reboot.py::test_power_off_reboot:
     - 3013086
     Platform:
     - 2100
+  - Platform:
+    - 2201
+    Redmine:
+    - 3102127
 
 platform_tests/cli/test_show_platform.py::test_show_platform_fan:
   - Redmine:
@@ -855,6 +854,10 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_b
     Branch:
     - 202111
     - master
+  - Platform:
+    - 2201
+    Redmine:
+    - 3102147
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
   - Redmine:
@@ -862,6 +865,10 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     Branch:
     - 202111
     - master
+  - Platform:
+    - 2201
+    Redmine:
+    - 3102147
 
 # Ignore test due to issue - "config load -y" will not apply DHCP and require reload all configuration
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
@@ -874,6 +881,10 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     - master
     Redmine:
       - 3065507
+  - Platform:
+    - 2201
+    Redmine:
+    - 3102147
 
 # Ignore test due to issue - dhcpv6 relay forward malformed packet
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_malformed_payload:
@@ -888,6 +899,10 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     - master
   - Branch:
     - 202012
+  - Platform:
+    - 2201
+    Redmine:
+    - 3102147
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   - Redmine:
