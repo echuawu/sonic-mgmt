@@ -942,3 +942,14 @@
       - 3101770
       Platform:
       - sn2201
+
+- Errors_list:
+    - '.* ERR healthd: system_service''state'''
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3102116
+      Platform:
+      - sn2201

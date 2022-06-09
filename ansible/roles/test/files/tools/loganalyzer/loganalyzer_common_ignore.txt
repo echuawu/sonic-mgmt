@@ -213,6 +213,7 @@ r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Failed to query PWM duty.*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Failed to write PWM duty.*"
 r, '.* ERR swss#orchagent: :- create: Mirror rule references mirror session "neighbor_advertiser" that does not exist yet'
 r, ".* ERR swss#orchagent: :- add: Failed to create ACL rule rule_(nd|arp) in table EVERFLOW.*"
+r, ".* resctrl: L2 allocation detected"
 r, ".* resctrl: L3 allocation detected"
 r, ".* resctrl: L3DATA allocation detected"
 r, ".* resctrl: L3CODE allocation detected"
