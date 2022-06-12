@@ -167,10 +167,10 @@ def get_physical_port_indices(duthost, logical_intfs=None):
         logging.info("physical interfaces = {}".format(logical_intfs))
 
     for asic_index in duthost.get_frontend_asic_ids():
-	# Get interfaces of this asic
+        # Get interfaces of this asic
         interface_list = get_port_map(duthost, asic_index)
-        interfaces_per_asic = {k:v for k, v in interface_list.items() if k in logical_intfs}
-        #logging.info("ASIC index={} interfaces = {}".format(asic_index, interfaces_per_asic))
+        interfaces_per_asic = {k: v for k, v in interface_list.items() if k in logical_intfs}
+        # logging.info("ASIC index={} interfaces = {}".format(asic_index, interfaces_per_asic))
         for intf in interfaces_per_asic:
             if asic_index is not None:
                 cmd = 'sonic-db-cli -n asic{} CONFIG_DB HGET "PORT|{}" index'.format(asic_index, intf)
