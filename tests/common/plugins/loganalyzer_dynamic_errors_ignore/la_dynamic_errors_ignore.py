@@ -7,6 +7,7 @@ import subprocess
 
 from abc import ABCMeta, abstractmethod
 from ngts.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.tools.token_handler.token_handler import get_cred
 
 
 logger = logging.getLogger()
@@ -349,26 +350,11 @@ class GitHubDynamicErrorsIgnore(LaDynamicErrorsIgnore):
     def __init__(self, conditions_dict, pytest_item_obj):
         super(GitHubDynamicErrorsIgnore, self).__init__(conditions_dict, pytest_item_obj)
         self.validation_name = DynamicLaConsts.GITHUB
-        self.credentials = self.get_cred()
+        self.name = 'GitHub'
+        self.credentials = get_cred(self.name)
         self.github_username = self.credentials.get('user')
         self.api_token = self.credentials.get('api_token')
         self.auth = (self.github_username, self.api_token)
-
-    @staticmethod
-    def get_cred():
-        """
-        Get GitHub API credentials
-        :return: dictionary with GitHub credentials {'user': aaa, 'api_token': 'bbb'}
-        """
-        cred_file_name = 'credentials.yaml'
-        plugins_folder_path = os.path.dirname(__file__)
-        parent_folder_path = plugins_folder_path.rstrip('loganalyzer_dynamic_errors_ignore')
-        cred_file_path = os.path.join(parent_folder_path, 'custom_skipif', cred_file_name)
-
-        with open(cred_file_path) as cred_file:
-            cred = yaml.load(cred_file, Loader=yaml.FullLoader)
-
-        return cred
 
     @staticmethod
     def get_github_issue_api_url(issue_url):
