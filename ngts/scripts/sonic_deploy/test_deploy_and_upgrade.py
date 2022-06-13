@@ -81,7 +81,7 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
         pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number)
 
         for dut in setup_info['duts']:
-            with allure.step('Install image on DUT: {}'.format(dut['host_name'])):
+            with allure.step('Install image on DUT: {}'.format(dut['dut_name'])):
                 # Disconnect ssh connection, prevent "Socket is closed" in case when pre step took more than 15 min
                 topology_obj.players[dut['dut_alias']]['engine'].disconnect()
                 deploy_image(topology_obj=topology_obj, setup_name=setup_name, image_url=base_version_url,
@@ -165,14 +165,13 @@ def get_info_from_topology(topology_obj, workspace_path):
             if host in PlayeresAliases.duts_list:
                 dut_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
                 dut_alias = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Description']
-                host_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']['hostname']
                 cli_type = topology_obj[0][host]['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
                 engine = topology_obj.players[host]['engine']
                 if cli_type == "NVUE":
                     cli_obj = NvueGeneralCli(engine)
                 else:
                     cli_obj = SonicCli(topology_obj, dut_alias=host).general
-                dut_info = {'dut_name': dut_name, 'host_name': host_name, 'cli_type': cli_type, 'engine': engine,
+                dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine,
                             'cli_obj': cli_obj, 'dut_alias': dut_alias}
                 setup_info['duts'].append(dut_info)
 
