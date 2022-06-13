@@ -953,3 +953,14 @@
       - 3102116
       Platform:
       - sn2201
+
+- Errors_list:
+    - '.* ERR syncd#SDK:.*\[SAI_QUEUE.ERR\] mlnx_sai_queue.c.*- mlnx_clear_queue_stats: Failed to get clear port tc counters - Command Unpermitted.*'
+    - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\] mlnx_sai_port.c.*- mlnx_clear_port_all_stats: Failed to clear all port counters - Command Unpermitted.*'
+    - '.* ERR syncd#SDK:.*\[PORT.ERR\] Not allowed to read\/clear port counters when at least one port bulk counter transaction is in progress.*'
+  Conditions:
+    - Affected_test_cases:
+      - pfc_asym/test_pfc_asym.py::test_pfc_asym_on_handle_pfc_all_prio
+      Redmine:
+      - 3102441
+
