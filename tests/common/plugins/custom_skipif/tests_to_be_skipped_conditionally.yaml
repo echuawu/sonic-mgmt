@@ -1151,3 +1151,10 @@ platform_tests/mellanox/test_thermal_control.py::test_set_psu_fan_speed:
     - 3101533
     Platform:
     - sn2201
+
+platform_tests/test_advanced_reboot.py::test_fast_reboot:
+  - Redmine:
+    - 3032144
+    Platform:
+    - x86_64-mlnx_msn4600c-r0
+    - x86_64-mlnx_msn3800-r0
