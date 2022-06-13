@@ -33,7 +33,7 @@ POST_CHECK_THRESHOLD_SECS = 360
 @pytest.fixture(autouse=True, scope='module')
 def config_reload_after_tests(duthost):
     yield
-    config_reload(duthost)
+    config_reload(duthost, safe_reload=True)
 
 
 @pytest.fixture(autouse=True, scope='module')
@@ -580,7 +580,7 @@ def test_monitoring_critical_processes(duthosts, rand_one_dut_hostname, tbinfo, 
     logger.info("Found all the expected alerting messages from syslog!")
 
     logger.info("Executing the config reload...")
-    config_reload(duthost)
+    config_reload(duthost, safe_reload=True)
     logger.info("Executing the config reload was done!")
 
     ensure_all_critical_processes_running(duthost, containers_in_namespaces)
