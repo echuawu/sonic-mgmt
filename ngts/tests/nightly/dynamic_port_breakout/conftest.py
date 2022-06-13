@@ -8,6 +8,7 @@ from ngts.constants.constants import SonicConst
 from ngts.helpers.dependencies_helpers import DependenciesBase
 from ngts.tests.conftest import get_dut_loopbacks
 from ngts.helpers.breakout_helpers import get_dut_breakout_modes
+from ngts.helpers.interface_helpers import get_speed_in_G_format
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 
 """
@@ -196,16 +197,13 @@ def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, con
     'Ethernet194': '25G',
     'Ethernet195': '25G', ...}
     """
-    breakout_ports_conf = {}
     original_ports_list = []
     remove_conf = build_remove_dpb_conf(conf, ports_breakout_modes)
     for breakout_mode, ports_list in conf.items():
         original_ports_list += ports_list
-        for port in ports_list:
-            breakout_ports_conf.update(ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode])
 
     set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf)
-    cli_object.interface.configure_dpb_on_ports(conf, force=force)
+    breakout_ports_conf = cli_object.interface.configure_dpb_on_ports(conf, force=force)
     cli_object.interface.enable_interfaces(breakout_ports_conf.keys())
     return breakout_ports_conf
 
@@ -299,9 +297,10 @@ def compare_actual_and_expected_speeds(expected_speeds_dict, actual_speeds_dict)
         logger.debug("actual_speeds_dict: {}".format(actual_speeds_dict))
         for interface, expected_speed in expected_speeds_dict.items():
             actual_speed = actual_speeds_dict[interface]
-            assert actual_speed == expected_speed, "Interface {} actual speed ({}) " \
-                                                   "after breakout doesn't match expected speed ({}),". \
-                format(interface, actual_speed, expected_speed)
+            expected_speed = get_speed_in_G_format(expected_speed)
+            assert actual_speed == expected_speed, \
+                f"Interface {interface} actual speed: {actual_speed}) " \
+                f"after breakout doesn't match expected speed: {expected_speed}"
 
 
 def verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf):

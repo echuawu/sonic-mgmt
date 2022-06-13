@@ -1,12 +1,15 @@
 import re
 
 
-def get_speed_in_G_format(speed_in_kb):
+def get_speed_in_G_format(speed):
     """
-    :param speed_in_kb: i.e, 25000
+    :param speed: speed value i.e, 25000/ 25G
     :return: speed in G format, i.e, 25G
     """
-    return "{}G".format(int(int(speed_in_kb) / 1000))
+    speed_in_g_format = speed
+    if not re.search(r"\d+G", speed):
+        speed_in_g_format = "{}G".format(int(int(speed) / 1000))
+    return speed_in_g_format
 
 
 def get_alias_number(port_alias):

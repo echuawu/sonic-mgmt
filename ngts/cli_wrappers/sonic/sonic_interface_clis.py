@@ -2,6 +2,7 @@ import re
 import logging
 import ast
 import allure
+import json
 from retry.api import retry_call
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser, parse_show_interfaces_transceiver_eeprom
@@ -304,10 +305,25 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 'Interface {} in unexpected state, expected is {}'.format(port, expected_status)
 
     def configure_dpb_on_ports(self, conf, expect_error=False, force=False):
+        """
+        This function configures breakout on ports and returns the breakout ports
+        that were created after the breakout.
+        :param conf: a dictionary of breakout mode and ports list to configure the breakout mode on.
+        i.e,
+        {'4x50G[40G,25G,10G,1G]': ['Ethernet212', 'Ethernet216']}
+        :param expect_error: a boolean if we expect breakout command to fail
+        :param force: a boolean if breakout command should include a force flag
+        :return: a dictionary with the port configuration after breakout, i.e,
+            {'Ethernet216': '25000',
+            'Ethernet217': '25000',...}
+        """
+        breakout_ports_conf = {}
         for breakout_mode, ports_list in conf.items():
             for port in ports_list:
                 with allure.step(f"Configuring breakout mode: {breakout_mode} on port: {port}, force mode: {force}"):
-                    self.configure_dpb_on_port(port, breakout_mode, expect_error, force)
+                    output = self.configure_dpb_on_port(port, breakout_mode, expect_error, force)
+                    breakout_ports_conf.update(self.parse_added_breakout_ports(output))
+        return breakout_ports_conf
 
     def configure_dpb_on_port(self, port, breakout_mode, expect_error=False, force=False):
         """
@@ -353,6 +369,37 @@ class SonicInterfaceCli(InterfaceCliCommon):
                                  output, re.IGNORECASE):
                     logger.error(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
                     raise AssertionError(f"Verification of Breakout command failed")
+
+    @staticmethod
+    def parse_added_breakout_ports(breakout_cmd_output):
+        """
+        extarcts from breakout command output the dictionary of created ports and returns it as dictionary.
+        :param breakout_cmd_output: the breakout command output, i.e,
+            Running Breakout Mode : 1x100G[50G,40G,25G,10G,1G]
+            Target Breakout Mode : 2x50G[25G,10G,1G]
+            ​...
+            Final list of ports to be added :
+             {
+                "Ethernet124": "50000",
+                "Ethernet126": "50000"
+            }
+            ...
+            Do you wish to Continue? [y/N]: y
+            U+001B[4mBreakout process got successfully completed.
+            Please note loaded setting will be lost after system reboot. To preserve setting, run `config save`.
+        :return: a dictionary of created ports after breakout command:
+        i.e,
+            {
+            "Ethernet124": "50000",
+            "Ethernet126": "50000"
+            }
+        """
+        regex_prefix = r"Final list of ports to be added :.*(\r|\n)*.*"
+        regex_grep_added_ports_json_dict = r"({(.|\n)*,*(\n|\r|.)*})"
+        regex_suffix = r"(\n|\r|.)*sonic_yang"
+        regex = regex_prefix + regex_grep_added_ports_json_dict + regex_suffix
+        matched_added_ports_json_string = re.search(regex, breakout_cmd_output, re.IGNORECASE).group(2)
+        return json.loads(matched_added_ports_json_string)
 
     def config_auto_negotiation_mode(self, interface, mode):
         """
