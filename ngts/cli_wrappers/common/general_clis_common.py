@@ -106,7 +106,7 @@ class GeneralCliCommon(GeneralCliInterface):
         return self.engine.run_cmd(f'coverage combine {flags}', validate=True)
 
     def coverage_xml(self, outfile, flags=''):
-        return self.engine.run_cmd(f'coverage xml -o {outfile} {flags}', validate=True)
+        return self.engine.run_cmd(f'coverage xml -i -o {outfile} {flags}', validate=True)
 
     def tar(self, flags=''):
         return self.engine.run_cmd(f'tar {flags}')
