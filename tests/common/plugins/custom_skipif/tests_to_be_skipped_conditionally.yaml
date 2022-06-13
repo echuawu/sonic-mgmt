@@ -780,6 +780,10 @@ tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
     - 202111
     - StaticReason:
       - 'Test skipped because CLI command "qos reload --ports" will not be merged to these branches'
+  - Redmine:
+    - 3102634
+    Platform:
+    - msn4
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer:
   - Redmine:
@@ -915,6 +919,10 @@ tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   - Platform:
     - 2201
+  - Redmine:
+    - 3103231
+    Branch:
+    - 202111
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   - Redmine:
