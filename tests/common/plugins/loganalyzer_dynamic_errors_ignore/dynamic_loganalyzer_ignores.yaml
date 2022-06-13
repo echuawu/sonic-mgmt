@@ -952,8 +952,6 @@
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       Redmine:
       - 3102116
-      Platform:
-      - sn2201
 
 - Errors_list:
     - '.* ERR syncd#SDK:.*\[SAI_QUEUE.ERR\] mlnx_sai_queue.c.*- mlnx_clear_queue_stats: Failed to get clear port tc counters - Command Unpermitted.*'
