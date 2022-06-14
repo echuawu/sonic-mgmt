@@ -97,19 +97,19 @@ def compare_actual_and_expected(key, expected_val, actual_val):
         "Compared {} result failed: actual - {}, expected - {}".format(key, actual_val, expected_val)
 
 
-def convert_100_to_100m_speed(split_mode_supported_speeds):
+def convert_speed_format_to_m_speed(split_mode_supported_speeds):
     """
-    Convert value 100 which we get from platform.json on DUT to 100M - which is used by the test
+    Convert speed value from platform.json to {speed_value}M - which is used by the test
     :param split_mode_supported_speeds: dictionary, result of parsing platform.json file
-    :return:
+    :return: split_mode_supported_speeds with updated speeds in M format, i.e,
+    {'Ethernet0': {1: ('100M', '1000M', '10M'),2: (), 4: ()},...}
     """
-    original_value = '100'
-    new_value = '100M'
     split_mode = 1
-    for iface, split_info in split_mode_supported_speeds.items():
-        if original_value in split_info[split_mode]:
-            split_mode_supported_speeds[iface][split_mode].remove(original_value)
-            split_mode_supported_speeds[iface][split_mode].add(new_value)
+    for iface, split_speeds_info in split_mode_supported_speeds.items():
+        for speed in split_speeds_info[split_mode]:
+            if re.match(r"\d+$", speed):
+                split_mode_supported_speeds[iface][split_mode].remove(speed)
+                split_mode_supported_speeds[iface][split_mode].add(f"{speed}M")
 
 
 def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_list, simx=False):

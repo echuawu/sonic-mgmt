@@ -16,7 +16,7 @@ from dotted_dict import DottedDict
 from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
 from ngts.constants.constants import PytestConst
 from ngts.helpers import json_file_helper
-from ngts.tests.nightly.conftest import convert_100_to_100m_speed
+from ngts.tests.nightly.conftest import convert_speed_format_to_m_speed
 
 logger = logging.getLogger()
 RAM_SYNCD_USAGE_ASAN_COEFFICIENT = 4
@@ -283,7 +283,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     split_mode_supported_speeds = cli_objects.dut.general.parse_platform_json(topology_obj, platform_json_info)
 
     # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
-    convert_100_to_100m_speed(split_mode_supported_speeds)
+    convert_speed_format_to_m_speed(split_mode_supported_speeds)
 
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
