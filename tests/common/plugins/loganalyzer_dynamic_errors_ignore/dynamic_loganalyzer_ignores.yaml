@@ -954,6 +954,14 @@
       - 3102116
 
 - Errors_list:
+    - '.* WARNING kernel: \[.+\] get_operation_tlv: Err: Got status 0x4 for register 0x9053'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3105020
+
+- Errors_list:
     - '.* ERR syncd#SDK:.*\[SAI_QUEUE.ERR\] mlnx_sai_queue.c.*- mlnx_clear_queue_stats: Failed to get clear port tc counters - Command Unpermitted.*'
     - '.* ERR syncd#SDK:.*\[SAI_PORT.ERR\] mlnx_sai_port.c.*- mlnx_clear_port_all_stats: Failed to clear all port counters - Command Unpermitted.*'
     - '.* ERR syncd#SDK:.*\[PORT.ERR\] Not allowed to read\/clear port counters when at least one port bulk counter transaction is in progress.*'
