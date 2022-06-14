@@ -5,6 +5,7 @@ import random
 import re
 import copy
 from pprint import pprint
+from retry import retry
 from deepdiff import DeepDiff
 from ngts.constants.constants import InfraConst, SonicConst
 from ngts.tests.conftest import get_dut_loopbacks
@@ -113,13 +114,18 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
         logger.info(f"Save configuration on DUT")
         cli_object.general.save_configuration()
 
+    compare_config_db_after_qos_reload_ports(cli_object, origin_config_db)
+
+    with allure.step(f"Check ports: {tested_ports} status"):
+        logger.info(f"Check ports: {tested_ports} status")
+        cli_object.interface.check_ports_status(ports_list=tested_ports, expected_status='up')
+
+
+@retry(Exception, tries=12, delay=10)
+def compare_config_db_after_qos_reload_ports(cli_object, origin_config_db):
     with allure.step(f"Compare the config_db.json after CLI command to origin config_db.json"):
         logger.info(f"Compare the config_db.json after CLI command to origin config_db.json")
         config_db_after_qos_reload_ports = cli_object.general.get_config_db()
         ddiff = DeepDiff(origin_config_db, config_db_after_qos_reload_ports)
         assert not ddiff, f"Test expected QoS configuration to be restored with CLI, " \
                           f"but config_db.json is different: {pprint(ddiff)}"
-
-    with allure.step(f"Check ports: {tested_ports} status"):
-        logger.info(f"Check ports: {tested_ports} status")
-        cli_object.interface.check_ports_status(ports_list=tested_ports, expected_status='up')
