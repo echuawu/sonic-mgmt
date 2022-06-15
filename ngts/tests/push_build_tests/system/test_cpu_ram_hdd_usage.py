@@ -6,6 +6,8 @@ import time
 from ngts.tools.mysql_api.mysql_api import DB
 from ngts.constants.constants import SonicConst
 
+ALLOWED_DEVIATION = 0.05
+
 logger = logging.getLogger()
 
 partitions_and_expected_usage = [{'partition': '/', 'max_usage': 8500}, {'partition': '/var/log/', 'max_usage': 250}]
@@ -77,12 +79,13 @@ class TestCpuRamHddUsage:
                 assertions_list = []
                 total_cpu_usage, cpu_usage_per_process_dict = get_cpu_usage_and_processes(self.dut_engine)
                 # CPU usage is integer and in %
-                if total_cpu_usage > expected_cpu_usage_dict['total']:
+                if total_cpu_usage > expected_cpu_usage_dict['total'] * (1 + ALLOWED_DEVIATION):
                     assertions_list.append({'total': total_cpu_usage})
                 for process in self.processes_list:
                     try:
                         cpu_usage_per_process[process] = cpu_usage_per_process_dict[process]['cpu_usage']
-                        if cpu_usage_per_process_dict[process]['cpu_usage'] > expected_cpu_usage_dict[process]:
+                        if cpu_usage_per_process_dict[process]['cpu_usage'] > \
+                                expected_cpu_usage_dict[process] * (1 + ALLOWED_DEVIATION):
                             assertions_list.append({process: cpu_usage_per_process_dict[process]['cpu_usage']})
                     except KeyError:
                         cpu_usage_per_process[process] = 0
@@ -135,9 +138,8 @@ class TestCpuRamHddUsage:
             used_ram_size_mb = int(free_output.splitlines()[1].split()[2]) / 1024
             logger.info('DUT total RAM size: {} Mb'.format(total_ram_size_mb))
             logger.info('DUT use: {} Mb of RAM'.format(used_ram_size_mb))
-
             # RAM usage is integer and in Mb
-            if used_ram_size_mb > expected_ram_usage_dict['total']:
+            if used_ram_size_mb > expected_ram_usage_dict['total'] * (1 + ALLOWED_DEVIATION):
                 assertions_list.append({'total': used_ram_size_mb})
             for process in self.processes_list:
                 try:
@@ -147,7 +149,7 @@ class TestCpuRamHddUsage:
                     used_ram_mb = float(self.dut_engine.run_cmd(get_ram_usage_cmd))
                     logger.info('Process: {} used {} Mb of RAM'.format(process, used_ram_mb))
                     ram_usage_per_process[process] = used_ram_mb
-                    if used_ram_mb > expected_ram_usage_dict[process]:
+                    if used_ram_mb > expected_ram_usage_dict[process] * (1 + ALLOWED_DEVIATION):
                         assertions_list.append({process: used_ram_mb})
                 except KeyError:
                     ram_usage_per_process[process] = 0
