@@ -576,6 +576,7 @@
       - vxlan/test_vnet_route_leak.py
       - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
       - copp/test_copp.py
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       Redmine:
         - 2966737
       Branch:
