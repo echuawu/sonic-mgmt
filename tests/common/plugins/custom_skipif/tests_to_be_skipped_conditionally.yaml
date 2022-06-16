@@ -144,10 +144,12 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   - Redmine:
-    - 3030936
+    - 3108303
     Branch:
     - master
     - 202111
+    Platform:
+    - msn4
 
 
 # Ignore - test not supported on boxer(msn2010) device
