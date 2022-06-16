@@ -124,6 +124,39 @@ class OpVls(LinkBaseOperational):
                                          level2=IbInterfaceConsts.LINK_OPERATIONAL_VLS))
 
 
+class Mac(LinkBaseOperational):
+    def __init__(self, port_obj):
+        LinkBaseOperational.__init__(self, port_obj=port_obj,
+                                     label=IbInterfaceConsts.LINK_MAC,
+                                     description="MAC Address on an interface",
+                                     field_name_in_db={},
+                                     output_hierarchy="{level1} {level2}".format(
+                                         level1=IbInterfaceConsts.LINK,
+                                         level2=IbInterfaceConsts.LINK_MAC))
+
+
+class Duplex(LinkBaseOperational):
+    def __init__(self, port_obj):
+        LinkBaseOperational.__init__(self, port_obj=port_obj,
+                                     label=IbInterfaceConsts.LINK_DUPLEX,
+                                     description="Link duplex",
+                                     field_name_in_db={},
+                                     output_hierarchy="{level1} {level2}".format(
+                                         level1=IbInterfaceConsts.LINK,
+                                         level2=IbInterfaceConsts.LINK_DUPLEX))
+
+
+class AutoNegotiate(LinkBaseOperational):
+    def __init__(self, port_obj):
+        LinkBaseOperational.__init__(self, port_obj=port_obj,
+                                     label=IbInterfaceConsts.LINK_AUTO_NEGOTIATE,
+                                     description="Link speed and characteristic auto negotiation",
+                                     field_name_in_db={},
+                                     output_hierarchy="{level1} {level2}".format(
+                                         level1=IbInterfaceConsts.LINK,
+                                         level2=IbInterfaceConsts.LINK_AUTO_NEGOTIATE))
+
+
 class State(LinkBaseOperational):
     def __init__(self, port_obj):
         LinkBaseOperational.__init__(self, port_obj=port_obj,
