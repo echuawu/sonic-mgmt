@@ -70,10 +70,11 @@ class TestDynamicInnerHashingLag():
                                "symmetric_hashing": symmetric_hashing},
                        log_file=log_file,
                        qlen=PTF_QLEN,
-                       socket_recv_size=16384)
+                       socket_recv_size=16384,
+                       is_python3=True)
 
         retry_call(check_pbh_counters,
                    fargs=[duthost, outer_ipver, inner_ipver, balancing_test_times,
-                          symmetric_hashing, hash_keys, lag_mem_ptf_ports_groups],
+                          symmetric_hashing, hash_keys,lag_mem_ptf_ports_groups],
                    tries=5,
                    delay=5)
