@@ -1,5 +1,3 @@
 r, ".*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] - Interface_Type\[.*\]\] configuration is invalid.*"
 r, ".*ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet.* advertised interface type to .*"
 r, ".*ERR swss#orchagent: :- handleSaiSetStatus: Encountered SAI_STATUS_INVALID_ATTR_VALUE_0 in set operation, task failed, SAI API: SAI_API_PORT, status: SAI_STATUS_INVALID_ATTR_VALUE_0"
-r, ".*ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet.* speed from .* to .*"
-r, ".*ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_SPEED: .*"
