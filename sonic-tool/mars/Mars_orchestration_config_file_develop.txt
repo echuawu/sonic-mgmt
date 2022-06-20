@@ -1,0 +1,96 @@
+Community:
+Daily regression config
+
+Community_Regression_Set_1 - All instances:
+{
+  "sonic_branch": "202012",
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
+  "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
+  "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
+  "rpc_image": "/auto/sw_system_release/sonic/main_branch_verification_pointer-rpc.bin",
+  "run_rpc_image": "yes",
+  "skip_weekend_cases": "yes",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pretest.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/routes.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dhcp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pfcwd.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/layer3.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/link.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/wjh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/fast_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/warm_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/span.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/generic_config_updater.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pre_rpc.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/rpc_qos.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/rpc_pfc_asym_and_copp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/post_rpc.db'}]"
+}
+
+Community_Regression_Set_1 - Specific instances (arc-switch1025, r-leopard-01: these setups run all the db files)
+{
+  "sonic_branch": "202012",
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
+  "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
+  "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
+  "rpc_image": "/auto/sw_system_release/sonic/main_branch_verification_pointer-rpc.bin",
+  "run_rpc_image": "yes",
+  "skip_weekend_cases": "yes",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pretest.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/layer2.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/radv.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/acl.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/ecmp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/ip_neigh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/resources.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/tunnel.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/counters.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/interfaces.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/sub_port_interfaces.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/system_health.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/sflow.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/bgp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pbh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/cold_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/autorestart.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/routes.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dhcp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pfcwd.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/layer3.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/link.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/wjh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/fast_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/warm_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/span.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pre_rpc.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/rpc_qos.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/rpc_pfc_asym_and_copp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/post_rpc.db'}]"
+}
+
+Community_Regression_Set_1 - Specific instances(r-leopard-58: this setup run all dbs including general dbs(system.db, mgmtvrf.db, tacacs.db ))
+{
+  "sonic_branch": "202012",
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
+  "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
+  "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
+  "rpc_image": "/auto/sw_system_release/sonic/main_branch_verification_pointer-rpc.bin",
+  "run_rpc_image": "yes",
+  "skip_weekend_cases": "yes",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pretest.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/layer2.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/radv.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/acl.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/ecmp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/ip_neigh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/resources.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/tunnel.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/counters.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/interfaces.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/sub_port_interfaces.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/system_health.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/sflow.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/bgp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pbh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/cold_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/autorestart.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/routes.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dhcp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pfcwd.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/layer3.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/link.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/wjh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/fast_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/warm_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/span.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/system.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/mgmtvrf.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/tacacs.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pre_rpc.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/rpc_qos.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/rpc_pfc_asym_and_copp.db '},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/post_rpc.db'}]"
+}
+
+Community_Regression_Set_2 - All instances:
+
+{
+  "sonic_branch": "202012",
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
+  "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
+  "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
+  "rpc_image": "/auto/sw_system_release/sonic/main_branch_verification_pointer-rpc.bin",
+  "run_rpc_image": "yes",
+  "skip_weekend_cases": "yes",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pretest.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/layer2.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/radv.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/acl.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/ecmp.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/ip_neigh.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/resources.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/tunnel.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/counters.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/interfaces.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/sub_port_interfaces.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/system_health.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/sflow.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/bgp.db'}, {'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/pbh.db'}, {'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/cold_reboot.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/autorestart.db'}]"
+}
+
+Friday_Community_Regression_Set_1:
+Friday_Community_Regression_Set_2:
+The only different for the weekend is that the "skip_weekend_cases": "no"
+
+
+Canonical:
+canonical_full_regression_main_branch - All instances:
+{
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
+  "sonic_branch": "202012",
+  "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
+  "send_takeover_notification": "yes",
+  "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
+}
+canonical_full_regression_main_branch - Specific instance (sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56: these setups configured with upgrade)
+{
+  "additional_apps": "",
+  "send_takeover_notification": "yes",
+  "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
+  "base_version": "/auto/sw_system_release/sonic/202012/202012_5/sonic-mellanox.bin",
+  "target_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate_with_upgrade.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
+}
+
+Note: for side_branch_1 and side_branch_2, the execution_block_generator are same and the main branch, only the pointer is different
+canonical_partial_regression_side_branch_1 - All instances:
+{
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/side_branch_1_app_verification_pointer",
+  "sonic_branch": "202012",
+  "custom_tarball_name": "side_branch_1_verification_pointer.db.1.tgz",
+  "send_takeover_notification": "yes",
+  "base_version": "/auto/sw_system_release/sonic/side_branch_1_verification_pointer.bin",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
+}
+canonical_partial_regression_side_branch_2_US_team_setups - All instances:
+{
+  "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/side_branch_2_app_verification_pointer",
+  "base_version": "/auto/sw_system_release/sonic/side_branch_2_verification_pointer.bin",
+  "custom_tarball_name": "side_branch_2_verification_pointer.db.1.tgz",
+  "send_takeover_notification": "yes",
+  "sonic_branch": "202012",
+  "execution_block_generator": "[{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/pretest.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'},{'entry_points':'SONIC_MGMT','tests_dbs_tarball':'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
+}
