@@ -162,6 +162,16 @@
       - master
 
 - Errors_list:
+    - '.* ERR swss#orchagent: :- handlePortQosMapTable: Failed to apply QoS maps to port global\. Port is not found.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3110830
+      Branch:
+      - 202205
+
+- Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
     - '.* ERR watchdogutil: Failed to get watchdog module'
     - '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
