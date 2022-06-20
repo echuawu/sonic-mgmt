@@ -16,6 +16,13 @@
     </global>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Container Autostart Case </info>
         <name> container_autorestart </name>
         <tout> 3600 </tout>
