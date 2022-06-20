@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger()
 
 
-def test_check_errors_in_log_during_deploy_sonic_image(engines, request):
+def test_check_errors_in_log_during_deploy_sonic_image(engines, request, loganalyzer):
     """
     Test checks errors in logs which happen during deploy SONiC image
     This test must be executed as first test case after deploy SONiC image, because test logic will analyze syslog
@@ -22,6 +22,13 @@ def test_check_errors_in_log_during_deploy_sonic_image(engines, request):
     oldest_syslog_id = get_oldest_syslog_id(engines.dut)
     new_log_analyzer_start_string = get_new_start_string(engines.dut, oldest_syslog_id, log_analyzer_start_string_line)
     insert_new_start_string(engines.dut, oldest_syslog_id, new_log_analyzer_start_string)
+
+    # Logic below required for prevent issue when end_marker not available in syslog, we do force add end_marker
+    logger.info('Adding end_marker in syslog')
+    for dut in loganalyzer:
+        run_id = loganalyzer[dut].ansible_loganalyzer.run_id
+        # Command below may fail, but we do not care about it - LA will do the same after test executed(it will pass)
+        engines.dut.run_cmd(f'sudo python /tmp/loganalyzer.py --action add_end_marker --run_id {run_id}')
 
 
 def get_la_start_string(engine, request):
