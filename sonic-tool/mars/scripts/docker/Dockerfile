@@ -31,6 +31,9 @@ RUN echo "root:3tango" | chpasswd
 RUN echo "root   ALL=(ALL)       ALL" >> /etc/sudoers
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 
+RUN git clone https://github.com/sflow/sflowtool.git
+WORKDIR sflowtool
+RUN ./boot.sh && ./configure && make && make install
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
