@@ -981,3 +981,17 @@
       Redmine:
       - 3102441
 
+- Errors_list:
+    - '.* WARNING kernel: \[.*\] get_operation_tlv: Err: Got status .* for register .*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      Redmine:
+      - 3110376
+      Branch:
+      - master
+

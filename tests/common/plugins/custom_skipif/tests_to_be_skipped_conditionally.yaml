@@ -14,6 +14,12 @@ platform_tests/test_sensors.py::test_sensors:
   - Redmine:
     - 2815265
 
+platform_tests/api/test_sfp.py::TestSfpApi::test_reset:
+  - Redmine:
+    - 3065705
+    Branch:
+    - master
+
 # pfc_asym(RPC)
 pfc_asym/test_pfc_asym.py:
   - Platform:
