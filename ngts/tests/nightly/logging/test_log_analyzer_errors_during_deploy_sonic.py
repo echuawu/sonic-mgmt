@@ -23,7 +23,8 @@ def test_check_errors_in_log_during_deploy_sonic_image(engines, request, loganal
     new_log_analyzer_start_string = get_new_start_string(engines.dut, oldest_syslog_id, log_analyzer_start_string_line)
     insert_new_start_string(engines.dut, oldest_syslog_id, new_log_analyzer_start_string)
 
-    # Logic below required for prevent issue when end_marker not available in syslog, we do force add end_marker
+    # Logic below is required to overcome the issue the when end_marker is not present in syslog - in this case,
+    # the end_marker will be added forcefully
     logger.info('Adding end_marker in syslog')
     for dut in loganalyzer:
         run_id = loganalyzer[dut].ansible_loganalyzer.run_id
