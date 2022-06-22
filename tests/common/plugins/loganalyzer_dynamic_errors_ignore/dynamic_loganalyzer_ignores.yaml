@@ -168,8 +168,7 @@
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       Redmine:
       - 3110830
-      Branch:
-      - 202205
+
 
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
