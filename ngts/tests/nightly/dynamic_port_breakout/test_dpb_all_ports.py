@@ -7,7 +7,7 @@ import re
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
     is_splittable, set_dpb_conf, verify_ifaces_speed_and_status
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
-from ngts.tests.nightly.conftest import cleanup
+from ngts.tests.nightly.dynamic_port_breakout.conftest import cleanup
 
 logger = logging.getLogger()
 

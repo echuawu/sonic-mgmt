@@ -402,3 +402,14 @@ def build_remove_dpb_conf(tested_modes_lb_conf, ports_breakout_modes):
             default_breakout_mode = ports_breakout_modes[port]['default_breakout_mode']
             remove_breakout_ports_conf.append({default_breakout_mode: [port]})
     return remove_breakout_ports_conf
+
+
+def cleanup(cleanup_list):
+    """
+    execute all the functions in the cleanup list
+    :return: None
+    """
+    while cleanup_list:
+        cleanup_item = cleanup_list.pop(0)
+        func, args = cleanup_item
+        func(*args)
