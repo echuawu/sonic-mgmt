@@ -784,6 +784,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config = self.engine.run_cmd('sudo show runningconfiguration all', print_output=False)
         return json.loads(config)
 
+    def is_dpu(self):
+        """
+        Function to check if the current DUT is DPU
+        """
+        platform = self.cli_obj.chassis.get_platform()
+        return 'arm64-nvda_bf-mbf2h536c' in platform
+
     def is_spc1(self, cli_object):
         """
         Function to check if the current DUT is SPC1

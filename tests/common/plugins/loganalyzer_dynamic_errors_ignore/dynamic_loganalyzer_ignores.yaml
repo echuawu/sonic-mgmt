@@ -89,6 +89,7 @@
       - tests/nightly/lag/test_lag.py::test_lags_scale
       - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
       # 2 tests below temporary added - they doing "config reload -y"
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers
