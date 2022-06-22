@@ -1080,11 +1080,6 @@ drop_packets/test_drop_counters.py::test_multicast_smac_drop:
     - 3061096
 
 scripts/log_profiler/log_profiler.py:
-  - Redmine:
-    - 3082321
-    Branch:
-    - master
-    - 202111
   - Branch:
     - 202012
     Redmine:
