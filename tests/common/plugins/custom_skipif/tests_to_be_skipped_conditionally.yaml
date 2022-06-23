@@ -98,6 +98,8 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
     - 2382365
     Platform:
     - 2100
+  - Redmine:
+    - 3083715
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
   - Redmine:
@@ -110,12 +112,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
     - 2382365
     Platform:
     - 2100
-
-platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
-  - Redmine:
-    - 3083715
-
-platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
   - Redmine:
     - 3083715
 
@@ -123,9 +119,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_bad_config:
   - Redmine:
     - 3083715
 
-platform_tests/fwutil/test_fwutil.py::test_fwutil_update_bad_config:
-  - Redmine:
-    - 3083715
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_bad_path:
   - Redmine:
@@ -666,13 +659,6 @@ sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_su
   - Redmine:
       - 3042428
 
-#lldp
-lldp/test_lldp.py::test_lldp_neighbor:
-  - Redmine:
-      - 3024709
-    Branch:
-      - 202111
-
 #host vlan
 vlan/test_host_vlan.py:
   - Redmine:
@@ -723,7 +709,7 @@ tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::te
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   - Redmine:
-    - 2686798
+    - 2832005
 
 tests/nightly/dynamic_port_breakout:
   - Redmine:
@@ -935,6 +921,8 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   - Platform:
     - simx
+  - Redmine:
+    - 3099814
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   - Platform:
@@ -945,10 +933,6 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
     - 202111
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
-  - Redmine:
-    - 3099814
-
-tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   - Redmine:
     - 3099814
 
@@ -1146,12 +1130,6 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_acl:
 scripts/test_verify_fanout_version.py::test_verify_fanout_version:
   - Redmine:
     - 3058927
-
-lldp/test_lldp.py::test_lldp_neighbor:
-  - Redmine:
-    - 3095038
-    Branch:
-    - 202111
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
   - Redmine:
