@@ -136,7 +136,12 @@ class RandomizationTool:
                 for value in forbidden_values:
                     list_of_values_to_select_from.remove(value)
 
-            if len(list_of_values_to_select_from) <= number_of_values_to_select:
+            if len(list_of_values_to_select_from) == number_of_values_to_select:
+                result_obj.returned_value = list_of_values_to_select_from
+                result_obj.result = True
+                return result_obj
+
+            if len(list_of_values_to_select_from) < number_of_values_to_select:
                 result_obj.info = "The number of values to select is more then the number of values in the list"
                 return result_obj
 

@@ -9,6 +9,16 @@ from dotted_dict import DottedDict
 logger = logging.getLogger()
 
 
+def pytest_addoption(parser):
+    """
+    Parse NVOS pytest options
+    :param parser: pytest buildin
+    """
+    logger.info('Parsing NVOS pytest options')
+    parser.addoption('--release_name', action='store', default="master_25",
+                     help='The name of the release to be tested. For example: master_25')
+
+
 @pytest.fixture(scope='session')
 def engines(topology_obj):
     engines_data = DottedDict()
@@ -28,6 +38,16 @@ def devices(topology_obj):
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
     devices_date.dut = DeviceFactory.create_device(dut_name)
     return devices_date
+
+
+@pytest.fixture(scope="package")
+def release_name(request):
+    """
+    Method for getting release_name from pytest arguments
+    :param request: pytest builtin
+    :return: release_name
+    """
+    return request.config.getoption('--release_name')
 
 
 @pytest.fixture(scope='session', autouse=True)

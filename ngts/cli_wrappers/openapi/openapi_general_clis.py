@@ -19,5 +19,7 @@ class OpenApiGeneralCli:
         Apply configuration
         :param engine: ssh engine object
         """
-        return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, 'PATCH', engine.ip,
-                                                   'system/config/apply')
+        logging.info("NOTE: For now, for OpenApi commands, the configuration is applied automatically "
+                     "after each command.")
+        '''return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, 'PATCH', engine.ip,
+                                                   'system/config/apply')'''

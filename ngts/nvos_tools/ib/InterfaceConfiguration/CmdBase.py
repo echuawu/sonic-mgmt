@@ -37,7 +37,7 @@ class CmdBase:
                                                          engine, port_obj.name,
                                                          output_hierarchy, field_name, value)
 
-        if TestToolkit.tested_api == ApiType.NVUE and result_obj.result and apply:
+        if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, engine)
@@ -53,7 +53,7 @@ class CmdBase:
             result_obj = SendCommandTool.execute_command(port_obj.api_obj[TestToolkit.tested_api].unset_interface,
                                                          engine, port_obj.name, output_hierarchy)
 
-        if TestToolkit.tested_api == ApiType.NVUE and result_obj.result and apply:
+        if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, engine)

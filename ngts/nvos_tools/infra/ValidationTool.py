@@ -111,20 +111,21 @@ class ValidationTool:
             return result_obj
 
     @staticmethod
-    def compare_values(value1, value2):
+    def compare_values(value1, value2, should_equal=True):
         """
         Compares two values
         :param value1: first value
         :param value2: second value
+        :param should_equal: True of False
         :return: ResultObj - while ResultObj.returned_value = True if the values are equal, False - otherwise
         """
-        result_obj = None
-        if not value1:
-            result_obj = ResultObj(False, "First value is not valid")
-        if not value2:
-            result_obj = ResultObj(False, "Second value is not valid")
-        elif value1 == value2:
-            result_obj = ResultObj(True, "The values are equal", True)
+        result_obj = ResultObj(False, "")
+        if value1 == value2:
+            result_obj = ResultObj(True, "The values are equal", True) if should_equal else \
+                ResultObj(False, "The values are equal while they shouldn't", False)
+        else:
+            result_obj = ResultObj(True, "The values are not equal as expected", True) if not should_equal else \
+                ResultObj(False, "The values are not equal while they should", False)
         return result_obj
 
     @staticmethod
@@ -148,3 +149,15 @@ class ValidationTool:
                     result_obj.result = False
                     result_obj.info += "The value of {field_name} is None".format(field_name=key)
             return result_obj
+
+    @staticmethod
+    def compare_dictionaries(first_dictionary, second_dictionary):
+        """
+        Compares two dictionaries
+        """
+        if set(first_dictionary.keys()) == set(second_dictionary.keys()):
+            for key in first_dictionary.keys():
+                if first_dictionary[key] != second_dictionary[key]:
+                    return ResultObj(False, "'{}' are not equal for both dictionaries".format(key))
+            return ResultObj(True, "The dictionaries are equal")
+        return ResultObj(False, "The dictionaries are not equal")

@@ -123,3 +123,10 @@ class SystemConsts:
                                        "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d" \
                                        "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
                                        " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"
+
+
+class ActionConsts:
+    CLEANUP = "cleanup"
+    INSTALL = "install"
+    UNINSTALL = "uninstall"
+    BOOT_NEXT = "boot-next"
