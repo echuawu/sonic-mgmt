@@ -5,6 +5,7 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Images import Images
 from ngts.nvos_tools.system.Firmware import Firmware
+from ngts.nvos_tools.system.Techsupport import TechSupport
 
 
 class System(BaseComponent):
@@ -14,6 +15,7 @@ class System(BaseComponent):
 
     def __init__(self, parent_obj=None):
         self.security = Security(self)
+        self.techsupport = TechSupport(self)
         self.images = Images(self)
         self.firmware = Firmware(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}

@@ -24,3 +24,10 @@ class NvueSystemCli(NvueBaseCli):
                                                                            param=op_param)
         logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_generate(engine, resource_path, option="", time=""):
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
