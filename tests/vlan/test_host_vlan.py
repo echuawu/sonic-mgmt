@@ -71,11 +71,11 @@ def get_new_vlan_intf_mac_mellanox(dut_vlan_intf_mac):
         Returns:
             new_dut_vlan_intf_mac: the new mac address
     '''
-    dut_vlan_intf_mac_last_octec = dut_vlan_intf_mac.split(':')[-1]
-    # Get a different mac address under the same mac prefix, flap the bits in the last octec
-    new_dut_vlan_intf_mac_last_octec = hex(int(dut_vlan_intf_mac_last_octec, 16) ^ 255).strip('0x')
+    dut_vlan_intf_mac_last_octet = dut_vlan_intf_mac.split(':')[-1]
+    # Get a different mac address under the same mac prefix, flap the bits in the last octet
+    new_dut_vlan_intf_mac_last_octet = hex(int(dut_vlan_intf_mac_last_octet, 16) ^ 255).strip('0x')
     new_dut_vlan_intf_mac = dut_vlan_intf_mac.split(':')
-    new_dut_vlan_intf_mac[-1] = new_dut_vlan_intf_mac_last_octec
+    new_dut_vlan_intf_mac[-1] = new_dut_vlan_intf_mac_last_octet
     new_dut_vlan_intf_mac = ':'.join(new_dut_vlan_intf_mac)
     return new_dut_vlan_intf_mac
 
