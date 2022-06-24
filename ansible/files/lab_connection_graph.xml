@@ -1318,6 +1318,7 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/23" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet88"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/24" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet92"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/25" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/26/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet100"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/27/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet104"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/27/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet106"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/28/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet108"/>
@@ -1325,8 +1326,11 @@
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/29/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet112"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/29/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet114"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/30/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet116"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/30/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet118"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet120"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet124"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/31/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet122"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/32/1" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet124"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="mtbc-sonic-02-2700" EndPort="ethernet 1/32/2" StartDevice="mtbc-sonic-03-2700" StartPort="Ethernet126"/>
 
       <DeviceInterfaceLink BandWidth="50000" EndDevice="c-panther-02" EndPort="ethernet 1/1/1" StartDevice="c-panther-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="c-panther-02" EndPort="ethernet 1/1/2" StartDevice="c-panther-01" StartPort="Ethernet2"/>
@@ -2917,19 +2921,19 @@
       <InterfaceVlan mode="Access" portname="ethernet 1/24" vlanids="142"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/25" vlanids="143"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/26/1" vlanids="144"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/26/2" vlanids="145"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/27/1" vlanids="146"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/27/2" vlanids="147"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/28/1" vlanids="148"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/28/2" vlanids="149"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/29/1" vlanids="150"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/29/2" vlanids="151"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/30/1" vlanids="152"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/30/2" vlanids="153"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/31/1" vlanids="154"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/31/2" vlanids="155"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/32/1" vlanids="156"/>
-      <InterfaceVlan mode="Trunk" portname="ethernet 1/32" vlanids="101-156"/>
+      <InterfaceVlan mode="Trunk" portname="ethernet 1/26/2" vlanids="101-156"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/27/1" vlanids="145"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/27/2" vlanids="146"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/28/1" vlanids="147"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/28/2" vlanids="148"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/29/1" vlanids="149"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/29/2" vlanids="150"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/30/1" vlanids="151"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/30/2" vlanids="152"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/31/1" vlanids="153"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/31/2" vlanids="154"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/32/1" vlanids="155"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/32/2" vlanids="156"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="mtbc-3700c-02">
       <InterfaceVlan mode="Access" portname="ethernet 1/1" vlanids="101"/>
