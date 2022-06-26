@@ -153,13 +153,13 @@ def test_set_unset_system_firmware_default(engines):
 def set_firmware_default(system, value):
     logging.info("Setting firmware default to '{}'".format(value))
     system.firmware.set("default", value)
-    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut, True)
 
 
 def unset_firmware_default(system):
     logging.info("Unsetting firmware default")
     system.firmware.unset("default")
-    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut, True)
 
 
 def verify_firware_value(system, field_name, expected_value):
@@ -172,13 +172,13 @@ def verify_firware_value(system, field_name, expected_value):
 def unset_auto_update(system):
     logging.info('unset firmware auto-update')
     system.firmware.unset("auto-update")
-    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut, True)
 
 
 def set_auto_update(system, value):
     logging.info('{} firmware auto-update'.format(value))
     system.firmware.set("auto-update", value)
-    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+    TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut, True)
 
 
 def verify_asic_fields(asic_dictionary):

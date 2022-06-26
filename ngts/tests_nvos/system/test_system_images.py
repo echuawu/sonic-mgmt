@@ -254,19 +254,20 @@ def get_installed_images(system):
         return output_dictionary
 
 
-def get_list_of_directories(starts_with=None):
+def get_list_of_directories(current_installed_img, starts_with=None):
     def mtime(f): return os.stat(os.path.join(PATH_TO_IMAGED_DIRECTORY, f)).st_mtime
     all_directories = list(sorted(os.listdir(PATH_TO_IMAGED_DIRECTORY), key=mtime))
     all_directories.reverse()
 
-    return_directories = []
+    return_directories = {}
 
     for directory in all_directories:
         temp_dir = PATH_TO_IMAGED_DIRECTORY + PATH_TO_IMAGE_TEMPLATE.format(directory)
         if starts_with and directory.startswith(starts_with):
-            relevant_images = [f for f in os.listdir(temp_dir) if f.startswith("nvos-amd64-25.")]
+            relevant_images = [f for f in os.listdir(temp_dir) if f.startswith("nvos-amd64-25.") and
+                               current_installed_img.replace("nvos-25", "nvos-amd64-25") not in f]
             if relevant_images:
-                return_directories.append(temp_dir)
+                return_directories[temp_dir] = relevant_images
         if len(return_directories) > 4:
             break
 
@@ -277,12 +278,11 @@ def get_image_to_install(release_name, current_installed_img):
     with allure.step("Get list of images"):
         with allure.step('Select random image'):
             logging.info("Select random image")
-            relevant_directories = get_list_of_directories(release_name)
-            selected_directory = RandomizationTool.select_random_value(relevant_directories,
+            relevant_directories = get_list_of_directories(current_installed_img, release_name)
+            selected_directory = RandomizationTool.select_random_value(list(relevant_directories.keys()),
                                                                        None).get_returned_value()
 
-            relevant_images = [f for f in os.listdir(selected_directory) if f.startswith("nvos-amd64-25.") and
-                               current_installed_img.replace("nvos-25", "nvos-amd64-25") not in f]
+            relevant_images = relevant_directories[selected_directory]
             image_name = relevant_images[0]
             image_path = selected_directory + relevant_images[0]
             logging.info("Selected image: " + image_path)

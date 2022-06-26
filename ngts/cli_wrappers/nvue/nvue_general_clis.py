@@ -16,7 +16,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def __init__(self, engine):
         self.engine = engine
 
-    @retry(Exception, tries=15, delay=10)
+    @retry(Exception, tries=25, delay=10)
     def verify_dockers_are_up(self, dockers_list=NvosConst.DOCKERS_LIST):
         """
         Verifying the dockers are in up state during a specific time interval
@@ -50,14 +50,14 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return self.engine.run_cmd('show version')
 
     @staticmethod
-    def apply_config(engine, is_mgmt_port=False):
+    def apply_config(engine, ask_for_confirmation=False):
         """
         Apply configuration
         :param engine: ssh engine object
-        :param is_mgmt_port: True if mgmt port is changed ,false otherwise
+        :param ask_for_confirmation: True or False
         """
         logging.info("Running 'nv config apply' on dut")
-        if is_mgmt_port:
+        if ask_for_confirmation:
             output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
                                         tries_after_run_cmd=1)
             if 'Declined apply after warnings' in output:
