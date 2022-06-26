@@ -140,7 +140,7 @@ class TestAutoNegBase:
         matched_types = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
                                           types_dict=self.interfaces_types_dict)
         expected_type = max(matched_types, key=get_interface_cable_width)
-        expected_width = get_interface_cable_width(expected_type)
+        expected_width = get_interface_cable_width(expected_type, expected_speed)
         return expected_speed, expected_type, expected_width
 
     def update_port_adv_type(self, conf, port, expected_speed, expected_type):
