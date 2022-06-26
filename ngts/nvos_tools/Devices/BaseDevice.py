@@ -17,7 +17,7 @@ class BaseDevice:
         self.available_tables = {}
         self.available_services = []
         self.available_dockers = []
-        self.constants = {}
+        self.constants = None
 
         self._init_available_databases()
         self._init_services()
@@ -212,11 +212,11 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_dockers(self):
         BaseDevice._init_services(self)
-        self.available_dockers.extend(('nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database'))
+        self.available_dockers.extend(('nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils'))
 
     def _init_contants(self):
         BaseDevice._init_contants(self)
-        Constants = namedtuple('Constants', ['system'])
+        Constants = namedtuple('Constants', ['system', 'dump_files'])
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
@@ -226,7 +226,20 @@ class BaseSwitch(BaseDevice, ABC):
             'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
                         SystemConsts.VERSION_KERNEL]
         }
-        self.constants = Constants(system_dic)
+        dump_files = ['APPL_DB.json', 'ASIC_DB.json', 'boot.conf', 'bridge.fdb', 'bridge.vlan', 'CONFIG_DB.json',
+                      'COUNTERS_DB_1.json', 'COUNTERS_DB_2.json', 'COUNTERS_DB.json', 'date.counter_1',
+                      'date.counter_2', 'df', 'dmesg', 'docker.pmon', 'docker.ps', 'docker.stats',
+                      'docker.swss-ibv0.log', 'dpkg', 'fan', 'FLEX_COUNTER_DB.json', 'free', 'hdparm', 'ib-utils.gz',
+                      'ifconfig.counters_1', 'ifconfig.counters_2', 'interface.status', 'interface.xcvrs.eeprom',
+                      'interface.xcvrs.presence', 'ip.addr', 'ip.interface', 'ip.link', 'ip.link.stats', 'ip.neigh',
+                      'ip.neigh.noarp', 'ip.route', 'ip.rule', 'lspci', 'lsusb', 'machine.conf', 'mount', 'nat.config',
+                      'nat.conntrack', 'nat.conntrackall', 'nat.conntrackallcount', 'nat.conntrackcount',
+                      'nat.iptables', 'netstat.counters_1', 'netstat.counters_2', 'nvue.gz', 'platform.summary',
+                      'ps.aux', 'ps.extended', 'psustatus', 'queue.counters_1', 'queue.counters_2', 'reboot.cause',
+                      'saidump', 'sensors', 'services.summary', 'ssdhealth', 'STATE_DB.json', 'swapon', 'sysctl',
+                      'syseeprom', 'systemd.analyze.blame', 'systemd.analyze.dump', 'systemd.analyze.plot.svg',
+                      'temperature', 'top', 'version', 'vlan.summary', 'vmstat', 'vmstat.m', 'vmstat.s', 'who']
+        self.constants = Constants(system_dic, dump_files)
 
 
 # -------------------------- Gorilla Switch ----------------------------
