@@ -62,7 +62,7 @@
 
         <info> PBH Case </info>
         <name> pbh weekly</name>
-        <tout> 4800 </tout>
+        <tout> 7200 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts ecmp/inner_hashing/test_inner_hashing.py  </static_args>
@@ -81,7 +81,7 @@
 
         <info> PBH Case </info>
         <name> pbh lag weekly</name>
-        <tout> 4800 </tout>
+        <tout> 7200 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts ecmp/inner_hashing/test_inner_hashing_lag.py  </static_args>
@@ -138,7 +138,7 @@
 
         <info> PBH Case </info>
         <name> pbh_wr weekly </name>
-        <tout> 4800 </tout>
+        <tout> 7200 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts ecmp/inner_hashing/test_wr_inner_hashing.py </static_args>
@@ -157,7 +157,7 @@
 
         <info> PBH Case </info>
         <name> pbh_wr lag weekly </name>
-        <tout> 4800 </tout>
+        <tout> 7200 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts ecmp/inner_hashing/test_wr_inner_hashing_lag.py </static_args>
