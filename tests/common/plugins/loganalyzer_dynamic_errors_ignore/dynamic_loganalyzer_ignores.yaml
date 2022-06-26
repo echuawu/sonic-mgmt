@@ -524,6 +524,16 @@
         - master
 
 - Errors_list:
+    - '.*ERR teamd#tlm_teamd: :- process_add_queue:.*connect to teamd after 10 attempts. LAG.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_admin_status_down_disables_forwarding[port_in_lag]
+      Redmine:
+        - 2910559
+      Branch:
+        - 202111
+
+- Errors_list:
     - '.* teamd\[\d+\]: segfault at .* ip .* sp .* error 4 in libteam.so.5.6.0.*'
   Conditions:
     - Affected_test_cases:
