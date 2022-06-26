@@ -346,10 +346,11 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
-      - show_techsupport/test_techsupport.py::test_techsupport
-      - platform_tests/sfp/test_sfputil.py
-      - show_techsupport/test_auto_techsupport.py
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
+      - platform_tests/sfp/test_sfputil.py
+      - show_techsupport/test_techsupport.py::test_techsupport
+      - show_techsupport/test_auto_techsupport.py
+      - show_techsupport/test_techsupport_no_secret.py::test_secret_removed_from_show_techsupport
       Redmine:
         - 2915388
 
