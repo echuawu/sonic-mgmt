@@ -980,6 +980,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
       Redmine:
       - 3105020
 
