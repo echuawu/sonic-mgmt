@@ -13,6 +13,16 @@ logger = logging.getLogger()
 partitions_and_expected_usage = [{'partition': '/', 'max_usage': 8500}, {'partition': '/var/log/', 'max_usage': 250}]
 
 
+@pytest.fixture()
+def skip_test_ram_usage_on_asan(topology_obj):
+    """
+    Fixture that skips test execution in case setup is running ASAN image
+    """
+    if topology_obj.players['dut']['sanitizer']:
+        pytest.skip("Skipping execution of test on ASAN image because image "
+                    "consumes more RAM then usually expected on dut")
+
+
 class TestCpuRamHddUsage:
 
     @pytest.fixture(autouse=True)
@@ -114,7 +124,7 @@ class TestCpuRamHddUsage:
 
     @pytest.mark.build
     @pytest.mark.push_gate
-    def test_ram_usage(self, request, expected_ram_usage_dict):
+    def test_ram_usage(self, request, expected_ram_usage_dict, skip_test_ram_usage_on_asan):
         """
         This tests checks RAM usage - total and per process
         Test doing command "top" - then parse output and check from it PIDs for running processes
