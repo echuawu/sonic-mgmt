@@ -134,6 +134,7 @@
       <Device Hostname="r-r740-03-bf2-sonic-02" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-r740-05-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-r740-05-bf2-sonic-02" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="c-anaconda-01" HwSku="ACS-MSN3700C" Type="DevSonic" />
       <Device Hostname="c-anaconda-02" HwSku="ACS-MSN3700C" Type="DevSonic" />
       <Device Hostname="jaguar-119" HwSku="ACS-MQM8700" Type="DevSonic"/>
     </Devices>
