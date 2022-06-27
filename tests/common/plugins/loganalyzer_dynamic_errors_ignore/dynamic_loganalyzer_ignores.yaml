@@ -812,6 +812,14 @@
       - 202111
 
 - Errors_list:
+    - '.* ERR syncd#SDK: \[FDB_UC\.ERR\] FDB: not supported fid type \(\d+\) for fid \(\d+\)\. \(Success\)'
+  Conditions:
+    - Affected_test_cases:
+      - sub_port_interfaces/test_show_subinterface.py
+      Redmine:
+      - 3117917
+
+- Errors_list:
     - '.* ERR swss#orchagent: message repeated \d+ times: \[ :- update: Failed to get port by bridge port ID 0x.*.\]'
   Conditions:
     - Affected_test_cases:

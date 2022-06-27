@@ -604,70 +604,40 @@ vxlan/test_vxlan_ecmp.py:
 # Sub interfaces feature is only supported by master branch for now
 sub_port_interfaces/test_show_subinterface.py:
   - Branch:
-      - 201911
-      - 202012
+    - 201911
+    - 202012
 
 sub_port_interfaces/test_sub_port_interfaces.py:
   - Branch:
-      - 201911
-      - 202012
+    - 201911
+    - 202012
 
 sub_port_interfaces/test_sub_port_l2_forwarding.py:
   - Branch:
-      - 201911
-      - 202012
+    - 201911
+    - 202012
 
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_valid_vlan[port_in_lag]:
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports:
   - Redmine:
-      - 3042428
+    - 3117697
 
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_invalid_vlan[port_in_lag]:
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_valid_vlan:
   - Redmine:
-      - 3042428
+    - 3117697
 
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_admin_status_down_disables_forwarding[port_in_lag]:
-  - Redmine:
-      - 3042428
+# decap
+decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=disable]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5877
 
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_max_numbers_of_sub_ports[port_in_lag]:
-  - Redmine:
-      - 3042428
+decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=set_unset]:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5877
 
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_mtu_inherited_from_parent_port[port_in_lag]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_vlan_config_impact[port_in_lag]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports[same-port_in_lag-TCP-UDP-ICMP]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports[different-port_in_lag-TCP-UDP-ICMP]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports_and_port[svi-port_in_lag-TCP-UDP-ICMP]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_routing_between_sub_ports_and_port[l3-port_in_lag-TCP-UDP-ICMP]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports[same-port_in_lag]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports[different-port_in_lag]:
-  - Redmine:
-      - 3042428
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports[port_in_lag]:
-  - Redmine:
-      - 3042428
+# radv
+radv/test_radv_ipv6_ra.py:
+  - GitHub:
+    - https://github.com/Azure/sonic-mgmt/issues/5878
 
 #host vlan
 vlan/test_host_vlan.py:
