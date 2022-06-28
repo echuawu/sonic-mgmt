@@ -824,10 +824,10 @@
 
 - Errors_list:
     - '.* ERR wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
-    - '.* ERR wjhd\[30\]: \[WJH_LIB.ERROR\s+\].*'
-    - '.* ERR wjhd\[30\]: :- deleteDropGroupReason:.*'
-    - '.* ERR wjhd\[30\]: :- destroy: Failed to destroy channel.*'
-    - '.* ERR wjhd\[30\]: :- deinitialize: Failed to de-initialize WJH library, status 1.*'
+    - '.* ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\].*'
+    - '.* ERR wjhd\[\d+\]: :- deleteDropGroupReason:.*'
+    - '.* ERR wjhd\[\d+\]: :- destroy: Failed to destroy channel.*'
+    - '.* ERR wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status 1.*'
 
   Conditions:
     - Affected_test_cases:
