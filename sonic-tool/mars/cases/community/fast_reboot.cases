@@ -34,7 +34,7 @@
             <condition>
                 <key> topology </key>
                 <op> not in </op>
-                <value> ["t0", "t0-56", ""t0-64"] </value>
+                <value> ["t0", "t0-56", "t0-64"] </value>
             </condition>
         </ignore>
         <cmd>
