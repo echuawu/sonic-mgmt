@@ -587,11 +587,11 @@ ecmp/inner_hashing:
   - Platform:
     - msn2
 
-ecmp/inner_hashing/inner_hashing/test_wr_inner_hashing.py:
+ecmp/inner_hashing/test_wr_inner_hashing.py:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/5876
 
-ecmp/inner_hashing/inner_hashing/test_wr_inner_hashing_lag.py:
+ecmp/inner_hashing/test_wr_inner_hashing_lag.py:
   - GitHub:
     - https://github.com/Azure/sonic-mgmt/issues/5876
 
