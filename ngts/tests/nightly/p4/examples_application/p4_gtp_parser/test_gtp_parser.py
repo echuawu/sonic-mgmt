@@ -50,11 +50,14 @@ def test_gtp_parser_entry_hit(topology_obj, engines, gtp_table_params, cli_objec
         traffic_expect_receive_count_list = [pkt_count]
         traffic_expect_hit_count_list = [pkt_count]
 
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
         with allure.step("Verify traffic can be received on the receiver, the entry matched will hit"):
             verify_traffic(topology_obj, gtp_table_params, entry_key_list, pkt_count, traffic_expect_receive_count_list)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
 
     with allure.step("Send traffic that match more than one entries with action value is 'ROUTE'"):
         entry_key_low_pri = "20.2.2.2/32 20000"
@@ -62,11 +65,14 @@ def test_gtp_parser_entry_hit(topology_obj, engines, gtp_table_params, cli_objec
         entry_key_list = [entry_key_high_pri, entry_key_low_pri]
         traffic_expect_receive_count_list = [pkt_count, 0]
         traffic_expect_hit_count_list = [pkt_count, 0]
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
         with allure.step("Verify traffic can be received on the receiver, and the entry with higher priority will hit"):
             verify_traffic(topology_obj, gtp_table_params, entry_key_list, pkt_count, traffic_expect_receive_count_list)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
 
     with allure.step("Update entries: change the entry action from 'ROUTE' to 'DROP'"):
         for entry_key, entry_param_dict in gtp_table_params.items():
@@ -79,11 +85,14 @@ def test_gtp_parser_entry_hit(topology_obj, engines, gtp_table_params, cli_objec
         traffic_expect_receive_count_list = [0]
         traffic_expect_hit_count_list = [pkt_count]
 
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
         with allure.step("Verify traffic can not be received on the receiver, the entry matched will hit"):
             verify_traffic(topology_obj, gtp_table_params, entry_key_list, pkt_count, traffic_expect_receive_count_list)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
 
     with allure.step("Send traffic that match more than one entries with action value is 'DROP'"):
         entry_key_low_pri = "20.2.2.2/32 20000"
@@ -91,11 +100,14 @@ def test_gtp_parser_entry_hit(topology_obj, engines, gtp_table_params, cli_objec
         entry_key_list = [entry_key_high_pri, entry_key_low_pri]
         traffic_expect_receive_count_list = [0, 0]
         traffic_expect_hit_count_list = [pkt_count, 0]
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
         with allure.step("Verify traffic can not be received on the receiver, the entry matched will hit"):
             verify_traffic(topology_obj, gtp_table_params, entry_key_list, pkt_count, traffic_expect_receive_count_list)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
 
     with allure.step("Update entries: change the entry action from 'DROP' back to 'ROUTE'"):
         for entry_key, entry_param_dict in gtp_table_params.items():
@@ -111,27 +123,36 @@ def test_gtp_parser_entry_not_hit(topology_obj, engines, gtp_table_params, gtp_e
     entry_key_list = gtp_table_params.keys()
     traffic_expect_hit_count_list = [0] * len(entry_key_list)
     with allure.step("Send traffic that only match key_ip of one entry, and not match any keys of any other entries"):
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
         with allure.step("Verify traffic can not received on the receiver, none entry will hit"):
             mismatch_entry_key = "10.2.2.2/24 30000"
             verify_mismatch_traffic(topology_obj, mismatch_entry_key, gtp_entry_mismatch_params, pkt_count)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
     with allure.step("Send traffic that only match key_teid of one entry, and not match any keys of any other entries"):
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
         with allure.step("Verify traffic can not received on the receiver, none entry will hit"):
             mismatch_entry_key = "30.2.2.2/24 10000"
             verify_mismatch_traffic(topology_obj, mismatch_entry_key, gtp_entry_mismatch_params, pkt_count)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
     with allure.step("Send traffic that not match key_ip, and not match key_teid of any entry, "
                      "and not match any other entries"):
-        with allure.step("Clear counters"):
-            p4nspect_utils.clear_counters(engines.dut, feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME)
+        with allure.step("Get entry counters before sending traffic, there is no cli to clear the existing counters"):
+            current_entry_dict = p4nspect_utils.get_p4nspect_query_json_parsed(engines.dut,
+                                                                               feature_name=P4ExamplesConsts.GTP_PARSER_FEATURE_NAME,
+                                                                               table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
             mismatch_entry_key = "30.2.2.2/24 30000"
         with allure.step("Verify traffic can not received on the receiver, none entry will hit"):
             verify_mismatch_traffic(topology_obj, mismatch_entry_key, gtp_entry_mismatch_params, pkt_count)
-            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list)
+            verify_entries_hit_as_expect(engines.dut, entry_key_list, traffic_expect_hit_count_list,
+                                         pre_entry_dict=current_entry_dict)
 
 
 def verify_gtp_entries(gtp_table_params, cli_obj, params_type=ORI_PARAMS):
@@ -236,7 +257,7 @@ def verify_mismatch_traffic(topology_obj, mismatch_entry_key, gtp_entry_mismatch
     scapy_r.run_validation()
 
 
-def verify_entries_hit_as_expect(dut_engine, entry_key_list, expected_count_list):
+def verify_entries_hit_as_expect(dut_engine, entry_key_list, expected_count_list, pre_entry_dict=None):
     """
     Verify the count is as expected with the p4nspect tool
     :param dut_engine: dut ssh engine object
@@ -252,7 +273,8 @@ def verify_entries_hit_as_expect(dut_engine, entry_key_list, expected_count_list
         #  should be: pkt_count = entry_dict[entry_key]['packet_count']
         #  Jira ticket is there: https://jirasw.nvidia.com/browse/P4DT-310
         pkt_count = entry_dict[entry_key.split()[0]]['packet_count']
-        assert pkt_count == expected_count, \
+        pre_pkt_count = pre_entry_dict[entry_key.split()[0]]['packet_count'] if pre_entry_dict else 0
+        assert pkt_count == pre_pkt_count + expected_count, \
             f"The counter for entry {entry_key} is not correct, expect {pkt_count} >= {expected_count}"
 
 
