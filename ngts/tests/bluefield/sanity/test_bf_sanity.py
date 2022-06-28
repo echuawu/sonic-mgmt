@@ -231,11 +231,12 @@ class TestBfSanity:
             assert current_mtu == tested_mtu, f'config MTU failed, expected: {tested_mtu}, actual: {current_mtu}'
             self.cli_objects.dut.interface.set_interface_mtu(self.random_iface, '9100')
 
-        with allure.step("Verify the command 'config interface speed'"):
-            self.cli_objects.dut.interface.set_interface_speed(self.random_iface, tested_speed)
-            iface_speed = self.cli_objects.dut.interface.parse_interfaces_status()[self.random_iface]['Speed']
-            assert iface_speed == tested_speed, f'config speed failed, expected: {tested_speed}, actual: {iface_speed}'
-            self.cli_objects.dut.interface.set_interface_speed(self.random_iface, '100G')
+        # TODO need to check again the flow with Sash
+        # with allure.step("Verify the command 'config interface speed'"):
+        #     self.cli_objects.dut.interface.set_interface_speed(self.random_iface, tested_speed)
+        #     iface_speed = self.cli_objects.dut.interface.parse_interfaces_status()[self.random_iface]['Speed']
+        #     assert iface_speed == tested_speed, f'config speed failed, expected: {tested_speed}, actual: {iface_speed}'
+        #     self.cli_objects.dut.interface.set_interface_speed(self.random_iface, '100G')
 
         with allure.step("Verify the command 'config interface type'"):
             self.cli_objects.dut.interface.config_interface_type(self.random_iface, tested_type)
