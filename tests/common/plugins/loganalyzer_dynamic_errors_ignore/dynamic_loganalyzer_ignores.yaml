@@ -1016,3 +1016,44 @@
       Branch:
       - master
 
+- Errors_list:
+    - '.* ERR pmon#xcvrd: :- checkReplyType: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY'
+    - '.* ERR pmon#xcvrd: :- guard: RedisReply catches system_error: command: .*, reason: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY: Input/output error'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      Redmine:
+      - 3120567
+      Platform:
+      - 2201
+
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan\d_speed_get - OSError\(6, ''No such device or address''\)'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      Redmine:
+      - 3120594
+      Platform:
+      - 2201
+
+- Errors_list:
+    - '.* ERR ntpd\[\d+\]: leapsecond file \(''/usr/share/zoneinfo/leap-seconds.list''\): expired \d day ago'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
+      Redmine:
+      - 3120607
+      Platform:
+      - 2201
+
+- Errors_list:
+    - '.* ERR show: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to PermissionError\(13, ''Permission denied''\)'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
+      Redmine:
+      - 3120621
+      Platform:
+      - 2201
