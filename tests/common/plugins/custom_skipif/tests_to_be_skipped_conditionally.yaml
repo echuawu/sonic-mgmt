@@ -974,14 +974,10 @@ qos/test_buffer.py:
 
 pfcwd/test_pfcwd_warm_reboot.py:
   - Redmine:
-      - 3060946
+      - 3115164
     Branch:
       - master
       - 202111
-      - 202012
-    Platform:
-      - x86_64-mlnx_msn3700-r0
-      - x86_64-mlnx_msn3800-r0
 
 arp/test_wr_arp.py:
   - Redmine:
