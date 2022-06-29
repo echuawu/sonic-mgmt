@@ -23,6 +23,9 @@ def test_apply_basic_conf(topology_obj, setup_name, platform_params, is_simx):
         cli_object = topology_obj.players['dut']['cli']
         dut_engine = topology_obj.players['dut']['engine']
         configure_machine_conf(dut_engine, is_simx, platform_params)
+        timezone = "Israel"
+        with allure.step("Set dut timezone to {}".format(timezone)):
+            dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(timezone), validate=True)
         with allure.step("Apply port_config.ini and config_db.json"):
             require_to_reload_before_qos = require_to_configure_machine_conf(is_simx, platform_params.platform)
             cli_object.general.apply_basic_config(topology_obj, setup_name, platform_params,

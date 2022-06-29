@@ -275,7 +275,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
-                     reboot_after_install=None, fw_pkg_path=None):
+                     reboot_after_install=None, fw_pkg_path=None, set_timezone='Israel'):
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
@@ -293,6 +293,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
                 self.validate_dockers_are_up_reboot_if_fail()
+
+        if set_timezone:
+            with allure.step("Set dut NTP timezone to {} time.".format(set_timezone)):
+                dut_engine = topology_obj.players['dut']['engine']
+                dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(set_timezone), validate=True)
 
         if apply_base_config:
             with allure.step("Apply port_config.ini and config_db.json"):
