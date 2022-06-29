@@ -198,8 +198,8 @@
     - '.* ERR hostcfgd: sonic-kdump-config --disable - failed: return code - 1, output:#012None'
     - '.* ERR hostcfgd: sonic-kdump-config --memory 0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M - failed: return code - 1, output:#012None'
   Conditions:
-    - Redmine:
-        - 2951102
+    - Branch:
+      - 202111
 
 # Below ignores from temp_log_analyzer_ignores.txt in LAG folder
 - Errors_list:
