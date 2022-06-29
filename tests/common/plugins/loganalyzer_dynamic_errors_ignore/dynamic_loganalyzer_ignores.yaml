@@ -348,7 +348,9 @@
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
       - platform_tests/sfp/test_sfputil.py
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
       - show_techsupport/test_techsupport.py::test_techsupport
       - show_techsupport/test_auto_techsupport.py
       - show_techsupport/test_techsupport_no_secret.py::test_secret_removed_from_show_techsupport
