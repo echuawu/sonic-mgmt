@@ -17,6 +17,7 @@ from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.conftest import cleanup_last_config_in_stack
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
+from ngts.tools.tcpdump_debugger import tcpdump_debug
 
 logger = logging.getLogger()
 PORTCHANNEL_NAME = 'PortChannel1111'
@@ -415,7 +416,7 @@ def test_lag_members_scale(topology_obj, interfaces, engines, cleanup_list):
 
 @pytest.mark.reboot_reload
 @allure.title('LAGs scale Test')
-def test_lags_scale(topology_obj, engines, cleanup_list):
+def test_lags_scale(topology_obj, engines, cleanup_list, tcpdump_debug):
     """
     This test case will check the configuration of maximum number of port channels with ipv4&ipv6 addresses.
     :param topology_obj: topology object
