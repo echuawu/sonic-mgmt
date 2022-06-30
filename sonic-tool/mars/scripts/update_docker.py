@@ -384,8 +384,9 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.91'}
+    default_list = {'docker-ngts': '1.2.92'}
     return default_list.get(docker_name, latest)
+
 
 def send_takeover_notification(topo):
     wait_between_notf_to_regression_start = 3
@@ -403,6 +404,7 @@ def send_takeover_notification(topo):
         logger.info("Sleeping for {} minutes".format(wait_between_notf_to_regression_start))
         time.sleep(wait_between_notf_to_regression_start * 60)
 
+
 def notify_player_users(player_info, wait_between_notf_to_regression_start):
     takeover_message = "Mars regression is taking over in {} minutes. Please save your work and logout".\
         format(wait_between_notf_to_regression_start)
@@ -417,7 +419,6 @@ def notify_player_users(player_info, wait_between_notf_to_regression_start):
 if __name__ == "__main__":
     try:
         main()
-
     except Exception as e:
         traceback.print_exc()
         sys.exit(LinuxConsts.error_exit_code)
