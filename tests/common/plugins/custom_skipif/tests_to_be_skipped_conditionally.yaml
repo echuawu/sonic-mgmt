@@ -34,8 +34,6 @@ ecmp/test_fgnhg.py:
     - 2577145
     Platform:
     - msn2
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5876
 
 # everflow
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
@@ -586,14 +584,6 @@ ecmp/inner_hashing:
     - 202106
   - Platform:
     - msn2
-
-ecmp/inner_hashing/test_wr_inner_hashing.py:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5876
-
-ecmp/inner_hashing/test_wr_inner_hashing_lag.py:
-  - GitHub:
-    - https://github.com/Azure/sonic-mgmt/issues/5876
 
 #vxlan
 vxlan/test_vxlan_ecmp.py:
