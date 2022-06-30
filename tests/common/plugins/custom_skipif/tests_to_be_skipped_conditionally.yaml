@@ -27,6 +27,11 @@ pfc_asym/test_pfc_asym.py:
     - StaticReason:
         - 'Test skipped because the performance of SPC1 fanout switch is not high enough to generate pfc storm'
 
+platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
+  - Redmine:
+    - 3123080
+    Branch:
+    - master
 
 # ecmp
 ecmp/test_fgnhg.py:
@@ -1017,19 +1022,27 @@ process_monitoring/test_critical_process_monitoring.py:
 
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity:
   - Redmine:
-    - 3083731
+    - 3123373
+    Branch:
+    - master
 
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[core]:
   - Redmine:
-    - 3083731
+    - 3123373
+    Branch:
+    - master
 
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[techsupport]:
   - Redmine:
-    - 3095406
+    - 3123373
+    Branch:
+    - master
 
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval:
   - Redmine:
-    - 3095406
+    - 3123501
+    Branch:
+    - master
 
 drop_packets/test_drop_counters.py::test_equal_smac_dmac_drop:
   - Redmine:

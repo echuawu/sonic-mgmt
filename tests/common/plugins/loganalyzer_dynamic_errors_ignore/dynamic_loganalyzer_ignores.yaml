@@ -1065,3 +1065,15 @@
       - 3120621
       Platform:
       - 2201
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[MGMT_LIB\.ERR\] Slot \[\d+\] Module \[\d+\] has logport \[.*\] in enabled state.*'
+    - '.* ERR syncd#SDK: \[SDK_MGMT_LIB\.ERR\] Failed in __sdk_mgmt_phy_module_pwr_attr_set, error:.*'
+    - '.* ERR pmon#-c: Error occurred when setting power mode for SFP module \d+, slot \d+, error code 1.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode
+    - Redmine:
+      - 3123080
+      Branch:
+      - master
