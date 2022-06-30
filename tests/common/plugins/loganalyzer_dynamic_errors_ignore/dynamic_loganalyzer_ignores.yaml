@@ -989,8 +989,14 @@
     - '.* WARNING kernel: \[.+\] get_operation_tlv: Err: Got status 0x4 for register 0x9053'
   Conditions:
     - Affected_test_cases:
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       Redmine:
       - 3105020
 
