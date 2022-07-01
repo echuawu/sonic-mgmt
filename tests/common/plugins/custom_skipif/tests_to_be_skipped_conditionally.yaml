@@ -651,8 +651,12 @@ generic_config_updater/test_portchannel_interface.py:
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   - Platform:
     - simx
-    - StaticReason:
-      - 'warm reboot is not supported on simx setups'
+    StaticReason:
+    - 'warm reboot is not supported on simx setups'
+  - Platform:
+    - 2201
+    StaticReason:
+    - 'Test can not run on SN2201 due to RJ45 ports'
 
 tests/nightly/auto_negotition:
   - Branch:
