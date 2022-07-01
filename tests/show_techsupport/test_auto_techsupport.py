@@ -273,10 +273,11 @@ class TestAutoTechSupport:
 
         current_time = self.duthost.shell('date +%s')['stdout']
         """ Dict below has since value as key and time from now till oldest timestamp in log
-        For example: {'300 sec': 360} - means that we will configure since value to "300 sec" and will expect that after
-        auto-techsupport generation we will have logs not older than 360 seconds since now(300 sec + 60 sec deviation)
+        For example: {'300 sec': 360} - means that we will configure since value to "300 sec ago" and will expect that
+        after auto-techsupport generation we will have logs not older than 360 seconds
+        since now(300 sec + 60 sec deviation)
         """
-        test_parameters_dict = {'@{}'.format(current_time): 60, '5 minutes ago': 360, '300 sec': 360}
+        test_parameters_dict = {'@{}'.format(current_time): 60, '5 minutes ago': 360, '300 sec ago': 360}
         since_value = random.choice(list(test_parameters_dict.keys()))
 
         # force log rotate - because in some cases, when there's no file older than since, there will be no syslog file in techsupport dump
