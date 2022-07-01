@@ -1129,3 +1129,9 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
     Platform:
     - x86_64-mlnx_msn4600c-r0
     - x86_64-mlnx_msn3800-r0
+
+tests/nightly/routing/test_routing.py:
+  - Redmine:
+    - 3123850
+    Platform:
+    - sn2201
