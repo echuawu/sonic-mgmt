@@ -1,10 +1,24 @@
 import pytest
 from tests.common.plugins.ptfadapter import get_ifaces, get_ifaces_map
 from tests.common import constants
-from .iface_loopback_action_helper import get_tested_up_ports, remove_ori_dut_port_config, recover_config, \
-    apply_config, save_ori_config
+from .iface_loopback_action_helper import get_tested_up_ports, remove_orig_dut_port_config, get_portchannel_peer_port_map, recover_config, apply_config
+from tests.common.fixtures.duthost_utils import backup_and_restore_config_db_package    # lgtm[py/unused-import]
 
 PORT_COUNT = 10
+
+
+def pytest_addoption(parser):
+    """
+        Adds options to pytest that are used by the rif loopback action tests.
+    """
+
+    parser.addoption(
+        "--rif_loppback_reboot_type",
+        action="store",
+        type=str,
+        default="cold",
+        help="reboot type such as reload, cold, fast, warm, random"
+    )
 
 
 @pytest.fixture(scope="package")
@@ -164,17 +178,37 @@ def generate_ip_list():
 
 
 @pytest.fixture(scope="package", autouse=True)
-def setup(duthost, ptfhost, ori_ports_configuration, ports_configuration):
+def setup(duthost, ptfhost, ori_ports_configuration, ports_configuration, backup_and_restore_config_db_package,
+          nbrhosts, tbinfo):
     """
     Config: Cleanup the original port configuration and add new configurations before test
-    Cleanup: restore the original configurations
+    Cleanup: restore the config on the VMs
     :param duthost: DUT host object
     :param ptfhost: PTF host object
     :param ori_ports_configuration: original ports configuration parameters
     :param ports_configuration: ports configuration parameters
+    :param backup_and_restore_config_db_package: backup and restore config db package fixture.
+    :param nbrhosts: nbrhosts fixture.
+    :param tbinfo: Testbed object
     """
-    save_ori_config(duthost)
-    remove_ori_dut_port_config(duthost, ori_ports_configuration)
+    peer_shutdown_ports = get_portchannel_peer_port_map(duthost, ori_ports_configuration, tbinfo, nbrhosts)
+    remove_orig_dut_port_config(duthost, ori_ports_configuration)
+    for vm_host, peer_port in peer_shutdown_ports.items():
+        vm_host.shutdown(peer_port)
     apply_config(duthost, ptfhost, ports_configuration)
+
+    yield
+    for vm_host, peer_port in peer_shutdown_ports.items():
+        vm_host.no_shutdown(peer_port)
+
+
+@pytest.fixture(scope="package", autouse=True)
+def teardown(duthost, ptfhost, ports_configuration):
+    """
+    restore the original configurations
+    :param duthost: DUT host object
+    :param ptfhost: PTF host object
+    :param ports_configuration: ports configuration parameters
+    """
     yield
     recover_config(duthost, ptfhost, ports_configuration)

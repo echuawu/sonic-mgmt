@@ -7,7 +7,6 @@ from .iface_loopback_action_helper import clear_rif_counter
 from .iface_loopback_action_helper import verify_interface_loopback_action
 from .iface_loopback_action_helper import verify_rif_tx_err_count
 from tests.common.helpers.assertions import pytest_assert
-from tests.common.helpers.cli_parsers import generic_sonic_output_parser
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 
@@ -43,7 +42,7 @@ def test_loopback_action_wjh(duthost, ptfadapter, ports_configuration):
     count_list = [NUM_OF_TOTAL_PACKETS] * intf_count
     with allure.step("Configure the loopback action to drop"):
         config_loopback_action(duthost, rif_interfaces, action_list)
-    with allure.step("Verify the loopback acton is correct of port flap"):
+    with allure.step("Verify the loopback acton is correct"):
         with allure.step("Check the looback action is configured correctly with cli command"):
             verify_interface_loopback_action(duthost, rif_interfaces, action_list)
         with allure.step("Check the loopback traffic"):
@@ -65,53 +64,56 @@ def get_wjh_loopback_drop_items(duthost):
     :return: Dictionary of L3 loopback action drop items
     Examples:
     {'Ethernet244': [{'#': '681',
-                      'Timestamp': '22/06/17 15:25:24.323',
-                      'sPort': 'Ethernet244',
-                      'dPort': 'N/A', 'VLAN': '58',
-                      'sMAC': 'ee:46:86:41:a4:3d',
-                      'dMAC': '1c:34:da:1d:ea:00',
-                      'EthType': 'Dot1Q',
-                      'Src IP:Port': '11.11.11.11',
-                      'Dst IP:Port': '11.8.0.10',
-                      'IP Proto': 'ip',
-                      'Drop Group': 'L3',
-                      'Severity': 'Warn',
-                      'Drop reason - Recommended action': 'Router interface loopback - Validate the interface configuration'
+                      'timestamp': '22/06/17 15:25:24.323',
+                      'sport': 'Ethernet244',
+                      'dport': 'N/A', 'VLAN': '58',
+                      'smac': 'ee:46:86:41:a4:3d',
+                      'dmac': '1c:34:da:1d:ea:00',
+                      'ethtype': 'Dot1Q',
+                      'src ip:port': '11.11.11.11',
+                      'dst ip:port': '11.8.0.10',
+                      'ip proto': 'ip',
+                      'drop group': 'L3',
+                      'severity': 'Warn',
+                      'drop reason - Recommended action': 'Router interface loopback - Validate the interface configuration'
                       },
                      ...],
       'Ethernet248': [{'#': '691',
-                       'Timestamp': '22/06/17 15:25:27.234',
-                       'sPort': 'Ethernet248',
-                       'dPort': 'N/A',
-                       'VLAN': '59',
-                       'sMAC': 'de:50:79:3b:04:3e',
-                       'dMAC': '1c:34:da:1d:ea:00',
-                       'EthType': 'Dot1Q',
-                       'Src IP:Port': '11.11.11.11',
-                       'Dst IP:Port': '11.9.0.10',
-                       'IP Proto': 'ip',
-                       'Drop Group': 'L3',
-                       'Severity': 'Warn',
-                       'Drop reason - Recommended action': 'Router interface loopback - Validate the interface configuration'
+                       'timestamp': '22/06/17 15:25:27.234',
+                       'sport': 'Ethernet248',
+                       'dport': 'N/A',
+                       'vlan': '59',
+                       'smac': 'de:50:79:3b:04:3e',
+                       'dmac': '1c:34:da:1d:ea:00',
+                       'ethtype': 'Dot1Q',
+                       'src ip:port': '11.11.11.11',
+                       'dst ip:port': '11.9.0.10',
+                       'ip proto': 'ip',
+                       'drop group': 'L3',
+                       'severity': 'Warn',
+                       'drop reason - Recommended action': 'Router interface loopback - Validate the interface configuration'
                        },
                     ...],
                     ...
     }
     """
-    stdout = duthost.shell("show what-just-happened poll forwarding")
-    if stdout['rc'] != 0:
-        raise Exception(stdout['stdout'] + stdout['stderr'])
-    table = stdout['stdout']
-    wjh_drop_items = generic_sonic_output_parser(table, header_line_number=2, len_ofset=2, data_ofset_from_start=3, column_ofset=1)
     wjh_loopback_drop_items = {}
-    for item in wjh_drop_items:
-        item['Drop reason - Recommended action'] = " ".join(item['Drop reason - Recommended action'])
-        port = item['sPort']
-        if item['Drop Group'] == 'L3' and item['Drop reason - Recommended action'] == \
+    wjh_poll_forward_list = duthost.show_and_parse('show what-just-happened poll forwarding', header_len=2)
+
+    for item in wjh_poll_forward_list:
+        if 'sport' in item and item['sport']:
+            port = item['sport']
+            pre_port = port
+            pre_item = item
+        else:
+            port = pre_port
+            pre_item['drop reason - recommended action'] = " ".join([pre_item['drop reason - recommended action'],
+                                                                     item['drop reason - recommended action']]).strip()
+        if pre_item['drop group'] == 'L3' and pre_item['drop reason - recommended action'] == \
                 'Router interface loopback - Validate the interface configuration':
             if port not in wjh_loopback_drop_items.keys():
                 wjh_loopback_drop_items[port] = []
-            wjh_loopback_drop_items[port].append(item)
+            wjh_loopback_drop_items[port].append(pre_item)
     return wjh_loopback_drop_items
 
 

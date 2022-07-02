@@ -50,4 +50,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/iface_namingmode.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/iface_loopback_action.cases </cases>
+    </test>
+
 </DBDEF>

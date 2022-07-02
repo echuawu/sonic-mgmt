@@ -1351,7 +1351,7 @@ Totals               6450                 6449
         return positions
 
 
-    def _parse_show(self, output_lines):
+    def _parse_show(self, output_lines, header_len=1):
 
         result = []
 
@@ -1360,7 +1360,7 @@ Totals               6450                 6449
         for idx, line in enumerate(output_lines):
             if sep_line_pattern.match(line):
                 sep_line_found = True
-                header_line = output_lines[idx-1]
+                header_lines = output_lines[idx-header_len:idx]
                 sep_line = output_lines[idx]
                 content_lines = output_lines[idx+1:]
                 break
@@ -1377,7 +1377,8 @@ Totals               6450                 6449
 
         headers = []
         for (left, right) in positions:
-            headers.append(header_line[left:right].strip().lower())
+            header = " ".join([header_line[left:right].strip().lower() for header_line in header_lines]).strip()
+            headers.append(header)
 
         for content_line in content_lines:
             # When an empty line is encountered while parsing the tabulate content, it is highly possible that the
@@ -1393,7 +1394,7 @@ Totals               6450                 6449
 
         return result
 
-    def show_and_parse(self, show_cmd, **kwargs):
+    def show_and_parse(self, show_cmd, header_len=1, **kwargs):
         """Run a show command and parse the output using a generic pattern.
 
         This method can adapt to the column changes as long as the output format follows the pattern of
@@ -1466,7 +1467,7 @@ Totals               6450                 6449
             output = output[start_line_index:]
         else:
             output = output[start_line_index:end_line_index]
-        return self._parse_show(output)
+        return self._parse_show(output, header_len)
 
     @cached(name='mg_facts')
     def get_extended_minigraph_facts(self, tbinfo, namespace = DEFAULT_NAMESPACE):

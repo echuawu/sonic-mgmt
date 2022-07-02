@@ -2,14 +2,14 @@ import ptf.testutils as testutils
 import ptf.mask as mask
 import ptf.packet as packet
 import time
+import re
 import logging
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.utilities import wait_until
 from tests.common.config_reload import config_reload
-from tests.common.helpers.cli_parsers import generic_sonic_output_parser
 
 
-CONIFIG_LOOPBACK_ACTION_REG = "config interface loopback-action {} {}"
+CONIFIG_LOOPBACK_ACTION_REG = "config interface ip loopback-action {} {}"
 ACTION_FORWARD = "forward"
 ACTION_DROP = "drop"
 NUM_OF_TOTAL_PACKETS = 10
@@ -90,8 +90,8 @@ def get_tested_up_ports(duthost, ptf_ifaces_map, count=10):
     }
     """
     config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
-    up_ports = [p for p, v in config_facts['PORT'].items() if v.get('admin_status', None) == 'up']
-
+    up_ports = get_all_up_ports(config_facts)
+    logger.info("Ports infos: {}".format(config_facts['PORT']))
     port_index_map = config_facts['port_index_map']
     port_configuration = {}
 
@@ -113,6 +113,20 @@ def get_tested_up_ports(duthost, ptf_ifaces_map, count=10):
         port_configuration[port_index] = port_dict
         index += 1
     return port_configuration
+
+
+def get_all_up_ports(config_facts):
+    """
+    Get all ports which are up
+    :param config_facts: DUT running config facts
+    :return: List of ports which is up
+    """
+    split_port_alias_pattern = r"etp\d+[a-z]"
+    split_up_ports = [p for p, v in config_facts['PORT'].items() if v.get('admin_status', None) == 'up' and
+                      not re.match(split_port_alias_pattern, v['alias'])]
+    non_split_up_ports = [p for p, v in config_facts['PORT'].items() if v.get('admin_status', None) == 'up' and
+                          re.match(split_port_alias_pattern, v['alias'])]
+    return split_up_ports + non_split_up_ports
 
 
 def get_portchannel_of_port(config_facts, port):
@@ -142,7 +156,7 @@ def get_vlan_of_port(config_facts, port):
             return vlan['vlanid']
 
 
-def remove_ori_dut_port_config(duthost, ori_ports_configuration):
+def remove_orig_dut_port_config(duthost, ori_ports_configuration):
     """
     Remove the original port configurations for DUT
     :param duthost: DUT host object
@@ -160,27 +174,51 @@ def remove_ori_dut_port_config(duthost, ori_ports_configuration):
     remove_acl_tables(duthost)
 
 
+def get_portchannel_peer_port_map(duthost, ori_ports_configuration, tbinfo, nbrhosts):
+    """
+    Get the portchannel peer port map.
+    :param duthost: DUT host object
+    :param ori_ports_configuration: original ports configuration parameters
+    :param tbinfo: Testbed object
+    :param nbrhosts: nbrhosts fixture.
+    :return: The dictionary of vm/ports mapping.
+    """
+    peer_ports_map = {}
+    mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
+    vm_neighbors = mg_facts['minigraph_neighbors']
+    for _, port_dict in ori_ports_configuration.items():
+        port = port_dict['port']
+        if port_dict['portchannel']:
+            vm_host, peer_port = get_peer_port_info(nbrhosts, vm_neighbors, port)
+            peer_ports_map[vm_host] = peer_port
+    return peer_ports_map
+
+
+def get_peer_port_info(nbrhosts, vm_neighbors, intf):
+    """
+    Get the peer port info
+    :param nbrhosts: nbrhosts fixture.
+    :param vm_neighbors: vm neighbors infos
+    :param intf: the intf on the dut
+    :return: Return the vm host connect to the intf, and the peer port of intf
+    """
+    peer_device = vm_neighbors[intf]['name']
+    vm_host = nbrhosts[peer_device]['host']
+    peer_port = vm_neighbors[intf]['port']
+    return vm_host, peer_port
+
+
 def remove_acl_tables(duthost):
     """
     Remove all the acl tables
     :param duthost: DUT host object
     :return: None
     """
-    res = duthost.shell("show acl table")
-    acl_tables_dict = generic_sonic_output_parser(res['stdout'], output_key="Name")
-    for acl_table in acl_tables_dict.keys():
-        logger.info("Removing ACL table {}".format(acl_table))
-        duthost.shell("config acl remove table {}".format(acl_table))
-
-
-def save_ori_config(duthost):
-    duthost.shell("config save -y")
-    duthost.shell("cp /etc/sonic/config_db.json /home/admin")
-
-
-def reload_dut_ori_config(duthost):
-    duthost.shell("cp /home/admin/config_db.json /etc/sonic/")
-    config_reload(duthost, safe_reload=True, check_intf_up_ports=True)
+    acl_table_list = duthost.show_and_parse('show acl table')
+    for acl_table in acl_table_list:
+        if acl_table["name"]:
+            logger.info("Removing ACL table {}".format(acl_table["name"]))
+            duthost.shell("config acl remove table {}".format(acl_table["name"]))
 
 
 def apply_config(duthost, ptfhost, ports_configuration):
@@ -190,12 +228,8 @@ def apply_config(duthost, ptfhost, ports_configuration):
     :param ptfhost: PTF host object
     :param ports_configuration: ports configuration parameters
     """
-    try:
-        apply_dut_config(duthost, ports_configuration)
-    except Exception as e:
-        reload_dut_ori_config(duthost)
-        raise Exception(e)
     apply_ptf_config(ptfhost, ports_configuration)
+    apply_dut_config(duthost, ports_configuration)
 
 
 def recover_config(duthost, ptfhost, ports_configuration):
@@ -205,7 +239,7 @@ def recover_config(duthost, ptfhost, ports_configuration):
     :param ptfhost: PTF host object
     :param ports_configuration: ports configuration parameters
     """
-    reload_dut_ori_config(duthost)
+    config_reload(duthost, safe_reload=True, check_intf_up_ports=True)
     remove_ptf_config(ptfhost, ports_configuration)
 
 
@@ -507,9 +541,8 @@ def get_rif_tx_err_count(duthost):
     "PortChannel11": 10
     }
     """
-    res = duthost.shell("show interfaces counters rif")
-    rif_counter_map = generic_sonic_output_parser(res['stdout'], headers_ofset=1, len_ofset=2, data_ofset_from_start=3, output_key="IFACE")
-    rif_tx_err_map = {iface: counter["TX_ERR"] for iface, counter in rif_counter_map.items()}
+    rif_counter_list = duthost.show_and_parse('show interfaces counters rif')
+    rif_tx_err_map = {counter["iface"]: counter["tx_err"] for counter in rif_counter_list}
     return rif_tx_err_map
 
 
@@ -524,8 +557,8 @@ def verify_rif_tx_err_count(duthost, rif_interfaces, expect_counts):
     for rif_interface, expected_count in zip(rif_interfaces, expect_counts):
         tx_err_count = int(rif_tx_err_map[rif_interface])
         pytest_assert(tx_err_count == expected_count,
-                      "The loopback action on {} is {}, expect action is {}".format(rif_interface, tx_err_count,
-                                                                                    expected_count))
+                      "The TX ERR count on {} is {}, expect TX ERR count is {}".format(rif_interface, tx_err_count,
+                                                                                       expected_count))
 
 
 def shutdown_rif_interfaces(duthost, rif_interfaces):

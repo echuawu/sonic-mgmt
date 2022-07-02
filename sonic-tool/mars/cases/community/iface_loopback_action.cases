@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CASEDEF>
+    <global>
+        <Test>
+            <info> Interface loopback action test </info>
+            <name> iface_loopback_action </name>
+            <owner> SONiC </owner>
+        </Test>
+        <Case>
+            <tags> IFACE_LOOPBACK_ACTION </tags>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
+            <tout> 1800 </tout>
+        </Case>
+    </global>
+
+    <case>
+        <info> Interface loopback action Case </info>
+        <name> iface_loopback_action </name>
+        <tout> 1800 </tout>
+        <cmd>
+            <params>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level info --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --rif_loppback_reboot_type random\'" --test-scripts iface_loopback_action </static_args>
+            </params>
+        </cmd>
+    </case>
+
+</CASEDEF>

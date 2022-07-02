@@ -411,6 +411,7 @@
       - copp/test_copp.py::TestCOPP::test_policer
       - route/test_static_route.py::test_static_route_ecmp
       - system_health/test_system_health.py
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[\d+\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
@@ -1388,3 +1389,17 @@
       - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
       Redmine:
       - 3177482
+
+- Errors_list:
+    - ".* ERR teamd#tlm_teamd: :- process_add_queue: Can't connect to teamd after 10 attempts. LAG.*"
+  Conditions:
+    - Affected_test_cases:
+      - iface_loopback_action
+    - Redmine:
+      - 3109165
+
+- Errors_list:
+    - ".* sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating.*"
+  Conditions:
+    - Redmine:
+      - 3144720

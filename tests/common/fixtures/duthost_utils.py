@@ -31,7 +31,6 @@ def _backup_and_restore_config_db(duts, scope='function'):
     for duthost in duthosts:
         logger.info("Backup {} to {} on {}".format(CONFIG_DB, CONFIG_DB_BAK, duthost.hostname))
         duthost.shell("cp {} {}".format(CONFIG_DB, CONFIG_DB_BAK))
-
     yield
 
     for duthost in duthosts:
@@ -64,6 +63,14 @@ def backup_and_restore_config_db_module(duthosts, rand_one_dut_hostname):
     # TODO: Use the neater "yield from _function" syntax when we move to python3
     for func in _backup_and_restore_config_db(duthost, "module"):
         yield func
+
+
+@pytest.fixture(scope="package")
+def backup_and_restore_config_db_package(duthosts):
+
+    for func in _backup_and_restore_config_db(duthosts, "package"):
+        yield func
+
 
 @pytest.fixture(scope="session")
 def backup_and_restore_config_db_session(duthosts):

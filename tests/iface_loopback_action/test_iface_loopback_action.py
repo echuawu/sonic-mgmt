@@ -29,7 +29,7 @@ def test_loopback_action_basic(duthost, ptfadapter, ports_configuration):
         verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, [ACTION_FORWARD] * intf_count)
     with allure.step("Configure the loopback action to {}".format(ACTION_DROP)):
         config_loopback_action(duthost, rif_interfaces, [ACTION_DROP] * intf_count)
-    with allure.step("Verify the loopback acton is configured to drop"):
+    with allure.step("Verify the loopback action is configured to drop"):
         with allure.step("Check the looback action is configured correctly with cli command"):
             verify_interface_loopback_action(duthost, rif_interfaces, [ACTION_DROP] * intf_count)
         with allure.step("Check the loopback traffic should be dropped"):
@@ -41,7 +41,7 @@ def test_loopback_action_basic(duthost, ptfadapter, ports_configuration):
                 verify_rif_tx_err_count(duthost, rif_interfaces, [NUM_OF_TOTAL_PACKETS]*intf_count)
     with allure.step("Configure the loopback action to forward"):
         config_loopback_action(duthost, rif_interfaces, [ACTION_FORWARD] * intf_count)
-    with allure.step("Verify the loopback acton is configured to forward"):
+    with allure.step("Verify the loopback action is configured to forward"):
         with allure.step("Check the looback action is configured correctly with cli command"):
             verify_interface_loopback_action(duthost, rif_interfaces, [ACTION_FORWARD] * intf_count)
         with allure.step("Check the loopback traffic should be forwarded"):
@@ -66,7 +66,7 @@ def test_loopback_action_port_flap(duthost, ptfadapter, ports_configuration):
         shutdown_rif_interfaces(duthost, rif_interfaces)
     with allure.step("Startup the interfaces"):
         startup_rif_interfaces(duthost, rif_interfaces)
-    with allure.step("Verify the loopback acton is correct of port flap"):
+    with allure.step("Verify the loopback action is correct of port flap"):
         with allure.step("Check the looback action is configured correctly with cli command"):
             verify_interface_loopback_action(duthost, rif_interfaces, action_list)
         with allure.step("Check the loopback traffic"):
@@ -78,7 +78,7 @@ def test_loopback_action_port_flap(duthost, ptfadapter, ports_configuration):
                 verify_rif_tx_err_count(duthost, rif_interfaces, count_list)
 
 
-def test_loopback_action_reload(duthost, localhost, ptfadapter, ports_configuration):
+def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_configuration):
     rif_interfaces = list(ports_configuration.keys())
     intf_count = len(rif_interfaces)
     action_list = [random.choice([ACTION_FORWARD, ACTION_DROP]) for i in range(intf_count)]
@@ -88,17 +88,27 @@ def test_loopback_action_reload(duthost, localhost, ptfadapter, ports_configurat
     with allure.step("Save configuration"):
         duthost.shell("config save -y")
     with allure.step("System reload"):
-        reload_types = ["reload", "cold", "fast"]
-        reload_type = random.choice(reload_types)
-        if reload_type == "reload":
+
+        reboot_type = request.config.getoption("--rif_loppback_reboot_type")
+        if reboot_type == "random":
+            reload_types = ["reload", "cold", "fast", "warm"]
+            # TODO: need to remove is when the ticket is resolved
+            # ----------------------------------------------------------------------#
+            from ngts.tools.redmine.redmine_api import is_redmine_issue_active
+            is_rm_issue_active, _ = is_redmine_issue_active([3123918])
+            if is_rm_issue_active:
+                reload_types = ["reload", "cold", "fast"]
+            # ----------------------------------------------------------------------#
+            reboot_type = random.choice(reload_types)
+        if reboot_type == "reload":
             config_reload(duthost, safe_reload=True, check_intf_up_ports=True)
         else:
-            reboot(duthost, localhost, reload_type)
+            reboot(duthost, localhost, reboot_type)
             pytest_assert(wait_until(300, 20, 0, duthost.critical_services_fully_started),
                           "All critical services should be fully started!")
             pytest_assert(wait_until(300, 20, 0, check_interface_status_of_up_ports, duthost),
                           "Not all ports that are admin up on are operationally up")
-    with allure.step("Verify the loopback acton is correct after config reload"):
+    with allure.step("Verify the loopback action is correct after config reload"):
         with allure.step("Check the looback action is configured correctly with cli command"):
             verify_interface_loopback_action(duthost, rif_interfaces, action_list)
         with allure.step("Check the loopback traffic"):
