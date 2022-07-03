@@ -3,14 +3,14 @@ import allure
 import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, DataBaseNames
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
 
 @pytest.mark.ib
-def test_ib_interface_state(engines):
+def test_ib_interface_state(engines, players, interfaces):
     """
     Configure port interface state and verify the configuration applied successfully
     Relevant cli commands:
@@ -46,8 +46,6 @@ def test_ib_interface_state(engines):
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
-    '''Tools.TrafficGeneratorTool.send_traffic().verify_result(False)'''
-
     selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
@@ -58,8 +56,6 @@ def test_ib_interface_state(engines):
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
-
-    '''Tools.TrafficGeneratorTool.send_traffic().verify_result()'''
 
 
 @pytest.mark.ib

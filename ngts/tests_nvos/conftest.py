@@ -77,6 +77,14 @@ def log_test_wrapper(request):
     logging.info(' ---------------- TEST STARTED - {test_name} ---------------- '.format(test_name=test_name))
 
 
+@pytest.fixture(scope='session')
+def interfaces(topology_obj):
+    interfaces_data = DottedDict()
+    interfaces_data.ha_dut_1 = topology_obj.ports['ha-dut-1']
+    interfaces_data.hb_dut_1 = topology_obj.ports['hb-dut-1']
+    return interfaces_data
+
+
 def pytest_runtest_call(__multicall__):
     try:
         __multicall__.execute()
