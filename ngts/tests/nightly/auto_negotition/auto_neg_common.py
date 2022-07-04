@@ -559,14 +559,18 @@ class TestAutoNegBase:
             for split_mode, lb_list in tested_lb_dict.items():
                 for lb in lb_list:
                     lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
-                    min_speed = min(lb_mutual_speeds, key=speed_string_to_int_in_mb)
-                    min_type = get_matched_types(self.ports_lanes_dict[lb[0]], [min_speed],
+                    # Choose min speed randomly - any not equal to max(which usually already set by default) speed
+                    max_speed = max(lb_mutual_speeds, key=speed_string_to_int_in_mb)
+                    lb_mutual_speeds.remove(max_speed)
+                    random_non_max_speed = random.choice(lb_mutual_speeds)
+                    lb_mutual_speeds.append(max_speed)
+                    min_type = get_matched_types(self.ports_lanes_dict[lb[0]], [random_non_max_speed],
                                                  types_dict=self.interfaces_types_dict).pop()
                     width = get_interface_cable_width(min_type)
                     expected_speed, expected_type, expected_width = self.get_default_expected_conf_res(lb,
                                                                                                        lb_mutual_speeds)
                     for port in lb:
-                        conf[port] = self.build_default_conf(min_speed, min_type, width,
+                        conf[port] = self.build_default_conf(random_non_max_speed, min_type, width,
                                                              expected_speed, expected_type, expected_width)
             logger.debug("Generated default configuration is: {}".format(conf))
             return conf
