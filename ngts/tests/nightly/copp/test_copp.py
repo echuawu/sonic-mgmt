@@ -13,7 +13,7 @@ from retry.api import retry_call
 
 from abc import abstractmethod
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
-from ngts.common.checkers import verify_deviation
+from ngts.common.checkers import verify_deviation, verify_deviation_for_simx
 
 
 logger = logging.getLogger()
@@ -38,6 +38,8 @@ RATE_TRAFFIC_MULTIPLIER = 4
 BURST_TRAFFIC_MULTIPLIER = 30
 RATE_TRAFFIC_DURATION = 10
 BURST_TRAFFIC_DURATION = 0.06
+SIMX_DEFAULT_CIR = 0
+SIMX_SENT_RATE_VALUE = 25
 
 PROTOCOLS_IN_COPP_TRAP = ['bgp', 'lacp', 'arp', 'lldp', 'dhcp_relay', 'ip2me']
 PROTOCOLS_WIRH_FEW_TRAP_IDS = ['bgp', 'arp', 'dhcp_relay']
@@ -134,11 +136,11 @@ class CoppBase:
         self.tested_protocol = self.get_tested_protocol_name()
         self.post_rx_counts = None
         self.default_cir = None
+        self.default_simx_cir = 0
         self.default_cbs = None
         self.low_limit = 150
         self.user_limit = None
         self.trap_name = None
-        self.default_simx_cir = None
         self.is_trap_counters_supported = None
         self.short_interval = 1001
         self.long_interval = 20000
@@ -147,7 +149,7 @@ class CoppBase:
         self.removed_trap_ids = None
         self.flowcnt_deviation = 0.05 if self.is_simx else 0.01
         self.canonical_threshold = 0.25
-        self.simx_threshold = 0.35
+        self.simx_threshold = 10
         self.used_threshold = self.simx_threshold if self.is_simx else self.canonical_threshold
 
 # -------------------------------------------------------------------------------
@@ -373,6 +375,8 @@ class CoppBase:
         Creating rate valudation, based on given CIR value
         :param cir_value: CIR value
         """
+        if cir_value == SIMX_DEFAULT_CIR:
+            cir_value += SIMX_SENT_RATE_VALUE
         self.create_validation(pps=cir_value * RATE_TRAFFIC_MULTIPLIER,
                                times=cir_value * RATE_TRAFFIC_MULTIPLIER * RATE_TRAFFIC_DURATION)
         self.create_pre_validation()
@@ -423,13 +427,23 @@ class CoppBase:
         """
         with allure.step('Validate results'):
             rx_ifconfig_count, rx_ifconfig_pps = self.get_ifconfig_results()
-            # We use +- 25% threshold (35% on simx) due to not possible to be more precise
-            with allure.step(f"Verify that received ifconfig pps({rx_ifconfig_pps}) "
-                             f"is in allowed rate: {expected_pps} +-{self.used_threshold}%"):
-                verify_deviation(rx_ifconfig_pps, expected_pps, self.used_threshold)
+            self.verify_pps_deviation(rx_ifconfig_pps, expected_pps)
 
             if self.is_trap_counters_supported:
                 self.validate_flowcnt_results(rx_ifconfig_count)
+
+# -------------------------------------------------------------------------------
+
+    def verify_pps_deviation(self, rx_ifconfig_pps, expected_pps):
+        if self.is_simx:
+            with allure.step(f"Verify that received ifconfig pps({rx_ifconfig_pps}) "
+                             f"is lass than: {expected_pps} + {self.simx_threshold}"):
+                verify_deviation_for_simx(rx_ifconfig_pps, self.simx_threshold)
+        else:
+            # We use +- 25% threshold due to not possible to be more precise
+            with allure.step(f"Verify that received ifconfig pps({rx_ifconfig_pps}) "
+                             f"is in allowed rate: {expected_pps} +-{self.used_threshold}%"):
+                verify_deviation(rx_ifconfig_pps, expected_pps, self.used_threshold)
 
 # -------------------------------------------------------------------------------
 
@@ -504,7 +518,7 @@ class CoppBase:
         self.copy_remote_file(CONFIG_DB_COPP_CONFIG_REMOTE, CONFIG_DB_COPP_CONFIG_NAME, '/', 'get')
 
         # update the limits in json file
-        if cir_value and cbs_value:
+        if cir_value is not None and cbs_value is not None:
             logger.info('Load new CoPP configuration with CIR: {} and CBS: {}'.format(cir_value, cbs_value))
             update_limits_copp_json_file(self.get_tested_protocol_name(), cir_value, cbs_value, self.trap_name)
         else:
@@ -602,8 +616,6 @@ class ARPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        default_simx_cir_per_chip = {'SPC': 300, 'SPC2': 270, 'SPC3': 200}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
         self.dst_mac = 'ff:ff:ff:ff:ff:ff'
 
@@ -650,8 +662,6 @@ class SNMPTest(CoppBase):
         # TODO trapped as ip2me. Mellanox should add support for SNMP trap. update values accordingly
         self.default_cir = 6000
         self.default_cbs = 1000
-        default_simx_cir_per_chip = {'SPC': 240, 'SPC2': 220, 'SPC3': 200}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 600
         self.trap_name = 'ip2me'
         logger.info("The tested protocol SNMP have too big default value for burst, "
@@ -699,8 +709,6 @@ class IP2METest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 6000
         self.default_cbs = 1000
-        default_simx_cir_per_chip = {'SPC': 320, 'SPC2': 300, 'SPC3': 200}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 600
         self.trap_name = 'ip2me'
         logger.info("The tested protocol IP2ME have too big default value for burst, "
@@ -739,8 +747,6 @@ class SSHTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        default_simx_cir_per_chip = {'SPC': 320, 'SPC2': 300, 'SPC3': 200}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
         self.trap_name = 'ssh'
 
@@ -812,8 +818,6 @@ class LACPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        default_simx_cir_per_chip = {'SPC': 380, 'SPC2': 300, 'SPC3': 220}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
         self.trap_name = 'lacp'
 
@@ -848,8 +852,6 @@ class BGPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        default_simx_cir_per_chip = {'SPC': 220, 'SPC2': 200, 'SPC3': 160}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
 
 # -------------------------------------------------------------------------------
@@ -891,8 +893,6 @@ class DHCPTest(CoppBase):
         CoppBase.__init__(self, topology_obj, sonic_version, is_simx)
         self.default_cir = 600
         self.default_cbs = 600
-        default_simx_cir_per_chip = {'SPC': 330, 'SPC2': 280, 'SPC3': 200}
-        self.default_simx_cir = default_simx_cir_per_chip.get(self.chip_type)
         self.user_limit = 1000
 
 # -------------------------------------------------------------------------------

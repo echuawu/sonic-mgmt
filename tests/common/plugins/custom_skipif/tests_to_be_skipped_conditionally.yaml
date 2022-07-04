@@ -741,12 +741,6 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   - Branch:
     - 202012
 
-tests/nightly/copp:
-  - Redmine:
-    - 2980204
-    Platform:
-    - simx
-
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
   - Redmine:
     - 2682609
