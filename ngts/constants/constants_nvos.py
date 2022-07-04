@@ -131,3 +131,8 @@ class ActionConsts:
     INSTALL = "install"
     UNINSTALL = "uninstall"
     BOOT_NEXT = "boot-next"
+
+
+class IpConsts:
+    MIN_IPV6_GROUP_VALUE = 0
+    MAX_IPV6_GROUP_VALUE = 65535

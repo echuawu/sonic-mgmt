@@ -66,7 +66,7 @@ class IpBaseOperational(IpBase, CmdBase):
     def __init__(self, port_obj, label, description, field_name_in_db, output_hierarchy):
         IpBase.__init__(self, port_obj, label, description, field_name_in_db, output_hierarchy)
 
-    def set(self, value, dut_engine=None, apply=True):
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
         """
         Set current field with provided value
         :param value: value to set

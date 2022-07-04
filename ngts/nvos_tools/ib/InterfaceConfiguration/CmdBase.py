@@ -27,7 +27,7 @@ class CmdBase:
         raise Exception("Not implemented")
 
     @staticmethod
-    def set_interface(engine, port_obj, field_name, output_hierarchy, value, apply=True):
+    def set_interface(engine, port_obj, field_name, output_hierarchy, value, apply=True, ask_for_confirmation=False):
         logging.info("setting '{field_name}' of '{port_name}' to: '{value}' using {api}".format(
             value=value, field_name=field_name, api=TestToolkit.tested_api, port_name=port_obj.name))
         with allure.step("setting '{field_name}' of '{port_name}' to: '{value}'".format(value=value,
@@ -40,12 +40,12 @@ class CmdBase:
         if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                             apply_config, engine)
+                                                             apply_config, engine, ask_for_confirmation)
 
         return result_obj
 
     @staticmethod
-    def unset_interface(engine, port_obj, field_name, output_hierarchy, apply=True):
+    def unset_interface(engine, port_obj, field_name, output_hierarchy, apply=True, ask_for_confirmation=False):
         logging.info("un-setting '{field_name}' of '{port_name}' using {api}".format(
             field_name=field_name, api=TestToolkit.tested_api, port_name=port_obj.name))
         with allure.step("un-setting '{field_name}' for '{port_name}'".format(field_name=field_name,
@@ -56,6 +56,6 @@ class CmdBase:
         if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                             apply_config, engine)
+                                                             apply_config, engine, ask_for_confirmation)
 
         return result_obj

@@ -17,8 +17,8 @@ class MgmtPort:
     interface = None
     api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
 
-    def __init__(self):
-        self.name = 'eth0'
+    def __init__(self, name='eth0'):
+        self.name = name
         self.show_output_dictionary = None
         self.name_in_redis = ''
         self.interface = MgmtInterface(self)
