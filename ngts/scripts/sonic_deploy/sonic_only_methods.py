@@ -260,10 +260,14 @@ class SonicInstallationSteps:
                                logger=logger)
 
             with allure.step('Deploy sonic image on the dut'):
+                disable_ztp = False
+                if deploy_type == 'onie':
+                    disable_ztp = True
                 cli.deploy_image(topology_obj=topology_obj, image_path=image_url, apply_base_config=apply_base_config,
                                  setup_name=setup_name, platform_params=platform_params,
                                  deploy_type=deploy_type,
-                                 reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
+                                 reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path,
+                                 disable_ztp=disable_ztp)
         except Exception as err:
             raise AssertionError(err)
         finally:

@@ -115,6 +115,10 @@ class SonicOnieCli:
                   [str(pexpect.TIMEOUT)] + DEFAULT_PROMPT
 
         stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_url}"])
+        if 'wget: download timed out' in stdout:
+            logger.error('Failed to download SONiC image from ONIE. Trying again.')
+            stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_url}"])
+
         while num_retry > 0:
             if pexpect_entry == 0:
                 break

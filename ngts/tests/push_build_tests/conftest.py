@@ -75,7 +75,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 cli_objects.dut.general.deploy_image(topology_obj, upgrade_params.base_version, apply_base_config=True,
                                                      setup_name=platform_params.setup_name,
                                                      platform_params=platform_params,
-                                                     deploy_type='onie', reboot_after_install=reboot_after_install)
+                                                     deploy_type='onie', reboot_after_install=reboot_after_install,
+                                                     disable_ztp=True)
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \

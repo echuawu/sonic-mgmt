@@ -302,7 +302,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
-                     reboot_after_install=None, fw_pkg_path=None, set_timezone='Israel'):
+                     reboot_after_install=None, fw_pkg_path=None, set_timezone='Israel', disable_ztp=False):
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
@@ -316,6 +316,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
+
+        if disable_ztp:
+            with allure.step('Disable ZTP after image install'):
+                retry_call(self.cli_obj.ztp.disable_ztp,
+                           fargs=[],
+                           tries=3,
+                           delay=10,
+                           logger=logger)
+                self.save_configuration()
 
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
