@@ -244,6 +244,33 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             except BaseException:
                 raise Exception("{} docker is not up".format(docker))
 
+    def verify_processes_of_dockers(self, docker_list, hwsku):
+        """
+        Verifying the processes of dockers are in RUNNING state
+        :param dockers_list: list of dockers to check
+        :return: None, raise error in case of unexpected result
+        """
+        success = True
+        if self.is_bluefield(hwsku):
+            expected_processes = SonicConst.DAEMONS_DICT_BF
+        else:
+            expected_processes = SonicConst.DAEMONS_DICT
+
+        for docker in docker_list:
+            running_processes = []
+            processes_output = self.engine.run_cmd(f'docker exec {docker} supervisorctl status')
+            for process_info in processes_output.splitlines():
+                logger.info(f"process info:   {process_info}")
+                process_name = process_info.split()[0].strip()
+                process_status = process_info.split()[1].strip()
+                if process_name in expected_processes[docker] and process_status == "RUNNING":
+                    running_processes.append(process_name)
+            if len(running_processes) != len(expected_processes[docker]):
+                logger.error(f"Not all expected processes of docker {docker} are running.\n"
+                             f"Expected: {expected_processes[docker]}\nRunning: {running_processes}")
+                success = False
+        assert(success, 'Not all expected processes in RUNNING status')
+
     def generate_techsupport(self, duration=60):
         """
         Generate sysdump for a given time frame in seconds

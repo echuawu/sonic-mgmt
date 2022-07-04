@@ -29,6 +29,13 @@ class SonicConst:
     DOCKERS_LIST_BF = ['swss', 'syncd', 'bgp', 'pmon', 'lldp']
     DOCKERS_LIST_TOR = DOCKERS_LIST
     DOCKERS_LIST_LEAF = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp']
+    DAEMONS_DICT = {'swss': [], 'syncd': [], 'bgp': [],
+                    'teamd': [], 'pmon': [], 'lldp': [], 'dhcp_relay': []}
+    DAEMONS_DICT_BF = {'swss': [],
+                       'syncd': [],
+                       'bgp': [],
+                       'pmon': ['pcied', 'rsyslogd', 'supervisor-proc-exit-listener', 'syseepromd', 'thermalctld', 'xcvrd'],
+                       'lldp': []}
 
     CPU_RAM_CHECK_PROCESS_LIST = ['sx_sdk', 'syncd', 'redis-server', 'snmpd', 'zebra', 'bgpd', 'bgpcfgd', 'bgpmon',
                                   'fpmsyncd', 'orchagent', 'ntpd', 'neighsyncd', 'vlanmgrd', 'intfmgrd', 'portmgrd',
