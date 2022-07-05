@@ -830,6 +830,12 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     Branch:
     - 202111
 
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
+  - Redmine:
+    - 3117382
+    Branch:
+    - 202205
+
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
   - GitHub:
     - https://github.com/Azure/sonic-buildimage/issues/6053
