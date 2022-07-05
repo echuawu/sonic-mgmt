@@ -1077,3 +1077,10 @@
       - 3123080
       Branch:
       - master
+
+# #3071827: Won't fix
+- Errors_list:
+    - '.* ERR radv#radvd\[\d+\]: Vlan1000 not found: No such device.*'
+  Conditions:
+    - Affected_test_cases:
+      - autorestart/test_container_autorestart.py
