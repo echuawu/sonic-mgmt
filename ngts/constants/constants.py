@@ -88,6 +88,7 @@ class InfraConst:
     HTTP_SERVER = 'http://fit69'
     HTTTP_SERVER_FIT16 = 'http://r-fit16-clone.mtr.labs.mlnx'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
+    NVOS_REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/NVOS/MARS/results'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
     HTTP_SERVER_MARS_TOPO_FOLDER_PATH = '{}{}'.format(HTTP_SERVER, MARS_TOPO_FOLDER_PATH)
     MYSQL_SERVER = '10.208.1.11'

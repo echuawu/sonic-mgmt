@@ -7,7 +7,6 @@ import json
 
 from ngts.constants.constants import InfraConst
 
-
 logger = logging.getLogger()
 
 ENV_SESSION_ID = 'SESSION_ID'
@@ -28,7 +27,7 @@ def session_id():
 
 
 @pytest.fixture(scope='session', autouse=True)
-def dumps_folder(setup_name, session_id):
+def dumps_folder(setup_name, session_id, topology_obj):
     """
     Get test artifact folder from environment variables or create according to setup parameters.
     Relies on 'session_id' fixture.
@@ -36,13 +35,13 @@ def dumps_folder(setup_name, session_id):
     """
     env_log_folder = os.environ.get(ENV_LOG_FOLDER)
     if not env_log_folder:  # default value is empty string, defined in steps file
-        env_log_folder = create_result_dir(setup_name, session_id, CASES_DUMPS_DIR)
+        env_log_folder = create_result_dir(setup_name, session_id, CASES_DUMPS_DIR, topology_obj)
         os.environ[ENV_LOG_FOLDER] = env_log_folder
     return env_log_folder
 
 
 @pytest.fixture(scope='session')
-def log_folder(setup_name, session_id):
+def log_folder(setup_name, session_id, topology_obj):
     """
     Get test artifact folder from environment variables or create according to setup parameters.
     Relies on 'session_id' fixture.
@@ -50,11 +49,11 @@ def log_folder(setup_name, session_id):
     """
     env_log_folder = os.environ.get(ENV_LOG_FOLDER)
     if not env_log_folder:  # default value is empty string, defined in steps file
-        env_log_folder = create_result_dir(setup_name, session_id, CASES_SYSLOG_DIR)
+        env_log_folder = create_result_dir(setup_name, session_id, CASES_SYSLOG_DIR, topology_obj)
     return env_log_folder
 
 
-def create_result_dir(setup_name, session_id, suffix_path_name):
+def create_result_dir(setup_name, session_id, suffix_path_name, topology_obj):
     """
     Create directory for test artifacts in shared location
     :param setup_name: name of the setup
@@ -62,7 +61,11 @@ def create_result_dir(setup_name, session_id, suffix_path_name):
     :param suffix_path_name: End part of the directory name
     :return: created directory path
     """
-    folder_path = '/'.join([InfraConst.REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
+    player_info = topology_obj.players['dut']
+    if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
+        folder_path = '/'.join([InfraConst.NVOS_REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
+    else:
+        folder_path = '/'.join([InfraConst.REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
     logger.info("Create folder: {} if it doesn't exist".format(folder_path))
     pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
     logger.info("Created folder - {}".format(folder_path))
