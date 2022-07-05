@@ -361,6 +361,7 @@ platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
     Branch:
       - 202111
       - master
+      - 202205
 
 platform_tests/api/test_sfp.py::TestSfpApi::test_get_name:
   - Platform:
