@@ -14,7 +14,7 @@ class OpenApiGeneralCli:
         pass
 
     @staticmethod
-    def apply_config(engine):
+    def apply_config(engine, ask_for_confirmation=False):
         """
         Apply configuration
         :param engine: ssh engine object
