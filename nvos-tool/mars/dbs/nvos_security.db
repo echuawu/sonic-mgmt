@@ -4,7 +4,7 @@
 		<default_params_type> extended_setup_step_params </default_params_type>
 		<DB>
 			<info> </info>
-			<owner> Yana Port </owner>
+			<owner> Yana P </owner>
 			<group> NVOS </group>
 			<dimension> VER </dimension>
 
@@ -23,9 +23,6 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_ib_interface_state.cases </cases>
-	</test>
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_ib_interface_state_openapi.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/security/nvos_system_security.cases </cases>
 	</test>
 </DBDEF>

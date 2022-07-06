@@ -28,7 +28,7 @@
 	</test>
 
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_community_platform.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/platform/nvos_community_platform.cases </cases>
 	</test>
 
 	<test>

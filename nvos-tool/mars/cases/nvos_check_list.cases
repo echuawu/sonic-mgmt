@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CASEDEF>
+  <global>
+    <Test>
+      <group> NVOS </group>
+      <name> NVOS system </name>
+      <info> NVOS system </info>
+      <owner> Yana Port </owner>
+    </Test>
+    <Case>
+      <tags> system </tags>
+      <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
+      <tout> 2400 </tout>
+      <tags>ALL</tags>
+    </Case>
+  </global>
+
+  <case>
+    <info> System Images - master </info>
+    <name> System Images - master </name>
+    <tout> 1200 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_system_images.py --release_name=master_25 --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <info> System Images - release nvos-25-01-0500 </info>
+    <name> System Images - release nvos-25-01-0500 </name>
+    <tout> 1200 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_system_images.py --release_name=nvos-25-01-0500 --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <info> System Firmware </info>
+    <name> System Firmware </name>
+    <tout> 1200 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_system_firmware.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <info> Platform Firmware </info>
+    <name> Platform Firmware </name>
+    <tout> 1200 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/platform/test_platform_firmware.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+</CASEDEF>

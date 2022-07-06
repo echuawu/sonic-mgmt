@@ -23,6 +23,12 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_commit_push_gate.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/interfaces/nvos_mgmt_interface.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/interfaces/nvos_ipoib_interface.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ports_interface.cases </cases>
 	</test>
 </DBDEF>
