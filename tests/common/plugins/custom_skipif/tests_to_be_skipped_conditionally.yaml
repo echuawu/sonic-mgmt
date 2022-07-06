@@ -39,6 +39,8 @@ ecmp/test_fgnhg.py:
     - 2577145
     Platform:
     - msn2
+  - Redmine:
+    - 3115179
 
 # everflow
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
@@ -1150,3 +1152,7 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
 tests/nightly/routing/test_routing.py:
   - Redmine:
     - 3123850
+
+copp/test_copp.py:
+  - Redmine:
+    - 3130627
