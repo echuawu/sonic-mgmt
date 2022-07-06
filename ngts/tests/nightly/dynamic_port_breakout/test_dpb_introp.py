@@ -43,7 +43,7 @@ class TestDPBInterop(DependenciesBase):
         try:
             ports_list = get_ports_list_from_loopback_tuple_list(self.tested_modes_lb_conf.values())
             ports_dependencies = self.set_dependencies(dependency_list, ports_list, cleanup_list)
-            self.verify_breakout_without_force(ports_dependencies)
+            self.verify_breakout_without_force()
             breakout_ports_conf = self.verify_breakout_with_force(cleanup_list, dependency_list, ports_dependencies)
             reboot_type = random.choice(
                 list(SonicConstant.REBOOT_TYPES.values())) if reboot_type is None else reboot_type
@@ -57,37 +57,36 @@ class TestDPBInterop(DependenciesBase):
         except Exception as e:
             raise e
 
-    def verify_breakout_without_force(self, ports_dependencies):
+    def verify_breakout_without_force(self):
         """
-        :param ports_dependencies: a dictionary with the ports configured dependencies information
+        verify that breakout without force is failing as expected
+        because of dependencies on ports
         :return: None, raise assertion error in case of failure
         """
+        breakout_ports_conf = {}
         for breakout_mode, lb in self.tested_modes_lb_conf.items():
             for port in lb:
-                port_dependencies = ports_dependencies[port]
-                self.verify_breakout_failed_due_dependency(breakout_mode, port, port_dependencies)
-        verify_no_breakout(self.dut_engine, self.cli_object, self.ports_breakout_modes, conf=self.tested_modes_lb_conf)
+                output = self.verify_breakout_failed_due_dependency(breakout_mode, port)
+                breakout_ports_conf.update(self.cli_object.interface.parse_added_breakout_ports(output))
+        verify_no_breakout(self.cli_object, breakout_ports_conf, tested_conf=self.tested_modes_lb_conf)
 
-    def verify_breakout_failed_due_dependency(self, breakout_mode, port, port_dependencies):
+    def verify_breakout_failed_due_dependency(self, breakout_mode, port):
         """
         Configure breakout_mode on port without force and verify that the breakout failed due the dependencies.
         :param breakout_mode: i.e. "4x25G[10G]"
         :param port: i.e. 'Ethernet212'
-        :param port_dependencies: a dictionary with the port configured dependencies, i.e.
-        {'vlan': 'Vlan3730', 'portchannel': 'PortChannel0001'}
-        :return: None, raise assertion error in case of failure
+        :return: DPB command output, raise assertion error in case command didn't fail due the dependencies.
         """
         with allure.step(f'Configure breakout without force on port: {port}'):
             output = self.cli_object.interface.configure_dpb_on_port(port, breakout_mode,
                                                                      expect_error=True, force=False)
         self.verify_dependencies_in_output(output)
+        return output
 
     @staticmethod
     def verify_dependencies_in_output(breakout_output):
         """
         verify that the breakout failed due the dependencies.
-        :param port_dependencies: a dictionary with the port configured dependencies, i.e.
-        {'vlan': 'Vlan3730', 'portchannel': 'PortChannel0001'}
         :param breakout_output: the output from the breakout configuration command
         :return: None, raise assertion error in case of failure
         """
@@ -100,6 +99,7 @@ class TestDPBInterop(DependenciesBase):
         """
         configure breakout mode with force and verify breakout is
         successful and dependencies were removed from ports.
+        :param cleanup_list: a list of function to be called to cleanup test configuration
         :param dependency_list:  a list of features i.e. ['vlan', 'portchannel']
         :param ports_dependencies:  a dictionary with the ports configured dependencies information
         for example,
@@ -122,6 +122,7 @@ class TestDPBInterop(DependenciesBase):
 
     def reboot_and_check_functionality(self, cleanup_list, reboot_type, breakout_ports_conf):
         """
+        :param cleanup_list: a list of function to be called to cleanup test configuration
         :param reboot_type: i.e reboot/warm-reboot/fast-reboot
         :param breakout_ports_conf: a dictionary with the port configuration after breakout
         {'Ethernet216': '25G',
@@ -152,71 +153,73 @@ class TestDPBInterop(DependenciesBase):
             ports_list = list(breakout_ports_conf.keys())
             with allure.step(f'set dependencies on breakout ports: {ports_list}'):
                 ports_dependencies = self.set_dependencies(dependency_list, ports_list, cleanup_list)
-            self.verify_remove_breakout_without_force(ports_dependencies)
-            self.verify_remove_breakout_with_force(cleanup_list, dependency_list, ports_dependencies)
+            self.verify_remove_breakout_without_force()
+            self.verify_remove_breakout_with_force(cleanup_list, dependency_list,
+                                                   ports_dependencies, breakout_ports_conf)
 
         except Exception as e:
             raise e
 
-    def verify_remove_breakout_without_force(self, ports_dependencies):
+    def verify_remove_breakout_without_force(self):
         """
         verify remove breakout without force failed when port has dependencies configuration on it
-        :param ports_dependencies: a dictionary with the ports configured dependencies information
-         i.e {'Ethernet212': {'vlan': 'Vlan3730', 'portchannel': 'PortChannel0001', 'ip': 10.10.10.1}, ...}
         :return: raise assertion error in case validation failed
         """
         for breakout_mode, lb in self.tested_modes_lb_conf.items():
             for port in lb:
-                port_dependencies = ports_dependencies[port]
-                self.verify_remove_breakout_failed_due_dependency(breakout_mode, port, port_dependencies)
+                self.verify_remove_breakout_failed_due_dependency(port)
 
-    def verify_remove_breakout_failed_due_dependency(self, breakout_mode, port, port_dependencies):
+    def verify_remove_breakout_failed_due_dependency(self, port):
         """
         configure un breakout mode and verify that it failed due to configured dependencies on port
-        :param breakout_mode: port current breakout mode i.e, '4x25G[10G,1G]'
         :param port: i.e, 'Ethernet212'
-        :param port_dependencies:  a dictionary with the ports configured dependencies information
-         i.e {'vlan': 'Vlan3730', 'portchannel': 'PortChannel0001', 'ip': 10.10.10.1}
         :return: raise assertion error in case validation failed
         """
+        breakout_ports_conf = {}
         default_breakout_mode = self.ports_breakout_modes[port]['default_breakout_mode']
         with allure.step(f'Verify remove breakout without force failed due dependencies configuration on port: {port}'):
             output = self.cli_object.interface.configure_dpb_on_port(port, default_breakout_mode,
                                                                      expect_error=True, force=False)
+            breakout_ports_conf.update(self.cli_object.interface.parse_added_breakout_ports(output))
         self.verify_dependencies_in_output(output)
-        self.verify_remove_breakout_failed(breakout_mode, port)
+        breakout_ports = breakout_ports_conf.keys()
+        self.verify_remove_breakout_failed(breakout_ports)
 
-    def verify_remove_breakout_failed(self, breakout_mode, port):
+    def verify_remove_breakout_failed(self, breakout_ports):
         """
         check that port is still in breakout mode and all it's breakout ports in state up
-        :param breakout_mode: port current breakout mode i.e, '4x25G[10G,1G]'
-        :param port:  i.e, 'Ethernet212'
+        :param breakout_ports: a list of breakout ports
         :return: raise assertion error in case validation failed
         """
-        breakout_ports = self.ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode]
         with allure.step(f'Verify remove breakout without force failed and breakout ports: {breakout_ports} are up'):
-            self.cli_object.interface.check_ports_status(self.dut_engine, breakout_ports, expected_status='up')
+            self.cli_object.interface.check_ports_status(breakout_ports, expected_status='up')
 
-    def verify_remove_breakout_with_force(self, cleanup_list, dependency_list, ports_dependencies):
+    def verify_remove_breakout_with_force(self, cleanup_list, dependency_list, ports_dependencies, breakout_ports_conf):
         """
         remove breakout configuration with force and validate all dependencies were removed from port
+        :param cleanup_list: a list of function to be called to cleanup test configuration
+        :param dependency_list: list of features that will be configured before port breakout removal
         :param ports_dependencies: a dictionary with the ports configured dependencies information
          i.e {'Ethernet212': {'vlan': 'Vlan3730', 'portchannel': 'PortChannel0001', 'ip': 10.10.10.1}, ...}
+        :param breakout_ports_conf: a dictionary with the port configuration after breakout
+        {'Ethernet216': '25G',
+        'Ethernet217': '25G',..}
         :return: raise assertion error in case validation failed
         """
         remove_breakout_ports_conf = build_remove_dpb_conf(self.tested_modes_lb_conf, self.ports_breakout_modes)
+        unbreakout_ports_conf = {}
         with allure.step('Configure remove breakout with force from ports'):
             for port_remove_breakout_ports_conf in remove_breakout_ports_conf:
-                breakout_ports_conf = set_dpb_conf(self.dut_engine, self.cli_object,
-                                                   self.ports_breakout_modes,
-                                                   cleanup_list=cleanup_list,
-                                                   conf=port_remove_breakout_ports_conf,
-                                                   original_speed_conf=self.dut_ports_default_speeds_configuration,
-                                                   force=True)
+                unbreakout_ports_conf.update(
+                    set_dpb_conf(self.dut_engine, self.cli_object,
+                                 self.ports_breakout_modes,
+                                 cleanup_list=cleanup_list,
+                                 conf=port_remove_breakout_ports_conf,
+                                 original_speed_conf=self.dut_ports_default_speeds_configuration,
+                                 force=True))
         with allure.step('Verify remove breakout succeeded and breakout ports no longer exist'):
-            verify_no_breakout(self.dut_engine, self.cli_object, self.ports_breakout_modes,
-                               conf=self.tested_modes_lb_conf)
-        verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
+            verify_no_breakout(self.cli_object, breakout_ports_conf, tested_conf=self.tested_modes_lb_conf)
+        verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, unbreakout_ports_conf)
         self.verify_no_dependencies_on_ports(dependency_list, ports_dependencies)
         send_ping_and_verify_results(self.topology_obj, self.dut_engine, cleanup_list,
                                      self.tested_modes_lb_conf.values())

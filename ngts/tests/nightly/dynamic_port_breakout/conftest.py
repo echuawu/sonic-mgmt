@@ -303,22 +303,23 @@ def compare_actual_and_expected_speeds(expected_speeds_dict, actual_speeds_dict)
                 f"after breakout doesn't match expected speed: {expected_speed}"
 
 
-def verify_no_breakout(dut_engine, cli_object, ports_breakout_modes, conf):
+def verify_no_breakout(cli_object, ports_breakout_conf, tested_conf):
     """
-    :param conf: a dictionary of the tested configuration,
+    :param cli_object: dut cli object
+    :param ports_breakout_conf: a dictionary with the port configuration after breakout
+    {'Ethernet216': '25G',
+    'Ethernet217': '25G',...}
+    :param tested_conf: a dictionary of the tested configuration,
     i.e breakout mode and ports list which breakout mode will be applied on
     {'2x50G[40G,25G,10G,1G]': ('Ethernet212', 'Ethernet216'), '4x25G[10G,1G]': ('Ethernet228', 'Ethernet232')}
     :return: raise assertion error in case the breakout mode is still applied on the ports
     """
-    all_breakout_ports = []
+    all_breakout_ports = list(ports_breakout_conf.keys())
     ports_list = []
-    for breakout_mode, ports in conf.items():
+    for breakout_mode, ports in tested_conf.items():
         for port in ports:
             ports_list.append(port)
-            breakout_ports = list(
-                ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode].keys())
-            breakout_ports.remove(port)
-            all_breakout_ports += breakout_ports
+            all_breakout_ports.remove(port)
 
     with allure.step('Verify ports {} are up'.format(ports_list)):
         retry_call(cli_object.interface.check_ports_status,

@@ -719,18 +719,7 @@ tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py:
   - Redmine:
     - 2960190
-  - Redmine:
-    - 3103647
-    Platform:
-    - 4600
-    - 4600c
 
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py:
-  - Redmine:
-    - 3103647
-    Platform:
-    - 4600
-    - 4600c
 
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
   - Redmine:

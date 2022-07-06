@@ -2,6 +2,7 @@ import allure
 import pytest
 import random
 import re
+import copy
 from retry.api import retry_call
 from ngts.tests.nightly.dynamic_port_breakout.conftest import all_breakout_options, logger, is_splittable, \
     compare_actual_and_expected_speeds, get_mutual_breakout_modes, send_ping_and_verify_results, \
@@ -80,14 +81,14 @@ class TestDPBNegative:
         with allure.step(f'Verify ports {ports_list_after_breakout} are up after breakout'):
             verify_ifaces_speed_and_status(self.cli_object, self.dut_engine, breakout_ports_conf)
 
+        breakout_port_list = copy.deepcopy(ports_list_after_breakout)
         for port in lb:
-            breakout_port_list = self.get_breakout_ports(breakout_mode, port)
             breakout_port_list.remove(port)
-            breakout_port = random.choice(breakout_port_list)
-            err_msg = rf"\[ERROR\] {breakout_port} interface is NOT present in BREAKOUT_CFG table of CONFIG DB"
-            with allure.step(f'Verify unbreak out with mode {unbreakout_port_mode} '
-                             f'on breakout port {breakout_port} failed as expected'):
-                self.verify_breakout_on_port_failed(breakout_port, unbreakout_port_mode, err_msg)
+        breakout_port = random.choice(breakout_port_list)
+        err_msg = rf"\[ERROR\] {breakout_port} interface is NOT present in BREAKOUT_CFG table of CONFIG DB"
+        with allure.step(f'Verify unbreak out with mode {unbreakout_port_mode} '
+                         f'on breakout port {breakout_port} failed as expected'):
+            self.verify_breakout_on_port_failed(breakout_port, unbreakout_port_mode, err_msg)
 
         with allure.step(f'Verify ports {ports_list_after_breakout} are up after wrong breakout removal'):
             retry_call(self.cli_object.interface.check_ports_status,
@@ -98,15 +99,7 @@ class TestDPBNegative:
             cleanup(cleanup_list)
 
         with allure.step('Verify breakout ports were removed correctly'):
-            verify_no_breakout(self.dut_engine, self.cli_object, self.ports_breakout_modes, conf={breakout_mode: lb})
-
-    def get_breakout_ports(self, breakout_mode, port):
-        """
-        :param breakout_mode: i.e., '4x50G[40G,25G,10G,1G]'
-        :param port: i.e, 'Ethernet8'
-        :return: a list of ports after breakout, i.e ['Ethernet8','Ethernet9','Ethernet10','Ethernet11']
-        """
-        return list(self.ports_breakout_modes[port]['breakout_port_by_modes'][breakout_mode].keys())
+            verify_no_breakout(self.cli_object, breakout_ports_conf, tested_conf={breakout_mode: lb})
 
     def verify_negative_breakout_configuration(self, ports_list, breakout_mode):
         with allure.step(f'Get speed configuration of ports {ports_list} before breakout'):

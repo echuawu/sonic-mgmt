@@ -158,7 +158,7 @@ class DependenciesBase:
             for port, port_dependency in ports_dependencies.items():
                 vlan_id = port_dependency["vlan"]
                 vlan_expected_info.append((show_vlan_config_pattern.format(vid=vlan_id, member=port), False))
-            vlan_info = self.cli_object.vlan.show_vlan_config(self.dut_engine)
+            vlan_info = self.cli_object.vlan.show_vlan_config()
             verify_show_cmd(vlan_info, vlan_expected_info)
 
     def verify_no_port_channel_on_ports(self, ports_dependencies):
@@ -175,7 +175,7 @@ class DependenciesBase:
                 port_channel_name = port_dependency["portchannel"]
                 port_channel_expected_info.append((show_port_channel_config_pattern.
                                                    format(PORTCHANNEL=port_channel_name, PORT=port), False))
-            port_channel_info = self.cli_object.lag.show_interfaces_port_channel(self.dut_engine)
+            port_channel_info = self.cli_object.lag.show_interfaces_port_channel()
             verify_show_cmd(port_channel_info, port_channel_expected_info)
 
     def verify_no_ip_on_ports(self, ports_dependencies):
@@ -191,5 +191,5 @@ class DependenciesBase:
             for port, port_dependency in ports_dependencies.items():
                 ip = port_dependency["ip"]
                 ip_expected_info.append((show_ip_config_pattern.format(port=port, ip=ip), False))
-            ip_info = self.cli_object.ip.show_ip_interfaces(self.dut_engine)
+            ip_info = self.cli_object.ip.show_ip_interfaces()
             verify_show_cmd(ip_info, ip_expected_info)
