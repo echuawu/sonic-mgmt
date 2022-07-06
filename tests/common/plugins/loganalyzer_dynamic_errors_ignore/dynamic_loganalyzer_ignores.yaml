@@ -1061,6 +1061,16 @@
       Branch:
       - master
 
+- Errors_list:
+    - '.* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*'
+  Conditions:
+    - Redmine:
+      - 3001563
+      Branch:
+      - master
+      - 202111
+      - 202205
+
 # #3071827: Won't fix
 - Errors_list:
     - '.* ERR radv#radvd\[\d+\]: Vlan1000 not found: No such device.*'
