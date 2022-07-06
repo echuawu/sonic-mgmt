@@ -1067,3 +1067,15 @@
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py
+
+- Errors_list:
+    - '.* ERR pmon#psud: Fail to read model number: No key PN_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu1_vpd.*'
+    - '.* ERR pmon#psud: Fail to read serial number: No key SN_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu1_vpd.*'
+    - '.* ERR pmon#psud: Fail to read revision: No key REV_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu1_vpd.*'
+    - ".* ERR healthd: system_service'state' .*"
+    - '.* ERR pmon#psud: Failed to read from file /var/run/hw-management/eeprom/psu1_vpd - UnicodeDecodeError.*'
+  Conditions:
+    - Redmine:
+      - 3130554
+      Platform:
+      - msn2700
