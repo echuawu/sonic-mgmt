@@ -3,12 +3,12 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> System Commands </name>
-      <info> System Commands </info>
+      <name> NVOS system </name>
+      <info> NVOS system </info>
       <owner> Rowadia Mahameed </owner>
     </Test>
     <Case>
-      <tags> commit_push_gate </tags>
+      <tags> system commands </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
       <tout> 2400 </tout>
       <tags>ALL</tags>

@@ -3,8 +3,8 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> NVOS ngci </name>
-      <info> NVOS ngci </info>
+      <name> System Security test </name>
+      <info> System Security test </info>
       <owner> Rowaida Mahameed </owner>
     </Test>
     <Case>
