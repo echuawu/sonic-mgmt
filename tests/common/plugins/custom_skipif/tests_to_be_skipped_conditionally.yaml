@@ -1147,5 +1147,3 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
 tests/nightly/routing/test_routing.py:
   - Redmine:
     - 3123850
-    Platform:
-    - sn2201
