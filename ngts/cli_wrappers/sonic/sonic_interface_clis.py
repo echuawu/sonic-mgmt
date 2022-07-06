@@ -56,7 +56,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         for interface in interfaces_list:
             self.disable_interface(interface)
 
-    def set_interface_speed(self, interface, speed):
+    def set_interface_speed(self, interface, speed, validate=False):
         """
         Method which setting interface speed
         :param interface: interface name
@@ -69,7 +69,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         elif 'M' in speed:
             speed = int(speed.split('M')[0])
 
-        return self.engine.run_cmd("sudo config interface speed {} {}".format(interface, speed))
+        return self.engine.run_cmd("sudo config interface speed {} {}".format(interface, speed), validate=validate)
 
     def set_interfaces_speed(self, interfaces_speed_dict):
         """

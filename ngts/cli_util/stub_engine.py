@@ -6,7 +6,7 @@ class StubEngine:
     def __init__(self):
         self.commands_list = []
 
-    def run_cmd(self, cmd):
+    def run_cmd(self, cmd, *args, **kwargs):
         """
         Method emulates API for run_cmd method from real engine, but instead of run command
         it save cmd to self.commands_list
