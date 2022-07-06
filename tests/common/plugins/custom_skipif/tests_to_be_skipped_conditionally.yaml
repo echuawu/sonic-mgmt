@@ -954,6 +954,15 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
       - 202111
       - master
 
+tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
+  - Platform:
+    - 3700
+    Redmine:
+    - 3130505
+    Branch:
+    - 202205
+    - master
+
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   - Branch:
     - 201911
