@@ -111,6 +111,7 @@
       - autorestart/test_container_autorestart.py
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      - system_health/test_system_health.py
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
 - Errors_list:
@@ -403,6 +404,7 @@
       - copp/test_copp.py::TestCOPP::test_no_policer
       - copp/test_copp.py::TestCOPP::test_policer
       - route/test_static_route.py::test_static_route_ecmp
+      - system_health/test_system_health.py
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_DEBUG_COUNTER.ERR\] mlnx_sai_debug_counter.c\[\d+\]- mlnx_debug_counter_availability_get: Unsupported debug counter type - \d'
@@ -437,17 +439,8 @@
     - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[\d+\]- mlnx_bridge_port_isolation_group_get: Isolation group is only supported for bridge port type port'
     - '.* ERR syncd#SDK: \[SAI_BRIDGE.ERR\] mlnx_sai_bridge.c\[\d+\]- mlnx_bridge_1d_oid_to_data: Unexpected bridge type 0 is not 1D'
   Conditions:
-    - Affected_test_cases:
-      - pc/test_po_update.py::test_po_update_io_no_loss
-      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
-      - ecmp/inner_hashing/test_wr_inner_hashing.py
-      - autorestart/test_container_autorestart.py
-      - dhcp_relay/test_dhcp_relay.py::test_interface_binding
-      - copp/test_copp.py::TestCOPP::test_no_policer
-      - copp/test_copp.py::TestCOPP::test_policer
-      - route/test_static_route.py::test_static_route_ecmp
-      Redmine:
-        - 2619129
+    - Redmine:
+      - 2619129
 
 - Errors_list:
     - '.*ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Could not infer system information from.*'
@@ -988,16 +981,7 @@
 - Errors_list:
     - '.* WARNING kernel: \[.+\] get_operation_tlv: Err: Got status 0x4 for register 0x9053'
   Conditions:
-    - Affected_test_cases:
-      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
-      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
-      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
-      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
-      - tests/nightly/lag/test_lag.py::test_lags_scale
-      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
-      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
-      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
-      Redmine:
+    - Redmine:
       - 3105020
 
 - Errors_list:
@@ -1047,14 +1031,13 @@
       - 2201
 
 - Errors_list:
-    - '.* ERR ntpd\[\d+\]: leapsecond file \(''/usr/share/zoneinfo/leap-seconds.list''\): expired \d day ago'
+    - ".* ERR ntpd\\[\\d+\\]: leapsecond file \\('/usr/share/zoneinfo/leap-seconds.list'\\): expired 1 day ago.*"
+    - ".* ERR ntpd\\[\\d+\\]: leapsecond file \\('/usr/share/zoneinfo/leap-seconds.list'\\): expired less than \\d+ days ago.*"
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
       Redmine:
       - 3120607
-      Platform:
-      - 2201
 
 - Errors_list:
     - '.* ERR show: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to PermissionError\(13, ''Permission denied''\)'
