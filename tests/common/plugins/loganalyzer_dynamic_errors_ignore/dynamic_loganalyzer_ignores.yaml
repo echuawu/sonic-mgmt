@@ -1090,3 +1090,20 @@
       - 3130554
       Platform:
       - msn2700
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- meta_sai_on_port_state_change_single: data.port_id oid.* has unexpected type: SAI_OBJECT_TYPE_NULL, expected PORT, BRIDGE_PORT or LAG.*'
+    - '.* ERR swss#orchagent: :- handlePortStatusChangeNotification: Failed to get port object for port id.*'
+    - '.* ERR swss#orchagent: :- doTask: Failed to get port object for port id.*'
+  Conditions:
+    - Redmine:
+      - 3131583
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Receive PMPE error event on module \d+: status \d+ error type \d+.*'
+    - '.* ERR pmon#xcvrd: Got unrecognized event \d+, ignored.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/sfp/test_sfputil.py
+    - Redmine:
+      - 3131511
