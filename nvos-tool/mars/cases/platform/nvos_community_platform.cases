@@ -4,7 +4,7 @@
     <Test>
       <group> NVOS </group>
       <name> Platform tests - Community </name>
-      <info> Platform tests - Community </info>
+      <info> </info>
       <owner> yana port </owner>
     </Test>
     <Case>
@@ -15,8 +15,8 @@
   </global>
 
   <case>
-        <info> Test Show Platform Summary </info>
         <name> show_platform_summary</name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -26,8 +26,8 @@
     </case>
 
     <case>
-        <info> Test Show Platform - ssdhealth </info>
-        <name> show_platform_ssdhealth </name>
+        <name> Test Show Platform - ssdhealth </name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -37,8 +37,8 @@
     </case>
 
     <case>
-        <info> Test Show Platform -  psustatus </info>
-        <name> show_platform_psustatus </name>
+        <name> Test Show Platform -  psustatus </name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -48,8 +48,8 @@
     </case>
 
     <case>
-        <info> Test Show Platform - psustatus_json </info>
-        <name> show_platform_psustatus_json </name>
+        <name> Test Show Platform - psustatus_json </name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -59,8 +59,8 @@
     </case>
 
     <case>
-        <info> Test Show Platform - fan </info>
-        <name> show_platform_fan </name>
+        <name> Test Show Platform - fan </name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -70,8 +70,8 @@
     </case>
 
     <case>
-        <info> Test Show Platform - temperature </info>
-        <name> show_platform_temperature </name>
+        <name> Test Show Platform - temperature </name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>
@@ -81,8 +81,8 @@
     </case>
 
     <case>
-        <info> Test Show Platform - firmware_status </info>
-        <name> show_platform_firmware_status </name>
+        <name> Test Show Platform - firmware_status </name>
+        <info> </info>
         <tout> 300 </tout>
         <cmd>
              <params>

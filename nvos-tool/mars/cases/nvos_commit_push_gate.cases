@@ -4,7 +4,7 @@
     <Test>
       <group> NVOS </group>
       <name> NVOS ngci </name>
-      <info> NVOS ngci </info>
+      <info> </info>
       <owner> Rowaida Mahameed </owner>
     </Test>
     <Case>
@@ -16,8 +16,8 @@
   </global>
 
   <case>
-    <info> InitFlow </info>
     <name> InitFlow </name>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>

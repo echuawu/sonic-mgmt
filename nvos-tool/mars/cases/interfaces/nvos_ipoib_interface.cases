@@ -4,7 +4,7 @@
     <Test>
       <group> NVOS </group>
       <name> IPOIB Interface test </name>
-      <info> IPOIB Interface test </info>
+      <info> </info>
       <owner> yana port </owner>
     </Test>
     <Case>

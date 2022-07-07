@@ -4,8 +4,8 @@
     <Test>
       <group> NVOS </group>
       <name> NVOS ngci </name>
-      <info> NVOS ngci </info>
-      <owner> Dror Brook </owner>
+      <info> </info>
+      <owner> Rowaida Mahameed </owner>
     </Test>
     <Case>
       <tags> commit_push_gate </tags>

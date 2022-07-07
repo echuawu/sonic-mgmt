@@ -3,8 +3,8 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> NVOS system </name>
-      <info> NVOS system </info>
+      <name> NVOS system techsupport </name>
+      <info> </info>
       <owner> Yana Port </owner>
     </Test>
     <Case>
@@ -17,7 +17,7 @@
 
   <case>
     <info> System Tech-Support </info>
-    <name> System Tech-Support </name>
+    <name> </name>
     <tout> 1200 </tout>
     <cmd>
       <params>
@@ -28,7 +28,7 @@
 
   <case>
     <name> System Tech-Support - OpenAPI </name>
-    <info> System Tech-Support - OpenAPI </info>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>

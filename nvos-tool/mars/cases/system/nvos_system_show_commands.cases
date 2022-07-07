@@ -4,7 +4,7 @@
     <Test>
       <group> NVOS </group>
       <name> NVOS system </name>
-      <info> NVOS system </info>
+      <info></info>
       <owner> Rowadia Mahameed </owner>
     </Test>
     <Case>
@@ -17,7 +17,7 @@
 
   <case>
     <name> System Commands </name>
-    <info> </info>
+    <info></info>
     <tout> 1200 </tout>
     <cmd>
       <params>

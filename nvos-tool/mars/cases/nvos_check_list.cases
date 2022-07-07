@@ -4,7 +4,7 @@
     <Test>
       <group> NVOS </group>
       <name> NVOS system </name>
-      <info> NVOS system </info>
+      <info> </info>
       <owner> Yana Port </owner>
     </Test>
     <Case>
@@ -16,8 +16,8 @@
   </global>
 
   <case>
-    <info> System Images - master </info>
     <name> System Images - master </name>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>
@@ -27,8 +27,8 @@
   </case>
 
   <case>
-    <info> System Images - release nvos-25-01-0500 </info>
     <name> System Images - release nvos-25-01-0500 </name>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>
@@ -38,8 +38,8 @@
   </case>
 
   <case>
-    <info> System Firmware </info>
     <name> System Firmware </name>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>
@@ -49,8 +49,8 @@
   </case>
 
   <case>
-    <info> Platform Firmware </info>
     <name> Platform Firmware </name>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>
