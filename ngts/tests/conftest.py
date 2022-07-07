@@ -51,14 +51,14 @@ def cli_objects(topology_obj):
 @pytest.fixture(scope='session')
 def interfaces(topology_obj):
     interfaces_data = DottedDict()
-    interfaces_data.ha_dut_1 = topology_obj.ports['ha-dut-1']
-    interfaces_data.ha_dut_2 = topology_obj.ports['ha-dut-2']
-    interfaces_data.hb_dut_1 = topology_obj.ports['hb-dut-1']
-    interfaces_data.hb_dut_2 = topology_obj.ports['hb-dut-2']
-    interfaces_data.dut_ha_1 = topology_obj.ports['dut-ha-1']
-    interfaces_data.dut_ha_2 = topology_obj.ports['dut-ha-2']
-    interfaces_data.dut_hb_1 = topology_obj.ports['dut-hb-1']
-    interfaces_data.dut_hb_2 = topology_obj.ports['dut-hb-2']
+    interfaces_data.ha_dut_1 = topology_obj.ports.get('ha-dut-1')
+    interfaces_data.ha_dut_2 = topology_obj.ports.get('ha-dut-2')
+    interfaces_data.hb_dut_1 = topology_obj.ports.get('hb-dut-1')
+    interfaces_data.hb_dut_2 = topology_obj.ports.get('hb-dut-2')
+    interfaces_data.dut_ha_1 = topology_obj.ports.get('dut-ha-1')
+    interfaces_data.dut_ha_2 = topology_obj.ports.get('dut-ha-2')
+    interfaces_data.dut_hb_1 = topology_obj.ports.get('dut-hb-1')
+    interfaces_data.dut_hb_2 = topology_obj.ports.get('dut-hb-2')
     return interfaces_data
 
 
