@@ -938,8 +938,6 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
     Branch:
       - 202111
       - master
-
-tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   - Platform:
     - 3700
     Redmine:
