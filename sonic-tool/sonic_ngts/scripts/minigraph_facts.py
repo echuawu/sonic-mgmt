@@ -89,7 +89,7 @@ def get_config_db_json_from_hostname(hostname):
     for html_line in setups_list_http_page_html_response:
         html_line = html_line.decode('ascii')
         # Add CI setups to list, if will not find regular setup - then will iterate over CI setups list
-        if any(ci_name in html_line for ci_name in ['CI_sonic_SPC', 'CI_sonic_DPU']):
+        if any(ci_name in html_line for ci_name in ['CI_sonic_SPC', 'CI_sonic_BF']):
             ci_setups.append(re.search(r'href="(\S*)\/"', html_line).groups()[0])
         if hostname in html_line:
             setup_name = re.search(r'href="(\S*)\/"', html_line).groups()[0]
