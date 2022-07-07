@@ -598,6 +598,7 @@
       Branch:
         - 202111
         - master
+        - 202205
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.*mlnx_get_port_stats_ext: Failed to wait for bulk counter read event.*'
