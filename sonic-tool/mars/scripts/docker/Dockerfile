@@ -12,7 +12,7 @@ RUN apt-get install -y libpcre3-dev apt-transport-https ca-certificates curl wge
     python-pip python-scapy python3-pip tcpreplay snmp ethtool traceroute
 
 RUN pip install remotely
-RUN pip3 install daemonize scapy==2.4.5
+RUN pip3 install daemonize scapy==2.4.0
 
 #Install FRR
 RUN curl -s https://deb.frrouting.org/frr/keys.asc | apt-key add -
