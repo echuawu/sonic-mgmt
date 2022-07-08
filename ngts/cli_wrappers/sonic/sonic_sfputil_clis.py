@@ -9,6 +9,7 @@ class SonicSfputilCli:
     """
     This class hosts SONiC sfputil cli methods
     """
+
     def __init__(self, engine):
         self.engine = engine
 

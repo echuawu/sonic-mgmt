@@ -3,6 +3,7 @@ import logging
 import allure
 import os
 import itertools
+import time
 
 from retry.api import retry_call
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
@@ -13,6 +14,7 @@ from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.constants.constants import SonicConst
+from ngts.constants.constants import SflowConsts
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
 import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.constants.constants import P4SamplingEntryConsts
@@ -22,6 +24,7 @@ from ngts.conftest import update_topology_with_cli_class
 import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
 from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_sanitizer_in_topology
+from ngts.helpers.sflow_helper import kill_sflowtool_process, remove_tmp_sample_file
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -335,3 +338,46 @@ def acl_table_config_list(engines, interfaces):
         acl_table_config_list.append(acl_helper.generate_acl_table_config(stage, ip_version, port_list))
 
     yield acl_table_config_list
+
+
+@pytest.fixture(scope='package', autouse=True)
+def basic_sflow_configuration_for_function(engines, cli_objects, interfaces):
+    """
+    Pytest fixture used to configure basic sflow configuration for test function
+    :param engines: engines fixture
+    :param cli_objects: cli_objects fixture
+    :param interfaces: interfaces fixture
+    """
+    cli_obj = cli_objects.dut
+    with allure.step(f"Start feature {SflowConsts.SFLOW_FEATURE_NAME}"):
+        cli_obj.sflow.enable_sflow_feature()
+        time.sleep(2)
+    with allure.step(f"Enable {SflowConsts.SFLOW_FEATURE_NAME} globally"):
+        cli_obj.sflow.enable_sflow()
+    with allure.step(f"Add collector {SflowConsts.COLLECTOR_0} with udp port {SflowConsts.DEFAULT_UDP}"):
+        cli_obj.sflow.add_collector(SflowConsts.COLLECTOR_0, SflowConsts.COLLECTOR_0_IP)
+    with allure.step("Disable all sflow interface"):
+        cli_obj.sflow.disable_all_sflow_interface()
+    with allure.step(f"Enable sflow interface {interfaces.dut_ha_1}"):
+        cli_obj.sflow.enable_sflow_interface(interfaces.dut_ha_1)
+    with allure.step(f"Eanble sflow interface {interfaces.dut_ha_2}"):
+        cli_obj.sflow.enable_sflow_interface(interfaces.dut_ha_2)
+
+    yield
+
+    with allure.step(f"Delete collector {SflowConsts.COLLECTOR_0}"):
+        cli_obj.sflow.del_collector(SflowConsts.COLLECTOR_0)
+    with allure.step("Delete agent id"):
+        cli_obj.sflow.del_agent_id()
+    with allure.step(f"Disable sflow interface {interfaces.dut_ha_1}"):
+        cli_obj.sflow.disable_sflow_interface(interfaces.dut_ha_1)
+    with allure.step(f"Disable sflow interface {interfaces.dut_ha_2}"):
+        cli_obj.sflow.disable_sflow_interface(interfaces.dut_ha_2)
+    with allure.step(f"Disable {SflowConsts.SFLOW_FEATURE_NAME} globally"):
+        cli_obj.sflow.disable_sflow()
+    with allure.step("Kill all sflowtool process"):
+        kill_sflowtool_process(engines)
+    with allure.step(f"Stop feature {SflowConsts.SFLOW_FEATURE_NAME}"):
+        cli_obj.sflow.disable_sflow_feature()
+    with allure.step("Remove sflowtool sample files"):
+        remove_tmp_sample_file(engines)

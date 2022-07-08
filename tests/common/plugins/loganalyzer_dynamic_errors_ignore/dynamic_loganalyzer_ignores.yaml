@@ -171,6 +171,13 @@
       Redmine:
       - 3110830
 
+- Errors_list:
+    - '.* ERR sflow#port_index_mapper: no interface with this name'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_4094_5
+      Redmine:
+      - 3130084
 
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'

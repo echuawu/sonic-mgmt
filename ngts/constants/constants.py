@@ -700,6 +700,72 @@ class P4ExamplesConsts:
     GTP_PARSER_FEATURE_NAME = "GTP"
 
 
+class SflowConsts:
+    SFLOW_FEATURE_NAME = "sflow"
+    DEFAULT_UDP = 6343
+    UDP_1 = 6555
+    COLLECTOR_0 = "collector0"
+    COLLECTOR_1 = "collector1"
+    COLLECTOR_F = "collector2"
+    COLLECTOR = {
+        COLLECTOR_0: {
+            'name': COLLECTOR_0,
+            'ip': '50.0.0.2',
+            'ipv6': '5000::2',
+            'port': DEFAULT_UDP,
+            'sample_file': "/tmp/collector_0.json"
+        },
+        COLLECTOR_1: {
+            'name': COLLECTOR_1,
+            'ip': '60.0.0.2',
+            'ipv6': '6000::2',
+            'port': UDP_1,
+            'sample_file': "/tmp/collector_1.json"
+        },
+        COLLECTOR_F: {
+            'name': COLLECTOR_F,
+            'ip': '70.1.1.2'
+        }
+    }
+
+    LOOPBACK_0 = "Loopback0"
+    LOOPBACK_0_IP = "1000:aaaa:bbbb:cccc:dddd:eeee:2000:3000"
+    VRF_DEFAULT = "default"
+    AGENT_ID_DEFAULT = "default"
+    SFLOW_UP = "up"
+    SFLOW_DOWN = "down"
+    SFLOW_TOOL_PRETTY = "/usr/local/bin/sflowtool -J -p "
+    POLLING_INTERVAL_DEVIATION_RATE_TOLERANCE = 0.2
+    SAMPLE_RATE_1 = 500
+    SAMPLE_RATE_2 = 300
+    SAMPLE_RATE_3 = 1000
+    SEND_PACKET_NUM = 1024
+
+    DUT_HA_1_IP = "30.0.0.1"
+    DUT_HA_2_IP = "40.0.0.1"
+    HA_DUT_1_IP = "30.0.0.2"
+    HA_DUT_2_IP = "40.0.0.2"
+
+    DUT_HB_1_IP = "50.0.0.1"
+    DUT_HB_2_IP = "60.0.0.1"
+    DUT_HB_1_IP_V6 = "5000::1"
+    DUT_HB_2_IP_V6 = "6000::1"
+    HB_DUT_1_IP = "50.0.0.2"
+    HB_DUT_2_IP = "60.0.0.2"
+    HB_DUT_1_IP_V6 = "5000::2"
+    HB_DUT_2_IP_V6 = "6000::2"
+    COLLECTOR_0_IP = HB_DUT_1_IP
+    COLLECTOR_1_IP = HB_DUT_2_IP
+    COLLECTOR_0_IP_V6 = HB_DUT_1_IP_V6
+    COLLECTOR_1_IP_V6 = HB_DUT_2_IP_V6
+    COLLECTOR_LIST = [COLLECTOR_0, COLLECTOR_1]
+    MGMT_INTF = 'eth0'
+    POLLING_INTERVAL_0 = 0
+    POLLING_INTERVAL_1 = 5
+    POLLING_INTERVAL_2 = 10
+    POLLING_INTF_0_WAIT_TIME = 10
+
+
 class AppExtensionInstallationConstants:
     WJH_APP_NAME = 'what-just-happened'
     WJH_REPOSITORY = 'harbor.mellanox.com/sonic-wjh/docker-wjh'
