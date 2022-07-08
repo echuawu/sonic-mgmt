@@ -14,11 +14,17 @@ platform_tests/test_sensors.py::test_sensors:
   - Redmine:
     - 2815265
 
+# This failure is related to SFP/SFP+/SFP28 transceiver module, we only have this type of module in the listed platforms
 platform_tests/api/test_sfp.py::TestSfpApi::test_reset:
   - Redmine:
     - 3065705
     Branch:
     - master
+    - 202205
+    Platform:
+    - msn2410
+    - msn3420
+    - msn2010
 
 # pfc_asym(RPC)
 pfc_asym/test_pfc_asym.py:
