@@ -1,8 +1,8 @@
 from ngts.nvos_tools.system.System import System
-from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.constants.constants_nvos import SystemConsts
 import allure
 import logging
-from ngts.constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -16,8 +16,14 @@ def test_techsupport_folder_name(engines):
     """
     with allure.step('Run nv action generate system tech-support and validate the tech-support name'):
         system = System(None)
+        output_dictionary_before = OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+            system.techsupport.show()).get_returned_value()
         tech_support_folder = system.techsupport.action_generate()
-        validate_techsupport_folder_name(tech_support_folder)
+        validate_techsupport_folder_name(system, tech_support_folder)
+        output_dictionary_after = OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+            system.techsupport.show()).get_returned_value()
+
+        cleanup_techsupport(engines.dut, output_dictionary_before, output_dictionary_after)
 
 
 def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
@@ -34,6 +40,8 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
         tech_support_folder = system.techsupport.action_generate()
     with allure.step('validate commands works as expected'):
         assert '/var/dump/nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
+
+    cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
 
 def test_techsupport_expected_files(engines, devices):
@@ -58,8 +66,10 @@ def test_techsupport_expected_files(engines, devices):
     with allure.step('validate dump files'):
         verify_techsupport_dump_files(devices.dut, techsupport_files_list)
 
+    cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
-def validate_techsupport_folder_name(tech_support_folder):
+
+def validate_techsupport_folder_name(system, tech_support_folder):
     """
     Test flow:
         1. run nv show system
@@ -67,10 +77,10 @@ def validate_techsupport_folder_name(tech_support_folder):
         3. validate the tar.gz name is /var/dump/nvos_dump_<hostname>_<time_now>.tar.gz
     """
     with allure.step('Check that tech-support name is as expected :/var/dump/nvos_dump_<hostname>_<time_now>.tar.gz'):
-        hosname = 'nvos'
-        # need to run show system and get hosname but after moving the system test to the same system class
-        assert '/var/dump/nvos_dump_' + hosname in tech_support_folder, 'the tech-support should be under' \
-                                                                        ' /var/dump/ and include nvos_dump_<hostname>'
+        system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
+        hostname = system_output[SystemConsts.HOSTNAME]
+        assert '/var/dump/nvos_dump_' + hostname in tech_support_folder, 'the tech-support should be under var dump ' \
+                                                                         'and includes hostname'
 
 
 def get_techsupport_dump_files_names(engine, techsupport):
@@ -90,6 +100,7 @@ def get_techsupport_dump_files_names(engine, techsupport):
 def verify_techsupport_dump_files(device, files_list):
     """
     :param files_list: list of dump files
+    :param device:
     :return:
     """
     files = [file for file in device.constants.dump_files if file not in files_list]
@@ -97,3 +108,9 @@ def verify_techsupport_dump_files(device, files_list):
     files = [file for file in files_list if file not in device.constants.dump_files]
     if len(files) != 0:
         logger.warning("the next files are in the dump folder but not in our check list {files}".format(files=files))
+
+
+def cleanup_techsupport(engine, before, after):
+    new_folders = [file for file in after if file not in before]
+    for dump in new_folders:
+        engine.run_cmd('sudo rm -rf ' + dump)
