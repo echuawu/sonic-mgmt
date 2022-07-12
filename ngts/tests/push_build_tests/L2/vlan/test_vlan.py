@@ -2,6 +2,8 @@ import allure
 import logging
 import pytest
 
+from retry.api import retry_call
+
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 
@@ -88,7 +90,8 @@ class TestVLAN:
             ]
             }
             logger.info('Sending 3 untagged packets from bond0 to {} VLAN {}'.format(self.hb_dut_1, self.vlan_30))
-            ScapyChecker(self.players, validation).run_validation()
+            scapy_checker = ScapyChecker(self.players, validation)
+            retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=5, logger=logger)
 
         with allure.step('Vlan access mode: verify tagged traffic with the same VLAN as port access configured - pass'):
             validation = {'sender': 'ha', 'send_args': {'interface': 'bond0',
