@@ -137,6 +137,8 @@
       <Device Hostname="c-anaconda-01" HwSku="ACS-MSN3700C" Type="DevSonic" />
       <Device Hostname="c-anaconda-02" HwSku="ACS-MSN3700C" Type="DevSonic" />
       <Device Hostname="jaguar-119" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="jaguar-25" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="r-jaguar-03" HwSku="ACS-MQM8700" Type="DevSonic"/>
     </Devices>
     <DeviceInterfaceLinks>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1007" EndPort="ethernet 1/1" StartDevice="arc-switch1038" StartPort="Ethernet0"/>

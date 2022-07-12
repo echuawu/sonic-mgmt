@@ -6,8 +6,9 @@ from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
+from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.constants.constants_nvos import ApiType
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 import allure
 
 logger = logging.getLogger()
@@ -59,6 +60,36 @@ class Port:
         self.show_output_dictionary = show_output_dictionary
         self.name_in_redis = name_in_redis
         self.ib_interface = IbInterface(self)
+
+    @staticmethod
+    def get_list_of_ports_connected_to_traffic_server(players, interfaces, dut_engine=None):
+        """
+        Return a list of ports which are connected to a traffic server
+        """
+        if not dut_engine:
+            dut_engine = TestToolkit.engines.dut
+
+        with allure.step('Get a list of ports which state is up'):
+            port_requirements_object = PortRequirements()
+            port_requirements_object.set_port_state(NvosConsts.LINK_STATE_UP)
+            port_requirements_object.set_port_type(IbInterfaceConsts.IB_PORT_TYPE)
+            up_port_list = Port.get_list_of_ports(None, port_requirements_object)
+
+        with allure.step("Clear selected port counters before sending the traffic"):
+            for port in up_port_list:
+                port.ib_interface.link.stats.clear_stats(dut_engine)
+
+        with allure.step('Send traffic to identify which ports are connected to a server'):
+            TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
+
+        with allure.step('Select only ports connected to a traffic server'):
+            traffic_ports = []
+            for port in up_port_list:
+                in_bytes_counter = port.ib_interface.link.stats.in_bytes.get_operational(dut_engine)
+                out_bytes_counter = port.ib_interface.link.stats.out_bytes.get_operational(dut_engine)
+                if in_bytes_counter != 0 or out_bytes_counter != 0:
+                    traffic_ports.append(port)
+            return traffic_ports
 
     @staticmethod
     def get_list_of_ports(dut_engine=None, port_requirements_object=None):

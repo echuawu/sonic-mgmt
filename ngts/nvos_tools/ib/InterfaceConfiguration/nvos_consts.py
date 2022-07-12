@@ -66,6 +66,13 @@ class IbInterfaceConsts:
     IB_PORT_TYPE = "ib"
     LOOPBACK_PORT_TYPE = "loopback"
     ETH_PORT_TYPE = "eth"
+    MTU_VALUES = [256, 512, 1024, 2048, 4096]
+    DEFAULT_MTU = 4096
+    SPEED_LIST = {'xdr': 800, 'ndr': 400, 'hdr': 200, 'edr': 100, 'fdr': 56, 'qdr': 40, 'sdr': 10}
+    SUPPORTED_LANES = ['1X', '1X, 2X', '1X, 4X', '1X, 2X, 4X']
+    DEFAULT_LANES = '1X, 4X'
+    SUPPORTED_VLS = ['VL0', 'VL0, VL1', 'VL0-VL3', 'VL0-VL7']
+    DEFAULT_VLS = 'VL0-VL3'
 
 
 class DataBaseNames:

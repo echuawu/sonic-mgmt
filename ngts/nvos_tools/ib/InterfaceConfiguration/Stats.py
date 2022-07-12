@@ -49,7 +49,7 @@ class Stats(ConfigurationBase):
             dut_engine = TestToolkit.engines.dut
 
         with allure.step('Clear stats for {port_name}'.format(port_name=self.port_obj.name)):
-            return SendCommandTool.execute_command(Port.api_obj[TestToolkit.tested_api].clear_stats,
+            return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].clear_stats,
                                                    dut_engine, self.port_obj.name)
 
     def show_interface_link_stats(self, dut_engine=None, output_format=OutputFormat.json):

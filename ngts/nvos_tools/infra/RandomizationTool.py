@@ -1,6 +1,6 @@
 import logging
 from .ResultObj import ResultObj
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
 from ngts.constants.constants_nvos import IpConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -34,7 +34,8 @@ class RandomizationTool:
         return result_obj
 
     @staticmethod
-    def select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP, requested_ports_type="ib",
+    def select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                            requested_ports_type=IbInterfaceConsts.IB_PORT_TYPE,
                             num_of_ports_to_select=1, port_requirements_object=None, dut_engine=None):
         """
         Select and return list of random ports
@@ -98,6 +99,11 @@ class RandomizationTool:
 
             result_obj.result = True
             return result_obj
+
+    @staticmethod
+    def get_random_port_connected_to_server(players, interfaces, number_of_values_to_select=1):
+        list_of_ports = Port.get_list_of_ports_connected_to_traffic_server(players, interfaces)
+        return RandomizationTool.select_random_values(list_of_ports, None, number_of_values_to_select)
 
     @staticmethod
     def select_random_value(list_of_values, forbidden_values=None):
