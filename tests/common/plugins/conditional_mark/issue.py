@@ -9,6 +9,7 @@ import yaml
 import requests
 
 from abc import ABCMeta, abstractmethod
+from ngts.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,30 @@ class IssueCheckerBase(object):
         Check if the issue is still active
         """
         return True
+
+
+class RedmineIssueChecker(IssueCheckerBase):
+    """
+    Redmine issue state checker
+    """
+
+    NAME = 'Redmine'
+
+    def __init__(self, url):
+        super(RedmineIssueChecker, self).__init__(url)
+
+    def is_active(self):
+        """Check if the issue is still active.
+
+        If unable to get issue state, always consider it as active.
+
+        Returns:
+            bool: False if the issue is closed else True.
+        """
+        issue_id = self.url.split('/issues/')[1]
+        is_issue_active, issue_id = is_redmine_issue_active([int(issue_id)])
+
+        return is_issue_active
 
 
 class GitHubIssueChecker(IssueCheckerBase):
@@ -102,6 +127,8 @@ def issue_checker_factory(url):
         domain_name = m.groups()[0].lower()
         if 'github' in domain_name:
             return GitHubIssueChecker(url)
+        elif 'redmine' in domain_name:
+            return RedmineIssueChecker(url)
         else:
             logger.error('Unknown issue website: {}'.format(domain_name))
     logger.error('Creating issue checker failed. Bad issue url {}'.format(url))

@@ -52,7 +52,7 @@ def pytest_collection(session):
 
 
 pytest_plugins = ('ngts.tools.sysdumps',
-                  'ngts.tools.custom_skipif.CustomSkipIf',
+                  'ngts.tools.conditional_mark',
                   'ngts.tools.loganalyzer',
                   'ngts.tools.infra',
                   'pytester',

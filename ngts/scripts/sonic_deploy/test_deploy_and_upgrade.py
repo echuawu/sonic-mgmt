@@ -3,6 +3,7 @@ import logging
 import time
 import os
 import pytest
+import shutil
 
 from ngts.scripts.sonic_deploy.image_preparetion_methods import prepare_images
 from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
@@ -97,6 +98,10 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
                                 reboot_after_install=reboot_after_install, deploy_only_target=deploy_only_target,
                                 fw_pkg_path=fw_pkg_path, reboot=reboot, additional_apps=additional_apps,
                                 setup_info=setup_info, workspace_path=workspace_path)
+
+        # Remove .pytest_cache folder after deploy - otherwise  - cached info from old image will be used in skip tests
+        cache_full_path = os.path.join(os.path.dirname(__file__), '../../.pytest_cache')
+        shutil.rmtree(cache_full_path, ignore_errors=True)
 
     except Exception as err:
         raise AssertionError(err)
