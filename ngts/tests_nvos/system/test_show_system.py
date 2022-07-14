@@ -26,6 +26,7 @@ def test_system(engines, devices):
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
+        system_output.pop(SystemConsts.VERSION)
         ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
             system_output, system.get_expected_fields(devices.dut)).verify_result()
 
