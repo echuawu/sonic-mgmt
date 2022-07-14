@@ -195,7 +195,7 @@ class RebootReload:
                                        'Test result errors dict: {}'.format(failed_validations)
 
     def resolve_arp_static_route(self):
-        validation = {'sender': 'ha', 'args': {'iface': 'bond0', 'count': 3, 'dst': self.dut_port_channel_ip}}
+        validation = {'sender': 'ha', 'args': {'interface': 'bond0', 'count': 3, 'dst': self.dut_port_channel_ip}}
         ping_checker = PingChecker(self.topology_obj.players, validation)
         logger.info('Sending 3 ping packets to {}'.format(self.dut_port_channel_ip))
         retry_call(ping_checker.run_validation, fargs=[], tries=12, delay=10, logger=logger)

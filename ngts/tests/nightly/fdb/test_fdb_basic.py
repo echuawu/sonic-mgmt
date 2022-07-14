@@ -180,9 +180,9 @@ class TestFdbBasic:
         dst_ip = "40.0.0.1"
         src_iface = self.interfaces.hb_dut_1
         with allure.step('hb ping ha'):
-            validation = {'sender': 'hb', 'args': {'iface': src_iface, 'count': 3, 'dst': dst_ip}}
+            validation = {'sender': 'hb', 'args': {'interface': src_iface, 'count': 3, 'dst': dst_ip}}
             ping = PingChecker(self.players, validation)
-            logger.info('Sending 3 ping packets to {} from iface {}'.format(dst_ip, src_iface))
+            logger.info('Sending 3 ping packets to {} from interface {}'.format(dst_ip, src_iface))
             ping.run_validation()
 
         with allure.step(f'Verify tested mac has been save into the fdb table with the port dut-ha-1'):

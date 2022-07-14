@@ -23,10 +23,10 @@ def test_push_gate_fdb(cli_objects, players):
             retry_call(cli_objects.dut.interface.check_ports_status, fargs=[['PortChannel0002']], tries=12,
                        delay=5, logger=logger)
 
-        with allure.step('Sending 3 ping packets to {} from iface {}'.format(dst_ip, src_iface)):
-            validation = {'sender': 'hb', 'args': {'iface': src_iface, 'count': 3, 'dst': dst_ip}}
+        with allure.step('Sending 3 ping packets to {} from interface {}'.format(dst_ip, src_iface)):
+            validation = {'sender': 'hb', 'args': {'interface': src_iface, 'count': 3, 'dst': dst_ip}}
             ping = PingChecker(players, validation)
-            logger.info('Sending 3 ping packets to {} from iface {}'.format(dst_ip, src_iface))
+            logger.info('Sending 3 ping packets to {} from interface {}'.format(dst_ip, src_iface))
             ping.run_validation()
 
         send_port_mac = cli_objects.hb.mac.get_mac_address_for_interface(src_iface)
