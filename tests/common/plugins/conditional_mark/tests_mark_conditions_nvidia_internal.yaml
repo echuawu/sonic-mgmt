@@ -289,7 +289,7 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3097795 and branch 202111"
     conditions:
-      - "https://redmine.mellanox.com/issues/3097795 and '202111' in branch"
+      - "(https://redmine.mellanox.com/issues/3097795 and '202111' in branch) or (https://redmine.mellanox.com/issues/3139078 and '202205' in branch)"
 
 platform_tests/test_advanced_reboot.py::test_fast_reboot:
   skip:
