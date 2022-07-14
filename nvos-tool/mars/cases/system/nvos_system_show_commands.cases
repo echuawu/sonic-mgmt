@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> NVOS system </name>
+      <name></name>
       <info></info>
       <owner> Rowadia Mahameed </owner>
     </Test>
@@ -16,7 +16,7 @@
   </global>
 
   <case>
-    <name> System Commands </name>
+    <name> System Show Commands </name>
     <info></info>
     <tout> 1200 </tout>
     <cmd>
@@ -27,12 +27,12 @@
   </case>
 
   <case>
-    <name> System Commands - OpenAPI </name>
+    <name> System Show Commands - OpenAPI </name>
     <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_techsupport_commands.py --raw_options "\'--nvos_api_type=openapi --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_show_system.py --raw_options "\'--nvos_api_type=openapi --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
