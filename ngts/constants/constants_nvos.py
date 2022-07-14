@@ -56,7 +56,7 @@ class NvosConst:
     DOCKER_STATUS_UP = 'Up'
     SERVICE_STATUS_ACTIVE = 'active'
 
-    DOCKERS_LIST = ['nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
+    DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
 

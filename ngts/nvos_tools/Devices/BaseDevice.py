@@ -212,7 +212,7 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_dockers(self):
         BaseDevice._init_services(self)
-        self.available_dockers.extend(('nvue', 'pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils'))
+        self.available_dockers.extend(('pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils'))
 
     def _init_contants(self):
         BaseDevice._init_contants(self)
