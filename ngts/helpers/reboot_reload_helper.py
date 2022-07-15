@@ -5,7 +5,6 @@ import re
 import logging
 
 from ngts.constants.constants import PlatformTypesConstants, PytestConst
-from ngts.tools.redmine.redmine_api import is_redmine_issue_active
 logger = logging.getLogger()
 
 
@@ -18,13 +17,6 @@ class SupportedRebootReloadTypes:
 
         if platform == PlatformTypesConstants.PLATFORM_BOXER:
             del self.fast_reboot
-
-        # TODO: need to delete the following code after the issue fixed
-        #  [SONIC - Design] Bug SW #3044762: [Functional] [warm-reboot] | Warm-reboot failed: RESTARTCHECK failed,
-        #  orchagent is not ready for warm restart with status NOT_READY | Assignee: Vivek Reddy Karri | Status: In Pr
-        is_issue_active, _ = is_redmine_issue_active([3044762])
-        if is_issue_active:
-            del self.warm_reboot
 
 
 def get_supported_reboot_reload_types_list(platform=None):
