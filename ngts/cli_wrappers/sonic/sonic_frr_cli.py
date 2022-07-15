@@ -22,3 +22,9 @@ class SonicFrrCli(FrrCliCommon):
         self.engine.run_cmd('sudo mv {}{} /etc/sonic/frr/'.format(fs, frr_config_name))
         fs = '/etc/sonic/frr/'
         self.run_config_frr_cmd('copy {}{} running-config'.format(fs, frr_config_name))
+
+    def remove_frr_config_files(self):
+        """
+        Remove FRR configuration files from /etc/sonic/frr folder
+        """
+        self.engine.run_cmd('sudo rm -f /etc/sonic/frr/*')

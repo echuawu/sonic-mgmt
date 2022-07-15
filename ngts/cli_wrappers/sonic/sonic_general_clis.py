@@ -545,6 +545,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.upload_port_config_ini(platform, hwsku, shared_path)
         self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
 
+        # Remove FRR configuration(which may contain default BGP config)
+        self.cli_obj.frr.remove_frr_config_files()
+
         with allure.step("Reboot the dut"):
             self.engine.reload(['sudo reboot'])
             if reload_before_qos:
