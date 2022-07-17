@@ -1,6 +1,7 @@
 import logging
 import allure
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import NvueInterfaceShowClis
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 import json
 import time
 import shutil
@@ -48,15 +49,11 @@ class NvosInstallationSteps:
         :return: Bool
         """
         dut_engine = topology_obj.players['dut']['engine']
-        timeout = 120
-        while timeout > 0:
-            res_str = NvueInterfaceShowClis.show_interface(dut_engine, "")
-            if "command not found" in res_str:
-                time.sleep(5)
-                timeout = timeout - 5
-            else:
-                return True
-        return False
+        try:
+            NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
+            return True
+        except Exception as err:
+            return False
 
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,

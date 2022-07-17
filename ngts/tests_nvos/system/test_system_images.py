@@ -9,6 +9,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.tools.redmine.redmine_api import *
 
 logger = logging.getLogger()
 
@@ -68,13 +69,13 @@ def test_show_system_images(engines):
         next_image_temp = get_next_image_name(system)
         ValidationTool.compare_values(next_image, next_image_temp).verify_result()
 
-    # Uncomment ones bug #3113687: "show system images installed" throws an error" will be fixed
-    '''with allure.step("Verify installed images using 'show system images installed'"):
-        logging.info("Verify installed images using 'show system images installed'")
-        installed_images_temp = get_installed_images(system)
+    if not is_redmine_issue_active([3113687]):
+        with allure.step("Verify installed images using 'show system images installed'"):
+            logging.info("Verify installed images using 'show system images installed'")
+            installed_images_temp = get_installed_images(system)
 
-        for key in installed_images_temp.keys():
-            assert key in installed_images.keys(), "{} can't be found in the installed images list".format(key)'''
+            for key in installed_images_temp.keys():
+                assert key in installed_images.keys(), "{} can't be found in the installed images list".format(key)
 
 
 @pytest.mark.checklist
@@ -179,6 +180,7 @@ def reboot_dut():
     TestToolkit.engines.dut.reload(['sudo reboot'])
     nvue_cli = NvueGeneralCli(TestToolkit.engines.dut)
     nvue_cli.verify_dockers_are_up()
+    NvueGeneralCli.wait_for_nvos_to_become_functional(TestToolkit.engines.dut)
 
 
 def verify_current_image_name(system, expected_value, should_equal):
@@ -216,10 +218,10 @@ def do_installation(image_path, image_name, system):
 def verify_image_name_in_installed_list(image_name, system, should_exist):
     logging.info("Verifying that the installed image {} in 'show images installed' output".format(
         "exists" if should_exist else "doesn't exist"))
-    # Uncomment ones bug #3113687: "show system images installed" throws an error" will be fixed
-    '''show_output = system.images.show("installed")
-    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-    ValidationTool.verify_field_exist_in_json_output(output_dictionary, [image_name], should_exist)'''
+    if not is_redmine_issue_active([3113687]):
+        show_output = system.images.show("installed")
+        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
+        ValidationTool.verify_field_exist_in_json_output(output_dictionary, [image_name], should_exist)
 
 
 def get_current_image_name(system):
@@ -263,7 +265,7 @@ def get_list_of_directories(current_installed_img, starts_with=None):
 
     for directory in all_directories:
         temp_dir = PATH_TO_IMAGED_DIRECTORY + PATH_TO_IMAGE_TEMPLATE.format(directory)
-        if starts_with and directory.startswith(starts_with):
+        if os.path.isdir(temp_dir) and starts_with and directory.startswith(starts_with):
             relevant_images = [f for f in os.listdir(temp_dir) if f.startswith("nvos-amd64-25.") and
                                current_installed_img.replace("nvos-25", "nvos-amd64-25") not in f]
             if relevant_images:

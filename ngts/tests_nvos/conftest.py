@@ -3,6 +3,7 @@ import logging
 
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants_nvos import ApiType
 from dotted_dict import DottedDict
 
@@ -85,6 +86,13 @@ def interfaces(topology_obj):
     return interfaces_data
 
 
+def clear_config():
+    try:
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+    except Exception as err:
+        logging.warning("Failed to detach config:" + str(err))
+
+
 def pytest_runtest_call(__multicall__):
     try:
         __multicall__.execute()
@@ -94,3 +102,5 @@ def pytest_runtest_call(__multicall__):
     except Exception as err:
         logging.exception(' ---------------- The test failed - an exception occurred: ---------------- ')
         raise AssertionError(err)
+    finally:
+        clear_config()

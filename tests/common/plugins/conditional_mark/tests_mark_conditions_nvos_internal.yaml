@@ -1,0 +1,20 @@
+########################## NVOS IGNORE START ##########################
+tests_nvos/interfaces/test_ib0_interface_ip.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3139786"
+    conditions:
+      - https://redmine.mellanox.com/issues/3139786
+
+tests_nvos/system/test_show_system.py::test_system:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3103009"
+    conditions:
+      - https://redmine.mellanox.com/issues/3103009
+
+tests_nvos/system/test_show_system.py::test_system_message:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3103009"
+    conditions:
+      - https://redmine.mellanox.com/issues/3103009
+
+########################## NVOS IGNORE END ##########################

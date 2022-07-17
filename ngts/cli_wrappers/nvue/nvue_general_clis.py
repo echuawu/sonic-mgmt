@@ -1,8 +1,10 @@
 import logging
 import allure
+import time
 from retry import retry
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.constants.constants_nvos import NvosConst
+
 logger = logging.getLogger()
 
 
@@ -69,9 +71,25 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
+    def detach_config(engine):
+        logging.info("Running 'nv config detach' on dut")
+        output = engine.run_cmd('nv config detach')
+        return output
+
+    @staticmethod
     def reboot(engine):
         """
         Rebooting the switch
         """
         logger.info('Reboot Switch')
         return engine.run_cmd('sudo reboot')
+
+    @staticmethod
+    @retry(Exception, tries=20, delay=10)
+    def wait_for_nvos_to_become_functional(engine):
+        """
+        Waiting for NVOS to complete the init and become functional after the installation
+        """
+        logger.info('Checking the status of nvue ')
+        if "active (running)" not in engine.run_cmd("sudo systemctl status nvue"):
+            raise Exception("Waiting for NVUE to become functional")

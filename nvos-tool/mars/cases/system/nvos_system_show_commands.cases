@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name></name>
+      <name>System Show Commands</name>
       <info></info>
       <owner> Rowadia Mahameed </owner>
     </Test>
