@@ -205,7 +205,7 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_services(self):
         BaseDevice._init_services(self)
         self.available_services.extend((
-            'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
+            'nvue.service', 'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
             'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
             'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
             'syncd-ibv0.service', 'pmon.service'))

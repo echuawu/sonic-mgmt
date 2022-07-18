@@ -20,10 +20,4 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_commit_push_gate.cases </cases>
 	</test>
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_show_commands.cases </cases>
-	</test>
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_techsupport.cases </cases>
-	</test>
 </DBDEF>
