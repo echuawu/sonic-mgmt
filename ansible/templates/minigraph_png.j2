@@ -11,9 +11,12 @@
         <EndPort>{{ vm_intfs[if_index] }}</EndPort>
         <StartDevice>{{ inventory_hostname }}</StartDevice>
         <StartPort>{{ port_alias[dut_intfs[if_index]] }}</StartPort>
+{#
+## Code below broke speed configuration, do not merge it from community, use local version
 {% if device_conn[inventory_hostname][port_alias_map[port_alias[dut_intfs[if_index]]]] is defined %}
         <Bandwidth>{{ device_conn[inventory_hostname][port_alias_map[port_alias[dut_intfs[if_index]]]]['speed'] }}</Bandwidth>
 {% endif %}
+#}
       </DeviceLinkBase>
 {% endfor %}
 {% endfor %}
