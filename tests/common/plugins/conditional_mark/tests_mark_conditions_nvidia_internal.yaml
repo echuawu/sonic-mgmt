@@ -357,9 +357,9 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_reset:
 
 pfc_asym/test_pfc_asym.py:
   skip:
-    reason: "Testcase ignored due to platform msn2 because the performance of SPC1 fanout switch is not high enough to generate pfc storm"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2918636"
     conditions:
-      - "'msn2' in platform"
+      - https://redmine.mellanox.com/issues/2918636
 
 platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
   skip:
