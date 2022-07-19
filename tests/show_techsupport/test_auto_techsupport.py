@@ -42,21 +42,26 @@ def tmp_workaround(duthosts, rand_one_dut_hostname):
     BUFFER_PORT_EGRESS_PROFILE_LIST/BUFFER_PORT_EGRESS_PROFILE_LIST_LIST[port='Ethernet0']/profile_list[.='e'])\n
     Aborted!
     Related to GitHub issue: https://github.com/Azure/sonic-buildimage/issues/9801
+    Related to RM issue: https://redmine.mellanox.com/issues/3007716
     """
     duthost = duthosts[rand_one_dut_hostname]
     ingress_file = 'sonic-buffer-port-ingress-profile-list.yang'
     egress_file = 'sonic-buffer-port-egress-profile-list.yang'
+    wjh_file = 'sonic-wjh.yang'
     ingress_full_path = '/usr/local/yang-models/{}'.format(ingress_file)
     egress_full_path = '/usr/local/yang-models/{}'.format(egress_file)
+    wjh_full_path = '/usr/local/yang-models/{}'.format(wjh_file)
     home_folder = '/home/admin/'
 
     duthost.shell('sudo mv {} {}'.format(ingress_full_path, home_folder))
     duthost.shell('sudo mv {} {}'.format(egress_full_path, home_folder))
+    duthost.shell('sudo mv {} {}'.format(wjh_full_path, home_folder))
 
     yield
 
     duthost.shell('sudo mv {}{} {}'.format(home_folder, ingress_file, ingress_full_path))
     duthost.shell('sudo mv {}{} {}'.format(home_folder, egress_file, egress_full_path))
+    duthost.shell('sudo mv {}{} {}'.format(home_folder, wjh_file, wjh_full_path))
 
 
 def cleanup(cleanup_list):
