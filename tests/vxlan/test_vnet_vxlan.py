@@ -127,6 +127,7 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
     vlan_member = mg_facts["minigraph_vlans"][attached_vlan]['members'][0]
     global vlan_tagging_mode
 
+    num_routes = request.config.option.num_routes
     vxlan_enabled = False
     if request.param == "Disabled":
         vxlan_enabled = False
@@ -137,7 +138,7 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
             vlan_tagging_mode = result["stdout_lines"][0]
             duthost.shell("redis-cli -n 4 del \"VLAN_MEMBER|{}|{}\"".format(attached_vlan, vlan_member))
 
-        apply_dut_config_files(duthost, vnet_test_params)
+        apply_dut_config_files(duthost, vnet_test_params, num_routes)
         # Check arp table status in a loop with delay.
         pytest_assert(wait_until(120, 20, 10, is_neigh_reachable, duthost, vnet_config), "Neighbor is unreachable")
         vxlan_enabled = True
@@ -146,7 +147,7 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
             duthost.shell("redis-cli -n 4 hset \"VLAN_MEMBER|{}|{}\" tagging_mode {} ".format(attached_vlan, vlan_member, vlan_tagging_mode))
 
         vxlan_enabled = True
-        cleanup_vnet_routes(duthost, vnet_config)
+        cleanup_vnet_routes(duthost, vnet_config, num_routes)
         cleanup_dut_vnets(duthost, setup, vnet_config)
         cleanup_vxlan_tunnels(duthost, vnet_test_params)
     elif request.param == "WR_ARP":
@@ -216,7 +217,7 @@ def test_vnet_vxlan(setup, vxlan_status, duthosts, rand_one_dut_hostname, ptfhos
     logger.debug("Starting PTF runner")
     if scenario == 'Enabled' and vxlan_enabled:
         route_pattern = 'Vnet1|100.1.1.1/32'
-        with RouteFlowCounterTestContext(is_route_flow_counter_supported, duthost, [route_pattern], {route_pattern: {'packets': '3'}}):
+        with RouteFlowCounterTestContext(is_route_flow_counter_supported, duthost, [route_pattern], {route_pattern: {'packets': '2'}}):
             ptf_runner(ptfhost,
                 "ptftests",
                 "vnet_vxlan.VNET",
