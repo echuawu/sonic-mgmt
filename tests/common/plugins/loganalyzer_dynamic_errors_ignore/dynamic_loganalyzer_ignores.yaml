@@ -1106,4 +1106,4 @@
     - Affected_test_cases:
       - platform_tests/sfp/test_sfputil.py
     - Redmine:
-      - 3131511
+      - 2200131
