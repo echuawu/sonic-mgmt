@@ -1657,7 +1657,7 @@ def collect_db_dump(request, duthosts):
 
 
 @pytest.fixture(scope="module", autouse=True)
-def verify_new_core_dumps(duthost):
+def verify_new_core_dumps(duthost, request):
     if "20191130" in duthost.os_version:
         pre_existing_cores = duthost.shell('ls /var/core/ | grep -v python')['stdout'].split()
     else:
@@ -1669,6 +1669,9 @@ def verify_new_core_dumps(duthost):
     else:
         cur_cores = duthost.shell('ls /var/core/')['stdout'].split()
 
+    # TODO: temporary logic which ignores zebra .core file during vxlan tests according to RM issue: 3138491
+    cur_cores = ignore_vxlan_zebra_core_files(request, pre_existing_cores, cur_cores)
+
     new_core_dumps = set(cur_cores) - set(pre_existing_cores)
     # convert to list so print msg will not contain "set()"
     new_core_dumps = list(new_core_dumps)
@@ -1676,6 +1679,26 @@ def verify_new_core_dumps(duthost):
     if new_core_dumps:
         pytest.fail("Core dumps found. Expected: %s Found: %s. Test failed. New core dumps: %s" % (len(pre_existing_cores),\
             len(cur_cores), new_core_dumps))
+
+
+def ignore_vxlan_zebra_core_files(request, existing_cores, current_cores):
+    filtered_cores_list = current_cores
+    if 'vxlan' in request.node.nodeid:
+        from ngts.tools.redmine.redmine_api import is_redmine_issue_active
+        filtered_cores_list = []
+        logger.info('Available .core files: {}'.format(current_cores))
+        for core_file in current_cores:
+            if core_file.startswith('zebra') and core_file not in existing_cores:
+                is_rm_issue_active, _ = is_redmine_issue_active([3138491])
+                if is_rm_issue_active:
+                    logger.info('Removing .core file: {} from list of core files(which added during test) due '
+                                'to RM issue: 3138491'.format(core_file))
+                    continue
+            filtered_cores_list.append(core_file)
+        logger.info('Filtered .core files: {}'.format(filtered_cores_list))
+
+    return filtered_cores_list
+
 
 def verify_packets_any_fixed(test, pkt, ports=[], device_number=0):
     """
