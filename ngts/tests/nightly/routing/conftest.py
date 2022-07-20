@@ -56,6 +56,9 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
     :param engines: engines fixture
     :param interfaces: interfaces fixture
     """
+    # Clear FRR BGP config (could exist default BGP configuration)
+    cli_objects.dut.frr.remove_frr_config_files()
+    cli_objects.dut.bgp.restart_bgp_service()
 
     with allure.step('Check that links in UP state'):
         ports_list = [interfaces.dut_ha_1, interfaces.dut_hb_1]
@@ -95,7 +98,7 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
     engines.dut.run_cmd('sudo config load -y /tmp/dut_bgp_conf.json')
     cli_objects.dut.general.save_configuration()
 
-    cli_objects.dut.general.reload_flow(ports_list=[interfaces.dut_ha_1, interfaces.dut_hb_1])
+    cli_objects.dut.general.reload_flow(ports_list=[interfaces.dut_ha_1, interfaces.dut_hb_1], reload_force=True)
 
     yield
 
@@ -109,4 +112,4 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
     IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
 
     cli_objects.dut.general.save_configuration()
-    cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+    cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)

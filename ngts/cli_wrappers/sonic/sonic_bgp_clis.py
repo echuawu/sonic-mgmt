@@ -38,6 +38,13 @@ class SonicBgpCli(BgpCliCommon):
         cmd = f'sudo config bgp shutdown neighbor {neighbor}'
         return self.engine.run_cmd(cmd)
 
+    def restart_bgp_service(self):
+        cmd = 'sudo service bgp restart'
+        """
+        Restart BGP service
+        """
+        return self.engine.run_cmd(cmd)
+
     def show_ip_bgp_summary(self):
         """
         Run command: "show ip bgp summary"
