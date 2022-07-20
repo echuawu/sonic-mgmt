@@ -219,66 +219,6 @@ sflow/test_sflow.py:
     conditions:
       - "https://github.com/Azure/sonic-mgmt/issues/5938 and '202205' in branch"
 
-acl/test_acl.py::TestBasicAcl::test_ingress_unmatched_blocked[ipv6-ingress-downlink->uplink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestBasicAcl::test_ingress_unmatched_blocked[ipv6-ingress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestBasicAcl::test_icmp_match_forwarded[ipv6-egress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestBasicAcl::test_icmp_match_forwarded[ipv6-ingress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestIncrementalAcl::test_ingress_unmatched_blocked[ipv6-ingress-downlink->uplink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestIncrementalAcl::test_ingress_unmatched_blocked[ipv6-ingress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_match_forwarded[ipv6-egress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_match_forwarded[ipv6-ingress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_source_ip_match_dropped[ipv6-ingress-downlink->uplink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_source_ip_match_dropped[ipv6-ingress-uplink->downlink]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
-
 platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132437 and paltform msn4"
@@ -550,10 +490,305 @@ generic_config_updater/test_portchannel_interface.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3067876"
     conditions:
       - https://redmine.mellanox.com/issues/3067876
-########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
-tests/test_dbg.py:
+acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_forwarded[ipv6:
   skip:
-    reason: "Testcase ignored due to platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
     conditions:
-      - "'4700' in platform"
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_egress_unmatched_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_sport_range_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_source_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_tcp_flags_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_sport_range_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_ingress_unmatched_blocked[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_tcp_flags_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_ip_proto_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_udp_source_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_icmp_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_dport_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_dest_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_icmp_source_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_ip_proto_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_dport_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_sport_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_rules_priority_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_source_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_l4_sport_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_rules_priority_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_dest_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_icmp_source_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestBasicAcl::test_udp_source_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_dport_range_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_egress_unmatched_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_sport_range_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_source_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_tcp_flags_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_sport_range_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_ingress_unmatched_blocked[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_tcp_flags_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_dport_range_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_ip_proto_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_icmp_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_dport_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_dest_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_icmp_source_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_ip_proto_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_dport_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_sport_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_rules_priority_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_source_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_l4_sport_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_rules_priority_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_dest_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_icmp_source_ip_match_forwarded[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3132225 and '202205' in branch"
+
+########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
