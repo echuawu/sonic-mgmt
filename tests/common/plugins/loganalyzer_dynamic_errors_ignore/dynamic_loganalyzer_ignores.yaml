@@ -1136,3 +1136,13 @@
       - platform_tests/sfp/test_sfputil.py
     - Redmine:
       - 2200131
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- recordingFileReopen: failed to open recording file : No such file or directory.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+    - Redmine:
+      - 3144113
+    - Branch:
+      - 202205
