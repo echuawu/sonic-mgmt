@@ -54,15 +54,18 @@ class SonicAppExtensionCli:
         if branch == "none":
             branch = "master"
         is_issue_active, _ = is_redmine_issue_active([3141899])
-        if is_issue_active and branch == 'master':
-            app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
-                                                                headers_ofset=1,
-                                                                len_ofset=2,
-                                                                data_ofset_from_start=3,
-                                                                data_ofset_from_end=None,
-                                                                column_ofset=2,
-                                                                output_key='Name')
-            return app_package_repo_dict
+        try:
+            if is_issue_active and branch == 'master':
+                app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
+                                                                    headers_ofset=1,
+                                                                    len_ofset=2,
+                                                                    data_ofset_from_start=3,
+                                                                    data_ofset_from_end=None,
+                                                                    column_ofset=2,
+                                                                    output_key='Name')
+                return app_package_repo_dict
+        except Exception:
+            pass
         # -----------------------------workaround-------------------------------
         app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
                                                             headers_ofset=0,
