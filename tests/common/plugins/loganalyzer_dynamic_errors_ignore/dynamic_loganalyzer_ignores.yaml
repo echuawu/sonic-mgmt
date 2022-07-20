@@ -623,6 +623,28 @@
         - simx
 
 - Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_get_port_stats_ext: Failed to allocate SDK buffer.*'
+  Conditions:
+    - Redmine:
+      - 3141564
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR syncd#SDK: [SAI_LAG.ERR] mlnx_sai_lag.c\[\d+\]- mlnx_hostif_reapply: Failed running.*'
+    - '.* ERR syncd#SDK: [SAI_LAG.ERR] mlnx_sai_lag.c\[\d+\]- mlnx_remove_lag_member: Error reapplying host interface on port.*'
+    - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_REMOVE failed in syncd mode: SAI_STATUS_FAILURE.*'
+    - '.* ERR swss#orchagent: :- remove: remove status: SAI_STATUS_FAILURE.'
+    - '.* ERR swss#orchagent: :- removeLagMember: Failed to remove member.* from .*'
+    - '.* ERR swss#orchagent: :- handleSaiRemoveStatus: Encountered failure in remove operation, exiting orchagent.*'
+  Conditions:
+    - Redmine:
+      - 3141585
+      Platform:
+        - simx
+
+
+- Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/led_fan\d_capability - FileNotFoundError\(2, ''No such file or directory''\)'
   Conditions:
     - Redmine:
