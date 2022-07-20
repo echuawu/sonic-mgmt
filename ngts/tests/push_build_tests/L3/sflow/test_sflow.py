@@ -14,7 +14,6 @@ SAMPLE_RATE_LIST = [SflowConsts.SAMPLE_RATE_2, SflowConsts.SAMPLE_RATE_3]
 COLLECTOR_WARNING_CONTENT = "Only 2 collectors can be configured, please delete one"
 
 
-@pytest.mark.push_gate
 def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac):
     """
     Test sflow funcrionality under reboot/fast reboot/warm reboot/config reload
