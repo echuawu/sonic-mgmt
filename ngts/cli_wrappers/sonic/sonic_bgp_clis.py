@@ -39,10 +39,10 @@ class SonicBgpCli(BgpCliCommon):
         return self.engine.run_cmd(cmd)
 
     def restart_bgp_service(self):
-        cmd = 'sudo service bgp restart'
         """
         Restart BGP service
         """
+        cmd = 'sudo service bgp restart'
         return self.engine.run_cmd(cmd)
 
     def show_ip_bgp_summary(self):
