@@ -211,6 +211,10 @@ tests/nightly/routing/test_routing.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3123850"
     conditions:
       - https://redmine.mellanox.com/issues/3123850
+
+tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
+  skip:
+    reason: "Test not supported. Once Bulk Counter is supported - then need to modify the skip condition"
 ########################## NGTS IGNORE END ##########################
 
 

@@ -14,7 +14,6 @@ class SonicCounterpollCli(CounterpollCliCommon):
         """
         Disable counterpoll on SONIC
         """
-
         cmd = 'sudo counterpoll {} disable'.format(counterpoll_name)
         return self.engine.run_cmd(cmd)
 
@@ -71,4 +70,14 @@ class SonicCounterpollCli(CounterpollCliCommon):
         :return: cmd output
         """
         cmd = 'sudo counterpoll flowcnt-trap interval {}'.format(interval)
+        return self.engine.run_cmd(cmd)
+
+    def set_counterpoll_interval(self, counterpoll_type, interval):
+        """
+        Run command "counterpoll 'counterpoll_type' interval <time_in_msec>" on SONIC
+        :param counterpoll_type: counterpoll type
+        :param interval: interval
+        :return: cmd output
+        """
+        cmd = 'sudo counterpoll {} interval {}'.format(counterpoll_type, interval)
         return self.engine.run_cmd(cmd)

@@ -766,6 +766,78 @@ class SflowConsts:
     POLLING_INTF_0_WAIT_TIME = 10
 
 
+class CounterpollConstants:
+    COUNTERPOLL_SHOW = 'sudo counterpoll show'
+    COUNTERPOLL_DISABLE = 'sudo counterpoll {} disable'
+    COUNTERPOLL_ENABLE = 'sudo counterpoll {} enable'
+    COUNTERPOLL_RESTORE = 'sudo counterpoll {} {}'
+    COUNTERPOLL_INTERVAL_STR = 'sudo counterpoll {} interval {}'
+    COUNTERPOLL_QUEST = 'sudo counterpoll --help'
+    EXCLUDE_COUNTER_SUB_COMMAND = ['show', 'config-db', "flowcnt-trap", "flowcnt-route", "tunnel"]
+    INTERVAL = 'Interval (in ms)'
+    TYPE = 'Type'
+    STATUS = 'Status'
+    STDOUT = 'stdout'
+    PG_DROP = 'pg-drop'
+    PG_DROP_STAT_TYPE = 'PG_DROP_STAT'
+    QUEUE_STAT_TYPE = 'QUEUE_STAT'
+    QUEUE = 'queue'
+    PORT_STAT_TYPE = 'PORT_STAT'
+    PORT = 'port'
+    PORT_BUFFER_DROP_TYPE = 'PORT_BUFFER_DROP'
+    PORT_BUFFER_DROP = 'port-buffer-drop'
+    RIF_STAT_TYPE = 'RIF_STAT'
+    RIF = 'rif'
+    WATERMARK = 'watermark'
+    QUEUE_WATERMARK_STAT_TYPE = 'QUEUE_WATERMARK_STAT'
+    PG_WATERMARK_STAT_TYPE = 'PG_WATERMARK_STAT'
+    BUFFER_POOL_WATERMARK_STAT_TYPE = 'BUFFER_POOL_WATERMARK_STAT'
+    ACL = 'acl'
+    ACL_TYPE = 'ACL'
+    TUNNEL_STAT = 'tunnel'
+    TUNNEL_STAT_TYPE = 'TUNNEL_STAT'
+    FLOW_CNT_TRAP_STAT = 'flowcnt-trap'
+    FLOW_CNT_TRAP_STAT_TYPE = 'FLOW_CNT_TRAP_STAT'
+    FLOW_CNT_ROUTE_STAT = 'flowcnt-route'
+    FLOW_CNT_ROUTE_STAT_TYPE = 'FLOW_CNT_ROUTE_STAT'
+
+    COUNTERPOLL_MAPPING = {PG_DROP_STAT_TYPE: PG_DROP,
+                           QUEUE_STAT_TYPE: QUEUE,
+                           PORT_STAT_TYPE: PORT,
+                           PORT_BUFFER_DROP_TYPE: PORT_BUFFER_DROP,
+                           RIF_STAT_TYPE: RIF,
+                           BUFFER_POOL_WATERMARK_STAT_TYPE: WATERMARK,
+                           QUEUE_WATERMARK_STAT_TYPE: WATERMARK,
+                           PG_WATERMARK_STAT_TYPE: WATERMARK,
+                           ACL_TYPE: ACL,
+                           TUNNEL_STAT_TYPE: TUNNEL_STAT,
+                           FLOW_CNT_TRAP_STAT_TYPE: FLOW_CNT_TRAP_STAT,
+                           FLOW_CNT_ROUTE_STAT_TYPE: FLOW_CNT_ROUTE_STAT}
+    COUNTERPOLL_INTERVAL = {WATERMARK: 10000,
+                            PORT: 10000,
+                            RIF: 10000,
+                            PG_DROP: 10000,
+                            QUEUE: 10000,
+                            PORT_BUFFER_DROP: 10000,
+                            ACL: 10000,
+                            TUNNEL_STAT: 10000}
+    SX_SDK = 'sx_sdk'
+    COUNTERPOLL_CPU_USAGE_THRESHOLD = 10
+    WATERMARK_INTERVAL_1 = 10000
+    WATERMARK_INTERVAL_DEFAULT = 60000
+
+    CPU_THRESHOLD_FOR_ORDINARY_PROCESS = 50
+    CPU_THRESHOLD_FOR_HIGH_CONSUME_PROCESS = 90
+    MEMORY_THRESHOLD = 50
+    MEMORY_THRESHOLD_ASAN = 90
+    CPU_HIGH_CONSUME_PERSIST_TIME_THRESHOLD = 8
+
+    CPU_MEMORY_SAMPLE_INTERVAL_1 = 5
+    CPU_MEMORY_SAMPLE_ITERATION_1 = 24
+    CPU_MEMORY_SAMPLE_INTERVAL_2 = 1
+    CPU_MEMORY_SAMPLE_ITERATION_2 = 60
+
+
 class AppExtensionInstallationConstants:
     WJH_APP_NAME = 'what-just-happened'
     WJH_REPOSITORY = 'harbor.mellanox.com/sonic-wjh/docker-wjh'
