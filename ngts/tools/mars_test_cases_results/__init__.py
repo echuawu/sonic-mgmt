@@ -144,21 +144,33 @@ def parse_tests_results(terminalreporter):
 def get_skip_type_reason(test_obj):
 
     skipped_flavors = {
-        "skipped_platform": "Test skipped due to Platform:",
-        "skipped_rm": "Test skipped due to Redmine:",
-        "skipped_branch": "Test skipped due to Branch:",
-        "skipped_github": "Test skipped due to GitHub:",
-        "skipped_topo": "test requires topology in Mark"
+        "skipped_rm": ["https://redmine.mellanox.com"],
+        "skipped_github": ["https://github.com"],
+        "skipped_branch": ["release"],
+        "skipped_platform": ["platform", "asic_type"],
+        "skipped_topo": ["topo_name", "topo_type", "test requires topology in Mark"]
     }
+
     _, _, skipreason = test_obj.longrepr
     logger.debug("The skip reason for {} is : {}".format(test_obj.nodeid, skipreason))
     if skipreason.startswith("Skipped: "):
         skipreason = skipreason[9:].replace("'", "")
 
-    skipped_type = test_obj.outcome
-    for skipped_flavor, skipreason_key in skipped_flavors.items():
-        if skipreason_key in skipreason:
-            skipped_type = skipped_flavor
-            break
-    logger.debug("The skip type for {} is : {}".format(test_obj.nodeid, skipped_type))
-    return skipped_type, str(skipreason)
+    skipped_flavor = get_updated_skipped_type(test_obj.outcome, skipped_flavors, skipreason)
+    logger.debug("The skip type for {} is : {}".format(test_obj.nodeid, skipped_flavor))
+    return skipped_flavor, str(skipreason)
+
+
+def get_updated_skipped_type(skipped_type, skipped_flavors, skipreason):
+    """
+    Check if it is one of the defined skip flavor based on the skipreason.
+    :param skipped_type: defined skip type
+    :param skipped_flavors: the skipped flavor dict.
+    :param skipreason: the skip reason
+    :return: skip flavor.
+    """
+    for skipped_flavor, skipreason_keys in skipped_flavors.items():
+        for skipreason_key in skipreason_keys:
+            if skipreason_key in skipreason:
+                return skipped_flavor
+    return skipped_type
