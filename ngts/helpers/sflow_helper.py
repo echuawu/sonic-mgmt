@@ -614,12 +614,13 @@ def verify_flow_sample_received(engines, interfaces, topology_obj, collector, sa
 
         logger.info("Start analyzing flow samples")
         _, flow_sample_count = analyze_sample(SflowConsts.COLLECTOR[collector]['sample_file'])
+        count = SflowConsts.SEND_PACKET_NUM // sample_rate
         logger.info("##-------------------------------##")
-        logger.info(f"There should be {SflowConsts.SEND_PACKET_NUM // sample_rate} flow samples")
+        logger.info(f"There should be at least {count}, at most {count+1} flow samples due to the sflow random sample algorithm")
         logger.info(f"{flow_sample_count} flow sample received in {SflowConsts.COLLECTOR[collector]['sample_file']}")
         logger.info("##-------------------------------##")
 
-        assert flow_sample_count == SflowConsts.SEND_PACKET_NUM // sample_rate, f"Received {flow_sample_count} flow samples which is not equal to {SflowConsts.SEND_PACKET_NUM // sample_rate}"
+        assert count <= flow_sample_count <= count + 1, f"Received {flow_sample_count} flow samples which is not in correct range!"
     else:
         logger.info("Start analyzing flow samples")
         flow_sample_count = hb_engine.run_cmd(f"grep FLOWSAMPLE {SflowConsts.COLLECTOR[collector]['sample_file']} | wc -l")

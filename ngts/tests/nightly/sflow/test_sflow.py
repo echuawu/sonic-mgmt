@@ -22,7 +22,6 @@ def basic_l3_connectivity_configuration(topology_obj, interfaces):
     """
     Pytest fixture used to configure basic layer 3 connectivity configuration
     :param topology_obj: topology object fixture
-    :param engines:  engines fixture
     :param interfaces:  interfaces fixture
     """
     ip_config_dict = {
