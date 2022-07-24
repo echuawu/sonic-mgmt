@@ -3,7 +3,9 @@ import allure
 import time
 from retry import retry
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
-from ngts.constants.constants_nvos import NvosConst
+from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.constants.constants_nvos import NvosConst, ActionConsts
+from ngts.constants.constants import InfraConst
 
 logger = logging.getLogger()
 
@@ -90,6 +92,58 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         """
         Waiting for NVOS to complete the init and become functional after the installation
         """
-        logger.info('Checking the status of nvue ')
-        if "active (running)" not in engine.run_cmd("sudo systemctl status nvue"):
+        logger.info('Checking the status of nvued ')
+        if ("active (running)" not in engine.run_cmd("sudo systemctl status nvued")) and \
+           ("active (running)" not in engine.run_cmd("sudo systemctl status nvue")):
             raise Exception("Waiting for NVUE to become functional")
+
+    @staticmethod
+    def upgrade_dut(engine, path_to_image):
+        """
+        Installing the provided image on dut
+        """
+        logging.info("Installing {}".format(path_to_image))
+
+        with allure.step("Copying image to dut"):
+            logging.info("Copy image from {src} to {dest}".format(src=path_to_image,
+                                                                  dest=NvosConst.IMAGES_PATH_ON_SWITCH))
+            if not path_to_image.startswith('http'):
+                image_path = '{}{}'.format(InfraConst.HTTP_SERVER, path_to_image)
+                engine.run_cmd('sudo curl {} -o {}'.format(image_path, NvosConst.IMAGES_PATH_ON_SWITCH), validate=True)
+
+        with allure.step("Installing image {}".format(NvosConst.IMAGES_PATH_ON_SWITCH)):
+            logging.info("Installing image '{}'".format(NvosConst.IMAGES_PATH_ON_SWITCH))
+            NvueSystemCli.action_image(engine=engine, action_str=ActionConsts.INSTALL,
+                                       action_component_str="image", op_param=NvosConst.IMAGES_PATH_ON_SWITCH)
+
+        with allure.step("Reboot dut"):
+            NvueGeneralCli.reboot(engine)
+
+        with allure.step("Verifying NVOS initialized successfully"):
+            NvueGeneralCli.verify_dockers_are_up()
+            NvueGeneralCli.wait_for_nvos_to_become_functional(engine)
+
+    @staticmethod
+    def upgrade_firmware(engine, path_to_fw_img):
+        """
+        Installing provided firmware image on dut
+        """
+        logging.info("Installing platform firmware")
+
+        with allure.step("Copying firmware image to dut"):
+            logging.info("Copy fw from {src} to {dest}".format(src=path_to_fw_img,
+                                                               dest=NvosConst.FM_PATH_ON_SWITCH))
+            if not path_to_fw_img.startswith('http'):
+                fw_image_path = '{}{}'.format(InfraConst.HTTP_SERVER, path_to_fw_img)
+                engine.run_cmd('sudo curl {} -o {}'.format(fw_image_path, NvosConst.FM_PATH_ON_SWITCH), validate=True)
+
+        with allure.step("Install system firmware file - " + NvosConst.FM_PATH_ON_SWITCH):
+            NvueSystemCli.action_firmware_install(engine=engine, action_component_str="firmware",
+                                                  op_param=NvosConst.FM_PATH_ON_SWITCH)
+
+        with allure.step("Reboot dut"):
+            NvueGeneralCli.reboot(engine)
+
+        with allure.step("Verifying NVOS initialized successfully"):
+            NvueGeneralCli.verify_dockers_are_up()
+            NvueGeneralCli.wait_for_nvos_to_become_functional(engine)

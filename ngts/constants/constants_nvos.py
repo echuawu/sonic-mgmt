@@ -59,6 +59,8 @@ class NvosConst:
     DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
+    IMAGES_PATH_ON_SWITCH = "/tmp/temp_nvos.bin"
+    FM_PATH_ON_SWITCH = "/tmp/temp_fw.bin"
 
 
 class ApiType:

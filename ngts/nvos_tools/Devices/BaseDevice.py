@@ -80,7 +80,24 @@ class BaseDevice:
             if NvosConst.SERVICE_STATUS_ACTIVE not in cmd_output:
                 result_obj.result = False
                 result_obj.info += "{service} service is not active \n".format(service=NvosConst.SERVICE_STATUS_ACTIVE)
+
+        temp_res = self.verify_nvue_service(dut_engine)
+        if not temp_res.result:
+            result_obj.result = False
+            result_obj.info += temp_res.info
+
         return result_obj
+
+    def verify_nvue_service(self, dut_engine):
+        logging.info("Verify nvue/nvues service is active")
+
+        nvue_cmd_output = dut_engine.run_cmd("sudo systemctl status nvued")
+        nvued_cmd_output = dut_engine.run_cmd("sudo systemctl status nvue")
+
+        if (NvosConst.SERVICE_STATUS_ACTIVE not in nvue_cmd_output) and \
+           (NvosConst.SERVICE_STATUS_ACTIVE not in nvued_cmd_output):
+            return ResultObj(False, "nvue/nvues service is not active")
+        return ResultObj(True)
 
     def get_database_id(self, db_name):
         return self.available_databases[db_name]
@@ -205,7 +222,7 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_services(self):
         BaseDevice._init_services(self)
         self.available_services.extend((
-            'nvue.service', 'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
+            'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
             'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
             'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
             'syncd-ibv0.service', 'pmon.service'))
