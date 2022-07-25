@@ -135,7 +135,7 @@ class AutoTechSupportCliDefault:
 class AutoTechSupportCli202111(AutoTechSupportCliDefault):
 
     def __int__(self, *args, **kwargs):
-        super(AutoTechSupportCli202111, self).__init__(*args, **kwargs)
+        pass
 
     def parse_show_auto_techsupport_global(self):
         """
@@ -218,4 +218,4 @@ class AutoTechSupportCli202111(AutoTechSupportCliDefault):
 
 class AutoTechSupportCli202205(AutoTechSupportCli202111):
     def __int__(self, *args, **kwargs):
-        super(AutoTechSupportCli202205, self).__init__(*args, **kwargs)
+        pass

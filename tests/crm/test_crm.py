@@ -910,6 +910,11 @@ def test_acl_counter(duthosts, enum_rand_one_per_hwsku_frontend_hostname,enum_fr
                   "\"crm_stats_acl_counter_used\" counter was not decremented or "
                   "\"crm_stats_acl_counter_available\" counter was not incremented")
 
+    # Verify "crm_stats_acl_counter_available" counter was equal to original value
+    _, new_crm_stats_acl_counter_available = get_crm_stats(get_acl_counter_stats, duthost)
+    pytest_assert(original_crm_stats_acl_counter_available - new_crm_stats_acl_counter_available == 0,
+                  "\"crm_stats_acl_counter_available\" counter is not equal to original value")
+
 
 @pytest.mark.usefixtures('disable_fdb_aging')
 def test_crm_fdb_entry(duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index, tbinfo):

@@ -20,6 +20,7 @@ import logging
 import ast
 import subprocess
 
+
 class SflowTest(BaseTest):
     def __init__(self):
         BaseTest.__init__(self)
