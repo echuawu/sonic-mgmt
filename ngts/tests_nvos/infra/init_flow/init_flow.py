@@ -40,6 +40,7 @@ def test_system_services(engines, devices):
         assert res_obj.result, res_obj.info
 
 
+'''
 @pytest.mark.init_flow
 def test_existence_of_tables_in_databases(engines, devices):
     """
@@ -49,6 +50,7 @@ def test_existence_of_tables_in_databases(engines, devices):
     with allure.step("Validate no missing database default tables"):
         res_obj = devices.dut.verify_databases(engines.dut)
         assert res_obj.result, res_obj.info
+'''
 
 
 @pytest.mark.init_flow

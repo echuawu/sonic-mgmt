@@ -59,7 +59,7 @@ class BaseDevice:
             table_info = self.available_tables[db_id]
             for table_name, expected_entries in table_info.items():
                 output = self.get_all_table_names_in_database(dut_engine, db_name, table_name).returned_value
-                if len(output) != expected_entries:
+                if len(output) < expected_entries:
                     result_obj.result = False
                     result_obj.info += "DB: {db_name}, Table: {table_name}. Table count mismatch, Expected: {expected} != Actual {actual}\n" \
                         .format(db_name=db_name, table_name=table_name, expected=str(expected_entries),
@@ -186,7 +186,7 @@ class BaseSwitch(BaseDevice, ABC):
         self.available_databases.update(
             {DatabaseConst.APPL_DB_NAME: DatabaseConst.APPL_DB_ID,
              DatabaseConst.ASIC_DB_NAME: DatabaseConst.ASIC_DB_ID,
-             DatabaseConst.COUNTERS_DB_NAME: DatabaseConst.COUNTERS_DB_ID,
+             # DatabaseConst.COUNTERS_DB_NAME: DatabaseConst.COUNTERS_DB_ID, - disabled for now
              DatabaseConst.CONFIG_DB_NAME: DatabaseConst.CONFIG_DB_ID,
              DatabaseConst.STATE_DB_NAME: DatabaseConst.STATE_DB_ID
              })
@@ -211,7 +211,7 @@ class BaseSwitch(BaseDevice, ABC):
                 DatabaseConst.CONFIG_DB_ID:
                     {"IB_PORT": self.ib_ports_num(),
                      "BREAKOUT_CFG": self.ib_ports_num(),
-                     "FEATURE": 12,
+                     "FEATURE": 11,
                      "CONFIG_DB_INITIALIZED": 1,
                      "DEVICE_METADATA": 1,
                      "XCVRD_LOG": 1,
