@@ -125,7 +125,6 @@ class TestFdbBasic:
         with allure.step("Verify the packet will be broadcast from the corresponding port"):
             interface_data = gen_test_interface_data(self.cli_objects, self.interfaces, self.vlan_id)
             interface_data["dst_mac"] = DUMMY_MACS[1]
-            interface_data["receiver_interface"] = self.interfaces.hb_dut_2
             receive_packet_counts = [1, 1]
             traffic_validation(self.players, self.interfaces, interface_data, self.src_mac, "icmp", receive_packet_counts)
 
