@@ -271,9 +271,9 @@ platform_tests/test_cpu_memory_usage.py:
 
 show_techsupport/test_auto_techsupport.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3075438 and platform nvda_bf"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3147554 and platform nvda_bf"
     conditions:
-      - "https://redmine.mellanox.com/issues/3075438 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3147554 and 'nvda_bf' in platform"
 
 process_monitoring/test_critical_process_monitoring.py:
   skip:
