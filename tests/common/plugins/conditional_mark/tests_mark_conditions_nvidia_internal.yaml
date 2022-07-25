@@ -19,7 +19,7 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
 
 tests/nightly/dynamic_port_breakout:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2885961 and 'simx' in platform"
@@ -165,7 +165,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions_logical_operator: or
     conditions:
       - "'3800' in platform or 'simx' in platform"
@@ -186,7 +186,7 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
 
 tests/nightly/rj45/test_rj45.py:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions_logical_operator: or
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia_sn4' in platform or 'x86_64-nvidia_sn5' in platform"
@@ -301,9 +301,9 @@ platform_tests/test_auto_negotiation.py:
 
 platform_tests/api/test_sfp.py::TestSfpApi::test_reset:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3065705 and branch 202205/master and platform msn2410/msn3240/msn2010"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3065705 and branch 202205/master and platform msn2410/msn3420/msn2010"
     conditions:
-      - "https://redmine.mellanox.com/issues/3065705 and ('202205' in release or 'master' in release) and ('msn2410' in platform or 'msn3240' in platform or 'msn2010' in platform)"
+      - "https://redmine.mellanox.com/issues/3065705 and ('202205' in release or 'master' in release) and ('msn2410' in platform or 'msn3420' in platform or 'msn2010' in platform)"
 
 pfc_asym/test_pfc_asym.py:
   skip:
@@ -319,7 +319,7 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
 
 ecmp/test_fgnhg.py:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2577145 and 'msn2' in platform"
@@ -373,7 +373,7 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2382365 and '2100' in platform"
@@ -387,7 +387,7 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2382365 and '2100' in platform"
@@ -407,7 +407,7 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_install_bad_path:
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   skip:
-    reason: "Testcase ignored - check ignore condition in ngts/tools/conditional_mark/test_mark_conditions_ngts.yaml"
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
     conditions:
       - "https://redmine.mellanox.com/issues/3108303 and 'msn4' in platform and ('202111' in release or 'master' in release)"
 
