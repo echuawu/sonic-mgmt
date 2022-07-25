@@ -191,12 +191,11 @@
       - simx
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c.*'
     - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file.*'
-    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\].*dump .*failed.*'
+    - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\].*dump .*failed.*'
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
+      - tests/push_build_tests/general/qos/test_qos_reload.py
       Redmine:
         - 3075643
       Platform:
@@ -639,6 +638,8 @@
     - '.* ERR swss#orchagent: :- handleSaiRemoveStatus: Encountered failure in remove operation, exiting orchagent.*'
     - '.*ERR sflow#port_index_mapper: .* returned a result with an error set.*'
     - '.*ERR hostcfgd: sudo systemctl enable what-just-happened.timer - failed: return code - 1, output:.*'
+    - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR] mlnx_sai_buffer.c\[\d+\]- .* Failed to find.*'
+    - '.* ERR syncd#SDK: :- exit_with_sai_failure: saisdkdump exited with SAI rc:.* Failed to create a switch .'
   Conditions:
     - Redmine:
         - 3141585
