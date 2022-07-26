@@ -640,6 +640,7 @@
     - '.*ERR hostcfgd: sudo systemctl enable what-just-happened.timer - failed: return code - 1, output:.*'
     - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR] mlnx_sai_buffer.c\[\d+\]- .* Failed to find.*'
     - '.* ERR syncd#SDK: :- exit_with_sai_failure: saisdkdump exited with SAI rc:.* Failed to create a switch .'
+    - '.*ERR sflow#hsflowd: device .* Get SIOCGIFFLAGS failed : No such device'
   Conditions:
     - Redmine:
         - 3141585
