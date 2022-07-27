@@ -641,6 +641,8 @@
     - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR] mlnx_sai_buffer.c\[\d+\]- .* Failed to find.*'
     - '.* ERR syncd#SDK: :- exit_with_sai_failure: saisdkdump exited with SAI rc:.* Failed to create a switch .'
     - '.*ERR sflow#hsflowd: device .* Get SIOCGIFFLAGS failed : No such device'
+    - '.*ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c\[\d+\]- .* - Connection timed out'
   Conditions:
     - Redmine:
         - 3141585
