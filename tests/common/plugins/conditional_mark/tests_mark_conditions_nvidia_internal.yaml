@@ -1,4 +1,16 @@
 ########################## NGTS IGNORE START ##########################
+tests/nightly/routing/test_routing.py::TestRouting::test_routing:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3151817 and ASIC is DPU"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3151817 and 'nvidia-bluefield' in asic_type"
+
+tests/nightly/routing/test_routing.py::TestRouting::test_reboot:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3151817 and ASIC is DPU"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3151817 and 'nvidia-bluefield' in asic_type"
+
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"
