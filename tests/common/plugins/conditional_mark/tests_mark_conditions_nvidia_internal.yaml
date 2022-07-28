@@ -75,19 +75,7 @@ tests/push_build_tests/L3/sflow/test_sflow.py:
     conditions:
       - "https://redmine.mellanox.com/issues/2271111 and 'simx' in platform"
 
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_nexthop[ipv4]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3030870 on SIMX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3030870 and 'simx' in platform"
-
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_nexthop[ipv6]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3030870 on SIMX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3030870 and 'simx' in platform"
-
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_thresholds_acl:
+tests/push_build_tests/L3/crm/test_crm.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3030870 on SIMX platform"
     conditions:
