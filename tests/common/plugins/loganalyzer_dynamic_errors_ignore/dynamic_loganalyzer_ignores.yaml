@@ -643,6 +643,8 @@
     - '.*ERR sflow#hsflowd: device .* Get SIOCGIFFLAGS failed : No such device'
     - '.*ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data'
     - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c\[\d+\]- .* - Connection timed out'
+    - '.*ERR syncd#SDK: \[SX_API_INIT.ERR\] Could not open SX-API client communication channel.'
+    - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: .* Communication Error.'
   Conditions:
     - Redmine:
         - 3141585
