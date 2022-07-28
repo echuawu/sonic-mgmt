@@ -188,7 +188,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.port_reload_reboot_checks(ports_list)
 
     def port_reload_reboot_checks(self, ports_list):
-        self.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
+        self.verify_dockers_are_up()
         self.cli_obj.interface.check_link_state(ports_list)
 
     def validate_dockers_are_up_reboot_if_fail(self, retries=2):
