@@ -31,3 +31,13 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_reboot(engine, resource_path, option="", op_param=""):
+        """
+        Rebooting the switch
+        """
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action reboot {path} {option} {op_param}".format(path=path, option=option, op_param=op_param)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.reload(cmd)

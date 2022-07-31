@@ -5,6 +5,7 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Images import Images
 from ngts.nvos_tools.system.Firmware import Firmware
+from ngts.nvos_tools.system.Reboot import Reboot
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -74,15 +75,3 @@ class Version(BaseComponent):
 
     def get_expected_fields(self, device):
         return device.constants.system['version']
-
-
-class Reboot(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/reboot'
-        self.parent_obj = parent_obj
-
-    def get_expected_fields(self, device):
-        return device.constants.system['reboot']

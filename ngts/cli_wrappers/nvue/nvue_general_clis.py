@@ -79,14 +79,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def reboot(engine):
-        """
-        Rebooting the switch
-        """
-        logger.info('Reboot Switch')
-        return engine.run_cmd('sudo reboot')
-
-    @staticmethod
     @retry(Exception, tries=20, delay=10)
     def wait_for_nvos_to_become_functional(engine):
         """

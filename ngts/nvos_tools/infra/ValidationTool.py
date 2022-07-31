@@ -161,3 +161,20 @@ class ValidationTool:
                     return ResultObj(False, "'{}' are not equal for both dictionaries".format(key))
             return ResultObj(True, "The dictionaries are equal")
         return ResultObj(False, "The dictionaries are not equal")
+
+    @staticmethod
+    def verify_substring_in_output(output, subsrting, err_message_in_case_of_failure, should_be_found=False):
+        """
+        :param output: string command output
+        :param subsrting:
+        :param err_message_in_case_of_failure: the error message
+        :param should_be_found: True if you want to check substring not in output,
+                       False if you want to check substring in output
+        :return:
+        """
+        if should_be_found:
+            with allure.step('check if command output contains {substring}'.format(subsrting=subsrting)):
+                assert subsrting in output, err_message_in_case_of_failure
+        else:
+            with allure.step('check if command output does not contain {substring}'.format(subsrting=subsrting)):
+                assert subsrting not in output, err_message_in_case_of_failure
