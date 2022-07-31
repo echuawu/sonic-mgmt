@@ -16,8 +16,8 @@
   </global>
 
   <case>
-    <info> System Tech-Support </info>
-    <name> </name>
+    <name> System Tech-Support </name>
+    <info> </info>
     <tout> 1200 </tout>
     <cmd>
       <params>

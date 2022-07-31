@@ -25,4 +25,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/security/nvos_system_security.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/security/nvos_system_security_nvue.cases </cases>
+	</test>
 </DBDEF>

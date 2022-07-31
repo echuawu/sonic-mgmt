@@ -28,7 +28,10 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_image.cases </cases>
 	</test>
-		<test>
+	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_techsupport.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_reboot.cases </cases>
 	</test>
 </DBDEF>
