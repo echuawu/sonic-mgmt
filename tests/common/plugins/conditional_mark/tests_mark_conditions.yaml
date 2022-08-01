@@ -231,6 +231,12 @@ pfc_asym/test_pfc_asym.py:
     conditions:
       - "asic_type not in ['mellanox', 'barefoot']"
 
+pfc_asym/test_pfc_asym.py::test_pfc_asym_off_rx_pause_frames:
+   skip:
+     reason: "skipped for Barefoot platform"
+     conditions:
+        - "asic_type in ['barefoot']"
+
 #######################################
 #####         pfcwd               #####
 #######################################
@@ -259,15 +265,6 @@ platform_tests/test_auto_negotiation.py:
   skip:
     reason: "auto negotiation test highly depends on test enviroments, file issue to track and skip for now"
     conditions: https://github.com/Azure/sonic-mgmt/issues/5447
-
-#######################################
-#####             pc              #####
-#######################################
-pc/test_lag_2.py::test_lag_db_status_with_po_update:
-  skip:
-    reason: "Only support t1-lag topology"
-    conditions:
-        - "topo_name not in ['t1-lag']"
 
 #######################################
 #####           qos               #####
