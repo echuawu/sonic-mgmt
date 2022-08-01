@@ -25,8 +25,10 @@ def create_pytest_environment():
     os.environ['TEST_ENV'] = "test"
 
     print("Apply configuration")
-    run_command("touch env/lib/python3.7/site-packages/ruamel/__init__.py")
-    run_command("sed -i 's/) as f/, encoding=\"utf8\") as f/g' env/lib/python3.7/site-packages/yamllint/cli.py")
+    if os.path.isdir('env/lib/python3.7/site-packages/ruamel'):
+        run_command("touch env/lib/python3.7/site-packages/ruamel/__init__.py")
+    if os.path.isdir('env/lib/python3.7/site-packages/yamllint'):
+        run_command("sed -i 's/) as f/, encoding=\"utf8\") as f/g' env/lib/python3.7/site-packages/yamllint/cli.py")
 
 
 def run_nvue_unittests():

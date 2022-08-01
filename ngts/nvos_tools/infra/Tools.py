@@ -5,6 +5,7 @@ from .OutputParsingTool import OutputParsingTool
 from .TrafficGeneratorTool import TrafficGeneratorTool
 from .ValidationTool import ValidationTool
 from .IpTool import IpTool
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 
 class Tools:
@@ -15,3 +16,4 @@ class Tools:
     TrafficGeneratorTool = TrafficGeneratorTool()
     ValidationTool = ValidationTool()
     IpTool = IpTool()
+    OpenSmTool = OpenSmTool()

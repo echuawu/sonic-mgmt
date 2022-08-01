@@ -10,7 +10,7 @@ class NvueBaseCli:
     @staticmethod
     def show(engine, resource_path, op_param="", output_format=OutputFormat.json):
         path = resource_path.replace('/', ' ')
-        cmd = "nv show --output {output_format} {path} {params}".\
+        cmd = "nv show {path} {params} --output {output_format}".\
             format(output_format=output_format, path=path, params=op_param)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
