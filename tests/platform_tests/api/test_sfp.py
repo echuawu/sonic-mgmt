@@ -94,6 +94,18 @@ class TestSfpApi(PlatformApiTestBase):
         'nominal_bit_rate',
     ]
 
+    # some new keys added for QSFP-DD in 202205 or later branch
+    EXPECTED_XCVR_NEW_QSFP_DD_INFO_KEYS = ['active_firmware',
+                                           'host_lane_count',
+                                           'media_lane_count',
+                                           'cmis_rev',
+                                           'host_lane_assignment_option',
+                                           'inactive_firmware',
+                                           'media_interface_technology',
+                                           'media_interface_code',
+                                           'host_electrical_interface',
+                                           'media_lane_assignment_option']
+
     # These are fields which have been added in the common parsers
     # in sonic-platform-common/sonic_sfp, but since some vendors are
     # using their own custom parsers, they do not yet provide these
@@ -260,7 +272,12 @@ class TestSfpApi(PlatformApiTestBase):
                         EXPECTED_XCVR_INFO_KEYS = [key if key != 'vendor_rev' else 'hardware_rev' for key in
                             self.EXPECTED_XCVR_INFO_KEYS]
                         self.EXPECTED_XCVR_INFO_KEYS = EXPECTED_XCVR_INFO_KEYS
-
+                    else:
+                        if info_dict["type_abbrv_name"] == "QSFP-DD":
+                            self.EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS + \
+                                                           self.EXPECTED_XCVR_NEW_QSFP_DD_INFO_KEYS
+                            self.EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS + [
+                                "active_apsel_hostlane{}".format(i) for i in range(1, info_dict['host_lane_count'] + 1)]
                     missing_keys = set(self.EXPECTED_XCVR_INFO_KEYS) - set(actual_keys)
                     for key in missing_keys:
                         self.expect(False, "Transceiver {} info does not contain field: '{}'".format(i, key))
