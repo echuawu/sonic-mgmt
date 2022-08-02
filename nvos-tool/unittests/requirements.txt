@@ -19,3 +19,8 @@ pytest-timeout==1.3.4
 pytest-profiling==1.7.0
 yamllint==1.22.1
 py==1.8.1
+mock
+ujson
+aiohttp
+aiohttp_jinja2
+
