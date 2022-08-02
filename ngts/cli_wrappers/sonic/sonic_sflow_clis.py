@@ -14,28 +14,28 @@ class SonicSflowCli:
         This method is used to enable sflow feature
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config feature state {SflowConsts.SFLOW_FEATURE_NAME} enabled', validate=True)
+        return self.engine.run_cmd(f'sudo config feature state {SflowConsts.SFLOW_FEATURE_NAME} enabled')
 
     def disable_sflow_feature(self):
         """
         This method is used to disable sflow feature
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config feature state sflow disabled', validate=True)
+        return self.engine.run_cmd(f'sudo config feature state sflow disabled')
 
     def enable_sflow(self):
         """
         This method is used to enable sflow
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow enable', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow enable')
 
     def disable_sflow(self):
         """
         This method is used to disable sflow
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow disable', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow disable')
 
     def add_collector(self, collector, ip, port=SflowConsts.DEFAULT_UDP, vrf=SflowConsts.VRF_DEFAULT, validate=True):
         """
@@ -54,7 +54,7 @@ class SonicSflowCli:
         :param collector: collector name
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow collector del {collector}', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow collector del {collector}')
 
     def add_agent_id(self, interface_name):
         """
@@ -62,14 +62,14 @@ class SonicSflowCli:
         :param interface_name: interface name
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow agent-id add {interface_name}', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow agent-id add {interface_name}')
 
     def del_agent_id(self):
         """
         This method is used to delete agent id
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow agent-id del', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow agent-id del')
 
     def enable_sflow_interface(self, interface_name):
         """
@@ -77,14 +77,14 @@ class SonicSflowCli:
         :param interface_name: interface name
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow interface enable {interface_name}', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow interface enable {interface_name}')
 
     def enable_all_sflow_interface(self):
         """
         This method is used to enable all sflow interface
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow interface enable all', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow interface enable all')
 
     def disable_sflow_interface(self, interface_name):
         """
@@ -92,14 +92,14 @@ class SonicSflowCli:
         :param interface_name: interface name
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow interface disable {interface_name}', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow interface disable {interface_name}')
 
     def disable_all_sflow_interface(self):
         """
         This method is used to disable all sflow interface
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow interface disable all', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow interface disable all')
 
     def config_sflow_interface_sample_rate(self, interface_name, sample_rate):
         """
@@ -108,7 +108,7 @@ class SonicSflowCli:
         :param sample_rate: sample rate, range from 256 to 8388608
         :return: the output of cli method
         """
-        return self.engine.run_cmd(f'sudo config sflow interface sample-rate {interface_name} {sample_rate}', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow interface sample-rate {interface_name} {sample_rate}')
 
     def config_sflow_polling_interval(self, polling_interval):
         """
@@ -116,18 +116,18 @@ class SonicSflowCli:
         :param polling_interval: counter polling interval, validate range is 0 or 5 to 300 seconds
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config sflow polling-interval {polling_interval}', validate=True)
+        return self.engine.run_cmd(f'sudo config sflow polling-interval {polling_interval}')
 
     def show_sflow(self):
         """
         This method is used to show sflow configuration
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'show sflow', validate=True)
+        return self.engine.run_cmd(f'show sflow')
 
     def show_sflow_interface(self):
         """
         This method is used to show sflow interface configuration
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'show sflow interface', validate=True)
+        return self.engine.run_cmd(f'show sflow interface')

@@ -340,7 +340,7 @@ def acl_table_config_list(engines, interfaces):
     yield acl_table_config_list
 
 
-@pytest.fixture(scope='package', autouse=True)
+@pytest.fixture(scope='package')
 def basic_sflow_configuration_for_function(engines, cli_objects, interfaces):
     """
     Pytest fixture used to configure basic sflow configuration for test function

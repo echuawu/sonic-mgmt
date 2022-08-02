@@ -14,7 +14,7 @@ SAMPLE_RATE_LIST = [SflowConsts.SAMPLE_RATE_2, SflowConsts.SAMPLE_RATE_3]
 COLLECTOR_WARNING_CONTENT = "Only 2 collectors can be configured, please delete one"
 
 
-def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac):
+def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac, basic_sflow_configuration_for_function):
     """
     Test sflow funcrionality under reboot/fast reboot/warm reboot/config reload
     In order to make the execution time limited, use randomly reboot function
@@ -27,6 +27,7 @@ def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha
     """
     try:
         cli_obj = cli_objects.dut
+        basic_sflow_configuration_for_function
 
         with allure.step(f"Configure sflow polling interval to {SflowConsts.POLLING_INTERVAL_1}"):
             cli_obj.sflow.config_sflow_polling_interval(SflowConsts.POLLING_INTERVAL_1)
