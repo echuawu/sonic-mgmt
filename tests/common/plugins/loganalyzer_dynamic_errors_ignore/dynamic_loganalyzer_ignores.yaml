@@ -645,18 +645,51 @@
     - '.* ERR swss#orchagent: :- remove: remove status: SAI_STATUS_FAILURE.*'
     - '.* ERR swss#orchagent: :- removeLagMember: Failed to remove member.* from .*'
     - '.* ERR swss#orchagent: :- handleSaiRemoveStatus: Encountered failure in remove operation, exiting orchagent.*'
-    - '.*ERR sflow#port_index_mapper: .* returned a result with an error set.*'
+  Conditions:
+    - Redmine:
+        - 3141585
+      Platform:
+        - simx
+
+- Errors_list:
     - '.*ERR hostcfgd: sudo systemctl enable what-just-happened.timer - failed: return code - 1, output:.*'
+  Conditions:
+    - Redmine:
+        - 3160488
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR] mlnx_sai_buffer.c\[\d+\]- .* Failed to find.*'
     - '.* ERR syncd#SDK: :- exit_with_sai_failure: saisdkdump exited with SAI rc:.* Failed to create a switch .'
+  Conditions:
+    - Redmine:
+        - 3160523
+      Platform:
+        - simx
+
+- Errors_list:
     - '.*ERR sflow#hsflowd: device .* Get SIOCGIFFLAGS failed : No such device'
+  Conditions:
+    - Redmine:
+        - 3160535
+      Platform:
+        - simx
+
+- Errors_list:
     - '.*ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data'
-    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c\[\d+\]- .* - Connection timed out'
+  Conditions:
+    - Redmine:
+        - 3160544
+      Platform:
+        - simx
+
+- Errors_list:
     - '.*ERR syncd#SDK: \[SX_API_INIT.ERR\] Could not open SX-API client communication channel.'
     - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: .* Communication Error.'
   Conditions:
     - Redmine:
-        - 3141585
+        - 3160591
       Platform:
         - simx
 
