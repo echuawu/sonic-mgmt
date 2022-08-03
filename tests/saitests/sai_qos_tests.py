@@ -725,6 +725,11 @@ class PFCtest(sai_base_test.ThriftInterfaceDataPlane):
             packet_length = int(self.test_params['packet_size'])
         else:
             packet_length = 64
+        if 'cell_size' in self.test_params:
+            cell_size = self.test_params['cell_size']
+        else:
+            cell_size = 64
+        cell_occupancy = (packet_length + cell_size - 1) / cell_size
         pkt = construct_ip_pkt(packet_length,
                                pkt_dst_mac,
                                src_port_mac,
@@ -773,14 +778,14 @@ class PFCtest(sai_base_test.ThriftInterfaceDataPlane):
             # send packets short of triggering pfc
             if hwsku == 'DellEMC-Z9332f-M-O16C64' or hwsku == 'DellEMC-Z9332f-O32':
                 # send packets short of triggering pfc
-                send_packet(self, src_port_id, pkt, pkts_num_egr_mem + pkts_num_leak_out + pkts_num_trig_pfc - 1 - margin)
+                send_packet(self, src_port_id, pkt, (pkts_num_egr_mem + pkts_num_leak_out + pkts_num_trig_pfc) / cell_occupancy - 1 - margin)
             elif 'cisco-8000' in asic_type:
                 assert(fill_leakout_plus_one(self, src_port_id, dst_port_id, pkt, int(self.test_params['pg']), asic_type))
                 # Send 1 less packet due to leakout filling
-                send_packet(self, src_port_id, pkt, pkts_num_leak_out + pkts_num_trig_pfc - 2 - margin)
+                send_packet(self, src_port_id, pkt, (pkts_num_leak_out + pkts_num_trig_pfc) / cell_occupancy - 2 - margin)
             else:
                 # send packets short of triggering pfc
-                send_packet(self, src_port_id, pkt, pkts_num_leak_out + pkts_num_trig_pfc - 1 - margin)
+                send_packet(self, src_port_id, pkt, (pkts_num_leak_out + pkts_num_trig_pfc) / cell_occupancy - 1 - margin)
 
             # allow enough time for the dut to sync up the counter values in counters_db
             time.sleep(8)
@@ -822,7 +827,7 @@ class PFCtest(sai_base_test.ThriftInterfaceDataPlane):
                 assert(xmit_counters[cntr] == xmit_counters_base[cntr])
 
             # send packets short of ingress drop
-            send_packet(self, src_port_id, pkt, pkts_num_trig_ingr_drp - pkts_num_trig_pfc - 1 - 2 * margin)
+            send_packet(self, src_port_id, pkt, (pkts_num_trig_ingr_drp - pkts_num_trig_pfc) / cell_occupancy - 1 - 2 * margin)
             # allow enough time for the dut to sync up the counter values in counters_db
             time.sleep(8)
             # get a snapshot of counter values at recv and transmit ports
@@ -1113,6 +1118,11 @@ class PFCXonTest(sai_base_test.ThriftInterfaceDataPlane):
             packet_length = self.test_params['packet_size']
         else:
             packet_length = 64
+        if 'cell_size' in self.test_params:
+            cell_size = self.test_params['cell_size']
+        else:
+            cell_size = 64
+        cell_occupancy = (packet_length + cell_size - 1) / cell_size
 
         pkt = construct_ip_pkt(packet_length,
                                pkt_dst_mac,
@@ -1178,18 +1188,18 @@ class PFCXonTest(sai_base_test.ThriftInterfaceDataPlane):
             if hwsku == 'DellEMC-Z9332f-M-O16C64' or hwsku == 'DellEMC-Z9332f-O32':
                 send_packet(
                     self, src_port_id, pkt, 
-                    pkts_num_egr_mem + pkts_num_leak_out + pkts_num_trig_pfc - pkts_num_dismiss_pfc - hysteresis
+                    (pkts_num_egr_mem + pkts_num_leak_out + pkts_num_trig_pfc - pkts_num_dismiss_pfc - hysteresis) / cell_occupancy
                 )
             elif 'cisco-8000' in asic_type:
                 assert(fill_leakout_plus_one(self, src_port_id, dst_port_id, pkt, int(self.test_params['pg']), asic_type))
                 send_packet(
                     self, src_port_id, pkt,
-                    pkts_num_leak_out + pkts_num_trig_pfc - pkts_num_dismiss_pfc - hysteresis - 1
+                    (pkts_num_leak_out + pkts_num_trig_pfc - pkts_num_dismiss_pfc - hysteresis) / cell_occupancy - 1
                 )
             else:
                 send_packet(
                     self, src_port_id, pkt, 
-                    pkts_num_leak_out + pkts_num_trig_pfc - pkts_num_dismiss_pfc - hysteresis
+                    (pkts_num_leak_out + pkts_num_trig_pfc - pkts_num_dismiss_pfc - hysteresis) / cell_occupancy
                 )
 
             if hwsku == 'Arista-7050CX3-32S-D48C8' or hwsku == 'Arista-7050CX3-32S-C32' or hwsku == 'DellEMC-Z9332f-M-O16C64' or hwsku == 'DellEMC-Z9332f-O32':
@@ -1204,18 +1214,18 @@ class PFCXonTest(sai_base_test.ThriftInterfaceDataPlane):
             if hwsku == 'DellEMC-Z9332f-M-O16C64' or hwsku == 'DellEMC-Z9332f-O32':
                 send_packet(
                     self, src_port_id, pkt2, 
-                    pkts_num_egr_mem + pkts_num_leak_out + margin + pkts_num_dismiss_pfc - 1 + hysteresis
+                    (pkts_num_egr_mem + pkts_num_leak_out + pkts_num_dismiss_pfc + hysteresis) / cell_occupancy + margin - 1
                 )
             elif 'cisco-8000' in asic_type:
                 assert(fill_leakout_plus_one(self, src_port_id, dst_port_2_id, pkt2, int(self.test_params['pg']), asic_type))
                 send_packet(
                     self, src_port_id, pkt2,
-                    pkts_num_leak_out + margin + pkts_num_dismiss_pfc - 2 + hysteresis
+                    (pkts_num_leak_out + pkts_num_dismiss_pfc + hysteresis) / cell_occupancy + margin - 2
                 )
             else:
                 send_packet(
-                    self, src_port_id, pkt2, 
-                    pkts_num_leak_out + margin + pkts_num_dismiss_pfc - 1 + hysteresis
+                    self, src_port_id, pkt2,
+                     (pkts_num_leak_out + pkts_num_dismiss_pfc  + hysteresis) / cell_occupancy + margin - 1
                 )
 
             if hwsku == 'Arista-7050CX3-32S-D48C8' or hwsku == 'Arista-7050CX3-32S-C32' or hwsku == 'DellEMC-Z9332f-M-O16C64' or hwsku == 'DellEMC-Z9332f-O32':

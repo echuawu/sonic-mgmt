@@ -142,6 +142,9 @@ class TestQosSai(QosSaiBase):
         if "packet_size" in qosConfig[xoffProfile].keys():
             testParams["packet_size"] = qosConfig[xoffProfile]["packet_size"]
 
+        if 'cell_size' in qosConfig[xoffProfile].keys():
+            testParams["cell_size"] = qosConfig[xoffProfile]["cell_size"]
+
         self.runPtfTest(
             ptfhost, testCase="sai_qos_tests.PFCtest", testParams=testParams
         )
@@ -384,6 +387,9 @@ class TestQosSai(QosSaiBase):
 
         if "packet_size" in qosConfig[xonProfile].keys():
             testParams["packet_size"] = qosConfig[xonProfile]["packet_size"]
+
+        if 'cell_size' in qosConfig[xonProfile].keys():
+            testParams["cell_size"] = qosConfig[xonProfile]["cell_size"]
 
         self.runPtfTest(
             ptfhost, testCase="sai_qos_tests.PFCXonTest", testParams=testParams
