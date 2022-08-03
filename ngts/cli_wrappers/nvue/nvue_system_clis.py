@@ -41,3 +41,56 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reboot {path} {option} {op_param}".format(path=path, option=option, op_param=op_param)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.reload(cmd)
+
+    @staticmethod
+    def show_log(engine, log_type='', param='', exit_cmd=''):
+        cmd = "nv show system {type}log {param}".format(type=log_type, param=param)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd_set([cmd, exit_cmd])
+
+    @staticmethod
+    def action_rotate_logs(engine):
+        permission_cmd = "sudo chmod 777 /var/log/syslog"
+        rotate_log_cmd = 'sudo cp /dev/null /var/log/syslog'
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=rotate_log_cmd))
+        return engine.run_cmd_set([permission_cmd, rotate_log_cmd])
+
+    @staticmethod
+    def action_rotate_debug_logs(engine):
+        permission_cmd = "sudo chmod 777 /var/log/debug"
+        rotate_log_cmd = 'sudo cp /dev/null /var/log/debug'
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=rotate_log_cmd))
+        return engine.run_cmd_set([permission_cmd, rotate_log_cmd])
+
+    @staticmethod
+    def action_write_to_debug_logs(engine):
+        permission_cmd = "sudo chmod 777 /var/log/debug"
+        write_content_cmd = "sudo sh -c 'echo debug_log >> /var/log/debug'"
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=write_content_cmd))
+        return engine.run_cmd_set([permission_cmd, write_content_cmd])
+
+    @staticmethod
+    def action_set_system_log_component(engine, component, log_level=""):
+        cmd = "nv set system log component {component} level {level}".format(component=component, level=log_level)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_unset_system_log_component(engine, component):
+        cmd = "nv unset system log component {component} level ".format(component=component)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_upload(engine, log_file_type="", logging_file="", path=""):
+        cmd = "nv action upload system {type}log files {log_file} {path}".format(type=log_file_type,
+                                                                                 log_file=logging_file,
+                                                                                 path=path)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_delete(engine, log_file_type="", logging_file=""):
+        cmd = "nv action delete system {type}log files {log_file}".format(type=log_file_type, log_file=logging_file)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)

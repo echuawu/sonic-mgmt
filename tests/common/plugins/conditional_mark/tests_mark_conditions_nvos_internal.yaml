@@ -29,4 +29,23 @@ tests_nvos/interfaces/test_ib_interface_state.py::test_ib_interface_state_unset:
     conditions:
       - https://redmine.mellanox.com/issues/3139786
 
+tests_nvos/system/test_log_commands.py::test_log_files_rotation_default_fields:
+  skip:
+    reason: "Not implemented command"
+
+tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation:
+  skip:
+    reason: "Not implemented command"
+
+tests_nvos/system/test_log_commands.py::test_log_files_rotation_force:
+  skip:
+    reason: "Not implemented command"
+
+tests_nvos/system/test_log_commands.py::test_upload_log_files:
+  skip:
+    reason: "Not implemented command"
+
+tests_nvos/system/test_log_commands.py::test_delete_log_files:
+  skip:
+    reason: "Not implemented command"
 ########################## NVOS IGNORE END ##########################

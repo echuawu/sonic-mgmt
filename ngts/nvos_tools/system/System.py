@@ -6,6 +6,10 @@ from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Images import Images
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
+from ngts.nvos_tools.system.Log import Log
+from ngts.nvos_tools.system.Debug_log import DebugLog
+from ngts.nvos_tools.system.Component import Component
+from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -16,8 +20,16 @@ class System(BaseComponent):
     security = None
     images = None
     firmware = None
+    log = None
+    debug_log = None
+    component = None
+    files = None
 
     def __init__(self, parent_obj=None):
+        self.log = Log(self)
+        self.debug_log = DebugLog(self)
+        self.component = Component(self)
+        self.files = Files(self)
         self.security = Security(self)
         self.techsupport = TechSupport(self)
         self.images = Images(self)
