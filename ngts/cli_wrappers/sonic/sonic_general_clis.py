@@ -302,7 +302,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
-                     reboot_after_install=None, fw_pkg_path=None, set_timezone='Israel', disable_ztp=False):
+                     reboot_after_install=None, fw_pkg_path=None, disable_ztp=False):
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
@@ -317,27 +317,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
-        if disable_ztp:
-            with allure.step('Disable ZTP after image install'):
-                retry_call(self.cli_obj.ztp.disable_ztp,
-                           fargs=[],
-                           tries=3,
-                           delay=10,
-                           logger=logger)
-                self.save_configuration()
-
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
                 self.validate_dockers_are_up_reboot_if_fail()
 
-        if set_timezone:
-            with allure.step("Set dut NTP timezone to {} time.".format(set_timezone)):
-                dut_engine = topology_obj.players['dut']['engine']
-                dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(set_timezone), validate=True)
-
         if apply_base_config:
-            with allure.step("Apply port_config.ini and config_db.json"):
-                self.apply_basic_config(topology_obj, setup_name, platform_params)
+            with allure.step("Apply basic config"):
+                self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp)
 
         if wjh_deb_url:
             with allure.step("Installing wjh deb url"):
@@ -537,22 +523,32 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             switch_in_onie = True
         return switch_in_onie
 
-    def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False):
-        platform = platform_params['platform']
-        hwsku = platform_params['hwsku']
-        shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
+    def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
+                           disable_ztp=False, timezone='Israel'):
+        with allure.step("Upload port_config.ini and config_db.json with reboot of dut"):
+            retry_call(self.apply_config_files,
+                       fargs=[topology_obj, setup_name, platform_params],
+                       tries=3,
+                       delay=10,
+                       logger=logger)
 
-        self.upload_port_config_ini(platform, hwsku, shared_path)
-        self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
+        if disable_ztp:
+            with allure.step('Disable ZTP'):
+                retry_call(self.cli_obj.ztp.disable_ztp,
+                           fargs=[],
+                           tries=3,
+                           delay=10,
+                           logger=logger)
+                self.save_configuration()
 
-        # Remove FRR configuration(which may contain default BGP config)
-        self.cli_obj.frr.remove_frr_config_files()
+        with allure.step('Remove FRR configuration(which may contain default BGP config)'):
+            self.cli_obj.frr.remove_frr_config_files()
 
-        with allure.step("Reboot the dut"):
-            self.engine.reload(['sudo reboot'])
-            if reload_before_qos:
-                with allure.step("Reload the dut"):
-                    self.reload_configuration(force=True)
+        if reload_before_qos:
+            with allure.step("Reload the dut"):
+                self.reload_configuration(force=True)
+
+        with allure.step('Verify dockers are up'):
             self.verify_dockers_are_up()
 
         with allure.step("Apply qos and dynamic buffer config"):
@@ -560,11 +556,24 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.verify_dockers_are_up(dockers_list=['swss'])
             self.cli_obj.qos.stop_buffermgrd()
             self.cli_obj.qos.start_buffermgrd()
-            self.save_configuration()
+
+        with allure.step("Set dut NTP timezone to {} time.".format(timezone)):
+            dut_engine = topology_obj.players['dut']['engine']
+            dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(timezone))
 
         with allure.step("Enable INFO logging on swss"):
             self.enable_info_logging_on_docker(docker_name='swss')
-            self.save_configuration()
+
+        self.save_configuration()
+
+    def apply_config_files(self, topology_obj, setup_name, platform_params):
+        platform = platform_params['platform']
+        hwsku = platform_params['hwsku']
+        shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
+
+        self.upload_port_config_ini(platform, hwsku, shared_path)
+        self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
+        self.engine.reload(['sudo reboot'])
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
