@@ -652,14 +652,6 @@
         - simx
 
 - Errors_list:
-    - '.*ERR hostcfgd: sudo systemctl enable what-just-happened.timer - failed: return code - 1, output:.*'
-  Conditions:
-    - Redmine:
-        - 3160488
-      Platform:
-        - simx
-
-- Errors_list:
     - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR] mlnx_sai_buffer.c\[\d+\]- .* Failed to find.*'
     - '.* ERR syncd#SDK: :- exit_with_sai_failure: saisdkdump exited with SAI rc:.* Failed to create a switch .'
   Conditions:
