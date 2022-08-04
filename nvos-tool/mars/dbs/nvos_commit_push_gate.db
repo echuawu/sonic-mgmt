@@ -18,6 +18,6 @@
 		<Case> </Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_commit_push_gate.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_commit_push_gate_build.cases </cases>
 	</test>
 </DBDEF>
