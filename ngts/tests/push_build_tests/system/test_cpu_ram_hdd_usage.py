@@ -135,37 +135,42 @@ class TestCpuRamHddUsage:
         :param request: pytest build-in
         :param expected_ram_usage_dict: expected_ram_usage_dict fixture
         """
-
         assertions_list = []
         total_ram_size_mb = 0
         used_ram_size_mb = 0
         ram_usage_per_process = {}
         try:
-            total_cpu_usage, cpu_usage_per_process_dict = get_cpu_usage_and_processes(self.dut_engine)
+            _, cpu_usage_per_process_dict = get_cpu_usage_and_processes(self.dut_engine)
 
-            free_output = self.dut_engine.run_cmd('sudo free')
-            total_ram_size_mb = int(free_output.splitlines()[1].split()[1]) / 1024
-            used_ram_size_mb = int(free_output.splitlines()[1].split()[2]) / 1024
-            logger.info('DUT total RAM size: {} Mb'.format(total_ram_size_mb))
-            logger.info('DUT use: {} Mb of RAM'.format(used_ram_size_mb))
-            # RAM usage is integer and in Mb
-            if used_ram_size_mb > expected_ram_usage_dict['total'] * (1 + ALLOWED_DEVIATION):
-                assertions_list.append({'total': used_ram_size_mb})
-            for process in self.processes_list:
-                try:
-                    process_pid = cpu_usage_per_process_dict[process]['pid']
-                    cat_smaps_cmd = "sudo cat /proc/{}/smaps".format(process_pid)
-                    get_ram_usage_cmd = cat_smaps_cmd + "| grep Pss | awk '{Total+=$2} END {print Total/1024}'"
-                    used_ram_mb = float(self.dut_engine.run_cmd(get_ram_usage_cmd))
-                    logger.info('Process: {} used {} Mb of RAM'.format(process, used_ram_mb))
-                    ram_usage_per_process[process] = used_ram_mb
-                    if used_ram_mb > expected_ram_usage_dict[process] * (1 + ALLOWED_DEVIATION):
-                        assertions_list.append({process: used_ram_mb})
-                except KeyError:
-                    ram_usage_per_process[process] = 0
-                    logger.error('Can not find RAM usage for process: {} - process is not running'.format(process))
-            assert not assertions_list, 'RAM usage: {} \n is more than expected: \n {}'.format(assertions_list,
-                                                                                               expected_ram_usage_dict)
+            for attempt in range(3):
+                logger.info('Checking RAM utilization, attempt number: {}'.format(attempt))
+                assertions_list = []
+                free_output = self.dut_engine.run_cmd('sudo free')
+                total_ram_size_mb = int(free_output.splitlines()[1].split()[1]) / 1024
+                used_ram_size_mb = int(free_output.splitlines()[1].split()[2]) / 1024
+                logger.info('DUT total RAM size: {} Mb'.format(total_ram_size_mb))
+                logger.info('DUT use: {} Mb of RAM'.format(used_ram_size_mb))
+                # RAM usage is integer and in Mb
+                if used_ram_size_mb > expected_ram_usage_dict['total'] * (1 + ALLOWED_DEVIATION):
+                    assertions_list.append({'total': used_ram_size_mb})
+                for process in self.processes_list:
+                    try:
+                        process_pid = cpu_usage_per_process_dict[process]['pid']
+                        cat_smaps_cmd = "sudo cat /proc/{}/smaps".format(process_pid)
+                        get_ram_usage_cmd = cat_smaps_cmd + "| grep Pss | awk '{Total+=$2} END {print Total/1024}'"
+                        used_ram_mb = float(self.dut_engine.run_cmd(get_ram_usage_cmd))
+                        logger.info('Process: {} used {} Mb of RAM'.format(process, used_ram_mb))
+                        ram_usage_per_process[process] = used_ram_mb
+                        if used_ram_mb > expected_ram_usage_dict[process] * (1 + ALLOWED_DEVIATION):
+                            assertions_list.append({process: used_ram_mb})
+                    except KeyError:
+                        ram_usage_per_process[process] = 0
+                        logger.error('Can not find RAM usage for process: {} - process is not running'.format(process))
+                if not assertions_list:
+                    break
+
+            assert not assertions_list, \
+                'RAM usage: {} \n is more than expected: \n {}'.format(assertions_list, expected_ram_usage_dict)
 
         except Exception as err:
             raise AssertionError(err)
