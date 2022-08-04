@@ -138,3 +138,8 @@ class ActionConsts:
 class IpConsts:
     MIN_IPV6_GROUP_VALUE = 0
     MAX_IPV6_GROUP_VALUE = 65535
+
+
+class ConfigConsts:
+    HISTORY_APPLY_ID = 'apply-id'
+    HISTORY_USER = 'user'

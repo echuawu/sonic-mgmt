@@ -41,15 +41,18 @@ class System(BaseComponent):
         self._resource_path = '/system'
         self.parent_obj = parent_obj
 
-    def set(self, value, engine, field_name=""):
+    def set(self, value, engine, field_name="", apply=True):
         SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
                                         engine, 'system ' + field_name, value)
-        NvueGeneralCli.apply_config(engine, True)
 
-    def unset(self, engine, field_name=""):
+        if apply:
+            NvueGeneralCli.apply_config(engine, True)
+
+    def unset(self, engine, field_name="", apply=True):
         SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
                                         engine, 'system ' + field_name)
-        NvueGeneralCli.apply_config(engine, True)
+        if apply:
+            NvueGeneralCli.apply_config(engine, True)
 
     def get_expected_fields(self, device):
         return device.constants.system['system']

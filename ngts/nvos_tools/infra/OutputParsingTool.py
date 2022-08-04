@@ -245,6 +245,8 @@ class OutputParsingTool:
         :param output_json: json output
         :return: a dictionary
         """
+        if output_json == '{}' or output_json == '':
+            return ResultObj(True, "", {})
         with allure.step('Create a dictionary according to provided JSON string'):
             output_dictionary = json.loads(output_json)
             return ResultObj(True, "", output_dictionary)
@@ -285,3 +287,59 @@ class OutputParsingTool:
             output_list = [path for xs in paths for path in xs]
             logger.info(output_list)
             return ResultObj(True, "", output_list)
+
+    @staticmethod
+    def parse_config_history(output_json):
+        """
+
+        :param output_json: the output after running nv config history --output json
+        :return: list of dictionaries
+        Example:
+        input:
+            [
+              {
+                "apply-id": "n/2",
+                "apply-meta": {
+                  "method": "CLI",
+                  "reason": "Config update",
+                  "rev_id": "changeset/admin/2022-08-01_07.51.40_HN1G",
+                  "state_controls": {},
+                  "user": "admin"
+                },
+                "date": "2022-08-01T10:51:46+03:00",
+                "message": "Config update by admin via CLI",
+                "ref": "apply/2022-08-01_07.51.45_HN1H/done"
+              },
+              ...
+            ]
+
+        output:
+        [
+              {
+                "apply-id": "n/2",
+                "method": "CLI",
+                "reason": "Config update",
+                "rev_id": "changeset/admin/2022-08-01_07.51.40_HN1G",
+                "state_controls": {},
+                "user": "admin"
+                "date": "2022-08-01T10:51:46+03:00",
+                "message": "Config update by admin via CLI",
+                "ref": "apply/2022-08-01_07.51.45_HN1H/done"
+              },
+              ...
+            ]
+        """
+        with allure.step('Create a list of dictionaries according to provided JSON output of "config history" command'):
+            if output_json == '' or output_json == []:
+                return ResultObj(True, "", [])
+            output_list = json.loads(output_json)
+            list_to_return = []
+            for item in output_list:
+                dictionary_to_return = {}
+                for key, value in item.items():
+                    if isinstance(value, dict):
+                        dictionary_to_return.update(value)
+                    else:
+                        dictionary_to_return[key] = value
+                list_to_return.append(dictionary_to_return)
+        return ResultObj(True, "", list_to_return)

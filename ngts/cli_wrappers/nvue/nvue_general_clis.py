@@ -54,6 +54,40 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return self.engine.run_cmd('show version')
 
     @staticmethod
+    def diff_config(engine, revision_1='', revision_2='', output_type='json'):
+        logging.info("Running 'nv config diff' on dut")
+        cmd = 'nv config diff ' + revision_1 + ' ' + revision_2
+        output = engine.run_cmd(cmd + ' --output {output_type}'.format(output_type=output_type))
+        return output
+
+    @staticmethod
+    def history_config(engine, revision='', output_type='json'):
+        logging.info("Running 'nv config history' on dut")
+        cmd = 'nv config history ' + revision
+        output = engine.run_cmd(cmd + ' --output {output_type}'.format(output_type=output_type))
+        return output
+
+    @staticmethod
+    def show_config(engine, output_type='json'):
+        logging.info("Running 'nv config show' on dut")
+        output = engine.run_cmd('nv config show --output {output_type}'.format(output_type=output_type))
+        return output
+
+    @staticmethod
+    def replace_config(engine, file, output_type='json'):
+        logging.info("Running 'nv config replace' on dut")
+        output = engine.run_cmd('nv config replace {file} --output {output_type}'.format(file=file,
+                                                                                         output_type=output_type))
+        return output
+
+    @staticmethod
+    def patch_config(engine, file, output_type='json'):
+        logging.info("Running 'nv config patch' on dut")
+        output = engine.run_cmd('nv config patch {file} --output {output_type}'.format(file=file,
+                                                                                       output_type=output_type))
+        return output
+
+    @staticmethod
     def apply_config(engine, ask_for_confirmation=False):
         """
         Apply configuration
