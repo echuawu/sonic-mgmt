@@ -248,7 +248,7 @@ r-anaconda-simx-134-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,
 r-anaconda-simx-139-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-139,Mellanox MTR testbed
 r-anaconda-simx-133-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-133,Mellanox MTR testbed
 r-anaconda-simx-141-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-141,Mellanox MTR testbed
-r-anaconda-simx-137-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-137,Mellanox MTR testbed
+r-anaconda-simx-10-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-10,Mellanox MTR testbed
 r-anaconda-simx-169-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-169,Mellanox MTR testbed
 r-buffalo-simx-28-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-simx-28,Mellanox MTR testbed
 r-buffalo-simx-165-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-simx-165,Mellanox MTR testbed
@@ -259,13 +259,13 @@ r-leopard-simx-79-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,se
 r-leopard-simx-129-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-129,Mellanox MTR testbed
 r-leopard-simx-137-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-137,Mellanox MTR testbed
 r-leopard-simx-173-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-173,Mellanox MTR testbed
-r-leopard-simx-141-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-141,Mellanox MTR testbed
+r-leopard-simx-14-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-14,Mellanox MTR testbed
 r-panther-simx-13-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-13,Mellanox MTR testbed
 r-panther-simx-18-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-18,Mellanox MTR testbed
 r-panther-simx-23-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-23,Mellanox MTR testbed
-r-panther-simx-129-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-129,Mellanox MTR testbed
+r-panther-simx-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-02,Mellanox MTR testbed
 r-panther-simx-125-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-125,Mellanox MTR testbed
-r-panther-simx-133-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-133,Mellanox MTR testbed
+r-panther-simx-06-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-06,Mellanox MTR testbed
 r-panther-simx-165-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-165,Mellanox MTR testbed
 r-moose-simx-121-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-moose-simx-121,Mellanox MTR testbed
 r-moose-simx-145-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-moose-simx-145,Mellanox MTR testbed
