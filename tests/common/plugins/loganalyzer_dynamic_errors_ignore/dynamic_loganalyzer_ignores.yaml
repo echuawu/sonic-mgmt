@@ -599,6 +599,7 @@
       - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
       - copp/test_copp.py
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
         - 2966737
       Branch:
