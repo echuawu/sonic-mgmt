@@ -149,16 +149,19 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
 
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
-    reason: "Testcase ignored due to SIMX platform"
+    reason: "Testcase ignored due to SIMX platform or RM issue 3103231 and branch 202205"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3103231 and '202205' in release"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
-    reason: "Testcase ignored due to RM issue 3103231 and branch 202111 or platform 2201"
+    reason: "Testcase ignored due to RM issue 3103231 and branch 202111 or branch 202205 or platform 2201"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3103231 and '202111' in release"
+      - "https://redmine.mellanox.com/issues/3103231 and '202205' in release"
       - "'2201' in platform"
 
 tests/nightly/fec:
@@ -233,6 +236,18 @@ tests/nightly/routing/test_routing.py:
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
     reason: "Test not supported. Once Bulk Counter is supported - then need to modify the skip condition"
+
+tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3007716"
+    conditions:
+      - https://redmine.mellanox.com/issues/3007716
+
+tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3103231"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3103231 and '202205' in release"
 ########################## NGTS IGNORE END ##########################
 
 
@@ -294,8 +309,10 @@ platform_tests/test_cpu_memory_usage.py:
 show_techsupport/test_auto_techsupport.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3147554 and platform nvda_bf"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3147554 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3007716"
 
 process_monitoring/test_critical_process_monitoring.py:
   skip:
@@ -825,4 +842,9 @@ acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
     conditions:
       - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
 
+platform_tests/test_sensors.py::test_sensors:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3162524 and platform x86_64-mlnx_msn4600c-r0"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3162524 and 'x86_64-mlnx_msn4600c-r0' in platform"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

@@ -1222,3 +1222,14 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3162498
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      Redmine:
+      - 3166325
+      Platform:
+      - x86_64-mlnx_msn4410-r0
