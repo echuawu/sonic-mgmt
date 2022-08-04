@@ -48,24 +48,19 @@ class SonicAppExtensionCli:
         """
         app_package_repo_list = self.show_app_list()
         # TODO: This is a workaround, need to remove the following code after the issue is fixed
-        #  [SONIC - Design] Bug SW #3141899: [Non-Functional ]| No YANG models for table BGP_DEVICE_GLOBAL
+        # TODO:  and the fix merged to other branches based on master, like DPU.
+        # TODO: [SONIC - Design] Bug SW #3141899: [Non-Functional ]| No YANG models for table BGP_DEVICE_GLOBAL
         # -----------------------------workaround-------------------------------
-        branch = self.engine.run_cmd("sonic-cfggen -y /etc/sonic/sonic_version.yml -v release")
-        if branch == "none":
-            branch = "master"
-        is_issue_active, _ = is_redmine_issue_active([3141899])
-        try:
-            if is_issue_active and branch == 'master':
-                app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
-                                                                    headers_ofset=1,
-                                                                    len_ofset=2,
-                                                                    data_ofset_from_start=3,
-                                                                    data_ofset_from_end=None,
-                                                                    column_ofset=2,
-                                                                    output_key='Name')
-                return app_package_repo_dict
-        except Exception:
-            pass
+        unexpected_line = 'sonic_yang(6):Note: Below table(s) have no YANG models: BGP_DEVICE_GLOBAL'
+        if unexpected_line in app_package_repo_list:
+            app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
+                                                                headers_ofset=1,
+                                                                len_ofset=2,
+                                                                data_ofset_from_start=3,
+                                                                data_ofset_from_end=None,
+                                                                column_ofset=2,
+                                                                output_key='Name')
+            return app_package_repo_dict
         # -----------------------------workaround-------------------------------
         app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
                                                             headers_ofset=0,
