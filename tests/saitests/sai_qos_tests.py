@@ -733,9 +733,9 @@ class PFCtest(sai_base_test.ThriftInterfaceDataPlane):
             packet_length = 64
         if 'cell_size' in self.test_params:
             cell_size = self.test_params['cell_size']
+            cell_occupancy = (packet_length + cell_size - 1) / cell_size
         else:
-            cell_size = 64
-        cell_occupancy = (packet_length + cell_size - 1) / cell_size
+            cell_occupancy = 1
         pkt = construct_ip_pkt(packet_length,
                                pkt_dst_mac,
                                src_port_mac,
@@ -912,8 +912,16 @@ class PfcStormTestWithSharedHeadroom(sai_base_test.ThriftInterfaceDataPlane):
         self.dst_port_mac = self.dataplane.get_mac(0, self.dst_port_id)
 
         self.ttl = 64
-        self.default_packet_length = 64
+        if 'packet_size' in self.test_params:
+            self.default_packet_length = self.test_params['packet_size']
+        else:
+            self.default_packet_length = 64
 
+        if 'cell_size' in self.test_params:
+            cell_size = self.test_params['cell_size']
+            self.cell_occupancy = (self.default_packet_length + cell_size - 1) / cell_size
+        else:
+            self.cell_occupancy = 1
         #  Margin used to while crossing the shared headrooom boundary
         self.margin = 2
 
@@ -956,8 +964,7 @@ class PtfFillBuffer(PfcStormTestWithSharedHeadroom):
         xmit_counters_base, queue_counters = sai_thrift_read_port_counters(
             self.client, port_list[self.dst_port_id]
         )
-
-        num_pkts = pkts_num_trig_pfc + pkts_num_private_headrooom
+        num_pkts = (pkts_num_trig_pfc + pkts_num_private_headrooom) / self.cell_occupancy
         logging.info("Send {} pkts to egress out of {}".format(num_pkts, self.dst_port_id))
         # send packets to dst port 1, to cross into shared headrooom
         send_packet(
@@ -1126,9 +1133,10 @@ class PFCXonTest(sai_base_test.ThriftInterfaceDataPlane):
             packet_length = 64
         if 'cell_size' in self.test_params:
             cell_size = self.test_params['cell_size']
+            cell_occupancy = (packet_length + cell_size - 1) / cell_size
         else:
-            cell_size = 64
-        cell_occupancy = (packet_length + cell_size - 1) / cell_size
+            cell_occupancy = 1
+
 
         pkt = construct_ip_pkt(packet_length,
                                pkt_dst_mac,
@@ -2343,7 +2351,12 @@ class PGHeadroomWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
 
         # Prepare TCP packet data
         ttl = 64
-        default_packet_length = 64
+        if 'packet_size' in self.test_params:
+            default_packet_length = self.test_params['packet_size']
+        else:
+            default_packet_length = 64
+
+        cell_occupancy = (default_packet_length + cell_size - 1) / cell_size
         pkt_dst_mac = router_mac if router_mac != '' else dst_port_mac
         pkt = construct_ip_pkt(default_packet_length,
                                pkt_dst_mac,
@@ -2382,9 +2395,9 @@ class PGHeadroomWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
         try:
             # send packets to trigger pfc but not trek into headroom
             if hwsku == 'DellEMC-Z9332f-O32' or hwsku == 'DellEMC-Z9332f-M-O16C64':
-                send_packet(self, src_port_id, pkt, pkts_num_egr_mem + pkts_num_leak_out + pkts_num_trig_pfc - margin)
+                send_packet(self, src_port_id, pkt, (pkts_num_egr_mem + pkts_num_leak_out + pkts_num_trig_pfc)/cell_occupancy - margin)
             else:
-                send_packet(self, src_port_id, pkt, pkts_num_leak_out + pkts_num_trig_pfc - margin)
+                send_packet(self, src_port_id, pkt, (pkts_num_leak_out + pkts_num_trig_pfc)/cell_occupancy - margin)
 
             time.sleep(8)
             q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[src_port_id])
@@ -2395,7 +2408,7 @@ class PGHeadroomWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             # send packet batch of fixed packet numbers to fill pg headroom
             # first round sends only 1 packet
             expected_wm = 0
-            total_hdrm = pkts_num_trig_ingr_drp - pkts_num_trig_pfc - 1
+            total_hdrm = (pkts_num_trig_ingr_drp - pkts_num_trig_pfc)/cell_occupancy  - 1
             pkts_inc = total_hdrm >> 2
             pkts_num = 1 + margin
             while (expected_wm < total_hdrm):
@@ -2410,9 +2423,9 @@ class PGHeadroomWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
                 # these counters are clear on read, ensure counter polling
                 # is disabled before the test
                 q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[src_port_id])
-                print >> sys.stderr, "lower bound: %d, actual value: %d, upper bound: %d" % ((expected_wm - margin) * cell_size, pg_headroom_wm_res[pg], ((expected_wm + margin) * cell_size))
-                assert(pg_headroom_wm_res[pg] <= (expected_wm + margin) * cell_size)
-                assert((expected_wm - margin) * cell_size <= pg_headroom_wm_res[pg])
+                print >> sys.stderr, "lower bound: %d, actual value: %d, upper bound: %d" % ((expected_wm - margin) * cell_size * cell_occupancy, pg_headroom_wm_res[pg], ((expected_wm + margin) * cell_size * cell_occupancy))
+                assert(pg_headroom_wm_res[pg] <= (expected_wm + margin) * cell_size * cell_occupancy)
+                assert((expected_wm - margin) * cell_size * cell_occupancy <= pg_headroom_wm_res[pg])
 
                 pkts_num = pkts_inc
 
@@ -2421,10 +2434,10 @@ class PGHeadroomWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             time.sleep(8)
             q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(self.client, port_list[src_port_id])
             print >> sys.stderr, "exceeded pkts num sent: %d" % (pkts_num)
-            print >> sys.stderr, "lower bound: %d, actual value: %d, upper bound: %d" % ((expected_wm - margin) * cell_size, pg_headroom_wm_res[pg], ((expected_wm + margin) * cell_size))
+            print >> sys.stderr, "lower bound: %d, actual value: %d, upper bound: %d" % ((expected_wm - margin) * cell_size * cell_occupancy, pg_headroom_wm_res[pg], ((expected_wm + margin) * cell_size * cell_occupancy))
             assert(expected_wm == total_hdrm)
-            assert(pg_headroom_wm_res[pg] <= (expected_wm + margin) * cell_size)
-            assert((expected_wm - margin) * cell_size <= pg_headroom_wm_res[pg])
+            assert(pg_headroom_wm_res[pg] <= (expected_wm + margin) * cell_size * cell_occupancy)
+            assert((expected_wm - margin) * cell_size * cell_occupancy <= pg_headroom_wm_res[pg])
 
         finally:
             sai_thrift_port_tx_enable(self.client, asic_type, [dst_port_id])
