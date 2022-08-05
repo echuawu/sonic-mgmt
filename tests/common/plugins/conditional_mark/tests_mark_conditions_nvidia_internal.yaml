@@ -1,16 +1,4 @@
 ########################## NGTS IGNORE START ##########################
-tests/nightly/routing/test_routing.py::TestRouting::test_routing:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3151817 and ASIC is DPU"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3151817 and 'nvidia-bluefield' in asic_type"
-
-tests/nightly/routing/test_routing.py::TestRouting::test_reboot:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3151817 and ASIC is DPU"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3151817 and 'nvidia-bluefield' in asic_type"
-
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"
@@ -226,12 +214,6 @@ tests/nightly/p4/sampling_example/test_entry_advance.py:
 tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
   skip:
     reason: "Test not supported. Once EVPN VXLAN will be supported - need to remove skip"
-
-tests/nightly/routing/test_routing.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3123850"
-    conditions:
-      - https://redmine.mellanox.com/issues/3123850
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:

@@ -361,31 +361,33 @@ class TestRouting:
                                                           'dst': self.dut_hb_1_ip}}
             PingChecker(self.players, validation_hb_dut).run_validation()
 
-        # TODO: uncomment validation once will get response from developers(or DPU will support BGP)
-        # with allure.step('Checking routes on HA'):
-        #     self.validate_loopback_route_on_host(self.ha)
-        #
-        # with allure.step('Checking routes on HB'):
-        #     self.validate_loopback_route_on_host(self.hb)
-        #
-        # with allure.step('Traffic validation to Loopback'):
-        #     self.validate_loopback_reachable_from_hosts()
+        with allure.step('Checking routes on HA'):
+            self.validate_loopback_route_on_host(self.ha)
+
+        with allure.step('Checking routes on HB'):
+            self.validate_loopback_route_on_host(self.hb)
+
+        with allure.step('Traffic validation to Loopback'):
+            self.validate_loopback_reachable_from_hosts()
 
         with allure.step('Checking routes on DUT'):
             parsed_ip_route_output = self.dut_cli.route.parse_show_ip_route(self.dut_cli.route.show_ip_route())
             self.validate_routes_on_dut(parsed_ip_route_output)
 
-        with allure.step('Traffic validation'):
-            self.validate_traffic_via_bgp_routes(expected_pass=True)
-            self.validate_traffic_via_static_routes()
+        # TODO: uncomment validation once will get response from developers(or DPU will support BGP)
+        # with allure.step('Traffic validation'):
+        #     self.validate_traffic_via_bgp_routes(expected_pass=True)
+        #     self.validate_traffic_via_static_routes()
 
         with allure.step('Shutdown all BGP sessions'):
             self.dut_cli.bgp.shutdown_bgp_all()
 
         try:
-            with allure.step('Traffic validation'):
-                self.validate_traffic_via_bgp_routes(expected_pass=False)
-                self.validate_traffic_via_static_routes()
+            # TODO: uncomment validation once will get response from developers(or DPU will support BGP)
+            # with allure.step('Traffic validation'):
+            #     self.validate_traffic_via_bgp_routes(expected_pass=False)
+            #     self.validate_traffic_via_static_routes()
+            pass
         except Exception as err:
             raise err
         finally:
