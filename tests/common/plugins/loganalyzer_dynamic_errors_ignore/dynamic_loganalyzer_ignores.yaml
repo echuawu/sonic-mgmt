@@ -1248,3 +1248,20 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3159802
+
+- Errors_list:
+    - '.* ERR vnet_route_check.py:.*results.*missed_in_asic_db_routes.*Vnet.*routes.*'
+    - '.* ERR vnet_route_check.py:  Vnet Route Mismatch reported.*'
+  Conditions:
+    - Affected_test_cases:
+      - vxlan/test_vnet_route_leak.py
+      Redmine:
+      - 3165489
+
+- Errors_list:
+    - '.* ERR dhcp_relay#dhcp6relay: bind: Failed to bind socket to link local ipv6 address on interface Vlan1000 after 6 retries with Success.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3136253
