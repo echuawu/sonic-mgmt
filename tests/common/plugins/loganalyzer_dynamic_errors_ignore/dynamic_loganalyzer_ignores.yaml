@@ -990,6 +990,28 @@
       - 3061632
 
 - Errors_list:
+    - '.* INFO kernel: \[   \d+\.\d+\] orchagent\[\d+\]: segfault at 60 ip \S+ sp \S+ error 4 in libc-\d+.\d+.so\[\S+\+\S+\].*'
+    - '.* ERR hostcfgd: sudo systemctl start pmon\.service - failed: return code - 1, output:#012None.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3168487
+
+- Errors_list:
+    - '.* ERR bgp#rsyslogd: omfwd\/udp: socket 6: sendto\(\) error: Network is unreachable.*'
+    - '.* ERR bgp#rsyslogd: omfwd: socket 6: error 101 sending via udp: Network is unreachable.*'
+  Conditions:
+    - Redmine:
+      - 3168474
+
+- Errors_list:
+    - '.* ERR systemd\[\d\]: \/etc\/systemd\/system\/mst\.service:97: Invalid section header.*'
+  Conditions:
+    - Redmine:
+      - 3168291
+
+- Errors_list:
     - '.* ERR healthd: Container folder does not exist.*'
   Conditions:
     - Affected_test_cases:
