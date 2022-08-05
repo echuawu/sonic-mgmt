@@ -464,6 +464,12 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_fro
     crm_stats_route_used, crm_stats_route_available = get_crm_stats(get_route_stats, duthost)
     logging.info("crm_stats_route_used {} crm_stats_route_available {} ".format(crm_stats_route_used, crm_stats_route_available))
 
+    # TODO: debug print - need to remove later
+    logging.info(duthost.shell("sudo crm show resources all")["stdout"])
+    get_fdb_stats = "{redis_cli} COUNTERS_DB HMGET CRM:STATS crm_stats_fdb_entry_used crm_stats_fdb_entry_available" \
+        .format(redis_cli=asichost.sonic_db_cli)
+    crm_stats_fdb_used, _ = get_crm_stats(get_fdb_stats, duthost)
+
     # Get NH IP
     cmd = "{ip_cmd} -{ip_ver} neigh show dev {crm_intf} nud reachable nud stale \
             | grep -v fe80".format(ip_cmd = asichost.ip_cmd,
@@ -490,7 +496,13 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_fro
     # Get new "crm_stats_ipv[4/6]_route" used and available counter value
     new_crm_stats_route_used, new_crm_stats_route_available = get_crm_stats(get_route_stats, duthost)
     logging.info(" new_crm_stats_route_used {}, new_crm_stats_route_available{} ".format( new_crm_stats_route_used, new_crm_stats_route_available))
-    
+
+    # TODO: debug print - need to remove later
+    logging.info(duthost.shell("sudo crm show resources all")["stdout"])
+    # Get CRM available route diff in case when FDB updated during test run
+    crm_stats_fdb_used_after_add_route, _ = get_crm_stats(get_fdb_stats, duthost)
+    crm_stats_route_available = get_expected_crm_stats_route_available(crm_stats_route_available, crm_stats_fdb_used,
+                                                                       crm_stats_fdb_used_after_add_route)
 
     # Verify "crm_stats_ipv[4/6]_route_used" counter was incremented
     if not (new_crm_stats_route_used - crm_stats_route_used == total_routes):
@@ -512,6 +524,14 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_fro
 
     # Get new "crm_stats_ipv[4/6]_route" used and available counter value
     new_crm_stats_route_used, new_crm_stats_route_available = get_crm_stats(get_route_stats, duthost)
+
+    # TODO: debug print - need to remove later
+    logging.info(duthost.shell("sudo crm show resources all")["stdout"])
+    # Get CRM available route diff in case when FDB updated during test run
+    crm_stats_fdb_used_after_del_route, _ = get_crm_stats(get_fdb_stats, duthost)
+    crm_stats_route_available = get_expected_crm_stats_route_available(crm_stats_route_available,
+                                                                       crm_stats_fdb_used_after_add_route,
+                                                                       crm_stats_fdb_used_after_del_route)
 
     # Verify "crm_stats_ipv[4/6]_route_used" counter was decremented
     pytest_assert(new_crm_stats_route_used - crm_stats_route_used == 0, \
@@ -549,6 +569,12 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_fro
 
     # Verify thresholds for "IPv[4/6] route" CRM resource
     verify_thresholds(duthost, asichost, crm_cli_res="ipv{ip_ver} route".format(ip_ver=ip_ver), crm_cmd=get_route_stats)
+
+
+def get_expected_crm_stats_route_available(crm_stats_route_available, crm_stats_fdb_used, crm_stats_fdb_used_new):
+    fdb_entries_diff = crm_stats_fdb_used_new - crm_stats_fdb_used
+    crm_stats_route_available = crm_stats_route_available - fdb_entries_diff
+    return crm_stats_route_available
 
 
 @pytest.mark.parametrize("ip_ver,nexthop", [("4", "2.2.2.2"), ("6", "2001::1")])
