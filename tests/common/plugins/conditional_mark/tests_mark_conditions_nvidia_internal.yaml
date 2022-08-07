@@ -63,6 +63,13 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
     conditions:
       - "https://redmine.mellanox.com/issues/2682609 and 'simx' in platform"
 
+
+tests/push_build_tests/general/qos/test_qos_reload.py:
+  skip:
+    reason: "Igonred due to verification issue https://redmine.mellanox.com/issues/2271111"
+    conditions:
+      - "https://redmine.mellanox.com/issues/2271111"
+
 tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
   skip:
     reason: "Testcase ignored, CLI command 'qos reload --ports' will not be merged to 202012/202111 branches"
