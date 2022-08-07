@@ -30,6 +30,13 @@ class SonicChassisCli(ChassisCliCommon):
         """
         return self.engine.run_cmd("show platform summary")
 
+    def show_platform_syseeprom(self):
+        """
+        This method excute command "show platform syseeprom" on dut
+        :return: the cmd output
+        """
+        return self.engine.run_cmd("show platform syseeprom")
+
     def show_mst_status(self):
         return self.engine.run_cmd("sudo mst status")
 

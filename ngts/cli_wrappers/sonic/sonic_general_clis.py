@@ -24,7 +24,8 @@ from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
-from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError
+from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
+from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
 from ngts.tools.infra import ENV_LOG_FOLDER
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 
@@ -461,12 +462,34 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_onie(self, image_path, in_onie=False, fw_pkg_path=None, platform_params=None):
         if not in_onie:
-            with allure.step('Setting boot order to onie'):
-                self.set_next_boot_entry_to_onie()
-            with allure.step('Rebooting the switch'):
-                self.engine.reload(['sudo reboot'], wait_after_ping=25, ssh_after_reload=False)
+            onie_reboot_script_path = self.prepare_onie_reboot_script_on_dut()
+            if self.required_onie_upgrade(fw_pkg_path, platform_params):
+                self.reboot_by_onie_reboot_script(onie_reboot_script_path, 'update')
+            else:
+                self.reboot_by_onie_reboot_script(onie_reboot_script_path, 'install')
+
         SonicOnieCli(self.engine.ip, fw_pkg_path, platform_params).update_onie()
         self.install_image_onie(self.engine.ip, image_path)
+
+    def prepare_onie_reboot_script_on_dut(self):
+        onie_reboot_script = 'onie_reboot.sh'
+        onie_reboot_script_path = f'/tmp/{onie_reboot_script}'
+        onie_reboot_script_local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                     f'../../scripts/sonic_deploy/{onie_reboot_script}')
+        self.engine.copy_file(source_file=onie_reboot_script_local_path, file_system='/tmp',
+                              dest_file=onie_reboot_script)
+        self.engine.run_cmd(f'chmod 777 {onie_reboot_script_path}', validate=True)
+        return onie_reboot_script_path
+
+    def required_onie_upgrade(self, fw_pkg_path, platform_params):
+        platform_syseeprom_output = SonicChassisCli(self.engine).show_platform_syseeprom()
+        latest_onie_version, _ = get_latest_onie_version(fw_pkg_path, platform_params)
+        return latest_onie_version not in platform_syseeprom_output
+
+    def reboot_by_onie_reboot_script(self, onie_reboot_script_path, mode):
+        logger.info(f"Reboot to ONIE with boot-mode {mode}")
+        with allure.step(f"Reboot to ONIE with boot-mode {mode}"):
+            self.engine.reload([f'{onie_reboot_script_path} {mode}'], wait_after_ping=25, ssh_after_reload=False)
 
     @staticmethod
     def install_image_onie(dut_ip, image_url):

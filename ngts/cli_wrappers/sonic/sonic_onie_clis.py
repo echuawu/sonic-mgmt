@@ -161,21 +161,26 @@ class SonicOnieCli:
 
     def required_onie_installation(self):
         onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
-        self.get_latest_onie_version()
+        self.latest_onie_version, self.latest_onie_url = get_latest_onie_version(self.fw_pkg_path, self.platform_params)
         return self.latest_onie_version not in onie_version_output
 
-    def get_latest_onie_version(self):
-        if self.fw_pkg_path is None:
-            logger.warning("No firmware package file path specified.")
+
+def get_latest_onie_version(fw_pkg_path, platform_params):
+    latest_onie_version = ''
+    latest_onie_url = ''
+    if fw_pkg_path is None:
+        logger.warning("No firmware package file path specified.")
+    else:
+        logger.info(f"Get latest ONIE version from specified file {fw_pkg_path}")
+        fw_data = extract_fw_data(fw_pkg_path)
+        if platform_params.filtered_platform.upper() in fw_data["chassis"]:
+            onie_info_list = fw_data["chassis"][platform_params.filtered_platform.upper()]["component"]["ONIE"]
+            for onie_version_info in onie_info_list:
+                if latest_onie_version < onie_version_info["version"]:
+                    latest_onie_version = onie_version_info["version"]
+                    latest_onie_url = onie_version_info["firmware"]
         else:
-            logger.info(f"Get latest ONIE version from specified file {self.fw_pkg_path}")
-            fw_data = extract_fw_data(self.fw_pkg_path)
-            if self.platform_params.filtered_platform.upper() in fw_data["chassis"]:
-                onie_info_list = fw_data["chassis"][self.platform_params.filtered_platform.upper()]["component"]["ONIE"]
-                for onie_version_info in onie_info_list:
-                    if self.latest_onie_version < onie_version_info["version"]:
-                        self.latest_onie_version = onie_version_info["version"]
-                        self.latest_onie_url = onie_version_info["firmware"]
-            else:
-                logger.warning(f"The specified platform {self.platform_params.filtered_platform.upper()} not in the"
-                               f" provided firmware package file {self.fw_pkg_path}")
+            logger.warning(f"The specified platform {platform_params.filtered_platform.upper()} not in the"
+                           f" provided firmware package file {fw_pkg_path}")
+        logger.info(f"The latest ONIE version is {latest_onie_version}, the latest ONIE url is {latest_onie_url}")
+    return latest_onie_version, latest_onie_url
