@@ -14,7 +14,7 @@ from ngts.tools.redmine.redmine_api import *
 logger = logging.getLogger()
 
 PATH_TO_IMAGED_DIRECTORY = "/auto/sw_system_release/nos/nvos/"
-PATH_TO_IMAGE_TEMPLATE = "{}/images/"
+PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
 PATH_ON_SWITCH = "/tmp/"
 
 
