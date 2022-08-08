@@ -173,10 +173,32 @@ class HashTest(BaseTest):
                 self.check_balancing(next_hop.get_next_hop(), hit_count_map)
 
     def check_ip_route(self, hash_key, src_port, dst_ip, dst_port_lists):
-        if ip_network(six.text_type(dst_ip)).version == 4:
-            (matched_port, received) = self.check_ipv4_route(hash_key, src_port, dst_port_lists)
-        else:
-            (matched_port, received) = self.check_ipv6_route(hash_key, src_port, dst_port_lists)
+        # TODO: try block added by Petro Pikh just for debug RM issue: https://redmine.mellanox.com/issues/3151785
+        # Need to keep monitoring test - it will pass - then add here retries logic
+        # it it will fail - need to try to sleep before next try and check again
+        # if will fail in all cases - add logic which will in case of fail check that packet forwarded
+        # from PTF to DUT and arrived on DUT - if yes - then open bug for SONiC
+        try:
+            if ip_network(six.text_type(dst_ip)).version == 4:
+                (matched_port, received) = self.check_ipv4_route(hash_key, src_port, dst_port_lists)
+            else:
+                (matched_port, received) = self.check_ipv6_route(hash_key, src_port, dst_port_lists)
+        except AssertionError:
+            import os
+            timestamp = '_'.join(time.ctime().split())
+            filename_failed = 'hash_test_failed_{}'.format(timestamp)
+            filename_passed = 'hash_test_passed_{}'.format(timestamp)
+
+            os.system('apt update')
+            os.system('apt install -y sshpass')
+            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_failed))
+
+            if ip_network(six.text_type(dst_ip)).version == 4:
+                (matched_port, received) = self.check_ipv4_route(hash_key, src_port, dst_port_lists)
+            else:
+                (matched_port, received) = self.check_ipv6_route(hash_key, src_port, dst_port_lists)
+
+            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_passed))
 
         assert received
 

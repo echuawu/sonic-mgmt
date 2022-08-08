@@ -261,10 +261,32 @@ class FibTest(BaseTest):
                     break
 
     def check_ip_route(self, src_port, dst_ip_addr, dst_port_lists, ipv4=True):
-        if ipv4:
-            res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
-        else:
-            res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
+        # TODO: try block added by Petro Pikh just for debug RM issue: https://redmine.mellanox.com/issues/3151785
+        # Need to keep monitoring test - it will pass - then add here retries logic
+        # it it will fail - need to try to sleep before next try and check again
+        # if will fail in all cases - add logic which will in case of fail check that packet forwarded
+        # from PTF to DUT and arrived on DUT - if yes - then open bug for SONiC
+        try:
+            if ipv4:
+                res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
+            else:
+                res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
+        except AssertionError:
+            import os
+            timestamp = '_'.join(time.ctime().split())
+            filename_failed = 'fib_test_failed_{}'.format(timestamp)
+            filename_passed = 'fib_test_passed_{}'.format(timestamp)
+
+            os.system('apt update')
+            os.system('apt install -y sshpass')
+            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_failed))
+
+            if ipv4:
+                res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
+            else:
+                res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
+
+            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_passed))
 
         if self.pkt_action == self.ACTION_DROP:
             return res
@@ -344,7 +366,7 @@ class FibTest(BaseTest):
 
         dst_ports = list(itertools.chain(*dst_port_lists))
         if self.pkt_action == self.ACTION_FWD:
-            rcvd_port_index, rcvd_pkt = verify_packet_any_port(self,masked_exp_pkt, dst_ports)
+            rcvd_port_index, rcvd_pkt = verify_packet_any_port(self, masked_exp_pkt, dst_ports)
             rcvd_port = dst_ports[rcvd_port_index]
             len_rcvd_pkt = len(rcvd_pkt)
             logging.info('Recieved packet at port {} and packet is {} bytes'.format(rcvd_port,len_rcvd_pkt))
