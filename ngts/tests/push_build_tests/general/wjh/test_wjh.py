@@ -90,10 +90,17 @@ def check_feature_enabled(engines, cli_objects):
     :param engines: engines fixture
     :param cli_objects: cli_objects fixture
     """
-    with allure.step('Valdating WJH feature is installed and enabled on the DUT'):
+    with allure.step('Validating WJH feature is installed and enabled on the DUT'):
         features = cli_objects.dut.general.show_and_parse_feature_status()
-        if 'what-just-happened' not in features or features['what-just-happened']['State'] != 'enabled':
-            pytest.skip("what-just-happened feature is not available. Skipping the test.")
+        wjh_docker_status = cli_objects.dut.general.get_container_status('what-just-happened')
+        if 'what-just-happened' not in features:
+            pytest.skip("what-just-happened feature is not installed. Skipping the test.")
+
+        elif features['what-just-happened']['State'] != 'enabled':
+            pytest.skip("what-just-happened feature is disabled. Skipping the test.")
+
+        elif wjh_docker_status is None:
+            pytest.skip("what-just-happened docker doesn't exist. Skipping the test.")
 
 
 def check_if_channel_enabled(cli_object, engines, channel, channel_type):
