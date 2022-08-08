@@ -1308,12 +1308,12 @@ ptf-dummy ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
 # MTR dev setup PTF host
 ptf-arc-host61-005 ansible_host=arc-host61-005 ansible_ssh_user=root ansible_ssh_pass=3tango
 
-# MTBC c-panther-01 PTF host
-ptf-c-panther-01 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
+# MTBC mtbc-sonic-01-2410 PTF host
+ptf-mtbc02 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
 10.75.206.220 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
 
-# MTBC mtbc-sonic-01-2410 PTF host
-ptf-mtbc02 ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
+# MTBC c-panther-01 PTF host
+ptf-c-panther-01 ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
 10.75.207.41 ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
 
 # MTBC mtbc-sonic-03-2700 PTF host
