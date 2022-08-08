@@ -66,9 +66,9 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
 
 tests/push_build_tests/general/qos/test_qos_reload.py:
   skip:
-    reason: "Igonred due to verification issue https://redmine.mellanox.com/issues/2271111"
+    reason: "Testcase ignored, CLI command 'qos reload --ports' will not be merged to 202012/202111 branches"
     conditions:
-      - "https://redmine.mellanox.com/issues/2271111"
+      - "'202012' in release or '202111' in release"
 
 tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
   skip:
