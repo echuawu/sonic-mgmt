@@ -1287,3 +1287,22 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3136253
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- processSwitches: failed to create switch RID: SAI_STATUS_FAILURE.*'
+    - '.* ERR syncd#SDK: :- run: Runtime error during syncd init: :- processSwitches: failed to create switch RID: SAI_STATUS_FAILURE.*'
+    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c.*- mlnx_dvs_mng_stage: Failed running.*ip link set address.*dev swid0_eth > \/dev\/null 2\>&1.*'
+    - '.* ERR kernel:.*sx_core: create EMAD sdq 0 failed. err: -16.*'
+    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c.*- mlnx_resource_mng_stage: mlnx_sai_switch.c.*mlnx_resource_mng_stage: failed to set pci profile in asic, error: Device or resource busy.*'
+    - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_SWITCH_ATTR_INIT_SWITCH: true.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_SWITCH_ATTR_FDB_EVENT_NOTIFY.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr.*SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY.*'
+    - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
+    - '.* ERR swss#orchagent: :- main: Failed to create a switch, rv:-1.*'
+  Conditions:
+    - Affected_test_cases:
+      - autorestart/test_container_autorestart.py::test_containers_autorestart
+      Redmine:
+      - 3116539
