@@ -1306,3 +1306,11 @@
       - autorestart/test_container_autorestart.py::test_containers_autorestart
       Redmine:
       - 3116539
+
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c.*- sai_db_create: mlnx_sai_switch.c.*- sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating.*'
+  Conditions:
+    - Affected_test_cases:
+      - bgp/test_traffic_shift.py
+      Redmine:
+      - 3144720
