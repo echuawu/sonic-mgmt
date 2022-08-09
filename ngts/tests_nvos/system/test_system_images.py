@@ -266,6 +266,7 @@ def get_list_of_directories(current_installed_img, starts_with=None):
     for directory in all_directories:
         temp_dir = PATH_TO_IMAGED_DIRECTORY + PATH_TO_IMAGE_TEMPLATE.format(directory)
         if os.path.isdir(temp_dir) and starts_with and directory.startswith(starts_with):
+            logging.info("Searching for images in path: " + temp_dir)
             relevant_images = [f for f in os.listdir(temp_dir) if f.startswith("nvos-amd64-25.") and
                                current_installed_img.replace("nvos-25", "nvos-amd64-25") not in f]
             if relevant_images:

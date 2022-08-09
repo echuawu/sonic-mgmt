@@ -38,7 +38,7 @@ class LinkBaseOperational(LinkBase, CmdBase):
     def __init__(self, port_obj, label, description, field_name_in_db, output_hierarchy):
         LinkBase.__init__(self, port_obj, label, description, field_name_in_db, output_hierarchy)
 
-    def set(self, value, dut_engine=None, apply=True):
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
         """
         Set current field with provided value
         :param value: value to set
@@ -52,9 +52,10 @@ class LinkBaseOperational(LinkBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
                                          output_hierarchy=self.output_hierarchy,
-                                         value=value, apply=apply, port_obj=self.port_obj)
+                                         value=value, apply=apply, port_obj=self.port_obj,
+                                         ask_for_confirmation=ask_for_confirmation)
 
-    def unset(self, dut_engine=None, apply=True):
+    def unset(self, dut_engine=None, apply=True, ask_for_confirmation=False):
         """
         Unset current field
         :param dut_engine: ssh dut engine
@@ -66,7 +67,8 @@ class LinkBaseOperational(LinkBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
                                            output_hierarchy=self.output_hierarchy,
-                                           apply=apply, port_obj=self.port_obj)
+                                           apply=apply, port_obj=self.port_obj,
+                                           ask_for_confirmation=ask_for_confirmation)
 
 
 class Speed(LinkBaseOperational):
@@ -181,7 +183,7 @@ class State(LinkBaseOperational):
                                                    dut_engine, TestToolkit.tested_ports, self.output_hierarchy,
                                                    output_format).get_returned_value()
 
-    def set(self, value, dut_engine=None, apply=True):
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
         with allure.step('Set ‘state‘ to ‘{value}’ for {port_name}'.format(value=value, port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
@@ -194,4 +196,5 @@ class State(LinkBaseOperational):
 
             return CmdBase.set_interface(engine=dut_engine, field_name=field_name_to_use,
                                          output_hierarchy=self.output_hierarchy,
-                                         value=value_to_use, apply=apply, port_obj=self.port_obj)
+                                         value=value_to_use, apply=apply, port_obj=self.port_obj,
+                                         ask_for_confirmation=ask_for_confirmation)

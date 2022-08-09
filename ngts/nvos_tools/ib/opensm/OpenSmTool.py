@@ -1,6 +1,7 @@
 import allure
 import pytest
 import logging
+import time
 
 logger = logging.getLogger()
 
@@ -34,6 +35,7 @@ class OpenSmTool:
 
         with allure.step("Start OpenSM"):
             engine.run_cmd("opensm -g {} -B".format(guid))
+            time.sleep(5)
 
         with allure.step("Verify OpenSM is running"):
             assert OpenSmTool.verify_open_sm_is_running(engine), "Failed to start OpenSM"

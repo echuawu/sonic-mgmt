@@ -16,7 +16,7 @@
   </global>
 
   <case>
-    <name> System Images - release </name>
+    <name> System Images </name>
     <info> </info>
     <tout> 1200 </tout>
     <cmd>

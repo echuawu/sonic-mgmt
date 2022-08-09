@@ -18,11 +18,13 @@ class BaseDevice:
         self.available_services = []
         self.available_dockers = []
         self.constants = None
+        self.supported_ib_speeds = {}
 
         self._init_available_databases()
         self._init_services()
         self._init_dockers()
         self._init_contants()
+        self._init_ib_speeds()
 
     @abstractmethod
     def _init_available_databases(self):
@@ -42,6 +44,10 @@ class BaseDevice:
 
     @abstractmethod
     def _init_contants(self):
+        pass
+
+    @abstractmethod
+    def _init_ib_speeds(self):
         pass
 
     def verify_databases(self, dut_engine):
@@ -258,6 +264,9 @@ class BaseSwitch(BaseDevice, ABC):
                       'temperature', 'top', 'version', 'vlan.summary', 'vmstat', 'vmstat.m', 'vmstat.s', 'who']
         self.constants = Constants(system_dic, dump_files)
 
+    def _init_ib_speeds(self):
+        self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
+
 
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitch(BaseSwitch):
@@ -268,6 +277,10 @@ class GorillaSwitch(BaseSwitch):
 
     def ib_ports_num(self):
         return self.GORILLA_IB_PORT_NUM
+
+    def _init_ib_speeds(self):
+        BaseSwitch._init_ib_speeds(self)
+        self.supported_ib_speeds.update({'ndr': '400G'})
 
 
 # -------------------------- Jaguar Switch ----------------------------

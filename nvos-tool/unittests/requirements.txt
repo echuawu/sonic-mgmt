@@ -23,4 +23,3 @@ mock
 ujson
 aiohttp
 aiohttp_jinja2
-

@@ -16,8 +16,10 @@ def pytest_addoption(parser):
     :param parser: pytest buildin
     """
     logger.info('Parsing NVOS pytest options')
-    parser.addoption('--release_name', action='store', default="master_25",
-                     help='The name of the release to be tested. For example: master_25')
+    parser.addoption('--release_name', action='store',
+                     help='The name of the release to be tested. For example: 25.01.0630')
+    parser.addoption('--traffic_ports', action='store',
+                     help='The name of traffic ports, split by ","')
 
 
 @pytest.fixture(scope='session')
@@ -41,7 +43,7 @@ def devices(topology_obj):
     return devices_date
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="session")
 def release_name(request):
     """
     Method for getting release_name from pytest arguments
@@ -84,6 +86,17 @@ def interfaces(topology_obj):
     interfaces_data.ha_dut_1 = topology_obj.ports['ha-dut-1']
     interfaces_data.hb_dut_1 = topology_obj.ports['hb-dut-1']
     return interfaces_data
+
+
+@pytest.fixture(scope='session')
+def traffic_ports(request):
+    """
+    Method for getting list of traffic ports
+    :param request: pytest builtin
+    :return: list of ports names
+    """
+    ports_str_list = request.config.getoption('--traffic_ports')
+    return ports_str_list.split(',')
 
 
 def clear_config():

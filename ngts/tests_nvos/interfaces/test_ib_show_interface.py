@@ -145,7 +145,7 @@ def validate_link_fields(selected_port, output_dictionary):
                           selected_port.ib_interface.link.max_supported_mtu.label,
                           selected_port.ib_interface.link.ib_speed.label,
                           selected_port.ib_interface.link.supported_ib_speeds.label,
-                          selected_port.ib_interface.link.supported_speeds.label,
+                          # selected_port.ib_interface.link.supported_speeds.label,
                           selected_port.ib_interface.link.logical_port_state.label,
                           selected_port.ib_interface.link.physical_port_state.label,
                           selected_port.ib_interface.link.operational_vls.label,

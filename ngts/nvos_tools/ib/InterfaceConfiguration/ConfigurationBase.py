@@ -17,7 +17,7 @@ class ConfigurationBase:
         self.field_name_in_db = field_name_in_db
         self.output_hierarchy = output_hierarchy
 
-    def get_operational(self, engine, renew_show_cmd_output=True):
+    def get_operational(self, engine=None, renew_show_cmd_output=True):
         """
         Returns the operational value of the filed
         :param engine: ssh engine

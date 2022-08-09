@@ -68,7 +68,7 @@ class IbInterfaceConsts:
     ETH_PORT_TYPE = "eth"
     MTU_VALUES = [256, 512, 1024, 2048, 4096]
     DEFAULT_MTU = 4096
-    SPEED_LIST = {'xdr': 800, 'ndr': 400, 'hdr': 200, 'edr': 100, 'fdr': 56, 'qdr': 40, 'sdr': 10}
+    SPEED_LIST = {'xdr': '800G', 'ndr': '400G', 'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
     SUPPORTED_LANES = ['1X', '1X, 2X', '1X, 4X', '1X, 2X, 4X']
     DEFAULT_LANES = '1X, 4X'
     SUPPORTED_VLS = ['VL0', 'VL0, VL1', 'VL0-VL3', 'VL0-VL7']
