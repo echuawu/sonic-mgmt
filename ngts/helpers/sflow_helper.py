@@ -493,8 +493,10 @@ def analyze_time_stamp(time_stamp_list, polling_interval, sample_file):
     logger.info(f"##-------------------------------##")
     deviation_1 = abs(delta_t1 - polling_interval)
     deviation_2 = abs(delta_t2 - polling_interval)
-    assert deviation_1 <= polling_interval * SflowConsts.POLLING_INTERVAL_DEVIATION_RATE_TOLERANCE, f"Sflow samples are not received at polling interval {polling_interval}"
-    assert deviation_2 <= polling_interval * SflowConsts.POLLING_INTERVAL_DEVIATION_RATE_TOLERANCE, f"Sflow samples are not received at polling interval {polling_interval}"
+    if deviation_1 > SflowConsts.POLLING_INTERVAL_DEVIATION_TOLERANCE:
+        logger.warning(f"There is a big deviation: {deviation_1} seconds, greater than {SflowConsts.POLLING_INTERVAL_DEVIATION_TOLERANCE}")
+    if deviation_2 > SflowConsts.POLLING_INTERVAL_DEVIATION_TOLERANCE:
+        logger.warning(f"There is a big deviation: {deviation_2} seconds, greater than {SflowConsts.POLLING_INTERVAL_DEVIATION_TOLERANCE}")
 
 
 def copy_sample_file_to_ngts_docker(engines, sample_file):

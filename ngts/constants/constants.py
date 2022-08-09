@@ -735,7 +735,7 @@ class SflowConsts:
     SFLOW_UP = "up"
     SFLOW_DOWN = "down"
     SFLOW_TOOL_PRETTY = "/usr/local/bin/sflowtool -J -p "
-    POLLING_INTERVAL_DEVIATION_RATE_TOLERANCE = 0.2
+    POLLING_INTERVAL_DEVIATION_TOLERANCE = 2
     SAMPLE_RATE_1 = 500
     SAMPLE_RATE_2 = 300
     SAMPLE_RATE_3 = 1000
