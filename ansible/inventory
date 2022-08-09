@@ -55,13 +55,21 @@ r-tigris-22 ansible_host=r-tigris-22  sonic_version=v2  sonic_hwsku=ACS-MSN3800 
 r-spider-05-ptf-any ansible_host=r-spider-05  sonic_version=v2  sonic_hwsku=ACS-MSN2410             serial_console="ssh -l rcon:7021 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23 base_mac=B8:59:9F:68:7F:80 serial=MT1921X01546 model=MSN2410-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MSN2410-CB2FO', '0x23': u'MT1921X01546', '0x21': u'MSN2410', '0x26': u'17', '0x24': u'B8:59:9F:68:7F:80', '0x25': u'05/21/2019 09:40:30', '0xfe': u'0x239CC972', '0x2b': u'Mellanox', '0x2a': u'128'}"
 r-spider-05 ansible_host=r-spider-05  sonic_version=v2  sonic_hwsku=ACS-MSN2410             serial_console="ssh -l rcon:7021 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23 base_mac=B8:59:9F:68:7F:80 serial=MT1921X01546 model=MSN2410-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MSN2410-CB2FO', '0x23': u'MT1921X01546', '0x21': u'MSN2410', '0x26': u'17', '0x24': u'B8:59:9F:68:7F:80', '0x25': u'05/21/2019 09:40:30', '0xfe': u'0x239CC972', '0x2b': u'Mellanox', '0x2a': u'128'}"
 
-# MTR canonical testbed r-moose-simx-121 topologies
-r-moose-simx-121-ptf-any ansible_host=r-moose-simx-121  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r640-06 11000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
-r-moose-simx-121 ansible_host=r-moose-simx-121  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r640-06 11000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+# MTR canonical testbed r-moose-simx-18 topologies
+r-moose-simx-18-ptf-any ansible_host=r-moose-simx-18  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-18 ansible_host=r-moose-simx-18  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
-# MTR canonical testbed r-moose-simx-145 topologies
-r-moose-simx-145-ptf-any ansible_host=r-moose-simx-145  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r640-06 18000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
-r-moose-simx-145 ansible_host=r-moose-simx-145  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r640-06 18000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+# MTR canonical testbed r-moose-simx-22 topologies
+r-moose-simx-22-ptf-any ansible_host=r-moose-simx-22  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-22 ansible_host=r-moose-simx-22  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-moose-simx-26 topologies
+r-moose-simx-26-ptf-any ansible_host=r-moose-simx-26  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 16000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-26 ansible_host=r-moose-simx-26  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 16000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-moose-simx-30 topologies
+r-moose-simx-30-ptf-any ansible_host=r-moose-simx-30  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 17000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-30 ansible_host=r-moose-simx-30  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 17000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
 # MTR canonical testbed r-panther-simx-23 topologies
 r-panther-simx-23-ptf-any ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
@@ -806,11 +814,17 @@ r-spider-05
 r-panther-simx-23-ptf-any
 r-panther-simx-23
 
-r-moose-simx-121-ptf-any
-r-moose-simx-121
+r-moose-simx-18-ptf-any
+r-moose-simx-18
 
-r-moose-simx-145-ptf-any
-r-moose-simx-145
+r-moose-simx-22-ptf-any
+r-moose-simx-22
+
+r-moose-simx-26-ptf-any
+r-moose-simx-26
+
+r-moose-simx-30-ptf-any
+r-moose-simx-30
 
 r-panther-simx-18-ptf-any
 r-panther-simx-18
