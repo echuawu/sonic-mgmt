@@ -30,6 +30,7 @@ def test_sensors(duthosts, rand_one_dut_hostname, creds):
         output = duthost.command('cat /run/hw-management/system/config3', module_ignore_errors=True)
         if output["rc"] == 0 and output["stdout"] == '1':
             platform = platform + '-respined'
+    if platform in ['x86_64-mlnx_msn3700-r0', 'x86_64-mlnx_msn3700c-r0']:
         output = duthost.command('cat /run/hw-management/system/config1', module_ignore_errors=True)
         if output["rc"] == 0 and (output["stdout"] == '2' or output["stdout"] == '6'):
             platform = platform.strip('-respined') + '-swb-respined'
