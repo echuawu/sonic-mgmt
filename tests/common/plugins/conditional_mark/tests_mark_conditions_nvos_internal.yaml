@@ -49,16 +49,4 @@ tests_nvos/system/test_log_commands.py::test_delete_log_files:
   skip:
     reason: "Not implemented command"
 
-tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_lanes:
-  skip:
-    reason: "Temporary not supported"
-
-tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_vls:
-  skip:
-    reason: "Temporary not supported"
-
-tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed:
-  skip:
-    reason: "Temporary not supported"
-
 ########################## NVOS IGNORE END ##########################
