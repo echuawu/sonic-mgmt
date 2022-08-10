@@ -856,4 +856,10 @@ platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3172507 and branch 202205"
     conditions:
       - "https://redmine.mellanox.com/issues/3172507 and '202205' in release"
+
+qos/test_qos_sai_dual_tor.py:
+  skip:
+    reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64"
+    conditions:
+      - "hwsku not in ['Mellanox-SN4600C-C64']"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
