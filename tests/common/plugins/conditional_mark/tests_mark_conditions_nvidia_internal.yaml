@@ -850,4 +850,10 @@ bfd/test_bfd.py::test_bfd_basic:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3171891 and branch 202205"
     conditions:
       - "https://redmine.mellanox.com/issues/3171891 and '202205' in release"
+
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3172507 and branch 202205"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3172507 and '202205' in release"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
