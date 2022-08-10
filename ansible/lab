@@ -15,6 +15,7 @@ r-moose-simx-18      ansible_host=10.215.14.18 ansible_hostv6="fe80::e42:a1ff:fe
 r-moose-simx-22      ansible_host=10.215.14.22 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-26      ansible_host=10.215.14.26 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-30      ansible_host=10.215.14.30 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
+r-moose-simx-34      ansible_host=10.215.14.34 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-panther-simx-23      ansible_host=10.213.88.23 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-panther-simx-18      ansible_host=10.213.88.18 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-panther-simx-13      ansible_host=10.213.88.13 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
