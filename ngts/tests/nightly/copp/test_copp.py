@@ -300,8 +300,8 @@ class CoppBase:
         retry_call(
             self.validate_traffic,
             fargs=[cbs_value, cir_value, traffic_type],
-            tries=4,
-            delay=8,
+            tries=6,
+            delay=4,
             logger=logger,
         )
 
