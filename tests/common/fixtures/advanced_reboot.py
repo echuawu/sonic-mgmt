@@ -495,6 +495,11 @@ class AdvancedReboot:
                     if verification_errors:
                         logger.error("Post reboot verification failed. List of failures: {}".format('\n'.join(verification_errors)))
                         test_results[test_case_name].extend(verification_errors)
+                logger.info("Checking ACL manager status")
+                acl_proc_count = self.duthost.command('pgrep -f -c caclmgrd', module_ignore_errors=True)['stdout']
+                if int(acl_proc_count) != 1:
+                    test_results[test_case_name].append("Expected one ACL manager process running. "
+                                                        "Actual: {}".format(acl_proc_count))
                 self.__clearArpAndFdbTables()
                 self.__revertRebootOper(rebootOper)
             if len(self.rebootData['sadList']) > 1 and count != len(self.rebootData['sadList']):
