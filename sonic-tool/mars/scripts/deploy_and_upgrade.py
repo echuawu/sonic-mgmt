@@ -75,7 +75,7 @@ def _parse_args():
     parser.add_argument("--deploy_fanout", help="Specify whether to do fanout deployment. Default is 'no'",
                         choices=["no", "yes"], dest="deploy_fanout", default="no")
     parser.add_argument("--onyx_image_url", help="Specify Onyx image url for the fanout switch deployment"
-                                                 " Example: http://fit69.mtl.labs.mlnx/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
+                                                 " Example: http://nbu-nfs.mellanox.com/mswg/release/sx_mlnx_os/lastrc_3_9_3000/X86_64/image-X86_64-3.9.3004-002.img",
                         dest="onyx_image_url", default=None)
     parser.add_argument("--wjh-deb-url", help="Specify url to WJH debian package",
                         dest="wjh_deb_url", default="")
@@ -268,7 +268,7 @@ def is_url(image_path):
 def get_installer_url_from_nfs_path(image_path):
     verify_image_stored_in_nfs(image_path)
     image_path = get_image_path_in_new_nfs_dir(image_path)
-    return "{http_base}{image_path}".format(http_base=constants.HTTTP_SERVER_FIT69, image_path=image_path)
+    return "{http_base}{image_path}".format(http_base=constants.HTTP_SERVER_NBU_NFS, image_path=image_path)
 
 
 def verify_file_exists(image_path):
@@ -347,7 +347,7 @@ def deploy_fanout(ansible_path, mgmt_docker_engine, topo, setup_name, onyx_image
     logger.info("Performing deploy fanout")
     fanout_device_ip = topo.get_device_by_topology_id(constants.FANOUT_DEVICE_ID).BASE_IP
     host_name = _get_hostname_from_ip(fanout_device_ip)
-    pfcwd_dockers_url = '{}/auto/sw_system_project/sonic/docker/'.format(constants.HTTTP_SERVER_FIT69)
+    pfcwd_dockers_url = '{}/auto/sw_system_project/sonic/docker/'.format(constants.HTTP_SERVER_NBU_NFS)
     with mgmt_docker_engine.cd(ansible_path):
         cmd = "ansible-playbook -i lab fanout.yml -l {host_name} -e pfcwd_dockers_url={pfcwd_dockers_url} -vvv".format(
             host_name=host_name, pfcwd_dockers_url=pfcwd_dockers_url)
@@ -551,7 +551,7 @@ def is_additional_apps_argument_is_deb_package(additional_apps_argument):
 def is_additional_apps_argument_is_app_ext_dict(additional_apps_argument):
     is_app_ext_dict = False
     try:
-        requests.get('{}/{}'.format(constants.HTTTP_SERVER_FIT69, additional_apps_argument)).json()
+        requests.get('{}/{}'.format(constants.HTTP_SERVER_NBU_NFS, additional_apps_argument)).json()
         is_app_ext_dict = True
     except json.decoder.JSONDecodeError:
         pass
@@ -635,7 +635,7 @@ def main():
 
     if args.additional_apps:
         if is_additional_apps_argument_is_deb_package(args.additional_apps):
-            args.wjh_deb_url = '{}{}'.format(constants.HTTTP_SERVER_FIT69, args.additional_apps)
+            args.wjh_deb_url = '{}{}'.format(constants.HTTP_SERVER_NBU_NFS, args.additional_apps)
         elif is_additional_apps_argument_is_app_ext_dict(args.additional_apps):
             args.app_extension_dict_path = args.additional_apps
 

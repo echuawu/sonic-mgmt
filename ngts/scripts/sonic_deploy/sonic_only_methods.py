@@ -159,7 +159,7 @@ class SonicInstallationSteps:
     def is_additional_apps_argument_is_app_ext_dict(additional_apps_argument):
         is_app_ext_dict = False
         try:
-            requests.get('{}/{}'.format(MarsConstants.HTTTP_SERVER_FIT69, additional_apps_argument)).json()
+            requests.get('{}/{}'.format(MarsConstants.HTTP_SERVER_NBU_NFS, additional_apps_argument)).json()
             is_app_ext_dict = True
         except json.decoder.JSONDecodeError:
             pass
@@ -246,7 +246,7 @@ class SonicInstallationSteps:
         """
         dut_engine = None
         try:
-            # when bgp is up, dut can not access the external IP such as fit69.mtl.labs.mlnx. So shutodwn bgp
+            # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutodwn bgp
             # for sonic only (is_shutdown_bgp is False for NVOS)
             if is_shutdown_bgp:
                 with allure.step('Shutdown bgp'):
@@ -342,7 +342,7 @@ class SonicInstallationSteps:
         :param additional_apps: additional apps
         :param ansible_path: path to ansible directory
         """
-        wjh_deb_url_arg = '{}{}'.format(MarsConstants.HTTTP_SERVER_FIT69, additional_apps)
+        wjh_deb_url_arg = '{}{}'.format(MarsConstants.HTTP_SERVER_NBU_NFS, additional_apps)
         if wjh_deb_url_arg:
             with allure.step("Install WJH"):
                 SonicInstallationSteps.install_wjh(ansible_path=ansible_path, dut_name=dut_name,

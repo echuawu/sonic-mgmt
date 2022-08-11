@@ -28,7 +28,7 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
     dut_engine = topology_obj.players['dut']['engine']
     cli_obj = topology_obj.players['dut']['cli']
     try:
-        # when bgp is up, dut can not access the external IP such as fit69.mtl.labs.mlnx. So shutodwn bgp
+        # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutodwn bgp
         if is_shutdown_bgp:
             dut_engine.run_cmd('sudo config bgp shutdown all', validate=True)
             logger.info("Wait all bgp sessions are down")

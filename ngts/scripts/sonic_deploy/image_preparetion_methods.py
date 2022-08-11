@@ -42,7 +42,7 @@ def set_image_path(image_path, image_key, image_dict):
 def get_installer_url_from_nfs_path(image_path):
     verify_image_stored_in_nfs(image_path)
     image_path = get_image_path_in_new_nfs_dir(image_path)
-    return "{http_base}{image_path}".format(http_base=MarsConstants.HTTTP_SERVER_FIT69, image_path=image_path)
+    return "{http_base}{image_path}".format(http_base=MarsConstants.HTTP_SERVER_NBU_NFS, image_path=image_path)
 
 
 def verify_image_stored_in_nfs(image_path):

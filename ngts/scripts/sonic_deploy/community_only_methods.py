@@ -22,7 +22,7 @@ def deploy_fanout_config(onyx_image_url, ansible_path, host_name):
         test_fanout_reset_factory(onyx_image_url=onyx_image_url)
 
         logger.info("Performing deploy fanout")
-        pfcwd_dockers_url = '{}/auto/sw_system_project/sonic/docker/'.format(MarsConstants.HTTTP_SERVER_FIT69)
+        pfcwd_dockers_url = '{}/auto/sw_system_project/sonic/docker/'.format(MarsConstants.HTTP_SERVER_NBU_NFS)
         with allure.step("Deploy fanout config"):
             cmd = "ansible-playbook -i lab fanout.yml -l {host_name} " \
                   "-e pfcwd_dockers_url={pfcwd_dockers_url} -vvv".format(host_name=_remove_mlnx_lab_suffix(host_name),

@@ -57,7 +57,7 @@ Example of data which returned by this module:
 '''
 
 
-http_topo_base_path = "http://fit69.mtl.labs.mlnx/auto/sw_regression/system/SONIC/MARS/conf/topo/"
+http_topo_base_path = "http://nbu-nfs.mellanox.com/auto/sw_regression/system/SONIC/MARS/conf/topo/"
 
 
 def str_hook(obj):
