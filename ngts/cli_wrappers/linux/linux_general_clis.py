@@ -1,3 +1,4 @@
+import os
 import logging
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 
@@ -25,6 +26,7 @@ class LinuxGeneralCli(GeneralCliCommon):
             image_path = '/auto' + image_path.split('/auto')[1]
         if image_path.endswith('.bin'):
             image_path = image_path.replace('.bin', '.bfb')
+        assert os.path.exists(image_path), "The required image path doesn't exists"
         try:
             cmd = f'bfb-install -b {image_path} -r rshim{rshim_num}'
             pattern = r"\s+".join([r"INFO\[MISC\]:", r"Linux", r"up"])
