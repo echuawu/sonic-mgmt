@@ -168,7 +168,10 @@ def test_ib_interface_speed(engines, players, interfaces, devices, traffic_ports
             Tools.ValidationTool.compare_values(speed_value, IbInterfaceConsts.SPEED_LIST[ib_speed_value],
                                                 True).verify_result()
             assert IbInterfaceConsts.SPEED_LIST[ib_speed_value] == str(speed_value), \
-                "ib-speed {} value is not equal to speed value {}".format(current_ib_speed_value, current_speed_value)
+                "ib-speed {} value is not equal to speed value {}".format(ib_speed_value, speed_value)
+
+        with allure.step('Verify traffic'):
+            Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     '''with allure.step("Unset speed for port {}".format(selected_port.name)):
         selected_port.ib_interface.link.speed.unset(apply=True).verify_result()'''
@@ -176,10 +179,39 @@ def test_ib_interface_speed(engines, players, interfaces, devices, traffic_ports
     with allure.step("Unset ib_speed for port {}".format(selected_port.name)):
         selected_port.ib_interface.link.ib_speed.unset(apply=True, ask_for_confirmation=True).verify_result()
 
-        '''with allure.step("Verify the ib-speed value updated to: {}".format(selected_ib_speed_value)):
-            verify_value_updated_correctly(selected_port.ib_interface.link.ib_speed, str(
-            ib_speed_value = selected_port.ib_interface.link.ib_speed.get_operational()
-            Tools.ValidationTool.compare_values(ib_speed_value, selected_speed_value, True).verify_result()'''
+    with allure.step("Restore {} speed to {}".format(selected_port.name, current_ib_speed_value)):
+        selected_port.ib_interface.link.ib_speed.set(value=current_ib_speed_value, apply=True,
+                                                     ask_for_confirmation=True).verify_result()
+
+        with allure.step("Verify the ib-speed value updated to: {}".format(current_ib_speed_value)):
+            wait_for_port_to_become_active(selected_port)
+            verify_value_updated_correctly(selected_port.ib_interface.link.ib_speed, str(current_ib_speed_value))
+
+
+@pytest.mark.ib_interfaces
+def test_ib_interface_speed_invalid(engines, traffic_ports, devices):
+    """
+    Try to set an invalid speed and make sure the config apply fails
+    """
+    with allure.step("Get a random functional port"):
+        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
+        selected_port = get_port_obj(selected_port_name)
+
+    TestToolkit.update_tested_ports([selected_port])
+
+    invalid_speed = "invalid_speed"
+    with allure.step("Set an invalid ib-speed '{}' for port '{}".format(invalid_speed, selected_port.name)):
+        selected_port.ib_interface.link.ib_speed.set(value=invalid_speed, apply=False).verify_result(False)
+
+    invalid_speeds = devices.dut.invalid_ib_speeds
+    if invalid_speeds:
+        invalid_speed = Tools.RandomizationTool.select_random_value(list(invalid_speeds.keys())).get_returned_value()
+        with allure.step("Set an invalid ib-speed '{}' for port '{}".format(invalid_speed, selected_port.name)):
+            selected_port.ib_interface.link.ib_speed.set(value=invalid_speed, apply=False).verify_result()
+
+            with allure.step("Try to apply invalid configuration and expect failure"):
+                Tools.SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                      engines.dut, False).verify_result(False)
 
 
 @pytest.mark.ib_interfaces
@@ -226,6 +258,9 @@ def test_ib_interface_lanes(engines, players, interfaces, traffic_ports):
         with allure.step("Verify the lanes value updated to: {}".format(selected_lanes)):
             wait_for_port_to_become_active(selected_port)
             verify_value_is_contained_in_output(selected_port.ib_interface.link.lanes, str(selected_lanes))
+
+        with allure.step('Verify traffic'):
+            Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step("Unset lanes for port {}".format(selected_port.name)):
         selected_port.ib_interface.link.lanes.unset(apply=True, ask_for_confirmation=True).verify_result()
@@ -289,7 +324,7 @@ def test_ib_interface_vls(engines, players, interfaces, traffic_ports):
         selected_port.ib_interface.link.operational_vls.set(value=selected_op_vls, apply=True,
                                                             ask_for_confirmation=True).verify_result()
 
-        with allure.step("Verify vl-capabilities value updated to: {}".format(current_vl_capabilities)):
+        with allure.step("Verify vl-capabilities value updated to: {}".format(selected_op_vls)):
             wait_for_port_to_become_active(selected_port)
             verify_value_is_contained_in_output(selected_port.ib_interface.link.vl_admin_capabilities,
                                                 str(selected_op_vls))
@@ -319,7 +354,7 @@ def check_for_max_supported_speeds(devices, supported_ib_speeds, current_speed):
     assert max_supported_speed <= int(current_speed.replace("G", "")), "The list of supported speeds is incorrect"
 
 
-@retry(Exception, tries=6, delay=10)
+@retry(Exception, tries=10, delay=10)
 def wait_for_port_to_become_active(port_obj):
     with allure.step("Waiting for port {} to become active".format(port_obj.name)):
         logical_state = port_obj.ib_interface.link.logical_port_state.get_operational()

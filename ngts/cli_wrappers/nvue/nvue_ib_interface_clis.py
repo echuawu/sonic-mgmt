@@ -42,7 +42,7 @@ class NvueIbInterfaceCli:
         :param engine: ssh engine object
         :param port_name: the name of the port/ports
         """
-        cmd = 'nv action interface {port_name} link clear stats'.format(port_name=port_name)
+        cmd = 'nv action clear interface {port_name} link stats'.format(port_name=port_name)
         logging.info('Running ' + cmd)
         return engine.run_cmd(cmd)
 

@@ -41,7 +41,7 @@ class Stats(ConfigurationBase):
         self.out_pkts = OutPkts(port_obj)
         self.out_wait = OutWait(port_obj)
 
-    def clear_stats(self, dut_engine):
+    def clear_stats(self, dut_engine=None):
         """
         Clears interface counters
         """

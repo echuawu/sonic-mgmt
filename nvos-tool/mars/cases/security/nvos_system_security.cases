@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> System Security test </name>
+      <name> System Security test - Community </name>
       <info> </info>
       <owner> Rowaida Mahameed </owner>
     </Test>
@@ -17,7 +17,7 @@
 
 
   <case>
-    <name> System Security test </name>
+    <name> System Security test - Community </name>
     <info> </info>
     <cmd>
       <params>

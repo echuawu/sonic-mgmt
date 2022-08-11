@@ -16,7 +16,7 @@ def create_pytest_environment():
     os.chdir("nvos/src/nvue-app/nvue")
 
     print("Prepare the environment")
-    subprocess.Popen(shlex.split("./startenv.sh"))
+    subprocess.Popen(shlex.split("./startenv.sh -p"))
 
     print("Build the API")
     run_command("scripts/build_dist.sh nvos test")

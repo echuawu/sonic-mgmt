@@ -19,6 +19,7 @@ class BaseDevice:
         self.available_dockers = []
         self.constants = None
         self.supported_ib_speeds = {}
+        self.invalid_ib_speeds = {}
 
         self._init_available_databases()
         self._init_services()
@@ -266,6 +267,7 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_ib_speeds(self):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
+        self.invalid_ib_speeds = {}
 
 
 # -------------------------- Gorilla Switch ----------------------------
@@ -292,3 +294,7 @@ class JaguarSwitch(BaseSwitch):
 
     def ib_ports_num(self):
         return self.JAGUAR_IB_PORT_NUM
+
+    def _init_ib_speeds(self):
+        BaseSwitch._init_ib_speeds(self)
+        self.invalid_ib_speeds.update({'ndr': '400G'})

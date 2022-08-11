@@ -1,7 +1,7 @@
 from ngts.nvos_tools.infra.ResultObj import ResultObj, IssueType
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
-                   "error: unrecognized arguments", "invalid choice", "Action failed"]
+                   "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command"]
 timeout_cmd_str = ['Timeout while waiting for client response']
 
 
