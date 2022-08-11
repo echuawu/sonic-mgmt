@@ -143,3 +143,9 @@ class IpConsts:
 class ConfigConsts:
     HISTORY_APPLY_ID = 'apply-id'
     HISTORY_USER = 'user'
+    APPLY_YES = '-y'
+    APPLY_ASSUME_YES = '--assume-yes'
+    APPLY_ASSUME_NO = '--assume-no'
+    APPLY_CONFIRM_NO = '--confirm-yes'
+    APPLY_CONFIRM_YES = '--confirm-no'
+    APPLY_CONFIRM_STATUS = '--confirm-status'

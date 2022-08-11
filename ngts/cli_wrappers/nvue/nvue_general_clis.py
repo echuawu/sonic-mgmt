@@ -81,6 +81,13 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
+    def save_config(engine):
+        logging.info("Running 'nv config save' on dut")
+        output = engine.run_cmd('nv config save')
+
+        return output
+
+    @staticmethod
     def patch_config(engine, file, output_type='json'):
         logging.info("Running 'nv config patch' on dut")
         output = engine.run_cmd('nv config patch {file} --output {output_type}'.format(file=file,
@@ -88,9 +95,10 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def apply_config(engine, ask_for_confirmation=False):
+    def apply_config(engine, ask_for_confirmation=False, option=''):
         """
         Apply configuration
+        :param option: could be [-y, --assume-yes, --assume-no, --confirm-yes, --confirm-no, --confirm-status]
         :param engine: ssh engine object
         :param ask_for_confirmation: True or False
         """
@@ -103,7 +111,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             elif 'y: command not found' in output and 'applied' in output:
                 output = 'applied'
         else:
-            output = engine.run_cmd('nv config apply')
+            output = engine.run_cmd('nv {option} config apply'.format(option=option))
+
         return output
 
     @staticmethod
