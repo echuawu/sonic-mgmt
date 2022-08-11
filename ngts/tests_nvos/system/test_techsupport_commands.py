@@ -67,13 +67,13 @@ def test_techsupport_since_invalid_date(engines):
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
         output_dictionary = system.techsupport.action_generate(SystemConsts.ACTIONS_GENERATE_SINCE, invalid_date_syntax)
-        assert 'Invalid date expression passed:' in output_dictionary, ""
+        assert 'Command failed with the following output' in output_dictionary, ""
 
     invalid_date_syntax = 'aabbccdd'
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
         output_dictionary = system.techsupport.action_generate(SystemConsts.ACTIONS_GENERATE_SINCE, invalid_date_syntax)
-        assert 'Invalid date expression passed:' in output_dictionary, ""
+        assert 'Command failed with the following output' in output_dictionary, ""
 
 
 def validate_techsupport_output(output_dictionary_before, output_dictionary_after):

@@ -4,11 +4,11 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.constants.constants_nvos import SystemConsts
-
+from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 logger = logging.getLogger()
 
 
-def test_system(engines, devices):
+def test_system(engines, devices, topology_obj):
     """
     Run show system message command and verify the required message
         Test flow:
@@ -32,8 +32,16 @@ def test_system(engines, devices):
 
     with allure.step('Run set system hostname command and verify that hostname is updated'):
         new_hostname_value = "NOS-NVOS"
+        hostname_default = SystemConsts.HOSTNAME_DEFAULT_VALUE
+        dhcp_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['dhcp_hostname']
+        # eth0_port = MgmtPort('eth0')
+        # run nv show interface eth0 ip ipv4 dhcp-client and get "set-hostname" if it is"enabled" then dhcp = True
+        dhcp = True
+        if dhcp:
+            hostname_default = dhcp_hostname
+
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
-                                                    SystemConsts.HOSTNAME_DEFAULT_VALUE).verify_result()
+                                                    hostname_default).verify_result()
         system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
@@ -43,7 +51,7 @@ def test_system(engines, devices):
         system.unset(engines.dut, SystemConsts.HOSTNAME)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
-                                                    SystemConsts.HOSTNAME_DEFAULT_VALUE).verify_result()
+                                                    hostname_default).verify_result()
 
 
 def test_system_message(engines, devices):

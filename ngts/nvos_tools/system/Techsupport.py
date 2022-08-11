@@ -29,7 +29,7 @@ class TechSupport(BaseComponent):
 
     @staticmethod
     def get_techsupport_folder_name(techsupport_res):
-        if 'Invalid' in techsupport_res.info:
+        if 'Command failed' in techsupport_res.info:
             return techsupport_res.info
         techsupport_folder = techsupport_res.returned_value.split('\n')
         file_name = "".join([name for name in techsupport_folder if '.tar.gz' in name])
