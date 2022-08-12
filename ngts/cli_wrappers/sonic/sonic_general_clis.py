@@ -303,7 +303,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, wjh_deb_url=None, deploy_type='sonic',
-                     reboot_after_install=None, fw_pkg_path=None, disable_ztp=False):
+                     reboot_after_install=None, fw_pkg_path=None, set_timezone='Israel', disable_ztp=False):
         if not image_path.startswith('http'):
             image_path = '{}{}'.format(InfraConst.HTTP_SERVER, image_path)
         try:
@@ -321,6 +321,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
                 self.validate_dockers_are_up_reboot_if_fail()
+
+        if set_timezone:
+            with allure.step("Set dut NTP timezone to {} time.".format(set_timezone)):
+                dut_engine = topology_obj.players['dut']['engine']
+                dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(set_timezone), validate=True)
 
         if apply_base_config:
             with allure.step("Apply basic config"):
@@ -549,7 +554,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         return switch_in_onie
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
-                           disable_ztp=False, timezone='Israel'):
+                           disable_ztp=False):
         with allure.step("Upload port_config.ini and config_db.json with reboot of dut"):
             retry_call(self.apply_config_files,
                        fargs=[topology_obj, setup_name, platform_params],
@@ -581,10 +586,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.verify_dockers_are_up(dockers_list=['swss'])
             self.cli_obj.qos.stop_buffermgrd()
             self.cli_obj.qos.start_buffermgrd()
-
-        with allure.step("Set dut NTP timezone to {} time.".format(timezone)):
-            dut_engine = topology_obj.players['dut']['engine']
-            dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(timezone))
 
         with allure.step("Enable INFO logging on swss"):
             self.enable_info_logging_on_docker(docker_name='swss')
