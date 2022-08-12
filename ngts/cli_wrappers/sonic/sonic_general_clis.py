@@ -13,7 +13,7 @@ from ngts.cli_util.cli_constants import SonicConstant
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.helpers.run_process_on_host import run_process_on_host
-from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.exceptions.real_issue import RealIssue
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
@@ -468,8 +468,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             else:
                 self.reboot_by_onie_reboot_script(onie_reboot_script_path, 'install')
 
-        SonicOnieCli(self.engine.ip, fw_pkg_path, platform_params).update_onie()
-        self.install_image_onie(self.engine.ip, image_path)
+        SonicOnieCli(self.engine.ip, self.engine.ssh_port, fw_pkg_path, platform_params).update_onie()
+        self.install_image_onie(self.engine.ip, self.engine.ssh_port, image_path)
 
     def prepare_onie_reboot_script_on_dut(self):
         onie_reboot_script = 'onie_reboot.sh'
@@ -492,19 +492,19 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.engine.reload([f'{onie_reboot_script_path} {mode}'], wait_after_ping=25, ssh_after_reload=False)
 
     @staticmethod
-    def install_image_onie(dut_ip, image_url):
+    def install_image_onie(dut_ip, dut_ssh_port, image_url):
         sonic_cli_ssh_connect_timeout = 10
 
         with allure.step('Installing image by "onie-nos-install"'):
-            SonicOnieCli(dut_ip).install_image(image_url=image_url)
+            SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_url=image_url)
 
         with allure.step('Waiting for switch shutdown after reload command'):
             logger.info('Waiting for switch shutdown after reload command')
-            ping_till_alive(False, dut_ip)
+            check_port_status_till_alive(False, dut_ip, dut_ssh_port)
 
         with allure.step('Waiting for switch bring-up after reload'):
             logger.info('Waiting for switch bring-up after reload')
-            ping_till_alive(True, dut_ip)
+            check_port_status_till_alive(True, dut_ip, dut_ssh_port)
 
         with allure.step('Waiting for CLI bring-up after reload'):
             logger.info('Waiting for CLI bring-up after reload')
@@ -512,9 +512,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def check_is_alive_and_revive(self, topology_obj):
         ip = self.engine.ip
+        port = self.engine.ssh_port
         try:
             logger.info('Checking whether device is alive')
-            ping_till_alive(should_be_alive=True, destination_host=ip, tries=2)
+            check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port, tries=2)
             logger.info('Device is alive')
         except RealIssue:
             logger.info('Device is not alive, reviving')
@@ -524,11 +525,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def remote_reboot(self, topology_obj):
         ip = self.engine.ip
+        port = self.engine.ssh_port
         logger.info('Executing remote reboot')
         cmd = topology_obj.players[self.dut_alias]['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
         _, _, rc = run_process_on_host(cmd)
         if rc == InfraConst.RC_SUCCESS:
-            ping_till_alive(should_be_alive=True, destination_host=ip)
+            check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port)
         else:
             raise Exception('Remote reboot rc is other then 0')
 
@@ -542,7 +544,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.if_other_credentials_used_set_boot_order_onie()
             logger.info('Next boot set to onie succeed')
 
-            SonicOnieCli(self.engine.ip).confirm_onie_boot_mode_install()
+            SonicOnieCli(self.engine.ip, self.engine.ssh_port).confirm_onie_boot_mode_install()
             switch_in_onie = True
         return switch_in_onie
 

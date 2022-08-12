@@ -6,7 +6,7 @@ from retry.api import retry_call
 
 from infra.tools.connection_tools.onie_engine import OnieEngine
 from ngts.constants.constants import InfraConst, PlatformTypesConstants
-from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.helpers.json_file_helper import extract_fw_data
 
 logger = logging.getLogger()
@@ -30,8 +30,9 @@ class SonicOnieCli:
     This class defines methods over Onie
     """
 
-    def __init__(self, host_ip, fw_pkg_path=None, platform_params=None):
+    def __init__(self, host_ip, ssh_port=22, fw_pkg_path=None, platform_params=None):
         self.ip = host_ip
+        self.ssh_port = ssh_port
         self.engine = None
         self.latest_onie_version = ''
         self.latest_onie_url = ''
@@ -42,7 +43,7 @@ class SonicOnieCli:
 
     def create_engine(self, create_force=False):
         if self.engine is None or create_force:
-            self.engine = OnieEngine(self.ip, 'root').create_engine()
+            self.engine = OnieEngine(self.ip, 'root', self.ssh_port).create_engine()
             retry_call(self.get_pexpect_entry,
                        fargs=[['#'], 60],
                        tries=5,
@@ -99,8 +100,9 @@ class SonicOnieCli:
         self.post_reboot_delay()
 
     def post_reboot_delay(self):
-        ping_till_alive(should_be_alive=False, destination_host=self.ip, tries=10)
-        ping_till_alive(should_be_alive=True, destination_host=self.ip)
+        check_port_status_till_alive(should_be_alive=False, destination_host=self.ip, destination_port=self.ssh_port,
+                                     tries=10)
+        check_port_status_till_alive(should_be_alive=True, destination_host=self.ip, destination_port=self.ssh_port)
         logger.info(
             f'Sleeping {InfraConst.SLEEP_AFTER_RRBOOT} seconds after switch reply to ping to handle ssh session')
         time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
