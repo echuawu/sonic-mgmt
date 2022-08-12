@@ -15,95 +15,62 @@
         </Case>
     </global>
 
-<!-- Using keywords to select some Daily Cases to run daily and others run on weekends -->
 <!-- Daily cases, not included in weekend cases -->
     <case>
-        <info> AAA Daily Cases </info>
-        <name> aaa_daily_cases </name>
-        <tout> 120 </tout>
+        <info> ACL Cases </info>
+        <name> acl_cases </name>
+        <tout> 600 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"  -k \"_tc1_ or _tc2_\"\'" --test-scripts generic_config_updater/test_aaa.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_cacl.py </static_args>
             </params>
         </cmd>
     </case>
 
     <case>
-        <info> ACL Daily Cases </info>
-        <name> acl_daily_cases </name>
-        <tout> 300 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"_tc1_ or _tc3_ or _tc6_\"\'" --test-scripts generic_config_updater/test_cacl.py </static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <info> DHCP Relay Daily Cases </info>
-        <name> dhcp_relay_daily_cases </name>
-        <tout> 500 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"_tc5_ or _tc6_\"\'" --test-scripts generic_config_updater/test_dhcp_relay.py </static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <info> Incremental Qos Daily Cases </info>
-        <name> incremental_qos_daily_cases </name>
+        <info> BGP Prefix Cases </info>
+        <name> bgp_prefix_cases </name>
         <tout> 900 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_incremental_qos.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_bgp_prefix.py </static_args>
             </params>
         </cmd>
     </case>
 
     <case>
-        <info> IPv6 Daily Cases </info>
-        <name> ipv6_daily_cases </name>
-        <tout> 200 </tout>
+        <info> BGP Monitor Cases </info>
+        <name> bgp_monitor_cases </name>
+        <tout> 600 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"test_add_deleted_ipv6_neighbor or test_delete_ipv6_neighbor\"\'" --test-scripts generic_config_updater/test_ipv6.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_bgpl.py </static_args>
             </params>
         </cmd>
     </case>
 
     <case>
-        <info> Loopback Interface Daily Cases </info>
-        <name> loopback_interface_daily_cases </name>
-        <tout> 500 </tout>
+        <info> IPv6 Cases </info>
+        <name> ipv6_cases </name>
+        <tout> 600 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"_tc1_ or _tc4_ or _tc5_\"\'" --test-scripts generic_config_updater/test_lo_interface.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_ipv6.py </static_args>
             </params>
         </cmd>
     </case>
 
     <case>
-        <info> Syslog Daily Cases </info>
-        <name> syslog_daily_cases </name>
-        <tout> 300 </tout>
+        <info> Monitor Config Cases </info>
+        <name> monitor_config_cases </name>
+        <tout> 600 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"_tc1_\"\'" --test-scripts generic_config_updater/test_syslog.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_monitor_config.py </static_args>
             </params>
         </cmd>
     </case>
 
-    <case>
-        <info> Vlan Interface Daily Cases </info>
-        <name> vlan_interface_daily_cases </name>
-        <tout> 300 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"_tc3_ or _tc4_ or _tc5_\"\'" --test-scripts generic_config_updater/test_vlan_interface.py </static_args>
-            </params>
-        </cmd>
-    </case>
 
 <!-- Weekend cases, all cases except daily cases -->
     <case>
@@ -114,12 +81,12 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> AAA Weekend Cases </info>
-        <name> aaa_weekend_cases </name>
-        <tout> 1400 </tout>
+        <info> Incremental Qos Cases </info>
+        <name> incremental_qos_cases </name>
+        <tout> 4800 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not _tc1_ and not _tc2_\"\'" --test-scripts generic_config_updater/test_aaa.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_incremental_qos.py </static_args>
             </params>
         </cmd>
     </case>
@@ -132,12 +99,12 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> BGP Prefix Weekend Cases </info>
-        <name> bgp_prefix_weekend_cases </name>
-        <tout> 400 </tout>
+        <info> AAA Cases </info>
+        <name> aaa_cases </name>
+        <tout> 1600 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_bgp_prefix.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_aaa.py </static_args>
             </params>
         </cmd>
     </case>
@@ -150,9 +117,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> BGP Speaker Weekend Cases </info>
-        <name> bgp_speaker_weekend_cases </name>
-        <tout> 300 </tout>
+        <info> BGP Speaker Cases </info>
+        <name> bgp_speaker_cases </name>
+        <tout> 600 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_bgp_speaker.py </static_args>
@@ -168,12 +135,12 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> BGP Monitor Weekend Cases </info>
-        <name> bgp_monitor_weekend_cases </name>
-        <tout> 300 </tout>
+        <info> DHCP Relay Cases </info>
+        <name> dhcp_relay_cases </name>
+        <tout> 2400 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_bgpl.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_dhcp_relay.py </static_args>
             </params>
         </cmd>
     </case>
@@ -186,45 +153,9 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> ACL Weekend Cases </info>
-        <name> acl_weekend_cases </name>
-        <tout> 600 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not _tc1_ and not _tc3_ and not _tc6_\"\'" --test-scripts generic_config_updater/test_cacl.py </static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
-        <info> DHCP Relay Weekend Cases </info>
-        <name> dhcp_relay_weekend_cases </name>
-        <tout> 2000 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not _tc5_ and not _tc6_\"\'" --test-scripts generic_config_updater/test_dhcp_relay.py </static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
-        <info> Ethernet Interface Weekend Cases </info>
-        <name> ethernet_interface_weekend_cases </name>
-        <tout> 900 </tout>
+        <info> Ethernet Interface Cases </info>
+        <name> ethernet_interface_cases </name>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_eth_interface.py </static_args>
@@ -240,30 +171,12 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> IPv6 Weekend Cases </info>
-        <name> ipv6_weekend_cases </name>
-        <tout> 400 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not test_add_deleted_ipv6_neighbor and not test_delete_ipv6_neighbor\"\'" --test-scripts generic_config_updater/test_ipv6.py </static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
-        <info> Loopback Interface Weekend Cases </info>
-        <name> loopback_interface_weekend_cases </name>
+        <info> Loopback Interface Cases </info>
+        <name> loopback_interface_cases </name>
         <tout> 900 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not _tc1_ and not _tc4_ and not _tc5_\"\'" --test-scripts generic_config_updater/test_lo_interface.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_lo_interface.py </static_args>
             </params>
         </cmd>
     </case>
@@ -276,26 +189,8 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Monitor Config Weekend Cases </info>
-        <name> monitor_config_weekend_cases </name>
-        <tout> 400 </tout>
-        <cmd>
-            <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_monitor_config.py </static_args>
-            </params>
-        </cmd>
-    </case>
-
-    <case>
-        <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
-        <info> Portchannel Interface Weekend Cases </info>
-        <name> portchannel_interface_weekend_cases </name>
+        <info> Portchannel Interface Cases </info>
+        <name> portchannel_interface_cases </name>
         <tout> 3600 </tout>
         <cmd>
             <params>
@@ -312,12 +207,12 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Syslog Weekend Cases </info>
-        <name> syslog_weekend_cases </name>
-        <tout> 1200 </tout>
+        <info> Syslog Cases </info>
+        <name> syslog_cases </name>
+        <tout> 1500 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not _tc1_\"\'" --test-scripts generic_config_updater/test_syslog.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_syslog.py </static_args>
             </params>
         </cmd>
     </case>
@@ -330,12 +225,12 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> Vlan Interface Weekend Cases </info>
-        <name> vlan_interface_weekend_cases </name>
-        <tout> 600 </tout>
+        <info> Vlan Interface Cases </info>
+        <name> vlan_interface_cases </name>
+        <tout> 900 </tout>
         <cmd>
             <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k \"not _tc3_ and not _tc4_ and not _tc5_\"\'" --test-scripts generic_config_updater/test_vlan_interface.py </static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_vlan_interface.py </static_args>
             </params>
         </cmd>
     </case>
@@ -348,8 +243,8 @@
                 <value> yes </value>
             </condition>
         </ignore>
-        <info> PFCWD Interval Weekend Cases </info>
-        <name> pfcwd_interval_weekend_cases </name>
+        <info> PFCWD Interval Cases </info>
+        <name> pfcwd_interval_cases </name>
         <tout> 600 </tout>
         <cmd>
             <params>
