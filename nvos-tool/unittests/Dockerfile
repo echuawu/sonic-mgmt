@@ -1,7 +1,10 @@
 FROM python:3.7-buster
 
-RUN apt-get update
-RUN apt-get install -y virtualenv
+RUN echo "sw-r2d2-bot:$1$fYEQITJi$PvkO0KuNGp68VQZ7jOrv60:7331:30:MLNXshared DevOps, Vladi Ifat:/labhome/sw-r2d2-bot:/bin/bash" >> /etc/passwd
+
+RUN apt-get update && \
+    apt-get -y install sudo && \
+    apt-get install -y virtualenv
 
 RUN mkdir ./nvos
 COPY ./unittests/requirements.txt ./nvos/requirements.txt
