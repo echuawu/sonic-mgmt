@@ -170,8 +170,8 @@ def test_ib_interface_speed(engines, players, interfaces, devices, traffic_ports
             assert IbInterfaceConsts.SPEED_LIST[ib_speed_value] == str(speed_value), \
                 "ib-speed {} value is not equal to speed value {}".format(ib_speed_value, speed_value)
 
-        with allure.step('Verify traffic'):
-            Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
+        '''with allure.step('Verify traffic'):
+            Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()'''
 
     '''with allure.step("Unset speed for port {}".format(selected_port.name)):
         selected_port.ib_interface.link.speed.unset(apply=True).verify_result()'''
@@ -259,8 +259,8 @@ def test_ib_interface_lanes(engines, players, interfaces, traffic_ports):
             wait_for_port_to_become_active(selected_port)
             verify_value_is_contained_in_output(selected_port.ib_interface.link.lanes, str(selected_lanes))
 
-        with allure.step('Verify traffic'):
-            Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
+        '''with allure.step('Verify traffic'):
+            Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()'''
 
     with allure.step("Unset lanes for port {}".format(selected_port.name)):
         selected_port.ib_interface.link.lanes.unset(apply=True, ask_for_confirmation=True).verify_result()

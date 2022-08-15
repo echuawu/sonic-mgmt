@@ -95,6 +95,8 @@ dev-simx-host01-vm01  ansible_host=10.75.206.118 ansible_hostv6="" type=simx son
 jaguar-119      ansible_host=10.7.144.119 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM8700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 jaguar-25      ansible_host=10.7.144.25 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM8700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-jaguar-03      ansible_host=10.210.25.99 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM8700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
+gorilla-153      ansible_host=10.7.144.153 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
+gorilla-154      ansible_host=10.7.144.154 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 
 [sonic_sn2700_40]
 str-msn2700-01    ansible_host=10.251.0.188 serial="MT1234X56789" base_mac="24:8a:07:12:34:56" syseeprom_info="{'0xFE': '0xFBA1E964', '0x28': 'x86_64-mlnx_x86-r0', '0x29': '2016.11-5.1.0008-9600', '0x22': 'MSN2700-CS2FO', '0x23': 'MT1234X56789', '0x21': 'MSN2700', '0x26': '0', '0x24': '24:8a:07:12:34:56', '0x25': '12/07/2016', '0x2B': 'Mellanox', '0x2A': '128'}"
