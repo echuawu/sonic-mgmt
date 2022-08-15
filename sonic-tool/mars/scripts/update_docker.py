@@ -21,6 +21,7 @@ from retry import retry
 from fabric import Config
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
+from retry.api import retry_call
 
 # Home-brew libs
 from lib import constants
@@ -337,7 +338,8 @@ def main():
         send_takeover_notification(topo)
 
     logger.info("Pull docker image to ensure that it is up to date")
-    test_server.run("docker pull {}/{}:{}".format(registry_url, docker_name, docker_tag))
+    retry_call(test_server.run, fargs=["docker pull {}/{}:{}".format(registry_url, docker_name, docker_tag)], tries=3,
+               delay=10, logger=logger)
 
     logger.info("Check current docker container and image status")
     inspect_res = inspect_container(test_server, "{}/{}".format(registry_url, docker_name), docker_tag, container_name)
