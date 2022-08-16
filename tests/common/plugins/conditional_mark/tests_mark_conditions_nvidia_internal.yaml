@@ -555,6 +555,12 @@ generic_config_updater/test_portchannel_interface.py:
     conditions:
       - https://redmine.mellanox.com/issues/3067876
 
+generic_config_updater/test_monitor_config.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3177465"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3177465 and '202205' in release and ('3800' in platform or '4600' in platform)"
+
 acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_forwarded[ipv6:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
