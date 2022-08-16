@@ -1246,15 +1246,11 @@
       - 3162498
 
 - Errors_list:
-    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*'
-    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*'
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\)'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\)'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_lags_scale
-      Redmine:
+    - Redmine:
       - 3166325
-      Platform:
-      - x86_64-mlnx_msn4410-r0
 
 - Errors_list:
     - '.*ERR dhclient\[\d+\]: Failed to get interface index: No such device.*'
