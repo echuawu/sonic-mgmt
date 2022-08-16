@@ -433,13 +433,9 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next:
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2382365 and platform 2100 https://redmine.mellanox.com/issues/3083715 and 'x86_64-mlnx_msn4700-r0' in platform 'x86_64-mlnx_msn3420-r0' in platform 'x86_64-mlnx_msn2410-r0' in platform"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2382365 and platform 2100"
     conditions:
       - "https://redmine.mellanox.com/issues/2382365 and '2100' in platform"
-      - "https://redmine.mellanox.com/issues/3083715 and 'x86_64-mlnx_msn4700-r0' in platform"
-      - "https://redmine.mellanox.com/issues/3083715 and 'x86_64-mlnx_msn3420-r0' in platform"
-      - "https://redmine.mellanox.com/issues/3083715 and 'x86_64-mlnx_msn2410-r0' in platform"
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
   skip:
@@ -447,7 +443,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2382365 and '2100' in platform"
-      - https://redmine.mellanox.com/issues/3083715
 
 platform_tests/fwutil/test_fwutil.py::test_fwutil_auto:
   skip:
@@ -461,19 +456,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2382365 and '2100' in platform"
-      - https://redmine.mellanox.com/issues/3083715
-
-platform_tests/fwutil/test_fwutil.py::test_fwutil_update_bad_config:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3083715"
-    conditions:
-      - https://redmine.mellanox.com/issues/3083715
-
-platform_tests/fwutil/test_fwutil.py::test_fwutil_install_bad_path:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3083715"
-    conditions:
-      - https://redmine.mellanox.com/issues/3083715
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   skip:
