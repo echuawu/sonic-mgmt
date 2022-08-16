@@ -23,3 +23,5 @@ mock
 ujson
 aiohttp
 aiohttp_jinja2
+dataclasses
+ruamel.yaml
