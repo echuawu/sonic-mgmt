@@ -80,7 +80,7 @@ class TestRouting:
         Validate that default route available via 2 BGP in "show ip bgp network" command output
         :param show_ip_bgp_network_output: "show ip bgp network" command output
         """
-        regexp = fr'.*\s{self.default_route}\s+{self.ha_or_hb_regex}\s+0\s+0\s501\si\s+\*\>\s+{self.ha_or_hb_regex}\s+0\s+0\s501\si'
+        regexp = fr'\*(>|=)\s{self.default_route}\s+{self.ha_or_hb_regex}\s+0\s+0\s501\si\s+\*(>|=)\s+{self.ha_or_hb_regex}\s+0\s+0\s501\si'
         '''
         *= 0.0.0.0/0        20.0.0.2                 0             0 501 i
         *>                  30.0.0.2                 0             0 501 i
