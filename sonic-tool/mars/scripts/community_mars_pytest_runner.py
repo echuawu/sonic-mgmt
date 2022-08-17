@@ -187,6 +187,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         dic_args = self._get_dic_args_by_running_stage(RunningStage.RUN)
         dic_args["epoint"] = epoint
         for i in xrange(self.num_of_processes):
+            epoint.Player.putenv("PYTHONPATH", "/devts/")
             epoint.Player.testPath = os.path.join(self.sonic_mgmt_path, "tests")
             epoint.Player.add_remote_test_path(epoint.Player.testPath)
             epoint.Player.run_process(cmd, shell=True, disable_realtime_log=False, delete_files=False)

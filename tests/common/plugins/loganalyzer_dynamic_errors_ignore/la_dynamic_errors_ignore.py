@@ -6,8 +6,8 @@ import requests
 import subprocess
 
 from abc import ABCMeta, abstractmethod
-from ngts.tools.redmine.redmine_api import is_redmine_issue_active
-from ngts.tools.token_handler.token_handler import get_cred
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from infra.tools.token_handler.token_handler import get_cred
 
 
 logger = logging.getLogger()

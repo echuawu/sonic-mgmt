@@ -66,7 +66,6 @@ pytest_plugins = ('tests.common.plugins.ptfadapter',
                   'tests.common.plugins.pdu_controller',
                   'tests.common.plugins.sanity_check',
                   'tests.common.plugins.custom_markers',
-                  'tests.common.plugins.custom_skipif.CustomSkipIf',
                   'tests.common.plugins.test_completeness',
                   'tests.common.plugins.log_section_start',
                   'tests.common.plugins.custom_fixtures',
@@ -1686,7 +1685,7 @@ def verify_new_core_dumps(duthost, request):
 def ignore_vxlan_zebra_core_files(request, existing_cores, current_cores):
     filtered_cores_list = current_cores
     if 'vxlan' in request.node.nodeid:
-        from ngts.tools.redmine.redmine_api import is_redmine_issue_active
+        from infra.tools.redmine.redmine_api import is_redmine_issue_active
         filtered_cores_list = []
         logger.info('Available .core files: {}'.format(current_cores))
         for core_file in current_cores:

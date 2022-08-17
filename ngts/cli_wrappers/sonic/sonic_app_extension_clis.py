@@ -1,7 +1,7 @@
 import logging
 
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.tools.redmine.redmine_api import is_redmine_issue_active
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 logger = logging.getLogger()

@@ -9,7 +9,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.tools.redmine.redmine_api import *
+from infra.tools.redmine.redmine_api import *
 
 logger = logging.getLogger()
 
