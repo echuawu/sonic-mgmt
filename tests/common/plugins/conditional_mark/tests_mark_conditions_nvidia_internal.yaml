@@ -890,4 +890,10 @@ platform_tests/api/test_sfp.py::test_get_transceiver_info:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174878 and branch 202205"
     conditions:
       - "https://redmine.mellanox.com/issues/3174878 and '202205' in release"
+
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3134580 and testbed r-leopard-56/r-ocelot-02 who have QSFP-DD tranceivers"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3134580 and ('r-leopard-56' in testbed or 'r-ocelot-02' in testbed)"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
