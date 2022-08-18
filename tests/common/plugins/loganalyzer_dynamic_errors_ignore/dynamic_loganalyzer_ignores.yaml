@@ -978,6 +978,35 @@
       - nvda_bf
 
 - Errors_list:
+    - '.*ERR hostcfgd: sudo systemctl enable dhcp_relay.service - failed: return code - 1, output:.*'
+    - '.*ERR swss#swssconfig: :- main: Exception caught: parse error - unexpected end of input.*'
+    - '.*ERR syncd#syncd: :- threadFunction: time span WD exceeded \d+ ms for create:SAI_OBJECT_TYPE_SWITCH.*'
+    - '.*ERR syncd#syncd: :- logEventData: op: create, key: SAI_OBJECT_TYPE_SWITCH:oid.*'
+    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
+    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY.*'
+    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY.*'
+    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_SRC_MAC_ADDRESS.*'
+    - '.*ERR syncd#syncd: :- setEndTime: event .* took \d+ ms to execute'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3151802
+      Platform:
+      - nvda_bf
+
+- Errors_list:
+    - '.*ERR syncd#syncd: :- processBulkOidCreate: bulkCreate api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER'
+    - '.*ERR syncd#syncd: :- processBulkOidRemove: bulkRemove api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3179551
+      Platform:
+      - nvda_bf
+
+- Errors_list:
     - '.* ERR hostcfgd: sonic-kdump-config --num_dumps.*'
     - '.* ERR dhclient\[\d+\]: receive_packet failed on.*'
     - '.* ERR dhclient\[\d+\]: dhclient.c:\d+: Failed to send.*'
