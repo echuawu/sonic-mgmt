@@ -381,7 +381,7 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3123080 and 'master' in release"
-      - "https://redmine.mellanox.com/issues/3168593 and '202205' in release and 'x86_64-mlnx_msn3800-r0' in platform"
+      - "https://redmine.mellanox.com/issues/3168593 and '202205' in release and ('r-tigris-22' in testbed or 'r-panther-13' in testbed)"
 
 ecmp/test_fgnhg.py:
   skip:
