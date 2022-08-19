@@ -9,11 +9,13 @@ import tarfile
 import re
 import smtplib
 from email.mime.text import MIMEText
+import time
 
 logger = logging.getLogger()
 SENDER_MAIL = 'noreply@sanitizer.com'
 NVOS_MAIL = 'nbu-system-sw-mlnxos20-ext@exchange.nvidia.com'
 NVIDIA_MAIL_SERVER = 'mail.nvidia.com'
+ASAN_APPS = ["what-just-happened"]
 
 
 @pytest.fixture(scope='function')
@@ -194,17 +196,25 @@ def get_mail_address(topology_obj):
 
 
 @pytest.mark.disable_loganalyzer
-def test_sanitizer(topology_obj, dumps_folder, test_name, send_mail, setup_name):
-    if topology_obj.players['dut']['sanitizer']:
+def test_sanitizer(topology_obj, cli_objects, dumps_folder, test_name, send_mail, setup_name):
+    asan_apps = get_asan_apps(cli_objects.dut)
+    if topology_obj.players['dut']['sanitizer'] or asan_apps:
         os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
         dut_engine = topology_obj.players['dut']['engine']
-        with allure.step(f'Check if sanitizer has failed in previous reboots'):
+        with allure.step(f'Check if sanitizer has failed in previous reboots or disable the apps'):
             existing_sanitizer_files = check_dump_folder_for_existing_sanitizer_files(dut_engine, dumps_folder)
-        with allure.step(f'Reboot DUT'):
-            dut_engine.reload([f'sudo reboot'])
+        if asan_apps:
+            with allure.step(f'Disable ASAN apps {asan_apps}'):
+                for app_name in asan_apps:
+                    cli_objects.dut.app_ext.disable_app(app_name)
+
+            time.sleep(5)
+        if topology_obj.players['dut']['sanitizer']:
+            with allure.step(f'Reboot DUT'):
+                dut_engine.reload([f'sudo reboot'])
         with allure.step(f'Check sanitizer and store dump'):
             sanitizer_dump_path = check_sanitizer_and_store_dump(dut_engine, dumps_folder, test_name)
-        with allure.step(f'Check if sanitizer failed after reboot or found dumps during {test_name}.db run'):
+        with allure.step(f'Check if sanitizer failed after reboot or disable the apps or found dumps during {test_name}.db run'):
             if existing_sanitizer_files or sanitizer_dump_path:
                 if existing_sanitizer_files:
                     logger.warning(f"Previous sanitizer dumps were found at {dumps_folder}")
@@ -220,3 +230,14 @@ def test_sanitizer(topology_obj, dumps_folder, test_name, send_mail, setup_name)
                 raise AssertionError(f"Sanitizer has failed - please check saved dumps at {dumps_folder}")
     else:
         logger.info("Image doesn't include sanitizer - script is not checking for sanitizer dumps")
+
+
+def get_asan_apps(cli_obj):
+    asan_apps = []
+    apps_dict = cli_obj.app_ext.parse_app_package_list_dict()
+    for app_name in ASAN_APPS:
+        if app_name in apps_dict.keys():
+            version = apps_dict[app_name]['Version']
+            if "asan" in version:
+                asan_apps.append(app_name)
+    return asan_apps

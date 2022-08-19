@@ -41,14 +41,6 @@ def engines(topology_obj):
 
 
 @pytest.fixture(scope='session')
-def cli_objects(topology_obj):
-    cli_obj_data = DottedDict()
-    for player in topology_obj.players:
-        cli_obj_data[player] = topology_obj.players[player]['cli']
-    return cli_obj_data
-
-
-@pytest.fixture(scope='session')
 def interfaces(topology_obj):
     interfaces_data = DottedDict()
     interfaces_data.ha_dut_1 = topology_obj.ports.get('ha-dut-1')

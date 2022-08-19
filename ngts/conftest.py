@@ -170,6 +170,14 @@ def topology_obj(setup_name, request):
         player_attributes['engine'].disconnect()
 
 
+@pytest.fixture(scope='session')
+def cli_objects(topology_obj):
+    cli_obj_data = DottedDict()
+    for player in topology_obj.players:
+        cli_obj_data[player] = topology_obj.players[player]['cli']
+    return cli_obj_data
+
+
 def export_cli_type_to_cache(topology, request):
     """
     This function will cache set a variable called CLI_TYPE that indicates what is the Cli Type, NVUE Or Sonic.
