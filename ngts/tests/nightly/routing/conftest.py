@@ -59,6 +59,7 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
     # Clear FRR BGP config (could exist default BGP configuration)
     engines.dut.run_cmd('sudo sed -e "s/split/separated/g" -i /etc/sonic/config_db.json')
     cli_objects.dut.frr.remove_frr_config_files()
+    cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     # IP config which will be used in test
     ip_config_dict = {
