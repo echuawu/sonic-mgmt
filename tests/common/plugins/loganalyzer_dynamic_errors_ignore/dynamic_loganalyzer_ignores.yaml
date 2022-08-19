@@ -1380,3 +1380,11 @@
       - generic_config_updater/test_monitor_config.py
       Redmine:
       - 3174870
+
+- Errors_list:
+    - '.*ERR hw-management: mlxreg_io is not loaded.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      Redmine:
+      - 3177482
