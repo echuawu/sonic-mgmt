@@ -403,10 +403,13 @@ class TestRouting:
         reboot_type = random.choice(supported_reboot_modes)
         self.dut_cli.general.reboot_reload_flow(r_type=reboot_type, topology_obj=self.topology_obj)
 
+        retry_call(self.check_bgp_sessions, fargs=[], tries=3, delay=5, logger=logger)
+
+        self.test_routing()
+
+    def check_bgp_sessions(self):
         ip_bgp_summary_data = self.dut_cli.bgp.parse_ip_bgp_summary()
         self.dut_cli.bgp.validate_bgp_session_state(ip_bgp_summary_data, session=self.ha_dut_1_ip,
                                                     expected_state='Established')
         self.dut_cli.bgp.validate_bgp_session_state(ip_bgp_summary_data, session=self.hb_dut_1_ip,
                                                     expected_state='Established')
-
-        self.test_routing()
