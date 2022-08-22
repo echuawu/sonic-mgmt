@@ -18,7 +18,7 @@ from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_
 logger = logging.getLogger()
 
 simx_validation_types = ['reboot', 'config reload -y']
-expected_traffic_loss_dict = {'fast-reboot': {'data': 60, 'control': 90},
+expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
                               'warm-reboot': {'data': 0, 'control': 90},
                               'reboot': {'data': 180, 'control': 180},
                               'config reload -y': {'data': 180, 'control': 180}
