@@ -95,7 +95,7 @@ def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_c
             # TODO: need to remove is when the ticket is resolved
             # ----------------------------------------------------------------------#
             from ngts.tools.redmine.redmine_api import is_redmine_issue_active
-            is_rm_issue_active, _ = is_redmine_issue_active([3123918])
+            is_rm_issue_active, _ = is_redmine_issue_active([3123938])
             if is_rm_issue_active:
                 reload_types = ["reload", "cold", "fast"]
             # ----------------------------------------------------------------------#
