@@ -456,18 +456,13 @@ class FecConstants:
     FEC_MODES_SPC3_SPEED_SUPPORT = {
         PlatformTypesConstants.FILTERED_PLATFORM_LEOPARD: {
             SonicConst.FEC_FC_MODE: {
-                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
-                                              '25G': ['CR'],
-                                              '40G': ['CR4'],
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
                                               '50G': ['CR2']
                                               },
-                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
-                                              '25G': ['CR'],
-                                              '40G': ['CR4'],
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
                                               '50G': ['CR2']
                                               },
-                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
-                                              '25G': ['CR'],
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
                                               '50G': ['CR2']
                                               }
             },
