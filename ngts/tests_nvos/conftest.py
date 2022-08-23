@@ -5,6 +5,7 @@ from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from dotted_dict import DottedDict
 
 logger = logging.getLogger()
@@ -102,6 +103,9 @@ def traffic_ports(request):
 def clear_config():
     try:
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        NvueSystemCli.unset(TestToolkit.engines.dut, 'system')
+        NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
+        NvueGeneralCli.apply_config(TestToolkit.engines.dut)
     except Exception as err:
         logging.warning("Failed to detach config:" + str(err))
 
