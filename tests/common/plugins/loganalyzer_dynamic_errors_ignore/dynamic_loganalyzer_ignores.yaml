@@ -1388,6 +1388,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - platform_tests/fwutil/test_fwutil.py
       Redmine:
       - 3177482
 
