@@ -9,9 +9,9 @@ RUN apt-get install -y libpcre3-dev apt-transport-https ca-certificates curl wge
     sudo iproute2 net-tools libaio1 python-dev python-setuptools initscripts mlocate libtinfo-dev \
     less gcc make libssl-dev sqlite3 libsqlite3-dev python-lxml libxml2-dev lldpad vlan tcpdump telnet \
     isc-dhcp-client isc-dhcp-server sqlite fping git bridge-utils iperf3 autoconf linuxptp arping \
-    python-pip python-scapy python3-pip tcpreplay snmp ethtool traceroute
+    python-pip python-scapy python3-pip tcpreplay snmp ethtool traceroute radvd
 
-RUN pip install remotely
+RUN pip install remotely pyftpdlib tftpy
 RUN pip3 install daemonize scapy==2.4.0
 
 #Install FRR
