@@ -8,7 +8,7 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_all_advertised_speeds_sorted_string, get_interface_cable_width, \
     get_matched_types, convert_speeds_to_mb_format
-from ngts.constants.constants import AutonegCommandConstants
+from ngts.constants.constants import AutonegCommandConstants, PlatformTypesConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.nightly.conftest import compare_actual_and_expected
 
@@ -49,6 +49,7 @@ class TestAutoNegBase:
         self.physical_interfaces_types_dict = physical_interfaces_types_dict
         self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic()
         self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf()
+        self.hwsku = platform_params.hwsku
 
     def generate_subset_conf(self, tested_lb_dict):
         """
@@ -271,9 +272,25 @@ class TestAutoNegBase:
         port_number = get_alias_number(ports_aliases_dict[port])
         logger.info("Verify Auto negotiation status based on mlxlink command")
         mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(pci_conf, port_number)
-        self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf)
+        self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf, port_num=port_number)
 
-    def compare_actual_and_expected_auto_neg_output(self, expected_conf, actual_conf, check_adv_parm=True):
+    def is_msn4410_with_speed_50g_type_cr(self, key, actual_conf, expected_conf):
+        """
+        This method is used to check whether it is msn4410(ocelot) with interface speed configured as 50G and one lane(type CR)
+        Right now, the first 24 physical ports do not support 50Gx1 mode, the last 8 physical ports support 50Gx1 mode
+        This method is used to check whether the context setup meets the conditions
+        :param key: key in dict expected_conf
+        :param actual_conf: actual configuration dict
+        :param expected_conf: expected configuration dict
+        :return: True if it meets all the conditions, else False
+        """
+        if key == AutonegCommandConstants.WIDTH and actual_conf[AutonegCommandConstants.SPEED] == '50G' \
+                and PlatformTypesConstants.FILTERED_PLATFORM_OCELOT in self.hwsku and expected_conf[AutonegCommandConstants.TYPE] == 'CR':
+            return True
+        else:
+            return False
+
+    def compare_actual_and_expected_auto_neg_output(self, expected_conf, actual_conf, check_adv_parm=True, port_num=1):
         """
         :return: raise assertion error in case expected and actual configuration don't match
         """
@@ -290,6 +307,13 @@ class TestAutoNegBase:
                     elif key == AutonegCommandConstants.ADV_TYPES and check_adv_parm:
                         self.compare_advertised_types(value, actual_conf_value,
                                                       physical_interface_type=physical_interface_type)
+                    elif self.is_msn4410_with_speed_50g_type_cr(key, actual_conf, expected_conf):
+                        if int(port_num) > 24:
+                            # value in this scenario would be 1
+                            compare_actual_and_expected(key, value, actual_conf_value)
+                        else:
+                            # value in this scenario would be 1, then modify it to 2 according to physical support limitation
+                            compare_actual_and_expected(key, value + 1, actual_conf_value)
                     elif key not in [AutonegCommandConstants.ADV_SPEED, AutonegCommandConstants.ADV_TYPES]:
                         compare_actual_and_expected(key, value, actual_conf_value)
 
