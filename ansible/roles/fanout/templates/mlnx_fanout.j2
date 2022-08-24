@@ -3,7 +3,7 @@
 {% set management_interface = 'mgmt0' %}
 {% set vlanid_default = '1' %}
 {% set vlanid_offset = 100 %}
-{% if inventory_hostname == 'arc-switch1035'%}
+{% if inventory_hostname == 'arc-switch1035' or inventory_hostname == 'r-tigon-22' %}
 {% set vlanid_offset = 200 %}
 {% endif %}
 {% set of_tableid = '0' %}

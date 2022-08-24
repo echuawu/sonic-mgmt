@@ -2,6 +2,9 @@
 sonic-dual-tor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,[arc-switch1004;arc-switch1025],Dual-TOR testbed
 sonic-dual-tor-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,[arc-switch1004;arc-switch1025],Dual-TOR testbed
 
+sonic-dual-tor-tigon,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,[r-tigon-20;r-tigon-21],Dual-TOR testbed
+sonic-dual-tor-tigon-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,[r-tigon-20;r-tigon-21],Dual-TOR testbed
+
 arc-switch1038-t0,vm-t1,t0,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,VM0101,arc-switch1038,Mellanox MTR testbed
 arc-switch1038-t0-64-32,vm-t1,t0-64-32,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,arc-switch1038,Mellanox MTR testbed
 arc-switch1038-t1,vm-t1,t1,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,server_1,VM0101,arc-switch1038,Mellanox MTR testbed
@@ -123,6 +126,7 @@ r-tigon-20-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,
 r-tigon-20-t1-64-lag,vm-t1,t1-64-lag,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,r-tigon-20,Mellanox MTR testbed
 r-tigon-20-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,r-tigon-20,Mellanox MTR testbed
 r-tigon-20-ptf64,vm-t1,ptf64,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,r-tigon-20,Mellanox MTR testbed
+r-tigon-20-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,r-tigon-20,Mellanox MTR testbed
 r-tigon-20-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,r-tigon-20,Mellanox MTR testbed
 
 r-tigon-21-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
@@ -135,6 +139,7 @@ r-tigon-21-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,
 r-tigon-21-t1-64-lag,vm-t1,t1-64-lag,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
 r-tigon-21-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
 r-tigon-21-ptf64,vm-t1,ptf64,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
+r-tigon-21-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
 r-tigon-21-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
 
 r-tigris-26-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigris-26,10.215.20.61/16,,server_19,VM1901,r-tigris-26,Mellanox MTR testbed

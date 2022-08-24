@@ -32,4 +32,7 @@ mux_simulator_http_port:
     sonic-dual-tor: 8083
     sonic-dual-tor-dualtor: 8083
 
+    sonic-dual-tor-tigon: 8083
+    sonic-dual-tor-tigon-dualtor: 8083
+
     #### Add your own port assignment after here ###
