@@ -885,7 +885,7 @@ class MarsConstants:
     VER_SDK_PATH = "/opt/ver_sdk"
     EXTRA_PACKAGE_PATH_LIST = ["/usr/lib64/python2.7/site-packages"]
 
-    TOPO_ARRAY = ("t0", "t1-lag", "ptf32", "t0-64", "t1-64-lag", "t0-56", "t0-56-po2vlan")
+    TOPO_ARRAY = ("t0-56-po2vlan", "t0", "t1-lag", "ptf32", "t0-64", "t1-64-lag", "t0-56")
     REBOOT_TYPES = {
         "reboot": "reboot",
         "fast-reboot": "fast-reboot",
