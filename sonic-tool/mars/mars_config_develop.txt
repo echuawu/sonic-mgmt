@@ -62,7 +62,7 @@
 ## sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56##
 {
   "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
-  "base_version": "/auto/sw_system_release/sonic/202012/202012_5/sonic-mellanox.bin",
+  "base_version": "/auto/sw_system_release/sonic/202012/202012_7/sonic-mellanox.bin",
   "target_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
   "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",

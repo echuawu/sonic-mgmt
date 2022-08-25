@@ -218,7 +218,7 @@ def gen_canonical_config(mars_branch, dbs, upgrade):
         "execution_block_generator": ""
     }
 
-    base_version_for_upgrade = "/auto/sw_system_release/sonic/202012/202012_5/sonic-mellanox.bin"
+    base_version_for_upgrade = "/auto/sw_system_release/sonic/202012/202012_7/sonic-mellanox.bin"
     if upgrade:
         caonical_config["target_version"] = caonical_config["base_version"]
         caonical_config["base_version"] = base_version_for_upgrade
