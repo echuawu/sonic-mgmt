@@ -267,7 +267,8 @@
         },
         {
           "name": "BAT QTM",
-          "module": "/auto/sw_system_release/ci/nos/nvos/build/ci/bat.groovy",
+          "module": "/auto/sw_system_project/devops/sw-r2d2-bot/nvos_bat.groovy",
+          "module_for_5_0": "/auto/sw_system_release/ci/nos/nvos/build/ci/bat.groovy",
           "category": "BAT",
           "node": "MINI_MARS@QTM",
           "parameters": {
