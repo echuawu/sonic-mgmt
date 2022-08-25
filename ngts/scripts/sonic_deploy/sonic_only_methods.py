@@ -309,6 +309,12 @@ class SonicInstallationSteps:
                     SonicInstallationSteps.install_app_extension_sonic(dut_name=dut['dut_name'], setup_name=setup_name,
                                                                        additional_apps=additional_apps,
                                                                        ansible_path=ansible_path)
+        # This check is for swb respin r-anaconda-15, only the SONiC image with hw-management version
+        # higher than 7.0020.3100 runs properly on this dut, stop the regression if the image is not suitable
+        for dut in setup_info['duts']:
+            if dut['dut_name'] == 'r-anaconda-15':
+                SonicInstallationSteps.verify_hw_management_version(engine=topology_obj.players['dut']['engine'])
+
         for dut in setup_info['duts']:
             # Disconnect ssh connection, prevent "Socket is closed" in case when previous steps did reboot
             topology_obj.players[dut['dut_alias']]['engine'].disconnect()
@@ -468,6 +474,18 @@ class SonicInstallationSteps:
         with allure.step("Enable INFO logging on swss"):
             cli.enable_info_logging_on_docker(docker_name='swss')
             cli.save_configuration()
+
+    @staticmethod
+    def verify_hw_management_version(engine):
+        lowest_valid_version = '7.0020.3100'
+        with allure.step('Getting the hw-management version from dut'):
+            output = engine.run_cmd('dpkg -l | grep hw-management')
+
+        with allure.step('Comparing the hw-management version with the lowest valid version'):
+            version = output.split()[2]
+            version = version.split('mlnx.')[-1]
+            assert version >= lowest_valid_version, \
+                'Current hw-management version {} is lower than the required version {}.'.format(version, lowest_valid_version)
 
 
 def is_community(sonic_topo):
