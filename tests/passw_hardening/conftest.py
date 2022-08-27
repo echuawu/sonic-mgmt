@@ -32,7 +32,7 @@ def clean_passw_policies(duthosts, enum_rand_one_per_hwsku_hostname):
 def clean_passw_one_policy_user(duthosts, enum_rand_one_per_hwsku_hostname):
     yield
     duthost = duthosts[enum_rand_one_per_hwsku_hostname]
-    res_adduser_simple_0 = test_passw_hardening.config_user(duthost=duthost, username=test_passw_hardening.USERNAME_ONE_POLICY, mode='del')
+    res_adduser_simple_0 = test_passw_hardening.config_user(duthost=duthost, username=test_passw_hardening.USERNAME_ONE_POLICY, mode='del')    
 
 
 @pytest.fixture(scope="function")

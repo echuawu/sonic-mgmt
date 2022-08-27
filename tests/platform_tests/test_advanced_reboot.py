@@ -13,16 +13,13 @@ pytestmark = [
     pytest.mark.topology('t0')
 ]
 
-logger = logging.getLogger(__name__)
-
-
 def pytest_generate_tests(metafunc):
     input_sad_cases = metafunc.config.getoption("sad_case_list")
     input_sad_list = list()
     for input_case in input_sad_cases.split(","):
         input_case = input_case.strip()
         if input_case.lower() not in SAD_CASE_LIST:
-            logger.warning("Unknown SAD case ({}) - skipping it.".format(input_case))
+            logging.warn("Unknown SAD case ({}) - skipping it.".format(input_case))
             continue
         input_sad_list.append(input_case.lower())
     if "sad_case_type" in metafunc.fixturenames:
