@@ -26,7 +26,7 @@ class OpenSmTool:
             output = engine.run_cmd("ibstat {}".format(port_name))
             guid = ''
             for line in output.splitlines():
-                if "System image GUID" in line:
+                if "Port GUID" in line:
                     guid = line.split(":")[1]
             if guid:
                 logging.info("GUID: " + guid)

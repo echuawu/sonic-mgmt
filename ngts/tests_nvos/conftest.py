@@ -110,9 +110,9 @@ def clear_config():
         logging.warning("Failed to detach config:" + str(err))
 
 
-def pytest_runtest_call(__multicall__):
+def pytest_runtest_call(item):
     try:
-        __multicall__.execute()
+        item.runtest()
         logging.info(' ---------------- The test completed successfully ---------------- ')
     except KeyboardInterrupt:
         raise

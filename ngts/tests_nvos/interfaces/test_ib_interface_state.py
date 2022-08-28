@@ -35,7 +35,8 @@ def test_ib_interface_state(engines, players, interfaces):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
+    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                              ask_for_confirmation=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_DOWN).verify_result()
 
@@ -46,7 +47,8 @@ def test_ib_interface_state(engines, players, interfaces):
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True).verify_result()
+    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
+                                              ask_for_confirmation=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
@@ -77,7 +79,8 @@ def test_ib_interface_state_invalid(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value='invalid_value', apply=False).verify_result(False)
+    selected_port.ib_interface.link.state.set(value='invalid_value', apply=False,
+                                              ask_for_confirmation=True).verify_result(False)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -109,9 +112,10 @@ def test_ib_interface_state_unset(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
+    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                              ask_for_confirmation=True).verify_result()
 
-    selected_port.ib_interface.link.state.unset(apply=True).verify_result()
+    selected_port.ib_interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
 
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
