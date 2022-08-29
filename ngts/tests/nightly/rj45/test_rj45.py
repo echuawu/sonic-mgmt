@@ -163,7 +163,7 @@ def validate_cli_config_commands_output(engine, test_iface):
     with allure.step(f'Validate "sudo config interface fec {test_iface} fc"'):
         output_iface_fec_set = engine.run_cmd(f'sudo config interface fec {test_iface} fc')
         # TODO: check expected message from HLD
-        assert output_iface_fec_set == f'Setting RJ45 ports\' fec is not supported'
+        assert output_iface_fec_set == f'Setting fec is not supported on port {test_iface}'
 
 
 def validate_lag_status(engine, cli_object, test_ifaces_list, rj45_port_speed):
