@@ -105,7 +105,7 @@ def clear_config():
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         NvueSystemCli.unset(TestToolkit.engines.dut, 'system')
         NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
-        NvueGeneralCli.apply_config(TestToolkit.engines.dut)
+        NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
     except Exception as err:
         logging.warning("Failed to detach config:" + str(err))
 

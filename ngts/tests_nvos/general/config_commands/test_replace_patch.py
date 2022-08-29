@@ -216,7 +216,7 @@ def test_patch_positive(engines):
             ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                         field_name=ib0_port.interface.description.label,
                                                         expected_value=new_ib0_description).verify_result()
-            system.unset(engines.dut)
+            ib0_port.interface.description.unset().verify_result()
 
 
 def test_patch_negative(engines):
