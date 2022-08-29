@@ -514,6 +514,72 @@ vxlan/test_vxlan_ecmp.py:
     conditions:
       - "'202106' in release"
 
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_a[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_b[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route2_ecmp_group_b[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_remove_ecmp_route2[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_remove_route2[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_route2_shared_different_nh[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_route2_shared_nh[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_route2_single_nh[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_modify_route_different_endpoint[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_remove_all_route[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
+vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v6_in:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
+    conditions:
+      - https://redmine.mellanox.com/issues/3191351
+
 sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3117697"
