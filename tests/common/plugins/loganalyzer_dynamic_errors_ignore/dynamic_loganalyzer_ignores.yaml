@@ -1008,6 +1008,26 @@
       - nvda_bf
 
 - Errors_list:
+    - '.*ERR watchdogutil: Failed to get watchdog module'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3107695
+      Platform:
+      - nvda_bf
+
+- Errors_list:
+    - '.* ERR kernel:.*UBIFS error.*cannot initialize compressor zstd, error.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3190595
+      Platform:
+      - nvda_bf
+
+- Errors_list:
     - '.* ERR hostcfgd: sonic-kdump-config --num_dumps.*'
     - '.* ERR dhclient\[\d+\]: receive_packet failed on.*'
     - '.* ERR dhclient\[\d+\]: dhclient.c:\d+: Failed to send.*'
