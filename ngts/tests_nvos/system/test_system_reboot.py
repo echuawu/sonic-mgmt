@@ -46,7 +46,7 @@ def test_reboot_command_type(engines):
         3. run nv action reboot system --type warm
         4. expected message: not supported for IB
     """
-    substring = 'currently not supported'
+    substring = 'NVOS cant perform it'
     err_message = 'User requested a fast reboot, but NVOS cant perform it'
 
     with allure.step('Run nv action reboot system --type fast'):
