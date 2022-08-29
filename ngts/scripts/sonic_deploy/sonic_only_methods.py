@@ -87,7 +87,10 @@ class SonicInstallationSteps:
                 cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name,
                                                                                           TOPO=topology)
                 logger.info("Running CMD: {}".format(cmd))
-                execute_script(cmd, ansible_path, validate=False)
+                try:
+                    execute_script(cmd, ansible_path, validate=False, timeout=600)
+                except Exception as err:
+                    logger.warning(f'Failed to remove topology. Got error: {err}')
 
     @staticmethod
     def add_topology(ansible_path, setup_name, dut_name, sonic_topo, ptf_tag):

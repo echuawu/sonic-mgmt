@@ -116,10 +116,10 @@ def _remove_mlnx_lab_suffix(hostname_string):
     return hostname_string.split('.')[host_name_index]
 
 
-def execute_script(cmd, exec_path, validate=True):
+def execute_script(cmd, exec_path, validate=True, timeout=None):
     logger.info("Executing ansible script: {}".format(cmd))
     p = subprocess.Popen(shlex.split(cmd), cwd=exec_path)
-    p.communicate()
+    p.communicate(timeout=timeout)
     logger.info(p.stdout)
     if validate and p.returncode != 0:
         raise AssertionError('CMD: {} failed with RC: {}'.format(cmd, p.returncode))
