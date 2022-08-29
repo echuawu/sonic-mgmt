@@ -1379,6 +1379,16 @@
       - 3172649
 
 - Errors_list:
+    - '.* ERR syncd#SDK: :- addObject: Queue Counter RID oid.*provide the statistic.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3190824
+      Branch:
+      - master
+
+- Errors_list:
     - '.*ERR syncd#SDK: \[SAI_MIRROR.ERR\] mlnx_sai_mirror.c.*- mlnx_mirror_policer_sx_attrs_validate: Span policer must be SAI_POLICER_COLOR_SOURCE_BLIND.*'
     - '.*ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode:.*'
     - '.*ERR syncd#SDK: :- processQuadEvent: attr: SAI_MIRROR_SESSION_ATTR_MONITOR_PORT: oid:.*'
