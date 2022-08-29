@@ -102,6 +102,9 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         :param engine: ssh engine object
         :param ask_for_confirmation: True or False
         """
+        logging.info("Checking the config to be applied")
+        NvueGeneralCli.diff_config(engine=engine)
+
         logging.info("Running 'nv config apply' on dut")
         if ask_for_confirmation:
             output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
@@ -112,7 +115,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 output = 'applied'
         else:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
-
         return output
 
     @staticmethod
