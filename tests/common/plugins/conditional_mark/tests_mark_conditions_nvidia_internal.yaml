@@ -312,9 +312,11 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
 
 qos/test_buffer.py:
   skip:
-    reason: "Test skipped because MSN SKU not support those tests"
+    reason: "Test skipped because MSN SKU not support those tests or by RM issue 3191031 for sn2201 "
+    conditions_logical_operator: or
     conditions:
       - "'msn2700' in platform"
+      - "https://redmine.mellanox.com/issues/3191031 and 'sn2201' in platform"
 
 pfcwd/test_pfcwd_warm_reboot.py:
   skip:
