@@ -21,7 +21,7 @@ def test_replace_empty_file(engines):
     """
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
-        new_hostname_value = 'TestingConfigCmds'
+        new_hostname_value = 'TestingConfigCmds1'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
             system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
 
@@ -57,7 +57,7 @@ def test_replace_positive(engines):
     with allure.step('Run nv config replace and verify that the pending list is changed'):
         system = System()
 
-        first_hostname = 'TestingConfigCmds'
+        first_hostname = 'TestingConfigCmds2'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=first_hostname)):
             system.set(first_hostname, engines.dut, SystemConsts.HOSTNAME, False)
 
@@ -68,6 +68,9 @@ def test_replace_positive(engines):
             system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
 
         ib0_port = MgmtPort('ib0')
+        output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
+            ib0_port.show()).get_returned_value()
+        current_description = output_dictionary['description']
         new_ib0_description = '"ib0description"'
         with allure.step('set ib0 description to be {description} - with apply'.format(
                 description=new_ib0_description)):
@@ -90,7 +93,7 @@ def test_replace_positive(engines):
 
             ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                         field_name=ib0_port.interface.description.label,
-                                                        expected_value='').verify_result()
+                                                        expected_value=current_description).verify_result()
             system.unset(engines.dut)
 
 
@@ -113,20 +116,21 @@ def test_replace_negative(engines):
     file_name = 'replace'
     file_type = 'yaml'
 
-    new_hostname_value = 'TestingConfigCmds'
+    new_hostname_value = 'TestingConfigCmds3'
     with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
         system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
 
         content = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
 
     parsing_issue, bad_file = create_list_of_bad_files(engines.dut, file_name, file_type, content)
-    output = engines.dut.run_cmd('nv config replace {file}'.format(file=parsing_issue))
-    assert 'Failed to parse YAML' in output, 'the replace should fail'
+    output1 = engines.dut.run_cmd('nv config replace {file}'.format(file=parsing_issue))
+    output2 = engines.dut.run_cmd('nv config replace {file}'.format(file=bad_file))
 
-    output = engines.dut.run_cmd('nv config replace {file}'.format(file=bad_file))
-    assert 'must contain a list of operation objects' in output, 'the replace should fail'
     engines.dut.run_cmd('sudo rm {file}'.format(file=parsing_issue))
     engines.dut.run_cmd('sudo rm {file}'.format(file=bad_file))
+
+    assert 'Failed to parse YAML' in output1, 'the replace should fail'
+    assert 'must contain a list of operation objects' in output2, 'the replace should fail'
 
 
 def test_patch_empty_file(engines):
@@ -141,7 +145,7 @@ def test_patch_empty_file(engines):
     """
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
-        new_hostname_value = 'TestingConfigCmds'
+        new_hostname_value = 'TestingConfigPatchCmds4'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
             system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
 
@@ -182,13 +186,13 @@ def test_patch_positive(engines):
     with allure.step('Run nv config replace and verify that the pending list is changed'):
         system = System()
 
-        first_hostname = 'TestingConfigCmds'
+        first_hostname = 'TestingConfigCmds5'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=first_hostname)):
             system.set(first_hostname, engines.dut, SystemConsts.HOSTNAME, False)
 
         diff_after_hostname_change = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
 
-        new_hostname_value = 'TestingConfigReplace'
+        new_hostname_value = 'TestingConfigPatch'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
             system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
 
@@ -238,20 +242,22 @@ def test_patch_negative(engines):
     file_name = 'patch'
     file_type = 'yaml'
 
-    new_hostname_value = 'TestingConfigCmds'
+    new_hostname_value = 'TestingConfigPatchCmds6'
     with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
         system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
 
         content = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
 
     parsing_issue, bad_file = create_list_of_bad_files(engines.dut, file_name, file_type, content)
-    output = engines.dut.run_cmd('nv config replace {file}'.format(file=parsing_issue))
-    assert 'Failed to parse YAML' in output, 'the replace should fail'
 
-    output = engines.dut.run_cmd('nv config patch {file}'.format(file=bad_file))
-    assert 'must contain a list of operation objects' in output, 'the replace should fail'
+    output1 = engines.dut.run_cmd('nv config replace {file}'.format(file=parsing_issue))
+    output2 = engines.dut.run_cmd('nv config patch {file}'.format(file=bad_file))
+
     engines.dut.run_cmd('sudo rm {file}'.format(file=parsing_issue))
     engines.dut.run_cmd('sudo rm {file}'.format(file=bad_file))
+
+    assert 'Failed to parse YAML' in output1, 'the replace should fail'
+    assert 'must contain a list of operation objects' in output2, 'the replace should fail'
 
 
 def create_empty_file(engine, file_name, file_type):
