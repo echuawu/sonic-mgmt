@@ -529,6 +529,8 @@ class TestAutoNegBase:
                 self.configure_advertised_interface_types(cli_object, port,
                                                           port_conf_dict[AutonegCommandConstants.ADV_TYPES],
                                                           physical_interface_type=physical_interface_type)
+                cli_object.interface.disable_interface(port)
+                cli_object.interface.enable_interface(port)
 
     @staticmethod
     @skip_for_interface_type_rj45
