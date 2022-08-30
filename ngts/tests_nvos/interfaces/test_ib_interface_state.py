@@ -79,7 +79,7 @@ def test_ib_interface_state_invalid(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value='invalid_value', apply=False,
+    selected_port.ib_interface.link.state.set(value='invalid_value', apply=True,
                                               ask_for_confirmation=True).verify_result(False)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(

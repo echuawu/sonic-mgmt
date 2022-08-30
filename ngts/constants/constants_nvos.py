@@ -78,6 +78,7 @@ class OpenApiReqType:
     GET = 'GET'
     PATCH = 'PATCH'
     DELETE = 'DELETE'
+    APPLY = 'APPLY'
 
 
 class SystemConsts:

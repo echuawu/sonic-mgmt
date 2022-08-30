@@ -31,6 +31,8 @@ class RequestData:
 
 
 class OpenApiRequest:
+    payload = {}
+    changeset = None
 
     @staticmethod
     def print_request(r: requests.Request):
@@ -60,21 +62,39 @@ class OpenApiRequest:
             OpenApiRequest.print_request(r.request)
             OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
             response = r.json()
-            changeset = response.popitem()[0]
-            return changeset
+            OpenApiRequest.changeset = response.popitem()[0]
 
     @staticmethod
-    def apply_nvue_changeset(request_data, changeset, add_approve=True):
+    def apply_nvue_changeset(request_data, add_approve=True):
+        res = OpenApiRequest._send_patch_request(request_data)
+        if res.result:
+            res = OpenApiRequest._apply_config(request_data, add_approve)
+        return res.info
+
+    @staticmethod
+    def _apply_config(request_data, add_approve):
         with allure.step("Apply NVUE changeset"):
             logging.info("Apply NVUE changeset")
             apply_payload = {"state": "apply", "auto-prompt": {"ays": "ays_yes"}} if add_approve else {"state": "apply"}
             url = '{url_endoint}/revision/{req_quote}'.format(url_endoint=OpenApiRequest._get_endpoint_url(request_data),
-                                                              req_quote=requests.utils.quote(changeset, safe=""))
+                                                              req_quote=requests.utils.quote(OpenApiRequest.changeset,
+                                                                                             safe=""))
             r = requests.patch(url=url, auth=OpenApiRequest._get_http_auth(request_data), verify=False,
                                data=json.dumps(apply_payload), headers=REQ_HEADER)
             OpenApiRequest.print_request(r.request)
             OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
             OpenApiRequest._validate_response(r, OpenApiReqType.PATCH)
+
+            try:
+                result = OpenApiRequest._check_apply_status(request_data, OpenApiRequest.changeset)
+                if not result.result:
+                    return result.info
+                return "Configuration applied successfully"
+            except Exception:
+                return "Error: Failed to apply configuration"
+            finally:
+                OpenApiRequest.changeset = None
+                OpenApiRequest.payload = {}
 
     @staticmethod
     @retry(Exception, tries=5, delay=10)
@@ -108,26 +128,38 @@ class OpenApiRequest:
     @staticmethod
     def _create_json_payload(request_data):
         temp_comp = {}
-
         if request_data.param_name:
             temp_comp[request_data.param_name] = request_data.param_value
         else:
             temp_comp = None
 
         split_path = list(filter(None, request_data.resource_path.split('/')))
-        split_path.reverse()
+        if request_data.param_name in split_path:
+            split_path.remove(request_data.param_name)
 
         if len(split_path) < 1:
             assert "Invalid resource path: " + request_data.resource_path
 
-        payload = {}
-        for comp in split_path:
-            if comp not in payload.keys():
-                payload = {}
-                payload[comp] = temp_comp
-                temp_comp = payload
+        OpenApiRequest.payload = OpenApiRequest._update_payload(temp_comp, split_path, OpenApiRequest.payload)
 
+    @staticmethod
+    def _update_payload(last_component, path, payload):
+        if path[0] in payload.keys():
+            temp_comp_name = path.pop(0)
+            payload[temp_comp_name] = OpenApiRequest._update_payload(last_component, path, payload[temp_comp_name])
+        else:
+            payload.update(OpenApiRequest._create_partial_payload(last_component, path))
         return payload
+
+    @staticmethod
+    def _create_partial_payload(last_component, path):
+        temp_comp = {}
+        if len(path) > 1:
+            temp_comp_name = path.pop(0)
+            temp_comp[temp_comp_name] = OpenApiRequest._create_partial_payload(last_component, path)
+        else:
+            temp_comp[path[0]] = last_component
+        return temp_comp
 
     @staticmethod
     def _validate_response(r: requests.Response, req_type):
@@ -140,36 +172,31 @@ class OpenApiRequest:
         return ResultObj(True, "")
 
     @staticmethod
-    def send_patch_request(request_data, op_params=''):
+    def add_to_path_request(request_data, op_params=''):
+        with allure.step("Add data to patch request"):
+            OpenApiRequest._create_json_payload(request_data)
+
+    @staticmethod
+    def _send_patch_request(request_data):
         with allure.step('Send PATCH request'):
-            changeset = OpenApiRequest.create_nvue_changest(request_data)
-            logging.info("Using NVUE Changeset: '{}'".format(changeset))
 
-            payload = OpenApiRequest._create_json_payload(request_data)
+            logging.info("Create NVUE changeset")
+            OpenApiRequest.create_nvue_changest(request_data)
+            logging.info("Using NVUE Changeset: '{}'".format(OpenApiRequest.changeset))
 
-            query_string = {"rev": changeset}
+            query_string = {"rev": OpenApiRequest.changeset}
             logging.info("Send patch request")
             r = requests.patch(url=OpenApiRequest._get_endpoint_url(request_data) + "/",
                                auth=OpenApiRequest._get_http_auth(request_data),
                                verify=False,
-                               data=json.dumps(payload),
+                               data=json.dumps(OpenApiRequest.payload),
                                params=query_string,
                                headers=REQ_HEADER)
             OpenApiRequest.print_request(r.request)
             OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
 
             res = OpenApiRequest._validate_response(r, OpenApiReqType.PATCH)
-            if not res.result:
-                return res.info
-
-            OpenApiRequest.apply_nvue_changeset(request_data, changeset)
-            try:
-                result = OpenApiRequest._check_apply_status(request_data, changeset)
-                if not result.result:
-                    return result.info
-            except Exception:
-                return "Error: Failed to apply configuration"
-            return "Configuration applied successfully"
+            return res
 
     @staticmethod
     def send_get_request(request_data, op_params=''):
@@ -191,16 +218,20 @@ class OpenApiRequest:
     def send_delete_request(request_data, op_params=''):
         with allure.step('Send DELETE request'):
             logging.info("Send DELETE request")
-            return OpenApiRequest.send_patch_request(request_data, op_params)
+            return OpenApiRequest.add_to_path_request(request_data, op_params)
 
 
 class OpenApiCommandHelper:
 
     req_method = {OpenApiReqType.GET: OpenApiRequest.send_get_request,
-                  OpenApiReqType.PATCH: OpenApiRequest.send_patch_request,
+                  OpenApiReqType.PATCH: OpenApiRequest.add_to_path_request,
                   OpenApiReqType.DELETE: OpenApiRequest.send_delete_request}
 
     @staticmethod
     def execute_script(user_name, password, req_type, dut_ip, resource_path, op_param_name='', op_param_value=''):
         request_data = RequestData(user_name, password, dut_ip, resource_path, op_param_name, op_param_value)
+
+        if req_type == OpenApiReqType.APPLY:
+            return OpenApiRequest.apply_nvue_changeset(request_data)
+
         return OpenApiCommandHelper.req_method[req_type](request_data, op_param_name)

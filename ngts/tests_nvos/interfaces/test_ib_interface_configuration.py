@@ -215,7 +215,7 @@ def test_ib_interface_speed_invalid(engines, traffic_ports, devices):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_interface_lanes(engines, players, interfaces, traffic_ports):
+def test_ib_interface_lanes(engines, players, interfaces, traffic_ports, devices):
     """
     Configure port lanes and verify the configuration applied successfully
     Relevant cli commands:
@@ -258,6 +258,8 @@ def test_ib_interface_lanes(engines, players, interfaces, traffic_ports):
         with allure.step("Verify the lanes value updated to: {}".format(selected_lanes)):
             wait_for_port_to_become_active(selected_port)
             verify_value_is_contained_in_output(selected_port.ib_interface.link.lanes, str(selected_lanes))
+            with allure.step("Verify the 'speed' is updated appropriately"):
+                verify_speed_updated_after_setting_lanes(selected_port.ib_interface.link, devices)
 
         '''with allure.step('Verify traffic'):
             Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()'''
@@ -371,6 +373,14 @@ def verify_value_updated_correctly(selected_port_obj, selected_value):
 def verify_value_is_contained_in_output(selected_port_obj, selected_value):
     new_value = selected_port_obj.get_operational()
     assert new_value in selected_value, "Invalid value for {}".format(selected_port_obj.label)
+
+
+def verify_speed_updated_after_setting_lanes(selected_port_obj, devices):
+    lanes = int(selected_port_obj.lanes.get_operational().replace("X", ""))
+    speed = int(selected_port_obj.speed.get_operational().replace("G", ""))
+    ib_speed = selected_port_obj.ib_speed.gget_operational()
+    general_speed = int(devices.dut.supported_ib_speeds[ib_speed].replace("G", ""))
+    assert (general_speed / lanes) == speed, "'speed' is not updated correctly after updating the lanes"
 
 
 def get_port_obj(port_name):
