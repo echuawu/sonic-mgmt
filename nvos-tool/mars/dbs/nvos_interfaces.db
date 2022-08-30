@@ -29,10 +29,9 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ipoib_interface.cases </cases>
 	</test>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ports_interface.cases </cases>
-	</test>
-
-	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ib_interface_configuration.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ports_interface.cases </cases>
 	</test>
 </DBDEF>

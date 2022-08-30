@@ -87,14 +87,14 @@ class OpenApiRequest:
 
             try:
                 result = OpenApiRequest._check_apply_status(request_data, OpenApiRequest.changeset)
-                if not result.result:
-                    return result.info
-                return "Configuration applied successfully"
+                if result.result:
+                    result.info = "Configuration applied successfully"
             except Exception:
-                return "Error: Failed to apply configuration"
+                result.info = "Error: Failed to apply configuration"
             finally:
                 OpenApiRequest.changeset = None
                 OpenApiRequest.payload = {}
+                return result
 
     @staticmethod
     @retry(Exception, tries=5, delay=10)
@@ -144,10 +144,10 @@ class OpenApiRequest:
 
     @staticmethod
     def _update_payload(last_component, path, payload):
-        if path[0] in payload.keys():
+        if path and (path[0] in payload.keys()):
             temp_comp_name = path.pop(0)
             payload[temp_comp_name] = OpenApiRequest._update_payload(last_component, path, payload[temp_comp_name])
-        else:
+        elif path:
             payload.update(OpenApiRequest._create_partial_payload(last_component, path))
         return payload
 

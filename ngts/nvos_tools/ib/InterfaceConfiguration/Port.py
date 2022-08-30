@@ -47,6 +47,9 @@ class PortRequirements:
     def set_port_type(self, req_type):
         self.port_requirements[IbInterfaceConsts.TYPE] = req_type
 
+    def set_port_logical_state(self, req_type):
+        self.port_requirements[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE] = req_type
+
 
 class Port:
     name = ""
@@ -62,7 +65,7 @@ class Port:
         self.ib_interface = IbInterface(self)
 
     @staticmethod
-    def get_list_of_ports_connected_to_traffic_server(players, interfaces, dut_engine=None):
+    def get_list_of_active_ports(dut_engine=None):
         """
         Return a list of ports which are connected to a traffic server
         """
@@ -73,23 +76,10 @@ class Port:
             port_requirements_object = PortRequirements()
             port_requirements_object.set_port_state(NvosConsts.LINK_STATE_UP)
             port_requirements_object.set_port_type(IbInterfaceConsts.IB_PORT_TYPE)
+            port_requirements_object.set_port_logical_state("Active")
             up_port_list = Port.get_list_of_ports(None, port_requirements_object)
 
-        with allure.step("Clear selected port counters before sending the traffic"):
-            for port in up_port_list:
-                port.ib_interface.link.stats.clear_stats(dut_engine)
-
-        with allure.step('Send traffic to identify which ports are connected to a server'):
-            TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
-
-        with allure.step('Select only ports connected to a traffic server'):
-            traffic_ports = []
-            for port in up_port_list:
-                in_bytes_counter = port.ib_interface.link.stats.in_bytes.get_operational(dut_engine)
-                out_bytes_counter = port.ib_interface.link.stats.out_bytes.get_operational(dut_engine)
-                if in_bytes_counter != 0 or out_bytes_counter != 0:
-                    traffic_ports.append(port)
-            return traffic_ports
+        return up_port_list
 
     @staticmethod
     def get_list_of_ports(dut_engine=None, port_requirements_object=None):

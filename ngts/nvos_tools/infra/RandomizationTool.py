@@ -101,8 +101,8 @@ class RandomizationTool:
             return result_obj
 
     @staticmethod
-    def get_random_port_connected_to_server(players, interfaces, number_of_values_to_select=1):
-        list_of_ports = Port.get_list_of_ports_connected_to_traffic_server(players, interfaces)
+    def get_random_active_port(number_of_values_to_select=1):
+        list_of_ports = Port.get_list_of_active_ports()
         return RandomizationTool.select_random_values(list_of_ports, None, number_of_values_to_select)
 
     @staticmethod
@@ -141,7 +141,8 @@ class RandomizationTool:
 
             if forbidden_values:
                 for value in forbidden_values:
-                    list_of_values_to_select_from.remove(value)
+                    if value in list_of_values_to_select_from:
+                        list_of_values_to_select_from.remove(value)
 
             if len(list_of_values_to_select_from) == number_of_values_to_select:
                 result_obj.returned_value = list_of_values_to_select_from

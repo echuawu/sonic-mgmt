@@ -31,9 +31,8 @@ def test_ib_interface_mtu(engines, players, interfaces, traffic_ports):
         7.2 Verify the mtu restored to original
     8. Send traffic -> Verify the traffic passes successfully
     """
-    with allure.step("Get a random functional port"):
-        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
-        selected_port = get_port_obj(selected_port_name)
+    with allure.step("Get a random active port"):
+        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -97,9 +96,8 @@ def test_ib_interface_speed(engines, players, interfaces, devices, traffic_ports
     9. Unset the ib-speed value -> should changed to default
     10.Send traffic -> Verify the traffic passes successfully
     """
-    with allure.step("Get a random functional port"):
-        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
-        selected_port = get_port_obj(selected_port_name)
+    with allure.step("Get a random active port"):
+        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -193,9 +191,8 @@ def test_ib_interface_speed_invalid(engines, traffic_ports, devices):
     """
     Try to set an invalid speed and make sure the config apply fails
     """
-    with allure.step("Get a random functional port"):
-        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
-        selected_port = get_port_obj(selected_port_name)
+    with allure.step("Get a random active port"):
+        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -234,9 +231,8 @@ def test_ib_interface_lanes(engines, players, interfaces, traffic_ports, devices
         7.2 Verify the lanes restored to original
     8. Send traffic -> Verify the traffic passes successfully
     """
-    with allure.step("Get a random functional port"):
-        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
-        selected_port = get_port_obj(selected_port_name)
+    with allure.step("Get a random active port"):
+        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -305,9 +301,8 @@ def test_ib_interface_vls(engines, players, interfaces, traffic_ports):
         7.2 Verify the op-vls restored to original
     8. Send traffic -> Verify the traffic passes successfully
     """
-    with allure.step("Get a random functional port"):
-        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
-        selected_port = get_port_obj(selected_port_name)
+    with allure.step("Get a random active port"):
+        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
