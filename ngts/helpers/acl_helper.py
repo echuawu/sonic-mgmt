@@ -221,9 +221,9 @@ def verify_acl_tables_exist(cli_obj, acl_table_config_list, expect_exist):
     for acl_table_config in acl_table_config_list:
         table_name = acl_table_config['table_name']
         if expect_exist:
-            assert (table_name in acl_tables, f"{table_name} is not added correctly")
+            assert table_name in acl_tables, f"{table_name} is not added correctly"
         else:
-            assert (table_name not in acl_tables, f"{table_name} is not removed correctly")
+            assert table_name not in acl_tables, f"{table_name} is not removed correctly"
 
 
 def verify_acl_rules(cli_obj, acl_table_config_list, expect_exist):

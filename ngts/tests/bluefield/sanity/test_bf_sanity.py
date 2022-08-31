@@ -272,9 +272,9 @@ class TestBfSanity:
         for key, value in dut_output.items():
             key = key.lower()
             if key in platform_keys_validate_content:
-                assert (value == self.platform_params[key], f'Unexpected value for key {key}.\n'
-                                                            f'Expected: {self.platform_params[key]}\n'
-                                                            f'Current:{value}')
+                assert value == self.platform_params[key], f'Unexpected value for key {key}.\n ' \
+                                                           f'Expected: {self.platform_params[key]}\n ' \
+                                                           f'Current:{value}'
 
     @staticmethod
     def validate_expected_msg(output, exp_msg):

@@ -28,9 +28,9 @@ def test_app_upgrade(cli_objects, pre_install_app, upgrade_type):
     app_repo = APP_INFO["repository"]
     try:
         with allure.step("Upgrade app {} with version {}".format(app_name, version)):
-            if upgrade_type is "repo":
+            if upgrade_type == "repo":
                 cli_objects.dut.app_ext.upgrade_app(app_name, version)
-            elif upgrade_type is "repo_force":
+            elif upgrade_type == "repo_force":
                 cli_objects.dut.app_ext.upgrade_app(app_name, version, is_force_upgrade=True)
         with allure.step("Verify app version is upgraded to specified one, and status is correct"):
             verify_app_container_up_and_repo_status_installed(cli_objects.dut, app_name, version)

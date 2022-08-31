@@ -44,7 +44,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
                                                                                  interface_data)
 
         with allure.step("Shutdown DUT interface:".format(interface_data["dut_interface"])):
-            if interface_type is "vlan":
+            if interface_type == "vlan":
                 cli_objects.dut.vlan.shutdown_vlan(interface_data["dut_vlan_id"])
             else:
                 cli_objects.dut.interface.disable_interface(interface_data["dut_interface"])
@@ -59,7 +59,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
     except Exception as err:
         raise AssertionError(err)
     finally:
-        if interface_type is "vlan":
+        if interface_type == "vlan":
             cli_objects.dut.vlan.startup_vlan(interface_data["dut_vlan_id"])
         else:
             cli_objects.dut.interface.enable_interface(interface_data["dut_interface"])
