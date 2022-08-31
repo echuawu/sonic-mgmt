@@ -5,6 +5,7 @@ from tests.common.helpers.bgp import BGPNeighbor
 from tests.common.dualtor.mux_simulator_control import mux_server_url                                   # lgtm[py/unused-import]
 from tests.common.dualtor.mux_simulator_control import toggle_all_simulator_ports_to_rand_selected_tor  # lgtm[py/unused-import]
 from tests.common.utilities import wait_until
+from tests.common.reboot import check_warmboot_finalizer_inactive
 
 
 pytestmark = [
@@ -71,6 +72,12 @@ def test_bgp_slb_neighbor_persistence_across_advanced_reboot(
 
     duthost = duthosts[rand_one_dut_hostname]
     neighbor = bgp_slb_neighbor
+
+    # We need to check that "warmboot-finalizer" inactive, in other case when test run after warm-boot it will fail
+    # with message: "Warm restart flag for system is set. Please check if a warm restart for system is in progress."
+    ret = wait_until(300, 5, 0, check_warmboot_finalizer_inactive, duthost)
+    if not ret:
+        raise Exception('warmboot-finalizer service timeout on DUT')
 
     try:
         neighbor.start_session()
