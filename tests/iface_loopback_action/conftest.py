@@ -2,6 +2,7 @@ import pytest
 from tests.common.plugins.ptfadapter import get_ifaces, get_ifaces_map
 from tests.common import constants
 from .iface_loopback_action_helper import get_tested_up_ports, remove_orig_dut_port_config, get_portchannel_peer_port_map, recover_config, apply_config
+from .iface_loopback_action_helper import ETHERNET_RIF, VLAN_RIF, PO_RIF, SUB_PORT_RIF, PO_SUB_PORT_RIF
 from tests.common.fixtures.duthost_utils import backup_and_restore_config_db_package    # lgtm[py/unused-import]
 
 PORT_COUNT = 10
@@ -22,7 +23,7 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="package")
-def ori_ports_configuration(request, duthost, ptfhost, tbinfo):
+def orig_ports_configuration(request, duthost, ptfhost, tbinfo):
     """
     Get the ports used to do test, return the dict of the port's original vlan, portchannel, infos.
     :param duthost: DUT host object
@@ -65,10 +66,10 @@ def ori_ports_configuration(request, duthost, ptfhost, tbinfo):
 
 
 @pytest.fixture(scope="package")
-def ports_configuration(ori_ports_configuration):
+def ports_configuration(orig_ports_configuration):
     """
     Define the ports parameters
-    :param ori_ports_configuration: original config of the ports.
+    :param orig_ports_configuration: original config of the ports.
     :return: Dictionary of port parameters for configuration DUT and PTF host
     For example:
             {
@@ -123,31 +124,31 @@ def ports_configuration(ori_ports_configuration):
     dut_ip_list, ptf_ip_list = generate_ip_list()
     ports_configuration = {}
     index = 0
-    for port_index, port_dict in ori_ports_configuration.items():
+    for port_index, port_dict in orig_ports_configuration.items():
         if index % groups_of_ports == 0:
             rif_port_name = port_dict['port']
             ports_configuration[rif_port_name] = {}
-            ports_configuration[rif_port_name]['type'] = "ethernet"
+            ports_configuration[rif_port_name]['type'] = ETHERNET_RIF
 
         elif index % groups_of_ports == 1:
             vlan_id = 50 + index
             rif_port_name = "Vlan{}".format(vlan_id)
             ports_configuration[rif_port_name] = {}
-            ports_configuration[rif_port_name]['type'] = "vlan"
+            ports_configuration[rif_port_name]['type'] = VLAN_RIF
             ports_configuration[rif_port_name]['vlan_id'] = vlan_id
 
         elif index % groups_of_ports == 2:
             po_id = 50 + index
             rif_port_name = "PortChannel{}".format(po_id)
             ports_configuration[rif_port_name] = {}
-            ports_configuration[rif_port_name]['type'] = "po"
+            ports_configuration[rif_port_name]['type'] = PO_RIF
             ports_configuration[rif_port_name]['po_id'] = po_id
 
         elif index % groups_of_ports == 3:
             vlan_id = 50 + index
             rif_port_name = "{}.{}".format(port_dict['port'], vlan_id)
             ports_configuration[rif_port_name] = {}
-            ports_configuration[rif_port_name]['type'] = "sub_port"
+            ports_configuration[rif_port_name]['type'] = SUB_PORT_RIF
             ports_configuration[rif_port_name]['vlan_id'] = vlan_id
 
         elif index % groups_of_ports == 4:
@@ -155,7 +156,7 @@ def ports_configuration(ori_ports_configuration):
             vlan_id = 50 + index
             rif_port_name = "Po{}.{}".format(po_id, vlan_id)
             ports_configuration[rif_port_name] = {}
-            ports_configuration[rif_port_name]['type'] = "po_sub_port"
+            ports_configuration[rif_port_name]['type'] = PO_SUB_PORT_RIF
             ports_configuration[rif_port_name]['po_id'] = po_id
             ports_configuration[rif_port_name]['vlan_id'] = vlan_id
 
@@ -178,21 +179,21 @@ def generate_ip_list():
 
 
 @pytest.fixture(scope="package", autouse=True)
-def setup(duthost, ptfhost, ori_ports_configuration, ports_configuration, backup_and_restore_config_db_package,
+def setup(duthost, ptfhost, orig_ports_configuration, ports_configuration, backup_and_restore_config_db_package,
           nbrhosts, tbinfo):
     """
     Config: Cleanup the original port configuration and add new configurations before test
     Cleanup: restore the config on the VMs
     :param duthost: DUT host object
     :param ptfhost: PTF host object
-    :param ori_ports_configuration: original ports configuration parameters
+    :param orig_ports_configuration: original ports configuration parameters
     :param ports_configuration: ports configuration parameters
     :param backup_and_restore_config_db_package: backup and restore config db package fixture.
     :param nbrhosts: nbrhosts fixture.
     :param tbinfo: Testbed object
     """
-    peer_shutdown_ports = get_portchannel_peer_port_map(duthost, ori_ports_configuration, tbinfo, nbrhosts)
-    remove_orig_dut_port_config(duthost, ori_ports_configuration)
+    peer_shutdown_ports = get_portchannel_peer_port_map(duthost, orig_ports_configuration, tbinfo, nbrhosts)
+    remove_orig_dut_port_config(duthost, orig_ports_configuration)
     for vm_host, peer_port in peer_shutdown_ports.items():
         vm_host.shutdown(peer_port)
     apply_config(duthost, ptfhost, ports_configuration)

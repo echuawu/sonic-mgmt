@@ -8,7 +8,11 @@ from tests.common.helpers.assertions import pytest_assert
 from tests.common.utilities import wait_until
 from tests.common.config_reload import config_reload
 
-
+ETHERNET_RIF = 'ethernet'
+VLAN_RIF = 'vlan'
+PO_RIF = 'po'
+SUB_PORT_RIF = "sub_port"
+PO_SUB_PORT_RIF = "po_sub_port"
 CONIFIG_LOOPBACK_ACTION_REG = "config interface ip loopback-action {} {}"
 ACTION_FORWARD = "forward"
 ACTION_DROP = "drop"
@@ -145,7 +149,7 @@ def get_portchannel_of_port(config_facts, port):
 
 def get_vlan_of_port(config_facts, port):
     """
-    Check if the port is a member of vlan, if it is then return the vlan, else return Noe
+    Check if the port is a member of vlan, if it is then return the vlan, else return None
     :param config_facts: DUT running config facts
     :param port: the port which need to check
     :return: vlan or None
@@ -154,15 +158,16 @@ def get_vlan_of_port(config_facts, port):
     for vlan_name, vlan in vlan_dict:
         if port in config_facts['VLAN_MEMBER'][vlan_name].keys():
             return vlan['vlanid']
+    return None
 
 
-def remove_orig_dut_port_config(duthost, ori_ports_configuration):
+def remove_orig_dut_port_config(duthost, orig_ports_configuration):
     """
     Remove the original port configurations for DUT
     :param duthost: DUT host object
-    :param ori_ports_configuration: original ports configuration parameters
+    :param orig_ports_configuration: original ports configuration parameters
     """
-    for _, port_dict in ori_ports_configuration.items():
+    for _, port_dict in orig_ports_configuration.items():
         port = port_dict['port']
         if port_dict['vlan']:
             remove_dut_vlan_member(duthost, port, port_dict['vlan'])
@@ -174,11 +179,11 @@ def remove_orig_dut_port_config(duthost, ori_ports_configuration):
     remove_acl_tables(duthost)
 
 
-def get_portchannel_peer_port_map(duthost, ori_ports_configuration, tbinfo, nbrhosts):
+def get_portchannel_peer_port_map(duthost, orig_ports_configuration, tbinfo, nbrhosts):
     """
     Get the portchannel peer port map.
     :param duthost: DUT host object
-    :param ori_ports_configuration: original ports configuration parameters
+    :param orig_ports_configuration: original ports configuration parameters
     :param tbinfo: Testbed object
     :param nbrhosts: nbrhosts fixture.
     :return: The dictionary of vm/ports mapping.
@@ -186,7 +191,7 @@ def get_portchannel_peer_port_map(duthost, ori_ports_configuration, tbinfo, nbrh
     peer_ports_map = {}
     mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
     vm_neighbors = mg_facts['minigraph_neighbors']
-    for _, port_dict in ori_ports_configuration.items():
+    for _, port_dict in orig_ports_configuration.items():
         port = port_dict['port']
         if port_dict['portchannel']:
             vm_host, peer_port = get_peer_port_info(nbrhosts, vm_neighbors, port)
@@ -254,15 +259,15 @@ def apply_dut_config(duthost, ports_configuration):
         port_type = port_conf['type']
         ip_addr = port_conf['ip_addr']
 
-        if port_type == 'ethernet':
+        if port_type == ETHERNET_RIF:
             add_ip_dut_port(duthost, port, ip_addr)
-        elif port_type == 'vlan':
+        elif port_type == VLAN_RIF:
             add_dut_vlan(duthost, port, port_conf['vlan_id'], ip_addr)
-        elif port_type == 'po':
+        elif port_type == PO_RIF:
             add_dut_portchannel(duthost, port, port_conf['po_id'], ip_addr)
-        elif port_type == 'sub_port':
+        elif port_type == SUB_PORT_RIF:
             add_dut_sub_port(duthost, port, port_conf['vlan_id'], ip_addr, sub_port_type="eth")
-        elif port_type == 'po_sub_port':
+        elif port_type == PO_SUB_PORT_RIF:
             add_dut_po_sub_port(duthost, port, port_conf['po_id'], port_conf['vlan_id'], ip_addr)
 
 
@@ -276,7 +281,7 @@ def apply_ptf_config(ptfhost, ports_configuration):
         port_type = port_conf['type']
         ptf_port = port_conf['ptf_port']
 
-        if port_type == 'po_sub_port' or port_type == 'po':
+        if port_type == PO_SUB_PORT_RIF or port_type == PO_RIF:
             add_ptf_bond(ptfhost, ptf_port, port_conf['po_id'], port_conf['ptf_ip_addr'])
 
     ptfhost.shell("supervisorctl restart ptf_nn_agent")
@@ -292,7 +297,7 @@ def remove_ptf_config(ptfhost, ports_configuration):
     for _, port_conf in ports_configuration.items():
         port_type = port_conf['type']
         ptf_port = port_conf['ptf_port']
-        if port_type == 'po_sub_port' or port_type == 'po':
+        if port_type == PO_SUB_PORT_RIF or port_type == PO_RIF:
             remove_ptf_bond(ptfhost, ptf_port, port_conf['po_id'], port_conf['ptf_ip_addr'])
 
     ptfhost.shell("supervisorctl restart ptf_nn_agent")
@@ -505,7 +510,7 @@ def show_loopback_action(duthost):
     }
     """
     res = duthost.shell("show ip interfaces loopback-action")
-    interfaces_loopback_actions = res['stdout'].split("\n")[2:]
+    interfaces_loopback_actions = res['stdout'].splitlines()[2:]
     interface_loopback_action_map = {}
     for interface_loopback_action in interfaces_loopback_actions:
         interface = interface_loopback_action.split(" ")[0].strip()
@@ -525,7 +530,7 @@ def verify_interface_loopback_action(duthost, rif_interfaces, expected_actions):
     for rif_interface, expected_action in zip(rif_interfaces, expected_actions):
         loopback_action = interface_loopback_action_map[rif_interface]
         pytest_assert(loopback_action == expected_action,
-                      "The loopback action on {} is {}, expect action is {}".format(rif_interface, loopback_action,
+                      "The loopback action on {} is {}, expected action is {}".format(rif_interface, loopback_action,
                                                                                     expected_action))
 
 
