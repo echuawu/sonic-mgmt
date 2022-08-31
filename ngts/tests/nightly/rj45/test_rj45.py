@@ -83,7 +83,8 @@ def test_rj45_cli(engines, cli_objects, platform_params, rj45_ports_list, sfp_po
 
     with allure.step('Validate that SFP and RJ45 ports cannot be members of the same LAG'):
         add_sfp_port_output = cli_objects.dut.lag.add_port_to_port_channel(sfp_port, LACP_IFACES_LIST[0])
-        # assert add_sfp_port_output == ''  # TODO: clarify what should be here, for now here we fail
+        # TODO: clarify which error msg should be here
+        assert add_sfp_port_output != '', "No error msg after adding different port types/speeds to same LAG"
 
     with allure.step('Validate LAG ports status and speed'):
         validate_lag_status(engines.dut, cli_objects.dut, test_ifaces_list, rj45_port_speed)

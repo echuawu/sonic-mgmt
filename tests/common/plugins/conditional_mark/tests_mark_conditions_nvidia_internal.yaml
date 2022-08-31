@@ -211,7 +211,7 @@ tests/nightly/rj45/test_rj45.py:
     conditions_logical_operator: or
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia_sn4' in platform or 'x86_64-nvidia_sn5' in platform"
-      - https://redmine.mellanox.com/issues/3005591
+      - https://redmine.mellanox.com/issues/3193857
 
 tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
   skip:
