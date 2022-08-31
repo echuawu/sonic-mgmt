@@ -1,4 +1,6 @@
 import allure
+import logging
+import pytest
 
 from ngts.nvos_tools.system.System import *
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -13,6 +15,7 @@ def output_verification(output, exp_key, exp_val):
     ValidationTool.verify_field_value_in_output(output_dictionary, exp_key, exp_val, should_be_equal=True)
 
 
+@pytest.mark.security
 def test_good_flow_password_hardening(engines):
     """
     Run show system reboot command and verify the reboot history and reason values

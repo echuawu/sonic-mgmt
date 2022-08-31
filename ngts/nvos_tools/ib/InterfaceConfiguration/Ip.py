@@ -3,6 +3,7 @@ from .IbInterfaceDecorators import *
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.constants.constants_nvos import ApiType
 import allure
 
 logger = logging.getLogger()
@@ -111,6 +112,11 @@ class Address(IpBaseOperational):
                         description="IPv4 and IPv6 address",
                         field_name_in_db={}, output_hierarchy="{level1} {level2}".
                         format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.IP_ADDRESS))
+
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            value = {value: {}}
+        return IpBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
 
 
 class Gateway(IpBaseOperational):

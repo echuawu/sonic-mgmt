@@ -69,6 +69,9 @@ class OpenApiRequest:
         res = OpenApiRequest._send_patch_request(request_data)
         if res.result:
             res = OpenApiRequest._apply_config(request_data, add_approve)
+        else:
+            OpenApiRequest.changeset = None
+            OpenApiRequest.payload = {}
         return res.info
 
     @staticmethod

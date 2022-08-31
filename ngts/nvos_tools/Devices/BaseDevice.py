@@ -282,7 +282,8 @@ class GorillaSwitch(BaseSwitch):
 
     def _init_ib_speeds(self):
         BaseSwitch._init_ib_speeds(self)
-        self.supported_ib_speeds.update({'ndr': '400G'})
+        # ndr is not supported in current setups
+        # self.supported_ib_speeds.update({'ndr': '400G'})
 
 
 # -------------------------- Jaguar Switch ----------------------------

@@ -19,8 +19,6 @@ def pytest_addoption(parser):
     logger.info('Parsing NVOS pytest options')
     parser.addoption('--release_name', action='store',
                      help='The name of the release to be tested. For example: 25.01.0630')
-    parser.addoption('--traffic_ports', action='store',
-                     help='The name of traffic ports, split by ","')
 
 
 @pytest.fixture(scope='session')
@@ -89,7 +87,7 @@ def interfaces(topology_obj):
     return interfaces_data
 
 
-@pytest.fixture(scope='session')
+'''@pytest.fixture(scope='session')
 def traffic_ports(request):
     """
     Method for getting list of traffic ports
@@ -97,7 +95,7 @@ def traffic_ports(request):
     :return: list of ports names
     """
     ports_str_list = request.config.getoption('--traffic_ports')
-    return ports_str_list.split(',')
+    return ports_str_list.split(',')'''
 
 
 def clear_config():
