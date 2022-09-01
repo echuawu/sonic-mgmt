@@ -5,6 +5,7 @@ import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -31,7 +32,7 @@ def test_ib_show_interface_name(engines):
 
 
 @pytest.mark.ib
-def test_ib_show_interface_all(engines):
+def test_ib_show_interface_all_state_up(engines):
     """
     Run show interface command and verify the required fields are exist
     command: nv show interface
@@ -44,7 +45,7 @@ def test_ib_show_interface_all(engines):
     output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
         Port.show_interface()).get_returned_value()
 
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="",
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="up",
                                                                requested_ports_type="ib").get_returned_value()
     TestToolkit.update_tested_ports([selected_port])
 
@@ -53,6 +54,31 @@ def test_ib_show_interface_all(engines):
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
         validate_one_port_in_show_all_ports(selected_port, output_dictionary[selected_port.name])
+
+
+@pytest.mark.ib
+def test_ib_show_interface_all_state_down(engines):
+    """
+    Run show interface command and verify the required fields are exist
+    command: nv show interface
+
+    flow:
+    1. Run 'nv show interface'
+    2. Select a random port from the output
+    3. Verify the required fields are presented in the output
+    """
+    output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+        Port.show_interface()).get_returned_value()
+
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="down",
+                                                               requested_ports_type="ib").get_returned_value()
+    TestToolkit.update_tested_ports([selected_port])
+
+    assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
+
+    with allure.step('Run show command on selected port and verify that each field has an appropriate '
+                     'value according to the state of the port'):
+        validate_one_port_in_show_all_ports(selected_port, output_dictionary[selected_port.name], False)
 
 
 @pytest.mark.ib
@@ -150,6 +176,7 @@ def validate_link_fields(selected_port, output_dictionary):
                           selected_port.ib_interface.link.physical_port_state.label,
                           selected_port.ib_interface.link.operational_vls.label,
                           selected_port.ib_interface.link.vl_admin_capabilities.label]
+
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
@@ -195,9 +222,8 @@ def validate_one_port_show_output(selected_port):
                               selected_port.ib_interface.link.stats.label])
 
 
-def validate_one_port_in_show_all_ports(selected_port, output_dictionary):
-    field_to_check = [selected_port.ib_interface.link.mtu.label,
-                      selected_port.ib_interface.link.speed.label,
+def validate_one_port_in_show_all_ports(selected_port, output_dictionary, port_up=True):
+    field_to_check = [selected_port.ib_interface.link.speed.label,
                       selected_port.ib_interface.link.ib_subnet.label,
                       selected_port.ib_interface.link.ib_speed.label,
                       selected_port.ib_interface.link.logical_port_state.label,
@@ -205,4 +231,6 @@ def validate_one_port_in_show_all_ports(selected_port, output_dictionary):
                       selected_port.ib_interface.link.state.label,
                       selected_port.ib_interface.type.label,
                       selected_port.ib_interface.description.label]
+    if port_up:
+        field_to_check.append(selected_port.ib_interface.link.mtu.label)
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()

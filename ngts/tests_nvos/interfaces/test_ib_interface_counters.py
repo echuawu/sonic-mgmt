@@ -11,7 +11,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib_interfaces
-def test_ib_clear_counters(engines, players, interfaces, traffic_ports):
+def test_ib_clear_counters(engines, players, interfaces):
     """
     Clear counters test
     Commands:
@@ -25,9 +25,8 @@ def test_ib_clear_counters(engines, players, interfaces, traffic_ports):
     5. Make sure the counters were cleared
     6. Run traffic and make sure the counters are not 0
     """
-    with allure.step("Get a random functional port"):
-        selected_port_name = Tools.RandomizationTool.select_random_value(traffic_ports).get_returned_value()
-        selected_port = get_port_obj(selected_port_name)
+    with allure.step("Get a random active port"):
+        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
 
     with allure.step('Clear counter for selected port "{}"'.format(selected_port.name)):
         selected_port.ib_interface.link.stats.clear_stats().verify_result()

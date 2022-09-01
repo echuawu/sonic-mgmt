@@ -47,4 +47,4 @@ def test_restore_origin_setup_after_adjustments_for_community_tests(topology_obj
         if "No such file or directory" not in engine.run_cmd("ls {}".format(origin_show_path)):
             engine.run_cmd("sudo rm {}".format(new_show_path))
             engine.run_cmd("sudo cp {origin} {new_name}".format(origin=origin_show_path, new_name=new_show_path))
-#            engine.run_cmd("sudo rm {}".format(origin_show_path))
+            engine.run_cmd("sudo rm {}".format(origin_show_path))

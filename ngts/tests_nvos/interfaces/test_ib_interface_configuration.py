@@ -141,6 +141,7 @@ def test_ib_interface_speed(engines, players, interfaces, devices):
 
     with allure.step("Unset ib_speed for port {}".format(selected_port.name)):
         selected_port.ib_interface.link.ib_speed.unset(apply=True, ask_for_confirmation=True).verify_result()
+        wait_for_port_to_become_active(selected_port)
         verify_speed_values(devices, selected_port)
 
     with allure.step("Restore {} speed to {}".format(selected_port.name, current_ib_speed_value)):
@@ -174,8 +175,10 @@ def test_ib_interface_speed_invalid(engines, devices):
             selected_port.ib_interface.link.ib_speed.set(value=invalid_speed, apply=False).verify_result()
 
             with allure.step("Try to apply invalid configuration and expect failure"):
-                Tools.SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                      engines.dut, False).verify_result(False)
+                res = Tools.SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                            engines.dut, False)
+                selected_port.ib_interface.link.ib_speed.unset(apply=True)
+                res.verify_result(False)
 
 
 @pytest.mark.ib_interfaces
@@ -329,7 +332,7 @@ def verify_speed_values(devices, selected_port):
     ib_int_speed = int(devices.dut.supported_ib_speeds[ib_speed].replace("G", ""))
     int_lanes = int(lanes.replace("X", ""))
     int_speed = int(speed.replace("G", ""))
-    assert ib_int_speed / int_lanes == int_speed, "The values od 'speed' is invalid"
+    assert (ib_int_speed / 4) * int_lanes == int_speed, "The values od 'speed' is invalid"
 
 
 @retry(Exception, tries=10, delay=10)
@@ -349,14 +352,6 @@ def verify_value_updated_correctly(selected_port_obj, selected_value):
 def verify_value_is_contained_in_output(selected_port_obj, selected_value):
     new_value = selected_port_obj.get_operational()
     assert new_value in selected_value, "Invalid value for {}".format(selected_port_obj.label)
-
-
-def verify_speed_updated_after_setting_lanes(selected_port_obj, devices):
-    lanes = int(selected_port_obj.lanes.get_operational().replace("X", ""))
-    speed = int(selected_port_obj.speed.get_operational().replace("G", ""))
-    ib_speed = selected_port_obj.ib_speed.get_operational()
-    general_speed = int(devices.dut.supported_ib_speeds[ib_speed].replace("G", ""))
-    assert (general_speed / lanes) == speed, "'speed' is not updated correctly after updating the lanes"
 
 
 def get_port_obj(port_name):
