@@ -853,7 +853,7 @@ class AppExtensionInstallationConstants:
                                      'sonic-lc-manager': LC_MANAGER,
                                      'p4-examples': P4ExamplesConsts.APP_NAME,
                                      'doroce': DOROCE}
-    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME, P4ExamplesConsts.APP_NAME]
+    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME, P4ExamplesConsts.APP_NAME, DOROCE]
 
 
 class MarsConstants:
