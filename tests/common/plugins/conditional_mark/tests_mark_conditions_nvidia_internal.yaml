@@ -969,4 +969,11 @@ ipfwd/test_dip_sip.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3186035 and branch 202205"
     conditions:
       - "https://redmine.mellanox.com/issues/3186035 and '202205' in release"
+
+pc/test_lag_2.py::test_lag:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3195312 and topology t0-56-po2vlan"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3195312 and 't0-56-po2vlan' in topo_name"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
