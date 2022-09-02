@@ -73,17 +73,11 @@ def test_bgp_slb_neighbor_persistence_across_advanced_reboot(
     duthost = duthosts[rand_one_dut_hostname]
     neighbor = bgp_slb_neighbor
 
-    # We need to check that "warmboot-finalizer" inactive, in other case when test run after warm-boot it will fail
-    # with message: "Warm restart flag for system is set. Please check if a warm restart for system is in progress."
-    ret = wait_until(300, 5, 0, check_warmboot_finalizer_inactive, duthost)
-    if not ret:
-        raise Exception('warmboot-finalizer service timeout on DUT')
-
     try:
         neighbor.start_session()
         if not wait_until(40, 5, 10, verify_bgp_session, duthost, neighbor):
             pytest.fail("dynamic BGP session is not established")
-        reboot(duthost, localhost, reboot_type=reboot_type)
+        reboot(duthost, localhost, reboot_type=reboot_type, wait_warmboot_finalizer=True)
         if not wait_until(40, 5, 10, verify_bgp_session, duthost, neighbor):
             pytest.fail("dynamic BGP session is not established after %s" % reboot_type)
     finally:
