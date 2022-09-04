@@ -6,6 +6,7 @@ from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.constants.constants_nvos import ApiType, ActionConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 logger = logging.getLogger()
 
 
@@ -50,3 +51,9 @@ class Images(BaseComponent):
         with allure.step("Set image '{id}' to boot next".format(id=img_id)):
             logging.info("Set image '{id}' to boot next".format(id=img_id))
             return self._action(ActionConsts.BOOT_NEXT, img_id)
+
+    def get_image_field_value(self, field_name):
+        output = OutputParsingTool.parse_json_str_to_dictionary(BaseComponent.show(self)).get_returned_value()
+        if field_name in output.keys():
+            return output[field_name]
+        return None

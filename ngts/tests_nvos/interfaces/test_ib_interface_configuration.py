@@ -332,7 +332,7 @@ def verify_speed_values(devices, selected_port):
     ib_int_speed = int(devices.dut.supported_ib_speeds[ib_speed].replace("G", ""))
     int_lanes = int(lanes.replace("X", ""))
     int_speed = int(speed.replace("G", ""))
-    assert (ib_int_speed / 4) * int_lanes == int_speed, "The values od 'speed' is invalid"
+    assert int(ib_int_speed / 4) * int_lanes == int_speed, "The values od 'speed' is invalid"
 
 
 @retry(Exception, tries=10, delay=10)

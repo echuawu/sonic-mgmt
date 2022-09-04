@@ -48,25 +48,6 @@ def test_show_system_images(engines):
             assert output_dictionary["partition1"] is not None, "'current' image can't be found the the output"
             assert output_dictionary["next"] is not None, "'current' image can't be found the the output"
 
-    '''with allure.step("Verify image name using 'show system images current'"):
-        logging.info("Verify image name using 'show system images current'")
-        current_image_temp = get_current_image_name(system)
-        ValidationTool.compare_values(current_image, current_image_temp).verify_result()
-
-    with allure.step("Verify image name using  'show system version'"):
-        logging.info("Verify image name using  'show system version'")
-        show_system_version_res = system.show("version")
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_system_version_res).get_returned_value()
-        ValidationTool.compare_values(output_dictionary, {}, False).verify_result()
-
-        current_image_temp = output_dictionary["image"]
-        ValidationTool.compare_values(current_image, current_image_temp).verify_result()
-
-    with allure.step("Verify next image name using 'show system images next'"):
-        logging.info("Verify next image name using 'show system images next'")
-        next_image_temp = get_next_image_name(system)
-        ValidationTool.compare_values(next_image, next_image_temp).verify_result()'''
-
 
 @pytest.mark.checklist
 def test_install_system_images(engines, release_name):
@@ -117,6 +98,9 @@ def test_install_system_images(engines, release_name):
     with allure.step("Uninstalling all images that have been installed during the test"):
         clear_installed_images(image_id, system)
 
+    with allure.step("Verify installed image"):
+        verify_image_name_in_installed_list(system, image_name, False)
+
 
 @pytest.mark.checklist
 def test_images_cleanup(engines, release_name):
@@ -148,13 +132,13 @@ def test_images_cleanup(engines, release_name):
     with allure.step("Cleanup installed images"):
         cleanup_images(system, image_id)
 
+    with allure.step("Verify installed image"):
+        verify_image_name_in_installed_list(system, image_name, False)
+
 
 def cleanup_images(system, image_name):
     logging.info("Cleanup installed images")
     system.images.action_cleanup()
-
-    with allure.step("Verify all images have been uninstalled"):
-        verify_image_name_in_installed_list(image_name, system, False)
 
 
 def set_next_boot_image(image_name, system):
@@ -183,8 +167,6 @@ def clear_installed_images(image_name, system):
     logging.info("Uninstalling the new image")
     with allure.step("Uninstall " + image_name):
         system.images.action_uninstall(image_name)
-        with allure.step("Verify the image was uninstalled"):
-            verify_image_name_in_installed_list(image_name, system, False)
 
 
 def do_installation(image_path, image_name, system):
@@ -201,28 +183,25 @@ def do_installation(image_path, image_name, system):
         logging.info("Installing image '{}'".format(path_on_switch))
         system.images.action_install(path_on_switch)
 
-    with allure.step("Verifying installation completed successfully"):
-        verify_image_name_in_installed_list(image_name, system, True)
+    with allure.step("Verify installed image"):
+        verify_image_name_in_installed_list(system, image_name, True)
 
 
 def verify_image_name_in_installed_list(image_name, system, should_exist):
-    logging.info("Verifying that the installed image {} in 'show images installed' output".format(
+    logging.info("Verifying that the installed image {} in 'show images' output".format(
         "exists" if should_exist else "doesn't exist"))
-    if not is_redmine_issue_active([3113687]):
-        show_output = system.images.show("installed")
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_exist_in_json_output(output_dictionary, [image_name], should_exist)
+    partition1 = get_installed_images_partition(system, 1)
+    partition2 = get_installed_images_partition(system, 2)
+    if should_exist:
+        assert partition1 == image_name or partition2 == image_name, image_name + " can't be found"
+    else:
+        assert partition1 != image_name and partition2 != image_name, image_name + " still exists"
 
 
 def get_current_image_name(system):
     with allure.step("Run show command to view 'current' system image"):
         logging.info("Run show command to view 'current' system image")
-        show_output = system.images.show("current")
-
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.compare_values(output_dictionary, {}, False).verify_result()
-
-        current_image = list(output_dictionary.keys())[0]
+        current_image = system.images.get_image_field_value("current")
         logging.info("Current installed image: {}".format(current_image))
         return current_image
 
@@ -230,20 +209,16 @@ def get_current_image_name(system):
 def get_next_image_name(system):
     with allure.step("Run show command to view 'next' system image"):
         logging.info("Run show command to view 'next' system image")
-        show_system_version_res = system.images.show("next")
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_system_version_res).get_returned_value()
-        ValidationTool.compare_values(output_dictionary, {}, False).verify_result()
-        next_image_temp = list(output_dictionary.keys())[0]
+        next_image_temp = system.images.get_image_field_value("next")
         return next_image_temp
 
 
-def get_installed_images(system):
-    with allure.step("Run show command to view 'installed' system image"):
-        logging.info("Run show command to view 'installed' system image")
-        show_system_version_res = system.images.show("installed")
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_system_version_res).get_returned_value()
-        ValidationTool.compare_values(output_dictionary, {}, False).verify_result()
-        return output_dictionary
+def get_installed_images_partition(system, partition_num=1):
+    partition_name = "partition" + str(partition_num)
+    with allure.step("Run show command to view '{}' system image".format(partition_name)):
+        logging.info("Run show command to view '{}' system image".format(partition_name))
+        partition = system.images.get_image_field_value(partition_name)
+        return partition
 
 
 def get_list_of_directories(current_installed_img, starts_with=None):

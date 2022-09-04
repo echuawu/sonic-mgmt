@@ -44,7 +44,6 @@ class System(BaseComponent):
     def set(self, value, engine, field_name="", apply=True):
         SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
                                         engine, 'system ' + field_name, value)
-
         if apply:
             NvueGeneralCli.apply_config(engine, True)
 

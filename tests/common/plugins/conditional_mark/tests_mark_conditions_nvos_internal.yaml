@@ -35,6 +35,18 @@ tests_nvos/system/test_show_system.py::test_show_system_reboot:
     conditions:
       - https://redmine.mellanox.com/issues/3193758
 
+tests_nvos/system/test_system_images.py::test_install_system_images:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3199403"
+    conditions:
+      - https://redmine.mellanox.com/issues/3199403
+
+tests_nvos/system/test_system_images.py::test_images_cleanup:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3199403"
+    conditions:
+      - https://redmine.mellanox.com/issues/3199403
+
 tests_nvos/system/test_log_commands.py::test_log_files_rotation_default_fields:
   skip:
     reason: "Not implemented command"
