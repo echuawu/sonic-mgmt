@@ -11,6 +11,7 @@ from ngts.nvos_tools.system.Debug_log import DebugLog
 from ngts.nvos_tools.system.Component import Component
 from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Techsupport import TechSupport
+from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -25,7 +26,8 @@ class System(BaseComponent):
     component = None
     files = None
 
-    def __init__(self, parent_obj=None):
+    def __init__(self, parent_obj=None, username=''):
+        self.aaa = Aaa(self, username)
         self.log = Log(self)
         self.debug_log = DebugLog(self)
         self.component = Component(self)

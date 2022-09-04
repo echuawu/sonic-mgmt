@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
-def test_ib_interface_state(engines, players, interfaces):
+def test_ib_interface_state(engines):
     """
     Configure port interface state and verify the configuration applied successfully
     Relevant cli commands:

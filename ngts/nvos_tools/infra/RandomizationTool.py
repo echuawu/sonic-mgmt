@@ -1,6 +1,9 @@
 import logging
+import re
+from random import randint
 from .ResultObj import ResultObj
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
+from ngts.constants.constants_nvos import SystemConsts
 from ngts.constants.constants_nvos import IpConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -163,3 +166,16 @@ class RandomizationTool:
 
             result_obj.result = True
             return result_obj
+
+    @staticmethod
+    def random_list(count, sum):
+        """
+            generate a list of m random non-negative integers whose sum is n
+        :param count:
+        :param sum: the
+        :return:
+        """
+        arr = [0] * count
+        for i in range(sum):
+            arr[randint(0, sum) % count] += 1
+        return arr

@@ -127,6 +127,42 @@ class SystemConsts:
                                        "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
                                        " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"
     ACTIONS_GENERATE_SINCE = '--since'
+    DEFAULT_USER_ADMIN = 'admin'
+    DEFAULT_USER_MONITOR = 'monitor'
+    USER_ROLE = 'role'
+    USER_STATE = 'state'
+    USER_FULL_NAME = 'full-name'
+    USER_ADMIN_DEFAULT_FULL_NAME = 'System Administrator'
+    USER_MONITOR_DEFAULT_FULL_NAME = 'System Monitor'
+    USER_STATE_ENABLED = 'enabled'
+    USER_STATE_DISABLED = 'disabled'
+    USER_PASSWORD = 'password'
+    USER_HASHED_PASSWORD = 'hashed-password'
+    USER_PASSWORDS_DEFAULT_VALUE = '*'
+    ROLE_LABEL = 'role'
+    ROLE_CONFIGURATOR = 'configurator'
+    ROLE_VIEWER = 'viewer'
+    ROLE_GROUPS = 'groups'
+    ROLE_CONFIGURATOR_DEFAULT_GROUPS = 'admin,sudo,docker,redis,adm,nvset,nvapply'
+    ROLE_VIEWER_DEFAULT_GROUPS = 'adm,nvshow'
+    USERNAME_MAX_LEN = 32
+    USERNAME_PASSWORD_HARDENING_STATE = 'state'
+    USERNAME_VALID_CHARACTERS = list(map(chr, range(65, 91))) + list(map(chr, range(97, 123)))
+    USERNAME_INVALID_CHARACTERS = range(0, 9)
+    USERNAME_PASSWORD_DIGITS_LABEL = 'digits-class'
+    USERNAME_PASSWORD_DIGITS_LIST = range(0, 9)
+    USERNAME_PASSWORD_LENGTH_LABEL = 'len-min'
+    USERNAME_PASSWORD_LENGTH_DEFAULT = 8
+    USERNAME_PASSWORD_LOWER_LABEL = 'lower-class'
+    USERNAME_PASSWORD_LOWER_LIST = list(map(chr, range(97, 123)))
+    USERNAME_PASSWORD_UPPER_LABEL = 'upper-class'
+    USERNAME_PASSWORD_UPPER_LIST = list(map(chr, range(65, 91)))
+    USERNAME_PASSWORD_SPECIAL_LABEL = 'special-class'
+    USERNAME_PASSWORD_SPECIAL_LIST = "#$%&'()*+,-./:;<=>?@[\]^_`{|}~"   # noqa: E402
+    PASSWORD_HARDENING_DEFAULT = [USERNAME_PASSWORD_DIGITS_LABEL, USERNAME_PASSWORD_LOWER_LABEL,
+                                  USERNAME_PASSWORD_UPPER_LABEL, USERNAME_PASSWORD_SPECIAL_LABEL]
+    PASSWORD_HARDENING_RUNNING_PROCESSES = 'Running processes'
+    PASSWORD_HARDENING_LABEL = 'password-hardening'
 
 
 class ActionConsts:

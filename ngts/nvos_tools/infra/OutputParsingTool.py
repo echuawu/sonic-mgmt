@@ -1,7 +1,9 @@
 import logging
 import json
 import allure
+import re
 from .ResultObj import ResultObj
+from ngts.constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 logger = logging.getLogger()
 
@@ -343,3 +345,52 @@ class OutputParsingTool:
                         dictionary_to_return[key] = value
                 list_to_return.append(dictionary_to_return)
         return ResultObj(True, "", list_to_return)
+
+    @staticmethod
+    def parse_lslogins_cmd(lslogins_output):
+        """
+
+            Example:
+            Input:
+                    Username:                           admin
+                    UID:                                1000
+                    Gecos field:                        System Administrator
+                    Home directory:                     /home/admin
+                    Shell:                              /bin/bash
+                    No login:                           no
+                    Primary group:                      admin
+                    GID:                                1000
+                    Supplementary groups:               nvapply,adm,sudo,docker,redis,nvset
+                    Supplementary group IDs:            996,4,27,999,1001,997
+                    Last login:                         15:32
+                    Last terminal:                      pts/2
+                    Last hostname:                      10.228.130.172
+                    Hushed:                             no
+                    Running processes:                  9
+
+                    Last logs:
+                    15:01 sudo[202963]: pam_unix(sudo:session): session closed for user root
+                    15:03 sshd[202910]: Received disconnect from 10.228.130.172 port 50244:11: disconnected by user
+                    15:03 sshd[202910]: Disconnected from user admin 10.228.130.172 port 50244
+            Output:
+                {
+                    Username: admin,
+                    UID: 1000
+                    Gecos field: System Administrator
+                    ...
+                    Running processes: 9
+                    Last logs: [ ]
+        :param lslogins_output:
+        :return:
+        """
+        result = {}
+        lines = lslogins_output.splitlines()
+        logs = lines[lines.index('') + 1:]
+        lines = lines[:lines.index('')]
+
+        for line in lines:
+            splitted_line = line.split(':', 1)
+            result[splitted_line[0]] = splitted_line[1].strip()
+
+        result['Last logs'] = logs[1:]
+        return ResultObj(True, "", result)

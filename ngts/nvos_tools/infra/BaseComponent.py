@@ -25,7 +25,7 @@ class BaseComponent:
         return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
                                                TestToolkit.engines.dut,
                                                self.get_resource_path(), param_name,
-                                               param_value).get_returned_value()
+                                               param_value)
 
     def set(self, op_param_name="", op_param_value={}):
         with allure.step('Execute set for {resource_path}'.format(resource_path=self.get_resource_path())):
