@@ -272,6 +272,30 @@ tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::te
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174864 and branch 202205"
     conditions:
       - "https://redmine.mellanox.com/issues/3174864 and '202205' in release"
+
+tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
+    conditions:
+      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
+
+tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
+    conditions:
+      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
+
+tests/nightly/lag/test_lag.py::test_lag_min_links:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
+    conditions:
+      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
+
+tests/nightly/lag/test_lag.py::test_lag_members_scale:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
+    conditions:
+      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
 ########################## NGTS IGNORE END ##########################
 
 
