@@ -34,7 +34,7 @@ def test_ib_clear_counters(engines, players, interfaces):
             check_port_counters(selected_port, True).verify_result()
         logging.info("The counters were cleared for port '{}".format(selected_port.name))
 
-    with allure.step('Send traffic throw selected port'):
+    with allure.step('Send traffic through selected port'):
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step('Check selected port counters'):

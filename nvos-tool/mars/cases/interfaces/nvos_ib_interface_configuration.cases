@@ -16,7 +16,7 @@
   </global>
 
   <case>
-    <name> IB interface configuration test - Speed </name>
+    <name> Speed - NVUE </name>
     <info> </info>
     <cmd>
       <params>
@@ -25,8 +25,18 @@
     </cmd>
   </case>
 
+    <case>
+    <name> Speed - OpenApi</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/test_ib_interface_configuration.py --raw_options "\'--nvos_api_type=openapi --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini -k test_ib_interface_speed --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
   <case>
-    <name> IB interface configuration test - MTU </name>
+    <name> MTU - NVUE </name>
     <info> </info>
     <cmd>
       <params>
@@ -36,7 +46,17 @@
   </case>
 
   <case>
-    <name> IB interface configuration test - Lanes </name>
+    <name> MTU - OpenApi </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/test_ib_interface_configuration.py --raw_options "\'--nvos_api_type=openapi --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini -k test_ib_interface_mtu --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> Lanes - NVUE </name>
     <info> </info>
     <cmd>
       <params>
@@ -46,11 +66,31 @@
   </case>
 
   <case>
-    <name> IB interface configuration test - VLs </name>
+    <name> Lanes - OpenApi </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/test_ib_interface_configuration.py --raw_options "\'--nvos_api_type=openapi --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini -k test_ib_interface_lanes --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> VLs - NVUE</name>
     <info> </info>
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/test_ib_interface_configuration.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini -k test_ib_interface_vls --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> VLs - OpenApi </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/test_ib_interface_configuration.py --raw_options "\'--nvos_api_type=openapi --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini -k test_ib_interface_vls --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>

@@ -166,7 +166,7 @@ def test_ib_interface_speed_invalid(engines, devices):
 
     invalid_speed = "invalid_speed"
     with allure.step("Set an invalid ib-speed '{}' for port '{}".format(invalid_speed, selected_port.name)):
-        selected_port.ib_interface.link.ib_speed.set(value=invalid_speed, apply=False).verify_result(False)
+        selected_port.ib_interface.link.ib_speed.set(value=invalid_speed, apply=True).verify_result(False)
 
     invalid_speeds = devices.dut.invalid_ib_speeds
     if invalid_speeds:

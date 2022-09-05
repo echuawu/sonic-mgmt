@@ -1,4 +1,5 @@
 import enum
+import logging
 
 
 class IssueType:
@@ -26,6 +27,10 @@ class ResultObj:
         Assert an error if result is False, otherwise returns returned_value
         :return: If 'result' is True, returns the 'returned_value'
         """
+        logging.info("\n   Result: {result}\n   should_succeed: {should_succeed}\n   info: {info}\n".format(
+                     result='True' if self.result else 'False',
+                     should_succeed='True' if should_succeed else 'False',
+                     info=self.info))
         assert (should_succeed and self.result) or (not should_succeed and not self.result), \
             IssueType.exception_msg[self.issue_type] + self.info
         return self.returned_value
