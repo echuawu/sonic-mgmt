@@ -8,6 +8,7 @@ from infra.tools.connection_tools.onie_engine import OnieEngine
 from ngts.constants.constants import InfraConst, PlatformTypesConstants
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.helpers.json_file_helper import extract_fw_data
+from ngts.helpers.run_process_on_host import run_process_on_host
 
 logger = logging.getLogger()
 
@@ -107,7 +108,7 @@ class SonicOnieCli:
             f'Sleeping {InfraConst.SLEEP_AFTER_RRBOOT} seconds after switch reply to ping to handle ssh session')
         time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
 
-    def install_image(self, image_url, timeout=60, num_retry=10):
+    def install_image(self, image_path, timeout=60, num_retry=10):
         self.confirm_onie_boot_mode_install()
 
         # restore engine after reboot
@@ -116,10 +117,15 @@ class SonicOnieCli:
         prompts = ["Installed SONiC base image SONiC-OS successfully"] +\
                   [str(pexpect.TIMEOUT)] + DEFAULT_PROMPT
 
-        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_url}"])
-        if 'wget: download timed out' in stdout:
-            logger.error('Failed to download SONiC image from ONIE. Trying again.')
-            stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_url}"])
+        logger.info(f'Getting SONiC image from: {image_path} using SCP')
+        scp_cmd = f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} {image_path} ' \
+                  f'root@{self.ip}:/tmp/sonic-mellanox.bin'
+        out, err, rc = run_process_on_host(scp_cmd, timeout=900)
+        if rc:
+            logger.error(f'Failed copy SONiC image, std_out: {out}, std_err: {err}')
+            raise AssertionError('SCP copy file to DUT failed')
+
+        stdout, pexpect_entry = self.run_cmd_set(["onie-nos-install /tmp/sonic-mellanox.bin"])
 
         while num_retry > 0:
             if pexpect_entry == 0:

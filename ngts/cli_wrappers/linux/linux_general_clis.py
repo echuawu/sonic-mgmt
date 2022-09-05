@@ -22,8 +22,6 @@ class LinuxGeneralCli(GeneralCliCommon):
         :return: output
         """
         ctrl_c_cmd = '\x03'
-        if image_path.startswith('http'):
-            image_path = '/auto' + image_path.split('/auto')[1]
         if image_path.endswith('.bin'):
             image_path = image_path.replace('.bin', '.bfb')
         assert os.path.exists(image_path), "The required image path doesn't exists"
