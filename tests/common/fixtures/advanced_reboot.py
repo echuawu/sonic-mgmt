@@ -630,6 +630,7 @@ class AdvancedReboot:
             "allow_vlan_flooding" : self.allowVlanFlooding,
             "sniff_time_incr" : self.sniffTimeIncr,
             "setup_fdb_before_test" : True,
+            "verbose" : True,
             "vnet" : self.vnet,
             "vnet_pkts" : self.vnetPkts,
             "bgp_v4_v6_time_diff": self.bgpV4V6TimeDiff,
