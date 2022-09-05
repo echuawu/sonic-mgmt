@@ -1413,15 +1413,6 @@
       - 3174870
 
 - Errors_list:
-    - '.*ERR hw-management: mlxreg_io is not loaded.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
-      - platform_tests/fwutil/test_fwutil.py
-      Redmine:
-      - 3177482
-
-- Errors_list:
     - ".* ERR teamd#tlm_teamd: :- process_add_queue: Can't connect to teamd after 10 attempts. LAG.*"
   Conditions:
     - Affected_test_cases:
