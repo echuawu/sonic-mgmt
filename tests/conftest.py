@@ -1762,26 +1762,6 @@ def check_dut_health_status(duthosts, request):
         else:
             logger.info("Dut is healthy after the module {} running.".format(module_name))
 
-
-def ignore_vxlan_zebra_core_files(request, existing_cores, current_cores):
-    filtered_cores_list = current_cores
-    if 'vxlan' in request.node.nodeid:
-        from infra.tools.redmine.redmine_api import is_redmine_issue_active
-        filtered_cores_list = []
-        logger.info('Available .core files: {}'.format(current_cores))
-        for core_file in current_cores:
-            if core_file.startswith('zebra') and core_file not in existing_cores:
-                is_rm_issue_active, _ = is_redmine_issue_active([3138491])
-                if is_rm_issue_active:
-                    logger.info('Removing .core file: {} from list of core files(which added during test) due '
-                                'to RM issue: 3138491'.format(core_file))
-                    continue
-            filtered_cores_list.append(core_file)
-        logger.info('Filtered .core files: {}'.format(filtered_cores_list))
-
-    return filtered_cores_list
-
-
 def verify_packets_any_fixed(test, pkt, ports=[], device_number=0):
     """
     Check that a packet is received on _any_ of the specified ports belonging to
