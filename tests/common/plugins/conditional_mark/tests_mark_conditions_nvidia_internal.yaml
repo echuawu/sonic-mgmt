@@ -1,4 +1,10 @@
 ########################## NGTS IGNORE START ##########################
+scripts/test_verify_fanout_version.py::test_verify_fanout_version:
+  skip:
+    reason: "Skip fanout version check for arc-switch1005, it has different ONYX version due to RM bug: 3143414"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3202907 and 'arc-switch1004' in testbed"
+
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"
