@@ -1425,3 +1425,28 @@
   Conditions:
     - Redmine:
       - 3144720
+
+
+- Errors_list:
+    - ".* ERR kernel:.*: PMBus status register not found.*"
+    - '.* ERR kernel:.*: Chip identification failed.*'
+    - '.* WARNING kernel: .* probe of 15-0061 failed with error -22.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/fwutil/test_fwutil.py
+    - Redmine:
+      - 3199900
+
+- Errors_list:
+    - ".* ERR hostcfgd: sudo systemctl enable eventd.timer - failed: return code - 1, output:#.*None.*"
+    - '.* ERR eventd#eventd: :- main: ERR:The eventd service started.*'
+    - '.* ERR eventd#eventd: :- deserialize: deserialize Failed: input stream errorstr.*data type: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&.*'
+    - '.* ERR eventd#eventd: :- zmq_read_part: Failed to deserialize part rc=-2.*'
+    - '.* ERR eventd#eventd: :- zmq_read_part: last:errno.*'
+    - '.* ERR eventd#eventd: :- zmq_message_read: Failure to read part1 rc.*'
+    - '.* ERR eventd#eventd: :- zmq_message_read: last:errno.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py
+    - Redmine:
+      - 3201740
