@@ -639,8 +639,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def update_config_db_metadata_router(self, setup_name, config_db_json_file_name):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
-        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.TYPE] =\
-            ConfigDbJsonConst.TOR_ROUTER
+        hwsku = config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.HWSKU]
+        localhost_type = ConfigDbJsonConst.TOR_ROUTER
+        if self.is_bluefield(hwsku):
+            localhost_type = ConfigDbJsonConst.SONIC_HOST
+        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.TYPE] = \
+            localhost_type
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_docker_routing_config_mode(self, setup_name, config_db_json_file_name):

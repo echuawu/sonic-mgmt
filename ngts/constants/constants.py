@@ -141,6 +141,7 @@ class ConfigDbJsonConst:
     LOCALHOST = "localhost"
     TYPE = 'type'
     TOR_ROUTER = 'ToRRouter'
+    SONIC_HOST = 'SonicHost'
     HOSTNAME = "hostname"
     MAC = "mac"
     HWSKU = "hwsku"
