@@ -2,6 +2,7 @@ import logging
 import allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.system.User import User
+from ngts.nvos_tools.system.Password_hardening import Password_hardening
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -22,10 +23,9 @@ def test_show_user(engines):
             5. run nv show system aaa user monitor
             6. validate all fields have values
     """
-    system = System(None)
+    system = System(None, '')
     users_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show()).get_returned_value()
     verify_users_default_values(users_output)
-
     admin_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(SystemConsts.DEFAULT_USER_ADMIN)).get_returned_value()
     monitor_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(SystemConsts.DEFAULT_USER_MONITOR)).get_returned_value()
 
@@ -75,8 +75,8 @@ def test_invalid_username(engines):
             3. run nv config diff
             4. verify it's empty
     """
-    system = System(None)
-    invalid_username = User.generate_username(is_valid=False).verify_result()
+    system = System(None, '')
+    invalid_username = User.generate_username(is_valid=False)
     output = system.aaa.user.set(invalid_username, '').info
 
     assert 'Invalid Command: set system aaa user' in output, 'succeeded to set invalid username - not as expected'

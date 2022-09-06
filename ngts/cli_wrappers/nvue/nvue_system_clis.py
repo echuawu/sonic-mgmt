@@ -101,3 +101,9 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action delete system {type}log files {log_file}".format(type=log_file_type, log_file=logging_file)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_disconnect(engine, path):
+        cmd = "nv action disconnect {path}".format(path=path)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)

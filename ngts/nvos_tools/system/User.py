@@ -1,7 +1,10 @@
 import logging
 import allure
 import random
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -12,7 +15,7 @@ logger = logging.getLogger()
 
 
 class User(BaseComponent):
-    def __init__(self, parent_obj=None, username=''):
+    def __init__(self, parent_obj=None, username='admin'):
         BaseComponent.__init__(self)
         self.password = Password(self)
         self.full_name = FullName(self)
@@ -22,6 +25,17 @@ class User(BaseComponent):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/user/' + self.username
         self.parent_obj = parent_obj
+
+    def get_lslogins(self, engine, username):
+        OutputParsingTool.parse_lslogins_cmd(engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
+
+    def action_disconnect(self, username):
+        self.set_username(username)
+        return SendCommandTool.execute_command_success_str(self.api_obj[TestToolkit.tested_api].action_disconnect, "Action succeeded", TestToolkit.engines.dut, self.get_resource_path().replace('/', ' ')).get_returned_value()
+
+    def set_username(self, username):
+        self.username = username
+        self._resource_path = '/user/' + self.username
 
     @staticmethod
     def generate_username(is_valid=True, random_length=True, length=SystemConsts.USERNAME_MAX_LEN,
@@ -39,7 +53,7 @@ class User(BaseComponent):
         """
         with allure.step('generate random username'):
             if random_length:
-                name_len = random.randint(1, length)
+                name_len = random.randint(3, length)
                 logger.info('the username length will be : {len}'.format(len=name_len))
             else:
                 name_len = length
@@ -51,7 +65,7 @@ class User(BaseComponent):
             if not is_valid:
                 name = str(random.choice(SystemConsts.USERNAME_INVALID_CHARACTERS)) + name[:-1]
             logger.info('generated username is : {username}'.format(username=name))
-            return ResultObj(True, "", name)
+            return name
 
 
 class Password(BaseComponent):

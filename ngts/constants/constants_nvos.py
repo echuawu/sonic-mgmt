@@ -127,6 +127,7 @@ class SystemConsts:
                                        "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
                                        " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"
     ACTIONS_GENERATE_SINCE = '--since'
+
     DEFAULT_USER_ADMIN = 'admin'
     DEFAULT_USER_MONITOR = 'monitor'
     USER_ROLE = 'role'
@@ -139,18 +140,18 @@ class SystemConsts:
     USER_PASSWORD = 'password'
     USER_HASHED_PASSWORD = 'hashed-password'
     USER_PASSWORDS_DEFAULT_VALUE = '*'
-    ROLE_LABEL = 'role'
-    ROLE_CONFIGURATOR = 'configurator'
-    ROLE_VIEWER = 'viewer'
+    ROLE_LABEL = USER_ROLE
+    ROLE_CONFIGURATOR = 'admin'
+    ROLE_VIEWER = 'monitor'
     ROLE_GROUPS = 'groups'
     ROLE_CONFIGURATOR_DEFAULT_GROUPS = 'admin,sudo,docker,redis,adm,nvset,nvapply'
     ROLE_VIEWER_DEFAULT_GROUPS = 'adm,nvshow'
     USERNAME_MAX_LEN = 32
     USERNAME_PASSWORD_HARDENING_STATE = 'state'
     USERNAME_VALID_CHARACTERS = list(map(chr, range(65, 91))) + list(map(chr, range(97, 123)))
-    USERNAME_INVALID_CHARACTERS = range(0, 9)
+    USERNAME_INVALID_CHARACTERS = list(map(chr, range(48, 57)))
     USERNAME_PASSWORD_DIGITS_LABEL = 'digits-class'
-    USERNAME_PASSWORD_DIGITS_LIST = range(0, 9)
+    USERNAME_PASSWORD_DIGITS_LIST = list(map(chr, range(48, 57)))
     USERNAME_PASSWORD_LENGTH_LABEL = 'len-min'
     USERNAME_PASSWORD_LENGTH_DEFAULT = 8
     USERNAME_PASSWORD_LOWER_LABEL = 'lower-class'
@@ -158,11 +159,18 @@ class SystemConsts:
     USERNAME_PASSWORD_UPPER_LABEL = 'upper-class'
     USERNAME_PASSWORD_UPPER_LIST = list(map(chr, range(65, 91)))
     USERNAME_PASSWORD_SPECIAL_LABEL = 'special-class'
-    USERNAME_PASSWORD_SPECIAL_LIST = "#$%&'()*+,-./:;<=>?@[\]^_`{|}~"   # noqa: E402
+    USERNAME_PASSWORD_SPECIAL_LIST = "_#)(^"   # noqa: E402 "#$%&'()*+,-./:;<=>@[\]^_`{|}~"
     PASSWORD_HARDENING_DEFAULT = [USERNAME_PASSWORD_DIGITS_LABEL, USERNAME_PASSWORD_LOWER_LABEL,
                                   USERNAME_PASSWORD_UPPER_LABEL, USERNAME_PASSWORD_SPECIAL_LABEL]
     PASSWORD_HARDENING_RUNNING_PROCESSES = 'Running processes'
     PASSWORD_HARDENING_LABEL = 'password-hardening'
+
+    PASSWORD_HARDENING_DICT = {
+        USERNAME_PASSWORD_DIGITS_LABEL: USERNAME_PASSWORD_DIGITS_LIST,
+        USERNAME_PASSWORD_LOWER_LABEL: USERNAME_PASSWORD_LOWER_LIST,
+        USERNAME_PASSWORD_UPPER_LABEL: USERNAME_PASSWORD_UPPER_LIST,
+        USERNAME_PASSWORD_SPECIAL_LABEL: USERNAME_PASSWORD_SPECIAL_LIST
+    }
 
 
 class ActionConsts:
@@ -170,6 +178,7 @@ class ActionConsts:
     INSTALL = "install"
     UNINSTALL = "uninstall"
     BOOT_NEXT = "boot-next"
+    GENERATE = "generate"
 
 
 class IpConsts:
