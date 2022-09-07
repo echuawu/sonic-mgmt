@@ -204,7 +204,7 @@ def setup(duthost, ptfhost, orig_ports_configuration, ports_configuration, backu
 
 
 @pytest.fixture(scope="package", autouse=True)
-def teardown(duthost, ptfhost, ports_configuration):
+def recover(duthost, ptfhost, ports_configuration):
     """
     restore the original configurations
     :param duthost: DUT host object
