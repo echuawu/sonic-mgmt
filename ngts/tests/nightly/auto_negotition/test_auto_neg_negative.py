@@ -197,6 +197,16 @@ class TestAutoNegNegative(TestAutoNegBase):
                                      conf, cleanup_list, mode='disabled')
         self.auto_neg_checker(tested_lb_dict, conf, cleanup_list)
 
+    def check_if_interface_support_max_cr_type(self, conf_min_speed, max_type):
+        """
+        This method is used to check whether interface support specific cr type
+        :param conf_min_speed: speed to be tested
+        :param max_type: max advertise type, such 'CR4'
+        """
+        for _, values_dict in self.interfaces_types_dict.items():
+            if values_dict.get(max_type) and conf_min_speed in values_dict.get(max_type):
+                pytest.skip("This test is not supported")
+
     def get_mismatch_speed_type_conf(self, lb, split_mode, tested_lb_dict):
         """
         return configuration with mismatch type and speed, like 'CR4' and '10G',
@@ -217,6 +227,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         max_type = max(lb_mutual_types, key=get_interface_cable_width)
         if min_speed_matched_type == max_type:
             pytest.skip("This test is not supported")
+        self.check_if_interface_support_max_cr_type(conf_min_speed, max_type)
         conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = \
             convert_speeds_to_mb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
         conf[lb[0]][AutonegCommandConstants.ADV_TYPES] = max_type
