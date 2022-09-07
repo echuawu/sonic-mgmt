@@ -27,6 +27,8 @@ from ngts.cli_wrappers.sonic.sonic_sfputil_clis import SonicSfputilCli
 from ngts.cli_wrappers.sonic.sonic_qos_clis import SonicQosCli
 from ngts.cli_wrappers.sonic.sonic_ztp import SonicZtpCli
 from ngts.cli_wrappers.sonic.sonic_sflow_clis import SonicSflowCli
+from ngts.cli_wrappers.sonic.sonic_doroce_clis import SonicDoroceCli
+from ngts.cli_wrappers.sonic.sonic_watermark_clis import SonicWatermarkCli
 from ngts.cli_util.stub_engine import StubEngine
 from dotted_dict import DottedDict
 logger = logging.getLogger()
@@ -65,6 +67,8 @@ class SonicCli:
         self._p4_vxlan_bm = None
         self._sfputil = None
         self._qos = None
+        self._doroce = None
+        self._watermark = None
         self._ztp = None
         self._sflow = None
 
@@ -236,6 +240,18 @@ class SonicCli:
         if self._qos is None:
             self._qos = SonicQosCli(engine=self.engine)
         return self._qos
+
+    @property
+    def doroce(self):
+        if self._doroce is None:
+            self._doroce = SonicDoroceCli(engine=self.engine)
+        return self._doroce
+
+    @property
+    def watermark(self):
+        if self._watermark is None:
+            self._watermark = SonicWatermarkCli(engine=self.engine)
+        return self._watermark
 
     @property
     def ztp(self):

@@ -71,6 +71,27 @@ def dpb_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     logger.info('DPB cleanup completed')
 
 
+@pytest.fixture(scope="module")
+def feature_test(request):
+    """
+    Method for getting feature_test parameter from pytest arguments
+    :param request: pytest builtin
+    :return: feature_test
+    """
+    return request.config.getoption('--feature_test')
+
+
+def pytest_addoption(parser):
+    """
+    Parse pytest options
+    :param parser: pytest builtin
+    """
+    logger.info('Parsing pytest options')
+    parser.addoption('--feature_test', action="store", default=False,
+                     help="path to specific test case which required split on all ports."
+                          "e.g. ngts/tests/push_build_tests/general/doroce/test_doroce.py::TestDoroce::test_doroce")
+
+
 def get_random_lb_breakout_conf(topology_obj, ports_breakout_modes):
     """
     :return: A dictionary with different loopback for each supported breakout modes.
@@ -202,7 +223,8 @@ def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, con
     for breakout_mode, ports_list in conf.items():
         original_ports_list += ports_list
 
-    set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf)
+    if cleanup_list is not None:
+        set_dpb_cleanup(cleanup_list, dut_engine, cli_object, remove_conf, original_ports_list, original_speed_conf)
     breakout_ports_conf = cli_object.interface.configure_dpb_on_ports(conf, force=force)
     cli_object.interface.enable_interfaces(breakout_ports_conf.keys())
     return breakout_ports_conf

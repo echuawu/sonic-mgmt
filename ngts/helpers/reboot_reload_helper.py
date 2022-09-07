@@ -146,7 +146,7 @@ def generate_report(out, err):
     allure.attach(err, 'stderr', allure.attachment_type.TEXT)
     try:
         allure_report_url = re.search(r'Allure\sreport\sURL\:\s(http://.*)', out.decode('utf-8')).group(1)
-        logger.info('Found reboot/reload functional validation Allure report URL: {}'.format(allure_report_url))
+        logger.info('Found functional validation Allure report URL: {}'.format(allure_report_url))
         allure.attach(bytes(allure_report_url, 'utf-8'), 'Allure report URL', allure.attachment_type.URI_LIST)
     except Exception as err:
         logger.error('Can not find and attach allure URL to allure report. Error: {}'.format(err))

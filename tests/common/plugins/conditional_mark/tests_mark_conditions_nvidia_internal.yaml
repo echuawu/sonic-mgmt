@@ -211,6 +211,12 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
     conditions:
       - "'202106' in release"
 
+tests/push_build_tests/general/doroce/test_doroce.py:
+  skip:
+    reason: "Testcase ignored - tigris(3800) doesn't support used in the test speed 1G"
+    conditions:
+      - "'3800' in platform"
+
 tests/nightly/rj45/test_rj45.py:
   skip:
     reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"

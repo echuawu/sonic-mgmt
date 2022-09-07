@@ -5,11 +5,11 @@ import logging
 from infra.tools.validations.traffic_validations.iperf.iperf_runner import IperfChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from retry.api import retry_call
-from ngts.cli_wrappers.sonic.sonic_interface_clis import SonicInterfaceCli
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from ngts.config_templates.wjh_buffer_config_template import WjhBufferConfigTemplate
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
+from ngts.common.checkers import is_feature_ready
 
 
 pytest.CHANNEL_CONF = None
@@ -84,23 +84,16 @@ def get_channel_configuration(engines, check_feature_enabled):
 
 
 @pytest.fixture(scope='module')
-def check_feature_enabled(engines, cli_objects):
+def check_feature_enabled(cli_objects):
     """
     An autouse fixture to check if WJH fixture is enabled
-    :param engines: engines fixture
     :param cli_objects: cli_objects fixture
     """
     with allure.step('Validating WJH feature is installed and enabled on the DUT'):
-        features = cli_objects.dut.general.show_and_parse_feature_status()
-        wjh_docker_status = cli_objects.dut.general.get_container_status('what-just-happened')
-        if 'what-just-happened' not in features:
-            pytest.skip("what-just-happened feature is not installed. Skipping the test.")
-
-        elif features['what-just-happened']['State'] != 'enabled':
-            pytest.skip("what-just-happened feature is disabled. Skipping the test.")
-
-        elif wjh_docker_status is None:
-            pytest.skip("what-just-happened docker doesn't exist. Skipping the test.")
+        status, msg = is_feature_ready(cli_objects, feature_name='what-just-happened',
+                                       docker_name='what-just-happened')
+        if not status:
+            pytest.skip(f"{msg} Skipping the test.")
 
 
 def check_if_channel_enabled(cli_object, engines, channel, channel_type):

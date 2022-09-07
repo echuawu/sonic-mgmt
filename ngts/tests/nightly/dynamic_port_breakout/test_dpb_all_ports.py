@@ -7,7 +7,10 @@ import re
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
     is_splittable, set_dpb_conf, verify_ifaces_speed_and_status
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
+from ngts.helpers.run_process_on_host import run_process_on_host
 from ngts.tests.nightly.dynamic_port_breakout.conftest import cleanup
+from ngts.constants.constants import MarsConstants
+from ngts.helpers.reboot_reload_helper import generate_report
 
 logger = logging.getLogger()
 
@@ -36,9 +39,7 @@ class TestDPBOnAllPorts:
         :return: raise assertion error if expected output is not matched
         """
         try:
-            ports_list = self.get_splittable_ports_list()
-            breakout_modes = get_mutual_breakout_modes(self.ports_breakout_modes, ports_list)
-            max_breakout_mode = self.get_max_breakout_mode(breakout_modes)
+            ports_list, max_breakout_mode = self.get_ports_with_max_breakout_mode()
             with allure.step(f'Configure breakout mode: {max_breakout_mode} on all splittable ports'):
                 logger.info(f'Configure breakout mode: {max_breakout_mode} on all splittable ports')
                 self.validate_split_all_splittable_ports(max_breakout_mode, ports_list, cleanup_list)
@@ -52,6 +53,36 @@ class TestDPBOnAllPorts:
                            tries=3, delay=10)
         except Exception as e:
             raise e
+
+    @allure.title('Test other feature with Dynamic Port Breakout on all ports')
+    def test_feature_with_dpb_on_all_ports(self, feature_test, setup_name):
+        if not feature_test:
+            pytest.skip("not provided parameter 'feature_test', skip the test")
+        ports_list, max_breakout_mode = self.get_ports_with_max_breakout_mode()
+        with allure.step(f'Configure breakout mode: {max_breakout_mode} on all splittable ports'):
+            logger.info(f'Configure breakout mode: {max_breakout_mode} on all splittable ports')
+            self.validate_split_all_splittable_ports(max_breakout_mode, ports_list, None)
+
+        cmd = f"{MarsConstants.NGTS_PATH_PYTEST} --setup_name={setup_name}" \
+              f" --rootdir={MarsConstants.SONIC_MGMT_DIR}/ngts" \
+              f" -c {MarsConstants.SONIC_MGMT_DIR}/ngts/pytest.ini --log-level=INFO" \
+              f" --clean-alluredir --alluredir=/tmp/allure-results" \
+              f" {MarsConstants.SONIC_MGMT_DIR}{feature_test}"
+        logger.info("  ##########  Running feature test by cmd  ##########  :\n{}".format(cmd))
+        std_out, std_err, rc = run_process_on_host(cmd, timeout=1800)
+        generate_report(std_out, std_err)
+        output = str(std_out.decode('utf-8'))
+        test_executed_regex = r'.*PASSED\s+\[\s*\d+%\]'
+        if rc != 0:
+            raise Exception('The feature test failed, please check the logs')
+        if not re.search(test_executed_regex, output):
+            pytest.skip("No feature test was executed, all skipped")
+
+    def get_ports_with_max_breakout_mode(self):
+        ports_list = self.get_splittable_ports_list()
+        breakout_modes = get_mutual_breakout_modes(self.ports_breakout_modes, ports_list)
+        max_breakout_mode = self.get_max_breakout_mode(breakout_modes)
+        return ports_list, max_breakout_mode
 
     def get_splittable_ports_list(self):
         """

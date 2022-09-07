@@ -15,10 +15,10 @@ from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.constants.constants import SonicConst
 from ngts.constants.constants import SflowConsts
+from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.common.checkers import is_feature_installed
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
-import ngts.helpers.p4_sampling_fixture_helper as fixture_helper
 from ngts.constants.constants import P4SamplingEntryConsts
-from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
 from ngts.conftest import update_topology_with_cli_class
 import ngts.helpers.acl_helper as acl_helper
@@ -94,6 +94,13 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if shared_params.app_ext_is_app_ext_supported:
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
+
+        doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
+        if doroce_status:
+            with allure.step("Enable app DoRoCE"):
+                cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
+                cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
+                cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
                                                                                      interfaces.dut_hb_2])
