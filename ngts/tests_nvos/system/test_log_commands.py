@@ -12,14 +12,14 @@ logger = logging.getLogger()
 @pytest.mark.system
 def test_show_log(engines):
     """
-    Check version on switch, run nv show system log command and verify the images method are exist
+    Write to log file on switch, run nv show system log command and verify regular_log are exist
     command: nv show system log
 
     Test flow:
         1. Rotate logs
-        2. Run show system images
+        2. Write to log
         3. Run nv show system log
-        4. Check if we have in the logs 'images' method called'
+        4. Check if we have in the logs 'regular_log' message
     """
     with allure.step("Create System object"):
         system = System(None)
@@ -28,30 +28,30 @@ def test_show_log(engines):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Write to system log file"):
+        logging.info("Write to system log file")
+        system.log.write_to_log()
 
     with allure.step("Run nv show system log command follow to view system logs"):
         logging.info("Run nv show system log command follow to view system logs")
         show_output = system.log.show_log(exit_cmd='q')
 
-    with allure.step('Verify updated “images” method called as expected'):
-        logging.info('Verify updated “images” method called as expected')
-        ValidationTool.verify_expected_output(show_output, 'Trigger "images" method').verify_result()
+    with allure.step('Verify updated “regular_log” in the logs as expected'):
+        logging.info('Verify updated “regular_log” in the logs as expected')
+        ValidationTool.verify_expected_output(show_output, 'regular_log').verify_result()
 
 
 @pytest.mark.system
 def test_show_log_continues(engines):
     """
-    Check version on switch, run nv show system log command and verify the images method are exist
+    Write to log file on switch, run nv show system log command and verify regular_log are exist
     command: nv show system log --view follow
 
     Test flow:
         1. Rotate logs
-        2. Run show system images
+        2. Write to log
         3. Run nv show system log --view follow
-        4. Check if we have in the logs 'images' method called'
+        4. Check if we have in the logs 'regular_log' message
     """
     with allure.step("Create System object"):
         system = System()
@@ -60,30 +60,29 @@ def test_show_log_continues(engines):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Write to system log file"):
+        logging.info("Write to system log file")
+        system.log.write_to_log()
 
     with allure.step("Run nv show system log command --view follow to view system logs"):
         logging.info("Run nv show system log command --view follow to view system logs")
         show_output = system.log.show_log(param='--view follow', exit_cmd='\x03')
 
-    with allure.step('Verify updated “images” method called as expected'):
-        logging.info('Verify updated “images” method called as expected')
-        ValidationTool.verify_expected_output(show_output, 'Trigger "images" method').verify_result()
+    with allure.step('Verify updated “regular_log” in the logs as expected'):
+        logging.info('Verify updated “regular_log” in the logs as expected')
+        ValidationTool.verify_expected_output(show_output, 'regular_log').verify_result()
 
 
 @pytest.mark.system
 def test_show_log_files(engines):
     """
-    Check all fields in files commands, trigger show images command check it exist in show files command
+    Check all fields in files commands, write to log check it exist in show files command
 
     Test flow:
         1. Run nv show system log files command and validate fields
         2. Rotate logs
-        3. Run show command to view system images
-        4. Run show command to view system images
-        5. Run nv show system log files command and check images exist
+        3. Write to log
+        4. Check if we have in the logs 'regular_log' message
     """
     with allure.step("Create System object"):
         system = System(None)
@@ -102,17 +101,17 @@ def test_show_log_files(engines):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Write to system log file"):
+        logging.info("Write to system log file")
+        system.log.write_to_log()
 
     with allure.step("Run nv show system log files command follow to view system logs"):
         logging.info("Run nv show system log files command follow to view system logs")
         show_log_files_output = system.log.files.show_log_files(param='files syslog', exit_cmd='q')
 
-    with allure.step('Verify updated “images” method called as expected'):
-        logging.info('Verify updated “images” method called as expected')
-        ValidationTool.verify_expected_output(show_log_files_output, 'Trigger "images" method').verify_result()
+    with allure.step('Verify updated “regular_log” in the logs as expected'):
+        logging.info('Verify updated “regular_log” in the logs as expected')
+        ValidationTool.verify_expected_output(show_log_files_output, 'regular_log').verify_result()
 
 
 @pytest.mark.system
@@ -123,7 +122,7 @@ def test_show_debug_log(engines):
 
     Test flow:
         1. Rotate debug logs
-        2. write to debug log message
+        2. Write to debug log message
         3. Check if message exist in debug log
     """
     with allure.step("Create System object"):
@@ -154,7 +153,7 @@ def test_show_debug_log_continues(engines):
 
     Test flow:
         1. Rotate debug logs
-        2. write to debug log message
+        2. Write to debug log message
         3. Check if message exist in debug log with continues command
     """
     with allure.step("Create System object"):
@@ -164,16 +163,16 @@ def test_show_debug_log_continues(engines):
         logging.info("Rotate logs")
         system.debug_log.rotate_debug_logs()
 
-    with allure.step("write to the logs debug_log message"):
-        logging.info("write to the logs debug_log message")
+    with allure.step("Write to the logs debug_log message"):
+        logging.info("Write to the logs debug_log message")
         system.debug_log.write_to_debug_log()
 
     with allure.step("Run nv show system log command --view follow to view system logs"):
         logging.info("Run nv show system log command --view follow to view system logs")
         show_output = system.debug_log.show_log(log_type='debug-', param='--view follow', exit_cmd='\x03')
 
-    with allure.step('Verify updated “images” method called as expected'):
-        logging.info('Verify updated “images” method called as expected')
+    with allure.step('Verify updated “debug_log” in the logs as expected'):
+        logging.info('Verify updated “debug_log” in the logs as expected')
         ValidationTool.verify_expected_output(show_output, 'debug_log').verify_result()
 
 

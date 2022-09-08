@@ -27,6 +27,11 @@ class Log(BaseComponent):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show_log,
                                                    TestToolkit.engines.dut, log_type, param, exit_cmd).get_returned_value()
 
+    def write_to_log(self):
+        with allure.step('Write content to logs'):
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_write_to_logs,
+                                                   TestToolkit.engines.dut).get_returned_value()
+
     def rotate_logs(self):
         with allure.step('Rotate logs'):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_rotate_logs,

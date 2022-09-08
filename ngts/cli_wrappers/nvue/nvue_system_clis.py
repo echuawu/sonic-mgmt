@@ -46,7 +46,7 @@ class NvueSystemCli(NvueBaseCli):
     def show_log(engine, log_type='', param='', exit_cmd=''):
         cmd = "nv show system {type}log {param}".format(type=log_type, param=param)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd_set([cmd, exit_cmd])
+        return engine.run_cmd_after_cmd([cmd, exit_cmd])
 
     @staticmethod
     def action_rotate_logs(engine):
@@ -61,6 +61,13 @@ class NvueSystemCli(NvueBaseCli):
         rotate_log_cmd = 'sudo cp /dev/null /var/log/debug'
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=rotate_log_cmd))
         return engine.run_cmd_set([permission_cmd, rotate_log_cmd])
+
+    @staticmethod
+    def action_write_to_logs(engine):
+        permission_cmd = "sudo chmod 777 /var/log/syslog"
+        write_content_cmd = "sudo sh -c 'echo regular_log >> /var/log/syslog'"
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=write_content_cmd))
+        return engine.run_cmd_set([permission_cmd, write_content_cmd])
 
     @staticmethod
     def action_write_to_debug_logs(engine):
