@@ -260,7 +260,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_id=None):
             port_alias_to_name_map["etp63b"] = "Ethernet250"
             port_alias_to_name_map["etp64a"] = "Ethernet252"
             port_alias_to_name_map["etp64b"] = "Ethernet254"
-        elif hostname in ["r-tigon-04", "r-tigon-21"]:
+        elif hostname in ["r-tigon-04", "r-tigon-20", "r-tigon-21"]:
             port_alias_to_name_map["etp1a"] = "Ethernet0"
             port_alias_to_name_map["etp1b"] = "Ethernet2"
             port_alias_to_name_map["etp2a"] = "Ethernet4"
@@ -381,7 +381,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_id=None):
             port_alias_to_name_map["etp63b"] = "Ethernet250"
             port_alias_to_name_map["etp64a"] = "Ethernet252"
             port_alias_to_name_map["etp64b"] = "Ethernet254"
-        elif hostname in ["r-tigon-11", "r-tigon-20"]:
+        elif hostname in ["r-tigon-11"]:
             for i in range(1, 65):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
         elif hostname in ["r-leopard-01" , "r-leopard-58"]:
