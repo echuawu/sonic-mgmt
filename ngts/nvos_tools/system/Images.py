@@ -57,3 +57,13 @@ class Images(BaseComponent):
         if field_name in output.keys():
             return output[field_name]
         return None
+
+    def get_image_field_values(self, field_names):
+        output = OutputParsingTool.parse_json_str_to_dictionary(BaseComponent.show(self)).get_returned_value()
+        values = {}
+        for field_name in field_names:
+            if field_name in output.keys():
+                values[field_name] = output[field_name]
+            else:
+                values[field_name] = ""
+        return values

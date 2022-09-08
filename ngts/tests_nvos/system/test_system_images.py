@@ -16,6 +16,10 @@ logger = logging.getLogger()
 PATH_TO_IMAGED_DIRECTORY = "/auto/sw_system_release/nos/nvos/"
 PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
 PATH_ON_SWITCH = "/tmp/"
+NEXT_IMG = 'next'
+CURRENT_IMG = 'current'
+PARTITION1_IMG = 'partition1'
+PARTITION2_IMG = 'partition2'
 
 
 @pytest.mark.checklist
@@ -40,13 +44,13 @@ def test_show_system_images(engines):
 
         with allure.step("Validate all expected fields in show output"):
             ValidationTool.verify_field_exist_in_json_output(output_dictionary,
-                                                             ["current", "partition1", "next"]).verify_result()
+                                                             [CURRENT_IMG, PARTITION1_IMG, NEXT_IMG]).verify_result()
             logging.info("All expected fields were found")
 
         with allure.step("Validate the values exist"):
-            assert output_dictionary["current"] is not None, "'current' image can't be found the the output"
-            assert output_dictionary["partition1"] is not None, "'current' image can't be found the the output"
-            assert output_dictionary["next"] is not None, "'current' image can't be found the the output"
+            assert output_dictionary[CURRENT_IMG] is not None, "'current' image can't be found the the output"
+            assert output_dictionary[PARTITION1_IMG] is not None, "'current' image can't be found the the output"
+            assert output_dictionary[NEXT_IMG] is not None, "'current' image can't be found the the output"
 
 
 @pytest.mark.checklist
@@ -66,40 +70,44 @@ def test_install_system_images(engines, release_name):
         system = System()
 
     with allure.step("Save original installed image name"):
-        original_image = get_current_image_name(system)
+        original_image = get_images(system)[CURRENT_IMG]
         logging.info("Original image: " + original_image)
 
     with allure.step("Get an available image to be installed"):
         image_name, image_path = get_image_to_install(release_name, original_image)
         image_id = image_name.replace("-amd64", "").replace(".bin", "")
 
+    with allure.step("Verify output"):
+        partition2_img = get_images(system)[PARTITION2_IMG]
+        if partition2_img:
+            expected_values = create_image_values_dictionary(original_image, partition2_img, original_image,
+                                                             partition2_img, True)
+        else:
+            expected_values = create_image_values_dictionary(original_image, original_image, original_image, "", False)
+        verify_output(system, expected_values)
+
     with allure.step("Install a random image '{}'".format(image_path)):
-        do_installation(image_path, image_name, system)
+        do_installation(image_path, image_name, original_image, system)
 
     with allure.step("Set image {} to boot next".format(image_id)):
         set_next_boot_image(image_id, system)
+        verify_show_output(system, original_image, image_id, original_image, image_id, True)
 
     with allure.step('Rebooting the dut after image installation'):
         reboot_dut()
-
-    with allure.step('Verifying dut booted with correct image'):
-        current_image = get_current_image_name(system)
-        assert current_image == image_id, "Installation failed - the current image is not the expected one"
+        verify_show_output(system, image_id, image_id, original_image, image_id, True)
 
     with allure.step("Set the original image to be booted next"):
         set_next_boot_image(original_image, system)
+        verify_show_output(system, image_id, original_image, original_image, image_id, True)
 
     with allure.step("Rebooting the dut after origin image installation'"):
         reboot_dut()
-
-    with allure.step("Verify installation completed successfully"):
-        verify_current_image_name(system, original_image, True)
+        verify_show_output(system, original_image, original_image, original_image, image_id, True)
 
     with allure.step("Uninstalling all images that have been installed during the test"):
         clear_installed_images(image_id, system)
-
-    with allure.step("Verify installed image"):
-        verify_image_name_in_installed_list(system, image_name, False)
+        verify_show_output(system, original_image, original_image, original_image, None, True)
 
 
 @pytest.mark.checklist
@@ -116,24 +124,52 @@ def test_images_cleanup(engines, release_name):
         system = System()
 
     with allure.step("Save original installed image name"):
-        original_image = get_current_image_name(system)
+        original_image = get_images(system)[CURRENT_IMG]
         logging.info("Original image: " + original_image)
+        verify_show_output(system, original_image, original_image, original_image, "", False)
 
     with allure.step("Get an available image to be installed"):
         image_name, image_path = get_image_to_install(release_name, original_image)
         image_id = image_name.replace("-amd64", "").replace(".bin", "")
 
     with allure.step("Install image: {}".format(image_path)):
-        do_installation(image_path, image_name, system)
-
-    with allure.step("Rebooting the dut after origin image installation'"):
-        reboot_dut()
+        do_installation(image_path, image_name, original_image, system)
 
     with allure.step("Cleanup installed images"):
         cleanup_images(system, image_id)
+        verify_show_output(system, original_image, image_id, original_image, image_id, True)
 
-    with allure.step("Verify installed image"):
-        verify_image_name_in_installed_list(system, image_name, False)
+    with allure.step("Set the original image to be booted next"):
+        set_next_boot_image(original_image, system)
+        verify_show_output(system, original_image, original_image, original_image, image_id, True)
+
+    with allure.step("Cleanup installed images"):
+        cleanup_images(system, image_id)
+        verify_show_output(system, original_image, original_image, original_image, None, True)
+
+
+def verify_show_output(system, current_img, next_img, partition1_image, partition2_image, add_partition2=True):
+    with allure.step("Verify output"):
+        expected_values = create_image_values_dictionary(current_img, next_img, partition1_image,
+                                                         partition2_image, add_partition2)
+        verify_output(system, expected_values)
+
+
+def create_image_values_dictionary(current_img, next_img, partition1_image, partition2_image, add_partition2=True):
+    output_dictionary = {CURRENT_IMG: current_img.replace("-amd64", "").replace(".bin", ""),
+                         NEXT_IMG: next_img.replace("-amd64", "").replace(".bin", ""),
+                         PARTITION1_IMG: partition1_image.replace("-amd64", "").replace(".bin", "")}
+    if add_partition2:
+        output_dictionary.update({PARTITION2_IMG:
+                                  partition2_image.replace("-amd64", "").replace(".bin", "") if partition2_image else None})
+    return output_dictionary
+
+
+def verify_output(system, expected_keys_values):
+    output = get_images(system)
+    for field, value in expected_keys_values.items():
+        assert field in output.keys(), field + " can't be found int the output"
+        assert value == output[field], "The value of {} is not {}".format(field, value)
 
 
 def cleanup_images(system, image_name):
@@ -145,7 +181,7 @@ def set_next_boot_image(image_name, system):
     logging.info("Setting image {} to boot next".format(image_name))
     system.images.action_boot_next(image_name)
     with allure.step("Verifying the boot next image updated successfully"):
-        next_boot = get_next_image_name(system)
+        next_boot = get_images(system)[NEXT_IMG]
         assert next_boot == image_name, "Failed to set the new image to boot next"
 
 
@@ -157,19 +193,13 @@ def reboot_dut():
     NvueGeneralCli.wait_for_nvos_to_become_functional(TestToolkit.engines.dut)
 
 
-def verify_current_image_name(system, expected_value, should_equal):
-    logging.info('Verifying dut booted with correct image')
-    current_image = get_current_image_name(system)
-    assert current_image == expected_value and should_equal, "The current image is not the expected one"
-
-
 def clear_installed_images(image_name, system):
     logging.info("Uninstalling the new image")
     with allure.step("Uninstall " + image_name):
         system.images.action_uninstall(image_name)
 
 
-def do_installation(image_path, image_name, system):
+def do_installation(image_path, image_name, origin_image_id, system):
     with allure.step("Copying image to dut"):
         path_on_switch = PATH_ON_SWITCH + image_name
         logging.info("Copy image from {src} to {dest}".format(src=image_path,
@@ -184,41 +214,15 @@ def do_installation(image_path, image_name, system):
         system.images.action_install(path_on_switch)
 
     with allure.step("Verify installed image"):
-        verify_image_name_in_installed_list(system, image_name, True)
+        expected_values = create_image_values_dictionary(origin_image_id, image_name, origin_image_id, image_name, True)
+        verify_output(system, expected_values)
 
 
-def verify_image_name_in_installed_list(image_name, system, should_exist):
-    logging.info("Verifying that the installed image {} in 'show images' output".format(
-        "exists" if should_exist else "doesn't exist"))
-    partition1 = get_installed_images_partition(system, 1)
-    partition2 = get_installed_images_partition(system, 2)
-    if should_exist:
-        assert partition1 == image_name or partition2 == image_name, image_name + " can't be found"
-    else:
-        assert partition1 != image_name and partition2 != image_name, image_name + " still exists"
-
-
-def get_current_image_name(system):
-    with allure.step("Run show command to view 'current' system image"):
-        logging.info("Run show command to view 'current' system image")
-        current_image = system.images.get_image_field_value("current")
-        logging.info("Current installed image: {}".format(current_image))
-        return current_image
-
-
-def get_next_image_name(system):
-    with allure.step("Run show command to view 'next' system image"):
-        logging.info("Run show command to view 'next' system image")
-        next_image_temp = system.images.get_image_field_value("next")
-        return next_image_temp
-
-
-def get_installed_images_partition(system, partition_num=1):
-    partition_name = "partition" + str(partition_num)
-    with allure.step("Run show command to view '{}' system image".format(partition_name)):
-        logging.info("Run show command to view '{}' system image".format(partition_name))
-        partition = system.images.get_image_field_value(partition_name)
-        return partition
+def get_images(system):
+    with allure.step("Run show command to view 'next', 'current' and 'partition' system image"):
+        logging.info("Run show command to view 'next', 'current' and 'partition' system image")
+        images = system.images.get_image_field_values(['next', 'current', 'partition1', 'partition2'])
+        return images
 
 
 def get_list_of_directories(current_installed_img, starts_with=None):

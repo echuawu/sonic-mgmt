@@ -108,9 +108,9 @@ def clear_config():
         logging.warning("Failed to detach config:" + str(err))
 
 
+@pytest.hookimpl(trylast=True)
 def pytest_runtest_call(item):
     try:
-        item.runtest()
         logging.info(' ---------------- The test completed successfully ---------------- ')
     except KeyboardInterrupt:
         raise
