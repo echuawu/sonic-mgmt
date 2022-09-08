@@ -27,17 +27,6 @@
     </case>
 
     <case>
-        <info> Test Platform Info : test_turn_on_off_psu_and_check_psustatus Case </info>
-        <name> platform_info_test_turn_on_off_psu_and_check_psustatus </name>
-        <tout> 1800 </tout>
-        <cmd>
-             <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus </static_args>
-             </params>
-        </cmd>
-    </case>
-
-    <case>
         <info> Test Platform Info : test_show_platform_fanstatus_mocked Case </info>
         <name> platform_info_test_show_platform_fanstatus_mocked </name>
         <tout> 1800 </tout>
@@ -55,6 +44,17 @@
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py::test_show_platform_temperature_mocked </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Test Platform Info : test_turn_on_off_psu_and_check_psustatus Case </info>
+        <name> platform_info_test_turn_on_off_psu_and_check_psustatus </name>
+        <tout> 1800 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus </static_args>
              </params>
         </cmd>
     </case>
