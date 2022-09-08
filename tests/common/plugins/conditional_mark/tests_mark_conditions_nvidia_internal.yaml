@@ -257,27 +257,35 @@ tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggl
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_renew_request_from_global_ip:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   skip:
