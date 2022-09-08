@@ -3,6 +3,7 @@ import ipaddress
 import itertools
 import json
 import logging
+import re
 import pytest
 import time
 import os
@@ -483,6 +484,22 @@ class AdvancedReboot:
         # Handle mellanox platform
         self.__handleMellanoxDut()
 
+    def print_test_logs_summary(self, log_dir):
+        """
+        This method  prints to log a summary of reboot results in case the test passed,
+        or all reboot logs in case the test failed
+        """
+        log_files = os.listdir(log_dir)
+        for log_file in log_files:
+            if log_file.endswith('reboot.log'):
+                with open(os.path.join(log_dir, log_file)) as reboot_log:
+                    reboot_text_log_file = reboot_log.read()
+                    reboot_summary = re.search(r"Summary:(\n|.)*?=========", reboot_text_log_file).group()
+                    if reboot_summary.find('Fails') == -1:  # if no fails detected- the test passed, print the summary only
+                        logger.info('\n'+reboot_summary)
+                    else:
+                        logger.info(reboot_text_log_file)
+
     def runRebootTest(self):
         # Run advanced-reboot.ReloadTest for item in preboot/inboot list
         count = 0
@@ -519,13 +536,9 @@ class AdvancedReboot:
                 logger.error("Exception caught while running advanced-reboot test on ptf: \n{}".format(traceback_msg))
                 test_results[test_case_name].append("Exception caught while running advanced-reboot test on ptf")
             finally:
-                # always capture the test logs
+                # capture the test logs in case of failure, and summary in case of success
                 log_dir = self.__fetchTestLogs(rebootOper)
-                log_files = os.listdir(log_dir)
-                for log_file in log_files:
-                    if log_file.endswith('reboot.log'):
-                        with open(os.path.join(log_dir, log_file)) as reboot_log:
-                            logger.info(reboot_log.read())
+                self.print_test_logs_summary(log_dir)
                 if self.advanceboot_loganalyzer:
                     verification_errors = post_reboot_analysis(marker, event_counters=event_counters,
                         reboot_oper=rebootOper, log_dir=log_dir)
@@ -545,6 +558,7 @@ class AdvancedReboot:
         pytest_assert(len(failed_list) == 0,\
             "Advanced-reboot failure. Failed test: {}, failure summary:\n{}".format(self.request.node.name, failed_list))
         return result
+
 
     def runRebootTestcase(self, prebootList=None, inbootList=None,
         prebootFiles='peer_dev_info,neigh_port_info', preboot_setup=None, postboot_setup=None):
