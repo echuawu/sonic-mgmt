@@ -1423,7 +1423,7 @@
     - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c.*- mlnx_object_to_type: Expected object SCHEDULER_GROUP got QUEUE.*'
     - '.* ERR swss#orchagent: :- getSchedulerGroup: Failed to get child list for scheduler group:.* of port:Ethernet.*'
     - '.* ERR swss#orchagent: :- applySchedulerToQueueSchedulerGroup: Failed to find a scheduler group for port: Ethernet.* queue:.*'
-    - '.* ERR swss#orchagent: :- handleQueueTable: Failed setting field:scheduler to port:Ethernet.*, queue:0, line:.*'
+    - '.* ERR swss#orchagent: :- handleQueueTable: Failed setting field:scheduler to port:Ethernet.*, queue:\d+, line:.*'
     - '.* ERR swss#orchagent: :- doTask: Failed to process QOS task, drop it.*'
   Conditions:
     - Affected_test_cases:
