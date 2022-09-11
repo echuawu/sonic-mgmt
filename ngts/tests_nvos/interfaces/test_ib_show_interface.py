@@ -51,9 +51,11 @@ def test_ib_show_interface_all_state_up(engines):
 
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
 
+    selected_port.update_output_dictionary()
+
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-        validate_one_port_in_show_all_ports(selected_port, output_dictionary[selected_port.name])
+        validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary)
 
 
 @pytest.mark.ib
@@ -76,9 +78,11 @@ def test_ib_show_interface_all_state_down(engines):
 
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
 
+    selected_port.update_output_dictionary()
+
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-        validate_one_port_in_show_all_ports(selected_port, output_dictionary[selected_port.name], False)
+        validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary, False)
 
 
 @pytest.mark.ib
@@ -160,24 +164,27 @@ def validate_interface_fields(selected_port, output_dictionary):
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
-def validate_link_fields(selected_port, output_dictionary):
+def validate_link_fields(selected_port, output_dictionary, port_up=True):
     with allure.step('Check that all expected fields under link field exist in the output'):
         logging.info('Check that all expected fields under link field exist in the output')
-        field_to_check = [selected_port.ib_interface.link.mtu.label,
-                          selected_port.ib_interface.link.speed.label,
+        field_to_check = [selected_port.ib_interface.link.state.label,
                           selected_port.ib_interface.link.ib_subnet.label,
                           selected_port.ib_interface.link.lanes.label,
                           selected_port.ib_interface.link.supported_lanes.label,
                           selected_port.ib_interface.link.max_supported_mtu.label,
-                          selected_port.ib_interface.link.ib_speed.label,
                           selected_port.ib_interface.link.supported_ib_speeds.label,
                           # selected_port.ib_interface.link.supported_speeds.label,
                           selected_port.ib_interface.link.logical_port_state.label,
                           selected_port.ib_interface.link.physical_port_state.label,
-                          selected_port.ib_interface.link.operational_vls.label,
                           selected_port.ib_interface.link.vl_admin_capabilities.label]
-
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+
+        field_to_check = [selected_port.ib_interface.link.mtu.label,
+                          selected_port.ib_interface.link.speed.label,
+                          selected_port.ib_interface.link.ib_speed.label,
+                          selected_port.ib_interface.link.operational_vls.label]
+        result = Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check, port_up)
+        logging.warning(result.info)
 
 
 def validate_pluggable_fields(selected_port, output_dictionary):
@@ -223,14 +230,10 @@ def validate_one_port_show_output(selected_port):
 
 
 def validate_one_port_in_show_all_ports(selected_port, output_dictionary, port_up=True):
-    field_to_check = [selected_port.ib_interface.link.speed.label,
-                      selected_port.ib_interface.link.ib_subnet.label,
-                      selected_port.ib_interface.link.ib_speed.label,
-                      selected_port.ib_interface.link.logical_port_state.label,
-                      selected_port.ib_interface.link.physical_port_state.label,
-                      selected_port.ib_interface.link.state.label,
-                      selected_port.ib_interface.type.label,
-                      selected_port.ib_interface.description.label]
-    if port_up:
-        field_to_check.append(selected_port.ib_interface.link.mtu.label)
+    field_to_check = [selected_port.ib_interface.type.label,
+                      selected_port.ib_interface.description.label,
+                      selected_port.ib_interface.link.label,
+                      selected_port.ib_interface.pluggable.label]
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+
+    validate_link_fields(selected_port, output_dictionary[selected_port.ib_interface.link.label], port_up)

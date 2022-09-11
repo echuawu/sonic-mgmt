@@ -56,20 +56,19 @@ class ValidationTool:
                 result_obj.issue_type = IssueType.TestIssue
                 return result_obj
 
+            result_obj.info = ""
             for key in keys_to_search_for:
                 if key in json_output.keys():
                     if should_be_found:
                         logging.info("'{str_to_search_for}' field was found".format(str_to_search_for=key))
                     else:
                         result_obj.result = False
-                        result_obj.info = "'{str_to_search_for}' field was found while it should not".format(
+                        result_obj.info += "'{str_to_search_for}' field was found while it should not\n".format(
                             str_to_search_for=key)
-                        break
                 else:
                     if should_be_found:
                         result_obj.result = False
-                        result_obj.info = "'{str_to_search_for}' field was not found".format(str_to_search_for=key)
-                        break
+                        result_obj.info += "'{str_to_search_for}' field was not found\n".format(str_to_search_for=key)
                     else:
                         logging.info("'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
 

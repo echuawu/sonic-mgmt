@@ -27,7 +27,8 @@ class User(BaseComponent):
         self.parent_obj = parent_obj
 
     def get_lslogins(self, engine, username):
-        OutputParsingTool.parse_lslogins_cmd(engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
+        return OutputParsingTool.parse_lslogins_cmd(engine.run_cmd(
+            'lslogins {username}'.format(username=username))).get_returned_value()
 
     def action_disconnect(self, username):
         self.set_username(username)
