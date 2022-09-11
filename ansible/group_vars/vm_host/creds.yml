@@ -1,3 +1,9 @@
 ansible_user: root
 ansible_password: 3tango
 ansible_sudo_pass: 3tango
+
+# Use the following username/password variables to login to vm hosts
+# instead of the default variables (defined above).
+vm_host_user: root
+vm_host_password: 3tango
+vm_host_become_password: 3tango

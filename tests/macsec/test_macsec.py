@@ -94,7 +94,7 @@ class TestDataPlane():
     BATCH_COUNT = 10
 
     def test_server_to_neighbor(self, duthost, ctrl_links, downstream_links, upstream_links, ptfadapter):
-        ptfadapter.dataplane.set_qlen(TestDataPlane.BATCH_COUNT * 10)
+        ptfadapter.dataplane.set_qlen(TestDataPlane.BATCH_COUNT * 100)
 
         down_link = downstream_links.values()[0]
         dut_macaddress = duthost.get_dut_iface_mac(ctrl_links.keys()[0])
@@ -138,7 +138,7 @@ class TestDataPlane():
                 testutils.send_packet(
                     ptfadapter, down_link["ptf_port_id"], pkt, TestDataPlane.BATCH_COUNT)
                 result = check_macsec_pkt(test=ptfadapter,
-                                          ptf_port_id=up_link["ptf_port_id"],  exp_pkt=exp_pkt, timeout=3)
+                                          ptf_port_id=up_link["ptf_port_id"],  exp_pkt=exp_pkt, timeout=30)
                 if result is None:
                     return
                 fail_message += result
@@ -274,6 +274,7 @@ class TestFaultHandling():
     MKA_TIMEOUT = 6
     LACP_TIMEOUT = 90
 
+    @pytest.mark.disable_loganalyzer
     def test_link_flap(self, duthost, ctrl_links):
         # Only pick one link for link flap test
         assert ctrl_links
@@ -282,7 +283,6 @@ class TestFaultHandling():
             nbr["host"], nbr["port"])
         _, _, _, dut_egress_sa_table_orig, dut_ingress_sa_table_orig = get_appl_db(
             duthost, port_name, nbr["host"], nbr["port"])
-
 
         # Flap < 6 seconds
         # Not working on eos neighbour
@@ -342,6 +342,7 @@ class TestFaultHandling():
         assert wait_until(12, 1, 0, lambda: find_portchannel_from_member(
             port_name, get_portchannel(duthost))["status"] == "Up")
 
+    @pytest.mark.disable_loganalyzer
     def test_mismatch_macsec_configuration(self, duthost, unctrl_links,
                                            profile_name, default_priority, cipher_suite,
                                            primary_cak, primary_ckn, policy, send_sci, request):
@@ -384,6 +385,7 @@ class TestInteropProtocol():
     Macsec interop with other protocols
     '''
 
+    @pytest.mark.disable_loganalyzer
     def test_port_channel(self, duthost, profile_name, ctrl_links):
         '''Verify lacp
         '''
@@ -394,15 +396,16 @@ class TestInteropProtocol():
         disable_macsec_port(duthost, ctrl_port)
         # Remove ethernet interface <ctrl_port> from PortChannel interface <pc>
         duthost.command("sudo config portchannel {} member del {} {}".format(getns_prefix(duthost, ctrl_port), pc["name"], ctrl_port))
-        assert wait_until(20, 1, 0, lambda: get_portchannel(
+        assert wait_until(90, 1, 0, lambda: get_portchannel(
             duthost)[pc["name"]]["status"] == "Dw")
 
         enable_macsec_port(duthost, ctrl_port, profile_name)
         # Add ethernet interface <ctrl_port> back to PortChannel interface <pc>
         duthost.command("sudo config portchannel {} member add {} {}".format(getns_prefix(duthost, ctrl_port), pc["name"], ctrl_port))
-        assert wait_until(20, 1, 0, lambda: find_portchannel_from_member(
+        assert wait_until(90, 1, 0, lambda: find_portchannel_from_member(
             ctrl_port, get_portchannel(duthost))["status"] == "Up")
 
+    @pytest.mark.disable_loganalyzer
     def test_lldp(self, duthost, ctrl_links, profile_name):
         '''Verify lldp
         '''
@@ -428,9 +431,10 @@ class TestInteropProtocol():
             wait_until(20, 3, 0,
                 lambda: duthost.iface_macsec_ok(ctrl_port) and
                         nbr["host"].iface_macsec_ok(nbr["port"]))
-            assert wait_until(1, 1, LLDP_TIMEOUT,
+            assert wait_until(LLDP_TIMEOUT, LLDP_ADVERTISEMENT_INTERVAL, 0,
                             lambda: nbr["name"] in get_lldp_list(duthost))
 
+    @pytest.mark.disable_loganalyzer
     def test_bgp(self, duthost, ctrl_links, upstream_links, profile_name):
         '''Verify BGP neighbourship
         '''
@@ -500,6 +504,7 @@ class TestInteropProtocol():
 
 
 class TestDeployment():
+    @pytest.mark.disable_loganalyzer
     def test_config_reload(self, duthost, ctrl_links, policy, cipher_suite, send_sci):
         # Save the original config file
         duthost.shell("cp /etc/sonic/config_db.json config_db.json")

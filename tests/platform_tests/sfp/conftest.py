@@ -17,7 +17,7 @@ def update_la_ignore_errors_list_for_mlnx(duthost, loganalyzer):
     if duthost.facts["asic_type"] in ["mellanox"]:
         for host in loganalyzer:
             loganalyzer[host].ignore_regex.append("kernel.*Eeprom query failed*")
-            # Ignore PMPE error https://github.com/Azure/sonic-buildimage/issues/7163
+            # Ignore PMPE error https://github.com/sonic-net/sonic-buildimage/issues/7163
             loganalyzer[host].ignore_regex.append(r".*ERR pmon#xcvrd: Receive PMPE error event on module.*")
 
     yield
@@ -25,5 +25,5 @@ def update_la_ignore_errors_list_for_mlnx(duthost, loganalyzer):
     if duthost.facts["asic_type"] in ["mellanox"]:
         for host in loganalyzer:
             loganalyzer[host].ignore_regex.remove("kernel.*Eeprom query failed*")
-            # Remove Ignore PMPE error https://github.com/Azure/sonic-buildimage/issues/7163
+            # Remove Ignore PMPE error https://github.com/sonic-net/sonic-buildimage/issues/7163
             loganalyzer[host].ignore_regex.remove(r".*ERR pmon#xcvrd: Receive PMPE error event on module.*")
