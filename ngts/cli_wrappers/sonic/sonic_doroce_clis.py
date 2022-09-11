@@ -65,6 +65,13 @@ class SonicDoroceCli:
         """
         return self.engine.run_cmd('show doroce status')
 
+    def is_doroce_configuration_enabled(self):
+        """
+        Check if the DoRoCE configured
+        :return: the output of cli command
+        """
+        return 'enabled' in self.show_doroce_status()
+
     def show_buffer_configuration(self):
         """
         Displaying buffer configuration

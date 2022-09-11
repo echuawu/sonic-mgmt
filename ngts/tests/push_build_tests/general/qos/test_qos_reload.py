@@ -19,6 +19,7 @@ BUFFER_PORT_INGRESS_PROFILE_LIST = "BUFFER_PORT_INGRESS_PROFILE_LIST"
 BUFFER_QUEUE = "BUFFER_QUEUE"
 CABLE_LENGTH = "CABLE_LENGTH"
 AZURE = "AZURE"
+ROCE = "ROCE"
 PORT_QOS_MAP = "PORT_QOS_MAP"
 QUEUE = "QUEUE"
 KEYS_TO_EXTRACT = [BUFFER_PG, BUFFER_PORT_EGRESS_PROFILE_LIST,
@@ -26,17 +27,19 @@ KEYS_TO_EXTRACT = [BUFFER_PG, BUFFER_PORT_EGRESS_PROFILE_LIST,
                    CABLE_LENGTH, PORT_QOS_MAP, QUEUE]
 
 
-def generate_config_db_without_qos_on_ports(config_db_json, tested_ports):
+def generate_config_db_without_qos_on_ports(config_db_json, tested_ports, is_doroce_configuration_enabled):
     """
     :param config_db_json: a JSON object of configuration currently on DUT
     :param tested_ports: a list of ports, i.e ['Ethernet4', 'Ethernet8']
+    :param is_doroce_configuration_enabled: the flag if doroce is configured
     :return: updated config_db_json without Qos configuration on tested_ports
     """
     regex_template = r"{port}\|\d+-*\d*|{port}$"
+    qos_profile_name = ROCE if is_doroce_configuration_enabled else AZURE
     for key_to_extract in KEYS_TO_EXTRACT:
         if key_to_extract == CABLE_LENGTH:
             for port in tested_ports:
-                config_db_json[CABLE_LENGTH][AZURE].pop(port)
+                config_db_json[CABLE_LENGTH][qos_profile_name].pop(port)
         else:
             for tested_port in tested_ports:
                 keys_to_remove = []
@@ -89,7 +92,8 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
         logger.info(f"Generate config_db.json file without Qos configuration for ports: {tested_ports}")
         config_db_without_qos_on_ports = \
             generate_config_db_without_qos_on_ports(copy.deepcopy(origin_config_db),
-                                                    tested_ports)
+                                                    tested_ports,
+                                                    cli_object.doroce.is_doroce_configuration_enabled())
 
     tested_config_db_file_name = "test_qos_reload_ports_conf.json"
     with allure.step(f"Save config_db.json at {shared_path}/{tested_config_db_file_name}"):

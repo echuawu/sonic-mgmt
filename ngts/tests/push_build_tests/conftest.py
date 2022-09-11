@@ -100,7 +100,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             with allure.step("Enable app DoRoCE"):
                 cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
                 cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
-                cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
+                # TODO skip this configuration until the fix does not merge: https://github.com/sonic-net/sonic-swss/pull/2422
+                # cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
                                                                                      interfaces.dut_hb_2])
