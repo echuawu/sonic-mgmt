@@ -11,6 +11,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib_show_interface_name(engines):
     """
     Run show interface command and verify the required fields are exist
@@ -32,6 +33,7 @@ def test_ib_show_interface_name(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib_show_interface_all_state_up(engines):
     """
     Run show interface command and verify the required fields are exist
@@ -59,6 +61,7 @@ def test_ib_show_interface_all_state_up(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib_show_interface_all_state_down(engines):
     """
     Run show interface command and verify the required fields are exist
@@ -86,6 +89,7 @@ def test_ib_show_interface_all_state_down(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib_show_interface_name_link(engines):
     """
     Run show interface command and verify the required fields exist
@@ -109,6 +113,7 @@ def test_ib_show_interface_name_link(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib_show_interface_name_pluggable(engines):
     """
     Run show interface command and verify the required fields exist
@@ -132,6 +137,7 @@ def test_ib_show_interface_name_pluggable(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib_show_interface_name_stats(engines):
     """
     Run show interface command and verify the required fields exist

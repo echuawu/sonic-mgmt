@@ -88,6 +88,7 @@ class System(BaseComponent):
                 self.aaa.user.set('role', role)
                 NvueGeneralCli.apply_config(engine)
             self.aaa.user.set_username(curr_username)
+            logging.info("User created: \nuser_name: {} \npassword: {}".format(username, password))
             return username, password
 
     def set(self, value, engine, field_name="", apply=True):

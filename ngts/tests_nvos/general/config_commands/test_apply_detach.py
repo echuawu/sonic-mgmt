@@ -11,6 +11,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 
 
+@pytest.mark.nvos_ci
 def test_detach(engines):
     """
         Test flow:
@@ -74,5 +75,5 @@ def test_apply_assume(engines):
         diff_after_apply = TestToolkit.GeneralApi[TestToolkit.tested_api].diff_config(engines.dut)
         ConfigTool.verify_diff_after_config(diff_after_apply, 'unset', 'system/hostname').get_returned_value()
 
-    with allure.step('apple system hostname change using {opt}'.format(opt=ConfigConsts.APPLY_YES)):
+    with allure.step('apply system hostname change using {opt}'.format(opt=ConfigConsts.APPLY_YES)):
         NvueGeneralCli.apply_config(engines.dut, True, ConfigConsts.APPLY_YES)
