@@ -5,6 +5,7 @@ import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
@@ -58,6 +59,34 @@ def test_ib_show_interface_all_state_up(engines):
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
         validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary)
+
+    try:
+        with allure.step('Set the state of selected port to "down"'):
+            selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                                      ask_for_confirmation=True).verify_result()
+            selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_DOWN).verify_result()
+
+            selected_port.update_output_dictionary()
+
+            with allure.step('Run show command on selected port and verify that each field has an appropriate '
+                             'value according to the state of the port'):
+                validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary, False)
+
+            with allure.step('Set the state of selected port to "up"'):
+                selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
+                                                          ask_for_confirmation=True).verify_result()
+                selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+
+            selected_port.update_output_dictionary()
+
+            with allure.step('Run show command on selected port and verify that each field has an appropriate '
+                             'value according to the state of the port'):
+                validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary, True)
+    finally:
+        with allure.step('Set the state of selected port to "up"'):
+            selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
+                                                      ask_for_confirmation=True).verify_result()
+            selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
 
 @pytest.mark.ib_interfaces
