@@ -1,5 +1,6 @@
 import logging
 import allure
+import pytest
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -8,6 +9,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 logger = logging.getLogger()
 
 
+@pytest.mark.system
 def test_system(engines, devices, topology_obj):
     """
     Run show system message command and verify the required message
@@ -54,6 +56,7 @@ def test_system(engines, devices, topology_obj):
                                                     hostname_default).verify_result()
 
 
+@pytest.mark.system
 def test_system_message(engines, devices):
     """
     Run show/set/unset system message command and verify the required message
@@ -109,6 +112,7 @@ def test_system_message(engines, devices):
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
 
 
+@pytest.mark.system
 def test_show_system_version(engines, devices):
     """
     Run show system version command and verify version values
@@ -123,6 +127,7 @@ def test_show_system_version(engines, devices):
             version_output, system.version.get_expected_fields(devices.dut)).verify_result()
 
 
+@pytest.mark.system
 def test_show_system_reboot(engines, devices):
     """
     Run show system reboot command and verify the reboot history and reason values

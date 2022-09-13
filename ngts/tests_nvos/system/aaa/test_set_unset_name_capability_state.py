@@ -1,4 +1,5 @@
 import logging
+import pytest
 import allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
@@ -9,6 +10,7 @@ from ngts.nvos_tools.system.System import System
 logger = logging.getLogger()
 
 
+@pytest.mark.system
 def test_set_unset_full_name(engines):
     """
 
@@ -36,6 +38,7 @@ def test_set_unset_full_name(engines):
     ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_MONITOR, engines.dut.password).verify_result()
 
 
+@pytest.mark.system
 def test_set_unset_full_name_newuser(engines):
     """
 
@@ -68,6 +71,7 @@ def test_set_unset_full_name_newuser(engines):
     ConnectionTool.create_ssh_conn(engines.dut.ip, configurator_name, configurator_password).verify_result()
 
 
+@pytest.mark.system
 def test_set_unset_state(engines):
     """
 
@@ -98,6 +102,7 @@ def test_set_unset_state(engines):
     verify_full_name(system, configurator_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
 
 
+@pytest.mark.system
 def test_set_unset_capability(engines):
     """
 

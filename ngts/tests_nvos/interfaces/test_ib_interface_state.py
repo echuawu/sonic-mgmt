@@ -9,7 +9,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 logger = logging.getLogger()
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_interface_state(engines):
     """
@@ -61,7 +61,7 @@ def test_ib_interface_state(engines):
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_interface_state_invalid(engines):
     """
@@ -92,7 +92,7 @@ def test_ib_interface_state_invalid(engines):
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_interface_state_unset(engines):
     """

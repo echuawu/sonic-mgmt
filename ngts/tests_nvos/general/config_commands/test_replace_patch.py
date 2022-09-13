@@ -10,6 +10,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 
 
+@pytest.mark.general
 def test_replace_empty_file(engines):
     """
     Test flow:
@@ -38,6 +39,7 @@ def test_replace_empty_file(engines):
             assert diff_after_hostname_change == {}, "pending revision should be empty, replace command should replace the last revision with empty file"
 
 
+@pytest.mark.general
 def test_replace_positive(engines):
     """
 
@@ -97,6 +99,7 @@ def test_replace_positive(engines):
             system.unset(engines.dut)
 
 
+@pytest.mark.general
 def test_replace_negative(engines):
     """
 
@@ -133,6 +136,7 @@ def test_replace_negative(engines):
     assert 'must contain a list of operation objects' in output2, 'the replace should fail'
 
 
+@pytest.mark.general
 def test_patch_empty_file(engines):
     """
     Test flow:
@@ -166,6 +170,7 @@ def test_patch_empty_file(engines):
             assert diff_after_hostname_change == diff_after_patch, "pending revision should not change"
 
 
+@pytest.mark.general
 def test_patch_positive(engines):
     """
 
@@ -223,6 +228,7 @@ def test_patch_positive(engines):
             ib0_port.interface.description.unset().verify_result()
 
 
+@pytest.mark.general
 def test_patch_negative(engines):
     """
 

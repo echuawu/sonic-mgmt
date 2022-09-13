@@ -35,6 +35,7 @@ def test_detach(engines):
             assert diff_output == {}, "pending revision should be empty, detach command should clean the last revision"
 
 
+@pytest.mark.general
 def test_apply_assume(engines):
     """
         Test flow:

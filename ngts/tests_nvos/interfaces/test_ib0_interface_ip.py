@@ -6,21 +6,15 @@ logger = logging.getLogger()
 
 @pytest.mark.ib
 def test_ib0_interface_ipv4_address(engines):
-    with allure.step("test_ib0_interface_ipv4_address using full interface unset"):
-        _ib0_interface_ip_address(False, True)
-    with allure.step("test_ib0_interface_ipv4_address using ip unset"):
-        _ib0_interface_ip_address(False, False)
+    _ib0_interface_ip_address(False)
 
 
 @pytest.mark.ib
 def test_ib0_interface_ipv6_address(engines):
-    with allure.step("test_ib0_interface_ipv6_address using full interface unset"):
-        _ib0_interface_ip_address(True, True)
-    with allure.step("test_ib0_interface_ipv6_address using ip unset"):
-        _ib0_interface_ip_address(True, False)
+    _ib0_interface_ip_address(True)
 
 
-def _ib0_interface_ip_address(is_ipv6, full_unset):
+def _ib0_interface_ip_address(is_ipv6):
     ib0_port = MgmtPort('ib0')
     if is_ipv6:
         ip_address = Tools.IpTool.select_random_ipv6_address().verify_result()
@@ -33,10 +27,7 @@ def _ib0_interface_ip_address(is_ipv6, full_unset):
 
     validate_interface_ip_address(ip_address, output_dictionary)
 
-    if full_unset:
-        ib0_port.interface.unset(apply=True).verify_result()
-    else:
-        ib0_port.interface.ip.address.unset(apply=True).verify_result()
+    ib0_port.interface.ip.address.unset(apply=True).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
         ib0_port.interface.ip.show()).get_returned_value()

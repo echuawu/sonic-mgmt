@@ -1,5 +1,6 @@
 import logging
 import allure
+import pytest
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.system.Password_hardening import Password_hardening
@@ -12,6 +13,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 logger = logging.getLogger()
 
 
+@pytest.mark.system
 def test_show_user(engines):
     """
     Run show system message command and verify the required message
@@ -40,6 +42,7 @@ def test_show_user(engines):
     verify_labels_values(SystemConsts.DEFAULT_USER_MONITOR, monitor_output, labels, monitor_values)
 
 
+@pytest.mark.system
 def test_show_role(engines):
     """
     Run show system message command and verify the required message
@@ -66,6 +69,7 @@ def test_show_role(engines):
     verify_labels_values(SystemConsts.ROLE_VIEWER, viewer_output, labels, viewer_values)
 
 
+@pytest.mark.system
 def test_invalid_username(engines):
     """
     Run show system message command and verify the required message
@@ -82,6 +86,7 @@ def test_invalid_username(engines):
     assert 'Invalid Command: set system aaa user' in output, 'succeeded to set invalid username - not as expected'
 
 
+@pytest.mark.system
 def test_set_state_default_user(engines):
     """
     Run show system message command and verify the required message
@@ -97,6 +102,7 @@ def test_set_state_default_user(engines):
     assert 'default administrator should not be disabled' in output, 'succeeded to set default user state - not as expected'
 
 
+@pytest.mark.system
 def test_set_capability_default_user(engines):
     """
     Run show system message command and verify the required message

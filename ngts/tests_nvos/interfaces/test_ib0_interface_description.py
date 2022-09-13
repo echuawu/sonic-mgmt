@@ -23,13 +23,6 @@ def test_ib0_interface_description(engines):
     3. UnSet ib0 port description
     4. Verify the configuration applied by running “show” command
     """
-    with allure.step("test_ib0_interface_description using full interface unset"):
-        _test_ib0_interface_description(False)
-    with allure.step("test_ib0_interface_description using interface description unset"):
-        _test_ib0_interface_description(True)
-
-
-def _test_ib0_interface_description(full_unset):
     ib0_port = MgmtPort('ib0')
 
     ib0_port.interface.description.set(value='"ib0 description"', apply=True).verify_result()
@@ -41,10 +34,7 @@ def _test_ib0_interface_description(full_unset):
                                                       field_name=ib0_port.interface.description.label,
                                                       expected_value='ib0 description').verify_result()
 
-    if full_unset:
-        ib0_port.interface.unset(apply=True).verify_result()
-    else:
-        ib0_port.interface.description.unset(apply=True).verify_result()
+    ib0_port.interface.description.unset(apply=True).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
         ib0_port.show()).get_returned_value()

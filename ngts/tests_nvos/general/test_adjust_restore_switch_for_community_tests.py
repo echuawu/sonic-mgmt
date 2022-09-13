@@ -1,10 +1,12 @@
 import logging
 import allure
 import os.path
+import pytest
 
 logger = logging.getLogger()
 
 
+@pytest.mark.general
 def test_adjust_switch_for_community_tests(topology_obj):
     """
     Removes 2 first lines from 'show command' output.
@@ -34,6 +36,7 @@ def test_adjust_switch_for_community_tests(topology_obj):
         engine.run_cmd("sudo echo \'{line}\' >> {file}".format(line=line_to_write, file=path_to_show_cmd))
 
 
+@pytest.mark.general
 def test_restore_origin_setup_after_adjustments_for_community_tests(topology_obj):
     """
     Restore the origin show script

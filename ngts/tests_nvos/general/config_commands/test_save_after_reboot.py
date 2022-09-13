@@ -11,6 +11,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 
 
+@pytest.mark.general
 def test_save_reboot(engines):
     """
         Test flow:

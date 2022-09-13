@@ -56,6 +56,7 @@ def test_good_flow_password_hardening(engines):
             output_verification(security_output, passw_hardening_policy, passw_hardening_value)
 
 
+@pytest.mark.security
 def test_bad_flow_password_hardening():
     """
     test bad flow of nv set/show of system security password-hardening

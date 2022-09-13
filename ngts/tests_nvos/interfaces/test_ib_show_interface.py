@@ -10,7 +10,7 @@ from infra.tools.redmine.redmine_api import is_redmine_issue_active
 logger = logging.getLogger()
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_show_interface_name(engines):
     """
@@ -32,7 +32,7 @@ def test_ib_show_interface_name(engines):
         validate_one_port_show_output(selected_port)
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_show_interface_all_state_up(engines):
     """
@@ -60,7 +60,7 @@ def test_ib_show_interface_all_state_up(engines):
         validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary)
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_show_interface_all_state_down(engines):
     """
@@ -88,7 +88,7 @@ def test_ib_show_interface_all_state_down(engines):
         validate_one_port_in_show_all_ports(selected_port, selected_port.show_output_dictionary, False)
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_show_interface_name_link(engines):
     """
@@ -112,7 +112,7 @@ def test_ib_show_interface_name_link(engines):
         validate_link_fields(selected_port, output_dictionary)
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_show_interface_name_pluggable(engines):
     """
@@ -136,7 +136,7 @@ def test_ib_show_interface_name_pluggable(engines):
         validate_pluggable_fields(selected_port, output_dictionary)
 
 
-@pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 def test_ib_show_interface_name_stats(engines):
     """
@@ -189,8 +189,8 @@ def validate_link_fields(selected_port, output_dictionary, port_up=True):
                           selected_port.ib_interface.link.speed.label,
                           selected_port.ib_interface.link.ib_speed.label,
                           selected_port.ib_interface.link.operational_vls.label]
-        result = Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check, port_up)
-        logging.warning(result.info)
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary,
+                                                               field_to_check, port_up).verify_result()
 
 
 def validate_pluggable_fields(selected_port, output_dictionary):

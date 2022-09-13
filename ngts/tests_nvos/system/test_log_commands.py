@@ -198,6 +198,7 @@ def test_show_debug_log_files(engines):
             logging.info("All expected fields were found")
 
 
+@pytest.mark.system
 def test_log_files_rotation_default_fields(engines):
     """
     Check all fields exist in nv show system log files rotation
@@ -209,8 +210,10 @@ def test_log_files_rotation_default_fields(engines):
         3.
     """
     # FIX_ME
+    pass
 
 
+@pytest.mark.system
 def test_log_files_set_unset_log_rotation(engines):
     """
     Check set/uset for filesrotation command
@@ -222,8 +225,10 @@ def test_log_files_set_unset_log_rotation(engines):
         3.
     """
     # FIX_ME
+    pass
 
 
+@pytest.mark.system
 def test_log_files_rotation_force(engines):
     """
     Check version on switch, rotate logs, check that it doesn't exist in the logs
@@ -235,6 +240,7 @@ def test_log_files_rotation_force(engines):
         3.
     """
     # FIX_ME
+    pass
 
 
 @pytest.mark.system
@@ -296,6 +302,7 @@ def test_log_components(engines):
                     ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level)
 
 
+@pytest.mark.system
 def test_upload_log_files(engines):
     """
     Check uploading log files to shared location and validate
@@ -315,6 +322,7 @@ def test_upload_log_files(engines):
         system.log.files.action_upload()
 
 
+@pytest.mark.system
 def test_delete_log_files(engines):
     """
     Check user can delete debug-log files

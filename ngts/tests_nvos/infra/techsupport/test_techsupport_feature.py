@@ -3,10 +3,12 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.constants.constants_nvos import SystemConsts
 import allure
 import logging
+import pytest
 
 logger = logging.getLogger()
 
 
+@pytest.mark.general
 def test_techsupport_folder_name(engines):
     """
     Test flow:
@@ -26,6 +28,7 @@ def test_techsupport_folder_name(engines):
         cleanup_techsupport(engines.dut, output_dictionary_before, output_dictionary_after)
 
 
+@pytest.mark.general
 def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
     """
     Test flow:
@@ -44,6 +47,7 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
     cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
 
+@pytest.mark.general
 def test_techsupport_expected_files(engines, devices):
     """
     Run nv show system tech-support files command and verify the required fields are exist
