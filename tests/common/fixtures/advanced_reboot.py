@@ -559,7 +559,6 @@ class AdvancedReboot:
             "Advanced-reboot failure. Failed test: {}, failure summary:\n{}".format(self.request.node.name, failed_list))
         return result
 
-
     def runRebootTestcase(self, prebootList=None, inbootList=None,
         prebootFiles='peer_dev_info,neigh_port_info', preboot_setup=None, postboot_setup=None):
         '''
@@ -632,6 +631,7 @@ class AdvancedReboot:
             "dut_hostname" : self.rebootData['dut_hostname'],
             "reboot_limit_in_seconds" : self.rebootLimit,
             "reboot_type" : self.rebootType,
+            "other_vendor_flag" :  self.other_vendor_nos,
             "portchannel_ports_file" : self.rebootData['portchannel_interfaces_file'],
             "vlan_ports_file" : self.rebootData['vlan_interfaces_file'],
             "ports_file" : self.rebootData['ports_file'],
@@ -672,8 +672,11 @@ class AdvancedReboot:
 
         self.__updateAndRestartArpResponder(rebootOper)
 
-
-        logger.info('Run advanced-reboot ReloadTest on the PTF host. TestCase: {}, sub-case: {}'.format(\
+        if rebootOper is None and self.other_vendor_nos is True:
+            logger.info('Run advanced-reboot ReloadTest on the PTF host. TestCase: {}, sub-case:'
+            ' Reboot from other vendor nos'.format(self.request.node.name))
+        else:
+            logger.info('Run advanced-reboot ReloadTest on the PTF host. TestCase: {}, sub-case: {}'.format(\
             self.request.node.name, str(rebootOper)))
         result = ptf_runner(
             self.ptfhost,
@@ -780,6 +783,7 @@ def get_advanced_reboot(request, duthosts, enum_rand_one_per_hwsku_frontend_host
         '''
         API that returns instances of AdvancedReboot class
         '''
+
         assert len(instances) == 0, "Only one instance of reboot data is allowed"
         advancedReboot = AdvancedReboot(request, duthost, ptfhost, localhost, tbinfo, creds, **kwargs)
         instances.append(advancedReboot)
