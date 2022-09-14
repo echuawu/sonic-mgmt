@@ -1,16 +1,38 @@
 
 def verify_deviation(value, expected_value, deviation):
     """
-    Check the value in expected range - expected value with deviation.
+    Check whether a value is within an expected range which is derived from the exacted value and  the deviation.
     :param value: topology_obj fixture
     :param expected_value: expected value
     :param deviation: allowed deviation from 0 to 1
     :return: raise assertion error in case the value not as expected with deviation
     """
-    assert int(value) > int(expected_value) * (1 - deviation), \
-        "The value {} is less then expected {} with deviation of {}%".format(value, expected_value, deviation)
-    assert int(value) < int(expected_value) * (1 + deviation), \
-        "The value {} is bigger then expected {} with deviation of {}".format(value, expected_value, deviation)
+    verify_down_deviation(value, expected_value, deviation)
+    verify_up_deviation(value, expected_value, deviation)
+
+
+def verify_down_deviation(value, expected_value, deviation):
+    """
+    Check the value is bigger than the expected value with deviation.
+    :param value: topology_obj fixture
+    :param expected_value: expected value
+    :param deviation: allowed deviation from 0 to 1
+    :return: raise assertion error in case the value not as expected with deviation
+    """
+    assert float(value) > float(expected_value) * (1 - deviation), \
+        "The value {} is less than expected {} with deviation of {}%".format(value, expected_value, deviation)
+
+
+def verify_up_deviation(value, expected_value, deviation):
+    """
+    Check the value is lower than the expected value with deviation.
+    :param value: topology_obj fixture
+    :param expected_value: expected value
+    :param deviation: allowed deviation from 0 to 1
+    :return: raise assertion error in case the value not as expected with deviation
+    """
+    assert float(value) < float(expected_value) * (1 + deviation), \
+        "The value {} is bigger than expected {} with deviation of {}".format(value, expected_value, deviation)
 
 
 def verify_deviation_for_simx(value, deviation):

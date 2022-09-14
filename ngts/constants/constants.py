@@ -61,6 +61,8 @@ class SonicConst:
     MINIGRAPH_XML = 'minigraph.xml'
     MINIGRAPH_XML_PATH = SONIC_CONFIG_FOLDER + MINIGRAPH_XML
     SANITIZER_FOLDER_PATH = "/var/log/asan"
+    CONFIG = '/usr/local/bin/config'
+    SHOW = '/usr/local/bin/show'
 
 
 class CliType:
