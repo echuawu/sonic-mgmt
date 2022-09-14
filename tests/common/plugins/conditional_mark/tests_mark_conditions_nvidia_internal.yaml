@@ -636,18 +636,6 @@ sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_route
     conditions:
       - https://redmine.mellanox.com/issues/3117697
 
-decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=disable]:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5877"
-    conditions:
-      - https://github.com/Azure/sonic-mgmt/issues/5877
-
-decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=set_unset]:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5877"
-    conditions:
-      - https://github.com/Azure/sonic-mgmt/issues/5877
-
 radv/test_radv_ipv6_ra.py:
   skip:
     reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5878"
