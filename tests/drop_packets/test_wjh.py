@@ -540,7 +540,8 @@ def test_l1_agg_port_down(duthost):
     try:
         table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
         entry = verify_l1_agg_drop_exists(table, port, 'Down')
-        if entry['Down Reason - Recommended Action'] != 'Port admin down - Validate port configuration':
+        if (entry['Down Reason - Recommended Action'] != 'Port admin down - Validate port configuration' and
+            entry['Down Reason - Recommended Action'] != 'N/A'):
             pytest.fail("Could not find L1 drop on WJH aggregated table.")
     finally:
         duthost.command("config interface startup {}".format(port))
@@ -558,9 +559,9 @@ def test_l1_agg_fanout_port_down(duthost, fanouthosts):
     try:
         table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
         entry = verify_l1_agg_drop_exists(table, port, 'Down')
-        # TODO: need to uncomment the down reason check after SDK bug #2373739 will be fixed.
-        # if entry['Down Reason - Recommended Action'] != 'Auto-negotiation failure - Set port speed manually, disable auto-negotiation':
-        #     pytest.fail("Could not find L1 drop on WJH aggregated table.")
+        if (entry['Down Reason - Recommended Action'] != 'Other reason -' and
+            entry['Down Reason - Recommended Action'] != 'Autoneg - No partner detected during force mode'):
+            pytest.fail("Could not find L1 drop on WJH aggregated table.")
     finally:
         fanout.no_shutdown(fanout_port)
 
