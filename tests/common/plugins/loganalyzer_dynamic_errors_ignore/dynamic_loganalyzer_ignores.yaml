@@ -579,6 +579,8 @@
       - copp/test_copp.py
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       Redmine:
         - 2966737
       Branch:
