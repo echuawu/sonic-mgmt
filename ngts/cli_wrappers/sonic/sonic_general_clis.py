@@ -481,7 +481,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         onie_reboot_script_path = f'/tmp/{onie_reboot_script}'
         onie_reboot_script_local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      f'../../scripts/sonic_deploy/{onie_reboot_script}')
-        self.engine.run_cmd('rm -rf /tmp/*')
+        self.engine.run_cmd('sudo rm -rf /tmp/*')
         self.engine.copy_file(source_file=onie_reboot_script_local_path, file_system='/tmp',
                               dest_file=onie_reboot_script)
         self.engine.run_cmd(f'chmod 777 {onie_reboot_script_path}', validate=True)
