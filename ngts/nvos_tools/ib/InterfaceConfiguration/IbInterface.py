@@ -26,7 +26,7 @@ class IbInterface:
         self.pluggable = Pluggable(self.port_obj)
         self.link = Link(self.port_obj)
 
-    def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT):
+    def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
                 port=self.port_obj.name, state=state, timeout=timeout)):
             logger.info("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
@@ -34,6 +34,7 @@ class IbInterface:
             if not engine:
                 engine = TestToolkit.engines.dut
 
+            result_obj = ResultObj(True, "")
             timer = timeout
             while self.port_obj.ib_interface.link.state.get_operational(engine) != state and timer > 0:
                 time.sleep(2)
@@ -42,9 +43,29 @@ class IbInterface:
             if self.port_obj.ib_interface.link.state.get_operational(engine) == state:
                 logger.info("'{port}' successfully reached state '{state}'".format(
                     port=self.port_obj.name, state=state))
-                return ResultObj(True, "'{port}' successfully reached state '{state}'".format(
-                                 port=self.port_obj.name, state=state))
+                result_obj.info = "'{port}' successfully reached state '{state}'".format(port=self.port_obj.name,
+                                                                                         state=state)
 
             if timer <= 0:
-                return ResultObj(False, "Timeout occurred while waiting for '{port}' to reach state 'state'".format(
-                                 port=self.port_obj.name, state=state))
+                result_obj.info = "Timeout occurred while waiting for '{port}' to reach state 'state'".format(
+                    port=self.port_obj.name, state=state)
+                result_obj.result = False
+                return result_obj
+
+            if logical_state:
+                while self.port_obj.ib_interface.link.logical_port_state.get_operational(engine) != logical_state \
+                        and timer > 0:
+                    time.sleep(2)
+                    timer -= 2
+                if self.port_obj.ib_interface.link.logical_port_state.get_operational(engine) == logical_state:
+                    logger.info("'{port}' successfully reached logical_state '{state}'".format(
+                        port=self.port_obj.name, state=logical_state))
+                    result_obj.info += "\n'{port}' successfully reached logical_state '{state}'".format(
+                        port=self.port_obj.name, state=logical_state)
+
+                if timer <= 0:
+                    result_obj.info += "Timeout occurred while waiting for '{port}' to reach logical_state " \
+                        "'state'".format(port=self.port_obj.name, state=logical_state)
+                    result_obj.result = False
+
+            return result_obj

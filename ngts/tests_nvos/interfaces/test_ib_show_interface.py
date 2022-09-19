@@ -64,7 +64,7 @@ def test_ib_show_interface_all_state_up(engines):
         with allure.step('Set the state of selected port to "down"'):
             selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True,
                                                       ask_for_confirmation=True).verify_result()
-            selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_DOWN).verify_result()
+            selected_port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_DOWN).verify_result()
 
             selected_port.update_output_dictionary()
 
@@ -75,7 +75,8 @@ def test_ib_show_interface_all_state_up(engines):
             with allure.step('Set the state of selected port to "up"'):
                 selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
                                                           ask_for_confirmation=True).verify_result()
-                selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+                selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
+                                                               logical_state='Active').verify_result()
 
             selected_port.update_output_dictionary()
 
@@ -86,7 +87,8 @@ def test_ib_show_interface_all_state_up(engines):
         with allure.step('Set the state of selected port to "up"'):
             selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
                                                       ask_for_confirmation=True).verify_result()
-            selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+            selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
+                                                           logical_state='Active').verify_result()
 
 
 @pytest.mark.ib_interfaces
