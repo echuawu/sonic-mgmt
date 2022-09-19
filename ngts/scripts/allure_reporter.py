@@ -133,9 +133,9 @@ if __name__ == "__main__":
     try:
         topology = get_topology_by_setup_name_and_aliases(setup_name, slow_cli=False)
         dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        allure_project_id = dut_name
+        allure_project_id = dut_name.replace('_', '-')
     except Exception as err:
-        allure_project_id = setup_name
+        logger.warning(f'Impossible to get DUT name from Noga, using default Allure project ID: {allure_project_id}')
 
     allure_server_base_url = '{}/{}'.format(allure_server_addr, ALLURE_DOCKER_SERVICE)
     if args.action == 'upload':
