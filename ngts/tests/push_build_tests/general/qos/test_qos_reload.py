@@ -8,7 +8,6 @@ from pprint import pprint
 from retry import retry
 from deepdiff import DeepDiff
 from ngts.constants.constants import InfraConst, SonicConst
-from ngts.tests.conftest import get_dut_loopbacks
 
 
 logger = logging.getLogger()
@@ -51,15 +50,18 @@ def generate_config_db_without_qos_on_ports(config_db_json, tested_ports, is_dor
     return config_db_json
 
 
+def get_dut_ports(topology_obj):
+    return topology_obj.players_all_ports['dut']
+
+
 @pytest.fixture(autouse=True, scope='session')
-def tested_ports(topology_obj, split_mode_supported_speeds):
+def tested_ports(topology_obj):
     """
-    Function selects randomly 1 loopback = 2 ports, and returns those ports as list.
+    Function selects randomly  2 ports, and returns those ports as list.
     :param topology_obj: topology object fixture
-    :param split_mode_supported_speeds: split_mode_supported_speeds object fixture
     :return: a list of tested ports, i.e, ['Ethernet52', 'Ethernet56']
     """
-    tested_ports_list = list(random.sample(get_dut_loopbacks(topology_obj), k=1).pop())
+    tested_ports_list = random.sample(get_dut_ports(topology_obj), k=2)
     return tested_ports_list
 
 
@@ -72,7 +74,7 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
     the documentation for this command can be found at:
     https://confluence.nvidia.com/display/SW/Design+-+config+qos+reload+--ports
 
-    the test removes qos and buffers configuration from random loopback ports,
+    the test removes qos and buffers configuration from random ports,
     and the checks that the qos and buffers configuration is restored after
     "sudo config qos reload --ports" is configured.
 
