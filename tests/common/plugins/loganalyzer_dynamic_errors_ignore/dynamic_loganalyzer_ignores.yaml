@@ -864,7 +864,7 @@
     - '.* ERR syncd#SDK: \[FDB_UC\.ERR\] FDB: not supported fid type \(\d+\) for fid \(\d+\)\. \(Success\)'
   Conditions:
     - Affected_test_cases:
-      - sub_port_interfaces/test_show_subinterface.py
+      - sub_port_interfaces
       Redmine:
       - 3117917
 
