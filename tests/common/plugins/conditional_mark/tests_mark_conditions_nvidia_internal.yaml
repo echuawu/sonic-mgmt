@@ -326,6 +326,12 @@ copp/test_copp.py:
     conditions:
       - https://redmine.mellanox.com/issues/3130627
 
+snmp/test_snmp_memory.py::test_snmp_memory:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3213192"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3213192 and '202205' in release"
+
 sflow/test_sflow.py:
   skip:
     reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5938 and branch 202205"
