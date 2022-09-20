@@ -1441,3 +1441,12 @@
         - 3205278
       Platform:
         - simx
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Error! Unable to read data for \d+ port, page \d+ offset \d+, rc = 1, err msg: Sending access register.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
+      - show_techsupport/test_techsupport_no_secret.py::test_secret_removed_from_show_techsupport
+      Redmine:
+      - 3213401
