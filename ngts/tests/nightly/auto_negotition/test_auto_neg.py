@@ -14,7 +14,7 @@ logger = logging.getLogger()
 class TestAutoNeg(TestAutoNegBase):
 
     @pytest.mark.reboot_reload
-    def test_auto_neg_conf(self, cleanup_list, skip_if_active_optical_cable):
+    def test_auto_neg_conf(self, cleanup_list, skip_if_active_optical_cable, skip_if_rj45_cable):
         """
         check 1#:
         This test case will set on loopbacks with/without splits,

@@ -147,6 +147,15 @@ def skip_if_active_optical_cable(cable_compliance_info):
         pytest.skip("This test is not supported because setup has Active Optical Cable")
 
 
+@pytest.fixture()
+def skip_if_rj45_cable(cable_compliance_info):
+    """
+    Fixture that skips test execution in case setup has RJ45 Cable
+    """
+    if re.search(r"SFP EEPROM is not applicable for RJ45 port", cable_compliance_info, re.IGNORECASE):
+        pytest.skip("This test is not supported because setup has RJ45 Cable")
+
+
 @pytest.fixture(scope='session')
 def cable_compliance_info(topology_obj, platform_params, engines):
     if "simx" not in platform_params.setup_name:
