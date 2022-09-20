@@ -28,13 +28,6 @@ def _parse_args():
     return parser.parse_args()
 
 
-def get_topo_dir(topo_file):
-    prefix = os.path.split(os.path.normpath(topo_file))[0]
-    topo_dir_path = prefix[prefix.find("conf/topo"): ]
-
-    return os.path.join("/auto/sw_regression/system/SONIC/MARS", topo_dir_path)
-
-
 if __name__ == "__main__":
     logger.info("Update sonic-mgmt inventory files with new setup info to be able to run image deploy")
 
@@ -52,10 +45,11 @@ if __name__ == "__main__":
     sonic_mgmt_container_info = topo_obj.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
     print('sonic_mgmt_repo_path : {}'.format(sonic_mgmt_repo_path))
 
-    sonic_mgmt_container = Connection(sonic_mgmt_container_info.BASE_IP, user=sonic_mgmt_container_info.USERS[0].USERNAME,
+    sonic_mgmt_container = Connection(sonic_mgmt_container_info.BASE_IP,
+                                      user=sonic_mgmt_container_info.USERS[0].USERNAME,
                                       config=Config(overrides={"run": {"echo": True}}),
                                       connect_kwargs={"password": sonic_mgmt_container_info.USERS[0].PASSWORD})
-    cmd = "PYTHONPATH={mgmt_repo}/sonic-tool/sonic_ngts {ngts_path} {mgmt_repo}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py --dut=\"{dut}\" --mgmt_repo=\"{mgmt_repo}\" \
-            --topo_dir=\"{topo_dir}\" --update_ansible_modules_only=\"True\"".format(ngts_path=constants.NGTS_PATH_PYTHON, dut=args.dut_name, mgmt_repo=sonic_mgmt_repo_path,
-                                              topo_dir=get_topo_dir(topo_file))
+    cmd = "PYTHONPATH=/devts/ {ngts_path} {mgmt_repo}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py " \
+          "--dut=\"{dut}\" --mgmt_repo=\"{mgmt_repo}\"".format(ngts_path=constants.NGTS_PATH_PYTHON, dut=args.dut_name,
+                                                               mgmt_repo=sonic_mgmt_repo_path)
     sonic_mgmt_container.run(cmd)
