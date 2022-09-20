@@ -8,6 +8,7 @@ from retry.api import retry_call
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
+from ngts.constants.constants import InfraConst
 
 
 logger = logging.getLogger()
@@ -37,7 +38,7 @@ def prepare_dut_bgp_config():
 
 
 @pytest.fixture(scope='class', autouse=True)
-def configuration(topology_obj, cli_objects, engines, interfaces):
+def configuration(topology_obj, cli_objects, engines, interfaces, platform_params, setup_name):
     """
     Pytest fixture which are doing configuration for routing tests
     Configuration schema:
@@ -55,6 +56,8 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
     :param cli_objects: cli_objects fixture
     :param engines: engines fixture
     :param interfaces: interfaces fixture
+    :param platform_params: platform_params fixture
+    :param setup_name: setup_name fixture
     """
     # Clear FRR BGP config (could exist default BGP configuration)
     engines.dut.run_cmd('sudo sed -e "s/split/separated/g" -i /etc/sonic/config_db.json')
@@ -62,11 +65,14 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
     cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     # IP config which will be used in test
-    ip_config_dict = {
+    dut_ip_config_dict = {
         'dut': [{'iface': interfaces.dut_ha_1, 'ips': [('20.0.0.1', '24')]},
                 {'iface': interfaces.dut_hb_1, 'ips': [('30.0.0.1', '24')]},
                 {'iface': 'Loopback0', 'ips': [('10.10.10.10', '32')]}
-                ],
+                ]
+    }
+
+    hosts_ip_config_dict = {
         'ha': [{'iface': interfaces.ha_dut_1, 'ips': [('20.0.0.2', '24')]}
                ],
         'hb': [{'iface': interfaces.hb_dut_1, 'ips': [('30.0.0.2', '24')]}
@@ -85,7 +91,8 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
                'cleanup': ['configure terminal', 'no router bgp 501', 'exit', 'exit']}
     }
 
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
+    IpConfigTemplate.configuration(topology_obj, dut_ip_config_dict)
+    IpConfigTemplate.configuration(topology_obj, hosts_ip_config_dict)
     RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
     FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
 
@@ -98,15 +105,10 @@ def configuration(topology_obj, cli_objects, engines, interfaces):
 
     yield
 
-    # Remove BGP related data from config_db.json
-    engines.dut.run_cmd('sudo sonic-db-cli CONFIG_DB DEL "BGP_NEIGHBOR|20.0.0.2"')
-    engines.dut.run_cmd('sudo sonic-db-cli CONFIG_DB DEL "BGP_NEIGHBOR|30.0.0.2"')
-    engines.dut.run_cmd('sudo sonic-db-cli CONFIG_DB HDEL "DEVICE_METADATA|localhost" "bgp_asn"')
-
     FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
+    IpConfigTemplate.cleanup(topology_obj, hosts_ip_config_dict)
 
-    cli_objects.dut.general.save_configuration()
-    engines.dut.run_cmd('sudo sed -e "s/separated/split/g" -i /etc/sonic/config_db.json')
+    hwsku = platform_params['hwsku']
+    shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
+    cli_objects.dut.general.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
     cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
