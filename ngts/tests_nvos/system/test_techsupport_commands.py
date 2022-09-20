@@ -3,7 +3,7 @@ import allure
 import datetime
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 
 
 @pytest.mark.system

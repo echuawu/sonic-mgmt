@@ -7,7 +7,7 @@ from ngts.nvos_tools.system.Password_hardening import Password_hardening
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()

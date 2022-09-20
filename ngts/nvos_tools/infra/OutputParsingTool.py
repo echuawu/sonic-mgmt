@@ -3,7 +3,7 @@ import json
 import allure
 import re
 from .ResultObj import ResultObj
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 logger = logging.getLogger()
 

@@ -1,5 +1,5 @@
 import os
-from ngts.constants.constants_nvos import OpenApiReqType
+from ngts.nvos_constants.constants_nvos import OpenApiReqType
 
 SHOW_METHOD_NAME = '    def show(engine, resource_path, op_param="", output_format=OutputFormat.json):\n'
 SET_METHOD_NAME = '    def set(engine, resource_path, op_param_name="", op_param_value=""):\n'
@@ -57,7 +57,7 @@ def add_imports(component, py_class_file, root_class_name):
         py_class_file.write('from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit\n')
         py_class_file.write('from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool\n')
     py_class_file.write('from ngts.nvos_tools.infra.BaseComponent import BaseComponent\n')
-    py_class_file.write('from ngts.constants.constants_nvos import ApiType\n')
+    py_class_file.write('from ngts.nvos_constants.constants_nvos import ApiType\n')
 
     temp_file_name = NVUE_WRAPPER_FILENAME.format(root_class_name)
     temp_class_name = NVUE_WRAPPER_CLASSNAME.format(root_class_name.capitalize())

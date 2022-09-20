@@ -1,5 +1,5 @@
 import logging
-from ngts.constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import OutputFormat
 
 logger = logging.getLogger()
 

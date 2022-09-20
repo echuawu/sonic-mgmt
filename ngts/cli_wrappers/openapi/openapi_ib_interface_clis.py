@@ -1,5 +1,5 @@
 from .openapi_command_builder import OpenApiCommandHelper
-from ngts.constants.constants_nvos import OutputFormat, OpenApiReqType
+from ngts.nvos_constants.constants_nvos import OutputFormat, OpenApiReqType
 
 
 class OpenApiIbInterfaceCli:

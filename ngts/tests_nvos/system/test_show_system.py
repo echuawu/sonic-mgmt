@@ -4,7 +4,7 @@ import pytest
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 logger = logging.getLogger()
 

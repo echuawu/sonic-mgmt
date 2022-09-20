@@ -177,3 +177,31 @@ class ValidationTool:
         else:
             with allure.step('check if command output does not contain {substring}'.format(substring=substring)):
                 assert substring not in output, err_message_in_case_of_failure
+
+    @staticmethod
+    def validate_all_values_exists_in_list(expected_values_list, output_list):
+        with allure.step("Verify existence of all components in the output list"):
+            if not output_list:
+                return ResultObj(False, "The list is empty")
+
+            ret_info = ""
+            for comp in expected_values_list:
+                if comp in output_list:
+                    logging.info("'{}' found\n")
+                else:
+                    ret_info += "'{}' + cant be found\n".format(comp)
+
+            return ResultObj(not ret_info, ret_info)
+
+    @staticmethod
+    def compare_dictionary_content(output_dictionary, sub_dictionary):
+        with allure.step("Verify the sub dictionary can be found in the output"):
+            info = ""
+            output_dictionary_keys = output_dictionary.keys()
+            for key, value in sub_dictionary.items():
+                if key not in output_dictionary_keys:
+                    info += key + " can't be found in output dictionary\n"
+                elif value != output_dictionary[key]:
+                    info += "the value of {} is not equal in both dictionaries\n".format(key)
+
+            return ResultObj(not info, info)

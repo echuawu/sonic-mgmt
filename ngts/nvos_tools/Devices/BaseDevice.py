@@ -2,9 +2,9 @@ import re
 import logging
 from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
-from ngts.constants.constants_nvos import NvosConst, DatabaseConst
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 import time
 
 logger = logging.getLogger()

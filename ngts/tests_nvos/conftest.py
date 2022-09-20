@@ -4,7 +4,7 @@ import logging
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from dotted_dict import DottedDict
 

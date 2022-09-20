@@ -1,8 +1,8 @@
 import logging
 from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
 from .openapi_command_builder import OpenApiCommandHelper
-from ngts.constants.constants_nvos import OpenApiReqType
-from ngts.constants.constants_nvos import ActionConsts
+from ngts.nvos_constants.constants_nvos import OpenApiReqType
+from ngts.nvos_constants.constants_nvos import ActionConsts
 logger = logging.getLogger()
 
 

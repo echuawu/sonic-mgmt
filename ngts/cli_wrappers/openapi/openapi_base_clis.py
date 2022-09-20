@@ -1,7 +1,7 @@
 import logging
-from ngts.constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import OutputFormat
 from .openapi_command_builder import OpenApiCommandHelper
-from ngts.constants.constants_nvos import OpenApiReqType
+from ngts.nvos_constants.constants_nvos import OpenApiReqType
 
 logger = logging.getLogger()
 

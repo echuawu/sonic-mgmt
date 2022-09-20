@@ -4,7 +4,7 @@ import allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()

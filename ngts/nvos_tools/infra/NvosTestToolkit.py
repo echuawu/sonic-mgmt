@@ -1,4 +1,4 @@
-from ngts.constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.openapi.openapi_general_clis import OpenApiGeneralCli
 import logging

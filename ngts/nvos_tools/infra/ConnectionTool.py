@@ -1,7 +1,7 @@
 import allure
 import logging
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 

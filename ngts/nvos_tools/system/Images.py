@@ -3,7 +3,7 @@ import logging
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.constants.constants_nvos import ApiType, ActionConsts
+from ngts.nvos_constants.constants_nvos import ApiType, ActionConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool

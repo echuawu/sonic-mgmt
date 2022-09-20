@@ -1,7 +1,7 @@
 import allure
 import logging
 import pytest
-from ngts.constants.constants_nvos import NvosConst
+from ngts.nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 

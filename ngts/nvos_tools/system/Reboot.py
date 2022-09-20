@@ -5,7 +5,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 class Reboot(BaseComponent):

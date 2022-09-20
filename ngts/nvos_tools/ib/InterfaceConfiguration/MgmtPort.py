@@ -2,7 +2,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtInterface import *
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
-from ngts.constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 
 import allure

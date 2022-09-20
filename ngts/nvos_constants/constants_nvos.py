@@ -195,3 +195,22 @@ class ConfigConsts:
     APPLY_CONFIRM_NO = '--confirm-yes'
     APPLY_CONFIRM_YES = '--confirm-no'
     APPLY_CONFIRM_STATUS = '--confirm-status'
+
+
+class PlatformConsts:
+    PLATFORM_FW = "firmware"
+    PLATFORM_ENVIRONMENT = "environment"
+    PLATFORM_HW = "hardware"
+    PLATFORM_SW = "software"
+    PLATFORM_COMP = [PLATFORM_FW, PLATFORM_ENVIRONMENT, PLATFORM_HW, PLATFORM_SW]
+    FW_BIOS = "BIOS"
+    FW_CPLD = "CPLD"
+    FW_ONIE = "ONIE"
+    FW_SSD = "SSD"
+    FW_COMP = [FW_BIOS, FW_ONIE, FW_SSD, FW_CPLD + '1', FW_CPLD + '2', FW_CPLD + '3']
+    FW_FIELDS = ["actual-firmware", "installed-firmware", "part-number", "serial-number", "type"]
+    ENV_FAN = "fan"
+    ENV_LED = "led"
+    ENV_PSU = "psu"
+    ENV_TEMP = 'temperature'
+    ENV_COMP = [ENV_FAN, ENV_LED, ENV_PSU, ENV_TEMP]

@@ -1,6 +1,6 @@
 import logging
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
-from ngts.constants.constants_nvos import ActionConsts
+from ngts.nvos_constants.constants_nvos import ActionConsts
 
 logger = logging.getLogger()
 

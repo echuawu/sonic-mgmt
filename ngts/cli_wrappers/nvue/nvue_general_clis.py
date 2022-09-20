@@ -4,7 +4,7 @@ import time
 from retry import retry
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.constants.constants_nvos import NvosConst, ActionConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
 from ngts.constants.constants import InfraConst
 
 logger = logging.getLogger()
