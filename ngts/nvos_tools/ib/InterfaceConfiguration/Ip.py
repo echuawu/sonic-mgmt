@@ -13,6 +13,8 @@ class Ip(ConfigurationBase):
     vrf = None
     address = None
     gateway = None
+    dhcp_client = None
+    dhcp_client6 = None
 
     def __init__(self, port_obj):
         ConfigurationBase.__init__(self,
@@ -24,6 +26,8 @@ class Ip(ConfigurationBase):
         self.vrf = Vrf(port_obj)
         self.address = Address(port_obj)
         self.gateway = Gateway(port_obj)
+        self.dhcp_client = DhcpClient(port_obj, IbInterfaceConsts.IP_DHCP)
+        self.dhcp_client6 = DhcpClient(port_obj, IbInterfaceConsts.IP_DHCP6)
 
     def show(self, dut_engine=None, output_format=OutputFormat.json):
         """
@@ -80,10 +84,11 @@ class IpBaseOperational(IpBase, CmdBase):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
-                                         output_hierarchy=self.output_hierarchy,
-                                         value=value, apply=apply, port_obj=self.port_obj)
+                                         output_hierarchy=self.output_hierarchy, value=value,
+                                         apply=apply, ask_for_confirmation=ask_for_confirmation,
+                                         port_obj=self.port_obj)
 
-    def unset(self, dut_engine=None, apply=True):
+    def unset(self, dut_engine=None, apply=True, ask_for_confirmation=False):
         """
         Unset current field
         :param dut_engine: ssh dut engine
@@ -95,7 +100,8 @@ class IpBaseOperational(IpBase, CmdBase):
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=self.label,
                                            output_hierarchy=self.output_hierarchy,
-                                           apply=apply, port_obj=self.port_obj)
+                                           apply=apply, ask_for_confirmation=ask_for_confirmation,
+                                           port_obj=self.port_obj)
 
 
 class Vrf(IpBaseOperational):
@@ -125,3 +131,26 @@ class Gateway(IpBaseOperational):
                         description="default IPv4 and IPv6 gateways",
                         field_name_in_db={}, output_hierarchy="{level1} {level2}".
                         format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.IP_GATEWAY))
+
+
+class DhcpClient(IpBaseOperational):
+    def __init__(self, port_obj, level2):
+        IpBase.__init__(self, port_obj=port_obj, label=level2,
+                        description="default IPv4 dhcp-client",
+                        field_name_in_db={}, output_hierarchy="{level1} {level2}".
+                        format(level1=IbInterfaceConsts.IP, level2=level2))
+
+    def show(self, dut_engine=None, output_format=OutputFormat.json):
+        """
+        Executes show interface
+        :param dut_engine: ssh engine
+        :param output_format: OutputFormat
+        :return: str output
+        """
+        with allure.step('Execute show interface link for {port_name}'.format(port_name=self.port_obj.name)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+
+            return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
+                                                   dut_engine, self.port_obj.name, self.output_hierarchy,
+                                                   output_format).get_returned_value()

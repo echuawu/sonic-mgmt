@@ -34,4 +34,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ports_interface.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_eth0_dhcp.cases </cases>
+	</test>
 </DBDEF>

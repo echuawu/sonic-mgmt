@@ -139,6 +139,9 @@ class OutputParsingTool:
 
         """
         with allure.step('Create a dictionary according to provided JSON output of "show interface link" command'):
+            if '2004l' in output_json:
+                output_json = ''.join(output_json.split('\n')[1:])
+
             output_dictionary = json.loads(output_json)
 
             if IbInterfaceConsts.LINK_STATE not in output_dictionary.keys():
@@ -166,6 +169,8 @@ class OutputParsingTool:
 
         """
         with allure.step('Create a dictionary according to provided JSON output of "show interface pluggable" command'):
+            if '2004l' in output_json:
+                output_json = ''.join(output_json.split('\n')[1:])
             output_dictionary = json.loads(output_json)
             return ResultObj(True, "", output_dictionary)
 

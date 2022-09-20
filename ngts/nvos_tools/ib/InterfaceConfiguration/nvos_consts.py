@@ -19,6 +19,8 @@ class NvosConsts:
 class IbInterfaceConsts:
     INTERFACE_NAME = "name"
     DESCRIPTION = "description"
+    DHCP_STATE = 'state'
+    DHCP_SET_HOSTNAME = 'set-hostname'
     TYPE = "type"
     LINK = "link"
     IP = "ip"
@@ -63,6 +65,8 @@ class IbInterfaceConsts:
     IP_VRF = "vrf"
     IP_ADDRESS = "address"
     IP_GATEWAY = "gateway"
+    IP_DHCP = "dhcp-client"
+    IP_DHCP6 = "dhcp-client6"
     NAME = "name"
     IB_PORT_TYPE = "ib"
     LOOPBACK_PORT_TYPE = "loopback"
