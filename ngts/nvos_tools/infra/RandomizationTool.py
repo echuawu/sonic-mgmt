@@ -17,7 +17,8 @@ logger = logging.getLogger()
 class RandomizationTool:
 
     @staticmethod
-    def select_random_port(dut_engine=None, requested_ports_state=NvosConsts.LINK_STATE_UP, requested_ports_type="ib"):
+    def select_random_port(dut_engine=None, requested_ports_state=NvosConsts.LINK_STATE_UP,
+                           requested_ports_logical_state=None, requested_ports_type="ib"):
         """
         Select and return a random port
         :param requested_ports_state: required port state
@@ -31,6 +32,7 @@ class RandomizationTool:
         result_obj = RandomizationTool.select_random_ports(dut_engine=dut_engine,
                                                            requested_ports_state=requested_ports_state,
                                                            requested_ports_type=requested_ports_type,
+                                                           requested_ports_logical_state=requested_ports_logical_state,
                                                            num_of_ports_to_select=1)
         if result_obj.result:
             result_obj.returned_value = result_obj.returned_value[0]
@@ -39,6 +41,7 @@ class RandomizationTool:
     @staticmethod
     def select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
                             requested_ports_type=IbInterfaceConsts.IB_PORT_TYPE,
+                            requested_ports_logical_state=None,
                             num_of_ports_to_select=1, port_requirements_object=None, dut_engine=None):
         """
         Select and return list of random ports
@@ -75,6 +78,7 @@ class RandomizationTool:
                 port_requirements_object = PortRequirements()
             port_requirements_object.set_port_state(requested_ports_state)
             port_requirements_object.set_port_type(requested_ports_type)
+            port_requirements_object.set_port_logical_state(requested_ports_logical_state)
 
             logging.info("Get a list of relevant ports")
             all_relevant_ports = Port.get_list_of_ports(dut_engine, port_requirements_object)

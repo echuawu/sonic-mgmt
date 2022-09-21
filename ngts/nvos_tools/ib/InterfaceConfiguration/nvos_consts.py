@@ -13,6 +13,7 @@ class InternalNvosConsts:
 class NvosConsts:
     LINK_STATE_UP = "up"
     LINK_STATE_DOWN = "down"
+    LINK_LOG_STATE_ACTIVE = 'Active'
 
 
 class IbInterfaceConsts:

@@ -5,7 +5,6 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
@@ -27,8 +26,13 @@ class User(BaseComponent):
         self.parent_obj = parent_obj
 
     def get_lslogins(self, engine, username):
-        return OutputParsingTool.parse_lslogins_cmd(engine.run_cmd(
-            'lslogins {username}'.format(username=username))).get_returned_value()
+        return OutputParsingTool.parse_lslogins_cmd(engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
+
+    def verify_user_label(self, username, label, new_fullname):
+        with allure.step('verify the user {username} {label} value'.format(username=username, label=label)):
+            self.set_username(username)
+            output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).verify_result()
+            assert output[label] == new_fullname, "the new user {username} full name is {fullname} not {new_fullname} as expected".format(username=username, fullname=output[SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME], new_fullname=new_fullname)
 
     def action_disconnect(self, username):
         self.set_username(username)

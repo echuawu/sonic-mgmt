@@ -6,7 +6,6 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -34,7 +33,6 @@ def test_ib_show_interface_name(engines):
 
 
 @pytest.mark.ib_interfaces
-@pytest.mark.nvos_ci
 def test_ib_show_interface_all_state_up(engines):
     """
     Run show interface command and verify the required fields are exist
@@ -48,8 +46,14 @@ def test_ib_show_interface_all_state_up(engines):
     output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
         Port.show_interface()).get_returned_value()
 
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="up",
-                                                               requested_ports_type="ib").get_returned_value()
+    result = Tools.RandomizationTool.select_random_port(requested_ports_state="up",
+                                                        requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE,
+                                                        requested_ports_type="ib")  # noqa: E402
+    if not result.result:   # noqa: E402
+        return  # noqa: E402
+
+    selected_port = result.returned_value
+
     TestToolkit.update_tested_ports([selected_port])
 
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
@@ -107,6 +111,7 @@ def test_ib_show_interface_all_state_down(engines):
         Port.show_interface()).get_returned_value()
 
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="down",
+                                                               requested_ports_logical_state=None,
                                                                requested_ports_type="ib").get_returned_value()
     TestToolkit.update_tested_ports([selected_port])
 

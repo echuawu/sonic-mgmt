@@ -32,8 +32,8 @@ def test_set_unset_full_name(engines):
     system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
     system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
     NvueGeneralCli.apply_config(engines.dut)
-    verify_full_name(system, SystemConsts.DEFAULT_USER_ADMIN, SystemConsts.USER_FULL_NAME, new_full_name)
-    verify_full_name(system, SystemConsts.DEFAULT_USER_MONITOR, SystemConsts.USER_FULL_NAME, new_full_name)
+    system.aaa.user.verify_user_label(SystemConsts.DEFAULT_USER_ADMIN, SystemConsts.USER_FULL_NAME, new_full_name)
+    system.aaa.user.verify_user_label(SystemConsts.DEFAULT_USER_MONITOR, SystemConsts.USER_FULL_NAME, new_full_name)
     ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN, engines.dut.password).verify_result()
     ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_MONITOR, engines.dut.password).verify_result()
 
@@ -65,8 +65,8 @@ def test_set_unset_full_name_newuser(engines):
     system.aaa.user.set_username(viewer_name)
     system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
     NvueGeneralCli.apply_config(engines.dut)
-    verify_full_name(system, viewer_name, SystemConsts.USER_FULL_NAME, new_full_name)
-    verify_full_name(system, configurator_name, SystemConsts.USER_FULL_NAME, new_full_name)
+    system.aaa.user.verify_user_label(viewer_name, SystemConsts.USER_FULL_NAME, new_full_name)
+    system.aaa.user.verify_user_label(configurator_name, SystemConsts.USER_FULL_NAME, new_full_name)
     ConnectionTool.create_ssh_conn(engines.dut.ip, viewer_name, viewer_password).verify_result()
     ConnectionTool.create_ssh_conn(engines.dut.ip, configurator_name, configurator_password).verify_result()
 
@@ -98,8 +98,8 @@ def test_set_unset_state(engines):
     system.aaa.user.set_username(viewer_name)
     system.aaa.user.set(SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED).verify_result()
     NvueGeneralCli.apply_config(engines.dut)
-    verify_full_name(system, viewer_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
-    verify_full_name(system, configurator_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
+    system.aaa.user.verify_user_label(viewer_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
+    system.aaa.user.verify_user_label(configurator_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
 
 
 @pytest.mark.system
@@ -129,12 +129,5 @@ def test_set_unset_capability(engines):
     system.aaa.user.set_username(viewer_name)
     system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR).verify_result()
     NvueGeneralCli.apply_config(engines.dut)
-    verify_full_name(system, viewer_name, SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR)
-    verify_full_name(system, configurator_name, SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER)
-
-
-def verify_full_name(system, username, label, new_fullname):
-    with allure.step('verify user {username} fullname value'.format(username=username)):
-        system.aaa.user.set_username(username)
-        output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show()).verify_result()
-        assert output[label] == new_fullname, "the new user {username} full name is {fullname} not {new_fullname} as expected".format(username=username, fullname=output[SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME], new_fullname=new_fullname)
+    system.aaa.user.verify_user_label(viewer_name, SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR)
+    system.aaa.user.verify_user_label(configurator_name, SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER)

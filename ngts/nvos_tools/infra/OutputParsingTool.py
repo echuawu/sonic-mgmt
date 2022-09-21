@@ -383,6 +383,8 @@ class OutputParsingTool:
         :param lslogins_output:
         :return:
         """
+        if 'lslogins: cannot found ' in lslogins_output:
+            return ResultObj(True, lslogins_output, lslogins_output)
         result = {}
         lines = lslogins_output.splitlines()
         logs = lines[lines.index('') + 1:]
