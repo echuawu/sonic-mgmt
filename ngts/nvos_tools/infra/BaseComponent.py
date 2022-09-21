@@ -2,6 +2,7 @@ import allure
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import OutputFormat
 
 
 class BaseComponent:
@@ -16,10 +17,11 @@ class BaseComponent:
         return "{parent_path}{self_path}".format(
             parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
 
-    def show(self, op_param=""):
+    def show(self, op_param="", output_format=OutputFormat.json):
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show, TestToolkit.engines.dut,
-                                                   self.get_resource_path(), op_param).get_returned_value()
+                                                   self.get_resource_path(), op_param,
+                                                   output_format).get_returned_value()
 
     def _set(self, param_name, param_value):
         return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,

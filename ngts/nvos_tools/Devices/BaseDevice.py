@@ -20,12 +20,18 @@ class BaseDevice:
         self.constants = None
         self.supported_ib_speeds = {}
         self.invalid_ib_speeds = {}
+        self.fan_list = {}
+        self.psu_list = {}
+        self.temperature_list = {}
 
         self._init_available_databases()
         self._init_services()
         self._init_dockers()
         self._init_contants()
         self._init_ib_speeds()
+        self._init_fan_list()
+        self._init_psu_list()
+        self._init_temperature()
 
     @abstractmethod
     def _init_available_databases(self):
@@ -49,6 +55,18 @@ class BaseDevice:
 
     @abstractmethod
     def _init_ib_speeds(self):
+        pass
+
+    @abstractmethod
+    def _init_fan_list(self):
+        pass
+
+    @abstractmethod
+    def _init_psu_list(self):
+        pass
+
+    @abstractmethod
+    def _init_temperature(self):
         pass
 
     def verify_databases(self, dut_engine):
@@ -269,6 +287,17 @@ class BaseSwitch(BaseDevice, ABC):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
         self.invalid_ib_speeds = {}
 
+    def _init_fan_list(self):
+        self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
+                         "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2", "PSU1", "PSU2"]
+
+    def _init_psu_list(self):
+        self.psu_list = ["PSU1", "PSU2"]
+
+    def _init_temperature(self):
+        self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
+                                 "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
+
 
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitch(BaseSwitch):
@@ -287,6 +316,15 @@ class GorillaSwitch(BaseSwitch):
         # ndr is not supported in current setups
         # self.supported_ib_speeds.update({'ndr': '400G'})
 
+    def _init_fan_list(self):
+        BaseSwitch._init_fan_list(self)
+        self.fan_list.append("FAN7/1")
+        self.fan_list.append("FAN7/2")
+
+    def _init_temperature(self):
+        BaseSwitch._init_temperature(self)
+        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp", "SODIMM 1 Temp"]
+
 
 # -------------------------- Jaguar Switch ----------------------------
 class JaguarSwitch(BaseSwitch):
@@ -301,3 +339,7 @@ class JaguarSwitch(BaseSwitch):
     def _init_ib_speeds(self):
         BaseSwitch._init_ib_speeds(self)
         self.invalid_ib_speeds.update({'ndr': '400G'})
+
+    def _init_temperature(self):
+        BaseSwitch._init_temperature(self)
+        self.temperature_list += ["Ambient COMEX Temp", ]

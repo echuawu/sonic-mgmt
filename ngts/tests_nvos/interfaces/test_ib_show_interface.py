@@ -206,7 +206,6 @@ def validate_link_fields(selected_port, output_dictionary, port_up=True):
         logging.info('Check that all expected fields under link field exist in the output')
         field_to_check = [selected_port.ib_interface.link.state.label,
                           selected_port.ib_interface.link.ib_subnet.label,
-                          selected_port.ib_interface.link.lanes.label,
                           selected_port.ib_interface.link.supported_lanes.label,
                           selected_port.ib_interface.link.max_supported_mtu.label,
                           selected_port.ib_interface.link.supported_ib_speeds.label,
@@ -222,6 +221,10 @@ def validate_link_fields(selected_port, output_dictionary, port_up=True):
                           selected_port.ib_interface.link.operational_vls.label]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary,
                                                                field_to_check, port_up).verify_result()
+        # Will be changed
+        field_to_check = [selected_port.ib_interface.link.lanes.label]
+        res = Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check, port_up)
+        logging.warning(res.info)
 
 
 def validate_pluggable_fields(selected_port, output_dictionary):

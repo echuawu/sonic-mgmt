@@ -4,11 +4,12 @@ import allure
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
+from ngts.nvos_constants.constants_nvos import OutputFormat
 
 logger = logging.getLogger()
 
 
-@pytest.marker.platform
+@pytest.mark.platform
 def test_show_platform_firmware(engines):
     """
     Show platform firmware test
@@ -21,10 +22,18 @@ def test_show_platform_firmware(engines):
         Tools.ValidationTool.validate_all_values_exists_in_list(PlatformConsts.FW_COMP, output).verify_result()"""
 
     with allure.step("Check show firmware output"):
-        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_exist_in_json_output(output, PlatformConsts.FW_COMP, True).verify_result()
+        with allure.step("Verify text output"):
+            logging.info("Verify text output")
+            output = platform.firmware.show(output_format=OutputFormat.auto)
+            assert any(comp not in output for comp in PlatformConsts.FW_COMP), "Not all required component were found"
+
+        with allure.step("Verify json output"):
+            logging.info("Verify json output")
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).get_returned_value()
+            Tools.ValidationTool.verify_field_exist_in_json_output(output, PlatformConsts.FW_COMP, True).verify_result()
 
         with allure.step("Compare general output to each firmware component"):
+            logging.info("Compare general output to each firmware component")
             for comp_name, comp_output in output.items():
                 _compare_general_output_to_comp_output(platform, comp_name, comp_output)
 

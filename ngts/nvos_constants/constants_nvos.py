@@ -214,3 +214,8 @@ class PlatformConsts:
     ENV_PSU = "psu"
     ENV_TEMP = 'temperature'
     ENV_COMP = [ENV_FAN, ENV_LED, ENV_PSU, ENV_TEMP]
+    ENV_FAN_COMP = ["max-speed", "min-speed", "speed", "state"]
+    ENV_LED_COLOR_LABEL = "color"
+    ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue"]
+    ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
+    ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
