@@ -1450,3 +1450,13 @@
       - show_techsupport/test_techsupport_no_secret.py::test_secret_removed_from_show_techsupport
       Redmine:
       - 3213401
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN.*'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity
+      Redmine:
+      - 3214914
