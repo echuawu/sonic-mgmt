@@ -590,8 +590,9 @@ class TestAutoNegBase:
                     lb_mutual_speeds.remove(max_speed)
                     random_non_max_speed = random.choice(lb_mutual_speeds)
                     lb_mutual_speeds.append(max_speed)
-                    min_type = get_matched_types(self.ports_lanes_dict[lb[0]], [random_non_max_speed],
-                                                 types_dict=self.interfaces_types_dict).pop()
+                    matched_types = get_matched_types(self.ports_lanes_dict[lb[0]], [random_non_max_speed],
+                                                      types_dict=self.interfaces_types_dict)
+                    min_type = min(matched_types, key=get_interface_cable_width)
                     width = get_interface_cable_width(min_type)
                     expected_speed, expected_type, expected_width = self.get_default_expected_conf_res(lb,
                                                                                                        lb_mutual_speeds)
