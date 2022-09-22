@@ -268,9 +268,9 @@ tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::te
 
 tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3168577"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3205019 and branch 202205"
     conditions:
-      - "https://redmine.mellanox.com/issues/3168577 and '202205' in release"
+      - "https://redmine.mellanox.com/issues/3205019 and '202205' in release"
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
   skip:
