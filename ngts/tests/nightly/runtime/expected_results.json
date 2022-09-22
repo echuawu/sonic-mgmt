@@ -17,14 +17,14 @@
         "add_po": "0.982",
         "del_po": "0.98"
     },
-    "MSN2201_______": {
-        "show_ifaces_status": "1.666",
-        "add_vlan": "14.85",
-        "del_vlan": "4.6",
-        "add_route": "11",
-        "del_route": "3",
-        "add_po": "7",
-        "del_po": "1.3"
+    "SN2201": {
+        "show_ifaces_status": "1.41",
+        "add_vlan": "0.765",
+        "del_vlan": "0.758",
+        "add_route": "0.74",
+        "del_route": "0.746",
+        "add_po": "0.77",
+        "del_po": "0.802"
     },
     "MSN2410": {
         "show_ifaces_status": "1.565",

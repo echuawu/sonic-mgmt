@@ -94,5 +94,5 @@ class TestRuntime:
                 with allure.step(f'Validate results of method {method}'):
                     expected_result = self.expected_results_data[method]
                     logger.info(f"Compare the current result {current_result} of method {method} to the"
-                                f" threshold {expected_result} with allowed deviation of {ALLOWED_DEVIATION}")
+                                f" threshold {expected_result} with allowed deviation of {ALLOWED_DEVIATION*100}%")
                     verify_up_deviation(current_result, expected_result, ALLOWED_DEVIATION)
