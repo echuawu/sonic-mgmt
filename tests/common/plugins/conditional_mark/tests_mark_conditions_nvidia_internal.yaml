@@ -96,8 +96,10 @@ tests/push_build_tests/general/qos/test_qos_reload.py:
 tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
   skip:
     reason: "Testcase ignored, CLI command 'qos reload --ports' will not be merged to 202012/202111 branches"
+    conditions_logical_operator: or
     conditions:
       - "'202012' in release or '202111' in release"
+      - "https://redmine.mellanox.com/issues/3214827 and '202205' in release"
 
 tests/push_build_tests/L3/sflow/test_sflow.py:
   skip:
@@ -390,6 +392,7 @@ qos/test_buffer.py:
     conditions:
       - "'msn2700' in platform"
       - "https://redmine.mellanox.com/issues/3191031 and 'sn2201' in platform"
+      - "https://redmine.mellanox.com/issues/3214827 and '202205' in release"
 
 pfcwd/test_pfcwd_warm_reboot.py:
   skip:
