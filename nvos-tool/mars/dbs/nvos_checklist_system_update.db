@@ -30,4 +30,8 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_techsupport.cases </cases>
 	</test>
 
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/checklist/nvos_checklist_ipv6.cases </cases>
+	</test>
+
 </DBDEF>

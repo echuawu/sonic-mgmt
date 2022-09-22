@@ -202,6 +202,7 @@ class PlatformConsts:
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"
+    PLATFORM_OUT_COMP = ["fan", "led", "psu", "temperature", "component", PLATFORM_HW, PLATFORM_ENVIRONMENT]
     PLATFORM_COMP = [PLATFORM_FW, PLATFORM_ENVIRONMENT, PLATFORM_HW, PLATFORM_SW]
     FW_BIOS = "BIOS"
     FW_CPLD = "CPLD"
@@ -216,6 +217,14 @@ class PlatformConsts:
     ENV_COMP = [ENV_FAN, ENV_LED, ENV_PSU, ENV_TEMP]
     ENV_FAN_COMP = ["max-speed", "min-speed", "speed", "state"]
     ENV_LED_COLOR_LABEL = "color"
-    ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue"]
+    ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue", "Amber"]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
+    HW_ASIC_COUNT = "asic-count"
+    HW_MODEL = "model"
+    HW_MAC = "system-mac"
+    HW_COMP = [HW_ASIC_COUNT, "cpu", "cpu-load-averages", "disk-size", "hw-revision", "manufacturer",
+               "memory", HW_MODEL, "onie-version", "part-number", "product-name", "serial-number",
+               HW_MAC, "system-uuid"]
+    HW_COMP_SWITCH = "SWITCH"
+    HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]

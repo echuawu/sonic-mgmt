@@ -6,6 +6,7 @@ from ngts.nvos_tools.platform.Firmware import Firmware
 from ngts.nvos_tools.platform.Environment import Environment
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.platform.Software import Software
+from ngts.nvos_tools.platform.Hardware import Hardware
 
 
 class Platform(BaseComponent):
@@ -15,6 +16,7 @@ class Platform(BaseComponent):
         self.firmware = Firmware(self)
         self.environment = Environment(self)
         self.software = Software(self)
+        self.hardware = Hardware(self)
         self.api_obj = {ApiType.NVUE: NvuePlatformCli, ApiType.OPENAPI: OpenApiPlatformCli}
         self._resource_path = '/platform'
         self.parent_obj = parent_obj

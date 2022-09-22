@@ -105,16 +105,17 @@ def _verify_temp_prop(temp, temp_prop):
         assert int(value) >= int(temp_prop["max"]), "the critical temperature < max temperature"
 
 
-def _verify_output(platform, comp, req_fields):
+def _verify_output(platform, comp_name, req_fields):
+    logging.info("Required comp: " + str(req_fields))
     with allure.step("Verify text output"):
         logging.info("Verify text output")
-        output = platform.environment.show(comp, output_format=OutputFormat.auto)
+        output = platform.environment.show(comp_name, output_format=OutputFormat.auto)
         assert not any(comp not in output for comp in req_fields), "Not all required component were found"
 
     with allure.step("Verify json output"):
         logging.info("Verify json output")
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show(comp)).verify_result()
+            platform.environment.show(comp_name)).verify_result()
         Tools.ValidationTool.verify_field_exist_in_json_output(output, req_fields).verify_result()
 
     return output

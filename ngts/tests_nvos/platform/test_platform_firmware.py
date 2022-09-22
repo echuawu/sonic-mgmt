@@ -25,7 +25,9 @@ def test_show_platform_firmware(engines):
         with allure.step("Verify text output"):
             logging.info("Verify text output")
             output = platform.firmware.show(output_format=OutputFormat.auto)
-            assert any(comp not in output for comp in PlatformConsts.FW_COMP), "Not all required component were found"
+            logging.info("Required comp: " + str(PlatformConsts.FW_COMP))
+            assert not any(comp not in output for comp in PlatformConsts.FW_COMP), \
+                "Not all required component were found"
 
         with allure.step("Verify json output"):
             logging.info("Verify json output")

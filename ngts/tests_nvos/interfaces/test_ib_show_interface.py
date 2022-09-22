@@ -48,9 +48,9 @@ def test_ib_show_interface_all_state_up(engines):
 
     result = Tools.RandomizationTool.select_random_port(requested_ports_state="up",
                                                         requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE,
-                                                        requested_ports_type="ib")  # noqa: E402
-    if not result.result:   # noqa: E402
-        return  # noqa: E402
+                                                        requested_ports_type="ib")
+    if not result.result:
+        return
 
     selected_port = result.returned_value
 
