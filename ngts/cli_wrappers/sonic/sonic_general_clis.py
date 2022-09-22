@@ -596,22 +596,25 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def apply_config_files(self, topology_obj, setup_name, platform_params):
         platform = platform_params['platform']
         hwsku = platform_params['hwsku']
-        shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
+        shared_path = '{}{}'.format(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
         self.upload_port_config_ini(platform, hwsku, shared_path)
         self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
         self.engine.reload(['sudo reboot'])
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
-        switch_config_ini_path = "/usr/share/sonic/device/{}/{}/{}".format(platform, hwsku, SonicConst.PORT_CONFIG_INI)
-        self.engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path,
-                                                           SonicConst.PORT_CONFIG_INI,
-                                                           switch_config_ini_path), validate=True)
+        switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
+        self.engine.copy_file(source_file=os.path.join(shared_path, SonicConst.PORT_CONFIG_INI),
+                              dest_file=SonicConst.PORT_CONFIG_INI, file_system='/tmp/',
+                              overwrite_file=True, verify_file=False)
+        self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.PORT_CONFIG_INI} {switch_config_ini_path}')
 
     def upload_config_db_file(self, topology_obj, setup_name, hwsku, shared_path):
         config_db_file = self.get_updated_config_db(topology_obj, setup_name, hwsku)
-        self.engine.run_cmd(
-            'sudo curl {}/{} -o {}'.format(shared_path, config_db_file, SonicConst.CONFIG_DB_JSON_PATH), validate=True)
+        self.engine.copy_file(source_file=os.path.join(shared_path, config_db_file),
+                              dest_file=SonicConst.CONFIG_DB_JSON, file_system='/tmp/',
+                              overwrite_file=True, verify_file=False)
+        self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}')
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku):
         config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
