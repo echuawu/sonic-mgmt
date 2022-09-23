@@ -1457,3 +1457,14 @@
       - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity
       Redmine:
       - 3214914
+
+- Errors_list:
+    - '.* ERR python3: :- echo_receive: failing to read echo rc.*'
+    - '.* ERR python3: :- echo_receive: last:errno.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3216736
+      Branch:
+      - master
