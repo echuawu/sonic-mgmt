@@ -1138,11 +1138,11 @@
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan\d_speed_get - OSError\(6, ''No such device or address''\)'
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity
       Redmine:
-      - 3120594
-      Platform:
-      - 2201
+      - 3216785
+      Branch:
+      - 202205
 
 - Errors_list:
     - ".* ERR ntpd\\[\\d+\\]: leapsecond file \\('/usr/share/zoneinfo/leap-seconds.list'\\): expired 1 day ago.*"
@@ -1468,3 +1468,28 @@
       - 3216736
       Branch:
       - master
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[BULK_COUNTER\.ERR\] BULK-CNTR ioctl failed \(cmd=\d+\) error Invalid argument.*'
+    - '.* ERR syncd#SDK: \[BULK_COUNTER\.ERR\] BULK-CNTR transaction parameter is invalid.*'
+    - '.* ERR syncd#SDK: \[BULK_COUNTER\.ERR\] Port-Counter-Transaction-Start: failed to start transaction in driver.*'
+    - '.* ERR syncd#SDK: \[BULK_COUNTER\.ERR\] failed to start port counters bulk-read transaction.*'
+    - '.* ERR kernel: \[.*\] Bulk-Counter DB add - invalid buffer_id.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      Redmine:
+      - 3216771
+      Branch:
+      - 202205
+
+- Errors_list:
+    - '.* ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data.*'
+    - '.* ERR wjhd: :- send: send\(\): failed to sent data to client: Broken pipe.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      Redmine:
+      - 3216781
+      Branch:
+      - 202205
