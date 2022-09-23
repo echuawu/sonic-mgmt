@@ -128,6 +128,10 @@ class Lab:
             if "[sonic_latest]" in line:
                 buff += line + "\n"
                 buff += lab_entry + "\n"
+            elif "[lab]" in line:
+                buff += line + "\n"
+                buff += f"{dut_name}-ptf-any" + "\n"
+                buff += dut_name + "\n"
             else:
                 buff += line + "\n"
 
