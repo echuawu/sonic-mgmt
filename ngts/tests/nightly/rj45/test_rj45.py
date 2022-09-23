@@ -13,7 +13,7 @@ import copy
 
 logger = logging.getLogger()
 RJ45_POSSIBLE_SPEEDS_LIST = ['1000M', '100M', '10M']
-LACP_POSSIBLE_SPEEDS_LIST = ['2000M', '200M', '20M']
+LACP_POSSIBLE_SPEEDS_LIST = ['2G', '200M', '20M']
 LACP_IFACES_LIST = ['PortChannel0001', 'PortChannel0002']
 
 
