@@ -109,6 +109,6 @@ def configuration(topology_obj, cli_objects, engines, interfaces, platform_param
     IpConfigTemplate.cleanup(topology_obj, hosts_ip_config_dict)
 
     hwsku = platform_params['hwsku']
-    shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
+    shared_path = '{}{}'.format(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
     cli_objects.dut.general.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
     cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
