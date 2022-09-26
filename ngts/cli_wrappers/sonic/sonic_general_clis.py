@@ -209,7 +209,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.engine.reload(['sudo reboot'])
             retries = retries - 1
 
-    @retry(Exception, tries=15, delay=10)
+    @retry(Exception, tries=21, delay=10)  # Add 6 tries due to fw update would add external delay to syncd container boot up
     def verify_dockers_are_up(self, dockers_list=None):
         """
         Verifying the dockers are in up state during a specific time interval
