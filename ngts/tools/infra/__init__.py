@@ -94,6 +94,20 @@ def is_sonic_dpu(switch_attributes):
     return 'BF Switch' in switch_attributes
 
 
+def is_test_skipped(request, test_name):
+    is_test_should_skip = False
+    for test_item in request.session.items:
+        if test_item.name == test_name:
+            for marker in test_item.own_markers:
+                if marker.name == 'skip':
+                    is_test_should_skip = True
+                    break
+        if is_test_should_skip:
+            break
+
+    return is_test_should_skip
+
+
 def update_sys_path_by_community_plugins_path():
     path = os.path.abspath(__file__)
     sonic_mgmt_path = path.split('/ngts/')[0]

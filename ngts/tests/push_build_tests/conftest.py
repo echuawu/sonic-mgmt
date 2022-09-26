@@ -25,6 +25,7 @@ import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
 from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_sanitizer_in_topology
 from ngts.helpers.sflow_helper import kill_sflowtool_process, remove_tmp_sample_file
+from ngts.tools.infra import is_test_skipped
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -48,7 +49,7 @@ def get_test_app_ext_info(cli_obj):
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, shared_params,
-                            app_extension_dict_path, acl_table_config_list):
+                            app_extension_dict_path, acl_table_config_list, request):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -222,7 +223,13 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
-            FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
+
+            if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
+                with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
+                    cli_objects.dut.general.update_config_db_docker_routing_config_mode(engines.dut)
+
+                FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
+
         with allure.step('Doing debug logs print'):
             log_debug_info(cli_objects.dut)
 
@@ -269,7 +276,12 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     if run_cleanup_only or full_flow_run:
         logger.info('Starting PushGate Common configuration cleanup')
         if not upgrade_params.is_upgrade_required:
-            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+            if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
+                FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+
+                with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
+                    SonicGeneralCli.update_config_db_docker_routing_config_mode(engines.dut,
+                                                                                remove_docker_routing_config_mode=True)
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
 
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)

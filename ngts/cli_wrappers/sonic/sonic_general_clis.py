@@ -23,6 +23,7 @@ from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_al
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
+from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
@@ -621,7 +622,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         base_config_db_json = self.get_config_db_json_obj(setup_name)
         self.create_extended_config_db_file(setup_name, base_config_db_json, file_name=config_db_file_name)
         self.update_config_db_metadata_router(setup_name, config_db_file_name)
-        self.update_config_db_docker_routing_config_mode(setup_name, config_db_file_name)
         self.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
         self.update_config_db_features(setup_name, hwsku, config_db_file_name)
         self.update_config_db_feature_config(setup_name, "database", "auto_restart", "always_enabled",
@@ -651,11 +651,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             localhost_type
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
-    def update_config_db_docker_routing_config_mode(self, setup_name, config_db_json_file_name):
-        config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
-        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST].update(
-            {ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE: ConfigDbJsonConst.SPLIT})
-        return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
+    def update_config_db_docker_routing_config_mode(self, mode='split', remove_docker_routing_config_mode=False):
+        config_db = self.get_config_db()
+        config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
+
+        if remove_docker_routing_config_mode:
+            config_db_localhost.pop(ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE, None)
+        else:
+            config_db_localhost.update({ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE: mode})
+
+        save_config_db_json(self.engine, config_db)
+        self.reload_configuration()
+        self.verify_dockers_are_up()
 
     def update_config_db_metadata_mgmt_port(self, setup_name, config_db_json_file_name):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
@@ -1043,6 +1050,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def enable_info_logging_on_docker(self, docker_name):
         self.engine.run_cmd(f"{docker_name}loglevel -l INFO -a")
+
+    def restart_service(self, service_name):
+        self.engine.run_cmd(f'sudo service {service_name} restart')
 
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
