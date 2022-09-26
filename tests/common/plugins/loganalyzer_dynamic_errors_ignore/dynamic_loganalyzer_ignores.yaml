@@ -113,6 +113,13 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
 
+# Errors which should be ignored in tests which restart dockers
+- Errors_list:
+    - '.*ERR kernel: .* mlxsw_minimal .*: Cmd exec timed-out \(opcode=\d+\(ACCESS_REG\),opcode_mod=\d,in_mod=\d\).*'
+  Conditions:
+    - Affected_test_cases:
+      - autorestart/test_container_autorestart.py::test_containers_autorestart
+
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
 - Errors_list:
     - '.* ERR lldp#lldpmgrd\[\d+\]: unknown operation.*'
