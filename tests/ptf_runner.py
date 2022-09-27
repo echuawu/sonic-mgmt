@@ -1,24 +1,30 @@
 import pipes
 import traceback
 import logging
+import allure
+import json
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 
-def ptf_collect(host, log_file):
+def ptf_collect(host, log_file, cmd_result='No result collected.'):
     pos = log_file.rfind('.')
     filename_prefix = log_file[0:pos] if pos > -1 else log_file
 
-    pos = log_file.rfind('/') + 1
-    rename_prefix = log_file[pos:] if pos > 0 else log_file
-
-    host.fetch(src=log_file, dest='./logs/ptf_collect/' + rename_prefix + '.' + str(datetime.utcnow()) + '.log', flat=True, fail_on_missing=False)
-
+    pos = filename_prefix.rfind('/') + 1
+    rename_prefix = filename_prefix[pos:] if pos > 0 else filename_prefix
+    suffix = str(datetime.utcnow()).replace(' ', '.')
+    filename_log = './logs/ptf_collect/' + rename_prefix + '.' + suffix + '.log'
+    host.fetch(src=log_file, dest=filename_log, flat=True, fail_on_missing=False)
+    allure.attach.file(filename_log, 'ptf_log', allure.attachment_type.TEXT)
     pcap_file = filename_prefix + '.pcap'
     output = host.shell("[ -f {} ] && echo exist || echo null".format(pcap_file))['stdout']
     if output == 'exist':
-        host.fetch(src=pcap_file, dest='./logs/ptf_collect/' + rename_prefix + '.' + str(datetime.utcnow()) + '.pcap', flat=True, fail_on_missing=False)
+        filename_pcap = './logs/ptf_collect/' + rename_prefix + '.' + suffix + '.pcap'
+        host.fetch(src=pcap_file, dest=filename_pcap, flat=True, fail_on_missing=False)
+        allure.attach.file(filename_pcap, 'ptf_pcap', allure.attachment_type.PCAP)
+    allure.attach(cmd_result, 'ptf_console_result', allure.attachment_type.TEXT)
 
 def ptf_runner(host, testdir, testname, platform_dir=None, params={},
                platform="remote", qlen=0, relax=True, debug_level="info",
@@ -79,7 +85,7 @@ def ptf_runner(host, testdir, testname, platform_dir=None, params={},
     try:
         result = host.shell(cmd, chdir="/root", module_ignore_errors=module_ignore_errors)
         if log_file:
-            ptf_collect(host, log_file)
+            ptf_collect(host, log_file, json.dumps(result, indent=4))
         if module_ignore_errors:
             if result["rc"] != 0:
                 return result
