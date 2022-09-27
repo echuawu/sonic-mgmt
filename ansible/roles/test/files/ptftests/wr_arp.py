@@ -65,7 +65,9 @@ class ArpTest(BaseTest):
 
     def dut_exec_cmd(self, cmd):
         self.log("Executing cmd='{}'".format(cmd))
-        stdout, stderr, return_code = self.dut_connection.execCommand(cmd, timeout=30)
+        # Change timeout from 30 to 120, It is just to verify the comments in the bug of https://redmine.mellanox.com/issues/3216436
+        # It is an workaround solution. Once the root cause is found, it can be reverted
+        stdout, stderr, return_code = self.dut_connection.execCommand(cmd, timeout=120)
         self.log("return_code={}, stdout={}, stderr={}".format(return_code, stdout, stderr))
 
         if return_code == 0:
