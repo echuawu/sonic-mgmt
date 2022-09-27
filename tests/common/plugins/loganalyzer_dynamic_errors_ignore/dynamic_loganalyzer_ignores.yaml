@@ -1498,3 +1498,11 @@
       - 3216781
       Branch:
       - 202205
+
+- Errors_list:
+    - ".*ERR bgp#bgpcfgd: Peer.*: Can't update the peer. Only 'admin_status' attribute is supported.*"
+  Conditions:
+    - Affected_test_cases:
+      - bgp/test_bgp_bounce.py
+      Redmine:
+      - 3217740
