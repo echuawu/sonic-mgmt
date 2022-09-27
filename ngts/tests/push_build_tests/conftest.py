@@ -86,6 +86,11 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
                     get_test_app_ext_info(cli_objects.dut)
 
+        else:
+            if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
+                with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
+                    cli_objects.dut.general.update_config_db_docker_routing_config_mode()
+
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
             retry_call(cli_objects.dut.interface.check_ports_status, fargs=[ports_list], tries=10,
@@ -225,9 +230,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
 
             if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
-                with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
-                    cli_objects.dut.general.update_config_db_docker_routing_config_mode(engines.dut)
-
                 FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
 
         with allure.step('Doing debug logs print'):
@@ -280,8 +282,9 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
 
                 with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
-                    SonicGeneralCli.update_config_db_docker_routing_config_mode(engines.dut,
-                                                                                remove_docker_routing_config_mode=True)
+                    cli_objects.dut.general.update_config_db_docker_routing_config_mode(
+                        remove_docker_routing_config_mode=True)
+
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
 
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)

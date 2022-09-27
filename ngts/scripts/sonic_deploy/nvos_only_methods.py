@@ -73,5 +73,5 @@ class NvosInstallationSteps:
         with allure.step('Deploy sonic image on the dut'):
             cli.deploy_image(topology_obj=topology_obj, image_path=image_url, apply_base_config=apply_base_config,
                              setup_name=setup_name, platform_params=platform_params,
-                             wjh_deb_url="", deploy_type=deploy_type,
-                             reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
+                             deploy_type=deploy_type, reboot_after_install=reboot_after_install,
+                             fw_pkg_path=fw_pkg_path)

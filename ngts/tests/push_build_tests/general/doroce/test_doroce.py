@@ -67,6 +67,9 @@ class TestDoroce:
             if not status:
                 pytest.skip(f"{msg} Skipping the test.")
 
+        with allure.step('Validating doroce docker is UP'):
+            cli_objects.dut.general.verify_dockers_are_up(dockers_list=['doroce'])
+
     @pytest.fixture(autouse=True)
     def setup(self, topology_obj, cli_objects, engines, players, interfaces, check_feature_status):
         """

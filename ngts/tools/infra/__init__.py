@@ -96,14 +96,19 @@ def is_sonic_dpu(switch_attributes):
 
 def is_test_skipped(request, test_name):
     is_test_should_skip = False
+    found_test_in_test_items = False
     for test_item in request.session.items:
         if test_item.name == test_name:
+            found_test_in_test_items = True
             for marker in test_item.own_markers:
                 if marker.name == 'skip':
                     is_test_should_skip = True
                     break
         if is_test_should_skip:
             break
+
+    if not found_test_in_test_items:
+        is_test_should_skip = True
 
     return is_test_should_skip
 

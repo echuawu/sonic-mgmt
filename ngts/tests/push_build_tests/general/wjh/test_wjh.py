@@ -95,6 +95,9 @@ def check_feature_enabled(cli_objects):
         if not status:
             pytest.skip(f"{msg} Skipping the test.")
 
+    with allure.step('Validating WJH docker is UP'):
+        cli_objects.dut.general.verify_dockers_are_up(dockers_list=['what-just-happened'])
+
 
 def check_if_channel_enabled(cli_object, engines, channel, channel_type):
     """

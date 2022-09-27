@@ -303,8 +303,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.deploy_pxe(image_path, topology_obj, platform_params['hwsku'])
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
-                     platform_params=None, wjh_deb_url=None, deploy_type='sonic',
-                     reboot_after_install=None, fw_pkg_path=None, set_timezone='Israel', disable_ztp=False):
+                     platform_params=None, deploy_type='sonic', reboot_after_install=None, fw_pkg_path=None,
+                     set_timezone='Israel', disable_ztp=False):
 
         if image_path.startswith('http'):
             image_path = '/auto' + image_path.split('/auto')[1]
@@ -334,14 +334,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step("Apply basic config"):
                 self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp)
 
-        if wjh_deb_url:
-            with allure.step("Installing wjh deb url"):
-                self.install_wjh(wjh_deb_url)
-
-        with allure.step("Validate dockers are up"):
-            self.verify_dockers_are_up()
-        with allure.step("Validate app extensions are up"):
-            self.verify_installed_extensions_running()
         self.configure_dhclient_if_simx()
 
     def deploy_sonic(self, image_path, is_skipping_migrating_package=False):

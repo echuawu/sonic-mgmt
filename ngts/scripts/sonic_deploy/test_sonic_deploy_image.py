@@ -9,7 +9,7 @@ logger = logging.getLogger()
 
 
 @allure.title('Deploy sonic image')
-def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_version, wjh_deb_url, deploy_type, apply_base_config,
+def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_version, deploy_type, apply_base_config,
                             reboot_after_install, is_shutdown_bgp, fw_pkg_path):
     """
     This script will deploy sonic image on the dut.
@@ -17,7 +17,6 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
     :param setup_name: setup_name fixture
     :param platform_params: platform_params fixture
     :param base_version: path to sonic version to be installed
-    :param wjh_deb_url: wjh_deb_url fixture
     :param deploy_type: deploy_type fixture
     :param apply_base_config: apply_base_config fixture
     :param reboot_after_install: reboot_after_install fixture
@@ -39,7 +38,7 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
                        logger=logger)
         cli_obj.general.deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
                                      setup_name=setup_name, platform_params=platform_params,
-                                     wjh_deb_url=wjh_deb_url, deploy_type=deploy_type,
+                                     deploy_type=deploy_type,
                                      reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
     except Exception as err:
         raise AssertionError(err)
