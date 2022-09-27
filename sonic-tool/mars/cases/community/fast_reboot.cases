@@ -23,18 +23,6 @@
              </params>
         </cmd>
     </case>
-
-    <case>
-        <info> Fast_Reboot from other vendor Case </info>
-        <name> fast_reboot from other vendor </name>
-        <tout> 2800 </tout>
-        <cmd>
-             <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals  --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor </static_args>
-             </params>
-        </cmd>
-    </case>
-
     <case>
         <info> Fast_Reboot_Log_Profiler </info>
         <name> fast_reboot_profiler  </name>
@@ -52,6 +40,17 @@
             <params>
                 <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/log_profiler/log_profiler.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --test_files=fast_reboot --syslog_start_line=/sbin/kexec --sairedis_start_line=INIT_VIEW --showlocals\'"</static_args>
             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Fast_Reboot from other vendor Case </info>
+        <name> fast_reboot from other vendor </name>
+        <tout> 2800 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals  --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor </static_args>
+             </params>
         </cmd>
     </case>
 
