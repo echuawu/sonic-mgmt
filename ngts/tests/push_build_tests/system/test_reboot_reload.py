@@ -17,7 +17,7 @@ from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_
 
 logger = logging.getLogger()
 
-simx_validation_types = ['reboot', 'config reload -y']
+simx_validation_types = ['fast-reboot', 'reboot', 'config reload -y']
 expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
                               'warm-reboot': {'data': 0, 'control': 90},
                               'reboot': {'data': 180, 'control': 180},
@@ -42,11 +42,11 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, sh
         test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
         if re.search('simx', platform_params.setup_name):
             validation_type = random.choice(simx_validation_types)
-            test_reboot_reload.push_gate_reboot_simx_test_runner(request, validation_type)
+            expected_traffic_loss_dict[validation_type]['data'] = 60  # Update the data plane downtime to 60 sec in simx setups
         else:
             supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
             validation_type = random.choice(supported_reboot_reload_list)
-            test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
+        test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
 
     except Exception as err:
         raise AssertionError(err)
@@ -111,61 +111,6 @@ class RebootReload:
                 data_plane_checker.complete_validation()
         except Exception as err:
             failed_validations['data_plane'] = err
-
-        # add 3 test cases for app extension
-        if self.is_support_app_ext:
-            self.verify_app_ext_test_cases(validation_type, failed_validations)
-
-        # Wait until warm-reboot finished
-        if validation_type == 'warm-reboot':
-            with allure.step('Checking warm-reboot status'):
-                retry_call(self.cli_object.general.check_warm_reboot_status, fargs=['inactive'],
-                           tries=24, delay=10, logger=logger)
-
-        # Step below required - to check that PortChannel0001 iface are UP
-        with allure.step('Checking that possible to ping PortChannel iface 30.0.0.1'):
-            self.resolve_arp_static_route()
-
-        try:
-            with allure.step('Running functional validations after reboot/reload'):
-                logger.info('Running functional validations after reboot/reload')
-                self.do_func_validations(request)
-        except Exception as err:
-            failed_validations['functional_validation'] = err
-        finally:
-            # Disconnect engine, otherwise the following error will pop-up "OSError: Socket is closed"
-            self.dut_engine.disconnect()
-
-        assert not failed_validations, 'We have failed validations during test run. ' \
-                                       'Test result errors dict: {}'.format(failed_validations)
-
-    @pytest.mark.disable_loganalyzer
-    def push_gate_reboot_simx_test_runner(self, request, validation_type):
-        """
-        Test checks control plane traffic loss time on simx platforms.
-        After reboot/reload finished - test doing functional validations(run PushGate tests)
-        Add 3 verification for app extension
-        1. Verify shutdown oder same to bgp->app(cpu-report)->swss
-        3. Verify app status is up, after config reload -y
-        :param request: pytest build-in
-        :param validation_type: validation type - which will be executed
-        """
-        allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
-        failed_validations = {}
-
-        with allure.step('Starting background validation for control plane traffic'):
-            control_plane_checker = self.start_control_plane_validation(validation_type, allowed_control_loss_time)
-
-        self.cli_object.general.reboot_reload_flow(r_type=validation_type, topology_obj=self.topology_obj,
-                                                   wait_after_ping=0)
-
-        try:
-            with allure.step('Checking control plane traffic loss'):
-                logger.info('Checking that control plane traffic loss not more '
-                            'than: {}'.format(allowed_control_loss_time))
-                control_plane_checker.complete_validation()
-        except Exception as err:
-            failed_validations['control_plane'] = err
 
         # add 3 test cases for app extension
         if self.is_support_app_ext:
