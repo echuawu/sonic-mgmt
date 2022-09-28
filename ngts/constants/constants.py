@@ -13,6 +13,8 @@ class PytestConst:
     CUSTOM_TEST_SKIP_BRANCH_NAME = 'dynamic_tests_skip_branch_name'
     LA_DYNAMIC_IGNORES_LIST = 'LA_DYNAMIC_IGNORES_LIST'
     GET_DUMP_AT_TEST_FALIURE = "GET_DUMP"
+    IS_SANITIZER_IMAGE = 'IS_SANITIZER_IMAGE'
+    DEPLOY_TEST_FILE_NAME = 'test_deploy_and_upgrade.py'
 
 
 class SonicConst:

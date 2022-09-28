@@ -12,6 +12,7 @@ if your methods only apply for canonical setups please add them in ngts/tests/co
 import pytest
 import logging
 import re
+import sys
 import json
 from dotted_dict import DottedDict
 
@@ -20,7 +21,7 @@ from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import PytestConst, NvosCliTypes
-from ngts.tools.infra import get_platform_info, get_devinfo
+from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
 
@@ -47,7 +48,13 @@ def pytest_collection(session):
     platform = json.loads(devinfo).get('platform')
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_PLATFORM_TYPE, platform)
 
-    branch = get_sonic_branch(topology)
+    if is_deploy_run():
+        # Required for prevent SSH attempts into DUT at the beginning of deploy image test(in case when device in ONIE)
+        branch = 'master'
+        session.config.cache.set(PytestConst.IS_SANITIZER_IMAGE, False)
+    else:
+        branch = get_sonic_branch(topology)
+
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, branch)
 
 
@@ -159,7 +166,8 @@ def topology_obj(setup_name, request):
     # Update CLI classes according to the current SONiC branch
     branch = request.session.config.cache.get(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
     update_branch_in_topology(topology, branch)
-    update_sanitizer_in_topology(topology)
+    is_sanitizer = request.session.config.cache.get(PytestConst.IS_SANITIZER_IMAGE, None)
+    update_sanitizer_in_topology(topology, is_sanitizer=is_sanitizer)
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
 

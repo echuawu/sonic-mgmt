@@ -537,14 +537,20 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         switch_in_onie = False
         self.check_is_alive_and_revive(topology_obj)
         try:
-            # Checking if device is in sonic
-            self.engine.run_cmd(DUMMY_COMMAND, validate=True)
-        except netmiko.ssh_exception.NetmikoAuthenticationException:
-            self.if_other_credentials_used_set_boot_order_onie()
-            logger.info('Next boot set to onie succeed')
-
             SonicOnieCli(self.engine.ip, self.engine.ssh_port).confirm_onie_boot_mode_install()
             switch_in_onie = True
+        except Exception as err:
+            logger.warning('DUT is not in ONIE. \n Got error: %s, \n Trying to SSH and boot it into ONIE', err)
+            try:
+                # Checking if device is in sonic
+                self.engine.run_cmd(DUMMY_COMMAND, validate=True)
+            except netmiko.ssh_exception.NetmikoAuthenticationException:
+                self.if_other_credentials_used_set_boot_order_onie()
+                logger.info('Next boot set to onie succeed')
+
+                SonicOnieCli(self.engine.ip, self.engine.ssh_port).confirm_onie_boot_mode_install()
+                switch_in_onie = True
+
         return switch_in_onie
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,

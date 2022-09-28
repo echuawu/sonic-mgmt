@@ -43,13 +43,15 @@ def update_branch_in_topology(topology, branch=None):
     topology.players['dut']['branch'] = branch
 
 
-def update_sanitizer_in_topology(topology):
+def update_sanitizer_in_topology(topology, is_sanitizer=None):
     """
     Method which doing update for SONiC branch in topology object
     :param topology: topology fixture object
-    :param branch: SONiC branch, example: "202106"
+    :param is_sanitizer: True if sanitizer image, else False
     """
-    topology.players['dut']['sanitizer'] = is_sanitizer_image(topology)
+    if is_sanitizer is None:
+        is_sanitizer = is_sanitizer_image(topology)
+    topology.players['dut']['sanitizer'] = is_sanitizer
 
 
 def is_sanitizer_image(topology):

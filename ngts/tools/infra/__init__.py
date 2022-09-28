@@ -5,7 +5,7 @@ import sys
 import logging
 import json
 
-from ngts.constants.constants import InfraConst
+from ngts.constants.constants import InfraConst, PytestConst
 
 logger = logging.getLogger()
 
@@ -111,6 +111,17 @@ def is_test_skipped(request, test_name):
         is_test_should_skip = True
 
     return is_test_should_skip
+
+
+def is_deploy_run():
+
+    is_deploy_test_run = False
+    for item in sys.argv:
+        if PytestConst.DEPLOY_TEST_FILE_NAME in item:
+            is_deploy_test_run = True
+            break
+
+    return is_deploy_test_run
 
 
 def update_sys_path_by_community_plugins_path():
