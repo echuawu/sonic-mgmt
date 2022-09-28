@@ -69,4 +69,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/container_checker.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/password_hardening.cases </cases>
+    </test>
+
 </DBDEF>
