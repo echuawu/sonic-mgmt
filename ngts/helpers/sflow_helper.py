@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 import json
 import random
+from retry import retry
 from ngts.constants.constants import SflowConsts
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 
@@ -64,6 +65,7 @@ def verify_sflow_interface_configuration(cli_obj, interface_name, status, sample
     assert re.search(fr"{interface_name}\s+\|\s+{status}\s+\|\s+{sample_rate}", show_sflow_intf), f"Interface {interface_name} is not properly configured"
 
 
+@retry(Exception, tries=5, delay=5)
 def verify_sflow_sample_agent_id(engines, collector, agent_id_addr):
     """
     This method is used to verify agent id in sflow samples
@@ -525,6 +527,7 @@ def get_random_port(topology_obj):
     return random_port
 
 
+@retry(Exception, tries=5, delay=5)
 def verify_sflow_sample_polling_interval(engines, topology_obj, collector, polling_interval):
     """
     This method is used to verify polling interval for a specific interface
@@ -586,6 +589,7 @@ def send_traffic(interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac):
     scapy_sender.run_validation()
 
 
+@retry(Exception, tries=5, delay=5)
 def verify_flow_sample_received(engines, interfaces, topology_obj, collector, sample_rate, ha_dut_1_mac, dut_ha_1_mac, sample_exist=True):
     """
     This method is used to verify flow sample in the sample file
