@@ -397,12 +397,8 @@
 - Errors_list:
     - '.* ERR swss#fdbsyncd: :- readData: netlink reports an error=-25 on reading a netlink socket'
   Conditions:
-    - Affected_test_cases:
-      - pc/test_po_update.py::test_po_update_io_no_loss
-      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
-      - autorestart/test_container_autorestart.py
-      Redmine:
-        - 2606325
+    - Redmine:
+      - 2606325
       Branch:
         - 202012
 
@@ -579,17 +575,8 @@
     - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY: 0x.*'
     - '.* ERR syncd#SDK: :- setEndTime: event ''create:SAI_OBJECT_TYPE_SWITCH:oid:0x.*'' took \d+ ms to execute'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py
-      - vxlan/test_vnet_route_leak.py
-      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
-      - copp/test_copp.py
-      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
-      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
-      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
-      Redmine:
-        - 2966737
+    - Redmine:
+      - 2966737
       Branch:
         - 202111
         - master
@@ -811,6 +798,8 @@
   Conditions:
     - Affected_test_cases:
       - show_techsupport/test_techsupport.py
+      - tests/show_techsupport/test_auto_techsupport.py
+      - tests/show_techsupport/test_techsupport_no_secret.py
 
 - Errors_list:
     - '.* ERR dhclient\[\d+\]: send_packet: No such device or address'
@@ -1494,6 +1483,8 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      - tests/show_techsupport/test_auto_techsupport.py
+      - tests/show_techsupport/test_techsupport_no_secret.py
       Redmine:
       - 3216781
       Branch:
