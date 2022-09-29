@@ -54,6 +54,7 @@ community_develop_generic_dbs = [
     'system.db',
     'mgmtvrf.db',
     'tacacs.db',
+    'scp.db'
 ]
 
 # Community dbs in the 202012 branch
