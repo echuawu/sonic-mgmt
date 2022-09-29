@@ -297,3 +297,4 @@ jaguar-25-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,
 r-jaguar-03-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-jaguar-03,Mellanox MTR testbed
 gorilla-153-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-153,Mellanox MTR testbed
 gorilla-154-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-154,Mellanox MTR testbed
+nvidia-arm-orion-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,nvidia-arm-orion,Mellanox MTR testbed

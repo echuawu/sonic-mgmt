@@ -1,9 +1,10 @@
 import logging
 import pytest
 import allure
-import os
 from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OpenApiReqType
+import paramiko
+import subprocess
 
 logger = logging.getLogger()
 
@@ -24,23 +25,72 @@ def test_checklist_ipv6(engines):
             assert output, "The output is empty"
             addresses = output.split()
             assert len(addresses) >= 4, "The output is invalid"
-            ipv6_add = addresses[3].split("/")[0]
+            for add in addresses:
+                if "::" in add:
+                    ipv6_add = add.split("/")[0]
+                    break
             assert ipv6_add, "failed to get the ipv6 address"
             logging.info("ipv6 address: " + ipv6_add)
 
         with allure.step("Verify ping to ipv6 address " + ipv6_add):
-            response = os.system("ping -c 3 -6" + ipv6_add)
-            logging.info("response: " + response)
-            # response == 0, "Ping failed"
+            logging.info("Verify ping to ipv6 address " + ipv6_add)
+            ping_switch(ipv6_add)
 
-        '''with allure.step("Verify ssh connection to ipv6 address " + ipv6_add):
-            response = os.system("ssh -6 admin@" + ipv6_add)
-            assert response == 0, "SSH connection failed"'''
+        with allure.step("Verify ssh connection using ipv6 address " + ipv6_add):
+            logging.info("Verify ssh connection using ipv6 address " + ipv6_add)
+            _check_ssh_connection(ipv6_add, engines.dut.username, engines.dut.password)
 
-        with allure.step("Verify OpenApi command using ipv6 address"):
-            output = OpenApiCommandHelper.execute_script(engines.dut.user_name, engines.dut.password,
-                                                         OpenApiReqType.GET, ipv6_add, "platform", "", "")
-            logging.info(output)
+        '''with allure.step("Verify OpenApi command using ipv6 address "+ ipv6_add):
+            logging.info("Verify OpenApi command using ipv6 address " + ipv6_add)
+            _send_open_api_request(ipv6_add, engines.dut.username, engines.dut.password)'''
 
     except BaseException as ex:
         logging.info("Something failed")
+
+
+def ping_switch(ipv6_add):
+    try:
+        cmd = "ping6 -c 3 {}".format(ipv6_add)
+        process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        logging.info("output: " + str(output))
+        logging.info("error: " + str(error))
+        if "0% packet loss" in str(output):
+            logging.info("Reachable using ipv6 address: " + ipv6_add)
+        if error:
+            logging.error("Unreachable using ipv6 address: " + ipv6_add)
+            raise Exception("ipv6 address is unreachable")
+
+        assert output, "Failed to ping ipv6 address " + ipv6_add
+    except BaseException as ex:
+        logging.error(str(ex))
+        assert "ipv6 address is unreachable"
+
+
+def _check_ssh_connection(ipv6_add, username, password):
+    try:
+        cmd = "sshpass -p '{password}' -v ssh -6 -o StrictHostKeyChecking=no  {username}@{ip}".format(
+            password=password, username=username, ip=ipv6_add)
+        logging.info("cmd: " + cmd)
+        process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        logging.info("output: " + str(output))
+        logging.info("error: " + str(error))
+        if error:
+            logging.error("SSH is unreachable using ipv6 address: " + ipv6_add)
+            raise Exception("SSH to Ipv6 address is unreachable")
+        logging.info("SSH is reachable using ipv6 address: " + ipv6_add)
+    except BaseException as ex:
+        logging.error(str(ex))
+        assert "FAILED"
+
+
+def _send_open_api_request(ipv6_add, username, password):
+    try:
+        full_ip6_add = '[{}%eth0]'.format(ipv6_add)
+        logging.info("using full address: " + full_ip6_add)
+        output = OpenApiCommandHelper.execute_script(username, password, OpenApiReqType.GET,
+                                                     full_ip6_add, "platform", "", "")
+        logging.info(output)
+    except BaseException as ex:
+        logging.error(str(ex))
