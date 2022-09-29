@@ -293,6 +293,9 @@ def test_lag(common_setup_teardown, duthosts, tbinfo, nbrhosts, fanouthosts, con
                 test_lags = [ dut_lag ]
 
             for lag_name in test_lags:
+                # specific LAG interface from t0-56-po2vlan topo, which can't be tested
+                if lag_name == 'PortChannel201':
+                    continue
                 if testcase in [ "single_lag",  "lacp_rate" ]:
                     try:
                         lag_facts['lags'][lag_name]['po_config']['runner']['min_ports']
