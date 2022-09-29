@@ -57,12 +57,24 @@
           "out_of_mail": true
         },
         {
+          "name": "Check SIMX compatibility",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/release/simx_compatibility.groovy",
+          "category": "Pre BAT",
+          "node": "SONIC_LITE",
+          "parameters": {
+            "readme_folder" : "${README_PATH}"
+          },
+          "skip": false,
+          "on_failure": "stop",
+          "out_of_mail": true
+        },
+        {
           "name": "Beautify",
           "module": "com.mellanox.jenkins.generic_modules.Beautify",
           "category": "Pre BAT",
           "node": "SONIC_LITE",
           "parameters": {
-            "beautifier_params": "--ignore build/ci/beautify/beautifier_ignore_list.txt --config build/ci/config/beautify",
+            "beautifier_params": "--ignore build/ci/beautify/beautifier_ignore_list.txt --config build/ci/config/beautify"
           },
           "skip": false,
           "on_failure": "stop"
@@ -174,6 +186,74 @@
           "out_of_mail": true
         },
         {
+          "name": "Allocate setup SIMX SPC",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@SIMX_SPC",
+          "parameters": {
+            "queue_id": "devops_sonic_ci_simx_spc",
+            "priority": "${PRIORITY_NUMBER}",
+            "setup_type": "CI_SONIC_SIMX_SPC",
+            "setup_var": "CI_SONIC_SIMX_SPC_SETUP",
+            "device_var": "SWITCH_PANTHER1",
+            "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": true
+        },
+        {
+          "name": "Allocate setup SIMX SPC2",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@SIMX_SPC2",
+          "parameters": {
+            "queue_id": "devops_sonic_ci_simx_spc2",
+            "priority": "${PRIORITY_NUMBER}",
+            "setup_type": "CI_SONIC_SIMX_SPC2",
+            "setup_var": "CI_SONIC_SIMX_SPC2_SETUP",
+            "device_var": "SWITCH_ANACONDA1",
+            "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": true
+        },
+        {
+          "name": "Allocate setup SIMX SPC3",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@SIMX_SPC3",
+          "parameters": {
+            "queue_id": "devops_sonic_ci_simx_spc3",
+            "priority": "${PRIORITY_NUMBER}",
+            "setup_type": "CI_SONIC_SIMX_SPC3",
+            "setup_var": "CI_SONIC_SIMX_SPC3_SETUP",
+            "device_var": "SWITCH_LEOPARD1",
+            "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": true
+        },
+        {
+          "name": "Allocate setup SIMX SPC4",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@SIMX_SPC4",
+          "parameters": {
+            "queue_id": "devops_sonic_ci_simx_spc4",
+            "priority": "${PRIORITY_NUMBER}",
+            "setup_type": "CI_SONIC_SIMX_SPC4",
+            "setup_var": "CI_SONIC_SIMX_SPC4_SETUP",
+            "device_var": "SWITCH_MOOSE1",
+            "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": true
+        },
+        {
           "name": "Allocate setup QTM",
           "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
           "category": "Allocate setups",
@@ -266,6 +346,82 @@
           "out_of_mail": false
         },
         {
+          "name": "BAT SIMX SPC",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@SIMX_SPC",
+          "parameters": {
+            "matrix_row": "SIMX",
+            "matrix_col": "SPC",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_SONIC_SIMX_SPC_SETUP}",
+            "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC_SETUP}/",
+            "base_version": "${BASE_VERSION}",
+            "test_type" : "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": false
+        },
+        {
+          "name": "BAT SIMX SPC2",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@SIMX_SPC2",
+          "parameters": {
+            "matrix_row": "SIMX",
+            "matrix_col": "SPC2",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_SONIC_SIMX_SPC2_SETUP}",
+            "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC2_SETUP}/",
+            "base_version": "${BASE_VERSION}",
+            "test_type" : "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": false
+        },
+        {
+          "name": "BAT SIMX SPC3",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@SIMX_SPC3",
+          "parameters": {
+            "matrix_row": "SIMX",
+            "matrix_col": "SPC3",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_SONIC_SIMX_SPC3_SETUP}",
+            "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC3_SETUP}/",
+            "base_version": "${BASE_VERSION}",
+            "test_type" : "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": false
+        },
+        {
+          "name": "BAT SIMX SPC4",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@SIMX_SPC4",
+          "parameters": {
+            "matrix_row": "SIMX",
+            "matrix_col": "SPC4",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_SONIC_SIMX_SPC4_SETUP}",
+            "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC4_SETUP}/",
+            "base_version": "${BASE_VERSION}",
+            "test_type" : "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "continue",
+          "out_of_mail": false
+        },
+        {
           "name": "BAT QTM",
           "module": "/auto/sw_system_project/devops/sw-r2d2-bot/nvos_bat.groovy",
           "module_for_5_0": "/auto/sw_system_release/ci/nos/nvos/build/ci/bat.groovy",
@@ -333,6 +489,58 @@
             "setup_name": "${CI_SONIC_SPC3_SETUP}"
           },
           "skip": false,
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
+          "name": "Free SIMX SPC setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@SIMX_SPC",
+          "parameters": {
+            "setup_name": "${CI_SONIC_SIMX_SPC_SETUP}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
+          "name": "Free SIMX SPC2 setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@SIMX_SPC2",
+          "parameters": {
+            "setup_name": "${CI_SONIC_SIMX_SPC2_SETUP}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
+          "name": "Free SIMX SPC3 setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@SIMX_SPC3",
+          "parameters": {
+            "setup_name": "${CI_SONIC_SIMX_SPC3_SETUP}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
+          "name": "Free SIMX SPC4 setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@SIMX_SPC4",
+          "parameters": {
+            "setup_name": "${CI_SONIC_SIMX_SPC4_SETUP}"
+          },
+          "skip": "${SKIP_SIMX}",
           "finally": true,
           "on_failure": "ignore",
           "out_of_mail": true

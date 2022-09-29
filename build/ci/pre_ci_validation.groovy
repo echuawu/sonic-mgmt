@@ -54,6 +54,7 @@ def run_step(name, ci_tools) {
         }
 
         def bin_path = "${env.VERSION_DIRECTORY}/${version_name}/Mellanox/sonic-mellanox.bin"
+        env.README_PATH = "${env.VERSION_DIRECTORY}/${version_name}"
         if (! new File(bin_path).exists()) {
                 error "ERROR: bin file not found: ${bin_path}"
         }
