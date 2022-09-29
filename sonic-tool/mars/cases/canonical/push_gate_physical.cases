@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CASEDEF>
+  <global>
+    <!-- This cases file will run on CI physical setups during build,and will run only the tests that simx setups cannot run -->
+    <Test>
+      <group> onyx </group>
+      <name> SONiC PushGate for physical setups </name>
+      <info> SONiC PushGate coverage test</info>
+      <owner> amalkin </owner>
+    </Test>
+    <Case>
+      <tags> push_gate_physical </tags>
+      <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
+      <tout> 2400 </tout>
+      <tags>ALL</tags>
+    </Case>
+  </global>
+  <case>
+    <name> P4 </name>
+    <info> </info>
+    <!-- Skipped on SimX due to missing feature  -->
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/p4 --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <name> WJH </name>
+    <info> </info>
+    <!-- Skipped on SimX due to missing feature -->
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/push_build_tests/general/wjh/test_wjh.py::test_buffer --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <name> CRM </name>
+    <info> </info>
+    <!-- Skipped on SimX due to RM bug: #3030870 -->
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/push_build_tests/L3/crm --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> vxlan </name>
+    <info> </info>
+    <!-- Skipped on SimX due to RM bug: #2804440 -->
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/push_build_tests/L2/vxlan --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+</CASEDEF>
