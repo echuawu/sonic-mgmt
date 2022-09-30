@@ -4,6 +4,7 @@ import os
 import allure
 import math
 from ngts.constants.constants import PytestConst
+from ngts.tools.allure_report.allure_report_attacher import collect_stored_cmds_then_attach_to_allure_report, clean_stored_cmds_with_fixture_scope_list
 
 logger = logging.getLogger()
 
@@ -22,7 +23,6 @@ def pytest_runtest_makereport(item, call):
     if rep.when == 'teardown':
         is_teardown_failed = item.rep_teardown.failed  # if LA failed, but may be not only LA
         session_id = item.funcargs.get('session_id', '')
-
         if item.rep_setup.passed and (item.rep_call.failed or is_teardown_failed) and \
                 os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) == "True":
             if session_id:
@@ -32,6 +32,7 @@ def pytest_runtest_makereport(item, call):
                     dut_cli_object = topology_obj.players['dut']['cli']
                     dut_engine = topology_obj.players['dut']['engine']
                     duration = get_test_duration(item)
+                    collect_stored_cmds_then_attach_to_allure_report(topology_obj)
                     remote_dump_path = dut_cli_object.general.generate_techsupport(duration)
 
                     dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
@@ -46,6 +47,9 @@ def pytest_runtest_makereport(item, call):
             else:
                 logger.info('###  Session ID was not provided, assuming this is manual run,'
                             ' sysdump will not be created  ###')
+        topology_obj = item.funcargs.get('topology_obj')
+        if topology_obj:
+            clean_stored_cmds_with_fixture_scope_list(topology_obj)
 
 
 def get_test_duration(item):

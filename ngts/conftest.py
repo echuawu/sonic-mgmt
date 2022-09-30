@@ -24,7 +24,7 @@ from ngts.constants.constants import PytestConst, NvosCliTypes
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
-
+from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
 
 logger = logging.getLogger()
 
@@ -39,7 +39,6 @@ def pytest_sessionstart(session):
 
 
 def pytest_collection(session):
-
     topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
     logger.debug('Get switch devdescription from Noga')
     switch_attributes = topology.players['dut']['attributes'].noga_query_data['attributes']
@@ -103,6 +102,47 @@ def pytest_addoption(parser):
                           'Example of content: {"p4-sampling":"harbor.mellanox.com/sonic-p4/p4-sampling:0.2.0",
                                       "what-just-happened":"harbor.mellanox.com/sonic-wjh/docker-wjh:1.0.1"} ''')
     parser.addoption("--nvos_api_type", action="store", default='nvue', help="nvue/openapi")
+
+
+def pytest_runtest_call(item):
+    """
+    Pytest hook which is executed at the calling of test case
+    :param item: pytest buildin
+    """
+    topology_obj = item.funcargs.get('topology_obj')
+    if topology_obj:
+        add_fixture_end_tag(topology_obj)
+
+
+def pytest_fixture_setup(fixturedef, request):
+    """
+    Pytest hook which is executed at the beginning of each fixture
+    :param fixturedef: pytest buildin
+    :param request: pytest buildin
+    """
+    func_name = request._pyfuncitem.name
+    for func in request.session.items:
+        if func.name == func_name and getattr(func, 'funcargs', None):
+            topology_obj = func.funcargs.get('topology_obj')
+            if topology_obj:
+                add_fixture_name(topology_obj, request.fixturename, fixturedef.scope)
+
+
+def pytest_fixture_post_finalizer(fixturedef, request):
+    """
+    Pytest hook which is executed at the beginning of each fixture
+    :param fixturedef: pytest buildin
+    :param request: pytest buildin
+    """
+    func_name = request._pyfuncitem.name
+    for func in request.session.items:
+        if func.name == func_name and getattr(func, 'funcargs', None):
+            topology_obj = func.funcargs.get('topology_obj')
+            if topology_obj:
+                if getattr(func, 'rep_setup', None) and getattr(func, 'rep_call', None) and func.rep_setup.passed and func.rep_call.failed:
+                    update_fixture_scope_list(topology_obj, fixturedef.argname, fixturedef.scope)
+                else:
+                    clean_stored_cmds_with_fixture_scope(topology_obj, fixturedef.argname, fixturedef.scope)
 
 
 @pytest.fixture(scope="package")
@@ -171,6 +211,7 @@ def topology_obj(setup_name, request):
     update_sanitizer_in_topology(topology, is_sanitizer=is_sanitizer)
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
+    enable_record_cmds(topology)
 
     yield topology
 
