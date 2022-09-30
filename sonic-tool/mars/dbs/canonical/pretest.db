@@ -26,4 +26,7 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/common/cpld.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/pretest.cases </cases>
+    </test>
 </DBDEF>
