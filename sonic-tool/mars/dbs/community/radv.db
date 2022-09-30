@@ -54,4 +54,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/radv_ipv6_ra.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/radv_restart.cases </cases>
+    </test>
+
 </DBDEF>
