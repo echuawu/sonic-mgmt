@@ -31,10 +31,10 @@ IPERF_VALIDATION = {
     },
     'expect': [
         {
-            'parameter': 'loss_packets',
-            'operator': '>=',
+            'parameter': 'bandwidth',
+            'operator': '>',
             'type': 'int',
-            'value': '0'
+            'value': '1'
         }
     ]
 }
@@ -70,8 +70,8 @@ class TestDoroce:
         with allure.step('Validating doroce docker is UP'):
             cli_objects.dut.general.verify_dockers_are_up(dockers_list=['doroce'])
 
-    @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, cli_objects, engines, players, interfaces, check_feature_status):
+    @pytest.fixture(scope='module', autouse=True)
+    def setup(self, topology_obj, cli_objects, engines, players, interfaces, check_feature_status, is_simx):
         """
         This fixture will do:
         1. configure the DUT speeds to generate buffer drops
@@ -94,6 +94,7 @@ class TestDoroce:
         self.engines = engines
         self.players = players
         self.interfaces = interfaces
+        self.is_simx = is_simx
         self.doroce_conf_dict = {'lossless_double_ipool': self.cli_objects.dut.doroce.config_doroce_lossless_double_ipool,
                                  'lossless_single_ipool': self.cli_objects.dut.doroce.config_doroce_lossless_single_ipool,
                                  'lossy_double_ipool': self.cli_objects.dut.doroce.config_doroce_lossy_double_ipool}
@@ -177,10 +178,13 @@ class TestDoroce:
             retry_call(ping_checker.run_validation, fargs=[], tries=3, delay=3, logger=logger)
 
     def validate_iperf_traffic(self, prio_group=DEFAULT_PG):
-        with allure.step('Sending iPerf traffic'):
-            self.run_traffic()
-        with allure.step('Validate buffers'):
-            retry_call(self.validate_buffer, fargs=[prio_group], tries=5, delay=5, logger=logger)
+        if self.is_simx:
+            logger.info('Skip traffic validation for SIMX devices')
+        else:
+            with allure.step('Sending iPerf traffic'):
+                self.run_traffic()
+            with allure.step('Validate buffers'):
+                retry_call(self.validate_buffer, fargs=[prio_group], tries=8, delay=10, logger=logger)
 
     def run_traffic(self):
         self.cli_objects.dut.watermark.clear_watermarkstat()
@@ -190,14 +194,16 @@ class TestDoroce:
     def validate_buffer(self, prio_group):
         stat_results = self.cli_objects.dut.watermark.show_and_parse_watermarkstat()
         assert stat_results[self.interfaces.dut_hb_2][prio_group] > WATERMARK_THRESHOLD, \
-            f'Unexpected watermarkstat value for ROCE traffic.' \
+            f'Unexpected watermarkstat value for ROCE traffic({prio_group}).' \
             f' Current: {stat_results[self.interfaces.dut_hb_2][prio_group]}. Expected threshold: {WATERMARK_THRESHOLD}'
 
     @staticmethod
     def validate_negative_config(configuration_method, exp_err_msg='RoCE is already enabled'):
-        output = configuration_method()
-        assert exp_err_msg not in output, f'Negative validation.\nUnexpected error message:"{exp_err_msg}"' \
-                                          f' after method {configuration_method}.\nOutput:{output}'
+        with allure.step('Run negative validation'):
+            output = configuration_method()
+            assert exp_err_msg in output, f'Negative validation failed.\nExpected error message:"{exp_err_msg}" '\
+                                          f'not found in the output: {output}'
+            logger.info('The negative validation passed')
 
     def toggle_ports(self):
         ports = [self.interfaces.dut_ha_2, self.interfaces.dut_hb_2]
@@ -208,5 +214,6 @@ class TestDoroce:
         self.cli_objects.dut.interface.check_link_state(ports)
 
     def check_default_configurations(self):
-        self.cli_objects.dut.doroce.check_buffer_configurations()
-        self.validate_iperf_traffic()
+        with allure.step('Validate buffers'):
+            self.cli_objects.dut.doroce.check_buffer_configurations()
+            self.validate_iperf_traffic()
