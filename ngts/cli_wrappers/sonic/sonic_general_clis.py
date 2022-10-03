@@ -603,14 +603,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
-        self.engine.copy_file(source_file=os.path.join(shared_path, SonicConst.PORT_CONFIG_INI),
+        source_file = os.path.join(shared_path, SonicConst.PORT_CONFIG_INI)
+        logger.info(f'Copy file {source_file} to /tmp directory on a switch')
+        self.engine.copy_file(source_file=source_file,
                               dest_file=SonicConst.PORT_CONFIG_INI, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.PORT_CONFIG_INI} {switch_config_ini_path}')
 
     def upload_config_db_file(self, topology_obj, setup_name, hwsku, shared_path):
         config_db_file = self.get_updated_config_db(topology_obj, setup_name, hwsku)
-        self.engine.copy_file(source_file=os.path.join(shared_path, config_db_file),
+        source_file = os.path.join(shared_path, config_db_file)
+        logger.info(f'Copy file {source_file} to /tmp directory on a switch')
+        self.engine.copy_file(source_file=source_file,
                               dest_file=SonicConst.CONFIG_DB_JSON, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}')
