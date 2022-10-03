@@ -385,6 +385,24 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
       - "https://redmine.mellanox.com/issues/3032144 and 'msn4600c' in platform"
       - "https://redmine.mellanox.com/issues/3032144 and 'msn3800' in platform"
 
+platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
+    conditions:
+      - https://redmine.mellanox.com/issues/3225815
+
+iface_loopback_action/test_iface_loopback_action.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225776"
+    conditions:
+      - https://redmine.mellanox.com/issues/3225776
+
+radv/test_radv_restart.py::test_radv_swss:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/6457"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/6457
+
 qos/test_buffer.py:
   skip:
     reason: "Test skipped because MSN SKU not support those tests or by RM issue 3191031 for sn2201 "
@@ -503,6 +521,12 @@ drop_packets/test_wjh.py::test_wjh_starts_after_config_reload:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3195120"
     conditions:
       - "https://redmine.mellanox.com/issues/3195120 and '202205' in release"
+
+drop_packets/test_wjh.py::test_l1_agg_port_down:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3217918"
+    conditions:
+      - https://redmine.mellanox.com/issues/3217918
 
 platform_tests/fwutil/test_fwutil.py:
   skip:
