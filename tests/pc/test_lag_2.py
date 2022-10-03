@@ -273,6 +273,8 @@ def test_lag(common_setup_teardown, duthosts, tbinfo, nbrhosts, fanouthosts, con
     # We can't run single_lag test on vtestbed since there is no leaffanout
     if testcase == "single_lag" and is_vtestbed(duthosts[0]):
         pytest.skip("Skip single_lag test on vtestbed")
+    if 'PortChannel201' in enum_dut_portchannel_with_completeness_level:
+        pytest.skip("PortChannel201 is a specific configuration of t0-56-po2vlan topo, which is not supported by test")
 
     ptfhost = common_setup_teardown
 
