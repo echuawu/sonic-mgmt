@@ -37,7 +37,7 @@ def sfp_test_intfs_to_dom_map(duthosts, rand_one_dut_hostname, conn_graph_facts,
             else:
                 inft_support_dom = is_support_dom(duthost, port_index)
                 intf_with_dom_dict[port_index] = inft_support_dom
-        sfp_test_intfs_to_dom_map_dict[intf] = inft_support_dom
+            sfp_test_intfs_to_dom_map_dict[intf] = inft_support_dom
 
     return sfp_test_intfs_to_dom_map_dict
 
