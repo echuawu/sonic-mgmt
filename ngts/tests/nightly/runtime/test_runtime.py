@@ -16,13 +16,21 @@ EXPECTED_RESULTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 BASE_PROFILE_CMD = 'sudo python3 -m cProfile -s tottime {} {} | grep seconds'
 
 # use the 'show' word in the method name of show commands. Like 'show_ifaces_status'
-TESTED_CMD_METHODS = {'show_ifaces_status': {'show_ifaces_status': 'interfaces status'},
-                      'add_del_vlan': {'add_vlan': 'vlan add 1234',
+TESTED_CMD_METHODS = {'add_del_vlan': {'add_vlan': 'vlan add 1234',
                                        'del_vlan': 'vlan del 1234'},
                       'add_del_route': {'add_route': 'route add prefix 2.3.4.0/24 nexthop 69.0.0.5',
                                         'del_route': 'route del prefix 2.3.4.0/24 nexthop 69.0.0.5'},
                       'add_del_po': {'add_po': 'portchannel add PortChannel01',
-                                     'del_po': 'portchannel del PortChannel01'}}
+                                     'del_po': 'portchannel del PortChannel01'},
+                      'show_ifaces_status': {'show_ifaces_status': 'interfaces status'},
+                      'show_iface_tr_eeprom': {'show_iface_tr_eeprom': 'interface transceiver eeprom Ethernet0 -d'},
+                      'show_platform': {'show_pl_fan': 'platform fan',
+                                        'show_pl_psustatus': 'platform psustatus',
+                                        'show_pl_firmware': 'platform firmware',
+                                        'show_pl_pcieinfo': 'platform pcieinfo',
+                                        'show_pl_ssdhealth': 'platform ssdhealth',
+                                        'show_pl_syseeprom': 'platform syseeprom',
+                                        'show_pl_temperature': 'platform temperature'}}
 TESTED_METHODS = list(TESTED_CMD_METHODS.keys())
 METHOD_ATTEMPTS = 5
 ALLOWED_DEVIATION = 0.25
