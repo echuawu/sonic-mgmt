@@ -862,7 +862,7 @@
     - Affected_test_cases:
       - sub_port_interfaces
       Redmine:
-      - 3117917
+      - 3224978
 
 - Errors_list:
     - '.* ERR swss#orchagent: message repeated \d+ times: \[ :- update: Failed to get port by bridge port ID 0x.*.\]'
