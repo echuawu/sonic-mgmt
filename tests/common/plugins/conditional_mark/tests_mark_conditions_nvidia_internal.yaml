@@ -197,10 +197,10 @@ tests/nightly/fec:
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   skip:
-    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/2729657 or platform SIMX"
+    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3226509 or platform SIMX"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/2729657"
+      - "https://redmine.mellanox.com/issues/3226509"
       - "'simx' in platform"
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
