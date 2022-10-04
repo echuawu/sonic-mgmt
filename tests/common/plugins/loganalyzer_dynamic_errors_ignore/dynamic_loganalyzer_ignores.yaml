@@ -574,9 +574,10 @@
     - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_BFD_SESSION_STATE_CHANGE_NOTIFY: 0x.*'
     - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY: 0x.*'
     - '.* ERR syncd#SDK: :- setEndTime: event ''create:SAI_OBJECT_TYPE_SWITCH:oid:0x.*'' took \d+ ms to execute'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
   Conditions:
     - Redmine:
-      - 2966737
+      - 3172522
       Branch:
         - 202111
         - master
@@ -676,12 +677,6 @@
       - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
       Redmine:
       - 3014357
-
-- Errors_list:
-    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
-  Conditions:
-    - Redmine:
-      - 2966737
 
 - Errors_list:
     - '.*ERR sonic_yang: Data Loading Failed:Duplicated instance of "profile_list" leaf-list.*'
