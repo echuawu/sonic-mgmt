@@ -31,11 +31,20 @@ pytestmark = [
 vlan_tagging_mode = ""
 
 @pytest.fixture(scope='module', autouse=True)
-def skip_old_branch_for_scaled_test(duthost, request):
-    if duthost.sonic_release in ["201811", "201911", "202012", "202106", "202111"] \
-            and request.config.option.num_vnet > 8 \
-            and request.config.option.num_routes > 3000:
-        pytest.skip("The scaled test with more than 3k routes isn't supported on {} and other legacy branches.".format(duthost.sonic_release))
+def skip_unsupported_for_scaled_test(duthost, request):
+    sonic_release = duthost.sonic_release
+    dut_hwsku = duthost.sonichost.facts["hwsku"]
+    is_scale_test = request.config.option.num_vnet > 8 and request.config.option.num_routes > 3000
+    unsupported_scale_releases = ["201811", "201911", "202012", "202106", "202111"]
+    unsupported_scale_hwskus = ["ACS-MSN2700", "ACS-MSN2740", "ACS-MSN2100", "ACS-MSN2410", "ACS-MSN2010",
+                                "Mellanox-SN2700", "Mellanox-SN2700-D48C8"]
+
+    if is_scale_test:
+        if sonic_release in unsupported_scale_releases:
+            pytest.skip("The scaled test with more than 3k routes isn't supported on {} and "
+                        "other legacy branches.".format(sonic_release))
+        if dut_hwsku in unsupported_scale_hwskus:
+            pytest.skip("The scaled test with more than 3k routes isn't supported on HwSKU: {}".format(dut_hwsku))
 
 @pytest.fixture(scope='module', autouse=True)
 def load_minigraph_after_test(rand_selected_dut):
