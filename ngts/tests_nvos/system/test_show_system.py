@@ -5,7 +5,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
+import time
 logger = logging.getLogger()
 
 
@@ -36,24 +36,30 @@ def test_system(engines, devices, topology_obj):
         new_hostname_value = "NOS-NVOS"
         hostname_default = SystemConsts.HOSTNAME_DEFAULT_VALUE
         dhcp_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['dhcp_hostname']
-        # eth0_port = MgmtPort('eth0')
-        # run nv show interface eth0 ip ipv4 dhcp-client and get "set-hostname" if it is"enabled" then dhcp = True
-        dhcp = True
-        if dhcp:
-            hostname_default = dhcp_hostname
+        output = OutputParsingTool.parse_json_str_to_dictionary(
+            engines.dut.run_cmd("nv show interface eth0 ip dhcp-client -o json")).get_returned_value()
+        dhcp_enabled = 'state' in output and output['state'] == "enabled"
+        if dhcp_enabled:
+            hostname_default = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()[
+                "hostname"]
+            if dhcp_hostname:
+                ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
+                                                            dhcp_hostname).verify_result()
 
-        ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
-                                                    hostname_default).verify_result()
-        system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME)
+        system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME).verify_result()
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                     new_hostname_value).verify_result()
 
     with allure.step('Run unset system hostname command and verify that hostname is updated'):
-        system.unset(engines.dut, SystemConsts.HOSTNAME)
+        system.unset(engines.dut, SystemConsts.HOSTNAME).verify_result()
+        if dhcp_enabled:
+            logging.info("Wait till the management interface will be reloaded to get a hostname from DHCP")
+            time.sleep(20)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
-                                                    hostname_default).verify_result()
+                                                    hostname_default if dhcp_enabled
+                                                    else SystemConsts.HOSTNAME_DEFAULT_VALUE).verify_result()
 
 
 @pytest.mark.system
@@ -76,6 +82,8 @@ def test_system_message(engines, devices):
             11. run show system message
             12. verify pre-login changed to default value
     """
+    new_pre_login_msg = "Testing PRE LOGIN MESSAGE"
+    new_post_login_msg = "Testing POST LOGIN MESSAGE"
     with allure.step('Run show system message command and verify that each field has a value'):
         system = System()
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -85,28 +93,31 @@ def test_system_message(engines, devices):
     with allure.step('Run set system message pre-login command and verify that pre-login is updated'):
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
-        system.message.set('"Testing PRE LOGIN MESSAGE"', engines.dut, SystemConsts.PRE_LOGIN_MESSAGE)
+        system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
 
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                    "Testing PRE LOGIN MESSAGE").verify_result()
+                                                    new_pre_login_msg).verify_result()
 
     with allure.step('Run set system message post-login command and verify that post-login is updated'):
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
-        system.message.set('"Testing POST LOGIN MESSAGE"', engines.dut, SystemConsts.POST_LOGIN_MESSAGE)
+        system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                    "Testing POST LOGIN MESSAGE").verify_result()
+                                                    new_post_login_msg).verify_result()
 
     with allure.step('Run unset system message pre-login command and verify that pre-login is updated'):
-        system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE)
+        system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+        logging.info("Verify the post-login was not affected")
+        ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                    new_post_login_msg).verify_result()
 
     with allure.step('Run unset system message post-login command and verify that pre-login is updated'):
-        system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE)
+        system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()

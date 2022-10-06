@@ -149,7 +149,7 @@ class OpenApiRequest:
     @staticmethod
     def _update_payload(last_component, path, payload):
         if path and (path[0] in payload.keys()):
-            temp_comp_name = path.pop(0)
+            temp_comp_name = path.pop(0).strip()
             payload[temp_comp_name] = OpenApiRequest._update_payload(last_component, path, payload[temp_comp_name])
         elif path:
             payload.update(OpenApiRequest._create_partial_payload(last_component, path))
@@ -159,7 +159,7 @@ class OpenApiRequest:
     def _create_partial_payload(last_component, path):
         temp_comp = {}
         if len(path) > 1:
-            temp_comp_name = path.pop(0)
+            temp_comp_name = path.pop(0).strip()
             temp_comp[temp_comp_name] = OpenApiRequest._create_partial_payload(last_component, path)
         else:
             temp_comp[path[0]] = last_component

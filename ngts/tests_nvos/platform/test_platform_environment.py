@@ -88,6 +88,10 @@ def test_show_platform_environment_temperature(engines, devices):
         for temp, temp_prop in output.items():
             _verify_temp_prop(temp, temp_prop)
 
+    if "SODIMM 1 Temp" in output.keys():
+        with allure.step('Verify "SODIMM 1 Temp" values'):
+            _verify_temp_prop("SODIMM 1 Temp", output["SODIMM 1 Temp"])
+
 
 def _verify_temp_prop(temp, temp_prop):
     logging.info("temp {}".format(temp))
@@ -131,7 +135,7 @@ def _verify_led_prop(led, led_prop):
     logging.info("led {}".format(led))
     assert PlatformConsts.ENV_LED_COLOR_LABEL in led_prop.keys(), \
         PlatformConsts.ENV_LED_COLOR_LABEL + " not found for " + led
-    assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] in PlatformConsts.ENV_LED_COLOR_OPTIONS,\
+    assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL].lower() in PlatformConsts.ENV_LED_COLOR_OPTIONS,\
         led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + "is not a legal value"
 
 

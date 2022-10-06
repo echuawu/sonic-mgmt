@@ -5,6 +5,8 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -40,9 +42,10 @@ def test_show_platform_hardware_component(engines, devices):
         hw_comp_list.append(PlatformConsts.HW_COMP_SWITCH)
         output = _verify_output(platform, "component", hw_comp_list)
 
-    with allure.step("Check hardware components values"):
-        for comp, comp_values in output.items():
-            _verify_comp_fields(platform, comp, comp_values)
+    if TestToolkit.tested_api == ApiType.NVUE:
+        with allure.step("Check hardware components values"):
+            for comp, comp_values in output.items():
+                _verify_comp_fields(platform, comp, comp_values)
 
 
 def _verify_comp_fields(platform, comp, comp_values):

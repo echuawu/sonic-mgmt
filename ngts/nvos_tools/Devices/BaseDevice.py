@@ -323,7 +323,7 @@ class GorillaSwitch(BaseSwitch):
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp", "SODIMM 1 Temp"]
+        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
 
 
 # -------------------------- Jaguar Switch ----------------------------

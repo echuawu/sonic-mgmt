@@ -63,11 +63,12 @@ class System(BaseComponent):
 
     def create_new_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
-
+        Create a new user
+        :param engine: ssh angine
         :param username: if it's not a specific username we will generate one
         :param password:  if it's not a specific password we will generate one
         :param role: the user role
-        :return: return new user
+        :return: the user name and password of the created user
         """
         with allure.step('create new user'):
             if not username:
@@ -80,28 +81,35 @@ class System(BaseComponent):
             logger.info('the new user password is {password}'.format(password=password))
             curr_username = self.aaa.user.username
             self.aaa.user.set_username(username)
-            output = self.aaa.user.set('password', '"' + password + '"')
-            output.verify_result()
-            NvueGeneralCli.apply_config(engine)
+            self.aaa.user.set('password', '"' + password + '"').verify_result()
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                            apply_config, engine, True).verify_result()
 
             if role is not SystemConsts.ROLE_CONFIGURATOR:
                 self.aaa.user.set('role', role)
-                NvueGeneralCli.apply_config(engine)
+                SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                apply_config, engine, True).verify_result()
             self.aaa.user.set_username(curr_username)
             logging.info("User created: \nuser_name: {} \npassword: {}".format(username, password))
             return username, password
 
     def set(self, value, engine, field_name="", apply=True):
-        SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
-                                        engine, 'system ' + field_name, value)
-        if apply:
-            NvueGeneralCli.apply_config(engine, True)
+        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
+                                                     engine, self._resource_path, field_name, value)
+        if result_obj.result and apply:
+            with allure.step("Applying configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                             apply_config, engine, True)
+        return result_obj
 
     def unset(self, engine, field_name="", apply=True):
-        SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                        engine, 'system ' + field_name)
-        if apply:
-            NvueGeneralCli.apply_config(engine, True)
+        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
+                                                     engine, self._resource_path + "/" + field_name)
+        if result_obj.result and apply:
+            with allure.step("Applying configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                             apply_config, engine, True)
+        return result_obj
 
     def get_expected_fields(self, device):
         return device.constants.system['system']
@@ -115,15 +123,25 @@ class Message(BaseComponent):
         self._resource_path = '/message'
         self.parent_obj = parent_obj
 
-    def set(self, value, engine, field_name=""):
-        SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
-                                        engine, 'system ' + self._resource_path + " " + field_name, value)
-        NvueGeneralCli.apply_config(engine, True)
+    def set(self, value, engine, field_name="", apply=True):
+        if TestToolkit.tested_api == ApiType.NVUE:
+            value = '"{}"'.format(value)
+        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
+                                                     engine, self.get_resource_path(), field_name, value)
+        if result_obj.result and apply:
+            with allure.step("Applying configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                             apply_config, engine, True)
+        return result_obj
 
-    def unset(self, engine, field_name=""):
-        SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                        engine, 'system ' + self._resource_path + " " + field_name)
-        NvueGeneralCli.apply_config(engine, True)
+    def unset(self, engine, field_name="", apply=True):
+        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
+                                                     engine, self.get_resource_path() + "/" + field_name)
+        if result_obj.result and apply:
+            with allure.step("Applying configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                             apply_config, engine, True)
+        return result_obj
 
     def get_expected_fields(self, device):
         return device.constants.system['message']

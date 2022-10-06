@@ -6,6 +6,8 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -19,13 +21,15 @@ def test_show_platform_software(engines):
         platform = Platform()
 
     with allure.step("Check show software output"):
-        with allure.step("Verify text output"):
-            logging.info("Verify text output")
-            output = platform.software.show(output_format=OutputFormat.auto)
-            list_of_sw = output.split("\n", 3)
-            assert "operational  applied  description" in list_of_sw[0], "Titles cant be found in the output"
-            if not is_redmine_issue_active([3215476]):
-                assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
+        if TestToolkit.tested_api == ApiType.NVUE:
+            with allure.step("Verify text output"):
+                logging.info("Verify text output")
+                output = platform.software.show(output_format=OutputFormat.auto)
+                list_of_sw = output.split("\n", 3)
+                assert 'operational' in list_of_sw[0] and 'applied' in list_of_sw[0] and 'description' in list_of_sw[0], \
+                    "Titles cant be found in the output"
+                if not is_redmine_issue_active([3215476]):
+                    assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
         with allure.step("Verify json output"):
             logging.info("Verify json output")
@@ -33,14 +37,15 @@ def test_show_platform_software(engines):
             assert output and len(output.keys()) > 0, "The list of installed software is empty"
 
     with allure.step("Check show software installed output"):
-        with allure.step("Verify text output"):
-            logging.info("Verify text output")
-            output = platform.software.show("installed", output_format=OutputFormat.auto)
-            list_of_sw = output.split("\n", 3)
-            assert "Installed software                        description" in list_of_sw[0], \
-                "Titles cant be found in the output"
-            if not is_redmine_issue_active([3215476]):
-                assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
+        if TestToolkit.tested_api == ApiType.NVUE:
+            with allure.step("Verify text output"):
+                logging.info("Verify text output")
+                output = platform.software.show("installed", output_format=OutputFormat.auto)
+                list_of_sw = output.split("\n", 3)
+                assert "Installed software" in list_of_sw[0] and "description" in list_of_sw[0], \
+                    "Titles cant be found in the output"
+                if not is_redmine_issue_active([3215476]):
+                    assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
         with allure.step("Verify json output"):
             logging.info("Verify json output")

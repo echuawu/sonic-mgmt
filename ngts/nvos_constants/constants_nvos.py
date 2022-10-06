@@ -144,8 +144,9 @@ class SystemConsts:
     ROLE_CONFIGURATOR = 'admin'
     ROLE_VIEWER = 'monitor'
     ROLE_GROUPS = 'groups'
-    ROLE_CONFIGURATOR_DEFAULT_GROUPS = 'admin,sudo,docker,redis,adm,nvset,nvapply'
-    ROLE_VIEWER_DEFAULT_GROUPS = 'adm,nvshow'
+    ROLE_PERMISSIONS = 'permissions'
+    ROLE_CONFIGURATOR_DEFAULT_GROUPS = 'apply,set,show'
+    ROLE_VIEWER_DEFAULT_GROUPS = 'show'
     USERNAME_MAX_LEN = 32
     USERNAME_PASSWORD_HARDENING_STATE = 'state'
     USERNAME_VALID_CHARACTERS = list(map(chr, range(65, 91))) + list(map(chr, range(97, 123)))
@@ -217,7 +218,7 @@ class PlatformConsts:
     ENV_COMP = [ENV_FAN, ENV_LED, ENV_PSU, ENV_TEMP]
     ENV_FAN_COMP = ["max-speed", "min-speed", "speed", "state"]
     ENV_LED_COLOR_LABEL = "color"
-    ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue", "Amber"]
+    ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue", "amber"]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
     HW_ASIC_COUNT = "asic-count"
