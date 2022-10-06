@@ -6,7 +6,7 @@ import allure
 
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants
-from ngts.scripts.sonic_deploy.community_only_methods import generate_minigraph, deploy_minigprah, reboot_validation, \
+from ngts.scripts.sonic_deploy.community_only_methods import generate_minigraph, deploy_minigpraph, reboot_validation, \
     execute_script
 from retry.api import retry_call
 
@@ -195,8 +195,10 @@ class SonicInstallationSteps:
         # Community only steps
         if is_community(sonic_topo):
             for dut in setup_info['duts']:
-                deploy_minigprah(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
-                                 recover_by_reboot=recover_by_reboot)
+                general_cli_obj = dut['cli_obj']
+                deploy_minigpraph(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
+                                  recover_by_reboot=recover_by_reboot, topology_obj=topology_obj,
+                                  cli_obj=general_cli_obj)
 
             for dut in setup_info['duts']:
                 SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],

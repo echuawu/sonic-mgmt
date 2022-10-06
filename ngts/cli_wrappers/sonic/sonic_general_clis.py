@@ -158,7 +158,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         """
         if not (ports_list or topology_obj):
             raise Exception('ports_list or topology_obj must be passed to reboot_flow method')
-        if not ports_list:
+        if ports_list is None:
             ports_list = topology_obj.players_all_ports[self.dut_alias]
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)

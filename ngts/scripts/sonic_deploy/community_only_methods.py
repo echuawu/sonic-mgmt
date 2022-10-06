@@ -58,7 +58,7 @@ def generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, port_numb
                 retries = retries - 1
 
 
-def deploy_minigprah(ansible_path, dut_name, sonic_topo, recover_by_reboot):
+def deploy_minigpraph(ansible_path, dut_name, sonic_topo, recover_by_reboot, topology_obj, cli_obj):
     """
     Method which doing minigraph deploy on DUT
     """
@@ -70,10 +70,10 @@ def deploy_minigprah(ansible_path, dut_name, sonic_topo, recover_by_reboot):
             try:
                 logger.info("Deploying minigraph")
                 return execute_script(cmd, ansible_path)
-            except Exception:
-                logger.warning("Failed in Deploying minigraph")
+            except Exception as err:
+                logger.warning("Failed in Deploying minigraph. Got error: %s", err)
                 logger.warning("Performing a reboot and retrying")
-                reboot_validation(ansible_path, "reboot", dut_name, sonic_topo)
+                cli_obj.reboot_reload_flow(topology_obj=topology_obj, ports_list=[])
         logger.info("Deploying minigraph")
         return execute_script(cmd, ansible_path)
 
