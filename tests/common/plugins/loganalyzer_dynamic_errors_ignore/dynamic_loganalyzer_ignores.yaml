@@ -1257,8 +1257,10 @@
       - 3162498
 
 - Errors_list:
-    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\)'
-    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\)'
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\).*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\).*'
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*Lua redis\(\) command arguments must be strings or integers.*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*Lua redis\(\) command arguments must be strings or integers.*'
   Conditions:
     - Redmine:
       - 3166325
