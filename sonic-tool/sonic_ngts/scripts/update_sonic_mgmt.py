@@ -93,6 +93,10 @@ class Inventory:
                 buff += line + "\n"
                 buff += host_entry_ptf_any + "\n"
                 buff += host_entry + "\n"
+            elif "[lab]" in line:
+                buff += line + "\n"
+                buff += f"{dut_name}-ptf-any" + "\n"
+                buff += dut_name + "\n"
             else:
                 buff += line + "\n"
         with open(self.inventory_path, "w", 0o0600) as inv_file:
@@ -128,10 +132,6 @@ class Lab:
             if "[sonic_latest]" in line:
                 buff += line + "\n"
                 buff += lab_entry + "\n"
-            elif "[lab]" in line:
-                buff += line + "\n"
-                buff += f"{dut_name}-ptf-any" + "\n"
-                buff += dut_name + "\n"
             else:
                 buff += line + "\n"
 
