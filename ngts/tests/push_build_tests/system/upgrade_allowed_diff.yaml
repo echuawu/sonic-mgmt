@@ -28,6 +28,11 @@
       - root['KDUMP']
     values_changed:
       []
+  "202205":
+    dictionary_item_added:
+      []
+    ignored_items:
+      - root['KDUMP']
   "master":
     dictionary_item_added:
       []
