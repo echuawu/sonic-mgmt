@@ -793,6 +793,7 @@
   Conditions:
     - Affected_test_cases:
       - show_techsupport/test_techsupport.py
+      - app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       - tests/show_techsupport/test_auto_techsupport.py
       - tests/show_techsupport/test_techsupport_no_secret.py
 
