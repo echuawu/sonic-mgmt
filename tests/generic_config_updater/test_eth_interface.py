@@ -12,7 +12,7 @@ from tests.generic_config_updater.gu_utils import create_checkpoint, delete_chec
 logger = logging.getLogger(__name__)
 
 @pytest.fixture(autouse=True)
-def ensure_dut_readiness(duthost):
+def ensure_dut_readiness(duthost, request):
     """
     Setup/teardown fixture for each ipv6 test
     rollback to check if it goes back to starting config
@@ -20,7 +20,11 @@ def ensure_dut_readiness(duthost):
     Args:
         duthost: DUT host object under test
     """
-
+    # Ethernet0 doesn't have a default fec mode on some setups, need to configure it before the replace fec test
+    if request.function.__name__ == 'test_replace_fec':
+        fec_status = check_interface_status(duthost, "FEC")
+        if fec_status == 'N/A':
+            duthost.shell('config interface fec Ethernet0 none')
     create_checkpoint(duthost)
 
     yield
