@@ -50,17 +50,15 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_rotate_logs(engine):
-        permission_cmd = "sudo chmod 777 /var/log/syslog"
-        rotate_log_cmd = 'sudo cp /dev/null /var/log/syslog'
+        rotate_log_cmd = 'nv action rotate system log'
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=rotate_log_cmd))
-        return engine.run_cmd_set([permission_cmd, rotate_log_cmd])
+        return engine.run_cmd(rotate_log_cmd)
 
     @staticmethod
     def action_rotate_debug_logs(engine):
-        permission_cmd = "sudo chmod 777 /var/log/debug"
-        rotate_log_cmd = 'sudo cp /dev/null /var/log/debug'
+        rotate_log_cmd = 'nv action rotate system debug-log'
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=rotate_log_cmd))
-        return engine.run_cmd_set([permission_cmd, rotate_log_cmd])
+        return engine.run_cmd(rotate_log_cmd)
 
     @staticmethod
     def action_write_to_logs(engine):
