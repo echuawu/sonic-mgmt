@@ -3,12 +3,14 @@ import os
 import requests
 import json
 import allure
+import sys
 
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants
-from ngts.scripts.sonic_deploy.community_only_methods import generate_minigraph, deploy_minigpraph, reboot_validation, \
-    execute_script
+from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
+    reboot_validation, execute_script
 from retry.api import retry_call
+from ngts.helpers.run_process_on_host import run_background_process_on_host
 
 logger = logging.getLogger()
 
@@ -16,14 +18,21 @@ logger = logging.getLogger()
 class SonicInstallationSteps:
 
     @staticmethod
-    def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number):
+    def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx,
+                               threads_dict):
         """
         Pre-installation steps for SONIC
         :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
         :param base_version: base version
         :param target_version: target version if provided
         :param setup_info: dictionary with setup info
+        :param port_number: number of DUT ports
+        :param is_simx: fixture, True if setup is SIMX, else False
+        :param threads_dict: dict, contain threads which will run in background
         """
+        setup_name = setup_info['setup_name']
+        dut_name = setup_info['duts'][0]['dut_name']
+
         if is_community(sonic_topo):
             ansible_path = setup_info['ansible_path']
             # Get ptf docker tag
@@ -33,10 +42,75 @@ class SonicInstallationSteps:
                 for dut in setup_info['duts']:
                     SonicInstallationSteps.remove_topologies(ansible_path=ansible_path, dut_name=dut['dut_name'])
 
-            dut_name = setup_info['duts'][0]['dut_name']
-            setup_name = setup_info['setup_name']
-            SonicInstallationSteps.add_topology(ansible_path, setup_name, dut_name, sonic_topo, ptf_tag)
-            generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, port_number)
+            SonicInstallationSteps.start_community_background_threads(threads_dict, setup_name,
+                                                                      dut_name, sonic_topo, ptf_tag, port_number,
+                                                                      ansible_path, setup_info)
+        else:
+            if not is_simx:
+                SonicInstallationSteps.start_canonical_background_threads(threads_dict, setup_name, dut_name)
+
+    @staticmethod
+    def start_community_background_threads(threads_dict, setup_name, dut_name, sonic_topo, ptf_tag, port_number,
+                                           ansible_path, setup_info):
+        """
+        Start background threads for community setup
+        """
+        add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
+        run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=1800, exec_path=ansible_path)
+        gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
+        run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
+                                       exec_path=ansible_path)
+
+    @staticmethod
+    def start_canonical_background_threads(threads_dict, setup_name, dut_name):
+        """
+        Start background threads for canonical setup
+        """
+        python_bin_path = sys.executable
+        run_containers_cmd = SonicInstallationSteps.generate_run_containers_command(python_bin_path, setup_name)
+        run_background_process_on_host(threads_dict, 'containers_bringup', run_containers_cmd, timeout=300)
+
+        update_repo_cmd = SonicInstallationSteps.generate_update_sonic_mgmt_cmd(python_bin_path, dut_name)
+        run_background_process_on_host(threads_dict, 'update_sonic_mgmt', update_repo_cmd)
+
+    @staticmethod
+    def generate_run_containers_command(python_bin_path, setup_name):
+        """
+        Generate command which can run containers_bringup.py script
+        :param python_bin_path: path to python interpreter
+        :param setup_name: name of setup
+        :return: string, command which will contain containers_bringup.py script with arguments
+        """
+        devts_path = SonicInstallationSteps.get_devts_path()
+        cmd = f'{python_bin_path} {devts_path}/scripts/docker/containers_bringup.py ' \
+              f'--setup_name {setup_name} --sonic_setup'
+        return cmd
+
+    @staticmethod
+    def generate_update_sonic_mgmt_cmd(python_bin_path, dut_name):
+        """
+        Generate command which can run update_sonic_mgmt.py script
+        :param python_bin_path: path to python interpreter
+        :param dut_name: name of DUT
+        :return: string, command which will contain update_sonic_mgmt.py script with arguments
+        """
+        sonic_mgmt_path = os.path.abspath(__file__).split('/ngts/')[0]
+        cmd = f'{python_bin_path} {sonic_mgmt_path}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py ' \
+              f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
+        return cmd
+
+    @staticmethod
+    def get_devts_path():
+        """
+        Get path to DevTS repository
+        :return: string, path to DevTS repository
+        """
+        devts_path = None
+        for path in sys.path:
+            if path.endswith('devts'):
+                devts_path = path
+                break
+        return devts_path
 
     @staticmethod
     def get_ptf_tag_sonic(base_version, target_version):
@@ -93,15 +167,12 @@ class SonicInstallationSteps:
                     logger.warning(f'Failed to remove topology. Got error: {err}')
 
     @staticmethod
-    def add_topology(ansible_path, setup_name, dut_name, sonic_topo, ptf_tag):
-        with allure.step('Adding topolgy: {}'.format(sonic_topo)):
-            if sonic_topo == 'dualtor':
-                dut_name = setup_name
-            logger.info("Add topology")
-            cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
-                  "ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
-            logger.info("Running CMD: {}".format(cmd))
-            execute_script(cmd, ansible_path)
+    def get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag):
+        if sonic_topo == 'dualtor':
+            dut_name = setup_name
+        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
+              "ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
+        return cmd
 
     @staticmethod
     def post_install_check(ansible_path, dut_name, sonic_topo):

@@ -11,13 +11,14 @@ from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayeresAliases
+from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 
 logger = logging.getLogger()
 
 
 @pytest.mark.disable_loganalyzer
 @allure.title('Deploy and upgrade image')
-def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_files, sonic_topo,
+def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version, serve_files, sonic_topo,
                             deploy_only_target, port_number, setup_name, platform_params,
                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
                             fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url):
@@ -80,7 +81,8 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
         if not additional_apps:
             additional_apps = wjh_deb_url
 
-        pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number)
+        threads_dict = {}
+        pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict)
 
         for dut in setup_info['duts']:
             with allure.step('Install image on DUT: {}'.format(dut['dut_name'])):
@@ -91,6 +93,8 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
                              apply_base_config=apply_base_config,
                              reboot_after_install=reboot_after_install, is_shutdown_bgp=is_shutdown_bgp,
                              fw_pkg_path=fw_pkg_path, cli_type=dut['cli_obj'])
+
+        wait_until_background_procs_done(threads_dict)
 
         post_installation_steps(topology_obj=topology_obj, sonic_topo=sonic_topo,
                                 recover_by_reboot=recover_by_reboot, setup_name=setup_name,
@@ -108,7 +112,7 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
         raise AssertionError(err)
 
 
-def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number):
+def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
     """
     Pre-installation steps
     :param sonic_topo: sonic_topo fixture
@@ -120,7 +124,8 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     if isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.pre_installation_steps()
     else:
-        SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number)
+        SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+                                                      is_simx, threads_dict)
 
 
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,

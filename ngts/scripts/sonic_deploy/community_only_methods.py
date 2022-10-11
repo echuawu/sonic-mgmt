@@ -1,11 +1,8 @@
 import logging
 import random
-import traceback
-import time
 import allure
 import shlex
 import subprocess
-import os
 
 from ngts.scripts.reset_fanout.fanout_reset_factory_test import test_fanout_reset_factory
 from ngts.constants.constants import MarsConstants
@@ -31,31 +28,19 @@ def deploy_fanout_config(onyx_image_url, ansible_path, host_name):
             return execute_script(cmd, ansible_path)
 
 
-def generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, port_number):
+def get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number):
     """
     Method which doing minigraph generation
     """
-    logger.info("Generating minigraph")
+
     if sonic_topo == 'dualtor':
         dut_name = setup_info['setup_name']
-    with allure.step('Generate Minigraph'):
-        cmd = "./testbed-cli.sh gen-mg {SWITCH}-{TOPO} lab vault".format(SWITCH=dut_name, TOPO=sonic_topo)
-        if port_number:
-            cmd += " -e port_number={}".format(port_number)
-        logger.info("Running CMD: {}".format(cmd))
-        retries = initial_count = 3
-        sleep_time = 30
-        while retries:
-            try:
-                execute_script(cmd, ansible_path)
-                break
-            except Exception:
-                logger.warning("Failed in Generating minigraph. Trying again. Try number {} ".
-                               format(initial_count - retries + 1))
-                logger.warning(traceback.print_exc())
-                logger.error('Sleep {} seconds after attempt'.format(sleep_time))
-                time.sleep(sleep_time)
-                retries = retries - 1
+
+    cmd = "./testbed-cli.sh gen-mg {SWITCH}-{TOPO} lab vault".format(SWITCH=dut_name, TOPO=sonic_topo)
+    if port_number:
+        cmd += " -e port_number={}".format(port_number)
+
+    return cmd
 
 
 def deploy_minigpraph(ansible_path, dut_name, sonic_topo, recover_by_reboot, topology_obj, cli_obj):
