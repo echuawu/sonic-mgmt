@@ -232,6 +232,12 @@ class SonicInstallationSteps:
             topology_obj.players[dut['dut_alias']]['engine'].disconnect()
             SonicInstallationSteps.enable_info_logging(cli=dut['cli_obj'])
 
+        if not is_community(sonic_topo):
+            # Only check port status at canonical setup, there is an ansible counterpart for community setup
+            for dut in setup_info['duts']:
+                ports_list = topology_obj.players_all_ports[dut['dut_alias']]
+                dut['cli_obj'].cli_obj.interface.check_link_state(ports_list)
+
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,
                      apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path):

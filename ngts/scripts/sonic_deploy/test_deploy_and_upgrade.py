@@ -40,6 +40,7 @@ def test_deploy_and_upgrade(topology_obj, base_version, target_version, serve_fi
                 5.4. Reboot validation
                 5.5. Install WJH is requested
                 5.6. Install supported app extension
+                5.7. Port status validation
 
         :param topology_obj: topology object fixture.
         :param base_version: base_version fixture
