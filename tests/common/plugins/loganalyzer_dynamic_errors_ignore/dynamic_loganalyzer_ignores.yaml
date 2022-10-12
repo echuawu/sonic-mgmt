@@ -1511,3 +1511,13 @@
       - tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py
       Redmine:
       - 2872994
+
+- Errors_list:
+    - ".*WARNING kernel: .* NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!*"
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      Redmine:
+      - 3230829
+      Platform:
+      - nvda_bf
