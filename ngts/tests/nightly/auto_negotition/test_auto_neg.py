@@ -85,7 +85,7 @@ class TestAutoNeg(TestAutoNegBase):
         :return: raise assertion error in case of failure
         """
         with allure.step("Generate configurations for test"):
-            def_conf = self.generate_default_conf(self.tested_dut_host_lb_dict)
+            def_conf = self.generate_default_conf(self.tested_dut_host_lb_dict, use_min_speed=True)
             sub_conf = self.generate_subset_conf(self.tested_dut_host_lb_dict)
             self.modify_conf_for_toggle_peer(self.interfaces.dut_ha_1, sub_conf, def_conf)
 

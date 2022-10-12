@@ -564,11 +564,12 @@ class TestAutoNegBase:
                     cleanup_list.append((cli_object.interface.config_auto_negotiation_mode,
                                          (port, 'on')))
 
-    def generate_default_conf(self, tested_lb_dict):
+    def generate_default_conf(self, tested_lb_dict, use_min_speed=False):
         """
         :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
         breakout options on all setup ports (including host ports)
         the port cable number and split mode including host port
+        :param use_min_speed: a bool value to decide if use min speed or random speed for the test
         :return: a dictionary of the port auto negotiation default configuration and expected outcome
         {'Ethernet52': {'Auto-Neg Mode': 'disabled',
         'Speed': '10G',
@@ -585,11 +586,16 @@ class TestAutoNegBase:
             for split_mode, lb_list in tested_lb_dict.items():
                 for lb in lb_list:
                     lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
-                    # Choose min speed randomly - any not equal to max(which usually already set by default) speed
-                    max_speed = max(lb_mutual_speeds, key=speed_string_to_int_in_mb)
-                    lb_mutual_speeds.remove(max_speed)
-                    random_non_max_speed = random.choice(lb_mutual_speeds)
-                    lb_mutual_speeds.append(max_speed)
+                    # If it is the port toggle test, using min speed is enough for the test goal
+                    # Higher speed may cause issue when dut is AN and peer is forced speed
+                    if use_min_speed:
+                        random_non_max_speed = min(lb_mutual_speeds, key=speed_string_to_int_in_mb)
+                    else:
+                        # Choose min speed randomly - any not equal to max(which usually already set by default) speed
+                        max_speed = max(lb_mutual_speeds, key=speed_string_to_int_in_mb)
+                        lb_mutual_speeds.remove(max_speed)
+                        random_non_max_speed = random.choice(lb_mutual_speeds)
+                        lb_mutual_speeds.append(max_speed)
                     matched_types = get_matched_types(self.ports_lanes_dict[lb[0]], [random_non_max_speed],
                                                       types_dict=self.interfaces_types_dict)
                     min_type = min(matched_types, key=get_interface_cable_width)
