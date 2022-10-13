@@ -66,6 +66,12 @@ class SonicConst:
     CONFIG = '/usr/local/bin/config'
     SHOW = '/usr/local/bin/show'
 
+    TELEMETRY_PATH = "/etc/sonic/telemetry"
+    TELEMETRY_SERVER_KEY = "/etc/sonic/telemetry/streamingtelemetryserver.key"
+    TELEMETRY_SERVER_CER = "/etc/sonic/telemetry/streamingtelemetryserver.cer"
+    TELEMETRY_DSMSROOT_KEY = "/etc/sonic/telemetry/dsmsroot.key"
+    TELEMETRY_DSMSROOT_CER = "/etc/sonic/telemetry/dsmsroot.cer"
+
 
 class CliType:
     NVUE = 'NVUE'

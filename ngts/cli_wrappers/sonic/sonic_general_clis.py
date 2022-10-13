@@ -330,11 +330,27 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 dut_engine = topology_obj.players['dut']['engine']
                 dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(set_timezone), validate=True)
 
+        with allure.step("Init telemetry keys"):
+            self.init_telemetry_keys()
+
         if apply_base_config:
             with allure.step("Apply basic config"):
                 self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp)
 
         self.configure_dhclient_if_simx()
+
+    def init_telemetry_keys(self):
+        logger.info("Create telemetry directory")
+        self.engine.run_cmd(f"sudo mkdir {SonicConst.TELEMETRY_PATH}")
+        self.engine.run_cmd(f"sudo chmod 0755 {SonicConst.TELEMETRY_PATH}")
+        logger.info("Generate server cert using openssl.")
+        self.engine.run_cmd(f"sudo openssl req -x509 -sha256 -nodes -newkey rsa:2048 "
+                            f"-keyout {SonicConst.TELEMETRY_SERVER_KEY} -subj '/CN=ndastreamingservertest' "
+                            f"-out {SonicConst.TELEMETRY_SERVER_CER}")
+        logger.info("Generate dsmsroot cert using openssl")
+        self.engine.run_cmd(f"sudo openssl req -x509 -sha256 -nodes -newkey rsa:2048 "
+                            f"-keyout {SonicConst.TELEMETRY_DSMSROOT_KEY} -subj '/CN=ndastreamingclienttest' "
+                            f"-out {SonicConst.TELEMETRY_DSMSROOT_CER}")
 
     def deploy_sonic(self, image_path, is_skipping_migrating_package=False):
         tmp_target_path = '/tmp/sonic-mellanox.bin'
