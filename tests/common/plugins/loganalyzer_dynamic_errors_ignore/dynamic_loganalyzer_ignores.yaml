@@ -1460,8 +1460,8 @@
       - 3214914
 
 - Errors_list:
-    - '.* ERR python3: :- echo_receive: failing to read echo rc.*'
-    - '.* ERR python3: :- echo_receive: last:errno.*'
+    - '.* ERR .*echo_receive: failing to read echo rc.*'
+    - '.* ERR .*echo_receive: last:errno=.*'
   Conditions:
     - Redmine:
       - 3216736
