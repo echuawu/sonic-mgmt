@@ -33,7 +33,7 @@ TESTED_CMD_METHODS = {'add_del_vlan': {'add_vlan': 'vlan add 1234',
                                         'show_pl_temperature': 'platform temperature'}}
 TESTED_METHODS = list(TESTED_CMD_METHODS.keys())
 METHOD_ATTEMPTS = 5
-ALLOWED_DEVIATION = 0.25
+ALLOWED_DEVIATION = 0.5
 
 
 class TestRuntime:
