@@ -1,8 +1,9 @@
 import pytest
+import time
 
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
-from ngts.constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -37,31 +38,33 @@ def test_intereface_eth0_enable_disable(engines, topology_obj):
     with allure.step('Negative validation'):
         mgmt_port.interface.link.state.set(value='invalid_value', apply=False).verify_result(False)
 
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=mgmt_port.interface.link.state.label,
                                                           expected_value=NvosConsts.LINK_STATE_UP).verify_result()
-        logger.info('Check port status, should be up')
-        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Set mgmt port down and check the state updated accordingly'):
         mgmt_port.interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, dut_engine=serial_engine,
                                            apply=True, ask_for_confirmation=True).verify_result()
 
+        logger.info('Check port status, should be down')
+        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show(dut_engine=serial_engine)).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=mgmt_port.interface.link.state.label,
                                                           expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
-        logger.info('Check port status, should be down')
-        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Unset mgmt port and make sure the port state is up and reachable'):
         mgmt_port.interface.link.state.unset(dut_engine=serial_engine, apply=True,
                                              ask_for_confirmation=True).verify_result()
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
@@ -69,8 +72,6 @@ def test_intereface_eth0_enable_disable(engines, topology_obj):
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=mgmt_port.interface.link.state.label,
                                                           expected_value=NvosConsts.LINK_STATE_UP).verify_result()
-        logger.info('Check port status, should be up')
-        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
 
 @pytest.mark.ib
@@ -188,43 +189,42 @@ def test_interface_eth0_mtu(engines, topology_obj):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.mtu.label,
-                                                          expected_value=1500)
-
-    with allure.step('Negative validation with MTU not integer value'):
-        mgmt_port.interface.link.mtu.set(value='invalid_value', apply=True, ask_for_confirmation=True) \
-            .verify_result(False)
-        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        Tools.ValidationTool.compare_values(output_dictionary[mgmt_port.interface.link.mtu.label], 1500, True)\
+            .verify_result()
 
     with allure.step('Negative validation with not supported for eth mtu 256'):
         mgmt_port.interface.link.mtu.set(value='256', apply=True, ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
-
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
     with allure.step('Negative validation with not supported for eth mtu 9218'):
         mgmt_port.interface.link.mtu.set(value='9218', apply=True, ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.mtu.label,
-                                                          expected_value=1500)
-
+        Tools.ValidationTool.compare_values(output_dictionary[mgmt_port.interface.link.mtu.label], 1500, True) \
+            .verify_result()
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
     with allure.step('Set validation with supported for eth mtu 9200'):
         mgmt_port.interface.link.mtu.set(value='9200', apply=True, ask_for_confirmation=True).verify_result()
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
+        time.sleep(1)
+        output_dictionary_set = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.mtu.label,
-                                                          expected_value=9200)
+        Tools.ValidationTool.compare_values(output_dictionary_set[mgmt_port.interface.link.mtu.label], 9200, True)\
+            .verify_result()
 
     with allure.step('Unset mtu validation'):
         mgmt_port.interface.link.mtu.unset(apply=True, ask_for_confirmation=True).verify_result()
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
+        time.sleep(1)
+        output_dictionary_unset = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.mtu.label,
-                                                          expected_value=1500)
+        Tools.ValidationTool.compare_values(output_dictionary_unset[mgmt_port.interface.link.mtu.label], 1500, True)\
+            .verify_result()
 
 
 @pytest.mark.ib
@@ -311,6 +311,9 @@ def test_interface_eth0_ip_address(engines, topology_obj):
         ip_address = Tools.IpTool.select_random_ipv4_address().verify_result()
         mgmt_port.interface.ip.address.set(dut_engine=serial_engine, value=ip_address,
                                            apply=True, ask_for_confirmation=True).verify_result()
+        logger.info('Check port status, should be down')
+        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
+        time.sleep(2)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.show(dut_engine=serial_engine)).get_returned_value()
         validate_interface_ip_address(ip_address, output_dictionary, True)
@@ -318,6 +321,9 @@ def test_interface_eth0_ip_address(engines, topology_obj):
     with allure.step('Unset ipv4 and dhcp and check port reachable'):
         mgmt_port.interface.ip.dhcp_client.unset(dut_engine=serial_engine, apply=True, ask_for_confirmation=True) \
             .verify_result()
+        logger.info('Check port status, should be down')
+        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
+        time.sleep(1)
         mgmt_port.interface.ip.address.unset(dut_engine=serial_engine,
                                              apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
@@ -391,6 +397,8 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
     with allure.step('Disable dhcp and unset hostname, check port down and not reachable'):
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state disabled', apply=True,
                                                ask_for_confirmation=True).verify_result()
+        logger.info('Check port status, should be down')
+        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
@@ -402,16 +410,18 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name='is-running',
                                                           expected_value='no')
-        logger.info('Check port status, should be down')
-        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Disable dhcp set-hostname, check port down and not reachable'):
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='set-hostname disabled', apply=True,
                                                ask_for_confirmation=True).verify_result()
 
+        logger.info('Check port status, should be down')
+        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
+        time.sleep(1)
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
+        time.sleep(1)
         dhcp6_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client6.show(dut_engine=serial_engine)).get_returned_value()
 
@@ -422,14 +432,14 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp6_output,
                                                           field_name='set-hostname',
                                                           expected_value='disabled')
-        logger.info('Check port status, should be down')
-        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Set hostname and enable dhcp, check hostname not changed, check port up'):
         system.set(value='nvos', engine=serial_engine, field_name=SystemConsts.HOSTNAME)
-
+        time.sleep(1)
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state enabled', apply=True,
                                                ask_for_confirmation=True).verify_result()
+        logger.info('Check port status, should be up')
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
@@ -440,14 +450,21 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         Tools.ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME, 'nvos').verify_result()
-        logger.info('Check port status, should be up')
-        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Unset dhcp, , check port up'):
         mgmt_port.interface.ip.dhcp_client.unset(dut_engine=serial_engine, apply=True, ask_for_confirmation=True) \
             .verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
+
+        dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
+                                                          field_name='state',
+                                                          expected_value='enabled')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
+                                                          field_name='set-hostname',
+                                                          expected_value='enabled')
 
     with allure.step('Check hostname received by dhcp'):
         system.unset(engines.dut, SystemConsts.HOSTNAME)
@@ -464,8 +481,8 @@ def validate_interface_ip_address(address, output_dictionary, validate_in=True):
     :param validate_in: True after running set cmd, False after running unset
     """
     with allure.step('check the address field is updated as expected'):
+        output_dictionary = str(output_dictionary['address'].keys())
         if validate_in:
-            assert address in output_dictionary['address'].keys(), "address not found: {add}".format(add=address)
+            assert address in output_dictionary, "address not found: {add}".format(add=address)
         if not validate_in:
-            assert address not in output_dictionary['address'].keys(), "address found and should be deleted: {add}" \
-                .format(add=address)
+            assert address not in output_dictionary, "address found and should be deleted: {add}".format(add=address)
