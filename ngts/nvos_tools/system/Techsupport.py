@@ -24,7 +24,7 @@ class TechSupport(BaseComponent):
         """
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             return TechSupport.get_techsupport_folder_name(SendCommandTool.execute_command(
-                self.api_obj[TestToolkit.tested_api].action_generate, TestToolkit.engines.dut,
+                self.api_obj[TestToolkit.tested_api].action_generate_techsupport, TestToolkit.engines.dut,
                 self.get_resource_path().replace('/files', ' '), option, time))
 
     @staticmethod

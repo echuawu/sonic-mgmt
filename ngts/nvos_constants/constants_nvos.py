@@ -79,6 +79,22 @@ class OpenApiReqType:
     PATCH = 'PATCH'
     DELETE = 'DELETE'
     APPLY = 'APPLY'
+    ACTION = 'ACTION'
+
+
+class ActionType:
+    BOOT_NEXT = '@boot-next'
+    CLEANUP = '@cleanup'
+    CLEAR = '@clear'
+    DISCONNECT = '@disconnect'
+    GENERATE = '@generate'
+    INSTALL = '@install'
+    REBOOT = '@reboot'
+    RENEW = '@renew'
+    ROTATE = '@rotate'
+    TURNOFF = '@turn-off'
+    TURNON = '@turn-on'
+    UNINSTALL = '@uninstall'
 
 
 class SystemConsts:
@@ -216,7 +232,7 @@ class PlatformConsts:
     ENV_PSU = "psu"
     ENV_TEMP = 'temperature'
     ENV_COMP = [ENV_FAN, ENV_LED, ENV_PSU, ENV_TEMP]
-    ENV_FAN_COMP = ["max-speed", "min-speed", "speed", "state"]
+    ENV_FAN_COMP = ["max-speed", "min-speed", "current-speed", "state"]
     ENV_LED_COLOR_LABEL = "color"
     ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue", "amber"]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]

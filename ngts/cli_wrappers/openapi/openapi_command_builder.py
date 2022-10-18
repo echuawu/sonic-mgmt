@@ -2,6 +2,7 @@ import logging
 from ngts.nvos_constants.constants_nvos import OpenApiReqType
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 import json
+import time
 import allure
 import requests
 from requests.auth import HTTPBasicAuth
@@ -224,12 +225,61 @@ class OpenApiRequest:
             logging.info("Send DELETE request")
             return OpenApiRequest.add_to_path_request(request_data, op_params)
 
+    @staticmethod
+    def send_action_request(request_data, resource_path):
+        with allure.step("Send POST request"):
+            logging.info("Send POST request")
+            req_url = '{url}{resource_path}'.format(url=OpenApiRequest._get_endpoint_url(request_data),
+                                                    resource_path=request_data.resource_path)
+
+            OpenApiRequest.payload = {request_data.param_name: request_data.param_value}
+
+            r = requests.post(url=req_url,
+                              auth=OpenApiRequest._get_http_auth(request_data), verify=False,
+                              data=json.dumps(OpenApiRequest.payload),
+                              headers=REQ_HEADER)
+            OpenApiRequest.print_request(r.request)
+            response = json.dumps(r.json(), indent=2)
+            if response.isnumeric():
+                rev = response
+            else:
+                response = r.json()
+                assert "title" not in response, response['detail']
+
+        with allure.step("Send GET request"):
+            logging.info("Send GET request")
+            OpenApiRequest._send_get_req_and_wait_till_completed(request_data, rev)
+
+    @staticmethod
+    def _send_get_req_and_wait_till_completed(request_data, rev):
+
+        logging.info("Send GET request")
+        action_success = False
+        info = ""
+        timeout = 360
+        req_url = OpenApiRequest._get_endpoint_url(request_data) + "/action/" + rev
+        auth = OpenApiRequest._get_http_auth(request_data)
+
+        while timeout > 0:
+            r = requests.get(url=req_url, verify=False, auth=auth)
+            OpenApiRequest.print_request(r.request)
+            OpenApiRequest.print_response(r, OpenApiReqType.GET)
+            response = json.loads(r.content)
+            if response['state'] == "action_success":
+                action_success = True
+                break
+            elif response['state'] and response['state'] != "running" and response['state'] != "start":
+                info = response["status"] + " - issue: " + response["issue"]
+            time.sleep(10)
+        assert action_success, info
+
 
 class OpenApiCommandHelper:
 
     req_method = {OpenApiReqType.GET: OpenApiRequest.send_get_request,
                   OpenApiReqType.PATCH: OpenApiRequest.add_to_path_request,
-                  OpenApiReqType.DELETE: OpenApiRequest.send_delete_request}
+                  OpenApiReqType.DELETE: OpenApiRequest.send_delete_request,
+                  OpenApiReqType.ACTION: OpenApiRequest.send_action_request}
 
     @staticmethod
     def execute_script(user_name, password, req_type, dut_ip, resource_path, op_param_name='', op_param_value=''):
@@ -239,3 +289,8 @@ class OpenApiCommandHelper:
             return OpenApiRequest.apply_nvue_changeset(request_data)
 
         return OpenApiCommandHelper.req_method[req_type](request_data, op_param_name)
+
+    @staticmethod
+    def execute_action(action_type, user_name, password, dut_ip, resource_path, params):
+        request_data = RequestData(user_name, password, dut_ip, resource_path.strip(), action_type, params)
+        return OpenApiCommandHelper.req_method[OpenApiReqType.ACTION](request_data, resource_path)

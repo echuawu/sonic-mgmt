@@ -96,7 +96,7 @@ def test_show_platform_environment_temperature(engines, devices):
 def _verify_temp_prop(temp, temp_prop):
     logging.info("temp {}".format(temp))
     list_of_keys = temp_prop.keys()
-    assert "state" in list_of_keys and "temp" in list_of_keys, "state/temp can't be found"
+    assert "state" in list_of_keys and "current" in list_of_keys, "state/current can't be found"
 
     if "max" in list_of_keys:
         value = temp_prop["max"]

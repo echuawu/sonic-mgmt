@@ -26,7 +26,7 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_generate(engine, resource_path, option="", time=""):
+    def action_generate_techsupport(engine, resource_path, option="", time=""):
         path = resource_path.replace('/', ' ')
         cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))

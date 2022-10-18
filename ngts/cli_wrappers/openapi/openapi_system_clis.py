@@ -2,7 +2,7 @@ import logging
 from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
 from .openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OpenApiReqType
-from ngts.nvos_constants.constants_nvos import ActionConsts
+from ngts.nvos_constants.constants_nvos import ActionConsts, ActionType
 logger = logging.getLogger()
 
 
@@ -35,7 +35,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                         },
                         "image": op_param,
                     },
-                ActionConsts.REMOVE:
+                ActionConsts.UNINSTALL:
                     {
                         "@uninstall": {
                             "state": "inactive",
@@ -77,3 +77,18 @@ class OpenApiSystemCli(OpenApiBaseCli):
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
                                                    OpenApiReqType.PATCH, engine.ip, action_component_str,
                                                    params)
+
+    @staticmethod
+    def action_generate_techsupport(engine, resource_path, field, value):
+        logging.info("Running action: 'generate' on dut using OpenApi")
+
+        params = \
+            {
+                "state": "start",
+                "parameters": {
+                    "since": value
+                }
+            }
+
+        return OpenApiCommandHelper.execute_action(ActionType.GENERATE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
