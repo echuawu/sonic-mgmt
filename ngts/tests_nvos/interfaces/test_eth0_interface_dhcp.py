@@ -436,6 +436,8 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
     with allure.step('Set hostname and enable dhcp, check hostname not changed, check port up'):
         system.set(value='nvos', engine=serial_engine, field_name=SystemConsts.HOSTNAME)
         time.sleep(1)
+        logger.info('Check port status, should be down')
+        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state enabled', apply=True,
                                                ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
