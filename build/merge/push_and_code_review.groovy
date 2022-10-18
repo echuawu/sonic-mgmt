@@ -1,27 +1,27 @@
 package com.mellanox.jenkins.generic_modules
 
-def param_contain_value(ci_tools, param) {
-    if (ci_tools.is_parameter_contains_value(param) && param.toLowerCase() != "none") {
+def param_contain_value(param) {
+    if (NGCITools().ciTools.is_parameter_contains_value(param) && param.toLowerCase() != "none") {
         return true
     } else {
         return false
     }
 }
 
-def pre(name, ci_tools)
+def pre(name)
 {
     return true
 }
 
 
-def run_step(name, ci_tools)
+def run_step(name)
 {
     try
     {
         def change_number_list= []
 
-        if (ci_tools.is_parameter_contains_value(env.SHA1_MERGE_COMMIT)){
-            def related_changes = GerritTools.query_gerrit(ci_tools, 'GET', "/changes/${env.SHA1_MERGE_COMMIT}/revisions/${env.SHA1_MERGE_COMMIT}/related", [])
+        if (NGCITools().ciTools.is_parameter_contains_value(env.SHA1_MERGE_COMMIT)){
+            def related_changes = GerritTools.query_gerrit('GET', "/changes/${env.SHA1_MERGE_COMMIT}/revisions/${env.SHA1_MERGE_COMMIT}/related", [])
             for (change in related_changes["changes"]){
                 change_number_list.add(change["_change_number"])
             }
@@ -31,13 +31,13 @@ def run_step(name, ci_tools)
 
         } else {
             //get git branch
-            def git_branch = ci_tools.run_sh_return_output("git rev-parse --abbrev-ref HEAD").trim()
+            def git_branch = NGCITools().ciTools.run_sh_return_output("git rev-parse --abbrev-ref HEAD").trim()
 
             //only trigger formal
             if (env.NEW_CHANGES) {
                 //push to gerrit and get commits url's
                 print "Pushing commit/s to gerrit"
-                def push_output = ci_tools.run_sh_return_output("git push origin ${git_branch}:refs/for/${git_branch}")
+                def push_output = NGCITools().ciTools.run_sh_return_output("git push origin ${git_branch}:refs/for/${git_branch}")
 
 
                 //loop over push string for getting gerrit url's
@@ -55,7 +55,7 @@ def run_step(name, ci_tools)
                 }
             }
         }
-        if (ci_tools.is_parameter_contains_value(env.SHA1_MERGE_COMMIT) || env.NEW_CHANGES) {
+        if (NGCITools().ciTools.is_parameter_contains_value(env.SHA1_MERGE_COMMIT) || env.NEW_CHANGES) {
             env.MAIL_SUBJECT = "Triggering CI on: ${env.GERRIT_HTTP_URL}/${change_number_list.last()}"
             currentBuild.description = env.MAIL_SUBJECT
 
@@ -67,10 +67,10 @@ def run_step(name, ci_tools)
             for (int i = 0; i < change_number_list.size() - 1; i++) {
 
                 //change topic
-                GerritTools.set_topic(ci_tools, change_number_list[i], "IGNORE")
+                GerritTools.set_topic(change_number_list[i], "IGNORE")
 
                 //set code review +2
-                GerritTools.set_score(ci_tools, 'Code-Review', change_number_list[i], 1, '+2')
+                GerritTools.set_score('Code-Review', change_number_list[i], 1, '+2')
 
                 commits_pushed += "<tr><td>${env.GERRIT_HTTP_URL}/${change_number_list[i]} - IGNORE CI</td></tr>"
             }
@@ -83,16 +83,16 @@ def run_step(name, ci_tools)
             def possible_topic_list = ["RUN_COMMUNITY_REGRESSION", "IMAGE_VERSION", "IMAGE_GITHUB_BRANCH"]
 
             possible_topic_list.each { possible_topic ->
-                if (param_contain_value(ci_tools, env."${possible_topic}")) {
+                if (param_contain_value(env."${possible_topic}")) {
                     topic += "," + "${possible_topic}=" + env."${possible_topic}".trim()
                 }
             }
 
             //change topic
-            GerritTools.set_topic(ci_tools, change_number_list.last(), "${topic}")
+            GerritTools.set_topic(change_number_list.last(), "${topic}")
 
             //set code review +2
-            GerritTools.set_score(ci_tools, 'Code-Review', change_number_list.last(), 1, '+2')
+            GerritTools.set_score('Code-Review', change_number_list.last(), 1, '+2')
 
 
             //commits pushed table
@@ -115,7 +115,7 @@ def run_step(name, ci_tools)
     }
     catch (Throwable exc)
     {
-        ci_tools.set_error_in_env(exc,"devops",name)
+        NGCITools().ciTools.set_error_in_env(exc,"devops",name)
         return false
 
     }
@@ -123,7 +123,7 @@ def run_step(name, ci_tools)
 
 
 
-def cleanup(name, ci_tools)
+def cleanup(name)
 {
     return true
 }

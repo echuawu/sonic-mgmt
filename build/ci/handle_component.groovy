@@ -1,44 +1,44 @@
 package com.mellanox.jenkins.generic_modules
 
-def pre(name, ci_tools) {
+def pre(name) {
     return true
 }
 
 
-def run_step(name, ci_tools) {
+def run_step(name) {
     try {
         print "Component match = ${env.CHANGED_COMPONENTS}"
         if (env.RUN_COMMUNITY_REGRESSION && env.RUN_COMMUNITY_REGRESSION.toBoolean() == true &&  env.CHANGED_COMPONENTS && env.CHANGED_COMPONENTS.contains("NoMatch")) {
             print "Topic \"RUN_COMMUNITY_REGRESSION=true\" and changed files triggered community regression tests"
         } else {
             env.SKIP_COMMUNITY_REGRESSION = true
-            ci_tools.insert_test_result_to_matrix(name, "ETH Community", "SPC", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH Community", "SPC", "Skipped=status")
 
         }
 
         if (env.GERRIT_BRANCH == "develop" && env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") || env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") )){
             print "'NVOS' related files were changed. Will run NVOS BAT."
-            env.NVOS_BIN = (ci_tools.run_sh_return_output("ls /auto/sw_system_release/nos/nvos/lastrc_master/nvos-amd64*.bin")).trim()
+            env.NVOS_BIN = (NGCITools().ciTools.run_sh_return_output("ls /auto/sw_system_release/nos/nvos/lastrc_master/nvos-amd64*.bin")).trim()
         } else {
             env.SKIP_NVOS_BAT = true
-            ci_tools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
         }
         return true
     }
     catch (Throwable exc) {
-        ci_tools.set_error_in_env(exc, "user", name)
+        NGCITools().ciTools.set_error_in_env(exc, "user", name)
         return false
 
     }
 }
 
 
-def post(name, ci_tools) {
+def post(name) {
     return true
 }
 
 
-def cleanup(name, ci_tools) {
+def cleanup(name) {
     return true
 }
 

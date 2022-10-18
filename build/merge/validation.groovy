@@ -1,6 +1,6 @@
 package com.mellanox.jenkins
 
-def client_side_validation(ci_tools, client_validation_groovy) {
+def client_side_validation(client_validation_groovy) {
     //Load client side validation error map
     def errors_map = [:]
     errors_map = client_validation_groovy.mgmt_merge_flow()
@@ -12,7 +12,7 @@ def client_side_validation(ci_tools, client_validation_groovy) {
 
         errors_map.each { param, param_error ->
             errors_html += "</br><B>${param}:</B>&nbsp${env."${param}"}</B>"
-            if (ci_tools.is_parameter_contains_value(errors_map["${param}"])) {
+            if (NGCITools().ciTools.is_parameter_contains_value(errors_map["${param}"])) {
                 errors_html += "  ${errors_map["${param}"]}"
             }
         }
@@ -21,12 +21,12 @@ def client_side_validation(ci_tools, client_validation_groovy) {
     return true
 }
 
-def pre(name, ci_tools) {
+def pre(name) {
     return true
 }
 
 
-def run_step(name, ci_tools) {
+def run_step(name) {
     try {
         env.MGMT_GERRIT_BRANCH = env.MGMT_GERRIT_BRANCH.replaceAll("origin\\/", "").replaceAll("origin1\\/", "").replaceAll("origin2\\/", "").trim()
         env.GITHUB_BRANCH = env.MGMT_GITHUB_BRANCH.replaceAll("origin\\/", "").replaceAll("origin1\\/", "").replaceAll("origin2\\/", "").trim()
@@ -37,18 +37,18 @@ def run_step(name, ci_tools) {
         env.RELEASE_ERRORS_MAP="true"
         env.MERGE_HTML_VALIDATION="false"
         def client_validation_groovy = load("build/common/client_validation.groovy")
-        client_side_validation(ci_tools, client_validation_groovy)
+        client_side_validation(client_validation_groovy)
 
 
     } catch (Throwable ex) {
-        ci_tools.set_error_in_env(ex, "devops", name)
+        NGCITools().ciTools.set_error_in_env(ex, "devops", name)
         return false
     }
     return true
 }
 
 
-def cleanup(name, ci_tools) {
+def cleanup(name) {
     return true
 }
 
