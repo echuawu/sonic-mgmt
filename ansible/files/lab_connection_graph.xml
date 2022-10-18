@@ -25,6 +25,7 @@
       <Device Hostname="r-tigon-21" HwSku="Mellanox-SN4600C-D112C8" Type="DevSonic"/>
       <Device Hostname="r-tigon-22" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-tigris-26" HwSku="Mellanox-SN3800-D112C8" Type="DevSonic"/>
+      <Device Hostname="r-r740-07-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-tigris-27" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1005" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-59" HwSku="MLNX-OS" Type="FanoutLeaf"/>
@@ -48,6 +49,7 @@
       <Device Hostname="mtbc-sonic-02-2700" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="mtbc-3700c-02" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-tigon-14" HwSku="MLNX-OS" Type="FanoutLeaf"/>
+      <Device Hostname="r-anaconda-86" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="dummy-fanout" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-host60" HwSku="TestServ" Type="Server"/>
       <Device Hostname="mts-sai-host-3" HwSku="TestServ" Type="Server"/>
@@ -69,6 +71,7 @@
       <Device Hostname="r-r640-10" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-r640-13" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-r640-14" HwSku="TestServ" Type="Server"/>
+      <Device Hostname="r-r740-07" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-bulldog-03" HwSku="ACS-MSN2100" Type="DevSonic"/>
       <Device Hostname="r-bulldog-04" HwSku="ACS-MSN2100" Type="DevSonic"/>
       <Device Hostname="r-bulldog-02" HwSku="ACS-MSN2100" Type="DevSonic"/>
@@ -1628,6 +1631,8 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-10" EndPort="p1p1" StartDevice="r-tigon-19" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-13" EndPort="p2p1" StartDevice="r-tigon-22" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-14" EndPort="p2p1" StartDevice="r-tigris-27" StartPort="ethernet 1/64"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/1" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/2" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet4"/>
     </DeviceInterfaceLinks>
   </PhysicalNetworkGraphDeclaration>
   <DataPlaneGraph>
@@ -1699,6 +1704,9 @@
     </DevicesL3Info>
     <DevicesL3Info Hostname="arc-switch233-007">
       <ManagementIPInterface Name="ManagementIp" Prefix="0.0.0.0/0"/>
+    </DevicesL3Info>
+    <DevicesL3Info Hostname="r-anaconda-86">
+      <ManagementIPInterface Name="ManagementIp" Prefix="10.210.24.190/24"/>
     </DevicesL3Info>
     <DevicesL3Info Hostname="dummy-fanout">
       <ManagementIPInterface Name="ManagementIp" Prefix="0.0.0.0/0"/>
@@ -3223,6 +3231,11 @@
       <InterfaceVlan mode="Access" portname="ethernet 1/31/1" vlanids="131"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/31/2" vlanids="132"/>
       <InterfaceVlan mode="Trunk"  portname="ethernet 1/32"   vlanids="101-132"/>
+    </DevicesL2Info>
+    <DevicesL2Info Hostname="r-anaconda-86">
+      <InterfaceVlan mode="Access" portname="ethernet 1/1"   vlanids="101"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/2"   vlanids="102"/>
+      <InterfaceVlan mode="Trunk"  portname="ethernet 1/5"   vlanids="101-102"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="dummy-fanout">
       <InterfaceVlan mode="Access" portname="Ethernet0"   vlanids="101"/>

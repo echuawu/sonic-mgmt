@@ -547,6 +547,10 @@ dev-simx-host01-vm01-t0  ansible_host=10.75.206.118 ptf_host=ptf-vms6-3 type=sim
 dev-simx-host01-vm01-ptf32  ansible_host=10.75.206.118 ptf_host=ptf-vms6-3 type=simx sonic_version=v2 sonic_hwsku="ACS-MSN4700" iface_speed=40000 mgmt_subnet_mask_length=24 vm_base=VM5401
 dev-simx-host01-vm01-ptf-any  ansible_host=10.75.206.118 ptf_host=ptf-vms6-3 type=simx sonic_version=v2 sonic_hwsku="ACS-MSN4700" iface_speed=40000 mgmt_subnet_mask_length=24 vm_base=VM5401
 
+# MTR testbed r-r740-07-bf2-sonic-01 topologies
+r-r740-07-bf2-sonic-01 ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
+r-r740-07-bf2-sonic-01-appliance ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="008:C0:EB:E1:4B:94" pdu_host=pdu-
+
 # MTR Lab devices info
 arc-build-server ansible_host=arc-build-server ansible_user=root ansible_ssh_pass=3tango
 arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
@@ -802,6 +806,10 @@ dev-r-vrt-233-010
 dev-r-vrt-233-010-t0
 dev-r-vrt-233-010-ptf32
 dev-r-vrt-233-010-ptf-any
+
+# MTR r-r740-07-bf2-sonic-01 topologies
+r-r740-07-bf2-sonic-01
+r-r740-07-bf2-sonic-01-appliance
 
 [lab]
 c-anaconda-01-ptf-any
@@ -1245,6 +1253,10 @@ dev-simx-host01-vm01-t0
 dev-simx-host01-vm01-ptf32
 dev-simx-host01-vm01-ptf-any
 
+# MTR r-r740-07-bf2-sonic-01 topologies
+r-r740-07-bf2-sonic-01
+r-r740-07-bf2-sonic-01-appliance
+
 # NVOS topologies
 jaguar-119-ptf-any
 jaguar-119
@@ -1363,6 +1375,10 @@ ptf-1 ansible_host=10.0.0.200 ansible_ssh_user=root ansible_ssh_pass=password
 
 # MTBC Virtual testbed PTF host
 ptf-vms6-3 ansible_host=10.75.206.214 ansible_ssh_user=root ansible_ssh_pass=root
+
+# MTR r-r740-07-bf2-sonic-01 PTF host
+ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_pass=root
+10.215.20.183 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_pass=root
 
 [pdu]
 pdu-10-75-68-211 ansible_host=10.75.68.211 protocol=snmp

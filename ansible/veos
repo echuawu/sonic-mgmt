@@ -61,6 +61,9 @@ DEV-R-VRT-233 ansible_host=dev-r-vrt-233
 [vm_host_54]
 DEV-SIMX-HOST01 ansible_host=dev-simx-host01
 
+[vm_host_55]
+R-R740-07 ansible_host=r-r740-07
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -83,6 +86,7 @@ vm_host_19
 vm_host_50
 vm_host_52
 vm_host_54
+vm_host_55
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -752,6 +756,10 @@ VM5402 ansible_host=10.75.206.216
 VM5403 ansible_host=10.75.206.217
 VM5404 ansible_host=10.75.206.218
 
+[vms_55]
+VM2001 ansible_host=10.215.20.184
+VM2002 ansible_host=10.215.20.185
+
 [eos:children]
 vms_1
 vms_2
@@ -774,6 +782,7 @@ vms_19
 vms_50
 vms_52
 vms_54
+vms_55
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -935,6 +944,17 @@ host_var_file=host_vars/DEV-SIMX-HOST01.yml
 host_var_file=host_vars/DEV-SIMX-HOST01.yml
 mgmt_prefixlen=24
 
+[server_55:children]
+vm_host_55
+vms_55
+
+[server_55:vars]
+host_var_file=host_vars/R-R740-07.yml
+
+[vms_55:vars]
+host_var_file=host_vars/R-R740-07.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -957,9 +977,10 @@ server_19
 server_50
 server_52
 server_54
+server_55
 
 [servers:vars]
-topologies=['dualtor', 't1', 't1-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116']
+topologies=['dualtor', 't1', 't1-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', appliance]
 
 [sonic_latest]
 dev-r-vrt-233-010  ansible_host=10.212.233.10 type=simx sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=40000 mgmt_subnet_mask_length=16 vm_base=VM5201

@@ -379,6 +379,10 @@
                                 21393, 21394, 21409, 21410, 21425, 21426, 21441, 21442,
                                 21457, 21458, 21473, 21474,
                                 21504] %}
+{% set r_anaconda_86_eth_ports = [-1, '1/1', '1/2',
+                                  '1/5' ] %}
+{% set r_anaconda_86_of_ports = [-1, 20496, 20512,
+                                 20560] %}
 
 {# -----------------------------End of port configuration------------------------------ #}
 
@@ -626,10 +630,7 @@
                                  50000, 50000, 50000, 50000, 50000, 50000, 50000, 50000,
                                  50000, 50000, 50000, 50000,
                                  'auto'] %}
-{% set r_anaconda_51_port_speed = [-1, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
-                                   100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
-                                   100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
-                                   100000, 100000, 100000, 100000, 100000, 100000, 50000, 50000,
+{% set r_anaconda_86_port_speed = [-1, 100000, 100000,
                                    'auto'] %}
 {% set r_leopard_20_port_speed = [-1, 400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
                                    400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
@@ -771,6 +772,7 @@
     'r-tigon-14':[],
     'r-tigon-19':[],
     'r-tigon-22':[],
+    'r-anaconda-86':[],
     'mts-sonic-fanout':[]
 } %}
 
@@ -847,7 +849,8 @@
                                            '1/41', '1/42', '1/43', '1/44', '1/45', '1/46', '1/47', '1/48',
                                            '1/49', '1/50', '1/51', '1/52', '1/53', '1/54', '1/55', '1/56',
                                            '1/57', '1/58', '1/59', '1/60', '1/61', '1/62'],
-                            'mts-sonic-fanout':['1/31']} %}
+                            'mts-sonic-fanout':['1/31'],
+                            'r-anaconda-86':[]} %}
 
 {% set qsfp_dd_split_4_dict = {
     'c-panther-02':[],
@@ -869,6 +872,7 @@
     'r-tigon-14':[],
     'r-tigon-19':[],
     'r-tigon-22':[],
+    'r-anaconda-86':[],
     'mts-sonic-fanout':[]
 } %}
 
@@ -891,6 +895,7 @@
                             'r-tigon-14':[],
                             'r-tigon-19':[],
                             'r-tigon-22':[],
+                            'r-anaconda-86':[],
                             'mts-sonic-fanout':[]} %}
 
 {% set eth_ports_dict = {'c-panther-02':c_panther_02_eth_ports,
@@ -912,6 +917,7 @@
                          'r-tigon-14':r_tigon_14_eth_ports,
                          'r-tigon-19':r_tigon_19_eth_ports,
                          'r-tigon-22':r_tigon_22_eth_ports,
+                         'r-anaconda-86':r_anaconda_86_eth_ports,
                          'mts-sonic-fanout':default_eth_ports} %}
 
 {% set of_ports_dict = {'c-panther-02':c_panther_02_of_ports,
@@ -933,7 +939,8 @@
                         'r-tigon-14':r_tigon_14_of_ports,
                         'r-tigon-19':r_tigon_19_of_ports,
                         'r-tigon-22':r_tigon_22_of_ports,
-                        'mts-sonic-fanout':default_of_ports} %}
+                        'mts-sonic-fanout':default_of_ports,
+                        'r-anaconda-86':default_of_ports} %}
 
 {% set vlan_range_dict = {'c-panther-02':[(vlanid_offset + 1)|string, (vlanid_offset + 56)|string],
                           'arc-switchmtbc02':default_vlan_range,
@@ -954,7 +961,8 @@
                           'r-tigon-14':[(vlanid_offset + 1)|string, (vlanid_offset + 116)|string],
                           'r-tigon-19':[(vlanid_offset + 1)|string, (vlanid_offset + 116)|string],
                           'r-tigon-22':[(vlanid_offset + 1)|string, (vlanid_offset + 116)|string],
-                          'mts-sonic-fanout':default_vlan_range} %}
+                          'mts-sonic-fanout':default_vlan_range,
+                          'r-anaconda-86':[(vlanid_offset + 1)|string, (vlanid_offset + 2)|string]} %}
 
 {% set port_fec_dict = {'c-panther-02':c_panther_02_port_fec,
                         'arc-switchmtbc02':default_port_fec,
@@ -975,7 +983,8 @@
                         'r-tigon-14':r_tigon_14_port_fec,
                         'r-tigon-19':r_tigon_19_port_fec,
                         'r-tigon-22':r_tigon_22_port_fec,
-                        'mts-sonic-fanout':default_port_fec} %}
+                        'mts-sonic-fanout':default_port_fec,
+                        'r-anaconda-86':default_port_fec,} %}
 
 {% set port_speed_dict = {'c-panther-02':c_panther_02_port_speed,
                           'arc-switchmtbc02':arc_switchmtbc02_port_speed,
@@ -996,7 +1005,8 @@
                           'r-tigon-14':r_tigon_14_port_speed,
                           'r-tigon-19':r_tigon_19_port_speed,
                           'r-tigon-22':r_tigon_22_port_speed,
-                          'mts-sonic-fanout':mts_sonic_fanout_port_speed} %}
+                          'mts-sonic-fanout':mts_sonic_fanout_port_speed,
+                          'r-anaconda-86':r_anaconda_86_port_speed,} %}
 
 {% set license_dict = {'c-panther-02':'LK2-RESTRICTED_CMDS_GEN2-43A1-4H83-REA1-288A-4QWL-0PW5-U7',
                        'arc-switchmtbc02':'LK2-RESTRICTED_CMDS_GEN2-43A7-43LN-YFMB-A88A-0VXP-TUXP-RJ',
@@ -1018,7 +1028,8 @@
                        'r-tigris-27':'LK2-RESTRICTED_CMDS_GEN2-4398-Q3MQ-P0XG-88A0-LD06-3387-5',
                        'r-tigris-23':'LK2-RESTRICTED_CMDS_GEN2-439V-6KD6-FTKQ-88A5-0035-UDJT-U',
                        'r-tigris-28':'LK2-RESTRICTED_CMDS_GEN2-4398-Q3MQ-P108-88A2-0QMR-5MCG-F',
-                       'mts-sonic-fanout':'LK2-RESTRICTED_CMDS_GEN2-43A7-C1ND-30WG-T88A-1H4M-NBU2-MY'} %}
+                       'mts-sonic-fanout':'LK2-RESTRICTED_CMDS_GEN2-43A7-C1ND-30WG-T88A-1H4M-NBU2-MY',
+                       'r-anaconda-86':'LK2-EFM_SX-5HGL-0KAL-68QK-0CAQ-60VK-ECHG-88A6-FHKH-NKE5-J'} %}
 
 {# -----------------------------End of params dictionary------------------------------- #}
 

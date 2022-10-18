@@ -98,6 +98,7 @@ r-jaguar-03      ansible_host=10.210.25.99 ansible_hostv6="" sonic_version=v2 hw
 gorilla-153      ansible_host=10.7.144.153 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 gorilla-154      ansible_host=10.7.144.154 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 nvidia-arm-orion      ansible_host=10.210.24.241 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
+r-r740-07-bf2-sonic-01         ansible_host=10.215.20.238 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM2001
 
 [sonic_sn2700_40]
 str-msn2700-01    ansible_host=10.251.0.188 serial="MT1234X56789" base_mac="24:8a:07:12:34:56" syseeprom_info="{'0xFE': '0xFBA1E964', '0x28': 'x86_64-mlnx_x86-r0', '0x29': '2016.11-5.1.0008-9600', '0x22': 'MSN2700-CS2FO', '0x23': 'MT1234X56789', '0x21': 'MSN2700', '0x26': '0', '0x24': '24:8a:07:12:34:56', '0x25': '12/07/2016', '0x2B': 'Mellanox', '0x2A': '128'}"
@@ -132,6 +133,7 @@ ptf-232-010 ansible_host=10.212.232.9 ansible_ssh_user=root ansible_ssh_pass=roo
 ptf-233-010 ansible_host=10.212.232.9 ansible_ssh_user=root ansible_ssh_pass=root
 ptf_vms6-1  ansible_host=10.250.0.100 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-vms6-3  ansible_host=10.75.206.214 ansible_ssh_pass=root ansible_ssh_pass=root
+ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_pass=root
 
 [lab:children]
 sonic
@@ -164,4 +166,5 @@ r-liger-05          ansible_host=10.210.24.104 os=mellanox
 r-leopard-20        ansible_host=10.210.25.114 os=mellanox
 mtbc-sonic-02-2700  ansible_host=10.75.67.45 os=mellanox
 mtbc-3700c-02       ansible_host=10.75.67.51 os=mellanox
+r-anaconda-86       ansible_host=10.210.24.190 os=mellanox
 dummy-fanout        ansible_host=1.1.1.1 os=mellanox
