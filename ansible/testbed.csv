@@ -185,6 +185,7 @@ mtbc-3700c-01-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-mtbc04,10.75.205.201/24,,s
 mtbc-3700c-01-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-mtbc04,10.75.205.201/24,,server_14,VM1401,mtbc-3700c-01,Mellanox MTBC testbed
 
 r-r740-07-bf2-sonic-01-appliance,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
+r-r740-07-bf2-sonic-01-ptf-any,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
 
 dev-simx-host01-vm01-t0,vms6-3,t0,docker-ptf-mlnx,ptf-vms6-3,10.75.206.214/24,,server_54,VM5401,dev-simx-host01-vm01,Mellanox virtual SID testbed
 dev-simx-host01-vm01-ptf32,vms6-3,ptf32,docker-ptf-mlnx,ptf-vms6-3,10.75.206.214/24,,server_54,VM5401,dev-simx-host01-vm01,Mellanox virtual SID testbed

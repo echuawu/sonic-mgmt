@@ -8,7 +8,7 @@ import sys
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants
 from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
-    reboot_validation, execute_script
+    reboot_validation, execute_script, is_bf_topo
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_background_process_on_host
 
@@ -40,7 +40,9 @@ class SonicInstallationSteps:
 
             with allure.step('Remove topologies'):
                 for dut in setup_info['duts']:
-                    SonicInstallationSteps.remove_topologies(ansible_path=ansible_path, dut_name=dut['dut_name'])
+                    SonicInstallationSteps.remove_topologies(ansible_path=ansible_path,
+                                                             dut_name=dut['dut_name'],
+                                                             sonic_topo=sonic_topo)
 
             SonicInstallationSteps.start_community_background_threads(threads_dict, setup_name,
                                                                       dut_name, sonic_topo, ptf_tag, port_number,
@@ -57,9 +59,10 @@ class SonicInstallationSteps:
         """
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=1800, exec_path=ansible_path)
-        gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
-        run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
-                                       exec_path=ansible_path)
+        if not is_bf_topo(sonic_topo):
+            gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
+            run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
+                                           exec_path=ansible_path)
 
     @staticmethod
     def start_canonical_background_threads(threads_dict, setup_name, dut_name):
@@ -149,14 +152,15 @@ class SonicInstallationSteps:
         return ptf_tag
 
     @staticmethod
-    def remove_topologies(ansible_path, dut_name):
+    def remove_topologies(ansible_path, dut_name, sonic_topo):
         """
-        Method which add cEOS dockers and topo in case of community setup
+        The method removes the topologies to get the clear environment.
         """
-        logger.info("Preparing topology for SONiC testing")
-        with allure.step("Recover Topology (community step)"):
-            logger.info("Remove all topologies. This may increase a chance to deploy a new one successful")
-            for topology in MarsConstants.TOPO_ARRAY:
+        logger.info("Removing topologies to get the clear environment")
+        with allure.step("Remove Topologies (community step)"):
+            topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo)
+            logger.info(f"Remove topologies: {topologies}. This may increase a chance to deploy a new one successful")
+            for topology in topologies:
                 logger.info("Remove topo {}".format(topology))
                 cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name,
                                                                                           TOPO=topology)
@@ -165,6 +169,12 @@ class SonicInstallationSteps:
                     execute_script(cmd, ansible_path, validate=False, timeout=600)
                 except Exception as err:
                     logger.warning(f'Failed to remove topology. Got error: {err}')
+
+    @staticmethod
+    def get_topologies_to_remove(required_topology):
+        if is_bf_topo(required_topology):
+            return [required_topology]
+        return MarsConstants.TOPO_ARRAY
 
     @staticmethod
     def get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag):
@@ -270,10 +280,11 @@ class SonicInstallationSteps:
                 deploy_minigpraph(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
                                   recover_by_reboot=recover_by_reboot, topology_obj=topology_obj,
                                   cli_obj=general_cli_obj)
-
-            for dut in setup_info['duts']:
-                SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
-                                                                ansible_path=ansible_path)
+            # TODO remove the "if" for DPU when the RM issue 3203843 will be resolved
+            if not is_bf_topo(sonic_topo):
+                for dut in setup_info['duts']:
+                    SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
+                                                                    ansible_path=ansible_path)
 
         for dut in setup_info['duts']:
             SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj, dut_name=dut['dut_name'],

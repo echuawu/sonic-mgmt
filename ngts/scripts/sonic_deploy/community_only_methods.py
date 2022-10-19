@@ -43,13 +43,25 @@ def get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number):
     return cmd
 
 
+def get_deploy_minigraph_cmd(sonic_topo):
+    """
+    Method which returns the deploy minigraph command.
+    For Bluefield devices used the method which generating and deploy the minigraph in one cmd with additional parameter
+    """
+    cmd = "ansible-playbook -i inventory --limit {SWITCH} deploy_minigraph.yml " \
+          "-e dut_minigraph={SWITCH}.{TOPO}.xml -b -vvv"
+    if is_bf_topo(sonic_topo):
+        cmd = "./testbed-cli.sh deploy-mg {SWITCH}-{TOPO} lab vault -e switch_type=dpu"
+    return cmd
+
+
 def deploy_minigpraph(ansible_path, dut_name, sonic_topo, recover_by_reboot, topology_obj, cli_obj):
     """
     Method which doing minigraph deploy on DUT
     """
     with allure.step('Deploy Minigraph'):
-        cmd = "ansible-playbook -i inventory --limit {SWITCH} deploy_minigraph.yml " \
-              "-e dut_minigraph={SWITCH}.{TOPO}.xml -b -vvv".format(SWITCH=dut_name, TOPO=sonic_topo)
+        cmd_temp = get_deploy_minigraph_cmd(sonic_topo)
+        cmd = cmd_temp.format(SWITCH=dut_name, TOPO=sonic_topo)
         logger.info("Running CMD: {}".format(cmd))
         if recover_by_reboot:
             try:
@@ -109,3 +121,7 @@ def execute_script(cmd, exec_path, validate=True, timeout=None):
     if validate and p.returncode != 0:
         raise AssertionError('CMD: {} failed with RC: {}'.format(cmd, p.returncode))
     return p.returncode
+
+
+def is_bf_topo(sonic_topo):
+    return sonic_topo == 'appliance'

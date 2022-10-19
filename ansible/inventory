@@ -550,6 +550,7 @@ dev-simx-host01-vm01-ptf-any  ansible_host=10.75.206.118 ptf_host=ptf-vms6-3 typ
 # MTR testbed r-r740-07-bf2-sonic-01 topologies
 r-r740-07-bf2-sonic-01 ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
 r-r740-07-bf2-sonic-01-appliance ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="008:C0:EB:E1:4B:94" pdu_host=pdu-
+r-r740-07-bf2-sonic-01-ptf-any ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="008:C0:EB:E1:4B:94" pdu_host=pdu-
 
 # MTR Lab devices info
 arc-build-server ansible_host=arc-build-server ansible_user=root ansible_ssh_pass=3tango
@@ -810,6 +811,7 @@ dev-r-vrt-233-010-ptf-any
 # MTR r-r740-07-bf2-sonic-01 topologies
 r-r740-07-bf2-sonic-01
 r-r740-07-bf2-sonic-01-appliance
+r-r740-07-bf2-sonic-01-ptf-any
 
 [lab]
 c-anaconda-01-ptf-any
@@ -1256,6 +1258,7 @@ dev-simx-host01-vm01-ptf-any
 # MTR r-r740-07-bf2-sonic-01 topologies
 r-r740-07-bf2-sonic-01
 r-r740-07-bf2-sonic-01-appliance
+r-r740-07-bf2-sonic-01-ptf-any
 
 # NVOS topologies
 jaguar-119-ptf-any
