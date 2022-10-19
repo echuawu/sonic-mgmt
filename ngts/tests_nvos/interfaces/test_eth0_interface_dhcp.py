@@ -210,7 +210,7 @@ def test_interface_eth0_mtu(engines, topology_obj):
         mgmt_port.interface.link.mtu.set(value='9200', apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(1)
+        time.sleep(2)
         output_dictionary_set = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
         Tools.ValidationTool.compare_values(output_dictionary_set[mgmt_port.interface.link.mtu.label], 9200, True)\
@@ -220,7 +220,7 @@ def test_interface_eth0_mtu(engines, topology_obj):
         mgmt_port.interface.link.mtu.unset(apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(1)
+        time.sleep(2)
         output_dictionary_unset = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
         Tools.ValidationTool.compare_values(output_dictionary_unset[mgmt_port.interface.link.mtu.label], 1500, True)\
