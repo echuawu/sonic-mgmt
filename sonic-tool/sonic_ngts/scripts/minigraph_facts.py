@@ -5,6 +5,7 @@ import re
 import json
 import sys
 import socket
+import time
 socket.setdefaulttimeout(60)
 
 if sys.version_info[0] == 3:
@@ -72,7 +73,7 @@ def read_config_db_json(base_path, setup_name):
     return config_db_json
 
 
-def get_config_db_json_from_hostname(hostname):
+def get_config_db_json_from_hostname(hostname, logs):
     """
     Method returns config_db.json data as dictionary for specific host
     We looking for setup name in shared folder and then read config_db.json for specific host.
@@ -85,23 +86,34 @@ def get_config_db_json_from_hostname(hostname):
     if 'ptf-any' in hostname:
         hostname = hostname.strip('ptf-any')
 
+    logs.append('{} Going to get config_db.json based on hostname: {}'.format(time.ctime(), hostname))
     setups_list_http_page_html_response = urlopen(http_topo_base_path)
+    logs.append('{} Got list of setups from HTTP server, going to do iteration over setups'.format(time.ctime()))
     for html_line in setups_list_http_page_html_response:
         html_line = html_line.decode('ascii')
+        logs.append('{} Checking HTML line: {}'.format(time.ctime(), html_line))
         # Add CI setups to list, if will not find regular setup - then will iterate over CI setups list
         if any(ci_name in html_line for ci_name in ['CI_sonic_SPC', 'CI_sonic_BF']):
+            logs.append('{} Found CI setup in line: {}'.format(time.ctime(), html_line))
             ci_setups.append(re.search(r'href="(\S*)\/"', html_line).groups()[0])
         if hostname in html_line:
+            logs.append('{} Found expected {} setup in line: {}'.format(time.ctime(), hostname, html_line))
             setup_name = re.search(r'href="(\S*)\/"', html_line).groups()[0]
+            logs.append('{} Going to read config_db.json for specific setup: {}'.format(time.ctime(), hostname))
             config_db_json = read_config_db_json(http_topo_base_path, setup_name)
+            logs.append('{} Finished read config_db.json for specific setup: {}'.format(time.ctime(), hostname))
             break
 
     # if not setup name - then try find DUT config_db.json in CI setups
     if not setup_name:
+        logs.append('{} Going to check CI setups'.format(time.ctime()))
         for ci_setup in ci_setups:
+            logs.append('{} Iterating over CI setup: {}'.format(time.ctime(), ci_setup))
             config_db_json = read_config_db_json(http_topo_base_path, ci_setup)
+            logs.append('{} Read config_db.json for CI setup: {}'.format(time.ctime(), ci_setup))
             if hostname == config_db_json["DEVICE_METADATA"]["localhost"]["hostname"]:
                 setup_name = ci_setup
+                logs.append('{} Found and read expected CI setup config_db.json: {}'.format(time.ctime(), ci_setup))
                 break
 
     if not setup_name:
@@ -110,21 +122,23 @@ def get_config_db_json_from_hostname(hostname):
     return config_db_json
 
 
-def get_dut_ports(config_db_json):
+def get_dut_ports(config_db_json, logs):
     ports = {}
+    logs.append('{} Getting dut ports'.format(time.ctime()))
     for iface in config_db_json["PORT"]:
         ports[iface] = {"alias": config_db_json["PORT"][iface]["alias"], "name": iface}
+    logs.append('{} Getting dut ports finished'.format(time.ctime()))
     return ports
 
 
 def generate_minigraph_facts(hostname):
     minigraph_facts = dict()
-
-    config_db_json = get_config_db_json_from_hostname(hostname)
+    logs = []
+    config_db_json = get_config_db_json_from_hostname(hostname, logs)
 
     minigraph_facts["inventory_hostname"] = config_db_json["DEVICE_METADATA"]["localhost"]["hostname"]
     minigraph_facts["minigraph_hwsku"] = config_db_json["DEVICE_METADATA"]["localhost"]["hwsku"]
-    minigraph_facts["minigraph_ports"] = get_dut_ports(config_db_json)
+    minigraph_facts["minigraph_ports"] = get_dut_ports(config_db_json, logs)
     minigraph_facts["minigraph_port_indices"] = {}
     minigraph_facts["minigraph_vlans"] = {}
     minigraph_facts["minigraph_portchannels"] = {}
@@ -132,6 +146,7 @@ def generate_minigraph_facts(hostname):
     minigraph_facts["minigraph_neighbors"] = {}
     minigraph_facts["minigraph_device_metadata"] = {"device_type": config_db_json["DEVICE_METADATA"]["localhost"]["type"]}
 
+    minigraph_facts['logs'] = logs
     return minigraph_facts
 
 

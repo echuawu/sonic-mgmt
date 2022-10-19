@@ -3,6 +3,7 @@ from ansible.module_utils.basic import *
 import traceback
 import os
 import sys
+import time
 from retry.api import retry_call
 
 sys.path.append('{}/../ansible/library'.format(os.path.abspath(os.curdir)))
@@ -54,9 +55,13 @@ def build_results(hostnames):
     device_pdu_info = {}
     device_pdu_links = {}
 
+    logs = []
+    logs.append('{} Getting conn_facts'.format(time.ctime()))
     for hostname in hostnames:
-        config_db = retry_call(get_config_db_json_from_hostname, fargs=[hostname], tries=5, delay=6, logger=None)
-        all_dut_ports = get_dut_ports(config_db)
+        logs.append('{} Getting conn_facts for host: {}'.format(time.ctime(), hostname))
+        config_db = retry_call(get_config_db_json_from_hostname, fargs=[hostname, logs], tries=5, delay=6, logger=None)
+        logs.append('{} Have config_db.json, going to get ports info'.format(time.ctime()))
+        all_dut_ports = get_dut_ports(config_db, logs)
 
         device_info[hostname] = {}
         device_conn[hostname] = {}
@@ -73,9 +78,13 @@ def build_results(hostnames):
             speed = config_db['PORT'][port_name]['speed']
             port_info_dict = {port_name: {'peerdevice': 'stub_device', 'speed': speed, 'peerport': 'stub_port'}}
             device_conn[hostname].update(port_info_dict)
+        logs.append('{} Finished getting info for DUT: {}'.format(time.ctime(), hostname))
 
     results = {k: v for k, v in locals().items()
                if (k.startswith("device_") and v)}
+
+    logs.append('{} Have results dict'.format(time.ctime()))
+    results['logs'] = logs
 
     return results
 
