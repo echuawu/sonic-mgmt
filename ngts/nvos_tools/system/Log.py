@@ -8,16 +8,19 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Component import Component
+from ngts.nvos_tools.system.Rotation import Rotation
 logger = logging.getLogger()
 
 
 class Log(BaseComponent):
     files = None
     component = None
+    rotation = None
 
     def __init__(self, parent_obj):
         self.files = Files(self)
         self.component = Component(self)
+        self.rotation = Rotation(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/log'
         self.parent_obj = parent_obj

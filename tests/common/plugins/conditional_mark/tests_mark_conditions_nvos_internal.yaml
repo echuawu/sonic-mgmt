@@ -41,25 +41,34 @@ tests_nvos/system/test_show_system.py::test_show_system_reboot:
     conditions:
       - https://redmine.mellanox.com/issues/3193758
 
+-tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_frequency:
+-  skip:
+-   reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3233068"
+    conditions:
+      - https://redmine.mellanox.com/issues/3233068
 
-tests_nvos/system/test_log_commands.py::test_log_files_rotation_default_fields:
-  skip:
-    reason: "Not implemented command"
+-tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_size_disk_percentage:
+-  skip:
+-   reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3215005"
+    conditions:
+      - https://redmine.mellanox.com/issues/3215005
 
-tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation:
-  skip:
-    reason: "Not implemented command"
+-tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_max_number:
+-  skip:
+-   reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3233070"
+    conditions:
+      - https://redmine.mellanox.com/issues/3233070
 
-tests_nvos/system/test_log_commands.py::test_log_files_rotation_force:
-  skip:
-    reason: "Not implemented command"
+-tests_nvos/system/test_log_commands.py::test_upload_log_files:
+-  skip:
+-   reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3235264"
+    conditions:
+      - https://redmine.mellanox.com/issues/3235264
 
-tests_nvos/system/test_log_commands.py::test_upload_log_files:
-  skip:
-    reason: "Not implemented command"
-
-tests_nvos/system/test_log_commands.py::test_delete_log_files:
-  skip:
-    reason: "Not implemented command"
+-tests_nvos/system/test_log_commands.py::test_delete_log_files:
+-  skip:
+-   reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3235228"
+    conditions:
+      - https://redmine.mellanox.com/issues/3235228
 
 ########################## NVOS IGNORE END ##########################

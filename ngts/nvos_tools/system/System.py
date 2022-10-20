@@ -12,6 +12,7 @@ from ngts.nvos_tools.system.Reboot import Reboot
 from ngts.nvos_tools.system.Log import Log
 from ngts.nvos_tools.system.Debug_log import DebugLog
 from ngts.nvos_tools.system.Component import Component
+from ngts.nvos_tools.system.Rotation import Rotation
 from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
@@ -31,6 +32,7 @@ class System(BaseComponent):
     debug_log = None
     component = None
     files = None
+    rotation = None
 
     def __init__(self, parent_obj=None, username='admin'):
         self.aaa = Aaa(self, username)
@@ -38,6 +40,7 @@ class System(BaseComponent):
         self.debug_log = DebugLog(self)
         self.component = Component(self)
         self.files = Files(self)
+        self.rotation = Rotation(self)
         self.security = Security(self)
         self.techsupport = TechSupport(self)
         self.images = Images(self)
