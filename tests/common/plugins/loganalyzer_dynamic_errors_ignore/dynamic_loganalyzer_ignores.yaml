@@ -599,6 +599,14 @@
         - simx
 
 - Errors_list:
+    - '.* ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
+  Conditions:
+    - Redmine:
+      - 3235037
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_get_port_stats_ext: Failed to allocate SDK buffer.*'
   Conditions:
     - Redmine:
