@@ -1529,3 +1529,13 @@
       - 3230829
       Platform:
       - nvda_bf
+
+- Errors_list:
+    - '.*ERR dhclient.*: receive_packet failed on .*: Network is down.*'
+    - '.*ERR dhclient.*: send_packet: No such device or address*'
+    - '.*ERR dhclient.*: dhclient.c:.*: Failed to send \d+ byte long packet over .* interface.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3114029
