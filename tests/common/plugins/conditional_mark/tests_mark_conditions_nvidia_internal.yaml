@@ -570,6 +570,12 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
     conditions:
       - "https://redmine.mellanox.com/issues/3108303 and 'msn4' in platform and ('202111' in release or 'master' in release)"
 
+platform_tests/cli/test_show_platform.py::test_show_platform_firmware_status:
+  skip:
+    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3236436 and 'master' in release"
+
 platform_tests/test_reboot.py:
   skip:
     reason: "Testcase ignored due to platform 2010"
