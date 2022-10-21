@@ -54,10 +54,7 @@ class TestRouting:
         self.ha_or_hb_regex = f'({self.ha_dut_1_ip}|{self.hb_dut_1_ip})'
 
         # Check that all BGPs established before run test(in other case first test may pass because session not yet UP)
-        retry_call(self.dut_cli.bgp.validate_bgp_session_state,
-                   fargs=[self.dut_cli.bgp.parse_ip_bgp_summary(), self.ha_dut_1_ip, 'Established'], tries=10, delay=5)
-        retry_call(self.dut_cli.bgp.validate_bgp_session_state,
-                   fargs=[self.dut_cli.bgp.parse_ip_bgp_summary(), self.hb_dut_1_ip, 'Established'], tries=10, delay=5)
+        retry_call(self.check_bgp_sessions, fargs=[], tries=10, delay=5, logger=logger)
 
     def validate_arp(self, arp_table_data):
         """
