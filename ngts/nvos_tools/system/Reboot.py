@@ -19,8 +19,8 @@ class Reboot(BaseComponent):
     def get_expected_fields(self, device):
         return device.constants.system['reboot']
 
-    def action_reboot(self, option="", params=""):
+    def action_reboot(self, params=""):
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_reboot,
                                                    TestToolkit.engines.dut,
-                                                   self.get_resource_path().replace('/reboot', ' '), option, params)
+                                                   self.get_resource_path().replace('/reboot', ' '), params)

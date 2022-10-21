@@ -37,7 +37,7 @@ def test_techsupport_since(engines):
     command: nv show system tech-support files
 
     Test flow:
-        1. run nv action generate system tech-support --since <today_time>
+        1. run nv action generate system tech-support since <today_time>
         2. run nv show system tech-support files
         3. validate new tar.gz file exist
     """
@@ -59,7 +59,7 @@ def test_techsupport_since_invalid_date(engines):
     command: nv show system tech-support files
 
     Test flow:
-        1. run nv action generate system tech-support --since <syntax_error>
+        1. run nv action generate system tech-support since <syntax_error>
         2. validate Invalid date in the output
     """
     system = System(None)

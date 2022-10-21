@@ -19,22 +19,22 @@ def test_reboot_command(engines):
 def test_reboot_command_immediate(engines):
     """
     Test flow:
-        1. run nv action reboot system --mode immediate
+        1. run nv action reboot system mode immediate
     """
     system = System(None)
-    with allure.step('Run nv action reboot system --mode immediate'):
-        system.reboot.action_reboot('--mode', 'immediate')
+    with allure.step('Run nv action reboot system mode immediate'):
+        system.reboot.action_reboot('immediate')
 
 
 @pytest.mark.system
 def test_reboot_command_force(engines):
     """
     Test flow:
-        1. run nv action reboot system --mode force
+        1. run nv action reboot system mode force
     """
     system = System(None)
-    with allure.step('Run nv action reboot system --mode force'):
-        system.reboot.action_reboot('--mode', 'force')
+    with allure.step('Run nv action reboot system mode force'):
+        system.reboot.action_reboot('force')
 
 
 @pytest.mark.system
@@ -49,10 +49,10 @@ def test_reboot_command_type(engines):
     substring = 'NVOS cant perform it'
     err_message = 'User requested a fast reboot, but NVOS cant perform it'
 
-    with allure.step('Run nv action reboot system --type fast'):
-        output = engines.dut.run_cmd('nv action reboot system --type fast')
+    with allure.step('Run nv action reboot system type fast'):
+        output = engines.dut.run_cmd('nv action reboot system type fast')
         ValidationTool.verify_substring_in_output(output, substring, err_message, True)
 
-    with allure.step('Run nv action reboot system --type warm'):
-        output = engines.dut.run_cmd('nv action reboot system --type warm')
+    with allure.step('Run nv action reboot system type warm'):
+        output = engines.dut.run_cmd('nv action reboot system type warm')
         ValidationTool.verify_substring_in_output(output, substring, err_message, True)

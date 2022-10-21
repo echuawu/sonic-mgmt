@@ -142,7 +142,7 @@ class SystemConsts:
                                        "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d" \
                                        "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
                                        " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"
-    ACTIONS_GENERATE_SINCE = '--since'
+    ACTIONS_GENERATE_SINCE = 'since'
 
     DEFAULT_USER_ADMIN = 'admin'
     DEFAULT_USER_MONITOR = 'monitor'
