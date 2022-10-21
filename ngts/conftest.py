@@ -334,11 +334,21 @@ def players(topology_obj):
 
 
 @pytest.fixture(scope="session")
-def is_simx(platform_params):
+def is_simx(platform_params, is_air):
     is_simx_setup = False
     if re.search('simx', platform_params.setup_name):
         is_simx_setup = True
+    if is_air:
+        is_simx_setup = True
     return is_simx_setup
+
+
+@pytest.fixture(scope='session')
+def is_air(platform_params):
+    is_air_setup = False
+    if re.search('air', platform_params.setup_name.lower()):
+        is_air_setup = True
+    return is_air_setup
 
 
 def cleanup_last_config_in_stack(cleanup_list):
