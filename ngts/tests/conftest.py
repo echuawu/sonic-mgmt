@@ -102,21 +102,6 @@ def dut_hb_2_mac(engines, cli_objects, topology_obj):
     return cli_objects.dut.mac.get_mac_address_for_interface(topology_obj.ports['dut-hb-2'])
 
 
-@pytest.fixture(scope='session', autouse=True)
-def simx_disable_counters(is_simx, engines, cli_objects, topology_obj, sonic_version):
-    """
-    Pytest fixture which disable counters on SIMX workaround for issue: https://redmine.mellanox.com/issues/2807805
-    """
-    if is_simx:
-        if '202012' not in sonic_version:
-            counterpoll_status_dict = cli_objects.dut.counterpoll.parse_counterpoll_show()
-            for counter, value in counterpoll_status_dict.items():
-                if value['Status'] == 'enable':
-                    cli_objects.dut.counterpoll.disable_counterpoll()
-                    cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
-                    break
-
-
 @pytest.fixture(scope='session')
 def run_config_only(request):
     """
