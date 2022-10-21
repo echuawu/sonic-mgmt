@@ -176,7 +176,7 @@ def dut_ports_number_dict(topology_obj, engines, cli_objects):
 
 
 @pytest.fixture(autouse=True, scope='session')
-def dut_ports_default_mlxlink_configuration(platform_params, chip_type, engines, cli_objects, interfaces,
+def dut_ports_default_mlxlink_configuration(is_simx, platform_params, chip_type, engines, cli_objects, interfaces,
                                             tested_lb_dict, fec_modes_speed_support,
                                             tested_lb_dict_for_bug_2705016_flow, pci_conf, dut_ports_number_dict):
     """
@@ -187,7 +187,7 @@ def dut_ports_default_mlxlink_configuration(platform_params, chip_type, engines,
     { "Ethernet0" : { "FEC": "rs" ,"Type": "CR4" }, ...}
     """
     logger.info("Getting port basic fec configuration")
-    if "simx" in platform_params.setup_name:
+    if is_simx:
         dut_ports_basic_mlxlink_dict = get_basic_fec_mode_dict(engines, cli_objects, chip_type,
                                                                platform_params, fec_modes_speed_support)
     else:

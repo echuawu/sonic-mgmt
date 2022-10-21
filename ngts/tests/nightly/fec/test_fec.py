@@ -27,14 +27,14 @@ class TestFec:
               fec_capability_for_dut_ports, dut_ports_number_dict,
               split_mode_supported_speeds, tested_dut_to_host_conn, fec_modes_speed_support,
               dut_ports_default_speeds_configuration, dut_ports_default_mlxlink_configuration, chip_type,
-              platform_params, dut_ports_interconnects):
+              platform_params, dut_ports_interconnects, is_simx):
         self.topology_obj = topology_obj
         self.chip_type = chip_type
         self.platform_params = platform_params
         self.dut_ports_interconnects = dut_ports_interconnects
         self.interfaces = interfaces
         self.engines = engines
-        self.is_simx = "simx" in platform_params.setup_name
+        self.is_simx = is_simx
         self.cli_objects = cli_objects
         self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface("eth0")
         self.dut_hostname = self.cli_objects.dut.chassis.get_hostname()
@@ -497,7 +497,7 @@ class TestFec:
             for port, port_conf_dict in conf.items():
                 retry_call(self.verify_interfaces_status_cmd_output_for_port, fargs=[port, port_conf_dict],
                            tries=6, delay=10, logger=logger)
-                if "simx" not in self.platform_params.setup_name:
+                if not self.is_simx:
                     retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[port, port_conf_dict],
                                tries=6, delay=10, logger=logger)
                 if lldp_checker:

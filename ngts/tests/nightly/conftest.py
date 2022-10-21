@@ -157,8 +157,8 @@ def skip_if_rj45_cable(cable_compliance_info):
 
 
 @pytest.fixture(scope='session')
-def cable_compliance_info(topology_obj, platform_params, engines):
-    if "simx" not in platform_params.setup_name:
+def cable_compliance_info(topology_obj, platform_params, engines, is_simx):
+    if not is_simx:
         cables_output = retry_call(check_cable_compliance_info_updated_for_all_port,
                                    fargs=[topology_obj, engines], tries=12, delay=10, logger=logger)
     else:
