@@ -1359,10 +1359,8 @@
 - Errors_list:
     - '.* ERR syncd#SDK: :- addObject: Queue Counter RID oid.*provide the statistic.*'
   Conditions:
-    - Affected_test_cases:
-      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
-      Redmine:
-      - 3190824
+    - Redmine:
+      - 2876749
       Branch:
       - master
 
