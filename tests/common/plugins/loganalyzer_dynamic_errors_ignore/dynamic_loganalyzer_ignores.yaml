@@ -1287,7 +1287,13 @@
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
-      - 3159802
+      - 3238130
+
+- Errors_list:
+    - '.* ERR hw-management: mlxreg_io is not loaded.*'
+  Conditions:
+    - Redmine:
+      - 3177482
 
 - Errors_list:
     - '.* ERR vnet_route_check.py:.*results.*missed_in_asic_db_routes.*Vnet.*routes.*'
