@@ -2,6 +2,7 @@ import allure
 import logging
 import pytest
 import random
+import os
 import re
 import copy
 from pprint import pprint
@@ -87,7 +88,7 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
     """
     dut_engine = engines.dut
     cli_object = cli_objects.dut
-    shared_path = '{}{}{}'.format(InfraConst.HTTP_SERVER, InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
+    shared_path = '{}{}'.format(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
     origin_config_db = cli_object.general.get_config_db()
 
     with allure.step(f"Generate config_db.json file without Qos configuration for ports: {tested_ports}"):
@@ -105,8 +106,10 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
 
     with allure.step(f"Copy config_db.json to dut"):
         logger.info(f"Copy config_db.json to dut")
-        dut_engine.run_cmd(f'sudo curl {shared_path}/{tested_config_db_file_name} -o { SonicConst.CONFIG_DB_JSON_PATH}',
-                           validate=True)
+        source_file = os.path.join(shared_path, tested_config_db_file_name)
+        dut_engine.copy_file(source_file=source_file, dest_file=SonicConst.CONFIG_DB_JSON, file_system='/tmp/',
+                             overwrite_file=True, verify_file=False)
+        dut_engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}', validate=True)
 
     with allure.step(f"Reload the configuration"):
         logger.info(f"Reload the configuration")
