@@ -1553,3 +1553,20 @@
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
       Redmine:
       - 3238357
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- setQueueCounterList: Queue RID oid:.* can''t provide the statistic'
+    - '.* ERR syncd#SDK: :- addObject: Queue Counter RID oid:.* can''t provide the statistic'
+  Conditions:
+    - Redmine:
+      - 2876749
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR systemd\[\d+\]: Failed to start Update hostname based on configdb.'
+  Conditions:
+    - Redmine:
+      - 3238754
+      Platform:
+        - simx
