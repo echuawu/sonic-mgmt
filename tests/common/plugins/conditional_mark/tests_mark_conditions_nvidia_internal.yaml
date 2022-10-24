@@ -211,7 +211,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     conditions:
       - "'simx' in platform"
 
-tests/show_techsupport/test_auto_techsupport.py::TestAutoTechSupport:
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport:
   skip:
     reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3236519 and '202205' in release"
     conditions:
