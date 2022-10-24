@@ -615,17 +615,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if setup_name.startswith('air'):
             self.prepare_nvidia_air_basic_config_db_json(topology_obj, setup_name, hwsku)
-            # Second mgmt - temporary solution, once port-forwarding to main mgmt iface will be supported - remove it
-            self.enable_auto_start_for_nvidia_air_second_mgmt_iface(topology_obj)
         else:
             # No need to modify port_config.ini for NvidiaAir setups - because ports split not supported yet
             self.upload_port_config_ini(platform, hwsku, shared_path)
 
         self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
-
-        if setup_name.startswith('air'):
-            # Seems like here bug in NvidiaAir(VS) without reload - after reboot not all ifaces will be in UP state
-            self.engine.run_cmd('sudo config reload -y')
 
         self.engine.reload(['sudo reboot'])
 
@@ -1083,13 +1077,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def restart_service(self, service_name):
         self.engine.run_cmd(f'sudo service {service_name} restart')
-
-    def enable_auto_start_for_nvidia_air_second_mgmt_iface(self, topology_obj):
-        if not self.engine.run_cmd('sudo cat /etc/rc.local | grep "accept_ra=2"'):
-            data_ports_count = len(topology_obj.players_all_ports['dut'])
-            mgmt2_iface_num = data_ports_count + 1
-            self.engine.run_cmd(rf'sudo sed -i "\$i sysctl -w net.ipv6.conf.eth{mgmt2_iface_num}.accept_ra=2" /etc/rc.local')
-            self.engine.run_cmd(rf'sudo sed -i "\$i ip link set eth{mgmt2_iface_num} up" /etc/rc.local')
 
     def prepare_nvidia_air_basic_config_db_json(self, topology_obj, setup_name, hwsku):
         config_db_dict = self.get_init_config_db_json_obj(hwsku)
