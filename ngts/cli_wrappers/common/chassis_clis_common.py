@@ -15,4 +15,4 @@ class ChassisCliCommon(ChassisCliInterface):
         This method return the hostname of host/switch
         :return: command output
         """
-        return self.engine.run_cmd("hostname")
+        return self.engine.run_cmd("sudo cat /etc/hostname")
