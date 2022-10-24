@@ -144,8 +144,10 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
 tests/push_build_tests/general/wjh/test_wjh.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3008967 on SIMX platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3008967 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3238763 and '202205' in release"
 
 tests/push_build_tests/L2/vxlan/test_vxlan.py:
   skip:

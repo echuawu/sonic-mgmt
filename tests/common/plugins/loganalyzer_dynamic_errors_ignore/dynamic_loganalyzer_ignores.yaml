@@ -1570,3 +1570,23 @@
       - 3238754
       Platform:
         - simx
+
+- Errors_list:
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: Failed to create a span session, err: Command Error.*'
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: Wjh lib dev specific cb span init failed, err.*'
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: Failed to set WJH span configuration, err.*'
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: Failed to initialize the WJH buffer drop mechanism, err.*'
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: wjh_drop_reason_group_init_cb failed, err.*'
+    - '.*ERR wjhd\[\d+\]: :- setDropGroupReason: Failed to initialize drop reason group BUFFER for channel buffer, status.*'
+    - '.*ERR wjhd\[\d+\]: :- initializeDefaultWjhChannels: Failed to initialize default channels.*'
+    - '.*ERR wjhd\[\d+\]: :- main: exception: :- initializeDefaultWjhChannels: Failed to initialize default channels.*'
+    - '.*ERR wjhd\[\d+\]: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[\d+\]: \[Invalid Handle\].*'
+    - '.*ERR wjhd\[\d+\]: :- removeBufferConfiguration: Failed to close SDK handler, error: \[\d+\]: \[Invalid Handle\].*'
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: User channel \d+ is not destroyed, destroy it first.*'
+    - '.*ERR wjhd\[\d+\]: \[WJH_LIB.ERROR\s+\]: wjh_db_deinit_resource_check failed, err.*'
+    - '.*ERR wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3238763
