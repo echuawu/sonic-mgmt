@@ -584,6 +584,21 @@ class SonicInterfaceCli(InterfaceCliCommon):
         """
         return self.engine.run_cmd("sudo show interfaces counters", validate=validate)
 
+    def parse_interfaces_counters(self, headers_ofset=0, len_ofset=1, data_ofset_from_start=2):
+        """
+        Method which getting parsed interfaces counters
+        :param headers_ofset: Line number in which we have headers
+        :param len_ofset: Line number from which we can find len for all fields, in example above it is line 2
+        :param data_ofset_from_start: Line number from which we will start parsing data and fill dictionary with results
+        :return: dictionary, example: {'Ethernet0': {'STATE': 'U', 'RX_OK': '1,392', 'RX_BPS': '5.55 B/s',
+        'RX_UTIL': '0.00%', 'RX_ERR': '0', 'RX_DRP': '0', 'RX_OVR': '0', 'TX_OK': '27,332', 'TX_BPS': '123.21 B/s',
+        'TX_UTIL': '0.00%', 'TX_ERR': '0', 'TX_DRP': '0', 'TX_OVR': '0'}, 'Ethernet8': {'STATE'.......
+        """
+        ifaces_status = self.show_interfaces_counters()
+        return generic_sonic_output_parser(ifaces_status, headers_ofset=headers_ofset, len_ofset=len_ofset,
+                                           data_ofset_from_start=data_ofset_from_start,
+                                           data_ofset_from_end=None, column_ofset=2, output_key='IFACE')
+
     def show_interfaces_counters_detailed(self, interface, validate=False):
         """
         show interfaces counters detailed

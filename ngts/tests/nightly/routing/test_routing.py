@@ -260,6 +260,12 @@ class TestRouting:
 
             scapy_validation_obj.complete_validation()
 
+    def validate_increased_counters(self, expected_threshold=1):
+        counters_data = self.dut_cli.interface.parse_interfaces_counters()
+        iface_rx_count = counters_data[self.interfaces.dut_ha_1]['RX_OK']
+        assert int(iface_rx_count) >= expected_threshold, f'Unexpected RX counter for {self.interfaces.dut_ha_1}.' \
+                                                          f' current {iface_rx_count}, expected >={expected_threshold}'
+
     def test_check_existing_network_show_commands(self):
         """
         This test will check existing show commands output
@@ -348,10 +354,17 @@ class TestRouting:
         This test will do functional validation for routing
         :return: raise assertion error in case when test failed
         """
+        with allure.step('Clear counters'):
+            self.dut_cli.interface.clear_counters()
+
         with allure.step('Checking ping from HA to DUT'):
             validation_ha_dut = {'sender': 'ha', 'args': {'interface': self.interfaces.ha_dut_1, 'count': 3,
                                                           'dst': self.dut_ha_1_ip}}
             PingChecker(self.players, validation_ha_dut).run_validation()
+
+        # TODO: uncomment validation once will get response from developers(or DPU will support counters)
+        # with allure.step('Checking increased counters'):
+        #     retry_call(self.validate_increased_counters, fargs=[1], tries=3, delay=5, logger=logger)
 
         with allure.step('Checking ping from HB to DUT'):
             validation_hb_dut = {'sender': 'hb', 'args': {'interface': self.interfaces.hb_dut_1, 'count': 3,
