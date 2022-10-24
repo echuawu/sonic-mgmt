@@ -1545,3 +1545,11 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3114029
+
+- Errors_list:
+    - '.*INFO kernel.*dhcp6relay.*segfault at.*ip.*sp.*error.*in libswsscommon.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
+      Redmine:
+      - 3238357
