@@ -3,6 +3,7 @@ import pytest
 import allure
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 
@@ -53,6 +54,62 @@ def test_show_platform_environment_led(engines, devices):
         logging.info("Check that all required properties for each led")
         for led, led_prop in output.items():
             _verify_led_prop(led, led_prop)
+
+
+@pytest.mark.platform
+def test_set_platform_environment_led(engines, devices):
+    """
+    Set platform environment led test
+
+    Test flow:
+    1. Check all leds are green by default exclude UID
+    2. Negative testing, try to turn off leds, which we can't, check value didn't change
+    3. Turn-on UID led and check led is green
+    4. Unset it and check it returned to default values
+    """
+    with allure.step("Create System object"):
+        platform = Platform()
+
+    with allure.step("Execute show platform environment led and make sure all the components exist"):
+        output = _verify_output(platform, "led", devices.dut.fan_list + PlatformConsts.ENV_LED_COMP)
+
+    with allure.step("Check that all leds are green and UID off by default"):
+        logging.info("Check that all leds are green and UID off by default")
+        for led, led_prop in output.items():
+            _verify_led_color(led, led_prop)
+
+    with allure.step("Negative set off to FAN or PSU"):
+        logging.info("Negative set off to FAN or PSU")
+        for led, led_prop in output.items():
+            if led == PlatformConsts.ENV_UID:
+                continue
+            platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=led).verify_result(False)
+
+    with allure.step("Check that all leds are green and UID off by default"):
+        logging.info("Check that all leds are green and UID off by default")
+        for led, led_prop in output.items():
+            _verify_led_color(led, led_prop)
+
+    with allure.step("Change UID state led to on"):
+        logging.info("Check UID state led to on")
+        platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_TURN_ON, led=PlatformConsts.ENV_UID)
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.show('led')).verify_result()
+        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_BLUE, True)\
+            .verify_result()
+
+    with allure.step("Change UID state led to off"):
+        logging.info("Change UID state led to off")
+        platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=PlatformConsts.ENV_UID)
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.show('led')).verify_result()
+        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_OFF, True) \
+            .verify_result()
+
+    with allure.step("Check that all leds are green and UID off after unset"):
+        logging.info("Check that all leds are green and UID off after unset")
+        for led, led_prop in output.items():
+            _verify_led_color(led, led_prop)
 
 
 @pytest.mark.platform
@@ -137,6 +194,16 @@ def _verify_led_prop(led, led_prop):
         PlatformConsts.ENV_LED_COLOR_LABEL + " not found for " + led
     assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL].lower() in PlatformConsts.ENV_LED_COLOR_OPTIONS,\
         led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + "is not a legal value"
+
+
+def _verify_led_color(led, led_prop):
+    logging.info("led {}".format(led))
+    if led == PlatformConsts.ENV_UID:
+        assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_OFF, \
+            PlatformConsts.ENV_LED_COLOR_OFF + " not found for " + led
+    else:
+        assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_GREEN,\
+            PlatformConsts.ENV_LED_COLOR_GREEN + " not found for " + led
 
 
 def _verify_psu_prop(psu, psu_prop):

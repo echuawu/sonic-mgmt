@@ -229,12 +229,20 @@ class PlatformConsts:
     FW_FIELDS = ["actual-firmware", "installed-firmware", "part-number", "serial-number", "type"]
     ENV_FAN = "fan"
     ENV_LED = "led"
+    ENV_UID = "UID"
     ENV_PSU = "psu"
     ENV_TEMP = 'temperature'
     ENV_COMP = [ENV_FAN, ENV_LED, ENV_PSU, ENV_TEMP]
     ENV_FAN_COMP = ["max-speed", "min-speed", "current-speed", "state"]
     ENV_LED_COLOR_LABEL = "color"
-    ENV_LED_COLOR_OPTIONS = ["green", "red", "off", "blue", "amber"]
+    ENV_LED_COLOR_GREEN = "green"
+    ENV_LED_COLOR_RED = "red"
+    ENV_LED_COLOR_BLUE = "blue"
+    ENV_LED_COLOR_AMBER = "amber"
+    ENV_LED_COLOR_OFF = "off"
+    ENV_LED_TURN_ON = "on"
+    ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_COLOR_OFF,
+                             ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
     HW_ASIC_COUNT = "asic-count"

@@ -268,6 +268,10 @@ class OpenApiRequest:
             if response['state'] == "action_success":
                 action_success = True
                 break
+            elif response['state'] == 'action_error' and response['issue'] != '':
+                info = response["issue"]
+                action_success = True
+                break
             elif response['state'] and response['state'] != "running" and response['state'] != "start":
                 info = response["status"] + " - issue: " + response["issue"]
             time.sleep(10)
