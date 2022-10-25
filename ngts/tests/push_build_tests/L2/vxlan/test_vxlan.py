@@ -16,6 +16,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @pytest.mark.push_gate
 @allure.title('VXLAN Decap test case')
 def test_vxlan_decap(engines, players, cli_objects, upgrade_params):

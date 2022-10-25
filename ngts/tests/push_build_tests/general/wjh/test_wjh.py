@@ -487,6 +487,7 @@ def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, d
 
 @pytest.mark.wjh
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @pytest.mark.push_gate
 @pytest.mark.parametrize("drop_reason", drop_reason_dict.keys())
 @allure.title('WJH Buffer test case')
@@ -559,6 +560,7 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
 
 @pytest.mark.wjh
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @allure.title('WJH L1 Raw test case')
 def test_l1_raw_drop(engines, cli_objects):
     port = cli_objects.dut.interface.get_active_phy_port()
@@ -580,6 +582,7 @@ def test_l1_raw_drop(engines, cli_objects):
 
 @pytest.mark.wjh
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @allure.title('WJH L1 Aggregated test case')
 def test_l1_agg_drop(engines, cli_objects):
     check_if_channel_enabled(cli_objects.dut, engines, 'layer-1', 'aggregate')
@@ -626,6 +629,7 @@ def verify_l1_agg_drop_exists(table, port, state, drop_reason_message):
 
 @pytest.mark.wjh
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @pytest.mark.push_gate
 @allure.title('WJH L2 test case')
 def test_l2_src_mac_equals_dst_mac(engines, cli_objects, topology_obj, interfaces, hb_dut_2_mac):
@@ -669,6 +673,7 @@ def test_l2_src_mac_equals_dst_mac(engines, cli_objects, topology_obj, interface
 
 @pytest.mark.wjh
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_dst_ip_is_loopback(engines, cli_objects, topology_obj, interfaces):
