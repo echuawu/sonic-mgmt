@@ -371,6 +371,18 @@ tests/nightly/lag/test_lag.py::test_lag_members_scale:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
     conditions:
       - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
+
+tests/push_build_tests/general/doroce/test_doroce.py::test_doroce[lossy_double_ipool]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3223886"
+    conditions:
+      - https://redmine.mellanox.com/issues/3223886
+
+tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3223886"
+    conditions:
+      - https://redmine.mellanox.com/issues/3223886
 ########################## NGTS IGNORE END ##########################
 
 
