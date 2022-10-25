@@ -220,18 +220,20 @@ class TestVLAN:
     @pytest.mark.build
     @pytest.mark.push_gate
     @allure.title('Test VLAN configuration on split port')
-    def test_vlan_on_split_port(self, is_air):
+    def test_vlan_on_split_port(self):
         """
         configure different vlans on split port in trunk/access mode.
         check port are in up state after configuration and vlans were configured correctly
         :return: raise assertion error if expected output is not matched
         """
-        if is_air:
-            pytest.skip('Split ports currently not supported by NvidiaAir')
-        split_port_1 = self.topology_obj.ports['dut-lb-splt2-p1-1']
-        split_port_2 = self.topology_obj.ports['dut-lb-splt2-p2-1']
+        split_port_1 = self.topology_obj.ports.get('dut-lb-splt2-p1-1')
+        split_port_2 = self.topology_obj.ports.get('dut-lb-splt2-p2-1')
         vlan_mode_dict = {'access': 'untagged', 'trunk': 'tagged'}
         vlan_expected_info = []
+
+        if not split_port_1 and not split_port_2:
+            pytest.skip('Split ports not available')
+
         try:
             # remove iface from vlan to prevent stp
             self.cli_object.vlan.del_port_from_vlan(self.dut_hb_1, self.vlan_30)
