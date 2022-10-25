@@ -1,4 +1,8 @@
 ########################## NGTS IGNORE START ##########################
+scripts/log_profiler/log_profiler.py :
+  skip:
+    reason: "The test not stable, skip it statically"
+
 tests/nightly/fdb:
   skip:
     reason: "NvidiaAir host nodes does not support 'lldpad', it will be fixed automatically once RM issue: 3147716
