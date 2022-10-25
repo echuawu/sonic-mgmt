@@ -18,8 +18,7 @@ logger = logging.getLogger()
 class SonicInstallationSteps:
 
     @staticmethod
-    def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx,
-                               threads_dict):
+    def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
         """
         Pre-installation steps for SONIC
         :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
@@ -48,8 +47,7 @@ class SonicInstallationSteps:
                                                                       dut_name, sonic_topo, ptf_tag, port_number,
                                                                       ansible_path, setup_info)
         else:
-            if not is_simx:
-                SonicInstallationSteps.start_canonical_background_threads(threads_dict, setup_name, dut_name)
+            SonicInstallationSteps.start_canonical_background_threads(threads_dict, setup_name, dut_name, is_simx)
 
     @staticmethod
     def start_community_background_threads(threads_dict, setup_name, dut_name, sonic_topo, ptf_tag, port_number,
@@ -65,13 +63,15 @@ class SonicInstallationSteps:
                                            exec_path=ansible_path)
 
     @staticmethod
-    def start_canonical_background_threads(threads_dict, setup_name, dut_name):
+    def start_canonical_background_threads(threads_dict, setup_name, dut_name, is_simx):
         """
         Start background threads for canonical setup
         """
         python_bin_path = sys.executable
-        run_containers_cmd = SonicInstallationSteps.generate_run_containers_command(python_bin_path, setup_name)
-        run_background_process_on_host(threads_dict, 'containers_bringup', run_containers_cmd, timeout=300)
+
+        if not is_simx:
+            run_containers_cmd = SonicInstallationSteps.generate_run_containers_command(python_bin_path, setup_name)
+            run_background_process_on_host(threads_dict, 'containers_bringup', run_containers_cmd, timeout=300)
 
         update_repo_cmd = SonicInstallationSteps.generate_update_sonic_mgmt_cmd(python_bin_path, dut_name)
         run_background_process_on_host(threads_dict, 'update_sonic_mgmt', update_repo_cmd)

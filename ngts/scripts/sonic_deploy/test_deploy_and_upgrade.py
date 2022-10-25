@@ -44,6 +44,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version,
                 5.7. Port status validation
 
         :param topology_obj: topology object fixture.
+        :param is_simx: is_simx fixture, True in case when setup is SIMX
         :param base_version: base_version fixture
         :param target_version: target_version fixture
         :param serve_files: serve_files fixture

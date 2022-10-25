@@ -26,6 +26,8 @@ from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
+from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
+from infra.tools.general_constants.constants import SonicSimxConstants
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
 from ngts.tools.infra import ENV_LOG_FOLDER
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
@@ -284,8 +286,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             return output.splitlines()[-1]
 
     def do_installation(self, topology_obj, image_path, deploy_type, fw_pkg_path, platform_params):
-        with allure.step('Preparing switch for installation'):
-            in_onie = self.prepare_for_installation(topology_obj)
+        if 'simx' in platform_params.platform and deploy_type == 'onie':
+            in_onie = True
+        else:
+            with allure.step('Preparing switch for installation'):
+                in_onie = self.prepare_for_installation(topology_obj)
 
         if deploy_type == 'sonic':
             if in_onie:
@@ -294,7 +299,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.deploy_sonic(image_path)
 
         if deploy_type == 'onie':
-            self.deploy_onie(image_path, in_onie, fw_pkg_path, platform_params)
+            self.deploy_onie(image_path, in_onie, fw_pkg_path, platform_params, topology_obj)
 
         if deploy_type == 'bfb':
             self.deploy_bfb(image_path, topology_obj)
@@ -474,7 +479,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                                     password=BluefieldConstants.BMC_PASS)
         return LinuxGeneralCli(bmc_engine)
 
-    def deploy_onie(self, image_path, in_onie=False, fw_pkg_path=None, platform_params=None):
+    def deploy_onie(self, image_path, in_onie, fw_pkg_path, platform_params, topology_obj):
         if not in_onie:
             onie_reboot_script_path = self.prepare_onie_reboot_script_on_dut()
             if self.required_onie_upgrade(fw_pkg_path, platform_params):
@@ -482,8 +487,20 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             else:
                 self.reboot_by_onie_reboot_script(onie_reboot_script_path, 'install')
 
-        SonicOnieCli(self.engine.ip, self.engine.ssh_port, fw_pkg_path, platform_params).update_onie()
-        self.install_image_onie(self.engine.ip, self.engine.ssh_port, image_path)
+        if 'simx' in platform_params.platform:
+            self.update_simx_platform_type(platform_params)
+        else:
+            SonicOnieCli(self.engine.ip, self.engine.ssh_port, fw_pkg_path, platform_params).update_onie()
+
+        self.install_image_onie(self.engine.ip, self.engine.ssh_port, image_path, platform_params, topology_obj)
+
+    def update_simx_platform_type(self, platform_params):
+        """
+        Update SIMX platform type in ONIE
+        :param platform_params: platform_params fixure
+        """
+        board_name = SonicSimxConstants.PLATFORM_TO_MACHINE_NAME_DICT[platform_params.platform]
+        SonicOnieCliDevts(self.engine.ip, board_name, logger, self.engine.ssh_port).update_onie()
 
     def prepare_onie_reboot_script_on_dut(self):
         onie_reboot_script = 'onie_reboot.sh'
@@ -507,11 +524,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.engine.reload([f'{onie_reboot_script_path} {mode}'], wait_after_ping=25, ssh_after_reload=False)
 
     @staticmethod
-    def install_image_onie(dut_ip, dut_ssh_port, image_path):
+    def install_image_onie(dut_ip, dut_ssh_port, image_path, platform_params, topology_obj):
         sonic_cli_ssh_connect_timeout = 10
 
         with allure.step('Installing image by "onie-nos-install"'):
-            SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path)
+            SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path, platform_params=platform_params,
+                                                             topology_obj=topology_obj)
 
         with allure.step('Waiting for switch shutdown after reload command'):
             logger.info('Waiting for switch shutdown after reload command')

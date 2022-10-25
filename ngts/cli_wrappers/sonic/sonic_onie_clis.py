@@ -5,6 +5,7 @@ import pexpect
 from retry.api import retry_call
 
 from infra.tools.connection_tools.onie_engine import OnieEngine
+from infra.tools.general_constants.constants import SonicNvidiaAirConstants
 from ngts.constants.constants import InfraConst, PlatformTypesConstants
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.helpers.json_file_helper import extract_fw_data
@@ -108,7 +109,7 @@ class SonicOnieCli:
             f'Sleeping {InfraConst.SLEEP_AFTER_RRBOOT} seconds after switch reply to ping to handle ssh session')
         time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
 
-    def install_image(self, image_path, timeout=60, num_retry=10):
+    def install_image(self, image_path, platform_params, topology_obj, timeout=60, num_retry=10):
         self.confirm_onie_boot_mode_install()
 
         # restore engine after reboot
@@ -117,15 +118,9 @@ class SonicOnieCli:
         prompts = ["Installed SONiC base image SONiC-OS successfully"] +\
                   [str(pexpect.TIMEOUT)] + DEFAULT_PROMPT
 
-        logger.info(f'Getting SONiC image from: {image_path} using SCP')
-        scp_cmd = f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} {image_path} ' \
-                  f'root@{self.ip}:/tmp/sonic-mellanox.bin'
-        out, err, rc = run_process_on_host(scp_cmd, timeout=900)
-        if rc:
-            logger.error(f'Failed copy SONiC image, std_out: {out}, std_err: {err}')
-            raise AssertionError('SCP copy file to DUT failed')
+        image_local_path = self.download_image(image_path, platform_params, topology_obj)
 
-        stdout, pexpect_entry = self.run_cmd_set(["onie-nos-install /tmp/sonic-mellanox.bin"])
+        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_local_path}"])
 
         while num_retry > 0:
             if pexpect_entry == 0:
@@ -146,6 +141,51 @@ class SonicOnieCli:
         self.get_pexpect_entry(prompts, timeout=15)
         stdout = self.get_stdout()
         return stdout
+
+    def download_image(self, image_path, platform_params, topology_obj):
+        """
+        Download SONiC image into /tmp/sonic-mellanox.bin on DUT(ONIE)
+        """
+        logger.info(f'Getting SONiC image from: {image_path} using SCP')
+        image_name = 'sonic-mellanox.bin'
+        dst_image_file_path = f'/tmp/{image_name}'
+
+        with allure.step('Downloading SONiC image'):
+            if 'air' in platform_params.setup_name:
+                self.download_image_into_air(topology_obj, image_path, image_name, dst_image_file_path)
+            else:
+                self.download_image_into_nvidia_lab(image_path, dst_image_file_path)
+
+        return dst_image_file_path
+
+    def download_image_into_air(self, topology_obj, image_path, image_name, dst_image_file_path):
+        """
+        Download SONiC image into NvidiaAir simulation
+        First download image to oob-mgmt-server
+        Second download image from oob-mgmt-server to DUT(ONIE)
+        """
+        # Copy to oob-mgmt-server
+        oob_engine = topology_obj.players['oob-mgmt-server']['engine']
+        oob_engine.copy_file(source_file=image_path, file_system='/tmp', dest_file=image_name)
+        oob_engine.run_cmd(f'sudo mv {dst_image_file_path} /var/www/html/')
+        # Copy from oob-mgmt-server to DUT
+        download_image_cmd = f'wget -O {dst_image_file_path} ' \
+                             f'http://{SonicNvidiaAirConstants.NVIDIA_AIR_OOB_MGMT_SERVER_IP}/{image_name}'
+        SonicOnieCli(self.ip, self.ssh_port).run_cmd_set(
+            [download_image_cmd]
+        )
+
+    def download_image_into_nvidia_lab(self, image_path, dst_image_file_path):
+        """
+        Download SONiC image using SCP directly to DUT(ONIE)
+        """
+        # Copy directly to DUT
+        scp_cmd = f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} ' \
+                  f'{image_path} root@{self.ip}:{dst_image_file_path}'
+        out, err, rc = run_process_on_host(scp_cmd, timeout=900)
+        if rc:
+            logger.error(f'Failed copy SONiC image, std_out: {out}, std_err: {err}')
+            raise AssertionError('SCP copy file to DUT failed')
 
     def update_onie(self):
         if self.required_onie_installation():
