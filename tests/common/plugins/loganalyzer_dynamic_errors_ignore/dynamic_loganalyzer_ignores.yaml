@@ -1538,6 +1538,8 @@
     - '.*ERR dhclient.*: receive_packet failed on .*: Network is down.*'
     - '.*ERR dhclient.*: send_packet: No such device or address*'
     - '.*ERR dhclient.*: dhclient.c:.*: Failed to send \d+ byte long packet over .* interface.*'
+    - '.*ERR dhclient\[\d+\]: send_packet6: No such device.*'
+    - '.*ERR dhclient\[\d+\]: dhc6: send_packet6\(\) sent -.* of .* bytes.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
