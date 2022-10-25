@@ -189,6 +189,12 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
     conditions:
       - https://redmine.mellanox.com/issues/2637874
 
+tests/push_build_tests/L2/vxlan:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3240186"
+    conditions:
+      - https://redmine.mellanox.com/issues/3240186
+
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
     reason: "Testcase ignored due to SIMX platform or RM issue 3188079 and branch 202205"
