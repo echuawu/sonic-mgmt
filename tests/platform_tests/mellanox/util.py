@@ -301,10 +301,11 @@ def is_support_dom(duthost, port_index):
     This method is to check if cable support dom
     """
     bulk_status_str = get_transceiver_bulk_status(duthost, port_index)
+    bulk_status_str = bulk_status_str.replace('-inf', '\'-inf\'')
     bulk_status_dict = eval(bulk_status_str)
     for k, v in bulk_status_dict.items():
         if "power" in k or "bias" in k or "temperature" in k or "voltage" in k:
-            if v not in ['N/A', '0.0', 0.0, '0.0000mA']:
+            if v not in ['N/A', '0.0', 0.0, '0.0000mA', '-inf']:
                 return True
     return False
 
