@@ -10,7 +10,7 @@ tests/nightly/fdb:
     conditions:
       - "https://redmine.mellanox.com/issues/3147716 and 'air' in testbed"
 
-ngts/tests/push_build_tests/L2/lldp/test_lldp.py:
+tests/push_build_tests/L2/lldp/test_lldp.py:
   skip:
     reason: "NvidiaAir host nodes does not support 'lldpad', it will be fixed automatically once RM issue: 3147716
     will be solved and dockers(with lldpad) will be used instead of VMs as hosts"
