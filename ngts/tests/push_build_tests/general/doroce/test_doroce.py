@@ -103,6 +103,7 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
     InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
 
     cli_objects.dut.doroce.disable_doroce()
+    cli_objects.dut.qos.reload_qos()
     run_wa_after_doroce_config(cli_objects, topology_obj)
 
     yield
