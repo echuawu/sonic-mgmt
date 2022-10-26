@@ -1,4 +1,4 @@
-package com.mellanox.jenkins
+package vars
 
 def pre(name) {
     return true
