@@ -137,6 +137,7 @@ def doroce_conf_dict(cli_objects):
 @pytest.mark.doroce
 @pytest.mark.build
 @pytest.mark.push_gate
+@pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("configuration", BUFFER_CONFIGURATIONS)
 @allure.title('DoRoCE test case')
 def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj):
@@ -253,4 +254,4 @@ def run_wa_after_doroce_config(cli_objects, topology_obj):
     :param topology_obj: topology object
     """
     cli_objects.dut.general.save_configuration()
-    cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+    cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)

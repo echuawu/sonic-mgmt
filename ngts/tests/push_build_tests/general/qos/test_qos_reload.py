@@ -9,6 +9,8 @@ from pprint import pprint
 from retry import retry
 from deepdiff import DeepDiff
 from ngts.constants.constants import InfraConst, SonicConst
+from ngts.common.checkers import is_feature_installed
+from ngts.constants.constants import AppExtensionInstallationConstants
 
 
 logger = logging.getLogger()
@@ -64,6 +66,28 @@ def tested_ports(topology_obj):
     """
     tested_ports_list = random.sample(get_dut_ports(topology_obj), k=2)
     return tested_ports_list
+
+
+@pytest.fixture(autouse=True, scope='session')
+def disable_enable_doroce(topology_obj, cli_objects):
+    """
+    TODO this is workaround, need to remove this method and update the test to work whe doroce is enabled.
+    :param topology_obj: topology object fixture
+    :param cli_objects: cli object fixture
+    """
+    doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
+
+    if doroce_status:
+        cli_objects.dut.doroce.disable_doroce()
+        cli_objects.dut.general.save_configuration()
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+
+    yield
+
+    if doroce_status:
+        cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
+        cli_objects.dut.general.save_configuration()
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
 
 
 @pytest.mark.build
