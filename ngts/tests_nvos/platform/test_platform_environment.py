@@ -80,10 +80,14 @@ def test_set_platform_environment_led(engines, devices):
 
     with allure.step("Negative set off to FAN or PSU"):
         logging.info("Negative set off to FAN or PSU")
+        should_succeed = True
         for led, led_prop in output.items():
             if led == PlatformConsts.ENV_UID:
                 continue
-            platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=led).verify_result(False)
+            if TestToolkit.tested_api != "OpenApi":
+                should_succeed = False
+            platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=led)\
+                .verify_result(should_succeed)
 
     with allure.step("Check that all leds are green and UID off by default"):
         logging.info("Check that all leds are green and UID off by default")
