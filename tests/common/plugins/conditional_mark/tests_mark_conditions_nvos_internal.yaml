@@ -35,6 +35,12 @@ tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_dhcp_host
     conditions:
       - https://redmine.mellanox.com/issues/3234041
 
+tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_mtu:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3241864"
+    conditions:
+      - https://redmine.mellanox.com/issues/3241864
+
 tests_nvos/system/test_show_system.py::test_show_system_reboot:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3193758"

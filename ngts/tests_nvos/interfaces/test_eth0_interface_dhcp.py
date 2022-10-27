@@ -1,5 +1,6 @@
 import pytest
 import time
+from retry import retry
 
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
@@ -186,11 +187,7 @@ def test_interface_eth0_mtu(engines, topology_obj):
 
     mgmt_port = MgmtPort('eth0')
     with allure.step('Run show command on mgmt port and verify default values'):
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            mgmt_port.interface.link.show()).get_returned_value()
-
-        Tools.ValidationTool.compare_values(output_dictionary[mgmt_port.interface.link.mtu.label], 1500, True)\
-            .verify_result()
+        wait_for_mtu_changed(mgmt_port, 1500)
 
     with allure.step('Negative validation with not supported for eth mtu 256'):
         mgmt_port.interface.link.mtu.set(value='256', apply=True, ask_for_confirmation=True).verify_result(False)
@@ -200,31 +197,20 @@ def test_interface_eth0_mtu(engines, topology_obj):
     with allure.step('Negative validation with not supported for eth mtu 9218'):
         mgmt_port.interface.link.mtu.set(value='9218', apply=True, ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            mgmt_port.interface.link.show()).get_returned_value()
-        Tools.ValidationTool.compare_values(output_dictionary[mgmt_port.interface.link.mtu.label], 1500, True) \
-            .verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
+        wait_for_mtu_changed(mgmt_port, 1500)
     with allure.step('Set validation with supported for eth mtu 9200'):
         mgmt_port.interface.link.mtu.set(value='9200', apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(2)
-        output_dictionary_set = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            mgmt_port.interface.link.show()).get_returned_value()
-        Tools.ValidationTool.compare_values(output_dictionary_set[mgmt_port.interface.link.mtu.label], 9200, True)\
-            .verify_result()
+        wait_for_mtu_changed(mgmt_port, 9200)
 
     with allure.step('Unset mtu validation'):
         mgmt_port.interface.link.mtu.unset(apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(2)
-        output_dictionary_unset = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            mgmt_port.interface.link.show()).get_returned_value()
-        Tools.ValidationTool.compare_values(output_dictionary_unset[mgmt_port.interface.link.mtu.label], 1500, True)\
-            .verify_result()
+        wait_for_mtu_changed(mgmt_port, 1500)
 
 
 @pytest.mark.ib
@@ -488,3 +474,12 @@ def validate_interface_ip_address(address, output_dictionary, validate_in=True):
             assert address in output_dictionary, "address not found: {add}".format(add=address)
         if not validate_in:
             assert address not in output_dictionary, "address found and should be deleted: {add}".format(add=address)
+
+
+@retry(Exception, tries=10, delay=2)
+def wait_for_mtu_changed(port_obj, mtu_to_verify):
+    with allure.step("Waiting for mgmt port mtu changed to {}".format(mtu_to_verify)):
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            port_obj.interface.link.show()).get_returned_value()
+        current_mtu = output_dictionary[port_obj.interface.link.mtu.label]
+        assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".format(current_mtu, mtu_to_verify)
