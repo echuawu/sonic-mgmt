@@ -5,6 +5,10 @@ DEFAULT_POOLS_LIST = ['egress_lossless_pool',
                       'ingress_lossless_pool',
                       'ingress_lossy_pool']
 
+DEFAULT_MSFT_POOLS_LIST = ['egress_lossless_pool',
+                           'egress_lossy_pool',
+                           'ingress_lossless_pool']
+
 
 class SonicDoroceCli:
     """
@@ -79,7 +83,12 @@ class SonicDoroceCli:
         """
         return self.engine.run_cmd('show buffer configuration')
 
-    def check_buffer_configurations(self, expected_pools_list=DEFAULT_POOLS_LIST):
+    def check_buffer_configurations(self, expected_pools_list=None, hwsku=None):
+        if expected_pools_list is None:
+            if hwsku.startswith('Mellanox'):
+                expected_pools_list = DEFAULT_MSFT_POOLS_LIST
+            else:
+                expected_pools_list = DEFAULT_POOLS_LIST
         retry_call(self._check_buffer_configurations, fargs=[expected_pools_list], tries=3, delay=3, logger=None)
 
     def _check_buffer_configurations(self, expected_pools_list):

@@ -80,14 +80,14 @@ def disable_enable_doroce(topology_obj, cli_objects):
     if doroce_status:
         cli_objects.dut.doroce.disable_doroce()
         cli_objects.dut.general.save_configuration()
-        cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     yield
 
     if doroce_status:
         cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
         cli_objects.dut.general.save_configuration()
-        cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
 
 @pytest.mark.build
@@ -137,7 +137,7 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
 
     with allure.step(f"Reload the configuration"):
         logger.info(f"Reload the configuration")
-        cli_object.general.reload_flow(topology_obj=topology_obj, reload_force=False)
+        cli_object.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     with allure.step(f"Configure QOS on ports: {tested_ports} with CLI command"):
         logger.info(f"Configure QOS on ports: {tested_ports} with CLI command")

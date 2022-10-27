@@ -112,15 +112,16 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
 
 
 @pytest.fixture(scope='module', autouse=True)
-def check_default_configuration(cli_objects, interfaces, players, is_simx, pre_configuration_for_doroce, topology_obj):
+def check_default_configuration(cli_objects, interfaces, players, is_simx, platform_params,
+                                pre_configuration_for_doroce, topology_obj):
     run_ping(players)
-    check_default_configurations(cli_objects, interfaces, players, is_simx)
+    check_default_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
 
     yield
 
     cli_objects.dut.doroce.disable_doroce()
     run_wa_after_doroce_config(cli_objects, topology_obj)
-    check_default_configurations(cli_objects, interfaces, players, is_simx)
+    check_default_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
     # enable back for Interop with other features
     cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
     run_wa_after_doroce_config(cli_objects, topology_obj)
@@ -240,9 +241,9 @@ def toggle_ports(interfaces, cli_objects):
     cli_objects.dut.interface.check_link_state(ports)
 
 
-def check_default_configurations(cli_objects, interfaces, players, is_simx):
+def check_default_configurations(cli_objects, interfaces, players, is_simx, hwsku):
     with allure.step('Check default configurations'):
-        cli_objects.dut.doroce.check_buffer_configurations()
+        cli_objects.dut.doroce.check_buffer_configurations(hwsku=hwsku)
         validate_iperf_traffic(cli_objects, interfaces, players, is_simx)
 
 
