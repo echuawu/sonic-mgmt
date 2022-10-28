@@ -22,7 +22,7 @@ def start_platform_api_service(duthosts, enum_rand_one_per_hwsku_hostname, local
                              delay=1,
                              timeout=5,
                              module_ignore_errors=True)
-    if 'exception' in res:
+    if res['failed'] is True:
         # TODO: Remove this check once we no longer need to support Python 2
         if request.cls.__name__ == "TestSfpApi" and duthost.facts.get("asic_type") == "mellanox" \
                 and duthost.sonic_release in ['202012', '202106']:
@@ -60,7 +60,7 @@ def start_platform_api_service(duthosts, enum_rand_one_per_hwsku_hostname, local
         duthost.command('docker exec -i pmon supervisorctl update')
 
         res = localhost.wait_for(host=dut_ip, port=SERVER_PORT, state='started', delay=1, timeout=5)
-        assert 'exception' not in res
+        assert res['failed'] is False
 
 
 @pytest.fixture(scope='module', autouse=True)
