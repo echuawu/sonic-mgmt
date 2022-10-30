@@ -253,3 +253,12 @@ class PlatformConsts:
                HW_MAC, "system-uuid"]
     HW_COMP_SWITCH = "SWITCH"
     HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
+
+
+class IbConsts:
+    SM_STATE = 'state'
+    SM_STATE_ENABLE = 'enabled'
+    SM_STATE_DISABLE = 'disabled'
+    SM_PRIORITY = 'sm-priority'
+    SM_SL = 'sm-sl'
+    PRIO_SL_DEFAULT_VALUE = '0'

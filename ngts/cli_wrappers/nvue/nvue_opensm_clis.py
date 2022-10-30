@@ -1,9 +1,10 @@
 import logging
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 
 logger = logging.getLogger()
 
 
-class NvueOpenSmCli:
+class NvueOpenSmCli(NvueBaseCli):
 
     @staticmethod
     def enable(engine):
