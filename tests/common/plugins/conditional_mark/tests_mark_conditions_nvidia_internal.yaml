@@ -558,11 +558,6 @@ drop_packets/test_wjh.py::test_loopback_filter:
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
 
-drop_packets/test_wjh.py::test_fid_miss:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2912116"
-    conditions:
-      - https://redmine.mellanox.com/issues/2912116
 
 drop_packets/test_wjh.py::test_wjh_starts_after_config_reload:
   skip:

@@ -394,8 +394,8 @@ def test_fid_miss(request, do_test, ptfadapter, duthost, setup, pkt_fields, port
                         vxlan_vni=6, # vni in mapping will be 1336 so we will receive the drop
                         inner_frame=inner_packet
                         )
-
-    do_test('L2', packet, ptfadapter, ports_info, setup['neighbor_sniff_ports'])
+    discard_group = 'TUNNEL'
+    do_test(discard_group, packet, ptfadapter, ports_info, setup['neighbor_sniff_ports'])
 
 
 def test_tunnel_ip_in_ip(do_test, ptfadapter, duthost, setup, pkt_fields, ports_info):
