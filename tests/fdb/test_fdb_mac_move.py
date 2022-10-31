@@ -1,10 +1,15 @@
 import logging
 import time
 import math
+import pytest
 
 from tests.common.utilities import wait_until
 from tests.common.helpers.assertions import pytest_assert
 from utils import MacToInt, IntToMac, fdb_cleanup, get_crm_resources, send_arp_request, get_fdb_dynamic_mac_count
+
+pytestmark = [
+    pytest.mark.topology('t0')
+]
 
 TOTAL_FDB_ENTRIES = 12000
 FDB_POPULATE_SLEEP_TIMEOUT = 2
