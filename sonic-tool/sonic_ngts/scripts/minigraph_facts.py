@@ -6,6 +6,7 @@ import json
 import sys
 import socket
 import time
+import os
 socket.setdefaulttimeout(60)
 
 if sys.version_info[0] == 3:
@@ -67,9 +68,9 @@ def str_hook(obj):
             for k, v in obj}
 
 
-def read_config_db_json(base_path, setup_name):
-    config_db_http_response = urlopen(base_path + "/" + setup_name + "/config_db.json")
-    config_db_json = json.loads(config_db_http_response.read(), object_pairs_hook=str_hook)
+def read_config_db_json(json_file_path):
+    with open(json_file_path, 'r') as f:
+        config_db_json = json.load(f)
     return config_db_json
 
 
@@ -79,45 +80,17 @@ def get_config_db_json_from_hostname(hostname, logs):
     We looking for setup name in shared folder and then read config_db.json for specific host.
     If setup name does not include hostname in name - then we will try to find hostname in CI setups folder
     """
-    ci_setups = []
-    setup_name = None
-    config_db_json = None
-
     if 'ptf-any' in hostname:
         hostname = hostname.strip('ptf-any')
 
-    logs.append('{} Going to get config_db.json based on hostname: {}'.format(time.ctime(), hostname))
-    setups_list_http_page_html_response = urlopen(http_topo_base_path)
-    logs.append('{} Got list of setups from HTTP server, going to do iteration over setups'.format(time.ctime()))
-    for html_line in setups_list_http_page_html_response:
-        html_line = html_line.decode('ascii')
-        logs.append('{} Checking HTML line: {}'.format(time.ctime(), html_line))
-        # Add CI setups to list, if will not find regular setup - then will iterate over CI setups list
-        if any(ci_name in html_line for ci_name in ['CI_sonic_SPC', 'CI_sonic_BF']):
-            logs.append('{} Found CI setup in line: {}'.format(time.ctime(), html_line))
-            ci_setups.append(re.search(r'href="(\S*)\/"', html_line).groups()[0])
-        if hostname in html_line:
-            logs.append('{} Found expected {} setup in line: {}'.format(time.ctime(), hostname, html_line))
-            setup_name = re.search(r'href="(\S*)\/"', html_line).groups()[0]
-            logs.append('{} Going to read config_db.json for specific setup: {}'.format(time.ctime(), hostname))
-            config_db_json = read_config_db_json(http_topo_base_path, setup_name)
-            logs.append('{} Finished read config_db.json for specific setup: {}'.format(time.ctime(), hostname))
-            break
+    tmp_config_db = '/tmp/config_db.json'
+    logs.append('{} Copy config_db.json file from {}'.format(time.ctime(), hostname))
+    scp_cmd = "sshpass -p 'YourPaSsWoRd' scp -o 'StrictHostKeyChecking no'" \
+              " -r admin@{}:/etc/sonic/config_db.json {}".format(hostname, tmp_config_db)
+    os.system(scp_cmd)
 
-    # if not setup name - then try find DUT config_db.json in CI setups
-    if not setup_name:
-        logs.append('{} Going to check CI setups'.format(time.ctime()))
-        for ci_setup in ci_setups:
-            logs.append('{} Iterating over CI setup: {}'.format(time.ctime(), ci_setup))
-            config_db_json = read_config_db_json(http_topo_base_path, ci_setup)
-            logs.append('{} Read config_db.json for CI setup: {}'.format(time.ctime(), ci_setup))
-            if hostname == config_db_json["DEVICE_METADATA"]["localhost"]["hostname"]:
-                setup_name = ci_setup
-                logs.append('{} Found and read expected CI setup config_db.json: {}'.format(time.ctime(), ci_setup))
-                break
-
-    if not setup_name:
-        raise Exception("Unable to find setup_name and config_db.json for: '{}' in shared location".format(hostname))
+    logs.append('Read config_db.json file')
+    config_db_json = read_config_db_json(tmp_config_db)
 
     return config_db_json
 
