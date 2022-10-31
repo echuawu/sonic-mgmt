@@ -61,5 +61,8 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/static_route.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/stress_routes.cases </cases>
+    </test>
 
 </DBDEF>
