@@ -75,4 +75,7 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/wr_arp.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/vlan.cases </cases>
+    </test>
 </DBDEF>
