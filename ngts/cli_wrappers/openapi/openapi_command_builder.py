@@ -248,7 +248,7 @@ class OpenApiRequest:
 
         with allure.step("Send GET request"):
             logging.info("Send GET request")
-            OpenApiRequest._send_get_req_and_wait_till_completed(request_data, rev)
+            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, rev)
 
     @staticmethod
     def _send_get_req_and_wait_till_completed(request_data, rev):
@@ -266,12 +266,9 @@ class OpenApiRequest:
             OpenApiRequest.print_response(r, OpenApiReqType.GET)
             response = json.loads(r.content)
             if response['state'] == "action_success":
-                action_success = True
-                break
+                return json.loads(r.content.decode('utf-8'))['status']
             elif response['state'] == 'action_error' and response['issue'] != '':
-                info = response["issue"]
-                action_success = True
-                break
+                return json.loads(r.content.decode('utf-8'))['issue'][0]['message']
             elif response['state'] and response['state'] != "running" and response['state'] != "start":
                 info = response["status"] + " - issue: " + response["issue"]
             time.sleep(10)
