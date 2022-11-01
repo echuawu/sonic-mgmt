@@ -39,7 +39,7 @@ CHIP_LAG_MEMBERS_LIM = {
 @pytest.mark.reboot_reload
 @allure.title('LAG_LACP core functionality and reboot')
 def test_core_functionality_with_reboot(topology_obj, cli_objects, traffic_type, interfaces, engines, cleanup_list,
-                                        platform_params):
+                                        platform_params, is_simx):
     """
     This test case will check the base functionality of LAG/LACP feature.
     Config base configuration as in the picture below.
@@ -133,7 +133,7 @@ def test_core_functionality_with_reboot(topology_obj, cli_objects, traffic_type,
         with allure.step('STEP4: Reboot dut'):
             dut_cli.general.save_configuration()
             reboot_type = random.choice(get_supported_reboot_reload_types_list(platform=platform_params.platform))
-            if re.search('simx', platform_params.setup_name):
+            if is_simx:
                 reboot_type = 'reboot'
             dut_cli.general.reboot_reload_flow(r_type=reboot_type, topology_obj=topology_obj)
 

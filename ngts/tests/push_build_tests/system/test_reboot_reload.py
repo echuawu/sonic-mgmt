@@ -27,7 +27,7 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
 
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
-def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params):
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params, is_simx):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -40,7 +40,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, sh
     """
     try:
         test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
-        if re.search('simx', platform_params.setup_name):
+        if is_simx:
             validation_type = random.choice(simx_validation_types)
             expected_traffic_loss_dict[validation_type]['data'] = 60  # Update the data plane downtime to 60 sec in simx setups
         else:
