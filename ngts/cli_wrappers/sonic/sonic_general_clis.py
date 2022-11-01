@@ -27,10 +27,11 @@ from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
 from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
-from infra.tools.general_constants.constants import SonicSimxConstants
+from infra.tools.general_constants.constants import SonicSimxConstants, SonicHostsConstants
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
 from ngts.tools.infra import ENV_LOG_FOLDER
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
+from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 
 
 logger = logging.getLogger()
@@ -1102,6 +1103,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_dict['DEVICE_METADATA']['localhost']['hostname'] = dut_name
         for interface in config_db_dict['PORT']:
             config_db_dict['PORT'][interface]['admin_status'] = 'up'
+        ips_dict = get_dhcp_ips_dict(topology_obj)
+        gw_ip = ips_dict[SonicHostsConstants.OOB_MGMT_SERVER]
+        dut_ip = ips_dict[SonicHostsConstants.DUT]
+        config_db_dict['MGMT_INTERFACE'] = {f'eth0|{dut_ip}/24': {'gwaddr': gw_ip}}
         config_db_path = os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, SonicConst.CONFIG_DB_JSON)
         self.create_extended_config_db_file(setup_name, config_db_dict, config_db_path)
 
