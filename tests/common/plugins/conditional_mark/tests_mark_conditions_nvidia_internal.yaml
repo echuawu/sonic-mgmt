@@ -302,6 +302,12 @@ tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_in
     conditions:
       - "https://redmine.mellanox.com/issues/3216129 and 'simx' in platform"
 
+tests/nightly/app_extension:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3245030 on Air setups"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3245030 and 'air' in testbed"
+
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
