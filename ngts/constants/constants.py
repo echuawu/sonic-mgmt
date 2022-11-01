@@ -88,9 +88,9 @@ class DbConstants:
                              CliType.NVUE: METADATA_PATH_NVOS,
                              CliType.SHELL: METADATA_PATH,
                              CliType.MLNX_OS: METADATA_PATH_NVOS}
-    CREDENTIALS = {CliType.SONIC: {'server': 'mtlsqlprd', 'database': 'sonic_mars',
+    CREDENTIALS = {CliType.SONIC: {'server': 'YOKNVSQLDB.nvidia.com', 'database': 'sonic_mars',
                                    'username': 'sonic_db_user', 'password': 'Pa$$word01'},
-                   CliType.NVUE: {'server': "mtlsqlprd", 'database': "NVOS", 'username': 'NVOS_ADMIN',
+                   CliType.NVUE: {'server': 'YOKNVSQLDB.nvidia.com', 'database': "NVOS", 'username': 'NVOS_ADMIN',
                                   'password': "Nvos1234$$"}}
 
 
