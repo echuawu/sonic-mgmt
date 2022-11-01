@@ -104,7 +104,9 @@ def test_dhcp_relay_few_dhcp_servers(topology_obj, interfaces):
                                   'count': num_of_dhcp_servers}}
             ]
             }
-            ScapyChecker(topology_obj.players, validation).run_validation()
+            scapy_checker = ScapyChecker(topology_obj.players, validation)
+            retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=10, logger=logger)
+
     except BaseException as err:
         raise AssertionError(err)
 
@@ -137,6 +139,8 @@ def test_dhcp6_relay_few_dhcp_servers(topology_obj, interfaces):
                                   'count': num_of_dhcp_servers}}
             ]
             }
-            ScapyChecker(topology_obj.players, validation).run_validation()
+            scapy_checker = ScapyChecker(topology_obj.players, validation)
+            retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=10, logger=logger)
+
     except BaseException as err:
         raise AssertionError(err)
