@@ -83,11 +83,14 @@ def get_config_db_json_from_hostname(hostname, logs):
     if 'ptf-any' in hostname:
         hostname = hostname.strip('ptf-any')
 
-    tmp_config_db = '/tmp/config_db.json'
-    logs.append('{} Copy config_db.json file from {}'.format(time.ctime(), hostname))
-    scp_cmd = "sshpass -p 'YourPaSsWoRd' scp -o 'StrictHostKeyChecking no'" \
-              " -r admin@{}:/etc/sonic/config_db.json {}".format(hostname, tmp_config_db)
-    os.system(scp_cmd)
+    if socket.gethostname() == hostname:
+        tmp_config_db = "/etc/sonic/config_db.json"
+    else:
+        tmp_config_db = '/tmp/config_db.json'
+        logs.append('{} Copy config_db.json file from {}'.format(time.ctime(), hostname))
+        scp_cmd = "sshpass -p 'YourPaSsWoRd' scp -o 'StrictHostKeyChecking no'" \
+                  " -r admin@{}:/etc/sonic/config_db.json {}".format(hostname, tmp_config_db)
+        os.system(scp_cmd)
 
     logs.append('Read config_db.json file')
     config_db_json = read_config_db_json(tmp_config_db)
