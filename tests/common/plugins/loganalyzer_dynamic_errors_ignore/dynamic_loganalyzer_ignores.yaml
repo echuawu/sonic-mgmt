@@ -1590,3 +1590,14 @@
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       Redmine:
       - 3238763
+
+# The below errors should be ignored, because it is caused by FW was busing(err is -16) , and it is an expected behaviour
+- Errors_list:
+    - '.*ERR kernel: \[.*\] Fails to get module type, err: -16.*'
+    - '.*ERR pmon#xcvrd: Failed to read sfp=\d+ EEPROM.*page=\/sys\/module\/sx_core.*eeprom\/pages.*Device or resource busy.*'
+    - '.*ERR kernel: \[.*\] Fails to access .* register MCIA \(module:\d+, page:\d+, device_addr:\d+, size:\d+, i2c_addr:.*, slot:\d+, status:.*err: -16.*'
+    - '.*ERR kernel: \[.*\] Fails to read module eeprom, status: -16.*'
+    - '.*ERR kernel: \[.*\] Fails to access .* module eeprom, status: -16.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport/test_techsupport.py
