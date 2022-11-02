@@ -47,10 +47,10 @@ def is_monitor(engines, engine):
         assert output, "monitor can run nv config diff"
 
     with allure.step('testing capability negative flow'):
-        out_set = system.aaa.user.set(SystemConsts.USER_FULL_NAME, 'TESTING').get_returned_value()
+        out_set = system.aaa.user.set(SystemConsts.USER_FULL_NAME, 'TESTING').info
         assert monitor_message in out_set, 'monitor can not set any configuration'
 
-        out_unset = system.aaa.user.unset(SystemConsts.USER_FULL_NAME)
+        out_unset = system.aaa.user.unset(SystemConsts.USER_FULL_NAME).info
         assert monitor_message in out_unset, 'monitor can not set any configuration'
 
         output = NvueGeneralCli.apply_config(engine)

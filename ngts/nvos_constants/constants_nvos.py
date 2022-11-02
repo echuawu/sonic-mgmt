@@ -256,6 +256,11 @@ class PlatformConsts:
 
 
 class IbConsts:
+    MAX_NODES = 'max-nodes'
+    MAX_NODES_DEFAULT_VALUE = '2048'
+    IS_RUNNING = 'is-running'
+    IS_RUNNING_NO = 'no'
+    IS_RUNNING_YES = 'yes'
     SM_STATE = 'state'
     SM_STATE_ENABLE = 'enabled'
     SM_STATE_DISABLE = 'disabled'

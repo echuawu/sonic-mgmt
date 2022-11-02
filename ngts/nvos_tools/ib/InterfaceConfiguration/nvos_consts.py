@@ -14,6 +14,7 @@ class NvosConsts:
     LINK_STATE_UP = "up"
     LINK_STATE_DOWN = "down"
     LINK_LOG_STATE_ACTIVE = 'Active'
+    LINK_LOG_STATE_INITIALIZE = 'Initialize'
 
 
 class IbInterfaceConsts:

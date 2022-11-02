@@ -55,4 +55,4 @@ class BaseComponent:
     def unset(self, op_param=""):
         with allure.step('Execute unset for {resource_path}'.format(resource_path=self.get_resource_path())):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset, TestToolkit.engines.dut,
-                                                   self.get_resource_path(), op_param).get_returned_value()
+                                                   self.get_resource_path(), op_param)
