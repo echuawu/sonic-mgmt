@@ -386,7 +386,9 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
                 conn["local_addr"] = "%s/%s" % (local_addr, subnet_prefixlen)
                 conn["neighbor_addr"] = "%s/%s" % (neighbor_addr, subnet_prefixlen)
                 conn["loopback_ip"] = loopback_ip
-                if 'namespace' in mg_facts['minigraph_neighbors'][intf] and mg_facts['minigraph_neighbors'][intf]['namespace']:
+                if intf in mg_facts['minigraph_neighbors'] and\
+                        'namespace' in mg_facts['minigraph_neighbors'][intf] and\
+                        mg_facts['minigraph_neighbors'][intf]['namespace']:
                     conn["namespace"] = mg_facts['minigraph_neighbors'][intf]['namespace']
                 else:
                     conn["namespace"] = DEFAULT_NAMESPACE
