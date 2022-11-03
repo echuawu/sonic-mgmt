@@ -51,7 +51,7 @@ BUFFER_CONFIGURATIONS_DICT = {'lossless_double_ipool': ['egress_lossy_pool',
 BUFFER_CONFIGURATIONS = list(BUFFER_CONFIGURATIONS_DICT.keys())
 RANDOM_CONFIG = random.choice(BUFFER_CONFIGURATIONS)
 ROCE_PG = 'PG3'
-DEFAULT_PG = 'PG0'
+NO_ROCE_PG = 'PG0'
 
 WATERMARK_THRESHOLD = '1000'
 
@@ -76,8 +76,8 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
     This fixture will do:
     1. configure the DUT speeds to generate buffer drops
     2. disable the DoRoCE if was enabled
-    3. check the default buffer configuration
-    4. run traffic and check that the default configurations are affected
+    3. check the no RoCE buffer configuration
+    4. run traffic and check that the no RoCE configurations are affected
     5. at the cleanup, steps 3-4 executed again
 
 
@@ -112,16 +112,16 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
 
 
 @pytest.fixture(scope='module', autouse=True)
-def check_default_configuration(cli_objects, interfaces, players, is_simx, platform_params,
+def check_no_roce_configuration(cli_objects, interfaces, players, is_simx, platform_params,
                                 pre_configuration_for_doroce, topology_obj):
     run_ping(players)
-    check_default_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
+    check_no_roce_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
 
     yield
 
     cli_objects.dut.doroce.disable_doroce()
     run_wa_after_doroce_config(cli_objects, topology_obj)
-    check_default_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
+    check_no_roce_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
     # enable back for Interop with other features
     cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
     run_wa_after_doroce_config(cli_objects, topology_obj)
@@ -201,7 +201,7 @@ def run_ping(players):
         retry_call(ping_checker.run_validation, fargs=[], tries=3, delay=3, logger=logger)
 
 
-def validate_iperf_traffic(cli_objects, interfaces, players, is_simx, prio_group=DEFAULT_PG):
+def validate_iperf_traffic(cli_objects, interfaces, players, is_simx, prio_group=NO_ROCE_PG):
     if is_simx:
         logger.info('Skip traffic validation for SIMX devices')
     else:
@@ -224,7 +224,7 @@ def validate_buffer(cli_objects, interfaces, prio_group):
         f' Current: {stat_results[interfaces.dut_hb_2][prio_group]}. Expected threshold: {WATERMARK_THRESHOLD}'
 
 
-def validate_negative_config(configuration_method, exp_err_msg='RoCE is already enabled'):
+def validate_negative_config(configuration_method, exp_err_msg='RoCE is already'):
     with allure.step('Run negative validation'):
         output = configuration_method()
         assert exp_err_msg in output, f'Negative validation failed.\nExpected error message:"{exp_err_msg}" '\
@@ -241,8 +241,8 @@ def toggle_ports(interfaces, cli_objects):
     cli_objects.dut.interface.check_link_state(ports)
 
 
-def check_default_configurations(cli_objects, interfaces, players, is_simx, hwsku):
-    with allure.step('Check default configurations'):
+def check_no_roce_configurations(cli_objects, interfaces, players, is_simx, hwsku):
+    with allure.step('Check no RoCE configurations'):
         cli_objects.dut.doroce.check_buffer_configurations(hwsku=hwsku)
         validate_iperf_traffic(cli_objects, interfaces, players, is_simx)
 

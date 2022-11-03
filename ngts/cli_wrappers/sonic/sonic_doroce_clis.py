@@ -18,42 +18,40 @@ class SonicDoroceCli:
     def __init__(self, engine):
         self.engine = engine
 
-    def config_doroce(self, compression, pool):
+    def config_doroce(self, type=None, mode=None):
         """
         Configure the DoRoCE
-        :param compression: the buffer compression. lossless or lossy
-        :param pool: the pool. double-ipool or single-ipool
+        :param type: the buffer type. lossless or lossy
+        :param mode: the mode. double-ipool or single-ipool
         :return: the output of cli command
         """
-        return self.engine.run_cmd(f'sudo config doroce enabled {compression} {pool}')
+        cmd = 'sudo config doroce enabled'
+        if type:
+            cmd += f' --type {type}'
+        if mode:
+            cmd += f' --mode {mode}'
+        return self.engine.run_cmd(cmd)
 
     def config_doroce_lossless_double_ipool(self):
         """
         Apply 2 ingress pools - lossless RoCE ingress pool and lossy ingress pool
         :return: the output of cli command
         """
-        return self.config_doroce('lossless', 'double-ipool')
+        return self.config_doroce(type='lossless', mode='double-ipool')
 
     def config_doroce_lossless_single_ipool(self):
         """
         Apply 1 ingress pools - lossless RoCE pool and lossy ingress pool
         :return: the output of cli command
         """
-        return self.config_doroce('lossless', 'single-ipool')
+        return self.config_doroce(type='lossless', mode='single-ipool')
 
     def config_doroce_lossy_double_ipool(self):
         """
         Apply 2 ingress pools - lossy RoCE ingress pool and lossy ingress pool
         :return: the output of cli command
         """
-        return self.config_doroce('lossy', 'double-ipool')
-
-    def config_doroce_lossy_single_ipool(self):
-        """
-        Apply 1 ingress pool - lossy RoCE and lossy ingress pool
-        :return: the output of cli command
-        """
-        return self.config_doroce('lossy', 'single-ipool')
+        return self.config_doroce(type='lossy', mode='double-ipool')
 
     def disable_doroce(self):
         """
