@@ -6,7 +6,7 @@ import allure
 import sys
 
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
-from ngts.constants.constants import MarsConstants
+from ngts.constants.constants import MarsConstants, SonicDeployConstants
 from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
     reboot_validation, execute_script, is_bf_topo
 from retry.api import retry_call
@@ -31,7 +31,7 @@ class SonicInstallationSteps:
         """
         setup_name = setup_info['setup_name']
         dut_name = setup_info['duts'][0]['dut_name']
-
+        SonicInstallationSteps.verify_sonic_branch_supported(setup_info, base_version)
         if is_community(sonic_topo):
             ansible_path = setup_info['ansible_path']
             # Get ptf docker tag
@@ -486,6 +486,17 @@ class SonicInstallationSteps:
             version = version.split('mlnx.')[-1]
             assert version >= lowest_valid_version, \
                 'Current hw-management version {} is lower than the required version {}.'.format(version, lowest_valid_version)
+
+    @staticmethod
+    def verify_sonic_branch_supported(setup_info, image_path):
+        for dut in setup_info['duts']:
+            if dut['dut_name'] in SonicDeployConstants.UN_SUPPORT_BRANCH_MAP:
+                not_support_branch = SonicDeployConstants.UN_SUPPORT_BRANCH_MAP[dut['dut_name']]
+                logger.info(f'The not supported branch for {dut["dut_name"]} are {not_support_branch}')
+                with allure.step('Getting the image version'):
+                    branch = get_sonic_branch(image_path)
+                    logger.info('SONiC branch is: {}'.format(branch))
+                assert branch not in not_support_branch, f"The setup dose not support to install image of {branch}"
 
 
 def is_community(sonic_topo):
