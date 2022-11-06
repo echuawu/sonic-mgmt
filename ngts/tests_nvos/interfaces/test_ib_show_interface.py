@@ -12,6 +12,7 @@ logger = logging.getLogger()
 
 @pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
+@pytest.mark.simx
 def test_ib_show_interface_name(engines):
     """
     Run show interface command and verify the required fields are exist

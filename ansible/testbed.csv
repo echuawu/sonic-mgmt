@@ -301,3 +301,8 @@ r-jaguar-03-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_5
 gorilla-153-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-153,Mellanox MTR testbed
 gorilla-154-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-154,Mellanox MTR testbed
 nvidia-arm-orion-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,nvidia-arm-orion,Mellanox MTR testbed
+gorilla-simx-84-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-84,Mellanox MTR testbed
+gorilla-simx-85-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-85,Mellanox MTR testbed
+gorilla-simx-86-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-86,Mellanox MTR testbed
+gorilla-simx-87-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-87,Mellanox MTR testbed
+gorilla-simx-88-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-88,Mellanox MTR testbed

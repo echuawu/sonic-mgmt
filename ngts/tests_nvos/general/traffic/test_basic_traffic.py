@@ -6,6 +6,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 logger = logging.getLogger()
 
 
+@pytest.mark.nvos_ci
 @pytest.mark.general
 def test_basic_traffic(players, interfaces):
     """
