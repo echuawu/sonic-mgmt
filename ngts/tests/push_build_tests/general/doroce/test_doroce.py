@@ -224,7 +224,7 @@ def validate_buffer(cli_objects, interfaces, prio_group):
         f' Current: {stat_results[interfaces.dut_hb_2][prio_group]}. Expected threshold: {WATERMARK_THRESHOLD}'
 
 
-def validate_negative_config(configuration_method, exp_err_msg='RoCE is already'):
+def validate_negative_config(configuration_method, exp_err_msg='RoCE is already enabled'):
     with allure.step('Run negative validation'):
         output = configuration_method()
         assert exp_err_msg in output, f'Negative validation failed.\nExpected error message:"{exp_err_msg}" '\
