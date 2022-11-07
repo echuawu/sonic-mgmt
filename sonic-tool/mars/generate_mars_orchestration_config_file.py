@@ -54,6 +54,7 @@ community_develop_generic_dbs = [
     'system.db',
     'mgmtvrf.db',
     'tacacs.db',
+    'ssh.db',
     'scp.db'
 ]
 
