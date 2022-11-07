@@ -500,6 +500,16 @@ class AdvancedReboot:
                     else:
                         logger.info(reboot_text_log_file)
 
+    def acl_manager_checker(self, error_list):
+        """
+        Checking ACL manager status. It should be running after rebooting
+        """
+        logger.info("Checking ACL manager status")
+        acl_proc_count = self.duthost.command('pgrep -f -c caclmgrd', module_ignore_errors=True)['stdout']
+        if int(acl_proc_count) != 1:
+            error_list.append("Expected one ACL manager process running. Actual: {}".format(acl_proc_count))
+
+
     def runRebootTest(self):
         # Run advanced-reboot.ReloadTest for item in preboot/inboot list
         count = 0
@@ -545,11 +555,7 @@ class AdvancedReboot:
                     if verification_errors:
                         logger.error("Post reboot verification failed. List of failures: {}".format('\n'.join(verification_errors)))
                         test_results[test_case_name].extend(verification_errors)
-                logger.info("Checking ACL manager status")
-                acl_proc_count = self.duthost.command('pgrep -f -c caclmgrd', module_ignore_errors=True)['stdout']
-                if int(acl_proc_count) != 1:
-                    test_results[test_case_name].append("Expected one ACL manager process running. "
-                                                        "Actual: {}".format(acl_proc_count))
+                self.acl_manager_checker(test_results[test_case_name])
                 self.__clearArpAndFdbTables()
                 self.__revertRebootOper(rebootOper)
             if len(self.rebootData['sadList']) > 1 and count != len(self.rebootData['sadList']):
