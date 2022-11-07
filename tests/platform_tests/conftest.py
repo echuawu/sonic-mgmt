@@ -349,9 +349,23 @@ def verify_mac_jumping(test_name, timing_data, verification_errors):
         # and ends when SAI is instructed to enable MAC learning (warmboot recovery path)
         logging.info("Mac expiry for unexpected addresses started at {}".format(mac_expiry_start) +\
             " and FDB learning enabled at {}".format(fdb_aging_disable_end))
-        if _parse_timestamp(mac_expiry_start) > _parse_timestamp(fdb_aging_disable_start) and\
-            _parse_timestamp(mac_expiry_start) < _parse_timestamp(fdb_aging_disable_end):
+
+        # TODO changed locally to debug the RM issue 3201434. Revert it after the fix.
+        logging.info("mac_expiry_start: {}".format(mac_expiry_start))
+        logging.info("fdb_aging_disable_start: {}".format(fdb_aging_disable_start))
+        logging.info("fdb_aging_disable_end: {}".format(fdb_aging_disable_end))
+        parsed_mac_expiry_start = _parse_timestamp(mac_expiry_start)
+        parsed_fdb_aging_disable_start = _parse_timestamp(fdb_aging_disable_start)
+        parsed_fdb_aging_disable_end = _parse_timestamp(fdb_aging_disable_end)
+        logging.info("parsed_mac_expiry_start: {}".format(parsed_mac_expiry_start))
+        logging.info("parsed_fdb_aging_disable_start: {}".format(parsed_fdb_aging_disable_start))
+        logging.info("parsed_fdb_aging_disable_end: {}".format(parsed_fdb_aging_disable_end))
+        if parsed_mac_expiry_start > parsed_fdb_aging_disable_start and \
+            parsed_mac_expiry_start < parsed_fdb_aging_disable_end:
             verification_errors.append("Mac expiry detected during the window when FDB ageing was disabled")
+        # if _parse_timestamp(mac_expiry_start) > _parse_timestamp(fdb_aging_disable_start) and\
+        #     _parse_timestamp(mac_expiry_start) < _parse_timestamp(fdb_aging_disable_end):
+        #     verification_errors.append("Mac expiry detected during the window when FDB ageing was disabled")
 
 
 def verify_required_events(duthost, event_counters, timing_data, verification_errors):
