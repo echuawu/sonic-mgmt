@@ -2,8 +2,9 @@ import logging
 import pytest
 import re
 import time
+import json
+import os
 
-from ngts.tools.mysql_api.mysql_api import DB
 from ngts.constants.constants import SonicConst
 
 ALLOWED_DEVIATION = 0.05
@@ -38,11 +39,10 @@ class TestCpuRamHddUsage:
         self.sonic_ver = sonic_version
 
     @pytest.mark.parametrize('partition_usage', partitions_and_expected_usage)
-    def test_hdd_usage(self, request, partition_usage):
+    def test_hdd_usage(self, partition_usage):
         """
         This tests checks HDD usage in specific partition
         Test doing "df {partition}" and then check usage and compare with expected usage from test parameters
-        :param request: pytest build-in
         :param partition_usage: dictionary with partition name and expected usage: {'partition': '/', 'max_usage': 6000}
         """
         total_size, used_size, available_size = get_partition_disk_usage(self.dut_engine, partition_usage['partition'])
@@ -53,20 +53,6 @@ class TestCpuRamHddUsage:
 
         except Exception as err:
             raise AssertionError(err)
-        finally:
-            mysql_columns_values = {
-                "test_name": request.node.originalname,
-                "setup_name": self.setup_name,
-                "time_stamp": time.time(),
-                "os_version": self.sonic_ver,
-                "platform": self.platform,
-                "disk_partition": partition_usage['partition'],
-                "used": used_size,
-                "free": available_size,
-                "total": total_size
-            }
-            logger.info('Uploading test results to MySQL DB')
-            DB().insert(table='disk_usage', columns_values=mysql_columns_values)
 
     @pytest.mark.build
     @pytest.mark.push_gate
@@ -88,12 +74,15 @@ class TestCpuRamHddUsage:
                 logger.info('Checking CPU utilization, attempt number: {}'.format(attempt))
                 assertions_list = []
                 total_cpu_usage, cpu_usage_per_process_dict = get_cpu_usage_and_processes(self.dut_engine)
+                logger.info(f'DUT use: {total_cpu_usage} % of CPU')
                 # CPU usage is integer and in %
                 if total_cpu_usage > expected_cpu_usage_dict['total'] * (1 + ALLOWED_DEVIATION):
                     assertions_list.append({'total': total_cpu_usage})
                 for process in self.processes_list:
                     try:
-                        cpu_usage_per_process[process] = cpu_usage_per_process_dict[process]['cpu_usage']
+                        proc_cpu_usage = cpu_usage_per_process_dict[process]['cpu_usage']
+                        cpu_usage_per_process[process] = proc_cpu_usage
+                        logger.info(f'Process: {process} use {proc_cpu_usage} % of CPU')
                         if cpu_usage_per_process_dict[process]['cpu_usage'] > \
                                 expected_cpu_usage_dict[process] * (1 + ALLOWED_DEVIATION):
                             assertions_list.append({process: cpu_usage_per_process_dict[process]['cpu_usage']})
@@ -110,17 +99,9 @@ class TestCpuRamHddUsage:
         except Exception as err:
             raise AssertionError(err)
         finally:
-            mysql_columns_values = {
-                "test_name": request.node.originalname,
-                "setup_name": self.setup_name,
-                "time_stamp": time.time(),
-                "os_version": self.sonic_ver,
-                "platform": self.platform,
-                "total_cpu_usage": total_cpu_usage
-            }
-            mysql_columns_values.update(cpu_usage_per_process)
-            logger.info('Uploading test results to MySQL DB')
-            DB().insert(table='cpu_usage', columns_values=mysql_columns_values)
+            cpu_usage_per_process.update({'total_cpu_usage': total_cpu_usage})
+            store_results_into_file(filename=os.path.join('/tmp/', request.node.originalname),
+                                    results_dict=cpu_usage_per_process)
 
     @pytest.mark.build
     @pytest.mark.push_gate
@@ -175,18 +156,9 @@ class TestCpuRamHddUsage:
         except Exception as err:
             raise AssertionError(err)
         finally:
-            mysql_columns_values = {
-                "test_name": request.node.name,
-                "setup_name": self.setup_name,
-                "time_stamp": time.time(),
-                "os_version": self.sonic_ver,
-                "platform": self.platform,
-                "total_ram_size": total_ram_size_mb,
-                "total_used_ram_size": used_ram_size_mb
-            }
-            mysql_columns_values.update(ram_usage_per_process)
-            logger.info('Uploading test results to MySQL DB')
-            DB().insert(table='ram_usage', columns_values=mysql_columns_values)
+            ram_usage_per_process.update({'total_ram_size': total_ram_size_mb, 'total_used_ram_size': used_ram_size_mb})
+            store_results_into_file(filename=os.path.join('/tmp/', request.node.originalname),
+                                    results_dict=ram_usage_per_process)
 
 
 def get_cpu_usage_and_processes(dut_engine):
@@ -247,3 +219,8 @@ def get_partition_disk_usage(dut_engine, partition):
     available_size_mb = int(available_size) / 1024
 
     return total_size_mb, used_size_mb, available_size_mb
+
+
+def store_results_into_file(filename, results_dict):
+    with open(filename, 'w') as test_report_file_obj:
+        json.dump(results_dict, test_report_file_obj)

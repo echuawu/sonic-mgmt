@@ -1,12 +1,11 @@
 import allure
 import logging
 import pytest
-import re
 import random
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from ngts.constants.constants import SonicConst
+from ngts.constants.constants import SonicConst, RebootTestConstants
 from dateutil.parser import parse as time_parse
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list, add_to_pytest_args_skip_tests, \
@@ -25,29 +24,33 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
                               }
 
 
+@pytest.fixture()
+def validation_type(platform_params, is_simx):
+    supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
+    validation_type = random.choice(supported_reboot_reload_list)
+
+    if is_simx:
+        validation_type = random.choice(simx_validation_types)
+        expected_traffic_loss_dict[validation_type]['data'] = 60  # Update the data plane downtime to 60 sec in SIMX
+
+    return validation_type
+
+
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
-def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, platform_params, is_simx):
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, validation_type):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
-    Add 3 verification for app extesnion
+    Add 3 verification for app extension
     1. Verify shutdown oder same to bgp->app(cpu-report)->swss, after warm/fast reboot
     2. Verify warm_restarted status is reconciled, after warm-reboot
     3. Verify app status is up, after config reload -y
     :param request: pytest build-in
-    :param platform_params: platform_params fixture
     """
     try:
         test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
-        if is_simx:
-            validation_type = random.choice(simx_validation_types)
-            expected_traffic_loss_dict[validation_type]['data'] = 60  # Update the data plane downtime to 60 sec in simx setups
-        else:
-            supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
-            validation_type = random.choice(supported_reboot_reload_list)
         test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
-
     except Exception as err:
         raise AssertionError(err)
 
@@ -152,7 +155,8 @@ class RebootReload:
                                     'args': {'interface': self.ping_sender_iface,
                                              'count': 2000, 'dst': self.dut_vlan40_int_ip,
                                              'interval': 0.1,
-                                             'allowed_traffic_loss_time': allowed_control_loss_time},
+                                             'allowed_traffic_loss_time': allowed_control_loss_time,
+                                             'result_file': RebootTestConstants.CONTROLPLANE_TRAFFIC_RESULTS_FILE},
                                     }
         control_plane_checker = PingChecker(self.topology_obj.players, validation_control_plane)
         logger.info('Starting background validation for control plane traffic')
@@ -167,7 +171,9 @@ class RebootReload:
                                  'args': {'interface': self.ping_sender_iface,
                                           'count': 200000, 'dst': self.hb_vlan40_ip,
                                           'interval': 0.001,
-                                          'allowed_traffic_loss_time': allowed_data_loss_time}}
+                                          'allowed_traffic_loss_time': allowed_data_loss_time,
+                                          'result_file': RebootTestConstants.DATAPLANE_TRAFFIC_RESULTS_FILE},
+                                 }
         data_plane_checker = PingChecker(self.topology_obj.players, validation_data_plane)
         logger.info('Starting background validation for data plane traffic')
         data_plane_checker.run_background_validation()

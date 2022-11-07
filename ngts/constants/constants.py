@@ -935,3 +935,8 @@ class BluefieldConstants:
 
 class SonicDeployConstants:
     UN_SUPPORT_BRANCH_MAP = {"r-alligator-04": ["201911", "202012"]}
+
+
+class RebootTestConstants:
+    DATAPLANE_TRAFFIC_RESULTS_FILE = '/tmp/reboot_dataplane_result.json'
+    CONTROLPLANE_TRAFFIC_RESULTS_FILE = '/tmp/reboot_controlplane_result.json'

@@ -65,7 +65,8 @@ pytest_plugins = ('ngts.tools.sysdumps',
                   'pytester',
                   'ngts.tools.allure_report',
                   'ngts.tools.mars_test_cases_results',
-                  'ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore'
+                  'ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore',
+                  'tests.common.plugins.collect_test_data_to_sql'
                   )
 
 
@@ -261,8 +262,8 @@ def sonic_version(engines):
     :param engines: dictionary with available engines
     :return: string with current SONiC version
     """
-    show_version_output = engines.dut.run_cmd('sudo show version')
-    sonic_ver = re.search(r'SONiC\sSoftware\sVersion:\s(.*)', show_version_output, re.IGNORECASE).group(1)
+    sonic_version_output = engines.dut.run_cmd('sudo sonic-cfggen -y /etc/sonic/sonic_version.yml -v build_version')
+    sonic_ver = sonic_version_output.strip()
     return sonic_ver
 
 

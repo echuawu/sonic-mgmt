@@ -36,7 +36,6 @@ class ConnectMSSQL:
         self.cursor.execute(cmd)
 
     def get_or_insert_dim_id(self, get_query, insert_query):
-        result_id: int
         try:
             self.cursor.execute(get_query)
             result_id = self.cursor.fetchone()[0]
