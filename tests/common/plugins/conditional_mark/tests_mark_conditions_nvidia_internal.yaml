@@ -431,12 +431,6 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
     conditions:
       - https://redmine.mellanox.com/issues/3225815
 
-iface_loopback_action/test_iface_loopback_action.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225776"
-    conditions:
-      - https://redmine.mellanox.com/issues/3225776
-
 radv/test_radv_restart.py::test_radv_swss:
   skip:
     reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/6457"

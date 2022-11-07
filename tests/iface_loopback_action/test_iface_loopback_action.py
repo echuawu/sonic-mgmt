@@ -16,7 +16,10 @@ from .iface_loopback_action_helper import shutdown_rif_interfaces, startup_rif_i
 from tests.common.platform.interface_utils import check_interface_status_of_up_ports
 
 
-pytestmark = [pytest.mark.topology('any')]
+pytestmark = [
+    pytest.mark.topology('any'),
+    pytest.mark.skip_check_dut_health
+]
 
 logger = logging.getLogger(__name__)
 allure.logger = logger

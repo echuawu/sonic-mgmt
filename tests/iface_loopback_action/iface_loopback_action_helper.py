@@ -195,7 +195,9 @@ def get_portchannel_peer_port_map(duthost, orig_ports_configuration, tbinfo, nbr
         port = port_dict['port']
         if port_dict['portchannel']:
             vm_host, peer_port = get_peer_port_info(nbrhosts, vm_neighbors, port)
-            peer_ports_map[vm_host] = peer_port
+            if not vm_host in peer_ports_map:
+                peer_ports_map[vm_host] = []
+            peer_ports_map[vm_host].append(peer_port)
     return peer_ports_map
 
 

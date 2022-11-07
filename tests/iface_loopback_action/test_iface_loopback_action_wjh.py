@@ -10,7 +10,10 @@ from tests.common.helpers.assertions import pytest_assert
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 
-pytestmark = [pytest.mark.topology('any')]
+pytestmark = [
+    pytest.mark.topology('any'),
+    pytest.mark.skip_check_dut_health
+]
 logger = logging.getLogger(__name__)
 allure.logger = logger
 

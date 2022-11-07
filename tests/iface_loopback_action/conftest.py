@@ -194,13 +194,15 @@ def setup(duthost, ptfhost, orig_ports_configuration, ports_configuration, backu
     """
     peer_shutdown_ports = get_portchannel_peer_port_map(duthost, orig_ports_configuration, tbinfo, nbrhosts)
     remove_orig_dut_port_config(duthost, orig_ports_configuration)
-    for vm_host, peer_port in peer_shutdown_ports.items():
-        vm_host.shutdown(peer_port)
+    for vm_host, peer_ports in peer_shutdown_ports.items():
+        for peer_port in peer_ports:
+            vm_host.shutdown(peer_port)
     apply_config(duthost, ptfhost, ports_configuration)
 
     yield
-    for vm_host, peer_port in peer_shutdown_ports.items():
-        vm_host.no_shutdown(peer_port)
+    for vm_host, peer_ports in peer_shutdown_ports.items():
+        for peer_port in peer_ports:
+            vm_host.no_shutdown(peer_port)
 
 
 @pytest.fixture(scope="package", autouse=True)
