@@ -1119,4 +1119,10 @@ platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_opt
     conditions:
       - "https://redmine.mellanox.com/issues/3226742"
 
+ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3208701"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3208701"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
