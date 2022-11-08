@@ -404,7 +404,7 @@ class TestRouting:
             with allure.step('Startup all BGP sessions'):
                 self.dut_cli.bgp.startup_bgp_all()
 
-    def test_reboot(self):
+    def test_reboot(self, ha_dut_1_mac, hb_dut_1_mac):
         """
         This test will do reboot/reload and then will call test case which will run functional validation for routing
         :return: raise assertion error in case when test failed
@@ -412,6 +412,12 @@ class TestRouting:
         supported_reboot_modes = ['config reload -y', 'reboot']
         reboot_type = random.choice(supported_reboot_modes)
         self.dut_cli.general.reboot_reload_flow(r_type=reboot_type, topology_obj=self.topology_obj)
+
+        # config below for ARP must be removed later, it's temporary workaround
+        self.dut.run_cmd(f'sudo ip neigh add 20.0.0.2 dev {self.interfaces.dut_ha_1} lladdr {ha_dut_1_mac}')
+        self.dut.run_cmd(f'sudo ip neigh change 20.0.0.2 dev {self.interfaces.dut_ha_1} lladdr {ha_dut_1_mac}')
+        self.dut.run_cmd(f'sudo ip neigh add 30.0.0.2 dev {self.interfaces.dut_hb_1} lladdr {hb_dut_1_mac}')
+        self.dut.run_cmd(f'sudo ip neigh change 30.0.0.2 dev {self.interfaces.dut_hb_1} lladdr {hb_dut_1_mac}')
 
         retry_call(self.check_bgp_sessions, fargs=[], tries=3, delay=5, logger=logger)
 

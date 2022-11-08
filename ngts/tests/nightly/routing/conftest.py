@@ -38,7 +38,8 @@ def prepare_dut_bgp_config():
 
 
 @pytest.fixture(scope='class', autouse=True)
-def configuration(topology_obj, cli_objects, engines, interfaces, platform_params, setup_name):
+def configuration(topology_obj, cli_objects, engines, interfaces, platform_params, setup_name,
+                  ha_dut_1_mac, hb_dut_1_mac, dut_ha_1_mac, dut_hb_1_mac):
     """
     Pytest fixture which are doing configuration for routing tests
     Configuration schema:
@@ -85,6 +86,19 @@ def configuration(topology_obj, cli_objects, engines, interfaces, platform_param
 
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+
+    # config below for ARP must be removed later, it's temporary workaround
+    engines.dut.run_cmd(f'sudo ip neigh add 20.0.0.2 dev {interfaces.dut_ha_1} lladdr {ha_dut_1_mac}')
+    engines.dut.run_cmd(f'sudo ip neigh change 20.0.0.2 dev {interfaces.dut_ha_1} lladdr {ha_dut_1_mac}')
+    engines.dut.run_cmd(f'sudo ip neigh add 30.0.0.2 dev {interfaces.dut_hb_1} lladdr {hb_dut_1_mac}')
+    engines.dut.run_cmd(f'sudo ip neigh change 30.0.0.2 dev {interfaces.dut_hb_1} lladdr {hb_dut_1_mac}')
+
+    engines.ha.run_cmd(f'sudo ip neigh add 20.0.0.1 dev {interfaces.ha_dut_1} lladdr {dut_ha_1_mac}')
+    engines.ha.run_cmd(f'sudo ip neigh change 20.0.0.1 dev {interfaces.ha_dut_1} lladdr {dut_ha_1_mac}')
+
+    engines.hb.run_cmd(f'sudo ip neigh add 30.0.0.1 dev {interfaces.hb_dut_1} lladdr {dut_hb_1_mac}')
+    engines.hb.run_cmd(f'sudo ip neigh change 30.0.0.1 dev {interfaces.hb_dut_1} lladdr {dut_hb_1_mac}')
+
     FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
 
     dut_bgp_conf_file_path = prepare_dut_bgp_config()
@@ -109,3 +123,11 @@ def configuration(topology_obj, cli_objects, engines, interfaces, platform_param
 
     cli_objects.dut.frr.remove_frr_config_files()
     cli_objects.dut.general.restart_service('bgp')
+
+    # config below for ARP must be removed later, it's temporary workaround
+    engines.dut.run_cmd(f'sudo ip neigh flush dev {interfaces.dut_ha_1}')
+    engines.dut.run_cmd(f'sudo ip neigh flush dev {interfaces.dut_hb_1}')
+
+    engines.ha.run_cmd(f'sudo ip neigh flush dev {interfaces.ha_dut_1}')
+
+    engines.hb.run_cmd(f'sudo ip neigh flush dev {interfaces.hb_dut_1}')

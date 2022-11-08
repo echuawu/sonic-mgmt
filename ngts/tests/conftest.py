@@ -95,6 +95,14 @@ def dut_ha_1_mac(cli_objects, topology_obj):
 
 
 @pytest.fixture(scope='session')
+def dut_hb_1_mac(cli_objects, topology_obj):
+    """
+    Pytest fixture which are returning mac address for link: dut-hb-1
+    """
+    return cli_objects.dut.mac.get_mac_address_for_interface(topology_obj.ports['dut-hb-1'])
+
+
+@pytest.fixture(scope='session')
 def dut_hb_2_mac(engines, cli_objects, topology_obj):
     """
     Pytest fixture which are returning mac address for link: dut-hb-2
