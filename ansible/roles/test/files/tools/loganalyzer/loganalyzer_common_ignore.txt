@@ -214,6 +214,7 @@ r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Cmd exec failed \(.*\).*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Reg cmd access failed \(.*\).*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Reg cmd access status failed \(.*\).*"
 r, ".* ERR pmon#sensord: Error getting sensor data: dps460\/#\d+: Kernel interface error.*"
+r, ".* ERR pmon#sensord: Error getting sensor data: pmbus.*: Kernel interface error.*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Failed to query PWM duty.*"
 r, ".* ERR kernel: \[.*\] mlxsw_minimal \d-0048: Failed to write PWM duty.*"
 r, '.* ERR swss#orchagent: :- create: Mirror rule references mirror session "neighbor_advertiser" that does not exist yet'
