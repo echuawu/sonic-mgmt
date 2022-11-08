@@ -367,8 +367,10 @@ tests/nightly/lag/test_lag.py::test_lag_min_links:
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
+      - "https://redmine.mellanox.com/issues/3259077 and '202205' in release"
 
 tests/push_build_tests/general/doroce/test_doroce.py::test_doroce[lossy_double_ipool]:
   skip:
