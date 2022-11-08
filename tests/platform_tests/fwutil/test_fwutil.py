@@ -2,7 +2,7 @@ import re
 import pytest
 import os
 import json
-from .fwutil_common import call_fwutil, show_firmware, upload_platform, find_pattern
+from fwutil_common import call_fwutil, show_firmware, upload_platform, find_pattern
 
 pytestmark = [
     pytest.mark.topology("any")

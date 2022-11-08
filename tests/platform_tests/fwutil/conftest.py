@@ -5,7 +5,7 @@ import logging
 import os
 from random import randrange
 import subprocess
-from .fwutil_common import show_firmware
+from fwutil_common import show_firmware
 
 logger = logging.getLogger(__name__)
 
