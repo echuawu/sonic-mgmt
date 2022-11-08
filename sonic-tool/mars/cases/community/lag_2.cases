@@ -16,6 +16,13 @@
     </global>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> LAG_2 Case </info>
         <name> lag_2 </name>
         <tout> 19800 </tout>
