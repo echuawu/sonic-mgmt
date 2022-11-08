@@ -1705,7 +1705,7 @@ class HdrmPoolSizeTest(sai_base_test.ThriftInterfaceDataPlane):
         if packet_size:
             self.pkt_size = packet_size
             cell_size = self.test_params.get('cell_size')
-            self.pkt_size_factor = int(math.ceil(float(packet_size)/cell_size))
+            self.pkt_size_factor = int(math.ceil(float(packet_size)//cell_size))
         else:
             self.pkt_size = 64
             self.pkt_size_factor = 1
@@ -1827,7 +1827,7 @@ class HdrmPoolSizeTest(sai_base_test.ThriftInterfaceDataPlane):
                     pkts_num_trig_pfc = self.pkts_num_trig_pfc_shp[i]
 
                 send_packet(
-                    self, self.src_port_ids[sidx_dscp_pg_tuples[i][0]], pkt, pkts_num_trig_pfc / self.pkt_size_factor)
+                    self, self.src_port_ids[sidx_dscp_pg_tuples[i][0]], pkt, pkts_num_trig_pfc // self.pkt_size_factor)
 
             print("Service pool almost filled", file=sys.stderr)
             sys.stderr.flush()
@@ -1902,8 +1902,8 @@ class HdrmPoolSizeTest(sai_base_test.ThriftInterfaceDataPlane):
                                         ip_tos=tos,
                                         ip_ttl=ttl)
 
-                send_packet(self, self.src_port_ids[sidx_dscp_pg_tuples[i][0]], pkt, self.pkts_num_hdrm_full /
-                            self.pkt_size_factor if i != self.pgs_num - 1 else self.pkts_num_hdrm_partial / self.pkt_size_factor)
+                send_packet(self, self.src_port_ids[sidx_dscp_pg_tuples[i][0]], pkt, self.pkts_num_hdrm_full //
+                            self.pkt_size_factor if i != self.pgs_num - 1 else self.pkts_num_hdrm_partial // self.pkt_size_factor)
                 # allow enough time for the dut to sync up the counter values in counters_db
                 time.sleep(8)
 
@@ -2046,7 +2046,7 @@ class SharedResSizeTest(sai_base_test.ThriftInterfaceDataPlane):
 
         # Test configuration packet counts and sizing should accurately trigger shared limit
         cell_occupancy = (self.packet_size +
-                          self.cell_size - 1) / self.cell_size
+                          self.cell_size - 1) // self.cell_size
         assert sum(self.pkt_counts[:-1]) * cell_occupancy * \
                    self.cell_size < self.shared_limit_bytes
         assert sum(self.pkt_counts) * cell_occupancy * \
@@ -2482,8 +2482,8 @@ class LossyQueueTest(sai_base_test.ThriftInterfaceDataPlane):
             packet_length = int(self.test_params['packet_size'])
             cell_size = int(self.test_params['cell_size'])
             if packet_length != 64:
-                cell_occupancy = (packet_length + cell_size - 1) / cell_size
-                pkts_num_trig_egr_drp /= cell_occupancy
+                cell_occupancy = (packet_length + cell_size - 1) // cell_size
+                pkts_num_trig_egr_drp //= cell_occupancy
                 # It is possible that pkts_num_trig_egr_drp * cell_occupancy < original pkts_num_trig_egr_drp,
                 # which probably can fail the assert(xmit_counters[EGRESS_DROP] > xmit_counters_base[EGRESS_DROP])
                 # due to not sending enough packets.
@@ -2629,8 +2629,8 @@ class LossyQueueVoqTest(sai_base_test.ThriftInterfaceDataPlane):
             packet_length = int(self.test_params['packet_size'])
             cell_size = int(self.test_params['cell_size'])
             if packet_length != 64:
-                cell_occupancy = (packet_length + cell_size - 1) / cell_size
-                pkts_num_trig_egr_drp /= cell_occupancy
+                cell_occupancy = (packet_length + cell_size - 1) // cell_size
+                pkts_num_trig_egr_drp //= cell_occupancy
         else:
             packet_length = 64
 
@@ -2758,7 +2758,7 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
         else:
             packet_length = 64
 
-        cell_occupancy = (packet_length + cell_size - 1) / cell_size
+        cell_occupancy = (packet_length + cell_size - 1) // cell_size
 
         # Prepare TCP packet data
         ttl = 64
@@ -2859,7 +2859,7 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             # first round sends only 1 packet
             expected_wm = 0
             total_shared = pkts_num_fill_shared - pkts_num_fill_min
-            pkts_inc = (total_shared / cell_occupancy) >> 2
+            pkts_inc = (total_shared // cell_occupancy) >> 2
             if 'cisco-8000' in asic_type:
                 # No additional packet margin needed while sending,
                 # but small margin still needed during boundary checks below
@@ -2871,7 +2871,7 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
                 expected_wm += pkts_num * cell_occupancy
                 if (expected_wm > total_shared):
                     diff = (expected_wm - total_shared +
-                            cell_occupancy - 1) / cell_occupancy
+                            cell_occupancy - 1) // cell_occupancy
                     pkts_num -= diff
                     expected_wm -= diff * cell_occupancy
                     fragment = total_shared - expected_wm
@@ -3118,7 +3118,7 @@ class PGDropTest(sai_base_test.ThriftInterfaceDataPlane):
                 if 'cisco-8000' in asic_type:
                     queue_counters=sai_thrift_read_queue_occupancy(
                         self.client, dst_port_id)
-                    occ_pkts=queue_counters[queue] / (packet_length + 24)
+                    occ_pkts=queue_counters[queue] // (packet_length + 24)
                     leaked_pkts=pkts_num_trig_pfc - occ_pkts
                     print("resending leaked packets {}".format(
                         leaked_pkts), file=sys.stderr)
@@ -3184,7 +3184,7 @@ class QSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
         else:
             packet_length=64
 
-        cell_occupancy=(packet_length + cell_size - 1) / cell_size
+        cell_occupancy=(packet_length + cell_size - 1) // cell_size
 
         # Prepare TCP packet data
         ttl=64
@@ -3278,7 +3278,7 @@ class QSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             # first round sends only 1 packet
             expected_wm=0
             total_shared=pkts_num_trig_drp - pkts_num_fill_min - 1
-            pkts_inc=(total_shared / cell_occupancy) >> 2
+            pkts_inc=(total_shared // cell_occupancy) >> 2
             if 'cisco-8000' in asic_type:
                 pkts_total=0  # track total desired queue fill level
                 pkts_num=1
@@ -3289,7 +3289,7 @@ class QSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
                 expected_wm += pkts_num * cell_occupancy
                 if (expected_wm > total_shared):
                     diff=(expected_wm - total_shared + \
-                          cell_occupancy - 1) / cell_occupancy
+                          cell_occupancy - 1) // cell_occupancy
                     pkts_num -= diff
                     expected_wm -= diff * cell_occupancy
                     fragment=total_shared - expected_wm
@@ -3409,7 +3409,7 @@ class BufferPoolWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
         else:
             packet_length=64
 
-        cell_occupancy=(packet_length + cell_size - 1) / cell_size
+        cell_occupancy=(packet_length + cell_size - 1) // cell_size
 
         pkt=simple_tcp_packet(pktlen=packet_length,
                                 eth_dst=router_mac if router_mac != '' else dst_port_mac,
