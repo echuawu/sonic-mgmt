@@ -282,9 +282,21 @@ tests/nightly/p4/sampling_example/test_entry_advance.py:
   skip:
     reason: "Test not supported. Skip until all config_db.json file will be updated with breakout_cfg section"
 
+tests/nightly/evpn_vxlan:
+  skip:
+    reason: "Test not supported since 202205.46 due to sai query modification(SAIBuild2205.22.1.38)"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3252222"
+      - "'202111' in release or '202106' in release or 'master' in release"
+
 tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
   skip:
-    reason: "Test not supported. Once EVPN VXLAN will be supported - need to remove skip"
+    reason: "Test not supported since 202205.46 due to sai query modification(SAIBuild2205.22.1.38)"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3252222"
+      - "'202111' in release or '202106' in release or 'master' in release"
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
@@ -380,6 +392,23 @@ tests/nightly/lag/test_lag.py::test_lag_members_scale:
       - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
       - "https://redmine.mellanox.com/issues/3259077 and '202205' in release"
 
+tests/push_build_tests/general/doroce/test_doroce.py::test_doroce[lossy_double_ipool]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3223886"
+    conditions:
+      - https://redmine.mellanox.com/issues/3223886
+
+tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3223886"
+    conditions:
+      - https://redmine.mellanox.com/issues/3223886
+
+tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_mac_move_handling:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3227865"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3227865"
 ########################## NGTS IGNORE END ##########################
 
 

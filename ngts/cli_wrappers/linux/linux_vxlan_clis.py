@@ -1,3 +1,4 @@
+import time
 from ngts.cli_wrappers.common.vxlan_clis_common import VxlanCliCommon
 
 
@@ -62,3 +63,78 @@ class LinuxVxlanCli(VxlanCliCommon):
             cmd += 'nolearning'
 
         return self.engine.run_cmd(cmd)
+
+    def add_vxlan_veth(self, name_space, bridge_name, veth_name, veth_peer_name):
+        """
+        This method is used to add veth pair to vxlan bridge, use it as vxlan customer
+        :param name_space: name space name
+        :param bridge_name: the bridge to bind veth pair
+        :param veth_name: veth name
+        :param veth_peer_name: veth peer name
+        """
+        add_name_space = f"ip netns add {name_space}"
+        add_veth_peer = f"ip link add {veth_name} type veth peer name {veth_peer_name}"
+        set_veth_peer_up = f"ip link set dev {veth_peer_name} up"
+        link_veth_with_name_space = f"ip link set {veth_name} netns {name_space}"
+        set_veth_in_name_space_up = f"ip netns exec {name_space} ip link set dev {veth_name} up"
+        bind_veth_peer_with_bridge = f"brctl addif {bridge_name} {veth_peer_name}"
+        self.engine.run_cmd(add_name_space)
+        self.engine.run_cmd(add_veth_peer)
+        self.engine.run_cmd(set_veth_peer_up)
+        self.engine.run_cmd(link_veth_with_name_space)
+        self.engine.run_cmd(set_veth_in_name_space_up)
+        self.engine.run_cmd(bind_veth_peer_with_bridge)
+
+    def del_vxlan_veth_ns(self, veth_name, name_space):
+        """
+        This method is used to delete veth pair and its related namespace
+        :param veth_name: veth_name or veth peer name
+        """
+        self.engine.run_cmd(f"ip link del dev {veth_name}")
+        self.engine.run_cmd(f"ip netns del {name_space}")
+
+    def set_veth_ip_addr(self, name_space, veth_name, ip, mask=24):
+        """
+        This method is used to set ip address of veth in a specific namespace
+        :param name_space: name space name
+        :param veth_name: veth name
+        :param ip: ip address
+        """
+        self.engine.run_cmd(f"ip netns exec {name_space} ip addr add {ip}/{mask} dev {veth_name}")
+
+    def set_veth_mac_addr(self, name_space, veth_name, mac):
+        """
+        This method is used to set mac address of veth in a specific namespace
+        :param name_space: name space name
+        :param veth_name: veth name
+        :param mac: mac address
+        """
+        self.engine.run_cmd(f"ip netns exec {name_space} ip link set {veth_name} address {mac}")
+
+    def set_if_mac_addr(self, if_name, mac):
+        """
+        This method is used to set mac address of a linux interface
+        :param if_name: linux interface name
+        :param mac: mac address
+        """
+        self.engine.run_cmd(f"ip link set {if_name} address {mac}")
+
+    def shutdown_interface(self, if_name):
+        """
+        This method is used to shutdown a linux interface
+        It is a common way to stop send BGP route asap
+        :param if_name: interface name
+        """
+        self.engine.run_cmd(f"ip link set dev {if_name} down")
+        # Add 2 seconds for FRR BGP to detect the port flap and send evpn vxlan mac route
+        time.sleep(2)
+
+    def no_shutdown_interface(self, if_name):
+        """
+        This method is used to no shutdown a linux interface
+        It is a common way to start send BGP route asap
+        :param if_name: interface name
+        """
+        self.engine.run_cmd(f"ip link set dev {if_name} up")
+        # Add 2 seconds for FRR BGP to detect the port flap and send evpn vxlan mac route
+        time.sleep(2)

@@ -3,9 +3,13 @@ import logging
 import pytest
 import random
 from retry.api import retry_call
+from ngts.tools.infra import is_test_skipped
+from ngts.constants.constants import VxlanConstants
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.constants.constants import SonicConst, RebootTestConstants
+from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
+from ngts.constants.constants import SonicConst
 from dateutil.parser import parse as time_parse
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list, add_to_pytest_args_skip_tests, \
@@ -63,9 +67,12 @@ class RebootReload:
         self.cli_object = self.topology_obj.players['dut']['cli']
         self.interfaces = interfaces
         self.ping_sender_iface = '{}.40'.format(self.interfaces.ha_dut_2)
+        self.hb_vlan_101_iface = 'bond0.101'
+        self.ha_vni_500101_iface_ip = '101.0.0.2'
         self.dut_vlan40_int_ip = '40.0.0.1'
         self.dut_port_channel_ip = '30.0.0.1'
         self.hb_vlan40_ip = '40.0.0.3'
+        self.hb_vlan_101_iface_ip = '101.0.0.3'
         self.is_support_app_ext = shared_params.app_ext_is_app_ext_supported
         self.app_name = shared_params.app_ext_app_name
         self.version = shared_params.app_ext_version
@@ -97,6 +104,10 @@ class RebootReload:
         with allure.step('Starting background validation for data plane traffic'):
             data_plane_checker = self.start_data_plane_validation(validation_type, allowed_data_loss_time)
 
+        if validation_type == 'warm-reboot' and not is_test_skipped(request, 'test_evpn_vxlan_basic'):
+            with allure.step('Starting background validation for evpn vxlan data plane traffic'):
+                evpn_vxlan_data_plane_checker = self.start_evpn_vxlan_data_plane_validation()
+
         self.cli_object.general.reboot_reload_flow(r_type=validation_type, topology_obj=self.topology_obj,
                                                    wait_after_ping=0)
 
@@ -107,6 +118,13 @@ class RebootReload:
                 control_plane_checker.complete_validation()
         except Exception as err:
             failed_validations['control_plane'] = err
+
+        if validation_type == 'warm-reboot' and not is_test_skipped(request, 'test_evpn_vxlan_basic'):
+            try:
+                with allure.step('Checking evpn vxlan data plane traffic loss'):
+                    evpn_vxlan_data_plane_checker.complete_validation()
+            except Exception as err:
+                failed_validations['evpn_vxlan_data_plane'] = err
 
         try:
             with allure.step('Checking data plane traffic loss'):
@@ -178,6 +196,36 @@ class RebootReload:
         logger.info('Starting background validation for data plane traffic')
         data_plane_checker.run_background_validation()
         return data_plane_checker
+
+    def start_evpn_vxlan_data_plane_validation(self):
+        # Here we will send 1k pps - it allow to check traffic loss less than 1 second
+        pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(VxlanConstants.UNKNOWN_UNICAST_MAC, VxlanConstants.UNKNOWN_UNICAST_MAC_1,
+                                                                            self.hb_vlan_101_iface_ip,
+                                                                            self.ha_vni_500101_iface_ip)
+        evpn_vxlan_traffic_validation = {'sender': 'hb',
+                                         'name': 'evpn_vxlan_data_plane_warm_reboot',
+                                         'background': 'start',
+                                         'send_args': {'interface': self.hb_vlan_101_iface,
+                                                       'packets': pkt_hb_ha_vlan101_vni500101_r,
+                                                       'count': 200000,
+                                                       'inter': 0.001},
+                                         'receivers':
+                                             [
+                                                 {'receiver': 'ha',
+                                                  'receive_args': {
+                                                      'interface': self.interfaces.ha_dut_1,
+                                                      'filter': VxlanConstants.TCPDUMP_VXLAN_SRC_IP_FILTER.format(
+                                                          VxlanConstants.HEX_500101,
+                                                          VxlanConstants.HEX_101_0_0_3),
+                                                      'count': 200000
+                                                  }
+                                                  }
+                                         ]
+                                         }
+        evpn_vxlan_data_plane_checker = ScapyChecker(self.topology_obj.players, evpn_vxlan_traffic_validation)
+        logger.info(f'Starting background validation for evpn vxlan data plane traffic: {evpn_vxlan_traffic_validation}')
+        evpn_vxlan_data_plane_checker.run_background_validation()
+        return evpn_vxlan_data_plane_checker
 
     @staticmethod
     def do_func_validations(request):

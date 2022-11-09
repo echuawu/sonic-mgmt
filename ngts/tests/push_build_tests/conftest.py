@@ -199,26 +199,25 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     For now if add 'evpn_nvo': 'nvo' - VXLAN decap test will fail
     """
     vxlan_config_dict = {
-        'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
-                 'tunnels': [{'vni': 76543, 'vlan': 69}]  # , {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}
+        'dut': [{'evpn_nvo': 'my-nvo', 'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
+                 'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}]
                  }
                 ],
-        # TODO: Enable VNI 500100 and 500101 configuration once EVPN-VXLAN will be supported
-        # 'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
-        #         'vtep_ips': [('100.0.0.2', '24'), ('100::2', '64')]},
-        #        {'vtep_name': 'vtep_500101', 'vtep_src_ip': '30.0.0.2', 'vni': 500101,
-        #         'vtep_ips': [('101.0.0.2', '24'), ('101::2', '64')]}],
-        # 'hb': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '40.0.0.3', 'vni': 500100,
-        #         'vtep_ips': [('100.0.0.3', '24'), ('100::3', '24')]}]
+        'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
+                'vtep_ips': [('100.0.0.2', '24'), ('100::2', '64')]},
+               {'vtep_name': 'vtep_500101', 'vtep_src_ip': '30.0.0.2', 'vni': 500101,
+                'vtep_ips': [('101.0.0.2', '24'), ('101::2', '64')]}],
+        'hb': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '40.0.0.3', 'vni': 500100,
+                'vtep_ips': [('100.0.0.3', '24'), ('100::3', '24')]}]
     }
 
     frr_config_dict = {
         'dut': {'configuration': {'config_name': 'dut_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
-                'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']},
+                'cleanup': ['configure terminal', 'no router bgp', 'exit', 'exit']},
         'ha': {'configuration': {'config_name': 'ha_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
-               'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']},
+               'cleanup': ['configure terminal', 'no router bgp', 'exit', 'exit']},
         'hb': {'configuration': {'config_name': 'hb_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
-               'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']}
+               'cleanup': ['configure terminal', 'no router bgp', 'exit', 'exit']}
     }
 
     # Update CLI classes based on current SONiC branch
@@ -237,6 +236,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
 
             if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
+                # in case there is useless bgp configuration exist
+                FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
                 FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
 
         with allure.step('Doing debug logs print'):

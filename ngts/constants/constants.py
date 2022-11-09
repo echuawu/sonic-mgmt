@@ -555,7 +555,6 @@ class FecConstants:
             }
         },
 
-
         PlatformTypesConstants.FILTERED_PLATFORM_LIGER:
             FEC_MODES_SPC2_SPEED_SUPPORT[PlatformTypesConstants.FILTERED_PLATFORM_LIONFISH],
         PlatformTypesConstants.FILTERED_PLATFORM_TIGON:
@@ -940,3 +939,77 @@ class SonicDeployConstants:
 class RebootTestConstants:
     DATAPLANE_TRAFFIC_RESULTS_FILE = '/tmp/reboot_dataplane_result.json'
     CONTROLPLANE_TRAFFIC_RESULTS_FILE = '/tmp/reboot_controlplane_result.json'
+
+
+class VxlanConstants:
+    HOST_HA = 'ha'
+    HOST_HB = 'hb'
+    PACKET_NUM_500 = 500
+    PACKET_NUM_400 = 400
+    PACKET_NUM_200 = 200
+    PACKET_NUM_100 = 100
+    PACKET_NUM_3 = 3
+    PACKET_NUM_0 = 0
+    STATIC_MAC_OPERATION_SET = 'SET'
+    STATIC_MAC_OPERATION_DEL = 'DEL'
+
+    DUT_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.1'
+    VM_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.2'
+    IP_GENERATE_SEED = 201
+
+    VETH_NAME_1 = 'tap_3333_1'
+    VETH_PEER_NAME_1 = 'tap_3333_2'
+    VETH_NAME_100 = 'tap_100_1'
+    VETH_PEER_NAME_100 = 'tap_100_2'
+    VETH_NAME_101 = 'tap_101_1'
+    VETH_PEER_NAME_101 = 'tap_101_2'
+    NAME_SPACE_1 = 'ns1'
+    NAME_SPACE_100 = 'ns100'
+    NAME_SPACE_101 = 'ns101'
+    VETH_IP = '3.3.3.10'
+    VETH_IP_ADDR_1 = '100.0.0.200'
+    DST_IP_101_0_0_3 = '101.0.0.3'
+    UNKNOWN_SRC_IP = '1.0.0.3'
+    UNKNOWN_DST_IP = '101.0.0.100'
+
+    BGP_SESSION_ID = 65000
+    RD_100 = '100'
+    RD_101 = '101'
+    RD_3333 = '3333'
+    VLAN_3 = 3
+    VLAN_100 = 100
+    VLAN_101 = 101
+    VLAN_200 = 200
+    VNI_12345 = 12345
+    VNI_54321 = 54321
+    VNI_500100 = 500100
+    VNI_500101 = 500101
+    VNI_3333 = 3333
+    VNI_3333_IFACE = 'br_{}'.format(VNI_3333)
+    HA_VXLAN_54321_IFACE = 'vtep_{}'.format(VNI_54321)
+    VNI_500100_IFACE = 'br_{}'.format(VNI_500100)
+    VNI_500101_IFACE = 'br_{}'.format(VNI_500101)
+
+    EVPN_NVO = 'my-nvo'
+    VTEP_NAME_DUT = 'vtep101032'
+    VTEP_INTERFACE = 'Loopback0'
+    SIMPLE_PACKET = 'Ether(src="{}",dst="{}")/IP(src="{}",dst="{}")/UDP()'
+    ECMP_SIMPLE_PACKET = 'Ether(src="{}",dst="{}")/IP(src={},dst="{}")/UDP()'
+    SIMPLE_PACKET_FILTER = 'udp and dst host {}'
+    TCPDUMP_VXLAN_SRC_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[76:4]={}'  # filter VXLAN packet with vni and encapsulated src IP
+    TCPDUMP_VXLAN_DST_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[80:4]={}'  # filter VXLAN packet with vni and encapsulated dst IP
+    HEX_UNKNOWN_SRC_IP = '0x01000003'
+    HEX_100_0_0_2 = '0x64000002'  # hex value for 100.0.0.2
+    HEX_100_0_0_3 = '0x64000003'  # hex value for 100.0.0.3
+    HEX_101_0_0_2 = '0x65000002'  # hex value for 101.0.0.3
+    HEX_101_0_0_3 = '0x65000003'  # hex value for 101.0.0.3
+    HEX_255_255_255_255 = '0xffffffff'  # hex value for 255.255.255.255
+    HEX_500100 = '0x7a18400'
+    HEX_500101 = '0x7a18500'
+    STATIC_MAC_ADDR = '00-00-00-11-22-33'
+    SOURCE_MAC_ADDR_1 = '00:11:22:33:44:55'
+    UNKNOWN_UNICAST_MAC = '00:00:00:00:00:aa'
+    UNKNOWN_UNICAST_MAC_1 = '00:00:00:99:99:99'
+    BROADCAST_MAC = 'ff:ff:ff:ff:ff:ff'
+    BROADCAST_IP = '255.255.255.255'
+    ECMP_TRAFFIC_SRC_IP_LIST = ['3.3.3.3', '3.3.3.4', '3.3.3.5', '3.3.3.6']
