@@ -85,6 +85,12 @@ tests/nightly/copp/test_copp.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3128004 and 'simx' in platform"
 
+tests/nightly/routing/test_routing.py::TestRouting::test_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3260311 and platform nvda_bf"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3260311 and 'nvda_bf' in platform"
+
 tests/nightly/sflow/test_sflow.py:
   skip:
     reason: "sflow still isn't supported on Simx "
