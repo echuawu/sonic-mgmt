@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 MOUNT_DIR = "/run/mount"
 LOG_DIR = os.path.join(MOUNT_DIR, "log")
-DATA_DIR = "/logs/tacacs"
+DATA_DIR = "logs/tacacs"
 
 
 def check_disk_ro(duthost):
