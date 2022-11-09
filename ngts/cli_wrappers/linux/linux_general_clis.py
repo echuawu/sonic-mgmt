@@ -50,3 +50,19 @@ class LinuxGeneralCli(GeneralCliCommon):
         :return: command output
         """
         return self.engine.run_cmd("ipmitool chassis power cycle")
+
+    def get_history(self):
+        """
+        get history
+        :return: command output
+        """
+        logger.info("Running 'history' on dut")
+        return self.engine.run_cmd("history")
+
+    def clear_history(self):
+        """
+        clear history
+        :return: command output
+        """
+        logger.info("Running 'history -c' on dut")
+        return self.engine.run_cmd("history -c")

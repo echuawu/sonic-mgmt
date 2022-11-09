@@ -124,6 +124,12 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
+    def list_commands(engine):
+        logging.info("Running 'nv list-commands' on dut")
+        output = engine.run_cmd('nv list-commands')
+        return output
+
+    @staticmethod
     @retry(Exception, tries=20, delay=10)
     def wait_for_nvos_to_become_functional(engine):
         """
