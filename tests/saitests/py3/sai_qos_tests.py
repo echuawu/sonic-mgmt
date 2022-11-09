@@ -1705,7 +1705,7 @@ class HdrmPoolSizeTest(sai_base_test.ThriftInterfaceDataPlane):
         if packet_size:
             self.pkt_size = packet_size
             cell_size = self.test_params.get('cell_size')
-            self.pkt_size_factor = int(math.ceil(float(packet_size)//cell_size))
+            self.pkt_size_factor = int(math.ceil(float(packet_size)/cell_size))
         else:
             self.pkt_size = 64
             self.pkt_size_factor = 1
@@ -3042,7 +3042,7 @@ class PGHeadroomWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
             q_wm_res, pg_shared_wm_res, pg_headroom_wm_res = sai_thrift_read_port_watermarks(
                 self.client, port_list[src_port_id])
             print("exceeded pkts num sent: %d" % (pkts_num), file=sys.stderr)
-            print("lower bound: %d, actual value: %d, upper bound: %d" % (expected_wm - margin) * cell_size * cell_occupancy, pg_headroom_wm_res[pg], ((expected_wm + margin) * cell_size * cell_occupancy), file=sys.stderr)
+            print("lower bound: %d, actual value: %d, upper bound: %d" % ((expected_wm - margin) * cell_size * cell_occupancy, pg_headroom_wm_res[pg], ((expected_wm + margin) * cell_size * cell_occupancy)), file=sys.stderr)
             assert(expected_wm == total_hdrm)
             assert(pg_headroom_wm_res[pg] <= (
                 expected_wm + margin) * cell_size * cell_occupancy)
