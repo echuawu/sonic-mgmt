@@ -1,4 +1,3 @@
-import re
 import os
 import pytest
 import logging
@@ -96,16 +95,88 @@ class SonicDataCollector(object):
                             'ExtraInfo': self.setup_extra_info, 'TestData': self.test_data}
             logger.info('Going to upload to SQL DB next data: \n{}\n'.format(test_results))
 
-            insert_querry = 'INSERT INTO [dbo].[{}]'.format('test_results')
-            insert_querry += '([Date], [TestName], [DUTImageVersion], [DUTImageBranch], [Topology], [SetupName], [SetupExtraInfo], [TestData]) '
-            insert_querry += "VALUES (GETDATE(), '{TestName}', '{DUTImageVersion}', '{DUTImageBranch}', '{Topology}', '{SetupName}', '{SetupExtraInfo}', '{TestData}')".format(
-                TestName=self.test_name, DUTImageVersion=self.sonic_version,
-                DUTImageBranch=self.sonic_branch, Topology=self.topology, SetupName=self.setup_name,
-                SetupExtraInfo=self.setup_extra_info, TestData=self.test_data)
+            test_id = self.get_test_id_from_db()
+            test_setup_id = self.get_test_setup_id_from_db()
+            test_run_id = self.insert_data_into_test_runs_table(test_id)
+            self.insert_data_into_rel_test_run_setup_table(test_setup_id, test_run_id)
+            self.insert_data_into_test_data_table(test_run_id)
 
-            self.mssql_connection_obj.query_insert(insert_querry)
         else:
             logger.warning('Can not get test data to upload into SQL database')
+
+    def get_test_id_from_db(self):
+        """
+        Get test_id from SQL table "test"
+        :return: test_id
+        """
+        query_get = "SELECT test_id FROM test WHERE test_name='{}'".format(self.test_name)
+        self.mssql_connection_obj.cursor.execute(query_get)
+        result_id = self.mssql_connection_obj.cursor.fetchone()
+        if result_id:
+            test_id = result_id[0]
+        else:
+            query = "INSERT into test (test_name) values('{}')".format(self.test_name)
+            test_id = self.mssql_connection_obj.query_insert(query, query_get)
+        return test_id
+
+    def get_test_setup_id_from_db(self):
+        """
+        Get test_setup_id from SQL table tests_setup
+        :return: test_setup_id
+        """
+        query_get = "SELECT test_setup_id FROM tests_setup WHERE setup_name='{}'".format(self.setup_name)
+        self.mssql_connection_obj.cursor.execute(query_get)
+        result_id = self.mssql_connection_obj.cursor.fetchone()
+        if result_id:
+            test_setup_id = result_id[0]
+        else:
+            query = "INSERT into tests_setup (setup_name) values('{}')".format(self.setup_name)
+            test_setup_id = self.mssql_connection_obj.query_insert(query, query_get)
+        return test_setup_id
+
+    def insert_data_into_test_runs_table(self, test_id):
+        """
+        Insert data into tests_runs table
+        :param test_id: SQL table test ID
+        :return: test_run_id
+        """
+        query = "INSERT tests_runs (test_run_dateTime, DUTImageVersion,DUTImageBranch,test_id,Topology) " \
+                 "values (GETDATE(), '{DUTImageVersion}', '{DUTImageBranch}', {test_name_id}, '{Topology}')".format(
+            DUTImageVersion=self.sonic_version,
+            DUTImageBranch=self.sonic_branch,
+            test_name_id=test_id,
+            Topology=self.topology
+        )
+        self.mssql_connection_obj.query_insert(query)
+
+        query = "SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY]"
+        self.mssql_connection_obj.cursor.execute(query)
+        test_run_id = self.mssql_connection_obj.cursor.fetchone()[0]
+        return test_run_id
+
+    def insert_data_into_rel_test_run_setup_table(self, test_setup_id, test_run_id):
+        """
+        Insert data into rel_test_run_setup table
+        :param test_setup_id: SQL table test setup ID
+        :param test_run_id: SQL table test run ID
+        """
+        query = "INSERT rel_test_run_setup (test_setup_id,test_run_id,SetupExtraInfo) " \
+                 "values({setup_name_id}, {test_run_id}, '{SetupExtraInfo}')".format(
+            setup_name_id=test_setup_id,
+            test_run_id=test_run_id,
+            SetupExtraInfo=self.setup_extra_info
+        )
+        self.mssql_connection_obj.query_insert(query)
+
+    def insert_data_into_test_data_table(self, test_run_id):
+        """
+        Insert data into test_data table
+        :param test_run_id:  SQL table test run ID
+        """
+        for key, value in self.test_data.items():
+            query = "INSERT test_data (test_run_id, test_attribute, test_attribute_value) values({}, '{}', {})".format(
+                test_run_id, key, value)
+            self.mssql_connection_obj.query_insert(query)
 
     def get_test_results(self):
         raise NotImplementedError('This method must be implemented in child class')
@@ -133,7 +204,7 @@ class NgtsPushGateRebootLossTimeCollector(SonicDataCollector):
             reboot_result_dict['controlplane'] = controlplane_results['actual_traffic_loss_time']
 
         if reboot_result_dict:
-            self.test_data = json.dumps(reboot_result_dict)
+            self.test_data = reboot_result_dict
 
 
 class NgtsCpuRamUsageCollector(SonicDataCollector):
@@ -149,7 +220,7 @@ class NgtsCpuRamUsageCollector(SonicDataCollector):
         test_report_filename = os.path.join('/tmp/', self.request.node.originalname)
         with open(test_report_filename) as test_report_file_obj:
             test_report_dict = json.load(test_report_file_obj)
-            self.test_data = json.dumps(test_report_dict)
+            self.test_data = test_report_dict
 
 
 class AdvancedRebootCollector(SonicDataCollector):
@@ -183,7 +254,7 @@ class AdvancedRebootCollector(SonicDataCollector):
             # Control plane downtime not available for fast-reboot tests(value empty), only available for warm-reboot
             controlplane_downtime = ptf_test_report_dict['controlplane']['downtime']
 
-            self.test_data = json.dumps({'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime})
+            self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime}
 
         except Exception as err:
             logger.error('Can not get data/control plane loss for test: {}. Got err: {}'.format(self.test_name, err))
