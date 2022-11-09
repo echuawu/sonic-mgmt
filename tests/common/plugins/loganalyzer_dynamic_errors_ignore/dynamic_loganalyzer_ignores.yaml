@@ -978,6 +978,17 @@
       - nvda_bf
 
 - Errors_list:
+    - '.*INFO syncd#supervisord: syncd ERR rsai_lib_remote_call:\d+ remote_call\(api=\d+ method=\d+\) failed 0x.*'
+    - '.*INFO syncd#supervisord: syncd ERR rsai_proxy_ioctl_invoke:\d+ remote ioctl_invoke\(\) failed 0x.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3259311
+      Platform:
+      - nvda_bf
+
+- Errors_list:
     - '.*ERR syncd#syncd: :- processBulkOidCreate: bulkCreate api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER'
     - '.*ERR syncd#syncd: :- processBulkOidRemove: bulkRemove api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER'
   Conditions:
