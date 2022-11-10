@@ -5,7 +5,7 @@ import os
 
 logger = logging.getLogger()
 
-path_to_source_code = "/auto/sysgwork/yport/nvos-simx/sx_ver_build_scripts/simx_docker"     # will be updated
+path_to_source_code = "/.autodirect/sw_system_release/nos/nvos/yana-dev/simx_repo/sx_ver_build_scripts/simx_docker"
 
 
 @pytest.mark.platform
