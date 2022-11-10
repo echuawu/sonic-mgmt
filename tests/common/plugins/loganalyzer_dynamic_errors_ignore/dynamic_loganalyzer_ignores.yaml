@@ -1428,6 +1428,14 @@
       - 3109165
 
 - Errors_list:
+    - ".* ERR swss#intfmgrd: :- main: Runtime error: \/sbin\/ip link set .*mtu.*"
+  Conditions:
+    - Affected_test_cases:
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
+    - Redmine:
+      - 3259489
+
+- Errors_list:
     - ".* sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating.*"
   Conditions:
     - Redmine:
