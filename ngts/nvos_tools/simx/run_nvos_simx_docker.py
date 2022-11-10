@@ -2,6 +2,7 @@ import logging
 import pytest
 import allure
 import os
+import time
 
 logger = logging.getLogger()
 
@@ -23,3 +24,20 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
                                                                             username=dut_engine.username,
                                                                             path_to_image=base_version))
         assert "Docker container is running" in output, "Failed to start simx docker"
+
+    with allure.step("Wait untill the switch is ready (~10-12 min)"):
+        dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+        all_components_are_up = False
+        timeout = 15    # min
+        while not all_components_are_up and timeout > 0:
+            output = server_engine.run_cmd('docker exec {user}-{dut_name} systemctl status chipsim fw simx | '.format(
+                user=dut_engine.username, dut_name=dut_name) + 'grep Active:')
+            if "inactive" not in output and "activating" not in output:
+                all_components_are_up = True
+            else:
+                timeout -= 1
+                time.sleep(60)
+
+        assert timeout > 0, "Timeout during simx docker initiation"
+        assert all_components_are_up, "Failed to initiate simx docker components"
+        logging.info("All simx docker components are active")
