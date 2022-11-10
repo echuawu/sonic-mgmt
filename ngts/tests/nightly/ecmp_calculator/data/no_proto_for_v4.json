@@ -1,0 +1,20 @@
+{
+		"packet_info": {
+			"outer": {
+				"ipv4": {
+					"dip": "50.50.50.30",
+					"sip": "10.10.10.11",
+					"next_header": "6"
+				},
+				"layer2": {
+					"ethertype": 2048,
+					"smac": "00:00:00:00:0a:aa",
+					"dmac": "ec:0d:9a:60:39:00"
+				},
+				"tcp_udp": {
+					"dport": 4789,
+					"sport": 5555
+				}
+			}
+		}
+}

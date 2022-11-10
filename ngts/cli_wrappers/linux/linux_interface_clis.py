@@ -246,3 +246,12 @@ class LinuxInterfaceCli(InterfaceCliCommon):
             return "auto"
         else:
             raise AssertionError("Couldn't parse fec mode: {}".format(actual_fec_val))
+
+    def add_sub_interface(self, sub_interface, vlan_id):
+        """
+        This method is to add sub interface
+        :param sub_interface: sub interface name which should be added, example: Ethernet0.100
+        :param vlan_id: vid such as 100, 200
+        :return: command output
+        """
+        return self.engine.run_cmd("vconfig add {} {}".format(sub_interface, vlan_id))

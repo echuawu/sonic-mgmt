@@ -1,0 +1,39 @@
+{
+    "packet_info": {
+        "outer": {
+            "{{packet.ip_type}}": {
+                "dip": "{{packet.outer_dip}}",
+                "sip": "{{packet.outer_sip}}",
+                "next_header": {{packet.outer_next_header}}
+            },
+            "layer2": {
+                "ethertype": 34525,
+                "smac": "{{packet.outer_smac}}",
+                "dmac": "{{packet.outer_dmac}}"
+            },
+            "tcp_udp": {
+                "dport": {{packet.outer_dport}},
+                "sport": {{packet.outer_sport}}
+            },
+            "vxlan_nvgre": {
+                "vni": 4000
+            }
+        },
+        "inner": {
+            "{{packet.ip_type}}": {
+                "dip": "{{packet.inner_dip}}",
+                "sip": "{{packet.inner_sip}}",
+                "next_header": {{packet.inner_next_header}}
+            },
+            "layer2": {
+                "ethertype": 34525,
+                "smac": "{{packet.inner_smac}}",
+                "dmac": "{{packet.inner_dmac}}"
+            },
+            "tcp_udp": {
+                "dport": {{packet.inner_dport}},
+                "sport": {{packet.inner_dport}}
+            }
+        }
+    }
+}

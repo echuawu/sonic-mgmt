@@ -1,0 +1,20 @@
+{
+		"packet_info": {
+			"outer": {
+				"{{packet.ip_type}}": {
+					"dip": "{{packet.outer_dip}}",
+					"sip": "{{packet.outer_sip}}",
+					"proto": {{packet.outer_proto}}
+				},
+				"layer2": {
+					"ethertype": 2048,
+					"smac": "{{packet.outer_smac}}",
+					"dmac": "{{packet.outer_dmac}}"
+				},
+				"tcp_udp": {
+					"dport": {{packet.outer_dport}},
+					"sport": {{packet.outer_sport}}
+				}
+			}
+		}
+}

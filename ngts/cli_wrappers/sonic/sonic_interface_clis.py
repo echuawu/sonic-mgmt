@@ -641,3 +641,20 @@ class SonicInterfaceCli(InterfaceCliCommon):
         :return: the command output
         """
         return self.engine.run_cmd("sudo show interfaces neighbor expected", validate=validate)
+
+    def add_sub_interface(self, sub_interface, vlan_id=""):
+        """
+        This method is to add sub interface
+        :param sub_interface: sub interface name which should be added, example: Ethernet0.100
+        :param vlan_id: vid such as 100, 200
+        :return: command output
+        """
+        return self.engine.run_cmd("sudo config subinterface add {} {}".format(sub_interface, vlan_id))
+
+    def del_sub_interface(self, sub_interface):
+        """
+        This method is to del sub interface
+        :param sub_interface: sub interface name which should be deleted, example: Ethernet0.100
+        :return: command output
+        """
+        return self.engine.run_cmd("sudo config subinterface del {}".format(sub_interface))
