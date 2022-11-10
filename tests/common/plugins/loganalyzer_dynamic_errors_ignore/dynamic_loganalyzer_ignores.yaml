@@ -201,9 +201,7 @@
     - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file.*'
     - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\].*dump .*failed.*'
   Conditions:
-    - Affected_test_cases:
-      - tests/push_build_tests/general/qos/test_qos_reload.py
-      Redmine:
+    - Redmine:
         - 3075643
       Platform:
         - simx
