@@ -2,8 +2,8 @@ import copy
 import ipaddress
 import itertools
 import json
-import logging
 import re
+import logging
 import pytest
 import time
 import os
@@ -81,14 +81,15 @@ class AdvancedReboot:
         self.moduleIgnoreErrors = kwargs["allow_fail"] if "allow_fail" in kwargs else False
         self.allowMacJump = kwargs["allow_mac_jumping"] if "allow_mac_jumping" in kwargs else False
         self.advanceboot_loganalyzer = kwargs["advanceboot_loganalyzer"] if "advanceboot_loganalyzer" in kwargs else None
-        self.other_vendor_nos = kwargs['other_vendor_nos'] if 'other_vendor_nos' in kwargs else False
-        self.__dict__.update(kwargs)
+	self.other_vendor_nos = kwargs['other_vendor_nos'] if 'other_vendor_nos' in kwargs else False
+	self.__dict__.update(kwargs)
         self.__extractTestParam()
         self.rebootData = {}
         self.hostMaxLen = 0
         self.lagMemberCnt = 0
         self.vlanMaxCnt = 0
         self.hostMaxCnt = HOST_MAX_COUNT
+
         self.__buildTestbedData(tbinfo)
 
         if self.rebootType == 'service-warm-restart':
@@ -117,13 +118,10 @@ class AdvancedReboot:
         if self.rebootLimit is None:
             if self.kvmTest:
                 self.rebootLimit = 200 # Default reboot limit for kvm
-            elif 'warm-reboot' in self.rebootType:
+	    elif 'warm-reboot' in self.rebootType:
                 self.rebootLimit = 0
             else:
-                if self.tbinfo["topo"]["name"] == "t0-64":
-                    self.rebootLimit = 32
-                else:
-                    self.rebootLimit = 30 # Default reboot limit for physical devices
+                self.rebootLimit = 30 # Default reboot limit for physical devices
 
     def getHostMaxLen(self):
         '''
@@ -173,6 +171,15 @@ class AdvancedReboot:
 
         self.rebootData['dut_hostname'] = self.mgFacts['minigraph_mgmt_interface']['addr']
         self.rebootData['dut_mac'] = self.duthost.facts['router_mac']
+        vlan_mac = self.rebootData['dut_mac']
+        config_facts = self.duthost.get_running_config_facts()
+        vlan_table = config_facts.get('VLAN', None)
+        if vlan_table:
+            vlan_name = list(vlan_table.keys())[0]
+            vlan_mac = vlan_table[vlan_name].get('mac', self.rebootData['dut_mac'])
+        self.rebootData['vlan_mac'] = vlan_mac
+        self.rebootData['lo_prefix'] = "%s/%s" % (self.mgFacts['minigraph_lo_interfaces'][0]['addr'], self.mgFacts['minigraph_lo_interfaces'][0]['prefixlen'])
+
         vlan_ip_range = dict()
         for vlan in self.mgFacts['minigraph_vlan_interfaces']:
             if type(ipaddress.ip_network(vlan['subnet'])) is ipaddress.IPv4Network:
@@ -499,17 +506,6 @@ class AdvancedReboot:
                         logger.info('\n'+reboot_summary)
                     else:
                         logger.info(reboot_text_log_file)
-
-    def acl_manager_checker(self, error_list):
-        """
-        Checking ACL manager status. It should be running after rebooting
-        """
-        logger.info("Checking ACL manager status")
-        acl_proc_count = self.duthost.command('pgrep -f -c caclmgrd', module_ignore_errors=True)['stdout']
-        if int(acl_proc_count) != 1:
-            error_list.append("Expected one ACL manager process running. Actual: {}".format(acl_proc_count))
-
-
     def runRebootTest(self):
         # Run advanced-reboot.ReloadTest for item in preboot/inboot list
         count = 0
@@ -546,7 +542,7 @@ class AdvancedReboot:
                 logger.error("Exception caught while running advanced-reboot test on ptf: \n{}".format(traceback_msg))
                 test_results[test_case_name].append("Exception caught while running advanced-reboot test on ptf")
             finally:
-                # capture the test logs in case of failure, and summary in case of success
+                # capture the test logs, and print all of them in case of failure, or a summary in case of success
                 log_dir = self.__fetchTestLogs(rebootOper)
                 self.print_test_logs_summary(log_dir)
                 if self.advanceboot_loganalyzer:
@@ -555,7 +551,6 @@ class AdvancedReboot:
                     if verification_errors:
                         logger.error("Post reboot verification failed. List of failures: {}".format('\n'.join(verification_errors)))
                         test_results[test_case_name].extend(verification_errors)
-                self.acl_manager_checker(test_results[test_case_name])
                 self.__clearArpAndFdbTables()
                 self.__revertRebootOper(rebootOper)
             if len(self.rebootData['sadList']) > 1 and count != len(self.rebootData['sadList']):
@@ -642,6 +637,8 @@ class AdvancedReboot:
             "vlan_ports_file" : self.rebootData['vlan_interfaces_file'],
             "ports_file" : self.rebootData['ports_file'],
             "dut_mac" : self.rebootData['dut_mac'],
+            "vlan_mac" : self.rebootData['vlan_mac'],
+            "lo_prefix" : self.rebootData['lo_prefix'],
             "default_ip_range" : self.rebootData['default_ip_range'],
             "vlan_ip_range" : self.rebootData['vlan_ip_range'],
             "lo_v6_prefix" : self.rebootData['lo_v6_prefix'],
@@ -650,7 +647,6 @@ class AdvancedReboot:
             "allow_vlan_flooding" : self.allowVlanFlooding,
             "sniff_time_incr" : self.sniffTimeIncr,
             "setup_fdb_before_test" : True,
-            "verbose" : True,
             "vnet" : self.vnet,
             "vnet_pkts" : self.vnetPkts,
             "bgp_v4_v6_time_diff": self.bgpV4V6TimeDiff,
@@ -789,7 +785,6 @@ def get_advanced_reboot(request, duthosts, enum_rand_one_per_hwsku_frontend_host
         '''
         API that returns instances of AdvancedReboot class
         '''
-
         assert len(instances) == 0, "Only one instance of reboot data is allowed"
         advancedReboot = AdvancedReboot(request, duthost, ptfhost, localhost, tbinfo, creds, **kwargs)
         instances.append(advancedReboot)

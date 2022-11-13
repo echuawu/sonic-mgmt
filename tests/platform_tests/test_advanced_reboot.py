@@ -161,3 +161,4 @@ def flush_dbs(duthost):
                }
     for db in db_dic.keys():
         duthost.shell('redis-cli -n {} flushdb'.format(db))
+
