@@ -138,6 +138,7 @@ def doroce_conf_dict(cli_objects):
 @pytest.mark.doroce
 @pytest.mark.build
 @pytest.mark.push_gate
+@pytest.mark.simx_uncovered
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("configuration", BUFFER_CONFIGURATIONS)
 @allure.title('DoRoCE test case')
