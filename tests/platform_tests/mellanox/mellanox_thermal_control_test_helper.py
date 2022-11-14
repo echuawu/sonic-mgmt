@@ -65,10 +65,14 @@ THERMAL_NAMING_RULE = {
         "name": "Ambient CPU Board Temp",
         "temperature": "cpu_amb"
     },
+    "pch": {
+        "name": "PCH Temp",
+        "temperature": "pch_temp"
+    },
     "sodimm": {
         "name": "SODIMM {} Temp",
         "temperature": "sodimm{}_temp_input",
-        "high_threshold":  "sodimm{}_temp_max",
+        "high_threshold": "sodimm{}_temp_max",
         "high_critical_threshold": "sodimm{}_temp_crit"
     }
 }
