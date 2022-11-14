@@ -180,7 +180,7 @@ class SonicOnieCli:
         Download SONiC image using SCP directly to DUT(ONIE)
         """
         # Copy directly to DUT
-        scp_cmd = f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} ' \
+        scp_cmd = f'sshpass -p \'root\' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} ' \
                   f'{image_path} root@{self.ip}:{dst_image_file_path}'
         out, err, rc = run_process_on_host(scp_cmd, timeout=900)
         if rc:
