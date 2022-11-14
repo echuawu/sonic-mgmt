@@ -10,6 +10,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_show_diff_history(engines):
     """
     Test flow:
@@ -86,6 +87,7 @@ def test_show_diff_history(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_diff_history_revision_ids(engines):
     """
         Test flow:

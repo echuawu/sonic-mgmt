@@ -11,6 +11,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_replace_empty_file(engines):
     """
     Test flow:
@@ -40,6 +41,7 @@ def test_replace_empty_file(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_replace_positive(engines):
     """
 
@@ -100,6 +102,7 @@ def test_replace_positive(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_replace_negative(engines):
     """
 
@@ -137,6 +140,7 @@ def test_replace_negative(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_patch_empty_file(engines):
     """
     Test flow:
@@ -171,6 +175,7 @@ def test_patch_empty_file(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_patch_positive(engines):
     """
 
@@ -229,6 +234,7 @@ def test_patch_positive(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_patch_negative(engines):
     """
 

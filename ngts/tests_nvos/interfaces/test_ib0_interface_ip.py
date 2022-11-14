@@ -5,11 +5,13 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_ib0_interface_ipv4_address(engines):
     _ib0_interface_ip_address(False)
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_ib0_interface_ipv6_address(engines):
     _ib0_interface_ip_address(True)
 

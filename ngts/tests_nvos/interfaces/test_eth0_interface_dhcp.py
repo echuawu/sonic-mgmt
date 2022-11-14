@@ -15,6 +15,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_intereface_eth0_enable_disable(engines, topology_obj):
     """
     Connect via serial port, verify eth0 enable by default, can be disabled and enable it back
@@ -76,6 +77,7 @@ def test_intereface_eth0_enable_disable(engines, topology_obj):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_interface_eth0_speed_duplex_autoneg(engines):
     """
     Verify speed, duplex, autoneg configuration parameters can be changed
@@ -173,6 +175,7 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_interface_eth0_mtu(engines, topology_obj):
     """
     Verify default mtu configuration(1500), check that we can configure possible values(1280-9216),
@@ -214,6 +217,7 @@ def test_interface_eth0_mtu(engines, topology_obj):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_interface_eth0_description(engines):
     """
     Verify default description on mgmt interface, configure, check changes,
@@ -263,6 +267,7 @@ def test_interface_eth0_description(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_interface_eth0_ip_address(engines, topology_obj):
     """
     Verify can configure ipv address, switch ip updated by dhcp
@@ -320,6 +325,7 @@ def test_interface_eth0_ip_address(engines, topology_obj):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_interface_eth0_show_dhcp(engines):
     """
     Verify all default fields in nv show interface eth0 ip ipv4 dhcp-client and ipv6 dhcp-client
@@ -340,6 +346,7 @@ def test_interface_eth0_show_dhcp(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_interface_eth0_dhcp_hostname(engines, topology_obj):
     """
     Verify switch receive hostname by dhcp

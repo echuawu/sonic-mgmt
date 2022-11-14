@@ -12,6 +12,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 
 
 @pytest.mark.nvos_ci
+@pytest.mark.simx
 def test_detach(engines):
     """
         Test flow:
@@ -36,6 +37,7 @@ def test_detach(engines):
 
 
 @pytest.mark.general
+@pytest.mark.simx
 def test_apply_assume(engines):
     """
         Test flow:

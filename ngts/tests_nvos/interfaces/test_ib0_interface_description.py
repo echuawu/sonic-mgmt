@@ -10,6 +10,7 @@ logger = logging.getLogger()
 
 @pytest.mark.ib
 @pytest.mark.nvos_ci
+@pytest.mark.simx
 def test_ib0_interface_description(engines):
     """
     Configure ib0 interface description and verify the configuration applied successfully

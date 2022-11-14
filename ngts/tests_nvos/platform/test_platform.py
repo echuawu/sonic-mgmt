@@ -10,6 +10,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.simx
 def test_show_platform(engines):
     """
     Show platform hardware test

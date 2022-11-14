@@ -9,6 +9,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_mgmt_show_interface(engines):
     """
     Run show interface eth0 command and verify the required fields are exist
@@ -24,6 +25,7 @@ def test_mgmt_show_interface(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_mgmt_show_interface_link(engines):
     """
     Run show interface eth0 link command and verify the required fields are exist
@@ -44,6 +46,7 @@ def test_mgmt_show_interface_link(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_ib_show_interface_stats(engines):
     """
     Run show interface command and verify the required fields exist
@@ -60,6 +63,7 @@ def test_ib_show_interface_stats(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.simx
 def test_ib_show_interface_ip(engines):
     """
     Run show interface command and verify the required fields exist

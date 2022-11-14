@@ -18,6 +18,7 @@ def test_bugs_status():
 
 
 @pytest.mark.init_flow
+@pytest.mark.simx
 def test_system_services(engines, devices):
     """
     Verifying the NVOS system services are in active state
