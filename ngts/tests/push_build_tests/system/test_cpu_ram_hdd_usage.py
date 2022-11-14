@@ -11,7 +11,7 @@ ALLOWED_DEVIATION = 0.05
 
 logger = logging.getLogger()
 
-partitions_and_expected_usage = [{'partition': '/', 'max_usage': 8500}, {'partition': '/var/log/', 'max_usage': 250}]
+partitions_and_expected_usage = [{'partition': '/', 'max_usage': 8500}, {'partition': '/var/log/', 'max_usage': 500}]
 
 
 @pytest.fixture()
