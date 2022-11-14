@@ -111,7 +111,6 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
     """
     Gather expected data from a inventory file instead if 'syseeprom_info' is defined in the inventory
     # Sample inventory with syseeprom:
-    
     str-msn2700-01:
         ansible_host: 10.251.0.188
         model: MSN2700-CS2FO
@@ -132,8 +131,8 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
     """
     if 'arista' in duthost.facts.get('platform', '').lower():
         """
-        'show platform syseeprom' output is vendor specific and on Arista duts the 
-        output is what is contained in our prefdl. Validate that the output contains 
+        'show platform syseeprom' output is vendor specific and on Arista duts the
+        output is what is contained in our prefdl. Validate that the output contains
         non empty data.
         """
         pytest_assert(len(syseeprom_output_lines) > 0, "Cmd returns no output")
@@ -199,7 +198,7 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
 
         for line in utility_cmd_output["stdout_lines"]:
             if not line.startswith('-'):  # do not validate line '-------------------- ---- --- -----'
-                line_regexp = re.sub(r'\s+', '\\\s+', line)
+                line_regexp = re.sub(r'\s+', '\\s+', line)
                 pytest_assert(re.search(line_regexp, syseeprom_output), "Line '{}' was not found in output on '{}'".
                               format(line, duthost.hostname))
 
