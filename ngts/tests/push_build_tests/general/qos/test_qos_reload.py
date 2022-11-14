@@ -68,23 +68,25 @@ def tested_ports(topology_obj):
     return tested_ports_list
 
 
-@pytest.fixture(autouse=True, scope='session')
+@pytest.fixture(autouse=True, scope='module')
 def disable_enable_doroce(topology_obj, cli_objects):
     """
     TODO this is workaround, need to remove this method and update the test to work whe doroce is enabled.
     :param topology_obj: topology object fixture
     :param cli_objects: cli object fixture
     """
+    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
     doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
 
-    if doroce_status:
+    logger.info(f"disable_enable_doroce, doroce_status: {doroce_status}, chip_type: {chip_type}")
+    if doroce_status and chip_type != 'SPC4':
         cli_objects.dut.doroce.disable_doroce()
         cli_objects.dut.general.save_configuration()
         cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     yield
 
-    if doroce_status:
+    if doroce_status and chip_type != 'SPC4':
         cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
         cli_objects.dut.general.save_configuration()
         cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)

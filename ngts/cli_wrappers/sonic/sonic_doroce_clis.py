@@ -91,7 +91,8 @@ class SonicDoroceCli:
 
     def _check_buffer_configurations(self, expected_pools_list):
         buffer_conf_output = self.show_buffer_configuration()
-        assert "No buffer pool information available" not in buffer_conf_output, "The required qos reload"
+        assert "No buffer pool information available" not in buffer_conf_output,\
+            "No buffer pool information available. Try running 'qos reload' to overcome that."
         for expected_pool in expected_pools_list:
             assert f'Pool: {expected_pool}' in buffer_conf_output, f'The expected pool:{expected_pool} not' \
                                                                    f' found in the buffer configuration output'

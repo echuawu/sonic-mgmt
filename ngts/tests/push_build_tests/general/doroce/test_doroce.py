@@ -39,14 +39,17 @@ IPERF_VALIDATION = {
     ]
 }
 PING_VALIDATION = {'sender': 'hb', 'args': {'count': 3, 'dst': '40.0.0.2'}}
-BUFFER_CONFIGURATIONS_DICT = {'lossless_double_ipool': ['egress_lossy_pool',
+BUFFER_CONFIGURATIONS_DICT = {'lossless_double_ipool': ['egress_lossless_pool',
+                                                        'egress_lossy_pool',
                                                         'ingress_lossless_pool',
                                                         'ingress_lossy_pool'],
-                              'lossless_single_ipool': ['egress_lossy_pool',
+                              'lossless_single_ipool': ['egress_lossless_pool',
+                                                        'egress_lossy_pool',
                                                         'ingress_lossless_pool'],
                               'lossy_double_ipool': ['egress_lossy_pool',
                                                      'ingress_lossy_pool',
-                                                     'ingress_lossy_pool']
+                                                     'roce_reserved_egress_pool',
+                                                     'roce_reserved_ingress_pool']
                               }
 BUFFER_CONFIGURATIONS = list(BUFFER_CONFIGURATIONS_DICT.keys())
 RANDOM_CONFIG = random.choice(BUFFER_CONFIGURATIONS)

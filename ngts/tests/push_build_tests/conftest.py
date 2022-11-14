@@ -107,10 +107,14 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             with allure.step("Enable app DoRoCE"):
                 cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
                 cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
-                cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
+                chip_type = topology_obj.players['dut']['attributes']\
+                    .noga_query_data['attributes']['Specific']['chip_type']
+                # TODO: remove the "if" after fix of https://redmine.mellanox.com/issues/3263075
+                if chip_type != 'SPC4':
+                    cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
                 # TODO: remove the save and reload after fix of https://redmine.mellanox.com/issues/3158952
                 cli_objects.dut.general.save_configuration()
-                cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+                cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
                                                                                      interfaces.dut_hb_2])
