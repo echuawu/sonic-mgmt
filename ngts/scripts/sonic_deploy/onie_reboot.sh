@@ -9,6 +9,7 @@ onie_mount=/mnt/onie-boot
 os_boot=/host
 onie_partition=
 onie_entry=0
+secure_boot_status=
 
 enable_onie_access()
 {
@@ -59,15 +60,33 @@ change_grub_boot_order()
 
 system_reboot()
 {
-	echo "Reboot will be done after 3 sec."
-	sleep 3
-	/sbin/reboot
+    echo "Reboot will be done after 3 sec."
+    sleep 3
+    /sbin/reboot
 }
 
-enable_onie_access
-change_grub_boot_order $1
+check_secure_boot_enabled()
+{
+	secure_boot_status=$(bootctl | grep "Secure Boot" | awk '{print $3}')
+}
+
+
+check_secure_boot_enabled
 rc=$?
-clean_onie_access
+if [ "$secure_boot_status" = "enabled" ]; then
+	onie_partition=$(fdisk -l | grep "EFI System" | awk '{print $1}')
+	if [ ! -d $onie_mount ]; then
+		mkdir /mnt/onie-boot
+	fi
+	mount $onie_partition /mnt/onie-boot
+	grub-editenv $onie_mount/EFI/debian/grubenv set next_entry=ONIE
+	umount $onie_partition
+else
+	enable_onie_access
+	change_grub_boot_order $1
+	clean_onie_access
+fi
+
 if [ $rc -eq 0 ]; then
 	system_reboot
 fi
