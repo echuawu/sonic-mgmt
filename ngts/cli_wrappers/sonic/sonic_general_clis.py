@@ -287,7 +287,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             return output.splitlines()[-1]
 
     def do_installation(self, topology_obj, image_path, deploy_type, fw_pkg_path, platform_params):
-        if 'simx' in platform_params.platform and deploy_type == 'onie':
+        if ('simx' in platform_params.platform and deploy_type == 'onie') \
+                or self.is_bluefield(platform_params['hwsku']):
             in_onie = True
         else:
             with allure.step('Preparing switch for installation'):
@@ -551,7 +552,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             logger.info('Checking whether device is alive')
             check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port, tries=2)
             logger.info('Device is alive')
-        except RealIssue:
+        except Exception:
             logger.info('Device is not alive, reviving')
             self.remote_reboot(topology_obj)
             logger.info('Device is revived')
