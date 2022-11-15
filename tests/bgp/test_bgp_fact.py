@@ -11,12 +11,12 @@ pytestmark = [
 @pytest.fixture(scope='module', autouse=True)
 def tmp_static_arp_workaround(tbinfo, nbrhosts, duthost):
 
-    if 'Nvidia-MBF2H536C' in duthost.facts["hwsku"]:
+    eos_peers_config = {}
+    sonic_peers_config = []
 
+    if 'Nvidia-MBF2H536C' in duthost.facts["hwsku"]:
         mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
         config_facts = duthost.get_running_config_facts()
-        eos_peers_config = {}
-        sonic_peers_config = []
 
         # Collect info about peers IP, MAC, ifaces
         for iface_info in mg_facts['minigraph_interfaces']:
@@ -38,7 +38,11 @@ def tmp_static_arp_workaround(tbinfo, nbrhosts, duthost):
         # Configure peers static ARP
         for host_name, nbr in nbrhosts.items():
             config = eos_peers_config[host_name]
-            nbr['host'].eos_config(lines=['arp {} {} arpa'.format(config['ip'], config['mac'])])
+            ip = config['ip']
+            if ':' in ip:
+                nbr['host'].eos_config(lines=['ipv6 neighbor {} {} {}'.format(ip, config['port'], config['mac'])])
+            else:
+                nbr['host'].eos_config(lines=['arp {} {} arpa'.format(ip, config['mac'])])
 
         # Configure SONiC static ARP
         for item in sonic_peers_config:
@@ -54,14 +58,18 @@ def tmp_static_arp_workaround(tbinfo, nbrhosts, duthost):
     yield
 
     if 'Nvidia-MBF2H536C' in duthost.facts["hwsku"]:
-        # Remove peers static ARP
+        # Remove SONiC static ARP
         for item in sonic_peers_config:
             duthost.shell('sudo ip neigh flush dev {}'.format(item['port']), module_ignore_errors=True)
 
-        # Remove SONiC static ARP
+        # Remove peers static ARP
         for host_name, nbr in nbrhosts.items():
             config = eos_peers_config[host_name]
-            nbr['host'].eos_config(lines=['no arp {}'.format(config['ip'])])
+            ip = config['ip']
+            if ':' in ip:
+                nbr['host'].eos_config(lines=['no ipv6 neighbor {} {}'.format(ip, config['port'])])
+            else:
+                nbr['host'].eos_config(lines=['no arp {}'.format(ip)])
 
 
 def test_bgp_facts(duthosts, enum_frontend_dut_hostname, enum_asic_index):

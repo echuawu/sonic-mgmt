@@ -479,6 +479,12 @@ monit/test_monit_status.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3249005 and 'nvda_bf' in platform"
 
+bgp/test_bgp_fact.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3264845  and platform nvda_bf"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3264845 and 'nvda_bf' in platform"
+
 show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3123501 and branch master"
