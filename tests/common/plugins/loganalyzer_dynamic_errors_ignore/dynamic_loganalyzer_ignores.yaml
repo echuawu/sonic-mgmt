@@ -1637,3 +1637,16 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py
+
+- Errors_list:
+    - '.* ERR healthd: Get unit status determine-reboot-cause-''LoadState'''
+    - '.* ERR healthd: system_service\[Errno \d+\] Connection reset by peer'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/fec/test_fec.py
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      Redmine:
+      - 3265054
+      Branch:
+      - master
