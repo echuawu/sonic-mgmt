@@ -9,8 +9,6 @@ from pprint import pprint
 from retry import retry
 from deepdiff import DeepDiff
 from ngts.constants.constants import InfraConst, SonicConst
-from ngts.common.checkers import is_feature_installed
-from ngts.constants.constants import AppExtensionInstallationConstants
 
 
 logger = logging.getLogger()
@@ -21,7 +19,6 @@ BUFFER_PORT_INGRESS_PROFILE_LIST = "BUFFER_PORT_INGRESS_PROFILE_LIST"
 BUFFER_QUEUE = "BUFFER_QUEUE"
 CABLE_LENGTH = "CABLE_LENGTH"
 AZURE = "AZURE"
-ROCE = "ROCE"
 PORT_QOS_MAP = "PORT_QOS_MAP"
 QUEUE = "QUEUE"
 KEYS_TO_EXTRACT = [BUFFER_PG, BUFFER_PORT_EGRESS_PROFILE_LIST,
@@ -29,19 +26,17 @@ KEYS_TO_EXTRACT = [BUFFER_PG, BUFFER_PORT_EGRESS_PROFILE_LIST,
                    CABLE_LENGTH, PORT_QOS_MAP, QUEUE]
 
 
-def generate_config_db_without_qos_on_ports(config_db_json, tested_ports, is_doroce_configuration_enabled):
+def generate_config_db_without_qos_on_ports(config_db_json, tested_ports):
     """
     :param config_db_json: a JSON object of configuration currently on DUT
     :param tested_ports: a list of ports, i.e ['Ethernet4', 'Ethernet8']
-    :param is_doroce_configuration_enabled: the flag if doroce is configured
     :return: updated config_db_json without Qos configuration on tested_ports
     """
     regex_template = r"{port}\|\d+-*\d*|{port}$"
-    qos_profile_name = ROCE if is_doroce_configuration_enabled else AZURE
     for key_to_extract in KEYS_TO_EXTRACT:
         if key_to_extract == CABLE_LENGTH:
             for port in tested_ports:
-                config_db_json[CABLE_LENGTH][qos_profile_name].pop(port)
+                config_db_json[CABLE_LENGTH][AZURE].pop(port)
         else:
             for tested_port in tested_ports:
                 keys_to_remove = []
@@ -66,30 +61,6 @@ def tested_ports(topology_obj):
     """
     tested_ports_list = random.sample(get_dut_ports(topology_obj), k=2)
     return tested_ports_list
-
-
-@pytest.fixture(autouse=True, scope='module')
-def disable_enable_doroce(topology_obj, cli_objects):
-    """
-    TODO this is workaround, need to remove this method and update the test to work whe doroce is enabled.
-    :param topology_obj: topology object fixture
-    :param cli_objects: cli object fixture
-    """
-    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
-    doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
-
-    logger.info(f"disable_enable_doroce, doroce_status: {doroce_status}, chip_type: {chip_type}")
-    if doroce_status and chip_type != 'SPC4':
-        cli_objects.dut.doroce.disable_doroce()
-        cli_objects.dut.general.save_configuration()
-        cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
-
-    yield
-
-    if doroce_status and chip_type != 'SPC4':
-        cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
-        cli_objects.dut.general.save_configuration()
-        cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
 
 @pytest.mark.build
@@ -121,8 +92,7 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
         logger.info(f"Generate config_db.json file without Qos configuration for ports: {tested_ports}")
         config_db_without_qos_on_ports = \
             generate_config_db_without_qos_on_ports(copy.deepcopy(origin_config_db),
-                                                    tested_ports,
-                                                    cli_object.doroce.is_doroce_configuration_enabled())
+                                                    tested_ports)
 
     tested_config_db_file_name = "test_qos_reload_ports_conf.json"
     with allure.step(f"Save config_db.json at {shared_path}/{tested_config_db_file_name}"):

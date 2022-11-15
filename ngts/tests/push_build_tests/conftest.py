@@ -15,8 +15,6 @@ from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.constants.constants import SonicConst
 from ngts.constants.constants import SflowConsts
-from ngts.constants.constants import AppExtensionInstallationConstants
-from ngts.common.checkers import is_feature_installed
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
@@ -67,7 +65,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
-    doroce_status = False
 
     # Check if app_ext supported and get app name, repo, version
     shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
@@ -101,20 +98,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if shared_params.app_ext_is_app_ext_supported:
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
-
-        doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
-        if doroce_status:
-            with allure.step("Enable app DoRoCE"):
-                cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
-                cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
-                chip_type = topology_obj.players['dut']['attributes']\
-                    .noga_query_data['attributes']['Specific']['chip_type']
-                # TODO: remove the "if" after fix of https://redmine.mellanox.com/issues/3263075
-                if chip_type != 'SPC4':
-                    cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
-                # TODO: remove the save and reload after fix of https://redmine.mellanox.com/issues/3158952
-                cli_objects.dut.general.save_configuration()
-                cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
                                                                                      interfaces.dut_hb_2])
@@ -301,12 +284,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
         LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
         InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
-        if doroce_status:
-            with allure.step("Disable app DoRoCE"):
-                cli_objects.dut.doroce.disable_doroce()
-                # TODO: remove the save and reload after fix of https://redmine.mellanox.com/issues/3158952
-                cli_objects.dut.general.save_configuration()
-                cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
         if shared_params.app_ext_is_app_ext_supported:
             app_cleanup(engines.dut, cli_objects.dut, app_name)
         logger.info('Doing config save after cleanup')

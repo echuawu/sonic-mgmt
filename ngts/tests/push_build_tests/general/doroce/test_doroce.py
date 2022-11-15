@@ -9,6 +9,8 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.iperf.iperf_runner import IperfChecker
 from ngts.common.checkers import is_feature_ready
+from ngts.common.checkers import is_feature_installed
+from ngts.constants.constants import AppExtensionInstallationConstants
 
 logger = logging.getLogger()
 
@@ -64,9 +66,13 @@ def check_feature_status(cli_objects):
     """
     An autouse fixture to check if DoRoCE fixture is installed and enabled
     """
-    with allure.step('Validating doroce feature is installed, enabled and the container is running'):
-        status, msg = is_feature_ready(cli_objects, 'doroce', 'doroce')
-        if not status:
+    with allure.step('Validating doroce feature is installed'):
+        doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
+        if doroce_status:
+            cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
+            cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
+            cli_objects.dut.qos.reload_qos()
+        else:
             pytest.skip(f"{msg} Skipping the test.")
 
     with allure.step('Validating doroce docker is UP'):
@@ -105,8 +111,6 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
         }
     InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
 
-    cli_objects.dut.doroce.disable_doroce()
-    cli_objects.dut.qos.reload_qos()
     run_wa_after_doroce_config(cli_objects, topology_obj)
 
     yield
@@ -125,9 +129,6 @@ def check_no_roce_configuration(cli_objects, interfaces, players, is_simx, platf
     cli_objects.dut.doroce.disable_doroce()
     run_wa_after_doroce_config(cli_objects, topology_obj)
     check_no_roce_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
-    # enable back for Interop with other features
-    cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
-    run_wa_after_doroce_config(cli_objects, topology_obj)
 
 
 @pytest.fixture(scope='module')
