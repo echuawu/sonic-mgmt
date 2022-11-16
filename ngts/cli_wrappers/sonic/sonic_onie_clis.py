@@ -208,7 +208,12 @@ class SonicOnieCli:
                 logger.info(f"Doesn't required ONIE installation")
 
     def required_onie_installation(self):
-        onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
+        # right after reboot, we can get the empty output from cmd run.
+        for _ in range(3):
+            onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
+            if '9600' in onie_version_output or '115200' in onie_version_output:
+                break
+            time.sleep(1)
         self.latest_onie_version, self.latest_onie_url = get_latest_onie_version(self.fw_pkg_path, self.platform_params)
         return self.latest_onie_version not in onie_version_output
 
