@@ -1664,3 +1664,17 @@
       - tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports
       Redmine:
       - 3263991
+
+- Errors_list:
+    - '.* ERR kernel: \[.*\] Fails to access \(\d+\) module eeprom, status: -\d+.'
+    - '.* ERR pmon#xcvrd: Failed to read sfp=\d+ EEPROM page=/sys/module/sx_core/asic\d+/module\d+/eeprom/pages/.*/data, page_offset=\d+,\s+size=\d+, offset=\d+, error = \[Errno \d+\] Input/output error'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      - tests/show_techsupport/test_auto_techsupport.py
+      - tests/show_techsupport/test_techsupport_no_secret.py
+      - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
+      Redmine:
+      - 3263805
+      Branch:
+      - 202205
