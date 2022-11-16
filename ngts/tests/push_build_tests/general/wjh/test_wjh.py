@@ -56,6 +56,23 @@ table_parser_info = {
 
 
 @pytest.fixture(scope='module', autouse=True)
+def disable_doroce(cli_objects):
+    """
+    Disable doroce before test in case when doroce enabled and enable back after test
+    :param cli_objects: cli_objects fixture
+    """
+    is_doroce_enabled = cli_objects.dut.doroce.is_doroce_configuration_enabled()
+
+    if is_doroce_enabled:
+        cli_objects.dut.doroce.disable_doroce()
+
+    yield
+
+    if is_doroce_enabled:
+        cli_objects.dut.doroce.config_doroce_lossless_double_ipool()
+
+
+@pytest.fixture(scope='module', autouse=True)
 def check_global_configuration(engines, check_feature_enabled):
     """
     An autouse fixture to check the global configurations of WJH.
