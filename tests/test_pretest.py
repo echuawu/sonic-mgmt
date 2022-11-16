@@ -157,6 +157,10 @@ def test_disable_rsyslog_rate_limit(duthosts, enum_dut_hostname):
         # We don't want to fail here because it's an util
         logging.warn("Failed to retrieve feature status")
         return
+
+    # TODO: Hotfix for DoRoCe failure because of missing rsyslog.
+    features_dict.pop('doroce', None)
+
     for feature_name, state in features_dict.items():
         if 'enabled' not in state:
             continue
