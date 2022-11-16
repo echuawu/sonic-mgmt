@@ -2046,6 +2046,330 @@ vxlan/arp/test_arpall.py::test_arp_garp_no_update:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3666580"
     conditions:
       - "https://redmine.mellanox.com/issues/3666580"
+
+hash/test_generic_hash.py::test_lag_hash[IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332532"
+
+hash/test_generic_hash.py::test_lag_hash[SRC_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3261661"
+
+hash/test_generic_hash.py::test_lag_hash[IP_PROTOCOL:
+  skip:
+    reason: "Test is not supported until the Hashing Algorithm feature is available."
+
+hash/test_generic_hash.py::test_lag_hash[INNER_SRC_IP-ipv4-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_hash[INNER_SRC_IP-ipv6-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv4-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv4-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv6-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv6-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332532"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[SRC_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3261661"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[IP_PROTOCOL:
+  skip:
+    reason: "Test is not supported until the Hashing Algorithm feature is available."
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_SRC_IP-ipv4-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_SRC_IP-ipv6-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv4-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv4-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv6-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv6-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_nexthop_flap[IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332532"
+
+hash/test_generic_hash.py::test_nexthop_flap[SRC_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3261661"
+
+hash/test_generic_hash.py::test_nexthop_flap[IP_PROTOCOL:
+  skip:
+    reason: "Test is not supported until the Hashing Algorithm feature is available."
+
+hash/test_generic_hash.py::test_nexthop_flap[INNER_SRC_IP-ipv4-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_nexthop_flap[INNER_SRC_IP-ipv6-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv4-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv4-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv6-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv6-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_flap[IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332532"
+
+hash/test_generic_hash.py::test_lag_member_flap[SRC_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3261661"
+
+hash/test_generic_hash.py::test_lag_member_flap[IP_PROTOCOL:
+  skip:
+    reason: "Test is not supported until the Hashing Algorithm feature is available."
+
+hash/test_generic_hash.py::test_lag_member_flap[INNER_SRC_IP-ipv4-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_flap[INNER_SRC_IP-ipv6-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv4-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv4-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv6-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv6-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332532"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[SRC_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3261661"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[IP_PROTOCOL:
+  skip:
+    reason: "Test is not supported until the Hashing Algorithm feature is available."
+
+hash/test_generic_hash.py::test_lag_member_remove_add[INNER_SRC_IP-ipv4-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[INNER_SRC_IP-ipv6-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv4-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv4-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv6-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv6-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_reboot[IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332532"
+
+hash/test_generic_hash.py::test_reboot[SRC_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3261661"
+
+hash/test_generic_hash.py::test_reboot[IP_PROTOCOL:
+  skip:
+    reason: "Test is not supported until the Hashing Algorithm feature is available."
+
+hash/test_generic_hash.py::test_reboot[INNER_SRC_IP-ipv4-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_reboot[INNER_SRC_IP-ipv6-ipv4:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv4-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv4-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv6-ipv4-vxlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv6-ipv4-nvgre]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3356861"
+
+hash/test_generic_hash.py::test_lag_member_remove_add:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647677"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3647677"
+
+hash/test_generic_hash.py::test_lag_member_flap:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647677"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3647677"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
