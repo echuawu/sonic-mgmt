@@ -1165,4 +1165,10 @@ ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
     conditions:
       - "https://redmine.mellanox.com/issues/3208701"
 
+memory_checker/test_memory_checker.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3267065 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3267065 and 'master' in release"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
