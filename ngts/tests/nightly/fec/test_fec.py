@@ -496,7 +496,7 @@ class TestFec:
         with allure.step('Verify FEC configuration on ports: {}'.format(list(conf.keys()))):
             for port, port_conf_dict in conf.items():
                 retry_call(self.verify_interfaces_status_cmd_output_for_port, fargs=[port, port_conf_dict],
-                           tries=6, delay=10, logger=logger)
+                           tries=20, delay=10, logger=logger)
                 if not self.is_simx:
                     retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[port, port_conf_dict],
                                tries=6, delay=10, logger=logger)
