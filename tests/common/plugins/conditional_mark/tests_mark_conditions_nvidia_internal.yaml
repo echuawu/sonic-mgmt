@@ -181,6 +181,12 @@ tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_polic
     conditions:
       - https://redmine.mellanox.com/issues/2637874
 
+tests/push_build_tests/L2/vlan/test_vlan.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3265995 on SIMX"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3265995 and 'simx' in platform and '202205' in release"
+
 tests/push_build_tests/L2/vxlan:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3240186"
@@ -304,6 +310,7 @@ tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_de
     reason: "Bulk Counter is not supported at 202012 202106 202111 and 202205 release"
     conditions:
       - "'202012' in release or '202111' in release or '202106' in release or '202205' in release"
+      - "https://redmine.mellanox.com/issues/3266856 and 'master' in release"
 
 tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
   skip:
