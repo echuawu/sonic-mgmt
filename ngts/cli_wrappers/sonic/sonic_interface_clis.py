@@ -403,8 +403,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         if not re.search(expected_msg_breakout_mode_same, breakout_cmd_output, re.IGNORECASE):
             regex_prefix = r"Final list of ports to be added :.*(\r|\n)*.*"
             regex_grep_added_ports_json_dict = r"({(.|\n)*,*(\n|\r|.)*})"
-            regex_suffix = r"(\n|\r|.)*sonic_yang"
-            regex = regex_prefix + regex_grep_added_ports_json_dict + regex_suffix
+            regex = regex_prefix + regex_grep_added_ports_json_dict
             matched_added_ports_json_string = re.search(regex, breakout_cmd_output, re.IGNORECASE).group(2)
             created_breakout_ports = json.loads(matched_added_ports_json_string)
         return created_breakout_ports
