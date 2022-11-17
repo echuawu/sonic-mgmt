@@ -187,8 +187,9 @@ def set_next_boot_image(image_name, system):
 
 
 def reboot_dut():
+    system = System()
     logging.info("Rebooting dut")
-    TestToolkit.engines.dut.reload(['sudo reboot'])
+    system.reboot.action_reboot()
     nvue_cli = NvueGeneralCli(TestToolkit.engines.dut)
     nvue_cli.verify_dockers_are_up()
     NvueGeneralCli.wait_for_nvos_to_become_functional(TestToolkit.engines.dut)

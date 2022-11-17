@@ -56,7 +56,7 @@ def test_install_system_firmware(engines):
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        TestToolkit.engines.dut.reload(['sudo reboot'])
+        system.reboot.action_reboot()
 
     with allure.step('Verify the firmware installed successfully'):
         show_output = system.firmware.asic.show()
@@ -69,7 +69,7 @@ def test_install_system_firmware(engines):
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        TestToolkit.engines.dut.reload(['sudo reboot'])
+        system.reboot.action_reboot()
 
     with allure.step('Verify the firmware installed successfully'):
         show_output = system.firmware.asic.show()
