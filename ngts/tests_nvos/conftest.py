@@ -1,7 +1,7 @@
 import pytest
 import logging
 import time
-
+import os
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -118,7 +118,7 @@ def clear_config():
 def pytest_runtest_call(item):
     try:
         logging.info(' ---------------- The test completed successfully ---------------- ')
-        if TestToolkit.tested_api == ApiType.NVUE:
+        if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/'):
             logging.info("API type is NVUE, so CLI coverage script will run")
             NVUECliCoverage.run(item, pytest.s_time)
     except KeyboardInterrupt:
