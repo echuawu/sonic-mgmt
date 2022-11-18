@@ -23,7 +23,7 @@ def test_reboot_command_immediate(engines):
     """
     system = System(None)
     with allure.step('Run nv action reboot system mode immediate'):
-        system.reboot.action_reboot('immediate')
+        system.reboot.action_reboot(params='immediate')
 
 
 @pytest.mark.system
@@ -34,7 +34,7 @@ def test_reboot_command_force(engines):
     """
     system = System(None)
     with allure.step('Run nv action reboot system mode force'):
-        system.reboot.action_reboot('force')
+        system.reboot.action_reboot(params='force')
 
 
 @pytest.mark.system

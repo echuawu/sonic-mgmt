@@ -252,6 +252,8 @@ class OutputParsingTool:
         :param output_json: json output
         :return: a dictionary
         """
+        if '2004l' in output_json:
+            output_json = ''.join(output_json.split('\n')[1:])
         if output_json == '{}' or output_json == '':
             return ResultObj(True, "", {})
         with allure.step('Create a dictionary according to provided JSON string'):

@@ -15,7 +15,7 @@ class TechSupport(BaseComponent):
         self._resource_path = '/tech-support/files'
         self.parent_obj = parent_obj
 
-    def action_generate(self, option="", time=""):
+    def action_generate(self, engine, option="", time=""):
         """
         in the future the command will be nv action generate system tech-support (without files)
         changes to do :
@@ -23,8 +23,10 @@ class TechSupport(BaseComponent):
             remove self.get_resource_path().replace('/files', ' ') in this method
         """
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
+            if not engine:
+                engine = TestToolkit.engines.dut
             return TechSupport.get_techsupport_folder_name(SendCommandTool.execute_command(
-                self.api_obj[TestToolkit.tested_api].action_generate_techsupport, TestToolkit.engines.dut,
+                self.api_obj[TestToolkit.tested_api].action_generate_techsupport, engine,
                 self.get_resource_path().replace('/files', ' '), option, time))
 
     @staticmethod

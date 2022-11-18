@@ -82,6 +82,8 @@ def log_test_wrapper(request, engines):
     test_name = request.module.__name__
     pytest.s_time = time.time()
     logging.info(' ---------------- TEST STARTED - {test_name} ---------------- '.format(test_name=test_name))
+    if 'no_log_test_wrapper' in request.keywords:
+        return
     try:
         SendCommandTool.execute_command(LinuxGeneralCli(engines.dut).clear_history)
     except Exception as exc:
@@ -122,8 +124,10 @@ def clear_config():
 @pytest.hookimpl(trylast=True)
 def pytest_runtest_call(item):
     try:
+        markers = item.keywords._markers
         logging.info(' ---------------- The test completed successfully ---------------- ')
-        if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/'):
+        if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/') \
+                and 'no_cli_coverage_run' not in markers:
             logging.info("API type is NVUE, so CLI coverage script will run")
             NVUECliCoverage.run(item, pytest.s_time)
     except KeyboardInterrupt:
