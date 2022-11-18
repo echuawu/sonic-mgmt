@@ -310,6 +310,7 @@ tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
     reason: "Bulk Counter is not supported at 202012 202106 202111 and 202205 release"
+    conditions_logical_operator: or
     conditions:
       - "'202012' in release or '202111' in release or '202106' in release or '202205' in release"
       - "https://redmine.mellanox.com/issues/3266856 and 'master' in release"
