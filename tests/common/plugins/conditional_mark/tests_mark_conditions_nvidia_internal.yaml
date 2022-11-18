@@ -296,6 +296,7 @@ tests/nightly/evpn_vxlan:
     conditions:
       - "https://redmine.mellanox.com/issues/3252222"
       - "'202111' in release or '202106' in release or 'master' in release"
+      - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
 
 tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
   skip:
@@ -304,6 +305,7 @@ tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3252222"
       - "'202111' in release or '202106' in release or 'master' in release"
+      - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
