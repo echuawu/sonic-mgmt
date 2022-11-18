@@ -82,7 +82,12 @@ def log_test_wrapper(request, engines):
     test_name = request.module.__name__
     pytest.s_time = time.time()
     logging.info(' ---------------- TEST STARTED - {test_name} ---------------- '.format(test_name=test_name))
-    SendCommandTool.execute_command(LinuxGeneralCli(engines.dut).clear_history)
+    try:
+        SendCommandTool.execute_command(LinuxGeneralCli(engines.dut).clear_history)
+    except Exception as exc:
+        logger.error(" the command 'history -c' failed and this is the exception info : {}".format(exc))
+        # should not fail the test
+        pass
 
 
 @pytest.fixture(scope='session')

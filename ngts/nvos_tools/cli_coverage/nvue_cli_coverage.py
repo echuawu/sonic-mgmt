@@ -81,11 +81,11 @@ class NVUECliCoverage:
                     json.dump(data, fp, indent=4)
                 try:
                     os.chmod(file_path, 0o777)
-                    result_cmds = ResultObj(True, '', commands)
                 except Exception as exc:
                     result_cmds.info.join("\n With exception : {}".format(exc))
                     # if file was created by other user, chmod would fail. just ignore
                     pass
+                result_cmds = ResultObj(True, '', commands)
         else:
             with allure.step("Create a list of commands according to existing commands_list file"):
                 logging.info("Create a list of commands according to existing commands_list file")
@@ -273,8 +273,13 @@ class NVUECliCoverage:
             system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
 
             with allure.step("Get full_commands list"):
-                cls.full_command_list[swversion] = cls.get_full_command_list(cls.engine, cls.project, swversion).get_returned_value()
-                logging.debug("NVUE full command list count: {}".format(len(cls.full_command_list[swversion])))
+                result_obj = cls.get_full_command_list(cls.engine, cls.project, swversion)
+                if result_obj.result:
+                    cls.full_command_list[swversion] = result_obj.returned_value
+                else:
+                    logging.error(result_obj.info)
+                    return
+                logging.info("NVUE full command list count: {}".format(len(cls.full_command_list[swversion])))
 
             with allure.step("Get used commands:"):
                 cls.create_used_commands_dictionary(cls.engine, swversion).verify_result()
