@@ -71,7 +71,10 @@ class SonicDataCollector(object):
             self.sonic_version = self.request.getfixturevalue('sonic_version')
             self.hwsku = self.request.getfixturevalue('platform_params').hwsku
         else:
-            self.sonic_branch = self.dut_engine.sonic_release
+            sonic_branch = self.dut_engine.sonic_release
+            if sonic_branch == 'none':
+                sonic_branch = 'master'
+            self.sonic_branch = sonic_branch
             self.sonic_version = self.dut_engine.os_version
             self.hwsku = self.dut_engine.facts['hwsku']
 
