@@ -47,53 +47,55 @@ class NVUECliCoverage:
         run nv list-commands on device, and generate full list JSON file
         if JSON file already exists and is less than 24 hours old, skip running the list command.
         """
-        with allure.step("Get full command list"):
-            logging.info("Get full command list")
-            file_path = os.path.join(cls.nvue_full_list_dir, "command_list_{}_{}.json".format(project, swversion))
-            commands = []
-            result_cmds = ResultObj(False, 'Unable to get full list of NVUE commands')
-            if not os.path.exists(file_path) or time.time() - os.path.getmtime(file_path) > THRESHOLD_TIME_FOR_FULL_CMD_FILE:
+        file_path = os.path.join(cls.nvue_full_list_dir, "command_list_{}_{}.json".format(project, swversion))
+        commands = []
+        result_cmds = ResultObj(False, 'Unable to get full list of NVUE commands')
+        if not os.path.exists(file_path) or time.time() - os.path.getmtime(file_path) > THRESHOLD_TIME_FOR_FULL_CMD_FILE:
 
-                with allure.step("Create new command_list file in {}".format(cls.nvue_full_list_dir)):
-                    logging.info("Create new command_list file in {}".format(cls.nvue_full_list_dir))
-                    commands_list_output = SendCommandTool.execute_command(NvueGeneralCli.list_commands, engine).get_returned_value()
-                    for line in commands_list_output.strip().splitlines():
-                        command = line.strip()
-                        if command and command.startswith('nv '):
-                            module, classification = cls.get_module_and_classification(command)
-                            re_cli = cls.build_regex(command)
-                            commands.append((command, module, classification, re_cli))
+            with allure.step("Get all the commands from the switch"):
+                logging.info("Get all the commands from the switch")
+                commands_list_output = SendCommandTool.execute_command(NvueGeneralCli.list_commands, engine).get_returned_value()
 
-                    with allure.step("Organize all the {} commands and insert them into a file".format(len(commands))):
-                        logging.info("Organize all the {} commands and insert them into a file".format(len(commands)))
-                        data = OrderedDict((
-                            ('project', project),
-                            ('sw version', swversion),
-                            ('commands', [])
-                        ))
-                        for command, module, classification, _ in commands:
-                            data['commands'].append({'command': command, 'module': module, 'classification': classification})
+            with allure.step("Get module and classification of all the commands"):
+                logging.info("Get module and classification of all the commands")
+                for line in commands_list_output.strip().splitlines():
+                    command = line.strip()
+                    if command and command.startswith('nv '):
+                        module, classification = cls.get_module_and_classification(command)
+                        re_cli = cls.build_regex(command)
+                        commands.append((command, module, classification, re_cli))
 
-                        with allure.step("insert the commands to {}".format(file_path)):
-                            logging.info("insert the commands to {}".format(file_path))
-                            with open(file_path, 'w') as fp:
-                                json.dump(data, fp, indent=4)
-                            try:
-                                os.chmod(file_path, 0o777)
-                                result_cmds = ResultObj(True, '', commands)
-                            except Exception:
-                                # if file was created by other user, chmod would fail. just ignore
-                                pass
-            else:
-                with allure.step("Create a list of commands according to existing commands_list file"):
-                    logging.info("Create a list of commands according to existing commands_list file")
-                    with open(file_path) as fp:
-                        for data in json.load(fp)['commands']:
-                            command, module, classification = data['command'], data['module'], data.get('classification', None)
-                            re_cli = cls.build_regex(command)
-                            commands.append((command, module, classification, re_cli))
-                result_cmds = ResultObj(True, '', commands)
-            return result_cmds
+            with allure.step("Organize the data for the full_commands file"):
+                logging.info("Organize the data for the full_commands file")
+                data = OrderedDict((
+                    ('project', project),
+                    ('sw version', swversion),
+                    ('commands', [])
+                ))
+                for command, module, classification, _ in commands:
+                    data['commands'].append({'command': command, 'module': module, 'classification': classification})
+
+            with allure.step("Create full commands file : {}".format(file_path)):
+                logging.info("Create full commands file : {}".format(file_path))
+                with open(file_path, 'w') as fp:
+                    json.dump(data, fp, indent=4)
+                try:
+                    os.chmod(file_path, 0o777)
+                    result_cmds = ResultObj(True, '', commands)
+                except Exception as exc:
+                    result_cmds.info.join("\n With exception : {}".format(exc))
+                    # if file was created by other user, chmod would fail. just ignore
+                    pass
+        else:
+            with allure.step("Create a list of commands according to existing commands_list file"):
+                logging.info("Create a list of commands according to existing commands_list file")
+                with open(file_path) as fp:
+                    for data in json.load(fp)['commands']:
+                        command, module, classification = data['command'], data['module'], data.get('classification', None)
+                        re_cli = cls.build_regex(command)
+                        commands.append((command, module, classification, re_cli))
+            result_cmds = ResultObj(True, '', commands)
+        return result_cmds
 
     @classmethod
     def create_used_commands_dictionary(cls, engine, swversion):
