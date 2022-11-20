@@ -618,7 +618,7 @@
     - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- .* Failed to prepare bulk counter for port stats.'
   Conditions:
     - Redmine:
-      - 3154876
+      - 3267855
       Platform:
         - simx
 
@@ -811,6 +811,14 @@
   Conditions:
     - Redmine:
       - 3006222
+      Platform:
+      - simx
+
+- Errors_list:
+    - '.*ERR dhcp_relay#dhcp6relay: sendto: Failed to send to target address'
+  Conditions:
+    - Redmine:
+      - 3263638
       Platform:
       - simx
 
