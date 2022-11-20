@@ -4,6 +4,7 @@ import requests
 import json
 import allure
 import sys
+from pathlib import Path
 
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants, SonicDeployConstants
@@ -158,7 +159,7 @@ class SonicInstallationSteps:
         """
         logger.info("Removing topologies to get the clear environment")
         with allure.step("Remove Topologies (community step)"):
-            topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo)
+            topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo, dut_name)
             logger.info(f"Remove topologies: {topologies}. This may increase a chance to deploy a new one successful")
             for topology in topologies:
                 logger.info("Remove topo {}".format(topology))
@@ -171,10 +172,17 @@ class SonicInstallationSteps:
                     logger.warning(f'Failed to remove topology. Got error: {err}')
 
     @staticmethod
-    def get_topologies_to_remove(required_topology):
+    def get_topologies_to_remove(required_topology, dut_name):
         if is_bf_topo(required_topology):
-            return [required_topology]
-        return MarsConstants.TOPO_ARRAY
+            topos_to_remove = [required_topology]
+        else:
+            cached_topo = get_cached_topology(dut_name)
+            if cached_topo:
+                logger.info(f"Found cached topology: {cached_topo}, removing only this one")
+                topos_to_remove = [cached_topo]
+            else:
+                topos_to_remove = MarsConstants.TOPO_ARRAY
+        return topos_to_remove
 
     @staticmethod
     def get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag):
@@ -501,3 +509,16 @@ class SonicInstallationSteps:
 
 def is_community(sonic_topo):
     return sonic_topo != 'ptf-any'
+
+
+def get_cached_topology(dut_name):
+    cached_topo = None
+    cached_topo_path = f"{MarsConstants.SONIC_MARS_BASE_PATH}/cached_deployed_topologies/"
+    setup_cached_topo_file = Path(f"{cached_topo_path}/{dut_name}")
+    if setup_cached_topo_file.is_file():
+        cached_topo = setup_cached_topo_file.read_text().strip()
+        if cached_topo not in MarsConstants.TOPO_ARRAY:
+            logger.info(f"There is a garbage in the cache file, {cached_topo} is not in {MarsConstants.TOPO_ARRAY}"
+                        " removing all topos")
+            cached_topo = None
+    return cached_topo
