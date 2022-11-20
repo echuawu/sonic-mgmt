@@ -392,7 +392,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.engine.run_cmd('sudo dhclient', validate=True)
 
     def deploy_bfb(self, image_path, topology_obj):
-        sonic_cli_ssh_connect_timeout = 30
         rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['Parent_device_NIC_name']
         hyper_engine = topology_obj.players['hyper']['engine']
 
@@ -402,9 +401,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         # Broken engine after install. Disconnect it. In next run_cmd, it will connect back
         self.engine.disconnect()
 
-        with allure.step('Waiting for CLI bring-up after instalation'):
-            logger.info('Waiting for CLI bring-up after instalation')
-            time.sleep(sonic_cli_ssh_connect_timeout)
+        with allure.step('Waiting for switch bring-up after reload'):
+            logger.info('Waiting for switch bring-up after reload')
+            check_port_status_till_alive(True, self.engine.ip, self.engine.ssh_port)
 
     def deploy_pxe(self, image_path, topology_obj, hwsku):
         bf_cli_ssh_connect_bringup = 480
