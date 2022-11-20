@@ -10,8 +10,10 @@ class BaseComponent:
     api_obj = None
     _resource_path = ''
 
-    def __init__(self):
-        pass
+    def __init__(self, parent=None, api=None, path=None):
+        self.parent_obj = parent
+        self.api_obj = api
+        self._resource_path = path
 
     def get_resource_path(self):
         return "{parent_path}{self_path}".format(

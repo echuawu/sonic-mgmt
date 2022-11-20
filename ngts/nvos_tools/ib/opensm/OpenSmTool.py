@@ -1,7 +1,11 @@
 import allure
 import pytest
 import logging
-import time
+from ngts.nvos_tools.ib.Ib import Ib
+from ngts.nvos_constants.constants_nvos import IbConsts
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
 
@@ -13,39 +17,40 @@ class OpenSmTool:
         """
         Start open sm if it's not running
         """
-        with allure.step("Check if OpenSM is running"):
-            output = engine.run_cmd("ibdev2netdev")
-            if "(Up)" in output:
-                pytest.exit(msg="OpenSM is already running", returncode=0)
-            elif "(Down)" in output:
-                port_name = output.split()[0]
-            else:
-                assert "ibdev2netdev command failed"
+        ib = Ib(None)
+        if OpenSmTool.verify_open_sm_is_running():
+            return ResultObj(True, returned_value='opensm is already enabled')
 
-        with allure.step("Get GUID to start OpenSM"):
-            output = engine.run_cmd("ibstat {}".format(port_name))
-            guid = ''
-            for line in output.splitlines():
-                if "Port GUID" in line:
-                    guid = line.split(":")[1]
-            if guid:
-                logging.info("GUID: " + guid)
-            else:
-                assert "Failed to find GUID to start OpenSM"
-
-        with allure.step("Start OpenSM"):
-            engine.run_cmd("opensm -g {} -B".format(guid))
-            time.sleep(5)
-
-        with allure.step("Verify OpenSM is running"):
-            assert OpenSmTool.verify_open_sm_is_running(engine), "Failed to start OpenSM"
+        with allure.step("start OpenSM"):
+            ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_ENABLE)
+            return TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
 
     @staticmethod
-    def verify_open_sm_is_running(engine):
-        output = engine.run_cmd("ibdev2netdev")
-        if "(Up)" in output:
-            logging.info("OpenSM is running")
-            return True
-        else:
-            logging.info("OpenSM is down")
-            return False
+    def stop_open_sm(engine):
+        """
+        Stop open sm if it's running
+        """
+        ib = Ib(None)
+        if not OpenSmTool.verify_open_sm_is_running():
+            return ResultObj(True, returned_value='opensm is already disabled')
+
+        with allure.step("Stop OpenSM"):
+            ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_DISABLE)
+            return TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+
+    @staticmethod
+    def verify_open_sm_is_running():
+        with allure.step("Check if OpenSM is running"):
+            ib = Ib(None)
+            sm_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
+            if IbConsts.SM_STATE not in sm_dict.keys():
+                logger.info('state label is not exist')
+                return
+
+            if sm_dict[IbConsts.SM_STATE] == IbConsts.SM_STATE_ENABLE:
+                logger.info('OpenSM is already enabled')
+                return True
+
+            else:
+                logging.info("OpenSM is disabled")
+                return False

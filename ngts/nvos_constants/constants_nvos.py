@@ -267,3 +267,4 @@ class IbConsts:
     SM_PRIORITY = 'sm-priority'
     SM_SL = 'sm-sl'
     PRIO_SL_DEFAULT_VALUE = '0'
+    FILES = 'files'

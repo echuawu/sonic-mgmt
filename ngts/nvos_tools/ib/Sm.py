@@ -11,6 +11,7 @@ logger = logging.getLogger()
 class Sm(BaseComponent):
 
     def __init__(self, parent_obj=None):
+        self.log = BaseComponent(self, {ApiType.NVUE: NvueOpenSmCli, ApiType.OPENAPI: OpenApiOpenSmCli}, '/log')
         self.api_obj = {ApiType.NVUE: NvueOpenSmCli, ApiType.OPENAPI: OpenApiOpenSmCli}
         self._resource_path = '/sm'
         self.parent_obj = parent_obj

@@ -110,6 +110,31 @@ class ValidationTool:
             return result_obj
 
     @staticmethod
+    def validate_fields_values_in_output(expected_fields, expected_values, output_dict):
+        """
+
+        :param expected_fields: list of expected fields
+        :param expected_values: list of expected values
+        :param output_dict: output
+        :return:
+        """
+        with allure.step("Verify existence of all components in the output dict"):
+            if not output_dict:
+                return ResultObj(False, "The list is empty")
+
+            result = True
+            ret_info = ""
+            for field, value in zip(expected_fields, expected_values):
+                if field not in output_dict.keys():
+                    ret_info += 'the {field} not found\n'.format(field=field)
+                    result = False
+                elif output_dict[field] != value:
+                    ret_info += 'the {field} value is {value} not {expected} as expected\n'.format(field=field, value=output_dict[field], expected=value)
+                    result = False
+
+            return ResultObj(result, ret_info, ret_info)
+
+    @staticmethod
     def compare_values(value1, value2, should_equal=True):
         """
         Compares two values

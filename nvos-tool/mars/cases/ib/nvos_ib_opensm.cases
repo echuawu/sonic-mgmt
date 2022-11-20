@@ -36,4 +36,15 @@
       </params>
     </cmd>
   </case>
+
+  <case>
+    <name> Set/Unset sm state </name>
+    <info></info>
+    <tout> 1200 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/ib/test_set_unset_sm_state.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
 </CASEDEF>
