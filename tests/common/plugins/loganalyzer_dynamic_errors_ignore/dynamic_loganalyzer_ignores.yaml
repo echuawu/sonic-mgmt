@@ -1660,13 +1660,14 @@
       - master
 
 - Errors_list:
-    - '.* ERR swss#vxlanmgrd: :- doVxlanTunnelMapCreateTask: Map already present : vtep101032:map_76543_Vlan69'
+    - '.* ERR swss#vxlanmgrd: :- doVxlanTunnelMapCreateTask: Map already present : vtep\d+:map_\d+_Vlan\d+'
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command ''/sbin/ip address "add" ".*" broadcast ".*" dev ".*"'' failed with rc \d+'
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command ''/sbin/ip -6 address "add" ".*" broadcast ".*" dev ".*"'' failed with rc \d+'
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command ''/sbin/ip address "add" ".*" dev ".*"'' failed with rc \d+'
     - '.* ERR swss#orchagent: :- addOperation: Vxlan tunnel .* is already exists'
     - '.* ERR sflow#port_index_mapper: <built-in function Select_select> returned a result with an error set'
     - '.* WARNING syncd#SDK: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID'
+    - '.* ERR swss#vxlanmgrd: :- doVxlanEvpnNvoCreateTask: Only Single NVO object allowed.*'
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports
