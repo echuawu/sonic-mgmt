@@ -87,28 +87,28 @@ def test_set_unset_system_firmware_auto_update(engines):
         system = System()
 
     with allure.step("Disable firmware auto-update"):
-        set_auto_update(system, "disable")
+        set_auto_update(system, "disabled")
 
     with allure.step("Verify the configuration applied successfully - auto-update disabled"):
         verify_firware_value(system, "auto-update", "disable")
 
     with allure.step("Enable firmware auto-update"):
-        set_auto_update(system, "enable")
+        set_auto_update(system, "enabled")
 
     with allure.step("Verify the configuration applied successfully - auto-update enabled"):
-        verify_firware_value(system, "auto-update", "enable")
+        verify_firware_value(system, "auto-update", "enabled")
 
     with allure.step("Disable firmware auto-update"):
-        set_auto_update(system, "disable")
+        set_auto_update(system, "disabled")
 
     with allure.step("Verify the configuration applied successfully - auto-update disabled"):
-        verify_firware_value(system, "auto-update", "disable")
+        verify_firware_value(system, "auto-update", "disabled")
 
     with allure.step("Unset auto-update"):
         unset_auto_update(system)
 
     with allure.step("Verify the configuration applied successfully - auto-update disabled"):
-        verify_firware_value(system, "auto-update", "enable")
+        verify_firware_value(system, "auto-update", "enabled")
 
 
 @pytest.mark.checklist

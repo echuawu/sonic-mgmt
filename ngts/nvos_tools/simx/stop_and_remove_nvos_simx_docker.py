@@ -20,7 +20,7 @@ def test_stop_and_remove_nvos_simx_docker(topology_obj):
                 output = server_engine.run_cmd("docker stop {}".format(docker_id))
                 assert docker_id in output, "Failed to stop simx docker"
 
-                if "admin-{}".format(dut_name) in docker_info:  # if this docker started by regression
+                if "nvos_reg-{}".format(dut_name) in docker_info:  # if this docker started by regression
                     with allure.step("Stop NVOS simx docker for {}".format(dut_name)):
                         output = server_engine.run_cmd("docker rm {}".format(docker_id))
                         assert docker_id in output, "Failed to remove simx docker"

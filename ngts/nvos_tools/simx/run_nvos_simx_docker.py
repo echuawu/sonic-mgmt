@@ -21,7 +21,7 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
         output = server_engine.run_cmd("{path_to_repo}/run_nvos_vm_in_docker.py --user {username} --ip {ip} "
                                        "--nos-image {path_to_image}".format(path_to_repo=path_to_source_code,
                                                                             ip=dut_engine.ip,
-                                                                            username=dut_engine.username,
+                                                                            username="nvos_reg",
                                                                             path_to_image=base_version))
         assert "Docker container is running" in output, "Failed to start simx docker"
 
@@ -31,7 +31,7 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
         timeout = 15    # min
         while not all_components_are_up and timeout > 0:
             output = server_engine.run_cmd('docker exec {user}-{dut_name} systemctl status chipsim fw simx | '.format(
-                user=dut_engine.username, dut_name=dut_name) + 'grep Active:')
+                user="nvos_reg", dut_name=dut_name) + 'grep Active:')
             if "inactive" not in output and "activating" not in output:
                 all_components_are_up = True
             else:

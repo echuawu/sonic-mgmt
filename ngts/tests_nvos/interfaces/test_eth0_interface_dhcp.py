@@ -15,7 +15,6 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
-@pytest.mark.simx
 @pytest.mark.nvos_ci
 def test_intereface_eth0_enable_disable(engines, topology_obj):
     """

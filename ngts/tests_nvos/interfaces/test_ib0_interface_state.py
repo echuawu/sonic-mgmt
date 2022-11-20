@@ -10,7 +10,6 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
-@pytest.mark.simx
 def test_ib0_interface_state(engines):
     """
     Configure ib0 interface state and verify the configuration applied successfully
@@ -46,7 +45,6 @@ def test_ib0_interface_state(engines):
 
 
 @pytest.mark.ib
-@pytest.mark.simx
 def test_ib0_interface_state_invalid(engines):
     """
     Configure port interface state using an invalid value
@@ -71,7 +69,6 @@ def test_ib0_interface_state_invalid(engines):
 
 
 @pytest.mark.ib
-@pytest.mark.simx
 def test_ib0_interface_state_unset(engines):
     """
     Configure port interface state using an invalid value
