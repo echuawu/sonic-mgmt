@@ -1042,6 +1042,12 @@ qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
     conditions:
       - "asic_type in ['mellanox']"
 
+qos/test_tunnel_qos_remap_nvidia.py:
+  skip:
+    reason: "The test is only for Nvidia platforms"
+    conditions:
+      - "asic_type not in ['mellanox']"
+
 #######################################
 #####         restapi             #####
 #######################################
