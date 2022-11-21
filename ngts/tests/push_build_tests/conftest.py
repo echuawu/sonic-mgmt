@@ -242,8 +242,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 with allure.step('Performing sonic to sonic upgrade'):
                     logger.info('Performing sonic to sonic upgrade')
                     cli_objects.dut.general.deploy_image(topology_obj, upgrade_params.target_version,
-                                                         platform_params=platform_params,
-                                                         apply_base_config=False, deploy_type='sonic')
+                                                         platform_params=platform_params, apply_base_config=False,
+                                                         deploy_type='sonic', configure_dns=True)
 
                 # Update CLI classes based on current SONiC branch
                 update_branch_in_topology(topology_obj)

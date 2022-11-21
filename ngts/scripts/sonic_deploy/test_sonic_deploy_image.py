@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import allure
 import logging
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
+
 from retry.api import retry_call
 
 
@@ -38,8 +38,8 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
                        logger=logger)
         cli_obj.general.deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
                                      setup_name=setup_name, platform_params=platform_params,
-                                     deploy_type=deploy_type,
-                                     reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path)
+                                     deploy_type=deploy_type, reboot_after_install=reboot_after_install,
+                                     fw_pkg_path=fw_pkg_path, configure_dns=True)
     except Exception as err:
         raise AssertionError(err)
     finally:

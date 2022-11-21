@@ -4,7 +4,7 @@ import re
 from ngts.cli_wrappers.common.ip_clis_common import IpCliCommon
 from ngts.helpers.network import generate_mac
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
-from ngts.constants.constants import IpIfaceAddrConst
+from ngts.constants.constants import IpIfaceAddrConst, SonicConst
 
 
 class SonicIpCli(IpCliCommon):
@@ -223,3 +223,33 @@ class SonicIpCli(IpCliCommon):
         :return: the header name.
         """
         return IpIfaceAddrConst.IPV6_ADDR_MASK_KEY if IpIfaceAddrConst.IPV6_ADDR_MASK_KEY in interface_dict else IpIfaceAddrConst.IPV4_ADDR_MASK_KEY
+
+    def apply_dns_servers_into_resolv_conf(self, is_air_setup=False):
+        """
+        Set into /etc/resolv.conf DNS servers
+        :param is_air_setup: is NvidiaAir setup - True, else False
+        """
+        if is_air_setup:
+            self.apply_nvidia_air_dns_servers_resolv_conf()
+        else:
+            self.apply_nvidia_lab_dns_servers_resolv_conf()
+
+    def apply_nvidia_lab_dns_servers_resolv_conf(self):
+        """
+        Set into /etc/resolv.conf Nvidia LAB DNS servers
+        """
+        tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
+        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_FIRST}" > {tmp_resolv_conf_path}')
+        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_SECOND}" >> {tmp_resolv_conf_path}')
+        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_THIRD}" >> {tmp_resolv_conf_path}')
+        self.engine.run_cmd(f'sudo echo "search {SonicConst.NVIDIA_LAB_DNS_SEARCH}" >> {tmp_resolv_conf_path}')
+        self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
+
+    def apply_nvidia_air_dns_servers_resolv_conf(self):
+        """
+        Set into /etc/resolv.conf NvidiaAir DNS servers
+        """
+        tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
+        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_FIRST}" > {tmp_resolv_conf_path}')
+        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_SECOND}" >> {tmp_resolv_conf_path}')
+        self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')

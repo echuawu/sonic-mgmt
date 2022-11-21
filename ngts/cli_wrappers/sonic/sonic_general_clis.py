@@ -311,7 +311,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, deploy_type='sonic', reboot_after_install=None, fw_pkg_path=None,
-                     set_timezone='Israel', disable_ztp=False):
+                     set_timezone='Israel', disable_ztp=False, configure_dns=False):
 
         if image_path.startswith('http'):
             image_path = '/auto' + image_path.split('/auto')[1]
@@ -343,6 +343,11 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if apply_base_config:
             with allure.step("Apply basic config"):
                 self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp)
+
+        if configure_dns:
+            with allure.step('Apply DNS servers configuration into /etc/resolv.conf'):
+                self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
+                    is_air_setup=platform_params.setup_name.startswith('air'))
 
         self.configure_dhclient_if_simx()
 

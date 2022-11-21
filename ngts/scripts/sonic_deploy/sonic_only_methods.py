@@ -374,7 +374,7 @@ class SonicInstallationSteps:
                                  setup_name=setup_name, platform_params=platform_params,
                                  deploy_type=deploy_type,
                                  reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path,
-                                 disable_ztp=disable_ztp)
+                                 disable_ztp=disable_ztp, configure_dns=True)
         except Exception as err:
             raise AssertionError(err)
         finally:

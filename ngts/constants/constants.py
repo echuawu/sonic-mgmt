@@ -72,6 +72,16 @@ class SonicConst:
     TELEMETRY_DSMSROOT_KEY = "/etc/sonic/telemetry/dsmsroot.key"
     TELEMETRY_DSMSROOT_CER = "/etc/sonic/telemetry/dsmsroot.cer"
 
+    RESOLV_CONF_NAME = 'resolv.conf'
+    RESOLV_CONF_PATH = f'/etc/{RESOLV_CONF_NAME}'
+
+    NVIDIA_LAB_DNS_FIRST = '10.211.0.124'
+    NVIDIA_LAB_DNS_SECOND = '10.211.0.121'
+    NVIDIA_LAB_DNS_THIRD = '10.7.77.135'
+    NVIDIA_LAB_DNS_SEARCH = 'mtr.labs.mlnx labs.mlnx mlnx lab.mtl.com mtl.com'
+    NVIDIA_AIR_DNS_FIRST = '8.8.8.8'
+    NVIDIA_AIR_DNS_SECOND = '192.168.200.1'
+
 
 class CliType:
     NVUE = 'NVUE'
