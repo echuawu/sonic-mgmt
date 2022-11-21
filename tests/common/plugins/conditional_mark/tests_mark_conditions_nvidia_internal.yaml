@@ -1164,4 +1164,9 @@ memory_checker/test_memory_checker.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3267065 and 'master' in release"
 
+platform_tests/mellanox/test_reboot_cause.py:
+  skip:
+    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia SPC1"
+    conditions:
+      - "(release not in ['master', '202205']) or (platform in ['x86_64-mlnx_msn2010-r0', 'x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn2100-r0', 'x86_64-mlnx_msn2410-r0'])"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
