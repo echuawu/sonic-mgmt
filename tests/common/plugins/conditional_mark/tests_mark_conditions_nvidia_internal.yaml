@@ -438,9 +438,11 @@ snmp/test_snmp_memory.py::test_snmp_memory:
 
 sflow/test_sflow.py:
   skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5938 and branch 202205"
+    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5938 and branch 202205; Testcase ignored due to https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name, community sflow test could not run on t0-64 topology"
+    conditions_logical_operator: or
     conditions:
       - "https://github.com/Azure/sonic-mgmt/issues/5938 and '202205' in release"
+      - "https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name"
 
 platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
   skip:
