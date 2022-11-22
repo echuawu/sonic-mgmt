@@ -141,7 +141,6 @@ def doroce_conf_dict(cli_objects):
 
 @pytest.mark.doroce
 @pytest.mark.build
-@pytest.mark.push_gate
 @pytest.mark.simx_uncovered
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("configuration", BUFFER_CONFIGURATIONS)
@@ -163,7 +162,6 @@ def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, player
 
 @pytest.mark.doroce
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('DoRoCE toggle ports test case')
 def test_doroce_toggle_ports(doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj):
     """
