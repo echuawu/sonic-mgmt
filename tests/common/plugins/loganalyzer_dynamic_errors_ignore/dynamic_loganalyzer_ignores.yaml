@@ -967,6 +967,28 @@
       - nvda_bf
 
 - Errors_list:
+    - '.*ERR kernel:.* mlx5_core .* mlx5_cmd_out_err:.* DESTROY_LAG.* failed, status bad system state.* syndrome.*'
+    - '.*ERR kernel:.* mlx5_core.*mlx5_deactivate_lag.* Failed to deactivate VF LAG; driver restart required.*'
+    - '.*ERR kernel:.* Make sure all VFs are unbound prior to VF LAG activation or deactivation.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3269038
+      Platform:
+      - nvda_bf
+
+- Errors_list:
+    - '.*ERR systemd-udevd.*: eth\d+: Failed to rename network interface \d+ from.*eth\d+.*to.*Ethernet\d+.*File exists.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/routing/test_routing.py
+      Redmine:
+      - 3269050
+      Platform:
+      - nvda_bf
+
+- Errors_list:
     - '.*ERR hostcfgd: sudo systemctl enable dhcp_relay.service - failed: return code - 1, output:.*'
     - '.*ERR swss#swssconfig: :- main: Exception caught: parse error - unexpected end of input.*'
     - '.*ERR syncd#syncd: :- threadFunction: time span WD exceeded \d+ ms for create:SAI_OBJECT_TYPE_SWITCH.*'
@@ -986,7 +1008,7 @@
 
 - Errors_list:
     - '.*INFO syncd#supervisord: syncd ERR rsai_lib_remote_call:\d+ remote_call\(api=\d+ method=\d+\) failed 0x.*'
-    - '.*INFO syncd#supervisord: syncd ERR rsai_proxy_ioctl_invoke:\d+ remote ioctl_invoke\(\) failed 0x.*'
+    - '.*INFO syncd#supervisord: syncd ERR rsai_proxy_ioctl_invoke:\d+.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/routing/test_routing.py
