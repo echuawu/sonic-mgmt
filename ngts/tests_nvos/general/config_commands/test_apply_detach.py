@@ -37,6 +37,7 @@ def test_detach(engines):
 
 
 @pytest.mark.general
+@pytest.mark.nvos_ci
 @pytest.mark.simx
 def test_apply_assume(engines):
     """

@@ -65,6 +65,7 @@ def test_system(engines, devices, topology_obj):
 
 @pytest.mark.system
 @pytest.mark.simx
+@pytest.mark.nvos_ci
 def test_system_message(engines, devices):
     """
     Run show/set/unset system message command and verify the required message
@@ -127,6 +128,7 @@ def test_system_message(engines, devices):
 
 @pytest.mark.system
 @pytest.mark.simx
+@pytest.mark.nvos_ci
 def test_show_system_version(engines, devices):
     """
     Run show system version command and verify version values

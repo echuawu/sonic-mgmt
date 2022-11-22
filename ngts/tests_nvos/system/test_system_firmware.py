@@ -11,6 +11,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.checklist
+@pytest.mark.nvos_ci
 def test_show_system_firmware(engines):
     """
     Show system firmware test

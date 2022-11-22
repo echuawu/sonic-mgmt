@@ -10,6 +10,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.nvos_ci
 def test_show_platform_firmware(engines):
     """
     Show platform firmware test

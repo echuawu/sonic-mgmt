@@ -59,6 +59,7 @@ def test_ib0_show_interface_stats(engines):
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_ci
 def test_ib0_show_interface_ip(engines):
     """
     Run show interface command and verify the required fields exist
