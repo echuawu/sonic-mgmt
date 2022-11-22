@@ -127,8 +127,8 @@ def pytest_runtest_call(item):
         markers = item.keywords._markers
         logging.info(' ---------------- The test completed successfully ---------------- ')
         if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/') \
-                and 'no_cli_coverage_run' not in markers:
-            logging.info("API type is NVUE, so CLI coverage script will run")
+                and 'no_cli_coverage_run' not in markers and not pytest.is_sanitizer:
+            logging.info("API type is NVUE and is it not a sanitizer version, so CLI coverage script will run")
             NVUECliCoverage.run(item, pytest.s_time)
     except KeyboardInterrupt:
         raise

@@ -318,10 +318,11 @@ def sonic_branch(topology_obj):
     return get_sonic_branch(topology_obj)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def is_sanitizer_image(topology_obj):
     update_sanitizer_in_topology(topology_obj)
-    return topology_obj.players['dut']['sanitizer']
+    pytest.is_sanitizer = topology_obj.players['dut']['sanitizer']
+    return pytest.is_sanitizer
 
 
 @pytest.fixture(scope='session')
