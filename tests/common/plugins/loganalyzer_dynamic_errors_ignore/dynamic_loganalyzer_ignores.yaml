@@ -1664,9 +1664,11 @@
     - '.*ERR kernel: \[.*\] Fails to access .* register MCIA \(module:\d+, page:\d+, device_addr:\d+, size:\d+, i2c_addr:.*, slot:\d+, status:.*err: -16.*'
     - '.*ERR kernel: \[.*\] Fails to read module eeprom, status: -16.*'
     - '.*ERR kernel: \[.*\] Fails to access .* module eeprom, status: -16.*'
+    - '.*ERR pmon#xcvrd: Failed to get SFP type, index=\d+, error=\[Errno \d+\] Device or resource busy'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py
+      - show_techsupport/test_auto_techsupport.py
 
 - Errors_list:
     - '.* ERR healthd: Get unit status determine-reboot-cause-''LoadState'''
@@ -1702,23 +1704,10 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
-      - tests/show_techsupport/test_auto_techsupport.py
-      - tests/show_techsupport/test_techsupport_no_secret.py
+      - show_techsupport/test_auto_techsupport.py
+      - show_techsupport/test_techsupport_no_secret.py
       - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
       Redmine:
       - 3263805
       Branch:
       - 202205
-
-- Errors_list:
-    - '.*ERR kernel: \[.*\] Fails to get module type, err: -\d+.*'
-    - '.*ERR pmon#xcvrd: Failed to read sfp=\d+ EEPROM.*page=\/sys\/module\/sx_core.*eeprom\/pages.*Device or resource busy.*'
-    - '.*ERR kernel: \[.*\] Fails to access .* register MCIA \(module:\d+, page:\d+, device_addr:\d+, size:\d+, i2c_addr:.*, slot:\d+, status:.*err: -\d+.*'
-    - '.*ERR kernel: \[.*\] Fails to read module eeprom, status: -\d+.*'
-    - '.*ERR kernel: \[.*\] Fails to access .* module eeprom, status: -\d+.*'
-    - '.*ERR pmon#xcvrd: Failed to get SFP type, index=\d+, error=\[Errno \d+\] Device or resource busy'
-  Conditions:
-    - Redmine:
-      - 3266868
-      Branch:
-      - master
