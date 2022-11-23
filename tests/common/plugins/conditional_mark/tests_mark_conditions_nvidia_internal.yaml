@@ -487,6 +487,12 @@ qos/test_buffer.py:
       - "https://redmine.mellanox.com/issues/3191031 and 'sn2201' in platform"
       - "https://redmine.mellanox.com/issues/3214827 and '202205' in release"
 
+platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
+  skip:
+    reason: "Test skipped by RM issue 3269464 for sn2201 "
+    conditions:
+      - "https://redmine.mellanox.com/issues/3269464 and 'sn2201' in platform"
+
 pfcwd/test_pfcwd_warm_reboot.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3115164 and branch 202111/master"
