@@ -111,8 +111,6 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
         }
     InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
 
-    run_wa_after_doroce_config(cli_objects, topology_obj)
-
     yield
 
     InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
@@ -127,7 +125,6 @@ def check_no_roce_configuration(cli_objects, interfaces, players, is_simx, platf
     yield
 
     cli_objects.dut.doroce.disable_doroce()
-    run_wa_after_doroce_config(cli_objects, topology_obj)
     check_no_roce_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
 
 
@@ -140,9 +137,7 @@ def doroce_conf_dict(cli_objects):
 
 
 @pytest.mark.doroce
-@pytest.mark.build
 @pytest.mark.simx_uncovered
-@pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("configuration", BUFFER_CONFIGURATIONS)
 @allure.title('DoRoCE test case')
 def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj):
@@ -161,7 +156,6 @@ def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, player
 
 
 @pytest.mark.doroce
-@pytest.mark.build
 @allure.title('DoRoCE toggle ports test case')
 def test_doroce_toggle_ports(doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj):
     """
@@ -186,7 +180,6 @@ def do_doroce_test(conf, pools, doroce_conf_dict, interfaces, cli_objects, playe
     """
     doroce_configuration_method = doroce_conf_dict[conf]
     doroce_configuration_method()
-    run_wa_after_doroce_config(cli_objects, topology_obj)
 
     if do_toggle_ports:
         toggle_ports(interfaces, cli_objects)
@@ -248,14 +241,3 @@ def check_no_roce_configurations(cli_objects, interfaces, players, is_simx, hwsk
     with allure.step('Check no RoCE configurations'):
         cli_objects.dut.doroce.check_buffer_configurations(hwsku=hwsku)
         validate_iperf_traffic(cli_objects, interfaces, players, is_simx)
-
-
-def run_wa_after_doroce_config(cli_objects, topology_obj):
-    # TODO remove the method and the usage after fix of https://redmine.mellanox.com/issues/3158952
-    """
-    It is a WORKAROUND of the SAI issue. Remove it when the bug is fixed
-    :param cli_objects: cli_objects fixture
-    :param topology_obj: topology object
-    """
-    cli_objects.dut.general.save_configuration()
-    cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
