@@ -118,8 +118,7 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
 
 @pytest.fixture(scope='module', autouse=True)
 def check_no_roce_configuration(cli_objects, interfaces, players, is_simx, platform_params,
-                                pre_configuration_for_doroce, topology_obj):
-    run_ping(players)
+                                pre_configuration_for_doroce):
     check_no_roce_configurations(cli_objects, interfaces, players, is_simx, platform_params.hwsku)
 
     yield
@@ -140,7 +139,7 @@ def doroce_conf_dict(cli_objects):
 @pytest.mark.simx_uncovered
 @pytest.mark.parametrize("configuration", BUFFER_CONFIGURATIONS)
 @allure.title('DoRoCE test case')
-def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj):
+def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, players, is_simx):
     """
     Parametrized test, which running base DoRoCE test with different parameters
     :param configuration: DoRoCE configurations. {config:[expected pools]}
@@ -149,15 +148,14 @@ def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, player
     :param cli_objects: cli_objects fixture
     :param players: players fixture
     :param is_simx: fixture, True if setup is SIMX, else False
-    :param topology_obj: topology object
     """
     pools = BUFFER_CONFIGURATIONS_DICT[configuration]
-    do_doroce_test(configuration, pools, doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj)
+    do_doroce_test(configuration, pools, doroce_conf_dict, interfaces, cli_objects, players, is_simx)
 
 
 @pytest.mark.doroce
 @allure.title('DoRoCE toggle ports test case')
-def test_doroce_toggle_ports(doroce_conf_dict, interfaces, cli_objects, players, is_simx, topology_obj):
+def test_doroce_toggle_ports(doroce_conf_dict, interfaces, cli_objects, players, is_simx):
     """
     The Test toggling the related for traffic ports before running base DoRoCE test.
         The test will use random DoRoCE configurations.
@@ -166,15 +164,13 @@ def test_doroce_toggle_ports(doroce_conf_dict, interfaces, cli_objects, players,
     :param cli_objects: cli_objects fixture
     :param players: players fixture
     :param is_simx: fixture, True if setup is SIMX, else False
-    :param topology_obj: topology object
     """
     pools = BUFFER_CONFIGURATIONS_DICT[RANDOM_CONFIG]
     do_doroce_test(RANDOM_CONFIG, pools, doroce_conf_dict, interfaces,
-                   cli_objects, players, is_simx, topology_obj, do_toggle_ports=True)
+                   cli_objects, players, is_simx, do_toggle_ports=True)
 
 
-def do_doroce_test(conf, pools, doroce_conf_dict, interfaces, cli_objects, players,
-                   is_simx, topology_obj, do_toggle_ports=False):
+def do_doroce_test(conf, pools, doroce_conf_dict, interfaces, cli_objects, players, is_simx, do_toggle_ports=False):
     """
     Base DoRoCE test. Parametrized test, which running base DoRoCE test with different parameters
     """
@@ -194,7 +190,7 @@ def do_doroce_test(conf, pools, doroce_conf_dict, interfaces, cli_objects, playe
 def run_ping(players):
     with allure.step('Check connectivity by ping traffic'):
         ping_checker = PingChecker(players, PING_VALIDATION)
-        retry_call(ping_checker.run_validation, fargs=[], tries=3, delay=3, logger=logger)
+        retry_call(ping_checker.run_validation, fargs=[], tries=3, delay=5, logger=logger)
 
 
 def validate_iperf_traffic(cli_objects, interfaces, players, is_simx, prio_group=NO_ROCE_PG):
@@ -240,4 +236,5 @@ def toggle_ports(interfaces, cli_objects):
 def check_no_roce_configurations(cli_objects, interfaces, players, is_simx, hwsku):
     with allure.step('Check no RoCE configurations'):
         cli_objects.dut.doroce.check_buffer_configurations(hwsku=hwsku)
+        run_ping(players)
         validate_iperf_traffic(cli_objects, interfaces, players, is_simx)
