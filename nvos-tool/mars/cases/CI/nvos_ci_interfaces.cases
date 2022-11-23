@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> NVOS ngci </name>
+      <name> Interfaces tests </name>
       <info> </info>
       <owner> Yana Port </owner>
     </Test>

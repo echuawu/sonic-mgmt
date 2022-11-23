@@ -15,7 +15,6 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
-@pytest.mark.nvos_ci
 def test_intereface_eth0_enable_disable(engines, topology_obj):
     """
     Connect via serial port, verify eth0 enable by default, can be disabled and enable it back
@@ -268,7 +267,6 @@ def test_interface_eth0_description(engines):
 
 @pytest.mark.ib
 @pytest.mark.simx
-@pytest.mark.nvos_ci
 def test_interface_eth0_ip_address(engines, topology_obj):
     """
     Verify can configure ipv address, switch ip updated by dhcp
