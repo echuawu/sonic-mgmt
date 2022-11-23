@@ -27,7 +27,8 @@ from retry.api import retry_call
 from lib import constants
 from lib.utils import parse_topology, get_logger
 sys.path.append(str(os.path.join(str(pathlib.Path(__file__).parent.absolute()), "..", "..", "sonic_ngts")))
-from infra.constants.constants import LinuxConsts
+from infra.constants.constants import LinuxConsts  # noqa E402
+
 logger = get_logger("UpdateDocker")
 
 CONTAINER_IFACE = "eth1"
@@ -253,22 +254,27 @@ def configure_docker_route(conn, container_name, mac_address, facts):
         conn.run("ip link set dev {MACVLAN_IFACE} netns {CONTAINER_PID}"
                  .format(MACVLAN_IFACE=macvlan_iface, CONTAINER_PID=container_pid))
 
-        conn.run('docker exec {CONTAINER_NAME} bash -c '\
+        conn.run('docker exec {CONTAINER_NAME} bash -c '
                  '"sudo ip link set dev {MACVLAN_IFACE} name {CONTAINER_IFACE}"'
                  .format(CONTAINER_NAME=container_name, MACVLAN_IFACE=macvlan_iface,
                          CONTAINER_IFACE=container_iface))
-        conn.run('docker exec {CONTAINER_NAME} bash -c '\
+        conn.run('docker exec {CONTAINER_NAME} bash -c '
                  '"sudo ip link set dev {CONTAINER_IFACE} up"'
                  .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=container_iface))
 
         # add it for debug issue of mac address already in use
-        docker_info = conn.run('docker ps -a --format "table {{.Image}}\t{{.ID}}\t{{.Ports}}\t{{.Status}}\t{{.Names}}" ').stdout.strip()
+        docker_info = conn.run('docker ps -a --format "table '
+                               '{{.Image}}\t{{.ID}}\t{{.Ports}}\t{{.Status}}\t{{.Names}}" ').stdout.strip()
         logger.info("Debug issue of mac address already in use: {} ".format(docker_info))
 
-        conn.run('docker exec {CONTAINER_NAME} bash -c '\
-                 '"sudo ip link set dev {CONTAINER_IFACE} address {CONTAINER_IFACE_MAC}"'
-                 .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=container_iface,
-                         CONTAINER_IFACE_MAC=mac_address))
+        retry_call(
+            conn.run,
+            fargs=['docker exec {CONTAINER_NAME} bash -c '
+                   '"sudo ip link set dev {CONTAINER_IFACE} '
+                   'address {CONTAINER_IFACE_MAC}"'.format(CONTAINER_NAME=container_name,
+                                                           CONTAINER_IFACE=container_iface,
+                                                           CONTAINER_IFACE_MAC=mac_address)],
+            tries=5, delay=5)
 
         conn.run('docker exec {CONTAINER_NAME} bash -c "sudo ip route del default"'
                  .format(CONTAINER_NAME=container_name))
@@ -348,7 +354,7 @@ def main():
 
     if not inspect_res["image_exists"]:
         logger.error("No docker image. Please check using commands:")
-        logger.error("    curl -X GET http://{}/v2/_catalog".format(registry_url, docker_name))
+        logger.error("    curl -X GET http://{}/v2/_catalog".format(registry_url))
         logger.error("    curl -X GET http://{}/v2/{}/tags/list".format(registry_url, docker_name))
         sys.exit(1)
 
@@ -366,7 +372,8 @@ def main():
                         logger.info("################### DONE ###################")
                         sys.exit(0)
                     else:
-                        logger.error("Failed to configure routes and dhclient on container. Try to delete and re-create")
+                        logger.error("Failed to configure routes and dhclient on container. "
+                                     "Try to delete and re-create")
                         delete_container_required = True
                 else:
                     logger.error("Starting container %s failed. Will delete it and re-create" % container_name)
@@ -423,6 +430,6 @@ def notify_player_users(player_info, wait_between_notf_to_regression_start):
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         sys.exit(LinuxConsts.error_exit_code)
