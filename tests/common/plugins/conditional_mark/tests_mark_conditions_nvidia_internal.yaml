@@ -195,25 +195,15 @@ tests/push_build_tests/L2/vxlan:
 
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
-    reason: "Testcase ignored due to SIMX platform or RM issue 3188079 and branch 202205"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to SIMX platform "
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3188079 and '202205' in release"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
-    reason: "Testcase ignored due to RM issue 3188079 and branch 202111 or branch 202205 or platform 2201"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to platform 2201"
     conditions:
-      - "https://redmine.mellanox.com/issues/3188079 and '202205' in release"
       - "'2201' in platform"
-
-tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188079"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3188079 and '202205' in release"
 
 tests/nightly/fec:
   skip:
