@@ -7,6 +7,7 @@ from pkg_resources import parse_version
 from tests.platform_tests.thermal_control_test_helper import *
 from tests.common.mellanox_data import get_platform_data
 from minimum_table import get_min_table
+from tests.common.utilities import wait_until, check_skip_release
 
 
 NOT_AVAILABLE = 'N/A'
@@ -62,6 +63,12 @@ THERMAL_NAMING_RULE = {
     "cpu_ambient": {
         "name": "Ambient CPU Board Temp",
         "temperature": "cpu_amb"
+    },
+    "sodimm": {
+        "name": "SODIMM {} Temp",
+        "temperature": "sodimm{}_temp_input",
+        "high_threshold":  "sodimm{}_temp_max",
+        "high_critical_threshold": "sodimm{}_temp_crit"
     }
 }
 
@@ -897,6 +904,7 @@ class RandomThermalStatusMocker(CheckMockerResultMixin, ThermalStatusMocker):
         self.expected_data_headers = ['sensor', 'temperature', 'high th', 'low th', 'crit high th', 'crit low th', 'warning']
         self.primary_field = 'sensor'
         self.excluded_fields = ['timestamp',]
+        self.dut = dut
 
     def deinit(self):
         """
@@ -913,6 +921,12 @@ class RandomThermalStatusMocker(CheckMockerResultMixin, ThermalStatusMocker):
         platform_data = get_platform_data(self.mock_helper.dut)
         thermal_dict = platform_data["thermals"]
         for category, content in thermal_dict.items():
+            # TODO: temp local solution, since the "sodimm" is only supported in master,
+            #  need to check if the branch is master or not
+            if category == "sodimm":
+                skip, _ = check_skip_release(self.dut, ["202205"])
+                if skip:
+                    continue
             number = int(content['number'])
             naming_rule = THERMAL_NAMING_RULE[category]
             if 'start' in content:

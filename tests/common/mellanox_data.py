@@ -114,6 +114,10 @@ SWITCH_MODELS = {
             },
             "fan_ambient": {
                 "number": 1
+            },
+            "sodimm": {
+                "start": 1,
+                "number": 1
             }
         }
     },
