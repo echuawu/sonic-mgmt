@@ -25,7 +25,6 @@ def test_show_platform_environment(engines):
 
 
 @pytest.mark.platform
-@pytest.mark.nvos_ci
 def test_show_platform_environment_fan(engines, devices):
     """
     Show platform environment fan test
@@ -43,7 +42,6 @@ def test_show_platform_environment_fan(engines, devices):
 
 
 @pytest.mark.platform
-@pytest.mark.nvos_ci
 def test_show_platform_environment_led(engines, devices):
     """
     Show platform environment led test
@@ -121,7 +119,6 @@ def test_set_platform_environment_led(engines, devices):
 
 
 @pytest.mark.platform
-@pytest.mark.nvos_ci
 def test_show_platform_environment_psu(engines, devices):
     """
     Show platform environment psu test
@@ -139,7 +136,6 @@ def test_show_platform_environment_psu(engines, devices):
 
 
 @pytest.mark.platform
-@pytest.mark.nvos_ci
 def test_show_platform_environment_temperature(engines, devices):
     """
     Show platform environment temperature test
