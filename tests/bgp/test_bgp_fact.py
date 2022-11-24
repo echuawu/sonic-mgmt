@@ -83,6 +83,9 @@ def test_bgp_facts(duthosts, enum_frontend_dut_hostname, enum_asic_index):
 
     sonic_db_cmd = "sonic-db-cli {}".format("-n " + namespace if namespace else "")
     for k, v in bgp_facts['bgp_neighbors'].items():
+        # TODO: remove this skip of ipv6 when the 3264845 will be resolved
+        if 'nvda_bf' in duthost.facts['platform'] and ':' in k:
+            continue
         # Verify bgp sessions are established
         assert v['state'] == 'established'
         # Verify local ASNs in bgp sessions
@@ -99,6 +102,9 @@ def test_bgp_facts(duthosts, enum_frontend_dut_hostname, enum_asic_index):
     # In VoQ Chassis, we would have BGP_VOQ_CHASSIS_NEIGHBOR as well.
     nbrs_in_cfg_facts.update(config_facts.get('BGP_VOQ_CHASSIS_NEIGHBOR', {}))
     for k, v in nbrs_in_cfg_facts.items():
+        # TODO: remove this skip of ipv6 when the 3264845 will be resolved
+        if 'nvda_bf' in duthost.facts['platform'] and ':' in k:
+            continue
         # Compare the bgp neighbors name with config db bgp neighbors name
         assert v['name'] == bgp_facts['bgp_neighbors'][k]['description']
         # Compare the bgp neighbors ASN with config db
