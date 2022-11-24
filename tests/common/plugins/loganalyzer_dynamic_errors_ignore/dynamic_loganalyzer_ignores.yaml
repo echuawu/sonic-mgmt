@@ -1669,6 +1669,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       - show_techsupport/test_auto_techsupport.py
 
 - Errors_list:
