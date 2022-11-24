@@ -64,4 +64,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/authorization.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/accounting.cases </cases>
+    </test>
+
 </DBDEF>
