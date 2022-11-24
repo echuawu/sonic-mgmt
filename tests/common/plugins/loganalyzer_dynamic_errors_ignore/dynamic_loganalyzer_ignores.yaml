@@ -1696,7 +1696,7 @@
     - '.* ERR swss#vxlanmgrd: :- doVxlanEvpnNvoCreateTask: Only Single NVO object allowed.*'
   Conditions:
     - Affected_test_cases:
-      - tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports
+      - tests/push_build_tests/general/doroce/test_doroce.py
       Redmine:
       - 3263991
 
