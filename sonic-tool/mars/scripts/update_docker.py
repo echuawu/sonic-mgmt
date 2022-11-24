@@ -12,9 +12,6 @@ import json
 import sys
 import time
 import traceback
-import os
-import pathlib
-import random
 from retry import retry
 
 # Third-party libs
@@ -26,13 +23,19 @@ from retry.api import retry_call
 # Home-brew libs
 from lib import constants
 from lib.utils import parse_topology, get_logger
-sys.path.append(str(os.path.join(str(pathlib.Path(__file__).parent.absolute()), "..", "..", "sonic_ngts")))
-from infra.constants.constants import LinuxConsts  # noqa E402
 
 logger = get_logger("UpdateDocker")
 
-CONTAINER_IFACE = "eth1"
-DOCKER_BRIDGE_IFACE = "docker0"
+CONTAINER_IFACE = "eth0"
+NETWORK_NAME = "containers_network"
+GET_NETWORK_CMD = "docker network ls | grep '{}'".format(NETWORK_NAME)
+CREATE_NETWORK_CMD_SET = [
+    "ROUTE_INFO=$(ip route | grep default )",
+    "IPGW=$(echo $ROUTE_INFO | awk '{ print $3}')",
+    "IP_INTERFACE=$(echo $ROUTE_INFO | awk '{ print $5}')",
+    "OUR_ADDRESS=$(ip addr | grep -A1 ' '$IP_INTERFACE | grep 'inet ' | awk '{print $2}' | awk -F '/' '{print $1}')",
+    "NETINFO=$(ip route | grep -m1 \"scope link src $OUR_ADDRESS\" | awk '{print $1}')",
+    "docker network create -d macvlan --gateway=$IPGW --subnet=$NETINFO -o parent=$IP_INTERFACE %s" % NETWORK_NAME]
 
 
 def _parse_args():
@@ -93,37 +96,6 @@ def inspect_container(conn, image_name, image_tag, container_name):
     return res
 
 
-def gather_facts(conn):
-    """
-    @summary: Collect some basic facts of the server.
-    @param conn: Fabric connection to the host server.
-    @return: Returns the gathered facts in a dictionary. Returns None in case of exception.
-    """
-    facts = None
-    try:
-        default_iface = conn.run("awk '$2 == 00000000 { print $1 }' /proc/net/route").stdout.strip()
-        default_iface_addr = conn.run("ip -4 addr show %s | awk '$1==\"inet\" {print $2}' | cut -d'/' -f1" %
-                                      default_iface).stdout.strip()
-        macvlan_iface_random_id = random.randint(0, 9999)
-        macvlan_iface = "{}p{}".format(default_iface, macvlan_iface_random_id)
-        container_iface = CONTAINER_IFACE
-        docker_bridge_iface = DOCKER_BRIDGE_IFACE
-        docker_bridge_addr = conn.run("ip -4 addr show %s | awk '$1==\"inet\" {print $2}' | cut -d'/' -f1" %
-                                      docker_bridge_iface).stdout.strip()
-        facts = {
-            "default_iface": default_iface,
-            "default_iface_addr": default_iface_addr,
-            "macvlan_iface": macvlan_iface,
-            "container_iface": container_iface,
-            "docker_bridge_iface": DOCKER_BRIDGE_IFACE,
-            "docker_bridge_addr": docker_bridge_addr
-        }
-    except UnexpectedExit as e:
-        logger.error("Failed to gather facts. Exception: %s" % repr(e))
-
-    return facts
-
-
 def start_container(conn, container_name, max_retries=3):
     """
     @summary: Try to start an existing container.
@@ -149,7 +121,21 @@ def start_container(conn, container_name, max_retries=3):
     return False
 
 
-def create_and_start_container(conn, image_name, image_tag, container_name, mac_address, facts):
+def create_mgmt_network(conn):
+    """
+    @summary: create management network for containers - macvlan networt
+    """
+    logger.info('Create macvlan network %s', NETWORK_NAME)
+    if not conn.run(GET_NETWORK_CMD).stdout.strip():
+        for cmd in CREATE_NETWORK_CMD_SET:
+            conn.run(cmd)
+        if not conn.run(GET_NETWORK_CMD).stdout.strip():
+            raise Exception("Docker mgmt network was not created!")
+    else:
+        logger.info('macvlan network \"%s\" - already exist', NETWORK_NAME)
+
+
+def create_and_start_container(conn, image_name, image_tag, container_name, mac_address):
     """
     @summary: Create and start specified container from specified image
     @param conn: Fabric connection to the host server
@@ -157,9 +143,9 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     @param image_tag: Docker image tag
     @param container_name: Docker container name to be started
     @param mac_address: MAC address of the container's management interface
-    @param facts: Basic facts of the host server. Collected by the function gather_facts.
     """
     container_iface_mac = mac_address
+    create_mgmt_network(conn)
 
     container_mountpoints_dict = constants.SONIC_MGMT_MOUNTPOINTS.items()
     if conn.host in constants.MTBC_SERVER_LIST:
@@ -179,10 +165,12 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
 
     cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
+                "--privileged --network=containers_network --mac-address={MAC_ADDRESS} " \
                 "--env ANSIBLE_CONFIG=/root/mars/workspace/sonic-mgmt/ansible/ansible.cfg " \
                 "--name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
     cmd = cmd_tmplt.format(
         CONTAINER_MOUNTPOINTS=container_mountpoints,
+        MAC_ADDRESS=container_iface_mac,
         CONTAINER_NAME=container_name,
         IMAGE_NAME=image_name,
         IMAGE_TAG=image_tag
@@ -203,7 +191,7 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     validate_docker_is_up(conn, container_name)
     logger.info("Configure container after starting it")
 
-    if not configure_docker_route(conn, container_name, container_iface_mac, facts):
+    if not configure_docker_route(conn, container_name):
         logger.error("Configure docker container failed.")
         sys.exit(1)
 
@@ -224,66 +212,44 @@ def validate_docker_is_up(conn, container_name):
     conn.run("docker exec {CONTAINER_NAME} bash -c \"echo \"UP\"\"".format(CONTAINER_NAME=container_name))
 
 
-def configure_docker_route(conn, container_name, mac_address, facts):
+def configure_docker_route(conn, container_name):
     """
     @summary: Configure docker container.
-
-    For the sonic-mgmt container to get IP address from LAB DHCP server, we need to create a interface on it and run
-    'dhclient' to get IP address. Also some route configurations are required.
-
+    For the sonic-mgmt container to get IP address from LAB DHCP server
     @param conn: Fabric connection to the host server
     @param container_name: Docker container name to be started
-    @param mac_address: MAC address of the container's management interface
-    @param facts: Basic facts of the host server. Collected by the function gather_facts.
     @return: Returns True if configurations are successful. In case of exception, return False.
     """
 
     try:
         logger.info("Try to configure route and execute dhclient on container")
-        default_iface = facts["default_iface"]
-        macvlan_iface = facts["macvlan_iface"]
-        default_iface_addr = facts["default_iface_addr"]
-        container_iface = facts["container_iface"]
-        docker_bridge_addr = facts["docker_bridge_addr"]
 
-        logger.info("Get container PID")
-        container_pid = conn.run("docker inspect --format '{{.State.Pid}}' %s" % container_name).stdout.strip()
+        # Remove existing default IP assigned by dockerd to macvlan eth0 interface
+        available_ips_info = conn.run('docker exec {CONTAINER_NAME} bash -c "sudo ip -j address"'
+                                      .format(CONTAINER_NAME=container_name)).stdout.strip()
+        ip_address_dict = json.loads(available_ips_info)
+        for interface_data in ip_address_dict:
+            if CONTAINER_IFACE in interface_data['ifname']:
+                available_ip = interface_data['addr_info']
+                for ip_data in available_ip:
+                    cmd = 'ip addr del {}/{} dev {}'.format(ip_data['local'], ip_data['prefixlen'], CONTAINER_IFACE)
+                    conn.run('docker exec {CONTAINER_NAME} bash -c "sudo {CMD}"'
+                             .format(CONTAINER_NAME=container_name, CMD=cmd))
 
-        conn.run("ip link add {MACVLAN_IFACE} link {DEFAULT_IFACE} type macvlan mode bridge"
-                 .format(MACVLAN_IFACE=macvlan_iface, DEFAULT_IFACE=default_iface), warn=True)
-        conn.run("ip link set dev {MACVLAN_IFACE} netns {CONTAINER_PID}"
-                 .format(MACVLAN_IFACE=macvlan_iface, CONTAINER_PID=container_pid))
-
-        conn.run('docker exec {CONTAINER_NAME} bash -c '
-                 '"sudo ip link set dev {MACVLAN_IFACE} name {CONTAINER_IFACE}"'
-                 .format(CONTAINER_NAME=container_name, MACVLAN_IFACE=macvlan_iface,
-                         CONTAINER_IFACE=container_iface))
-        conn.run('docker exec {CONTAINER_NAME} bash -c '
-                 '"sudo ip link set dev {CONTAINER_IFACE} up"'
-                 .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=container_iface))
-
-        # add it for debug issue of mac address already in use
-        docker_info = conn.run('docker ps -a --format "table '
-                               '{{.Image}}\t{{.ID}}\t{{.Ports}}\t{{.Status}}\t{{.Names}}" ').stdout.strip()
-        logger.info("Debug issue of mac address already in use: {} ".format(docker_info))
-
-        retry_call(
-            conn.run,
-            fargs=['docker exec {CONTAINER_NAME} bash -c '
-                   '"sudo ip link set dev {CONTAINER_IFACE} '
-                   'address {CONTAINER_IFACE_MAC}"'.format(CONTAINER_NAME=container_name,
-                                                           CONTAINER_IFACE=container_iface,
-                                                           CONTAINER_IFACE_MAC=mac_address)],
-            tries=5, delay=5)
-
+        # Connect default bridge network in container which will be used for access hypervisor IP
+        conn.run('docker network connect bridge {CONTAINER_NAME}'.format(CONTAINER_NAME=container_name))
+        # Remove default route via "bridge" network(added by default after connect network)
         conn.run('docker exec {CONTAINER_NAME} bash -c "sudo ip route del default"'
                  .format(CONTAINER_NAME=container_name))
-        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo dhclient {CONTAINER_IFACE}"'
-                 .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=container_iface))
-        conn.run('docker exec {CONTAINER_NAME} bash -c "\
-                  sudo ip route add {DEFAULT_IFACE_ADDR} via {DOCKER_BRIDGE_ADDR} dev eth0"'
-                 .format(CONTAINER_NAME=container_name, DEFAULT_IFACE_ADDR=default_iface_addr,
-                         DOCKER_BRIDGE_ADDR=docker_bridge_addr))
+        # Get hypervisor IP in "bridge" network
+        parser_line = '{{ .NetworkSettings.Networks.bridge.Gateway }}'
+        hyper_local_ip = conn.run("docker inspect -f '{}' {}".format(parser_line, container_name)).stdout.strip()
+        # Add route to hypervisor via "bridge" network
+        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo ip route add {HYPER_IP} via {HYPER_DOCKER_IP}"'
+                 .format(CONTAINER_NAME=container_name, HYPER_IP=conn.host,  HYPER_DOCKER_IP=hyper_local_ip))
+        # Run dhclient on macvlan network and get public IP/default route from DHCP server based on MAC address
+        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo dhclient {CONTAINER_IFACE} -v"'
+                 .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=CONTAINER_IFACE))
 
         conn.run('docker exec {CONTAINER_NAME} bash -c "sudo /etc/init.d/ssh restart"'
                  .format(CONTAINER_NAME=container_name))
@@ -337,11 +303,6 @@ def main():
                              config=Config(overrides={"run": {"echo": True}}),
                              connect_kwargs={"password": test_server_device.USERS[0].PASSWORD})
 
-    facts = gather_facts(test_server)
-    if not facts:
-        logger.error("Something wrong with gathering basic facts. Please check the test server")
-        sys.exit(1)
-
     if args.send_takeover_notification == 'yes':
         send_takeover_notification(topo)
 
@@ -368,7 +329,7 @@ def main():
             else:
                 logger.info("The {} docker container using expected image is stopped. Try to start it")
                 if start_container(test_server, container_name, max_retries=3):
-                    if configure_docker_route(test_server, container_name, mac, facts):
+                    if configure_docker_route(test_server, container_name):
                         logger.info("################### DONE ###################")
                         sys.exit(0)
                     else:
@@ -384,8 +345,7 @@ def main():
         test_server.run("docker rm -f {}".format(container_name), warn=True)
 
     logger.info("Need to create and start sonic-mgmt container")
-    create_and_start_container(test_server, "{}/{}".format(registry_url, docker_name), docker_tag, container_name,
-                               mac, facts)
+    create_and_start_container(test_server, "{}/{}".format(registry_url, docker_name), docker_tag, container_name, mac)
 
     logger.info("Try to delete dangling docker images to save space")
     cleanup_dangling_docker_images(test_server)
@@ -432,4 +392,4 @@ if __name__ == "__main__":
         main()
     except Exception:
         traceback.print_exc()
-        sys.exit(LinuxConsts.error_exit_code)
+        sys.exit(1)
