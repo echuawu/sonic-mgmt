@@ -73,7 +73,7 @@ class SonicConst:
     TELEMETRY_DSMSROOT_CER = "/etc/sonic/telemetry/dsmsroot.cer"
 
     RESOLV_CONF_NAME = 'resolv.conf'
-    RESOLV_CONF_PATH = f'/etc/{RESOLV_CONF_NAME}'
+    RESOLV_CONF_PATH = '/etc/' + RESOLV_CONF_NAME
 
     NVIDIA_LAB_DNS_FIRST = '10.211.0.124'
     NVIDIA_LAB_DNS_SECOND = '10.211.0.121'
