@@ -109,6 +109,7 @@
       - ecmp/inner_hashing/test_wr_inner_hashing.py
       - dhcp_relay/test_dhcp_relay.py::test_interface_binding
       - autorestart/test_container_autorestart.py
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
