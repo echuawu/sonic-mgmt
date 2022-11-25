@@ -192,10 +192,10 @@ def dut_ports_default_mlxlink_configuration(is_simx, platform_params, chip_type,
     if is_simx:
         dut_ports_basic_mlxlink_dict = get_basic_fec_mode_dict(cli_objects, fec_modes_speed_support)
     else:
-        dut_ports_basic_mlxlink_dict = get_dut_ports_basic_mlxlink_dict(engines, cli_objects, interfaces,
+        dut_ports_basic_mlxlink_dict = get_dut_ports_basic_mlxlink_dict(cli_objects, interfaces,
                                                                         tested_lb_dict,
                                                                         tested_lb_dict_for_bug_2705016_flow,
-                                                                        pci_conf)
+                                                                        pci_conf, dut_ports_number_dict)
     return dut_ports_basic_mlxlink_dict
 
 
