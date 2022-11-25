@@ -56,4 +56,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/ssh.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/disk_exhaustion.cases </cases>
+    </test>
+
 </DBDEF>
