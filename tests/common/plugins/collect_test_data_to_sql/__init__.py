@@ -53,6 +53,7 @@ class SonicDataCollector(object):
         self.sonic_branch = None
         self.sonic_version = None
         self.hwsku = None
+        self.platform = None
         self.get_general_setup_info()
         self.get_dut_engine()
         self.get_sonic_image_info()
@@ -70,6 +71,7 @@ class SonicDataCollector(object):
             self.sonic_branch = self.request.getfixturevalue('sonic_branch')
             self.sonic_version = self.request.getfixturevalue('sonic_version')
             self.hwsku = self.request.getfixturevalue('platform_params').hwsku
+            self.platform = self.request.getfixturevalue('platform_params').platform
         else:
             sonic_branch = self.dut_engine.sonic_release
             if sonic_branch == 'none':
@@ -77,6 +79,7 @@ class SonicDataCollector(object):
             self.sonic_branch = sonic_branch
             self.sonic_version = self.dut_engine.os_version
             self.hwsku = self.dut_engine.facts['hwsku']
+            self.platform = self.dut_engine.facts['platform']
 
     def get_general_setup_info(self):
         if self.is_canonical_setup:
@@ -88,6 +91,10 @@ class SonicDataCollector(object):
             self.topology = testbed.split(self.setup_name)[-1].lstrip('-')  # example: get t0 from: 'arc-switch1004-t0'
 
     def update_database_with_test_results(self):
+
+        if 'simx' in self.platform:
+            logger.info('Test results data for uploading into SQL database will not be collected for SIMX setup')
+            return
 
         self.get_test_results()
 
