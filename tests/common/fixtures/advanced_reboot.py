@@ -25,6 +25,7 @@ TIME_BETWEEN_SUCCESSIVE_TEST_OPER = 420
 PTFRUNNER_QLEN = 1000
 REBOOT_CASE_TIMEOUT = 1800
 
+
 class AdvancedReboot:
     '''
     AdvancedReboot is used to perform reboot dut while running preboot/inboot operations
@@ -81,8 +82,8 @@ class AdvancedReboot:
         self.moduleIgnoreErrors = kwargs["allow_fail"] if "allow_fail" in kwargs else False
         self.allowMacJump = kwargs["allow_mac_jumping"] if "allow_mac_jumping" in kwargs else False
         self.advanceboot_loganalyzer = kwargs["advanceboot_loganalyzer"] if "advanceboot_loganalyzer" in kwargs else None
-	self.other_vendor_nos = kwargs['other_vendor_nos'] if 'other_vendor_nos' in kwargs else False
-	self.__dict__.update(kwargs)
+        self.other_vendor_nos = kwargs['other_vendor_nos'] if 'other_vendor_nos' in kwargs else False
+        self.__dict__.update(kwargs)
         self.__extractTestParam()
         self.rebootData = {}
         self.hostMaxLen = 0
@@ -117,11 +118,13 @@ class AdvancedReboot:
         # Set default reboot limit if it is not given
         if self.rebootLimit is None:
             if self.kvmTest:
-                self.rebootLimit = 200 # Default reboot limit for kvm
-	    elif 'warm-reboot' in self.rebootType:
+                self.rebootLimit = 200  # Default reboot limit for kvm
+            elif 'warm-reboot' in self.rebootType:
                 self.rebootLimit = 0
+            elif self.tbinfo["topo"]["name"] == "t0-64":
+                self.rebootLimit = 32
             else:
-                self.rebootLimit = 30 # Default reboot limit for physical devices
+                self.rebootLimit = 30  # Default reboot limit for physical devices
 
     def getHostMaxLen(self):
         '''
@@ -506,6 +509,16 @@ class AdvancedReboot:
                         logger.info('\n'+reboot_summary)
                     else:
                         logger.info(reboot_text_log_file)
+
+    def acl_manager_checker(self, error_list):
+        """
+        Checking ACL manager status. It should be running after rebooting
+        """
+        logger.info("Checking ACL manager status")
+        acl_proc_count = self.duthost.command('pgrep -f -c caclmgrd', module_ignore_errors=True)['stdout']
+        if int(acl_proc_count) != 1:
+            error_list.append("Expected one ACL manager process running. Actual: {}".format(acl_proc_count))
+
     def runRebootTest(self):
         # Run advanced-reboot.ReloadTest for item in preboot/inboot list
         count = 0
@@ -551,6 +564,7 @@ class AdvancedReboot:
                     if verification_errors:
                         logger.error("Post reboot verification failed. List of failures: {}".format('\n'.join(verification_errors)))
                         test_results[test_case_name].extend(verification_errors)
+                self.acl_manager_checker(test_results[test_case_name])
                 self.__clearArpAndFdbTables()
                 self.__revertRebootOper(rebootOper)
             if len(self.rebootData['sadList']) > 1 and count != len(self.rebootData['sadList']):
