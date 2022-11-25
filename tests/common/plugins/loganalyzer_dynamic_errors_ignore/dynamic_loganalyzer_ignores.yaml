@@ -1716,3 +1716,15 @@
       - 3263805
       Branch:
       - 202205
+
+- Errors_list:
+    - '.* ERR pmon#sensord: Error getting sensor data: emc\d+/#\d+: Can''t read'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_auto_techsupport.py
+      Redmine:
+      - 3273940
+      Branch:
+      - 202205
+      Platform:
+      - 2201
