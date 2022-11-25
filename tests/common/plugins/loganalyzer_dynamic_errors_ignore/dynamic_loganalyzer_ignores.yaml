@@ -1662,6 +1662,7 @@
 - Errors_list:
     - '.*ERR kernel: \[.*\] Fails to get module type, err: -16.*'
     - '.*ERR pmon#xcvrd: Failed to read sfp=\d+ EEPROM.*page=\/sys\/module\/sx_core.*eeprom\/pages.*Device or resource busy.*'
+    - '.*ERR pmon#xcvrd: message repeated \d+ times: \[ Failed to read sfp=\d+ EEPROM.*page=\/sys\/module\/sx_core.*eeprom\/pages.*Device or resource busy.*\]'
     - '.*ERR kernel: \[.*\] Fails to access .* register MCIA \(module:\d+, page:\d+, device_addr:\d+, size:\d+, i2c_addr:.*, slot:\d+, status:.*err: -16.*'
     - '.*ERR kernel: \[.*\] Fails to read module eeprom, status: -16.*'
     - '.*ERR kernel: \[.*\] Fails to access .* module eeprom, status: -16.*'
@@ -1703,6 +1704,7 @@
 - Errors_list:
     - '.* ERR kernel: \[.*\] Fails to access \(\d+\) module eeprom, status: -\d+.'
     - '.* ERR pmon#xcvrd: Failed to read sfp=\d+ EEPROM page=/sys/module/sx_core/asic\d+/module\d+/eeprom/pages/.*/data, page_offset=\d+,\s+size=\d+, offset=\d+, error = \[Errno \d+\] Input/output error'
+    - '.* ERR pmon#xcvrd: message repeated \d+ times: \[ Failed to read sfp=\d+ EEPROM page=/sys/module/sx_core/asic\d+/module\d+/eeprom/pages/.*/data, page_offset=\d+,\s+size=\d+, offset=\d+, error = \[Errno \d+\] Input/output error\]'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
