@@ -979,6 +979,15 @@ telemetry/test_telemetry.py:
     conditions:
       - "(is_multi_asic==True) and (release in ['201811', '201911'])"                
 
+#######################################
+######           vrf_attr          #####
+########################################
+vrf/test_vrf_attr.py::TestVrfAttrSrcMac::test_vrf1_neigh_with_default_router_mac:
+  skip:
+    reason: "RIF MAC taking precedence over VRF MAC"
+    conditions:
+      - "asic_type in ['barefoot']"
+
 ###### Nvidia not supported APIs ignore START #################################
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
   skip:
@@ -1412,3 +1421,4 @@ platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
 ###### Nvidia not supported APIs ignore END #################################
+
