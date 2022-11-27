@@ -87,16 +87,15 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_upload(engine, log_file_type="", logging_file="", path=""):
-        cmd = "nv action upload system {type}log files {log_file} {path}".format(type=log_file_type,
-                                                                                 log_file=logging_file,
-                                                                                 path=path)
+    def action_upload(engine, action_component_str="", file_name="", path=""):
+        cmd = "nv action upload system {type} files {file} {path}".format(type=action_component_str, file=file_name,
+                                                                          path=path)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_delete(engine, log_file_type="", logging_file=""):
-        cmd = "nv action delete system {type}log files {log_file}".format(type=log_file_type, log_file=logging_file)
+    def action_delete(engine, action_component_str="", file=""):
+        cmd = "nv action delete system {type} files {file}".format(type=action_component_str, file=file)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 

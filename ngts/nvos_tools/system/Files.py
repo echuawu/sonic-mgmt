@@ -34,20 +34,20 @@ class Files(BaseComponent):
                                                    TestToolkit.engines.dut, log_type,
                                                    param, exit_cmd).get_returned_value()
 
-    def action_upload(self, log_file_type="", logging_file="", upload_path=""):
-        with allure.step("Upload {type}log file {file} to '{path}'".format(type=log_file_type,
-                                                                           file=log_file_type,
-                                                                           path=upload_path)):
-            logging.info("Upload {type}log file {file} to '{path}'".format(type=log_file_type,
-                                                                           file=log_file_type,
-                                                                           path=upload_path))
+    def action_upload(self, file_name="", upload_path=""):
+        parent_type = self.get_resource_path().strip("/")
+        with allure.step("Upload {type} file {file} to '{path}'".format(type=parent_type, file=file_name,
+                                                                        path=upload_path)):
+            logging.info("Upload {type} file {file} to '{path}'".format(type=parent_type, file=file_name,
+                                                                        path=upload_path))
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload,
-                                                   TestToolkit.engines.dut, log_file_type,
-                                                   logging_file, upload_path).get_returned_value()
+                                                   TestToolkit.engines.dut, parent_type,
+                                                   file_name, upload_path).get_returned_value()
 
-    def action_delete(self, log_file_type="", logging_file=""):
-        with allure.step("Delete {type}log file {file}".format(type=log_file_type, file=logging_file)):
-            logging.info("Delete {type}log file {file}".format(type=log_file_type, file=logging_file))
+    def action_delete(self, file=""):
+        parent_type = self.get_resource_path().strip("/")
+        with allure.step("Delete {parent_type} file {file}".format(parent_type=parent_type, file=file)):
+            logging.info("Delete {parent_type} file {file}".format(parent_type=parent_type, file=file))
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_delete,
-                                                   TestToolkit.engines.dut, log_file_type,
-                                                   logging_file).get_returned_value()
+                                                   TestToolkit.engines.dut, parent_type,
+                                                   file).get_returned_value()

@@ -527,7 +527,7 @@ def test_upload_log_files(engines, topology_obj):
         log_files_dict = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         log_file = list(log_files_dict.keys())[-1]
         upload_path = 'scp://{}:{}@{}/root/{}'.format(player.username, player.password, player.ip, log_file)
-        system.log.files.action_upload(logging_file=log_file, upload_path=upload_path)
+        system.log.files.action_upload(file_name=log_file, upload_path=upload_path)
 
     with allure.step("Check if file uploaded and delete it from player"):
         logging.info("Check if file uploaded and delete it from player")
@@ -572,7 +572,7 @@ def test_delete_log_files(engines):
     with allure.step("Delete all log files and validate"):
         logging.info("Delete all log files and validate")
         for log_file in log_files_dict.keys():
-            system.log.files.action_delete(logging_file=log_file)
+            system.log.files.action_delete(file=log_file)
             show_output = system.log.files.show()
             output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
             assert log_file not in output_dictionary.keys()
