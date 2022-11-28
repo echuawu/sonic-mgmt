@@ -9,7 +9,7 @@
         <Case>
             <tags> CONTINUOUS_REBOOT, WARM_REBOOT </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 3600 </tout>
+            <tout> 10800 </tout>
         </Case>
     </global>
 
@@ -25,7 +25,7 @@
 
         <info> Continuous_Warm_Reboot Case </info>
         <name> continuous_warm_reboot </name>
-        <tout> 7200 </tout>
+        <tout> 10800 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -v  --reboot_type=warm --continuous_reboot_count=5 --continuous_reboot_delay=600\'" --test-scripts platform_tests/test_cont_warm_reboot.py </static_args>
