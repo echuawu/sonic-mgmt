@@ -907,6 +907,7 @@
 
 - Errors_list:
     - ".*Failed to add device '/dev/sda\\d*' to watch: Operation not permitted.*"
+    - ".*Failed to add device '/dev/loop\\d*' to watch: Operation not permitted.*"
   Conditions:
     - Redmine:
         - 3044633
@@ -1556,6 +1557,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
       Redmine:
       - 3216771
       Branch:
@@ -1713,6 +1715,7 @@
       - show_techsupport/test_techsupport_no_secret.py
       - show_techsupport/test_techsupport.py::test_techsupport
       - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       Redmine:
       - 3263805
       Branch:
