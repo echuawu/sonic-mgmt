@@ -1729,3 +1729,13 @@
       - 202205
       Platform:
       - 2201
+
+- Errors_list:
+    - '.* ERR hostcfgd: Hostname was not updated: Already set up'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/doroce/test_doroce.py::test_doroce
+      Redmine:
+      - 3273797
+      Branch:
+      - master
