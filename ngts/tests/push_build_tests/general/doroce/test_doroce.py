@@ -190,7 +190,7 @@ def do_doroce_test(conf, pools, doroce_conf_dict, interfaces, cli_objects, playe
 def run_ping(players):
     with allure.step('Check connectivity by ping traffic'):
         ping_checker = PingChecker(players, PING_VALIDATION)
-        retry_call(ping_checker.run_validation, fargs=[], tries=3, delay=5, logger=logger)
+        retry_call(ping_checker.run_validation, fargs=[], tries=18, delay=5, logger=logger)
 
 
 def validate_iperf_traffic(cli_objects, interfaces, players, is_simx, prio_group=NO_ROCE_PG):
