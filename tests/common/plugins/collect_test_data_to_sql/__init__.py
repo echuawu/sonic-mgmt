@@ -54,10 +54,12 @@ class SonicDataCollector(object):
         self.sonic_version = None
         self.hwsku = None
         self.platform = None
+        self.mars_session_id = self.request.session.config.option.session_id
+        self.mars_key_id = self.request.session.config.option.mars_key_id
         self.get_general_setup_info()
         self.get_dut_engine()
         self.get_sonic_image_info()
-        self.setup_extra_info = json.dumps({'hwsku': self.hwsku})
+        self.setup_extra_info = {'hwsku': self.hwsku}
         self.test_data = None
 
     def get_dut_engine(self):
@@ -102,6 +104,7 @@ class SonicDataCollector(object):
             test_results = {'TestName': self.test_name,
                             'DUTImageVersion': self.sonic_version, 'DUTImageBranch': self.sonic_branch,
                             'Topology': self.topology, 'SetupName': self.setup_name,
+                            'MarsSessionId': self.mars_session_id, 'MarsKeyId': self.mars_key_id,
                             'ExtraInfo': self.setup_extra_info, 'TestData': self.test_data}
             logger.info('Going to upload to SQL DB next data: \n{}\n'.format(test_results))
 
@@ -150,12 +153,14 @@ class SonicDataCollector(object):
         :param test_id: SQL table test ID
         :return: test_run_id
         """
-        query = "INSERT tests_runs (test_run_dateTime, DUTImageVersion,DUTImageBranch,test_id,Topology) " \
-                 "values (GETDATE(), '{DUTImageVersion}', '{DUTImageBranch}', {test_name_id}, '{Topology}')".format(
+        query = "INSERT tests_runs (test_run_dateTime, DUTImageVersion,DUTImageBranch,test_id,Topology,MarsSessionId,MarsKeyId) " \
+                 "values (GETDATE(), '{DUTImageVersion}', '{DUTImageBranch}', {test_name_id}, '{Topology}', '{MarsSessionId}', '{MarsKeyId}')".format(
             DUTImageVersion=self.sonic_version,
             DUTImageBranch=self.sonic_branch,
             test_name_id=test_id,
-            Topology=self.topology
+            Topology=self.topology,
+            MarsSessionId=self.mars_session_id,
+            MarsKeyId=self.mars_key_id
         )
         self.mssql_connection_obj.query_insert(query)
 
@@ -174,7 +179,7 @@ class SonicDataCollector(object):
                  "values({setup_name_id}, {test_run_id}, '{SetupExtraInfo}')".format(
             setup_name_id=test_setup_id,
             test_run_id=test_run_id,
-            SetupExtraInfo=self.setup_extra_info
+            SetupExtraInfo=json.dumps(self.setup_extra_info)
         )
         self.mssql_connection_obj.query_insert(query)
 
@@ -247,12 +252,25 @@ class AdvancedRebootCollector(SonicDataCollector):
         self.test_name = self.test_name.split('[')[0]  # Remove hostname ...boot.py::test_fast_reboot[arc-switch1004]
         self.ptfhost_engine = self.request.getfixturevalue('ptfhost')
 
+    def get_ports_info(self):
+        config_facts = self.dut_engine.config_facts(host=self.dut_engine.hostname, source="running")['ansible_facts']
+        self.setup_extra_info['total_ports'] = len(config_facts['PORT'])
+        active_ports = 0
+        for port, port_data in config_facts['PORT'].items():
+            if port_data.get('admin_status') == 'up':
+                active_ports += 1
+        self.setup_extra_info['active_ports'] = active_ports
+
     def get_test_results(self):
 
         if self.test_name not in self.supported_tests_by_collector:
             logger.info('Collecting test data not supported for test case: %s', self.test_name)
             return
 
+        # Get DUT ports
+        self.get_ports_info()
+
+        # Get control/data plane loss
         ptf_test_log_path = '/tmp/fast-reboot-report.json'
         if 'test_warm_reboot' in self.test_name:
             ptf_test_log_path = '/tmp/warm-reboot-report.json'
@@ -261,7 +279,6 @@ class AdvancedRebootCollector(SonicDataCollector):
             ptf_test_report = self.ptfhost_engine.shell('cat {}'.format(ptf_test_log_path))['stdout']
             ptf_test_report_dict = json.loads(ptf_test_report)
             dataplane_downtime = ptf_test_report_dict['dataplane']['downtime']
-            # Control plane downtime not available for fast-reboot tests(value empty), only available for warm-reboot
             controlplane_downtime = ptf_test_report_dict['controlplane']['downtime']
 
             self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime}
