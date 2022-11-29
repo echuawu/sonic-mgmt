@@ -1181,7 +1181,7 @@
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan\d_speed_get - OSError\(6, ''No such device or address''\)'
   Conditions:
     - Affected_test_cases:
-      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sanity
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport
       Redmine:
       - 3216785
       Branch:
@@ -1472,21 +1472,12 @@
 
 
 - Errors_list:
-    - ".* ERR kernel:.*: PMBus status register not found.*"
-    - '.* ERR kernel:.*: Chip identification failed.*'
-    - '.* WARNING kernel: .* probe of 15-0061 failed with error -22.*'
+    - '.* WARNING kernel: .* probe of 5-006a failed with error -22.*'
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
-      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
-      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
-      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
     - Redmine:
-      - 3200995
-      Platform:
-        - 4600C
+      - 3278778
 
 - Errors_list:
     - ".* ERR hostcfgd: sudo systemctl enable eventd.timer - failed: return code - 1, output:#.*None.*"
