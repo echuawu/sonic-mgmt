@@ -1675,6 +1675,7 @@
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       - show_techsupport/test_auto_techsupport.py
       - show_techsupport/test_techsupport_no_secret.py
+      - show_techsupport/test_techsupport.py
 
 - Errors_list:
     - '.* ERR healthd: Get unit status determine-reboot-cause-''LoadState'''
