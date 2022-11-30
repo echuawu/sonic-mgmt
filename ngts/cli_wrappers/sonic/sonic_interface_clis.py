@@ -562,6 +562,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
         """
         invalid_fec_option = "invalid_fec_mode"
         output = self.configure_interface_fec(interface, fec_option=invalid_fec_option)
+        if re.search(r"Setting fec is not supported", output):
+            return []
         fec_options_list_string = re.search(r"fec\s+{}\s+is\s+not\s+in\s+(\[.*\])".format(invalid_fec_option), output).group(1)
         fec_options_list = ast.literal_eval(fec_options_list_string)
         return fec_options_list

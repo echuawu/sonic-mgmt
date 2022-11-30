@@ -58,8 +58,9 @@ def fec_capability_for_dut_ports(topology_obj, engines, cli_objects, interfaces,
     ports += get_tested_lb_dict_tested_ports(tested_lb_dict_for_bug_2705016_flow)
     ports += [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
     for port in ports:
-        fec_capability_for_dut_ports_dict[port] = \
-            cli_objects.dut.interface.get_interface_supported_fec_modes(port)
+        supported_fec_mode = cli_objects.dut.interface.get_interface_supported_fec_modes(port)
+        if supported_fec_mode:
+            fec_capability_for_dut_ports_dict[port] = supported_fec_mode
     logger.debug("ports fec capabilities: {}".format(fec_capability_for_dut_ports_dict))
     return fec_capability_for_dut_ports_dict
 
