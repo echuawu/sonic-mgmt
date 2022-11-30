@@ -70,6 +70,11 @@ def check_feature_status(cli_objects):
         if doroce_status:
             cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
             cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
+            # TODO: workaround for the issue https://redmine.mellanox.com/issues/2834968
+            # happens in push_gate with reload
+            # when will be fixed, must be left only reload_qos
+            cli_objects.dut.qos.clear_qos()
+            time.sleep(10)
             cli_objects.dut.qos.reload_qos()
         else:
             pytest.skip(f"{msg} Skipping the test.")
