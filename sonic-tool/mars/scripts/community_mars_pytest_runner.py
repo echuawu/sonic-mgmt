@@ -147,7 +147,13 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
-        allure_proj = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=False)
+
+        if '--allure_server_project_id' in self.raw_options:
+            allure_proj_pytest_arg = ''
+        else:
+            allure_proj = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=False)
+            allure_proj_pytest_arg = '--allure_server_project_id={}'.format(allure_proj)
+
         # If the test case contains a topology mark, add --topology parameter to the pytest raw option
         # This is to support topology variations
         sonic_mgmt_path = os.path.abspath(__file__).split('/')[0:-4]
@@ -169,7 +175,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         cmd = "py.test {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} --allure_server_project_id={ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
+               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
         cmd = cmd.format(SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
                          SONIC_TOPO=self.sonic_topo,
@@ -177,7 +183,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                          MARS_KEY_ID=self.mars_key_id,
                          REPORT_FILE=self.report_file,
                          OPTIONS=self.raw_options,
-                         ALLURE_PROJ=allure_proj)
+                         ALLURE_PROJ=allure_proj_pytest_arg)
         # Take the first epoint as just one is specified in *.setup file. Currently supported are: SONIC_MGMT or NGTS
         # Take the first player as just one is specified in *.setup file
         epoint = self.EPoints[0]
