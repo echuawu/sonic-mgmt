@@ -1744,3 +1744,11 @@
       - 3273797
       Branch:
       - master
+
+- Errors_list:
+    - '.*Bulk-Cntr PPCNT parser - unexpected local port.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py
+      Redmine:
+      - 3279709
