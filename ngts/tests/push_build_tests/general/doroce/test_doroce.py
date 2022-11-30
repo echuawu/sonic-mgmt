@@ -8,7 +8,6 @@ from retry.api import retry_call
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.iperf.iperf_runner import IperfChecker
-from ngts.common.checkers import is_feature_ready
 from ngts.common.checkers import is_feature_installed
 from ngts.constants.constants import AppExtensionInstallationConstants
 
@@ -136,7 +135,6 @@ def doroce_conf_dict(cli_objects):
 
 
 @pytest.mark.doroce
-@pytest.mark.simx_uncovered
 @pytest.mark.parametrize("configuration", BUFFER_CONFIGURATIONS)
 @allure.title('DoRoCE test case')
 def test_doroce(configuration, doroce_conf_dict, interfaces, cli_objects, players, is_simx):
