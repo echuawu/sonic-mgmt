@@ -4,7 +4,6 @@ import ipaddress
 import logging
 import ptf.testutils as testutils
 from tests.common.helpers.assertions import pytest_assert as py_assert
-from tests.common.plugins import ptfadapter
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +37,7 @@ def static_neighbor_entry(duthost, dic, oper, ip_version="both"):
             elif oper == "del":
                 logger.debug("deleting ipv6 static arp entry for ip %s on DUT" % (member['ipv6']))
                 duthost.shell("sudo ip -6 neigh del {0} lladdr {1} dev Vlan{2}".format(member['ipv6'], member['mac'],
-                                                                                    member['Vlanid']))
+                                                                                       member['Vlanid']))
             else:
                 logger.debug("unknown operation")
 
@@ -47,7 +46,7 @@ def static_neighbor_entry(duthost, dic, oper, ip_version="both"):
 
 
 @pytest.fixture(scope='module')
-def vlan_ping_setup(duthosts, rand_one_dut_hostname, nbrhosts, tbinfo):
+def vlan_ping_setup(duthosts, rand_one_dut_hostname, ptfhost, nbrhosts, tbinfo):
     """
     Setup:      Collecting vm_host_info, ptfhost_info
     Teardown:   Removing all added ipv4 and ipv6 neighbors
