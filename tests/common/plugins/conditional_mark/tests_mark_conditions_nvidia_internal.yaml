@@ -187,12 +187,6 @@ tests/push_build_tests/L2/vlan/test_vlan.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3265995 and 'simx' in platform and '202205' in release"
 
-tests/push_build_tests/L2/vxlan:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3240186"
-    conditions:
-      - https://redmine.mellanox.com/issues/3240186
-
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
     reason: "Testcase ignored due to SIMX platform "

@@ -2,6 +2,7 @@ import allure
 import pytest
 import logging
 
+from retry.api import retry_call
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 
 logger = logging.getLogger()
@@ -80,4 +81,5 @@ def test_vxlan_decap(engines, players, cli_objects, upgrade_params):
         }
         logger.info('Validate decapsulation of VXLAN traffic. '
                     'Sending 3 untagged packets from HA vxlan {} to HB bond0.{}'.format(vni, vlan))
-        ScapyChecker(players, validation).run_validation()
+        scapy_checker = ScapyChecker(players, validation)
+        retry_call(scapy_checker.run_validation, fargs=[], tries=3, delay=5, logger=logger)
