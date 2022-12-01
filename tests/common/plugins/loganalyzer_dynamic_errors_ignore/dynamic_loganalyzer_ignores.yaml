@@ -121,6 +121,20 @@
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
 
+# Vivek conclaimed these error logs are not bug(RM #3238130), he suggest adding them into common ignore list
+- Errors_list:
+    - '.*ERR dhclient\[\d+\]: Failed to get interface index: No such device.*'
+    - '.*ERR dhclient\[\d+\]: If you think you have received this message due to a bug rather.*'
+    - '.*ERR dhclient\[\d+\]: than a configuration issue please read the section on submitting.*'
+    - '.*ERR dhclient\[\d+\]: bugs on either our web page at www.isc.org or in the README file.*'
+    - '.*ERR dhclient\[\d+\]: before submitting a bug.  These pages explain the proper.*'
+    - '.*ERR dhclient\[\d+\]: process and the information we find helpful for debugging.*'
+    - '.*ERR dhclient\[\d+\]: exiting.*'
+    - '.*ERR dhclient\[\d+\]: '
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
 - Errors_list:
     - '.* ERR lldp#lldpmgrd\[\d+\]: unknown operation.*'
@@ -1325,21 +1339,6 @@
   Conditions:
     - Redmine:
       - 3166325
-
-- Errors_list:
-    - '.*ERR dhclient\[\d+\]: Failed to get interface index: No such device.*'
-    - '.*ERR dhclient\[\d+\]: If you think you have received this message due to a bug rather.*'
-    - '.*ERR dhclient\[\d+\]: than a configuration issue please read the section on submitting.*'
-    - '.*ERR dhclient\[\d+\]: bugs on either our web page at www.isc.org or in the README file.*'
-    - '.*ERR dhclient\[\d+\]: before submitting a bug.  These pages explain the proper.*'
-    - '.*ERR dhclient\[\d+\]: process and the information we find helpful for debugging.*'
-    - '.*ERR dhclient\[\d+\]: exiting.*'
-    - '.*ERR dhclient\[\d+\]: '
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
-      Redmine:
-      - 3238130
 
 - Errors_list:
     - '.* ERR hw-management: mlxreg_io is not loaded.*'
