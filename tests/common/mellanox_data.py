@@ -125,6 +125,10 @@ SWITCH_MODELS = {
             },
             "fan_ambient": {
                 "number": 1
+            },
+            "sodimm": {
+                "start": 1,
+                "number": 1
             }
         }
     },
@@ -282,6 +286,10 @@ SWITCH_MODELS = {
             },
             "fan_ambient": {
                 "number": 1
+            },
+            "sodimm": {
+                "start": 1,
+                "number": 1
             }
         }
     },
@@ -326,6 +334,10 @@ SWITCH_MODELS = {
             },
             "fan_ambient": {
                 "number": 1
+            },
+            "sodimm": {
+                "start": 1,
+                "number": 2
             }
         }
     },
@@ -369,6 +381,10 @@ SWITCH_MODELS = {
                 "number": 1
             },
             "fan_ambient": {
+                "number": 1
+            },
+            "sodimm": {
+                "start": 1,
                 "number": 1
             }
         }
