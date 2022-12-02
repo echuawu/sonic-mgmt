@@ -1221,16 +1221,6 @@
       - 2201
 
 - Errors_list:
-    - '.* ERR systemd-pstore\[\d+\]: Failed to write temporary file \/var\/lib\/systemd\/pstore\/\d+\/dmesg.txt: File exists.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
-      Redmine:
-      - 3258824
-      Branch:
-      - 202205
-
-- Errors_list:
     - '.* ERR syncd#SDK: \[MGMT_LIB\.ERR\] Slot \[\d+\] Module \[\d+\] has logport \[.*\] in enabled state.*'
     - '.* ERR syncd#SDK: \[SDK_MGMT_LIB\.ERR\] Failed in __sdk_mgmt_phy_module_pwr_attr_set, error:.*'
     - '.* ERR pmon#-c: Error occurred when setting power mode for SFP module \d+, slot \d+, error code 1.*'
