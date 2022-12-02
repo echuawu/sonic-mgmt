@@ -27,9 +27,9 @@ def generate_arp(players, interface, sender, dst_ip):
 
 @pytest.fixture(scope='package', autouse=True)
 def skipping_ecmp_calculator_test(engines):
-    ecmp_calculator_not_exist_pattern = r".*ls: cannot access '/usr/bin/ecmp_calculator/ecmp_calc.py': No such file or directory.*"
-    res = engines.dut.run_cmd("docker exec syncd bash -c 'ls /usr/bin/ecmp_calculator/ecmp_calc.py'")
-    if re.match(ecmp_calculator_not_exist_pattern, res):
+    ecmp_calculator_not_exist_pattern = r'.*Error: No such command \"ecmp-egress-port\".*'
+    res = engines.dut.run_cmd("show ip ecmp-egress-port --help")
+    if re.match(ecmp_calculator_not_exist_pattern, res, flags=re.DOTALL):
         pytest.skip("The ECMP calculator feature is missing, skipping the test case")
 
 

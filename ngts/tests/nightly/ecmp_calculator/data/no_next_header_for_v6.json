@@ -4,7 +4,7 @@
 				"ipv6": {
 					"dip": "5000::3",
 					"sip": "6000::3",
-					"proto": "6"
+					"proto": 6
 				},
 				"layer2": {
 					"ethertype": 34525,

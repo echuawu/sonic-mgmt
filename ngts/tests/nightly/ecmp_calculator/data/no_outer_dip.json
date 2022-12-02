@@ -3,7 +3,7 @@
 			"outer": {
 				"ipv4": {
 					"sip": "10.10.10.11",
-					"proto": "6"
+					"proto": 6
 				},
 				"layer2": {
 					"ethertype": 2048,

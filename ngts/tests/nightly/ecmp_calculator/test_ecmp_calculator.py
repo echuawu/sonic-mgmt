@@ -13,8 +13,8 @@ logger = logging.getLogger()
 NEGATIVE_CASE_TYPE = ["invalid_json_format", "invalid_data_type", "no_outer_dip", "invalid_ip", "invalid_mac",
                       "non_physical_ingress_port", "ipv4_ipv6_coexist", "no_proto_for_v4", "no_next_header_for_v6"]
 NEGATIVE_CASE_EXPECTED_MSG = {"invalid_json_format": r".*Value error: Failed to load JSON file.*, error: 'Extra data: line.*",
-                              "invalid_data_type": r".*Value error: Failed to load JSON file 'invalid.json', error: 'Expecting ',' delimiter:.*",
-                              "no_outer_dip": r".*Value error: Json validation failed: destination IP is mandatory.*",
+                              "invalid_data_type": r".*Value error: Json validation failed: 'tcp' is not of type 'number'.*",
+                              "no_outer_dip": r".*Value error: Json validation failed: 'dip' is a required property.*",
                               "invalid_ip": r".*Value error: Json validation failed: invalid IP.*",
                               "invalid_mac": r".*Value error: Json validation failed: invalid mac.*",
                               "non_physical_ingress_port": r".*Value error: Invalid interface.*",
@@ -251,7 +251,7 @@ class TestInterfaceVlanVrf(TestEcmpCalcBase):
             cmd = f"show ip ecmp-egress-port -p /tmp/{packet_json_file_name} -i {ingress_port} -v Vrf_ecmp"
             calc_res = self.dut_engine.run_cmd(cmd)
             if not re.match(msg_pattern, calc_res):
-                raise Exception(f"Return error is correct. The expected msg:{msg_pattern}, the actual one is {calc_res}")
+                raise Exception(f"Return error is not correct. The expected msg:{msg_pattern}, the actual one is {calc_res}")
 
 
 class TestSubInterface(TestEcmpCalcBase):
