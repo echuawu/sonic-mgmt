@@ -499,6 +499,19 @@ def clear_rif_counter(duthost):
     duthost.shell("sonic-clear rifcounters")
 
 
+def check_ip_interface_up(duthost, interfaces):
+    """
+    Check the ip interfaces are all up
+    :param duthost: DUT host object
+    :param interfaces: List of ip interfaces to check
+    """
+    output = duthost.shell("show ip interface")['stdout']
+    for interface in interfaces:
+        if not re.search("{}\\s.*up\\/up".format(interface), output):
+            return False
+    return True
+
+
 def show_loopback_action(duthost):
     """
     Get the loopback action for every rif interface

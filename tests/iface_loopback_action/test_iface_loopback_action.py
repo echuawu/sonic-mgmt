@@ -13,6 +13,7 @@ from .iface_loopback_action_helper import clear_rif_counter
 from .iface_loopback_action_helper import verify_interface_loopback_action
 from .iface_loopback_action_helper import verify_rif_tx_err_count
 from .iface_loopback_action_helper import shutdown_rif_interfaces, startup_rif_interfaces
+from .iface_loopback_action_helper import check_ip_interface_up
 from tests.common.platform.interface_utils import check_interface_status_of_up_ports
 
 
@@ -115,6 +116,9 @@ def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_c
         with allure.step("Check the looback action is configured correctly with cli command"):
             verify_interface_loopback_action(duthost, rif_interfaces, action_list)
         with allure.step("Check the loopback traffic"):
+            with allure.step("Check all ip interfaces are up"):
+                pytest_assert(wait_until(20, 5, 0, check_ip_interface_up, duthost, rif_interfaces),
+                              "Not all ip interfaces are up.")
             with allure.step("Clear the rif counter"):
                 clear_rif_counter(duthost)
             with allure.step("Check the traffic can be received or dropped as expected"):
