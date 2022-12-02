@@ -29,7 +29,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         allure_project = get_allure_project_id(self.setup_name, self.test_script)
-        cmd_template = '/ngts_venv/bin/pytest --setup_name={}  --session_id={} --mars_key_id={} {} --allure_server_project_id={} {} --dynamic_update_skip_reason'
+        cmd_template = '/ngts_venv/bin/pytest --setup_name={}  --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
         cmd = cmd_template.format(self.setup_name, self.session_id, self.mars_key_id,
                                   self.raw_options, allure_project, self.test_script)
 

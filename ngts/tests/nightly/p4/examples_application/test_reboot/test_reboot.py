@@ -44,6 +44,7 @@ def do_func_validations(request):
     test_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     pytest_args_list[-1] = test_path
     pytest_run_cmd = prepare_pytest_args(pytest_args_list)
+    logger.info('pytest_run_cmd: {}'.format(pytest_run_cmd))
     out, err, rc = run_process_on_host(pytest_run_cmd, timeout=1800)
     generate_report(out, err)
     if rc:
