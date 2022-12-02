@@ -613,14 +613,6 @@
         - simx
 
 - Errors_list:
-    - '.* ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
-  Conditions:
-    - Redmine:
-      - 3235037
-      Platform:
-        - simx
-
-- Errors_list:
     - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_get_port_stats_ext: Failed to allocate SDK buffer.*'
   Conditions:
     - Redmine:
@@ -631,9 +623,10 @@
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- .* Bulk read event status is not OK.*'
     - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- .* Failed to prepare bulk counter for port stats.'
+    - '.*ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
   Conditions:
     - Redmine:
-      - 3267855
+      - 3154876
       Platform:
         - simx
 
