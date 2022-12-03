@@ -136,19 +136,30 @@ class TestRouting:
         Validate that all expected(2 static and default via 2 BGP peers) routes available on DUT
         :param parsed_ip_route_output: parsed show ip route output
         """
+        def get_next_hops(routes):
+            next_hops = {'intf': [], 'ip': []}
+            for route in routes:
+                for next_hop in route['nexthops']:
+                    next_hops['intf'].append(next_hop['interfaceName'])
+                    next_hops['ip'].append(next_hop['ip'])
+            return next_hops
+
+        default_route_next_hops = get_next_hops(parsed_ip_route_output[self.default_route])
         for iface in [self.interfaces.dut_ha_1, self.interfaces.dut_hb_1]:
-            assert iface in parsed_ip_route_output[self.default_route]['interfaces'], \
-                f'Interface: {iface} are not used for default route'
+            assert iface in default_route_next_hops['intf'], f'Interface: {iface} are not used for default route'
         for nh in [self.ha_dut_1_ip, self.hb_dut_1_ip]:
-            assert nh in parsed_ip_route_output[self.default_route]['next_hops'], \
-                'Next hop {nh} are not used for default route'
-        assert [self.ha_dut_1_ip] == parsed_ip_route_output[self.static_route_24]['next_hops'], \
+            assert nh in default_route_next_hops['ip'], 'Next hop {nh} are not used for default route'
+
+        static_route_24_next_hops = get_next_hops(parsed_ip_route_output[self.static_route_24])
+        assert [self.ha_dut_1_ip] == static_route_24_next_hops['ip'], \
             f'Next hop for static route {self.static_route_24} incorrect or not available'
-        assert [self.interfaces.dut_ha_1] == parsed_ip_route_output[self.static_route_24]['interfaces'], \
+        assert [self.interfaces.dut_ha_1] == static_route_24_next_hops['intf'], \
             f'Next hop interface for static route {self.static_route_24} incorrect or not available'
-        assert [self.hb_dut_1_ip] == parsed_ip_route_output[self.static_route_32]['next_hops'], \
+
+        static_route_32_next_hops = get_next_hops(parsed_ip_route_output[self.static_route_32])
+        assert [self.hb_dut_1_ip] == static_route_32_next_hops['ip'], \
             f'Next hop for static route {self.static_route_32} incorrect or not available'
-        assert [self.interfaces.dut_hb_1] == parsed_ip_route_output[self.static_route_32]['interfaces'], \
+        assert [self.interfaces.dut_hb_1] == static_route_32_next_hops['intf'], \
             f'Next hop interface for static route {self.static_route_32} incorrect or not available'
 
     def validate_default_route(self, show_ip_route_output_default):
@@ -296,7 +307,8 @@ class TestRouting:
             self.validate_ip_bgp_neighbor(show_ip_bgp_neighbor_output)
 
         with allure.step('Validate "show ip route"'):
-            parsed_ip_route_output = self.dut_cli.route.parse_show_ip_route(self.dut_cli.route.show_ip_route())
+            parsed_ip_route_output = self.dut_cli.route.show_ip_route(is_json=True)
+
             self.validate_routes_on_dut(parsed_ip_route_output)
 
         with allure.step('Validate "show ip route 0.0.0.0/0"'):
@@ -381,7 +393,7 @@ class TestRouting:
             self.validate_loopback_reachable_from_hosts()
 
         with allure.step('Checking routes on DUT'):
-            parsed_ip_route_output = self.dut_cli.route.parse_show_ip_route(self.dut_cli.route.show_ip_route())
+            parsed_ip_route_output = self.dut_cli.route.show_ip_route(is_json=True)
             self.validate_routes_on_dut(parsed_ip_route_output)
 
         # TODO: uncomment validation once will get response from developers(or DPU will support BGP)

@@ -56,7 +56,7 @@ class SonicRouteCli(RouteCliCommon):
         """
         self.add_del_route('del', dst, via, dst_mask, vrf)
 
-    def show_ip_route(self, route_type=None, ipv6=False, route=None, vrf=None):
+    def show_ip_route(self, route_type=None, ipv6=False, route=None, vrf=None, is_json=False):
         """
         This method gets IP routes from device
         :param route_type: route type(example: static, bgp)
@@ -75,7 +75,9 @@ class SonicRouteCli(RouteCliCommon):
             cmd += route_type
         if route:
             cmd += route
-
+        if is_json:
+            cmd += ' json'
+            return json.loads(self.engine.run_cmd(cmd))
         return self.engine.run_cmd(cmd)
 
     @staticmethod
