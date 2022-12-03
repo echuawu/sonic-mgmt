@@ -3,7 +3,7 @@ import pytest
 import allure
 
 from tests.common.plugins.loganalyzer.loganalyzer import DisableLogrotateCronContext
-from tests.common  import config_reload
+from tests.common import config_reload
 
 logger = logging.getLogger(__name__)
 
@@ -53,30 +53,32 @@ def simulate_small_var_log_partition(rand_selected_dut, localhost):
     :param rand_selected_dut: The fixture returns a randomly selected DUT
     """
     duthost = rand_selected_dut
-    logger.info('Create a small var log partition with size of {}'.format(SMALL_VAR_LOG_PARTITION_SIZE))
-    duthost.shell('sudo fallocate -l {} log-new-partition'.format(SMALL_VAR_LOG_PARTITION_SIZE))
-    duthost.shell('sudo losetup -P  /dev/loop2 log-new-partition')
-    duthost.shell('sudo mkfs.ext4 /dev/loop2')
-    duthost.shell('sudo mount /dev/loop2 /var/log')
+    with allure.step('Create a small var log partition with size of {}'.format(SMALL_VAR_LOG_PARTITION_SIZE)):
+        logger.info('Create a small var log partition with size of {}'.format(SMALL_VAR_LOG_PARTITION_SIZE))
+        duthost.shell('sudo fallocate -l {} log-new-partition'.format(SMALL_VAR_LOG_PARTITION_SIZE))
+        duthost.shell('sudo losetup -P  /dev/loop2 log-new-partition')
+        duthost.shell('sudo mkfs.ext4 /dev/loop2')
+        duthost.shell('sudo mount /dev/loop2 /var/log')
 
-    config_reload(duthost, safe_reload=True)
+        config_reload(duthost, safe_reload=True)
 
-    logger.info('Start logrotate-config service')
-    duthost.shell('sudo service logrotate-config start')
+        logger.info('Start logrotate-config service')
+        duthost.shell('sudo service logrotate-config start')
 
     yield
 
-    logger.info('Umount and unload the small var log partition')
-    duthost.shell('sudo umount -l /dev/loop2')
-    duthost.shell('sudo losetup -d /dev/loop2')
+    with allure.step('Recovery var log'):
+        logger.info('Umount and unload the small var log partition')
+        duthost.shell('sudo umount -l /dev/loop2')
+        duthost.shell('sudo losetup -d /dev/loop2')
 
-    logger.info('Remove the small var log partition')
-    duthost.shell('sudo rm -f log-new-partition')
+        logger.info('Remove the small var log partition')
+        duthost.shell('sudo rm -f log-new-partition')
 
-    config_reload(duthost, safe_reload=True)
+        config_reload(duthost, safe_reload=True)
 
-    logger.info('Restart logrotate-config service')
-    duthost.shell('sudo service logrotate-config restart')
+        logger.info('Restart logrotate-config service')
+        duthost.shell('sudo service logrotate-config restart')
 
 
 def get_var_log_size(duthost):
@@ -96,7 +98,7 @@ def get_syslog_file_count(duthost):
     :return: file number value
     """
     logger.info('Check rotated syslog file number')
-    num = duthost.shell('sudo ls -l /var/log | grep -E "syslog\\.[0-9]{1,4}[\\.gz]{0,1}" | wc -l')['stdout']
+    num = duthost.shell('sudo ls -l /var/log | grep -Ec "syslog\\.[0-9]{1,4}[\\.gz]{0,1}"')['stdout']
     logger.debug('There are {} rotated syslog files'.format(num))
     return int(num)
 
@@ -105,7 +107,7 @@ def create_temp_syslog_file(duthost, size):
     """
     Create a temp syslog file with specific size and
     :param duthost: DUT host object
-    :param size: file size in MB or KB
+    :param size: file size with unit, such as 16M or 1024K, the unit could be M or K
     """
     logger.info('Create a temp syslog file as {}'.format(size))
     duthost.shell('sudo fallocate -l {} /var/log/syslog'.format(size))
@@ -146,7 +148,8 @@ def validate_logrotate_function(duthost, logrotate_threshold):
     with allure.step('Run logrotate with force option to prepare clean syslog environment'):
         run_logrotate(duthost, force=True)
 
-    with allure.step('There should be no logrotate process when rsyslog size is smaller than threshold {}'.format(logrotate_threshold)):
+    with allure.step('There should be no logrotate process when rsyslog size is smaller than threshold {}'.format(
+            logrotate_threshold)):
         syslog_number_origin = get_syslog_file_count(duthost)
         logger.info('There are {} syslog gz files'.format(syslog_number_origin))
         create_temp_syslog_file(duthost, multiply_with_unit(logrotate_threshold, 0.9))
@@ -156,7 +159,8 @@ def validate_logrotate_function(duthost, logrotate_threshold):
         assert syslog_number_origin == syslog_number_no_rotate, \
             'Unexpected logrotate happens, there should be no logrotate executed'
 
-    with allure.step('There will be logrotate process when rsyslog size is larger than threshold {}'.format(logrotate_threshold)):
+    with allure.step('There will be logrotate process when rsyslog size is larger than threshold {}'.format(
+            logrotate_threshold)):
         create_temp_syslog_file(duthost, multiply_with_unit(logrotate_threshold, 1.1))
         run_logrotate(duthost)
         syslog_number_with_rotate = get_syslog_file_count(duthost)

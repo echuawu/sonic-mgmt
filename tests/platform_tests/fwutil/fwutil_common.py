@@ -57,7 +57,7 @@ def power_cycle(duthost=None, pdu_ctrl=None, delay_time=60):
 
 
 def reboot(duthost, pdu_ctrl, reboot_type, pdu_delay=60):
-    if reboot_type == POWER_CYCLE: 
+    if reboot_type == POWER_CYCLE:
         power_cycle(duthost, pdu_ctrl, pdu_delay)
         return
 
@@ -79,7 +79,7 @@ def complete_install(duthost, localhost, boot_type, res, pdu_ctrl, auto_reboot=F
             logger.info("Rebooting switch using {} boot".format(boot_type))
             duthost.command("sonic-installer set-default {}".format(current))
             reboot(duthost, pdu_ctrl, boot_type, pdu_delay)
-        
+
         logger.info("Waiting on switch to shutdown...")
         # Wait for ssh flap
         localhost.wait_for(host=hn, port=22, state='stopped', delay=1, timeout=timeout)
@@ -135,7 +135,7 @@ def show_firmware(duthost):
 def get_install_paths(duthost, defined_fw, versions, chassis, target_component):
     component = get_defined_components(duthost, defined_fw, chassis)
     ver = versions["chassis"].get(chassis, {})["component"]
-    
+
     paths = {}
 
     if target_component is not None:
@@ -164,11 +164,12 @@ def get_install_paths(duthost, defined_fw, versions, chassis, target_component):
 
 def get_defined_components(duthost, defined_fw, chassis):
     """
-    Update the component content if there is definition for the specific host.
-    Sometimes, if there is some host has specific component, they can have this defined in the firmware.json file
+    Update the component content, in case there is a pre-definition for a specific host.
+    Sometimes, if there is some DUTs has specific component(for example a respined board which requires
+    a different CPLD) - it can be defined in the firmware.json file
     """
     component = defined_fw["chassis"].get(chassis, {})["component"]
-    if duthost.hostname in defined_fw["host"]:
+    if "host" in defined_fw and duthost.hostname in defined_fw["host"]:
         for component_type in defined_fw["host"][duthost.hostname]["component"].keys():
             component[component_type] = defined_fw["host"][duthost.hostname]["component"][component_type]
     return component
