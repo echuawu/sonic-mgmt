@@ -5,6 +5,7 @@ from .Link import Link
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from .nvos_consts import InternalNvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from .SignalDegrade import SignalDegrade
 import time
 import logging
 import allure
@@ -18,6 +19,7 @@ class IbInterface:
     type = None
     pluggable = None
     link = None
+    signal_degrade = None
 
     def __init__(self, port_obj):
         self.port_obj = port_obj
@@ -25,6 +27,7 @@ class IbInterface:
         self.type = Type(self.port_obj)
         self.pluggable = Pluggable(self.port_obj)
         self.link = Link(self.port_obj)
+        self.signal_degrade = SignalDegrade(port_obj=self.port_obj)
 
     def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(

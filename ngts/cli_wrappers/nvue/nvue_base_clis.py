@@ -12,6 +12,7 @@ class NvueBaseCli:
         path = resource_path.replace('/', ' ')
         cmd = "nv show {path} {params} --output {output_format}".\
             format(output_format=output_format, path=path, params=op_param)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -20,6 +21,7 @@ class NvueBaseCli:
         path = resource_path.replace('/', ' ')
         cmd = "nv set {path} {param_name} {param_value}".\
             format(path=path, param_name=op_param_name, param_value=op_param_value)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -28,5 +30,6 @@ class NvueBaseCli:
         path = resource_path.replace('/', ' ')
         cmd = "nv unset {path} {params}".\
             format(path=path, params=op_param)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)

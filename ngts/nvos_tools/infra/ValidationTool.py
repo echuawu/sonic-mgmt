@@ -230,3 +230,9 @@ class ValidationTool:
                     info += "the value of {} is not equal in both dictionaries\n".format(key)
 
             return ResultObj(not info, info)
+
+    @staticmethod
+    def verify_sub_strings_in_str_output(str_output, req_fields):
+        if any(field not in str_output for field in req_fields):
+            return ResultObj(False, "Not all required fields were found")
+        return ResultObj(True)

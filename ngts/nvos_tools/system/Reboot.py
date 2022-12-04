@@ -19,7 +19,7 @@ class Reboot(BaseComponent):
     def get_expected_fields(self, device):
         return device.constants.system['reboot']
 
-    def action_reboot(self, engine, params=""):
+    def action_reboot(self, engine=None, params=""):
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             if not engine:
                 engine = TestToolkit.engines.dut

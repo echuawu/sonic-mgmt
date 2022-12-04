@@ -64,3 +64,18 @@ class OpenApiIbInterfaceCli:
                                                    '/interface{interface_id}{resource_path}'.format(
                                                        interface_id="/" + port_name if port_name else '',
                                                        resource_path="/" + resource_path if resource_path else ''))
+
+    @staticmethod
+    def action_recover(engine, port_name, comp):
+        return OpenApiCommandHelper.execute_action("recover", engine.engine.username, engine.engine.password,
+                                                   engine.ip, '/interface{interface_id}{resource_path}'.format(
+                                                       interface_id="/" + port_name if port_name else '',
+                                                       resource_path="/" + comp))
+
+    @staticmethod
+    def show_interface_signal_degrade(engine, port_name, output_format=OutputFormat.json):
+        return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, OpenApiReqType.GET,
+                                                   engine.ip,
+                                                   '/interface{interface_id}{resource_path}'.format(
+                                                       interface_id="/" + port_name if port_name else '',
+                                                       resource_path="/" + resource_path if resource_path else ''))

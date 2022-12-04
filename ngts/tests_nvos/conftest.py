@@ -24,6 +24,8 @@ def pytest_addoption(parser):
     logger.info('Parsing NVOS pytest options')
     parser.addoption('--release_name', action='store',
                      help='The name of the release to be tested. For example: 25.01.0630')
+    parser.addoption('--mst_device', action='store',
+                     help='The name of the mst device. For example: /dev/mst/mt4123_pciconf0')
 
 
 @pytest.fixture(scope='session')
@@ -34,6 +36,8 @@ def engines(topology_obj):
         engines_data.ha = topology_obj.players['ha']['engine']
     if "hb" in topology_obj.players:
         engines_data.hb = topology_obj.players['hb']['engine']
+    if "server" in topology_obj.players:
+        engines_data.server = topology_obj.players['server']['engine']
 
     TestToolkit.update_engines(engines_data)
     return engines_data
@@ -60,6 +64,11 @@ def release_name(request):
     :return: release_name
     """
     return request.config.getoption('--release_name')
+
+
+@pytest.fixture(scope="session")
+def mst_device(request):
+    return request.config.getoption('--mst_device')
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -119,11 +128,7 @@ def traffic_ports(request):
 
 def clear_config():
     try:
-        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
-        NvueSystemCli.unset(TestToolkit.engines.dut, 'system')
-        NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
-        NvueSystemCli.unset(TestToolkit.engines.dut, 'ib')
-        NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+        NvueGeneralCli.apply_empty_config(TestToolkit.engines.dut)
     except Exception as err:
         logging.warning("Failed to detach config:" + str(err))
 

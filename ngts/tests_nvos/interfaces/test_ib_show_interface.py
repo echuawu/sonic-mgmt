@@ -6,6 +6,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
+from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 
 logger = logging.getLogger()
 
@@ -146,6 +147,18 @@ def test_ib_show_interface_name_link(engines):
             selected_port.ib_interface.link.show_interface_link()).get_returned_value()
 
         validate_link_fields(selected_port, output_dictionary)
+
+    with allure.step("Verify output of link state"):
+        with allure.step("Verify json output"):
+            json_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                selected_port.ib_interface.link.state.show_interface_link_state()).get_returned_value()
+            assert "up" in json_output.keys() or "down" in json_output.keys(), "up/down state was not found"
+        '''with allure.step("Verify string outoput"):
+            str_output = selected_port.ib_interface.link.state.show_interface_link_state(
+                output_format=OutputFormat.auto)
+            req_fields = ["operational", "applied", "description"]
+            Tools.ValidationTool.verify_sub_strings_in_str_output(str_output, req_fields).verify_result()
+            assert "up" in str_output or "down" in str_output, "up/down state was not found"'''
 
 
 @pytest.mark.ib_interfaces

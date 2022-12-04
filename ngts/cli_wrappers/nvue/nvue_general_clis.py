@@ -51,7 +51,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         pass
 
     def show_version(self, validate=False):
-        return self.engine.run_cmd('show version')
+        return self.engine.run_cmd('nv show system version')
 
     @staticmethod
     def diff_config(engine, revision_1='', revision_2='', output_type='json'):
@@ -121,6 +121,12 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def detach_config(engine):
         logging.info("Running 'nv config detach' on dut")
         output = engine.run_cmd('nv config detach')
+        return output
+
+    @staticmethod
+    def apply_empty_config(engine):
+        logging.info("Running 'nv config apply empty' on dut")
+        output = engine.run_cmd('nv config apply empty')
         return output
 
     @staticmethod

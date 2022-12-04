@@ -268,3 +268,10 @@ class IbConsts:
     SM_SL = 'sm-sl'
     PRIO_SL_DEFAULT_VALUE = '0'
     FILES = 'files'
+    SIGNAL_DEGRADE_STATE = "state"
+    SIGNAL_DEGRADE_ACTION = "action"
+    SIGNAL_DEGRADE_STATE_ENABLED = "enabled"
+    SIGNAL_DEGRADE_STATE_DISABLED = "disabled"
+    SIGNAL_DEGRADE_ACTION_SHUTDOWN = "shutdown"
+    SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN = "no-shutdown"
+    SIGNAL_DEGRADE = "signal-degrade"

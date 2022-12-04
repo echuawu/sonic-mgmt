@@ -172,7 +172,6 @@ class State(LinkBaseOperational):
                                          level1=IbInterfaceConsts.LINK,
                                          level2=IbInterfaceConsts.LINK_STATE))
 
-    @operation_wrapper
     def show_interface_link_state(self, dut_engine=None, output_format=OutputFormat.json):
         """
         Executes show interface
@@ -183,7 +182,7 @@ class State(LinkBaseOperational):
                 dut_engine = TestToolkit.engines.dut
 
             return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
-                                                   dut_engine, TestToolkit.tested_ports, self.output_hierarchy,
+                                                   dut_engine, self.port_obj.name, self.output_hierarchy,
                                                    output_format).get_returned_value()
 
     def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
@@ -191,13 +190,13 @@ class State(LinkBaseOperational):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
-            value_to_use = value
-            field_name_to_use = self.label
             if TestToolkit.tested_api == ApiType.OPENAPI:
-                value_to_use = {}
-                field_name_to_use = value
-
-            return CmdBase.set_interface(engine=dut_engine, field_name=field_name_to_use,
-                                         output_hierarchy=self.output_hierarchy,
-                                         value=value_to_use, apply=apply, port_obj=self.port_obj,
-                                         ask_for_confirmation=ask_for_confirmation)
+                return CmdBase.set_interface(engine=dut_engine, field_name=value,
+                                             output_hierarchy="link",
+                                             value={}, apply=apply, port_obj=self.port_obj,
+                                             ask_for_confirmation=ask_for_confirmation)
+            else:
+                return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
+                                             output_hierarchy="link",
+                                             value=value, apply=apply, port_obj=self.port_obj,
+                                             ask_for_confirmation=ask_for_confirmation)

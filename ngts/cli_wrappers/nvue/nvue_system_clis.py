@@ -15,6 +15,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action {action_type} system {action_component} {param}".format(action_type=action_str,
                                                                                  action_component=action_component_str,
                                                                                  param=op_param)
+        cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -22,6 +23,7 @@ class NvueSystemCli(NvueBaseCli):
     def action_firmware_install(engine, action_component_str, op_param=""):
         cmd = "nv action install system {action_component} {param}".format(action_component=action_component_str,
                                                                            param=op_param)
+        cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -29,6 +31,7 @@ class NvueSystemCli(NvueBaseCli):
     def action_generate_techsupport(engine, resource_path, option="", time=""):
         path = resource_path.replace('/', ' ')
         cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -39,6 +42,7 @@ class NvueSystemCli(NvueBaseCli):
         """
         path = resource_path.replace('/', ' ')
         cmd = "nv action reboot {path} {op_param}".format(path=path, op_param=op_param)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.reload(cmd)
 
@@ -90,17 +94,20 @@ class NvueSystemCli(NvueBaseCli):
     def action_upload(engine, action_component_str="", file_name="", path=""):
         cmd = "nv action upload system {type} files {file} {path}".format(type=action_component_str, file=file_name,
                                                                           path=path)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
     @staticmethod
     def action_delete(engine, action_component_str="", file=""):
         cmd = "nv action delete system {type} files {file}".format(type=action_component_str, file=file)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
     @staticmethod
     def action_disconnect(engine, path):
         cmd = "nv action disconnect {path}".format(path=path)
+        cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)

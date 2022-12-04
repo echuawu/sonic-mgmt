@@ -40,7 +40,7 @@ def test_checklist_ipv6(engines):
             logging.info("Verify ssh connection using ipv6 address " + ipv6_add)
             _check_ssh_connection(ipv6_add, engines.dut.username, engines.dut.password)
 
-        '''with allure.step("Verify OpenApi command using ipv6 address "+ ipv6_add):
+        '''with allure.step("Verify OpenApi command using ipv6 address " + ipv6_add):
             logging.info("Verify OpenApi command using ipv6 address " + ipv6_add)
             _send_open_api_request(ipv6_add, engines.dut.username, engines.dut.password)'''
 
@@ -87,10 +87,10 @@ def _check_ssh_connection(ipv6_add, username, password):
 
 def _send_open_api_request(ipv6_add, username, password):
     try:
-        full_ip6_add = '[{}%eth0]'.format(ipv6_add)
+        full_ip6_add = '[{}]'.format(ipv6_add)
         logging.info("using full address: " + full_ip6_add)
         output = OpenApiCommandHelper.execute_script(username, password, OpenApiReqType.GET,
-                                                     full_ip6_add, "platform", "", "")
+                                                     full_ip6_add, "/system/version", "", "")
         logging.info(output)
     except BaseException as ex:
         logging.error(str(ex))
