@@ -31,6 +31,7 @@ class NvueSystemCli(NvueBaseCli):
     def action_install(engine, action_component_str, file=""):
         cmd = "nv action install system {action_component} files {file}".format(action_component=action_component_str,
                                                                                 file=file)
+
         logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 

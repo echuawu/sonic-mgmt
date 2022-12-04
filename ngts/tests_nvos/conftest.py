@@ -39,10 +39,6 @@ def engines(topology_obj):
         engines_data.hb = topology_obj.players['hb']['engine']
     if "server" in topology_obj.players:
         engines_data.server = topology_obj.players['server']['engine']
-    # server : if simx setup - the physical server that runs the simx containers ,
-    #           else - the physical server that runs the 'ha'/'hb' traffic containers
-    if "server" in topology_obj.players:
-        engines_data.server = topology_obj.players['server']['engine']
     if "sonic-mgmt" in topology_obj.players:
         engines_data.sonic_mgmt = topology_obj.players['sonic-mgmt']['engine']
 

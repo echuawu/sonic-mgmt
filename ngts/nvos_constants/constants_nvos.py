@@ -286,3 +286,4 @@ class ImageConsts:
     CURRENT_IMG = 'current'
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
+
