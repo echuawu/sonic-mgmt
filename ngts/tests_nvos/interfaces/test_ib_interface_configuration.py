@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib_interfaces
-def test_ib_interface_mtu(engines, players, interfaces):
+def test_ib_interface_mtu(engines, players, interfaces, start_sm):
     """
     Configure port mtu and verify the configuration applied successfully
     Relevant cli commands:
@@ -76,7 +76,7 @@ def test_ib_interface_mtu(engines, players, interfaces):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_interface_speed(engines, players, interfaces, devices):
+def test_ib_interface_speed(engines, players, interfaces, devices, start_sm):
     """
     Configure interface speed and verify the configuration applied successfully
     Relevant cli commands:
@@ -155,7 +155,7 @@ def test_ib_interface_speed(engines, players, interfaces, devices):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_interface_speed_invalid(engines, devices):
+def test_ib_interface_speed_invalid(engines, devices, start_sm):
     """
     Try to set an invalid speed and make sure the config apply fails
     """
@@ -182,7 +182,7 @@ def test_ib_interface_speed_invalid(engines, devices):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_interface_lanes(engines, players, interfaces, devices):
+def test_ib_interface_lanes(engines, players, interfaces, devices, start_sm):
     """
     Configure port lanes and verify the configuration applied successfully
     Relevant cli commands:
@@ -256,7 +256,7 @@ def test_ib_interface_lanes(engines, players, interfaces, devices):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_interface_vls(engines, players, interfaces):
+def test_ib_interface_vls(engines, players, interfaces, start_sm):
     """
     Configure port vls and verify the configuration applied successfully
     Relevant cli commands:

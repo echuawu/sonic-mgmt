@@ -8,7 +8,7 @@ logger = logging.getLogger()
 
 @pytest.mark.nvos_ci
 @pytest.mark.general
-def test_basic_traffic(players, interfaces):
+def test_basic_traffic(players, interfaces, start_sm):
     """
     Basic traffic test
     """

@@ -10,6 +10,7 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from dotted_dict import DottedDict
 
 logger = logging.getLogger()
@@ -44,6 +45,11 @@ def devices(topology_obj):
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
     devices_date.dut = DeviceFactory.create_device(dut_name)
     return devices_date
+
+
+@pytest.fixture
+def start_sm(engines):
+    OpenSmTool.start_open_sm(engines.dut)
 
 
 @pytest.fixture(scope="session")
