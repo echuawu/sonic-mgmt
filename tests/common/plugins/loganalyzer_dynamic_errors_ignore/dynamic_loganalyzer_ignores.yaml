@@ -213,6 +213,19 @@
       - simx
 
 - Errors_list:
+    - '.*ERR syncd#SDK: \[FLOW_COUNTER.ERR\] spectrum_flow_counter_get: spectrum_flow_counter_lock failed.*'
+    - '.*ERR syncd#SDK: \[FLOW_COUNTER.ERR\] spectrum_flow_counter_lock: cm_lock failed.*'
+    - '.*ERR syncd#SDK: \[GBIN_ALLOCATOR.ERR\] LID \d+ doesn''t exist!.*'
+    - '.*ERR syncd#SDK: \[SAI_ACL.ERR\] mlnx_sai_acl.c\[\d+\]- mlnx_acl_counter_get:.* Failure to get counter in SDK.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- .*Failed getting attrib SAI_ACL_COUNTER_ATTR_BYTES.*'
+
+  Conditions:
+    - Redmine:
+      - 3285631
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file.*'
     - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\].*dump .*failed.*'
   Conditions:
