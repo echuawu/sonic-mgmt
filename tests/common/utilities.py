@@ -512,6 +512,7 @@ def compose_dict_from_cli(str_output):
     Returns:
         dict: dict object containing the field, key pairs of the database table content
     """
+    str_output = str_output.replace('\x00', '')
     return literal_eval(str_output)
 
 
