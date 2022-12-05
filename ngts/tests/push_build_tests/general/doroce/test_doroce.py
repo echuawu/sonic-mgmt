@@ -186,7 +186,8 @@ def do_doroce_test(conf, pools, doroce_conf_dict, interfaces, cli_objects, playe
     cli_objects.dut.doroce.check_buffer_configurations(pools)
     run_ping(players)
 
-    validate_iperf_traffic(cli_objects, interfaces, players, is_simx, ROCE_PG)
+    retry_call(validate_iperf_traffic, fargs=[cli_objects, interfaces, players, is_simx, ROCE_PG],
+               tries=2, delay=5, logger=logger)
     validate_negative_config(doroce_configuration_method)
 
 
@@ -240,4 +241,5 @@ def check_no_roce_configurations(cli_objects, interfaces, players, is_simx, hwsk
     with allure.step('Check no RoCE configurations'):
         cli_objects.dut.doroce.check_buffer_configurations(hwsku=hwsku)
         run_ping(players)
-        validate_iperf_traffic(cli_objects, interfaces, players, is_simx)
+        retry_call(validate_iperf_traffic, fargs=[cli_objects, interfaces, players, is_simx],
+                   tries=2, delay=5, logger=logger)
