@@ -3,7 +3,7 @@
 #############################Notice here ##############################################
 #############For weekend scenario,  Friday_Community_Regression_Set_1 #################
 #############and Friday_Community_Regression_Set_2, need to update ####################
-#############the value of skip_weekend_cases from 'no' to 'yes' #######################
+#############the value of skip_weekend_cases from 'yes' to 'no' #######################
 #######################################################################################
 ++++++++++++++++++++++++++++++++Community_Regression_Set_1 start+++++++++++++++++++++++
 ################################general config#########################################
@@ -46,6 +46,7 @@
   "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
   "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate.db'}]"
 }
 +++++++++++++++++++++++++++++++ canonical_partial_regression_side_branch_1 ++++++++++++
@@ -54,6 +55,7 @@
   "base_version": "/auto/sw_system_release/sonic/side_branch_1_verification_pointer.bin",
   "custom_tarball_name": "side_branch_1_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate.db'}]"
 }
 +++++++++++++++++ canonical_partial_regression_side_branch_2_US_team_setups +++++++++++
@@ -62,6 +64,7 @@
   "base_version": "/auto/sw_system_release/sonic/side_branch_2_verification_pointer.bin",
   "custom_tarball_name": "side_branch_2_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate.db'}]"
 }
 ***************************************************************************************

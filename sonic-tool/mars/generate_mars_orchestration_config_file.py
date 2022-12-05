@@ -148,6 +148,17 @@ canonical_develop_dbs = [
     'canonical/pretest.db',
     'platform.db',
     'canonical/nightly.db',
+    'canonical/push_gate_without_reboot.db',
+    'dynamic_buffer.db',
+    'techsupport_any_topo.db',
+    'platform_fwutil.db'
+
+]
+
+canonical_upgrade_develop_dbs = [
+    'canonical/pretest.db',
+    'platform.db',
+    'canonical/nightly.db',
     'canonical/push_gate_with_upgrade.db',
     'dynamic_buffer.db',
     'techsupport_any_topo.db',
@@ -177,9 +188,9 @@ community_keys = ["additional_apps", "custom_tarball_name", "base_version", "rpc
                   "skip_weekend_cases", "execution_block_generator"]
 
 canonical_keys = ["additional_apps", "base_version", "custom_tarball_name", "send_takeover_notification",
-                  "execution_block_generator"]
+                  "skip_weekend_cases", "execution_block_generator"]
 canonical_upgrade_keys = ["additional_apps", "base_version", "target_version", "custom_tarball_name",
-                          "send_takeover_notification", "execution_block_generator"]
+                          "send_takeover_notification", "skip_weekend_cases","execution_block_generator"]
 
 
 def print_configs(f, config_key_list, config_dict):
@@ -211,16 +222,18 @@ def gen_community_config(dbs):
     return community_config
 
 
-def gen_canonical_config(mars_branch, dbs, upgrade):
+def gen_canonical_config(mars_branch, dbs, upgrade, is_weekend):
+    skip_weekend_cases = "no" if is_weekend else "yes"
     caonical_config = {
         "additional_apps": f"/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/{mars_branch}_app_verification_pointer",
         "base_version": f"/auto/sw_system_release/sonic/{mars_branch}_verification_pointer.bin",
         "custom_tarball_name": f"{mars_branch}_verification_pointer.db.1.tgz",
         "send_takeover_notification": "yes",
+        "skip_weekend_cases": skip_weekend_cases,
         "execution_block_generator": ""
     }
 
-    base_version_for_upgrade = "/auto/sw_system_release/sonic/202012/202012_7/sonic-mellanox.bin"
+    base_version_for_upgrade = "/auto/sw_system_release/sonic/202012/202012_9/sonic-mellanox.bin"
     if upgrade:
         caonical_config["target_version"] = caonical_config["base_version"]
         caonical_config["base_version"] = base_version_for_upgrade
@@ -244,8 +257,8 @@ def print_community_configs(f, dbs):
         print_configs(f, community_keys, mars_config_dict)
 
 
-def print_cononical_configs(f, mars_branch, dbs, upgrade):
-    mars_config_dict = gen_canonical_config(mars_branch, dbs, upgrade)
+def print_cononical_configs(f, mars_branch, dbs, upgrade, is_weekend):
+    mars_config_dict = gen_canonical_config(mars_branch, dbs, upgrade, is_weekend)
     if upgrade:
         print_configs(f, canonical_upgrade_keys, mars_config_dict)
     else:
@@ -278,7 +291,7 @@ def print_mars_configs(branch):
         f.write("#############################Notice here ##############################################\n")
         f.write("#############For weekend scenario,  Friday_Community_Regression_Set_1 #################\n")
         f.write("#############and Friday_Community_Regression_Set_2, need to update ####################\n")
-        f.write("#############the value of skip_weekend_cases from 'no' to 'yes' #######################\n")
+        f.write("#############the value of skip_weekend_cases from 'yes' to 'no' #######################\n")
         f.write("#######################################################################################\n")
         f.write("++++++++++++++++++++++++++++++++Community_Regression_Set_1 start+++++++++++++++++++++++\n")
         f.write("################################general config#########################################\n")
@@ -303,17 +316,29 @@ def print_mars_configs(branch):
         f.write("\n\n")
         f.write("*******************************Canonical***********************************************\n")
         canonical_dbs = eval(f"canonical_{branch}_dbs")
+        try:
+            canonical_upgrade_dbs = eval(f"canonical_upgrade_{branch}_dbs")
+        except Exception:
+            canonical_upgrade_dbs = canonical_dbs
+
         f.write("++++++++++++++++++++++++++++++++ canonical_full_regression_main_branch ++++++++++++++++\n")
-        print_cononical_configs(f, "main_branch", canonical_dbs, False)
+        print_cononical_configs(f, "main_branch", canonical_dbs, False, False)
         if branch != "201911":
             f.write("########## canonical_full_regression_main_branch, for setups which has upgrade ########\n")
             f.write("## sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56##\n")
-            print_cononical_configs(f, "main_branch", canonical_dbs, True)
+            print_cononical_configs(f, "main_branch", canonical_upgrade_dbs, True, False)
         f.write("+++++++++++++++++++++++++++++++ canonical_partial_regression_side_branch_1 ++++++++++++\n")
-        print_cononical_configs(f, "side_branch_1", canonical_dbs, False)
+        print_cononical_configs(f, "side_branch_1", canonical_dbs, False, False)
         f.write("+++++++++++++++++ canonical_partial_regression_side_branch_2_US_team_setups +++++++++++\n")
-        print_cononical_configs(f, "side_branch_2", canonical_dbs, False)
+        print_cononical_configs(f, "side_branch_2", canonical_dbs, False, False)
+
+        if branch != "201911" and branch != "202012":
+            f.write("+++++++++++++++++ main_branch weekend  +++++++++++\n")
+            print_cononical_configs(f, "main_branch", canonical_upgrade_dbs, False, True)
+            f.write("## sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56##\n")
+            print_cononical_configs(f, "main_branch", canonical_upgrade_dbs, True, True)
         f.write("***************************************************************************************\n")
+
 
 
 if __name__ == "__main__":

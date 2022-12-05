@@ -82,6 +82,13 @@
     </case>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Test Reboot Case </info>
         <name> reboot </name>
         <tout> 10800 </tout>
@@ -93,6 +100,13 @@
     </case>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Test Reload Config Case </info>
         <name> reload_config </name>
         <tout> 2000 </tout>
@@ -428,6 +442,13 @@
     </case>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Test memory exhaustion </info>
         <name> test_memory_exhaustion </name>
         <tout> 1200 </tout>

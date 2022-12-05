@@ -16,7 +16,14 @@
     </global>
 
 
-        <case>
+     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Test Firmware Utility Case </info>
         <name> fwutil </name>
         <tout> 10400 </tout>

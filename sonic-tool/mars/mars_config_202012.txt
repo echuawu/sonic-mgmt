@@ -3,7 +3,7 @@
 #############################Notice here ##############################################
 #############For weekend scenario,  Friday_Community_Regression_Set_1 #################
 #############and Friday_Community_Regression_Set_2, need to update ####################
-#############the value of skip_weekend_cases from 'no' to 'yes' #######################
+#############the value of skip_weekend_cases from 'yes' to 'no' #######################
 #######################################################################################
 ++++++++++++++++++++++++++++++++Community_Regression_Set_1 start+++++++++++++++++++++++
 ################################general config#########################################
@@ -56,16 +56,18 @@
   "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
   "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/pretest.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate_with_upgrade.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
 }
 ########## canonical_full_regression_main_branch, for setups which has upgrade ########
 ## sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56##
 {
   "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
-  "base_version": "/auto/sw_system_release/sonic/202012/202012_7/sonic-mellanox.bin",
+  "base_version": "/auto/sw_system_release/sonic/202012/202012_9/sonic-mellanox.bin",
   "target_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
   "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/pretest.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate_with_upgrade.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
 }
 +++++++++++++++++++++++++++++++ canonical_partial_regression_side_branch_1 ++++++++++++
@@ -74,6 +76,7 @@
   "base_version": "/auto/sw_system_release/sonic/side_branch_1_verification_pointer.bin",
   "custom_tarball_name": "side_branch_1_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/pretest.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate_with_upgrade.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
 }
 +++++++++++++++++ canonical_partial_regression_side_branch_2_US_team_setups +++++++++++
@@ -82,6 +85,7 @@
   "base_version": "/auto/sw_system_release/sonic/side_branch_2_verification_pointer.bin",
   "custom_tarball_name": "side_branch_2_verification_pointer.db.1.tgz",
   "send_takeover_notification": "yes",
+  "skip_weekend_cases": "yes",
   "execution_block_generator": "[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/pretest.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/nightly.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/canonical/push_gate_with_upgrade.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/dynamic_buffer.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/techsupport_any_topo.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/sonic-tool/mars/dbs/community/platform_fwutil.db'}]"
 }
 ***************************************************************************************

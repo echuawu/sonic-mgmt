@@ -16,6 +16,13 @@
     </global>
 
     <case>
+        <ignore>
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> yes </value>
+            </condition>
+        </ignore>
         <info> Memory Checker Case </info>
         <name> memory_checker </name>
         <tout> 3600 </tout>
