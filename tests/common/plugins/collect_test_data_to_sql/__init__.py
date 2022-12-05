@@ -17,7 +17,8 @@ def collect_tests_data_to_sql(request):
         'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage': NgtsCpuRamUsageCollector,
         'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage': NgtsCpuRamUsageCollector,
         'platform_tests/test_advanced_reboot.py::test_fast_reboot': AdvancedRebootCollector,
-        'platform_tests/test_advanced_reboot.py::test_warm_reboot': AdvancedRebootCollector
+        'platform_tests/test_advanced_reboot.py::test_warm_reboot': AdvancedRebootCollector,
+        'upgrade_path/test_upgrade_path.py::test_upgrade_path': UpgradePathCollector
     }
 
     yield
@@ -272,7 +273,7 @@ class AdvancedRebootCollector(SonicDataCollector):
 
         # Get control/data plane loss
         ptf_test_log_path = '/tmp/fast-reboot-report.json'
-        if 'test_warm_reboot' in self.test_name:
+        if 'warm' in self.test_name:
             ptf_test_log_path = '/tmp/warm-reboot-report.json'
 
         try:
@@ -285,3 +286,28 @@ class AdvancedRebootCollector(SonicDataCollector):
 
         except Exception as err:
             logger.error('Can not get data/control plane loss for test: {}. Got err: {}'.format(self.test_name, err))
+
+
+class UpgradePathCollector(AdvancedRebootCollector):
+    """
+    Class which collects dataplane and controlplane loss for community Upgrade Path reboot test case
+    """
+
+    def __init__(self, request):
+        super(UpgradePathCollector, self).__init__(request)
+
+        self.supported_tests_by_collector = ['upgrade_path/test_upgrade_path.py::test_upgrade_path[fast]',
+                                             'upgrade_path/test_upgrade_path.py::test_upgrade_path[warm]']
+
+        reboot_type = self.request.getfixturevalue('upgrade_path_lists')[0]
+        self.test_name = '{}[{}]'.format(self.test_name, reboot_type)
+
+        self.get_images_info()
+
+    def get_images_info(self):
+        images = self.dut_engine.get_image_info()
+        target_ver = images['current']
+        if target_ver in images['installed_list']:
+            images['installed_list'].remove(target_ver)
+        base_ver = images['installed_list'][0]  # supported only one base version
+        self.setup_extra_info['base_version'] = base_ver
