@@ -20,8 +20,12 @@ warm_reboot_iterations_number = os.environ['warm_reboot_iterations_number']
 base_version = os.environ['base_version']
 target_version = os.environ.get('target_version')
 
-f_reboot_setups_list = fast_reboot_executors.split(',')
-w_reboot_setups_list = warm_reboot_executors.split(',')
+f_reboot_setups_list = []
+if fast_reboot_executors:
+    f_reboot_setups_list = fast_reboot_executors.split(',')
+w_reboot_setups_list = []
+if warm_reboot_executors:
+    w_reboot_setups_list = warm_reboot_executors.split(',')
 tests_results_file_path = os.path.join(workspace_dir, 'results.json')
 email_report_file_path = os.path.join(workspace_dir, 'email_report.html')
 
