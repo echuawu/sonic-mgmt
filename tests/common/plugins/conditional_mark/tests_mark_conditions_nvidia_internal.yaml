@@ -792,6 +792,12 @@ generic_config_updater/test_monitor_config.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3177465 and '202205' in release and ('3800' in platform or '4600' in platform)"
 
+generic_config_updater/test_eth_interface.py::test_update_speed:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3218586"
+    conditions:
+      - https://redmine.mellanox.com/issues/3218586
+
 acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_forwarded[ipv6:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
