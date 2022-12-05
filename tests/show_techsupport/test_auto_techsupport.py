@@ -362,7 +362,7 @@ class TestAutoTechSupport:
         - Create 5 core/techsupport dummy files(each file 5%) which will use 25% of space in test folder
         - Set core/techsupport max limit to 0
         - Trigger techsupport and check that dummy files + new created core/techsupport files available
-        - Set core/techsupport max limit to 18
+        - Set core/techsupport max limit to 19
         - Trigger techsupport and check that 2 oldest dummy files removed, all other + new created core/techsupport
         files available
         :param test_mode: test mode - core or techsupport
@@ -405,7 +405,7 @@ class TestAutoTechSupport:
                 validate_expected_stub_files(self.duthost, validation_folder, dummy_files_list,
                                              expected_number_of_additional_files=1)
 
-        max_limit = 18
+        max_limit = 19
         with allure.step('Validate: {} limit: {}'.format(test_mode, max_limit)):
             with allure.step('Set {} limit to: {}'.format(test_mode, max_limit)):
                 set_limit(self.duthost, test_mode, max_limit, cleanup_list=None)
