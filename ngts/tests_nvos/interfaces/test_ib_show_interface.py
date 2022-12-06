@@ -153,7 +153,7 @@ def test_ib_show_interface_name_link(engines):
             json_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
                 selected_port.ib_interface.link.state.show_interface_link_state()).get_returned_value()
             assert "up" in json_output.keys() or "down" in json_output.keys(), "up/down state was not found"
-        '''with allure.step("Verify string outoput"):
+        '''with allure.step("Verify string output"):
             str_output = selected_port.ib_interface.link.state.show_interface_link_state(
                 output_format=OutputFormat.auto)
             req_fields = ["operational", "applied", "description"]

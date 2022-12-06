@@ -91,7 +91,7 @@ def test_set_unset_system_firmware_auto_update(engines):
         set_auto_update(system, "disabled")
 
     with allure.step("Verify the configuration applied successfully - auto-update disabled"):
-        verify_firware_value(system, "auto-update", "disable")
+        verify_firware_value(system, "auto-update", "disabled")
 
     with allure.step("Enable firmware auto-update"):
         set_auto_update(system, "enabled")

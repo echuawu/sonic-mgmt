@@ -35,7 +35,9 @@ class CmdBase:
                                                                                         port_name=port_obj.name)):
             result_obj = SendCommandTool.execute_command(port_obj.api_obj[TestToolkit.tested_api].set_interface,
                                                          engine, port_obj.name,
-                                                         output_hierarchy, field_name, value)
+                                                         output_hierarchy,
+                                                         field_name if TestToolkit.tested_api == ApiType.OPENAPI else ""
+                                                         , value)
 
         if result_obj.result and apply:
             with allure.step("Applying configuration"):

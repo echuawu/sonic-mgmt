@@ -190,13 +190,14 @@ class State(LinkBaseOperational):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
 
+            value_to_use = value
+            field_name_to_use = self.label
             if TestToolkit.tested_api == ApiType.OPENAPI:
-                return CmdBase.set_interface(engine=dut_engine, field_name=value,
-                                             output_hierarchy="link",
-                                             value={}, apply=apply, port_obj=self.port_obj,
-                                             ask_for_confirmation=ask_for_confirmation)
-            else:
-                return CmdBase.set_interface(engine=dut_engine, field_name=self.label,
-                                             output_hierarchy="link",
-                                             value=value, apply=apply, port_obj=self.port_obj,
-                                             ask_for_confirmation=ask_for_confirmation)
+                value_to_use = {}
+                field_name_to_use = value
+
+            return CmdBase.set_interface(engine=dut_engine, field_name=field_name_to_use,
+                                         output_hierarchy=self.output_hierarchy,
+                                         value=value_to_use, apply=apply, port_obj=self.port_obj,
+                                         ask_for_confirmation=ask_for_confirmation)
+
