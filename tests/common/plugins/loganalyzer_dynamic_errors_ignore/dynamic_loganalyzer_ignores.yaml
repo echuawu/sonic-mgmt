@@ -1404,6 +1404,22 @@
       - 2951102
 
 - Errors_list:
+    - '.*sonic ERR check_db_integrity.py: Database is missing tables/entries needed for reboot procedure. DB integrity check failed with:.*COUNTERS_PORT_NAME_MAP.*is a required property.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3284618
+
+- Errors_list:
+    - ".*ERR mellanox_buffer_migrator: Trying to get DEVICE_METADATA from DB but doesn't exist, skip migration.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3278707
+
+- Errors_list:
     - '.* ERR sflow#port_index_mapper: \<built-in function Select_select\> returned a result with an error set'
   Conditions:
     - Affected_test_cases:
