@@ -326,7 +326,6 @@ class SonicInstallationSteps:
         for dut in setup_info['duts']:
             # Disconnect ssh connection, prevent "Socket is closed" in case when previous steps did reboot
             topology_obj.players[dut['dut_alias']]['engine'].disconnect()
-            SonicInstallationSteps.enable_info_logging(cli=dut['cli_obj'])
 
         if not is_community(sonic_topo):
             # Only check port status at canonical setup, there is an ansible counterpart for community setup
@@ -471,17 +470,6 @@ class SonicInstallationSteps:
                                                                         setup_name=setup_name,
                                                                         app_extension_dict_path=app_extension_dict_path,
                                                                         dut_name=dut_name)
-
-    @staticmethod
-    def enable_info_logging(cli):
-        """
-        This method will enable INFO logging on swss and will save configuration.
-        :param cli : SONIC cli object
-        :return: none
-        """
-        with allure.step("Enable INFO logging on swss"):
-            cli.enable_info_logging_on_docker(docker_name='swss')
-            cli.save_configuration()
 
     @staticmethod
     def verify_hw_management_version(engine):
