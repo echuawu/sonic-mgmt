@@ -9,6 +9,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
+@pytest.mark.ib_interfaces
 @pytest.mark.checklist
 def test_show_signal_degrade(engines):
     """

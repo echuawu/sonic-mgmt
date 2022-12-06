@@ -11,6 +11,7 @@ logger = logging.getLogger()
 @pytest.mark.ib
 @pytest.mark.simx
 @pytest.mark.nvos_ci
+@pytest.mark.ib_interfaces
 def test_mgmt_show_interface(engines):
     """
     Run show interface eth0 command and verify the required fields are exist
