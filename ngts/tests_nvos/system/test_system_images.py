@@ -23,7 +23,6 @@ PARTITION2_IMG = 'partition2'
 
 
 @pytest.mark.checklist
-@pytest.mark.nvos_ci
 def test_show_system_images(engines):
     """
     Show system images test
