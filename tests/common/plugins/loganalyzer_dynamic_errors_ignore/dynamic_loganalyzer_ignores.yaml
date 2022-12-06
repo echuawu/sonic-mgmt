@@ -1763,3 +1763,11 @@
       - tests/push_build_tests/general/qos/test_qos_reload.py
       Redmine:
       - 3279709
+
+- Errors_list:
+    - '.*Failed to start Update logrotate configuration.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
+      Redmine:
+      - 3289596
