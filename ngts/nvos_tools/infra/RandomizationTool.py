@@ -1,5 +1,6 @@
 import logging
 import re
+import string
 from random import randint
 from .ResultObj import ResultObj
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
@@ -183,3 +184,14 @@ class RandomizationTool:
         for i in range(sum):
             arr[randint(0, sum) % count] += 1
         return arr
+
+    @staticmethod
+    def get_random_string(length, ascii_letters=string.ascii_lowercase):
+        """
+            return random string
+        :param length: the length of the random string
+        :param ascii_letters: which letters can be in the string
+        :return: random string from the ascii_letters and of the given length
+        """
+        result_str = ''.join(random.choice(ascii_letters) for i in range(length))
+        return result_str

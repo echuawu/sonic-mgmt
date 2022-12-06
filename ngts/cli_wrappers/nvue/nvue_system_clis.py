@@ -28,6 +28,13 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def action_install(engine, action_component_str, file=""):
+        cmd = "nv action install system {action_component} files {file}".format(action_component=action_component_str,
+                                                                                file=file)
+        logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def action_generate_techsupport(engine, resource_path, option="", time=""):
         path = resource_path.replace('/', ' ')
         cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
@@ -99,9 +106,17 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_delete(engine, action_component_str="", file=""):
+    def action_delete(engine, action_component_str, file):
         cmd = "nv action delete system {type} files {file}".format(type=action_component_str, file=file)
         cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_rename(engine, action_component_str, original_name, new_name):
+        cmd = "nv action rename system {type} files {original_name} {new_name}".format(type=action_component_str,
+                                                                                       original_name=original_name,
+                                                                                       new_name=new_name)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 

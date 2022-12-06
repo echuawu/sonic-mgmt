@@ -12,12 +12,12 @@ logger = logging.getLogger()
 @pytest.mark.system
 def test_show_log(engines):
     """
-    Write to log file on switch, run nv show system log command and verify system/images are exist
+    Write to log file on switch, run nv show system log command and verify system/image are exist
     command: nv show system log
 
     Test flow:
         1. Rotate logs
-        2. Run show system images
+        2. Run show system image
         3. Run nv show system log
         4. Check if we have in the logs 'regular_log' message
     """
@@ -28,28 +28,28 @@ def test_show_log(engines):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Run show command to view system image"):
+        logging.info("Run show command to view system image")
+        system.image.show()
 
     with allure.step("Run nv show system log command follow to view system logs"):
         logging.info("Run nv show system log command follow to view system logs")
         show_output = system.log.show_log(exit_cmd='q')
 
-    with allure.step('Verify updated “system/images” in the logs as expected'):
-        logging.info('Verify updated “system/images” in the logs as expected')
-        ValidationTool.verify_expected_output(show_output, 'system/images').verify_result()
+    with allure.step('Verify updated “system/image” in the logs as expected'):
+        logging.info('Verify updated “system/image” in the logs as expected')
+        ValidationTool.verify_expected_output(show_output, 'system/image').verify_result()
 
 
 @pytest.mark.system
 def test_show_log_continues(engines):
     """
-    Write to log file on switch, run nv show system log command and verify system/images are exist
+    Write to log file on switch, run nv show system log command and verify system/image are exist
     command: nv show system log --view follow
 
     Test flow:
         1. Rotate logs
-        2. Run show system images
+        2. Run show system image
         3. Run nv show system log --view follow
         4. Check if we have in the logs 'regular_log' message
     """
@@ -60,17 +60,17 @@ def test_show_log_continues(engines):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Run show command to view system image"):
+        logging.info("Run show command to view system image")
+        system.image.show()
 
     with allure.step("Run nv show system log command --view follow to view system logs"):
         logging.info("Run nv show system log command --view follow to view system logs")
         show_output = system.log.show_log(param='--view follow', exit_cmd='\x03')
 
-    with allure.step('Verify updated “system/images” in the logs as expected'):
-        logging.info('Verify updated “system/images” in the logs as expected')
-        ValidationTool.verify_expected_output(show_output, 'system/images').verify_result()
+    with allure.step('Verify updated “system/image” in the logs as expected'):
+        logging.info('Verify updated “system/image” in the logs as expected')
+        ValidationTool.verify_expected_output(show_output, 'system/image').verify_result()
 
 
 @pytest.mark.system
@@ -81,8 +81,8 @@ def test_show_log_files(engines):
     Test flow:
         1. Run nv show system log files command and validate fields
         2. Rotate logs
-        3. Run show system images
-        4. Check if we have in the logs 'system/images' message
+        3. Run show system image
+        4. Check if we have in the logs 'system/image' message
     """
     with allure.step("Create System object"):
         system = System(None)
@@ -101,23 +101,23 @@ def test_show_log_files(engines):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Run show command to view system image"):
+        logging.info("Run show command to view system image")
+        system.image.show()
 
     with allure.step("Run nv show system log files command follow to view system logs"):
         logging.info("Run nv show system log files command follow to view system logs")
         show_log_files_output = system.log.files.show_log_files(param='files syslog', exit_cmd='q')
 
-    with allure.step('Verify updated “system/images” in the logs as expected'):
-        logging.info('Verify updated “system/images” in the logs as expected')
-        ValidationTool.verify_expected_output(show_log_files_output, 'system/images').verify_result()
+    with allure.step('Verify updated “system/image” in the logs as expected'):
+        logging.info('Verify updated “system/image” in the logs as expected')
+        ValidationTool.verify_expected_output(show_log_files_output, 'system/image').verify_result()
 
 
 @pytest.mark.system
 def test_show_debug_log(engines):
     """
-    Check version on switch, run nv show system log command and verify the images method are exist
+    Check version on switch, run nv show system log command and verify the image method are exist
     command: nv show system debug-log
 
     Test flow:
@@ -143,7 +143,7 @@ def test_show_debug_log(engines):
 @pytest.mark.system
 def test_show_debug_log_continues(engines):
     """
-    Check version on switch, run nv show system log command and verify the images method are exist
+    Check version on switch, run nv show system log command and verify the image method are exist
     command: nv show system debug-log --view follow
 
     Test flow:
@@ -421,7 +421,7 @@ def test_log_files_rotation_force(engines):
     command: nv action system log rotation force
 
     Test flow:
-        1. Run show system images
+        1. Run show system image
         2. Rotate logs
         3. Run nv show system log
         4. Check if we have in the logs 'regular_log' message
@@ -429,9 +429,9 @@ def test_log_files_rotation_force(engines):
     with allure.step("Create System object"):
         system = System(None)
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Run show command to view system image"):
+        logging.info("Run show command to view system image")
+        system.image.show()
 
     with allure.step("Rotate logs"):
         logging.info("Rotate logs")
@@ -441,9 +441,9 @@ def test_log_files_rotation_force(engines):
         logging.info("Run nv show system log command follow to view system logs")
         show_output = system.log.show_log(exit_cmd='q')
 
-    with allure.step('Verify updated “system/images” in the logs as expected'):
-        logging.info('Verify updated “system/images” in the logs as expected')
-        ValidationTool.verify_expected_output(show_output, 'system/images').verify_result(False)
+    with allure.step('Verify updated “system/image” in the logs as expected'):
+        logging.info('Verify updated “system/image” in the logs as expected')
+        ValidationTool.verify_expected_output(show_output, 'system/image').verify_result(False)
 
 
 @pytest.mark.system
@@ -461,8 +461,8 @@ def test_log_components(engines):
     with allure.step("Create System object"):
         system = System(None)
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
+    with allure.step("Run show command to view system image"):
+        logging.info("Run show command to view system image")
         show_output = system.log.component.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
 
@@ -550,7 +550,7 @@ def test_delete_log_files(engines):
         1. Rotate log to create log files and check created
         2. Get all log files and check we can delete it
         3. Check we didn't delete all log files
-        4. Run show system images
+        4. Run show system image
         5. Check it exist in log
     """
     with allure.step("Create System object"):
@@ -584,14 +584,14 @@ def test_delete_log_files(engines):
         assert 'syslog' in output_dictionary.keys()
         assert len(output_dictionary.keys()) >= 1
 
-    with allure.step("Run show command to view system images"):
-        logging.info("Run show command to view system images")
-        system.images.show()
+    with allure.step("Run show command to view system image"):
+        logging.info("Run show command to view system image")
+        system.image.show()
 
     with allure.step("Run nv show system log command follow to view system logs"):
         logging.info("Run nv show system log command follow to view system logs")
         show_output = system.log.show_log(exit_cmd='q')
 
-    with allure.step('Verify updated “system/images” in the logs as expected'):
-        logging.info('Verify updated “system/images” in the logs as expected')
-        ValidationTool.verify_expected_output(show_output, 'system/images').verify_result()
+    with allure.step('Verify updated “system/image” in the logs as expected'):
+        logging.info('Verify updated “system/image” in the logs as expected')
+        ValidationTool.verify_expected_output(show_output, 'system/image').verify_result()

@@ -36,7 +36,7 @@ class User(BaseComponent):
 
     def action_disconnect(self, username):
         self.set_username(username)
-        return SendCommandTool.execute_command_success_str(self.api_obj[TestToolkit.tested_api].action_disconnect, "Action succeeded", TestToolkit.engines.dut, self.get_resource_path().replace('/', ' ')).get_returned_value()
+        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_disconnect, "Action succeeded", TestToolkit.engines.dut, self.get_resource_path().replace('/', ' ')).get_returned_value()
 
     def set_username(self, username):
         self.username = username

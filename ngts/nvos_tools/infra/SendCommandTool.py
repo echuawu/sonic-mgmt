@@ -9,13 +9,13 @@ timeout_cmd_str = ['Timeout while waiting for client response']
 class SendCommandTool:
 
     @staticmethod
-    def verify_cmd_execution(cmd_output, success_str=""):
+    def verify_cmd_execution(cmd_output, expected_str=""):
         """
         Check executed command output and return a ResultObj
         """
         if cmd_output:
 
-            if success_str and success_str in cmd_output:
+            if expected_str and expected_str in cmd_output:
                 return ResultObj(True, "", str(cmd_output))
 
             for err_msg in invalid_cmd_str:
@@ -30,9 +30,9 @@ class SendCommandTool:
         return ResultObj(True, "", str(cmd_output))
 
     @staticmethod
-    def execute_command_success_str(command_to_execute, success_str, *args):
+    def execute_command_expected_str(command_to_execute, expected_str, *args):
         output = command_to_execute(*args)
-        return SendCommandTool.verify_cmd_execution(output, success_str)
+        return SendCommandTool.verify_cmd_execution(output, expected_str)
 
     @staticmethod
     def execute_command(command_to_execute, *args):

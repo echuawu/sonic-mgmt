@@ -62,6 +62,9 @@ class NvosConst:
     IMAGES_PATH_ON_SWITCH = "/tmp/temp_nvos.bin"
     FM_PATH_ON_SWITCH = "/tmp/temp_fw.bin"
 
+    ROOT_USER = 'root'
+    ROOT_PASSWORD = '3tango'
+
 
 class ApiType:
     NVUE = "NVUE"
@@ -196,6 +199,7 @@ class ActionConsts:
     UNINSTALL = "uninstall"
     BOOT_NEXT = "boot-next"
     GENERATE = "generate"
+    FETCH = "fetch"
 
 
 class IpConsts:
@@ -275,3 +279,10 @@ class IbConsts:
     SIGNAL_DEGRADE_ACTION_SHUTDOWN = "shutdown"
     SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN = "no-shutdown"
     SIGNAL_DEGRADE = "signal-degrade"
+
+
+class ImageConsts:
+    NEXT_IMG = 'next'
+    CURRENT_IMG = 'current'
+    PARTITION1_IMG = 'partition1'
+    PARTITION2_IMG = 'partition2'

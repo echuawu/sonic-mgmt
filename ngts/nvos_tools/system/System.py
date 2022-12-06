@@ -6,7 +6,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Security import Security
-from ngts.nvos_tools.system.Images import Images
+from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
 from ngts.nvos_tools.system.Log import Log
@@ -26,7 +26,7 @@ logger = logging.getLogger()
 
 class System(BaseComponent):
     security = None
-    images = None
+    image = None
     firmware = None
     log = None
     debug_log = None
@@ -43,7 +43,7 @@ class System(BaseComponent):
         self.rotation = Rotation(self)
         self.security = Security(self)
         self.techsupport = TechSupport(self)
-        self.images = Images(self)
+        self.image = Image(self)
         self.firmware = Firmware(self)
         self.message = Message(self)
         self.version = Version(self)

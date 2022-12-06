@@ -32,12 +32,19 @@ def pytest_addoption(parser):
 def engines(topology_obj):
     engines_data = DottedDict()
     engines_data.dut = topology_obj.players['dut']['engine']
+    # ha and hb are the traffic dockers
     if "ha" in topology_obj.players:
         engines_data.ha = topology_obj.players['ha']['engine']
     if "hb" in topology_obj.players:
         engines_data.hb = topology_obj.players['hb']['engine']
     if "server" in topology_obj.players:
         engines_data.server = topology_obj.players['server']['engine']
+    # server : if simx setup - the physical server that runs the simx containers ,
+    #           else - the physical server that runs the 'ha'/'hb' traffic containers
+    if "server" in topology_obj.players:
+        engines_data.server = topology_obj.players['server']['engine']
+    if "sonic-mgmt" in topology_obj.players:
+        engines_data.sonic_mgmt = topology_obj.players['sonic-mgmt']['engine']
 
     TestToolkit.update_engines(engines_data)
     return engines_data
