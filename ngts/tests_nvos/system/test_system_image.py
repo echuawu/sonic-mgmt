@@ -181,6 +181,95 @@ def test_image_uninstall_force(release_name):
     image_uninstall_test(release_name, uninstall_force="force")
 
 
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_bad_flow(engines, release_name):
+    """
+    Check bad flow scenarios:
+    -	Fetch something that doesn’t / already exist
+    -	Delete something that doesn’t exist
+    -	Install something that doesn’t exist
+    -	Install the same current image
+    -	Boot next something that doesn’t / already exist
+    -	Rename something that doesn’t exist
+    -	Upload image that doesn’t / already exist
+
+    """
+    system = System()
+    original_images, original_image, original_image_partition, partition_id_for_new_image = get_image_data(system)
+    file_rand_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
+
+    with allure.step("Get an available image file"):
+        image_name, image_path = get_images_to_install(release_name, original_image)[0]
+        images_name = []
+
+    with allure.step("Fetch bad flows"):
+        logging.info("Fetch bad flows")
+        with allure.step("Fetch an image"):
+            scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
+                                               InfraConst.HTTP_SERVER.replace("http://", ""))
+            system.image.action_fetch(scp_path + image_path)
+            images_name.append(image_name)
+        with allure.step("Fetch the same image again"):
+            system.image.action_fetch(scp_path + image_path)
+        with allure.step("Fetch an image that does not exist"):
+            system.image.action_fetch(scp_path + image_path + file_rand_name, "Action failed")
+
+    with allure.step("Delete bad flows"):
+        logging.info("Delete bad flows")
+        with allure.step("Delete file that does not exist"):
+            system.image.files.delete_system_files([file_rand_name], "File not found")
+
+    with allure.step("Install bad flows"):
+        logging.info("Install bad flows")
+        with allure.step("Install image file that does not exist"):
+            system.image.files.action_file_install(file_rand_name, "Image does not exist")
+        with allure.step("Install the same image twice"):
+            with allure.step("First installation"):
+                system.image.files.action_file_install(image_name)
+            with allure.step("Second installation"):
+                system.image.files.action_file_install(image_name)
+            with allure.step("uninstall"):
+                system.image.action_uninstall(params='force')
+
+    with allure.step("Boot-next bad flows"):
+        logging.info("Boot-next bad flows")
+        if not original_images[ImageConsts.PARTITION2_IMG]:
+            with allure.step("Boot-next {}, even tough we have no image there".format(ImageConsts.PARTITION2_IMG)):
+                system.image.action_boot_next(ImageConsts.PARTITION2_IMG, 'Action failed')
+        with allure.step("Boot-next random string"):
+            system.image.action_boot_next(ImageConsts.PARTITION2_IMG, "Action failed")
+        with allure.step("Boot-next the same partition"):
+            system.image.action_boot_next(original_image_partition)
+
+    with allure.step("Rename bad flows"):
+        logging.info("Rename bad flows")
+        with allure.step("Rename image file that does not exist"):
+            system.image.files.action_rename(file_rand_name, file_rand_name, "File not found")
+
+    with allure.step("Upload bad flows"):
+        logging.info("Upload bad flows")
+        player = engines['sonic_mgmt']
+        upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
+        with allure.step("Upload image file that does not exist"):
+            system.image.files.action_upload(file_rand_name, upload_path, "File not found")
+        with allure.step("Upload the same image twice"):
+            with allure.step("First upload"):
+                system.image.files.action_upload(image_name, upload_path)
+                with allure.step("Validate file was uploaded"):
+                    logging.info("Validate file was uploaded")
+                    assert player.run_cmd(cmd='ls /tmp/ | grep {}'.format(image_name)), "Did not find the file with ls cmd"
+            with allure.step("Second upload"):
+                system.image.files.action_upload(image_name, upload_path)
+                with allure.step("Delete the file from the player"):
+                    player.run_cmd(cmd='rm -f /tmp/{}'.format(image_name))
+
+    with allure.step("Delete all images that have been fetch during the test"):
+        system.image.files.delete_system_files(images_name)
+
+
 def image_uninstall_test(release_name, uninstall_force=""):
     """
      Will check the uninstall commands

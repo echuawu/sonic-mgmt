@@ -35,20 +35,25 @@ class Image(BaseComponent):
                                                             TestToolkit.engines.dut,
                                                             action_type, "image", op_param).get_returned_value()
 
+    def action_install(self, params="", expected_str=""):
+        with allure.step("Install {params} system image".format(params=params)):
+            logging.info("Install {params} system image".format(params=params))
+            return self._action(ActionConsts.INSTALL, params, expected_str)
+
     def action_uninstall(self, params="", expected_str=""):
         with allure.step("Uninstall {params} system image".format(params=params)):
             logging.info("Uninstall {params} system image".format(params=params))
             return self._action(ActionConsts.UNINSTALL, params, expected_str)
 
-    def action_fetch(self, url=""):
+    def action_fetch(self, url="", expected_str=""):
         with allure.step("Image fetch {url} ".format(url=url)):
             logging.info("Image fetch {url} system image".format(url=url))
-            return self._action(ActionConsts.FETCH, url)
+            return self._action(ActionConsts.FETCH, url, expected_str)
 
-    def action_boot_next(self, partition_id):
+    def action_boot_next(self, partition_id, expected_str=''):
         with allure.step("Set image '{id}' to boot next".format(id=partition_id)):
             logging.info("Set image '{id}' to boot next".format(id=partition_id))
-            return self._action(ActionConsts.BOOT_NEXT, partition_id)
+            return self._action(ActionConsts.BOOT_NEXT, partition_id, expected_str)
 
     def get_image_field_value(self, field_name):
         output = OutputParsingTool.parse_json_str_to_dictionary(BaseComponent.show(self)).get_returned_value()
