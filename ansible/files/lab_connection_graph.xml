@@ -26,6 +26,7 @@
       <Device Hostname="r-tigon-22" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-tigris-26" HwSku="Mellanox-SN3800-D112C8" Type="DevSonic"/>
       <Device Hostname="r-r740-07-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="r-r740-05-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-tigris-27" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1005" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-59" HwSku="MLNX-OS" Type="FanoutLeaf"/>
@@ -72,6 +73,7 @@
       <Device Hostname="r-r640-13" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-r640-14" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-r740-07" HwSku="TestServ" Type="Server"/>
+      <Device Hostname="r-r740-05" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-bulldog-03" HwSku="ACS-MSN2100" Type="DevSonic"/>
       <Device Hostname="r-bulldog-04" HwSku="ACS-MSN2100" Type="DevSonic"/>
       <Device Hostname="r-bulldog-02" HwSku="ACS-MSN2100" Type="DevSonic"/>
@@ -1638,6 +1640,8 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-14" EndPort="p2p1" StartDevice="r-tigris-27" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/1" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/2" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet4"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/6" StartDevice="r-r740-05-bf2-sonic-01" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/7" StartDevice="r-r740-05-bf2-sonic-01" StartPort="Ethernet4"/>
     </DeviceInterfaceLinks>
   </PhysicalNetworkGraphDeclaration>
   <DataPlaneGraph>
@@ -3241,6 +3245,9 @@
       <InterfaceVlan mode="Access" portname="ethernet 1/1"   vlanids="101"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/2"   vlanids="102"/>
       <InterfaceVlan mode="Trunk"  portname="ethernet 1/5"   vlanids="101-102"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/6"   vlanids="106"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/7"   vlanids="107"/>
+      <InterfaceVlan mode="Trunk"  portname="ethernet 1/10"   vlanids="106-107"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="dummy-fanout">
       <InterfaceVlan mode="Access" portname="Ethernet0"   vlanids="101"/>
