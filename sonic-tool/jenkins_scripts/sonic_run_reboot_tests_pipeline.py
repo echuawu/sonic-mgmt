@@ -191,10 +191,14 @@ def build_summary_report(results):
         total_iterations = len(setup_data['data'])
         base_ver = setup_data['base_ver']
         target_ver = setup_data['target_ver']
-        dataplane_downtime_list = [i['dataplane_downtime'] for i in setup_data['data']]
-        controlplane_downtime_list = [i['controlplane_downtime'] for i in setup_data['data']]
-        average_dataplane_loss = sum(dataplane_downtime_list) / len(dataplane_downtime_list)
-        average_controlplane_loss = sum(controlplane_downtime_list) / len(controlplane_downtime_list)
+        dataplane_downtime_list = get_downtime_list(setup_data, plane='dataplane_downtime')
+        controlplane_downtime_list = get_downtime_list(setup_data, plane='controlplane_downtime')
+        average_dataplane_loss = 'Unknown'
+        if dataplane_downtime_list:
+            average_dataplane_loss = sum(dataplane_downtime_list) / len(dataplane_downtime_list)
+        average_controlplane_loss = 'Unknown'
+        if controlplane_downtime_list:
+            average_controlplane_loss = sum(controlplane_downtime_list) / len(controlplane_downtime_list)
 
         test_statuses_list = [i['test_status'] for i in setup_data['data']]
         passed_tests_num = test_statuses_list.count('passed')
@@ -229,6 +233,18 @@ def build_summary_report(results):
     return email_body
 
 
+def get_downtime_list(setup_data, plane='dataplane_downtime'):
+    """
+    Get list with data/control plane downtime results
+    """
+    downtime_list = []
+    for test_data in setup_data['data']:
+        if test_data.get(plane):
+            downtime_list.append(test_data[plane])
+
+    return downtime_list
+
+
 def build_setup_report(setup_name, results):
     """
     Build report email table for specific setup
@@ -251,8 +267,8 @@ def build_setup_report(setup_name, results):
         test_name = results[setup_name]['reboot_type']
         base_ver = results[setup_name]['base_ver']
         target_ver = results[setup_name]['target_ver']
-        dataplane_downtime = run['dataplane_downtime']
-        controlplane_downtime = run['controlplane_downtime']
+        dataplane_downtime = run['dataplane_downtime'] if run['dataplane_downtime'] else 'Unknown'
+        controlplane_downtime = run['controlplane_downtime'] if run['controlplane_downtime'] else 'Unknown'
         allure_report_url = run['allure']
         test_status = run['test_status']
         color = 'green' if test_status == 'passed' else 'red'
@@ -414,12 +430,14 @@ def update_test_case_data_results(setup_name, test_ids_reports_dict, results_dic
     """
     tests_data_list = []
     for mars_test_key, test_data in test_ids_reports_dict.items():
-        data = {'dataplane_downtime': test_data['dataplane'], 'controlplane_downtime': test_data['controlplane'],
-                'test_status': test_data['test_status'], 'allure': test_data['allure'], 'date': test_data['date']}
+        data = {'dataplane_downtime': test_data.get('dataplane'),
+                'controlplane_downtime': test_data.get('controlplane'),
+                'test_status': test_data.get('test_status'), 'allure': test_data.get('allure'),
+                'date': test_data.get('date')}
         tests_data_list.append(data)
 
     # Sort tests list by execution date
-    tests_data_list_sorted = sorted(tests_data_list, key=lambda d: d['date'])
+    tests_data_list_sorted = sorted(tests_data_list, key=lambda d: d.get('date'))
     results_dict[setup_name]['data'] = tests_data_list_sorted
 
 
