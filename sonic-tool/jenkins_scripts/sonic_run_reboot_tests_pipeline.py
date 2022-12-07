@@ -116,23 +116,24 @@ def prepare_db_files(reboot_types_list, is_upgrade_test=False):
             file.write(file_data)
 
 
-def prepare_cases_files(reboot_type_iterations_dict, base_ver_list=None, target_ver=None):
+def prepare_cases_files(reboot_type_iterations_dict, base_ver_images=None, target_ver=None):
     """
     Prepare CASES files and store them into sonic-mgmt folder
     """
     for r_type, iterations_number in reboot_type_iterations_dict.items():
         test_name = '{} Reboot'.format(r_type.upper())
-        if base_ver_list and target_ver:
+        if base_ver_images and target_ver:
             test_name = test_name + ' with Upgrade'
 
         cases_file_name = '{}_reboot.cases'.format(r_type)
         file_data = CASES_FILE_HEADER_TEMPLATE.format(test_name=test_name)
         for _ in range(iterations_number):
-            if base_ver_list and target_ver:
-                file_data += CASES_FILE_REBOOT_WITH_UPGRADE_TESTCASE_TEMPLATE.format(test_name=test_name,
-                                                                                     test_type=r_type,
-                                                                                     base_versions_list=base_ver_list,
-                                                                                     target_version=target_ver)
+            if base_ver_images and target_ver:
+                for base_ver in base_ver_images.split(','):
+                    file_data += CASES_FILE_REBOOT_WITH_UPGRADE_TESTCASE_TEMPLATE.format(test_name=test_name,
+                                                                                         test_type=r_type,
+                                                                                         base_versions_list=base_ver,
+                                                                                         target_version=target_ver)
             else:
                 file_data += CASES_FILE_REBOOT_TESTCASE_TEMPLATE.format(test_name=test_name, test_type=r_type)
         file_data += CASES_FILE_END_LINE_TEMPLATE
@@ -163,7 +164,7 @@ def do_preparation_steps():
 
     is_upgrade_test = True if target_version else False
     prepare_db_files(reboot_types_list, is_upgrade_test)
-    prepare_cases_files(reboot_type_iterations_dict, base_ver_list=base_version, target_ver=target_version)
+    prepare_cases_files(reboot_type_iterations_dict, base_ver_images=base_version, target_ver=target_version)
 
 
 def build_summary_report(results):
@@ -239,7 +240,7 @@ def get_downtime_list(setup_data, plane='dataplane_downtime'):
     """
     downtime_list = []
     for test_data in setup_data['data']:
-        if test_data.get(plane):
+        if test_data[plane] != 'Unknown':
             downtime_list.append(test_data[plane])
 
     return downtime_list
@@ -267,8 +268,8 @@ def build_setup_report(setup_name, results):
         test_name = results[setup_name]['reboot_type']
         base_ver = results[setup_name]['base_ver']
         target_ver = results[setup_name]['target_ver']
-        dataplane_downtime = run['dataplane_downtime'] if run['dataplane_downtime'] else 'Unknown'
-        controlplane_downtime = run['controlplane_downtime'] if run['controlplane_downtime'] else 'Unknown'
+        dataplane_downtime = run['dataplane_downtime']
+        controlplane_downtime = run['controlplane_downtime']
         allure_report_url = run['allure']
         test_status = run['test_status']
         color = 'green' if test_status == 'passed' else 'red'
@@ -358,7 +359,7 @@ def get_image_ver_and_update_test_data_by_test_run_info(sql_connection_obj, sess
     # Get test run time and test run id
     query_get = "SELECT test_run_dateTime,test_run_id,DUTImageVersion FROM tests_runs WHERE MarsSessionId='{}' AND MarsKeyId='{}'".format(
         session_id, mars_key_id)
-    image_version = 'Unable to get image version'
+    image_version = None
     try:
         sql_connection_obj.cursor.execute(query_get)
         date, test_run_id, image_version = sql_connection_obj.cursor.fetchone()
@@ -430,8 +431,9 @@ def update_test_case_data_results(setup_name, test_ids_reports_dict, results_dic
     """
     tests_data_list = []
     for mars_test_key, test_data in test_ids_reports_dict.items():
-        data = {'dataplane_downtime': test_data.get('dataplane'),
-                'controlplane_downtime': test_data.get('controlplane'),
+        dataplane_dtime = test_data.get('dataplane') if test_data.get('dataplane') is not None else 'Unknown'
+        controlplane_dtime = test_data.get('controlplane') if test_data.get('controlplane') is not None else 'Unknown'
+        data = {'dataplane_downtime': dataplane_dtime, 'controlplane_downtime': controlplane_dtime,
                 'test_status': test_data.get('test_status'), 'allure': test_data.get('allure'),
                 'date': test_data.get('date')}
         tests_data_list.append(data)
@@ -471,6 +473,12 @@ def get_results_for_session(session_id, setup_name):
     results_dict[setup_name]['target_ver'] = ''
     if target_version:  # If upgrade - get base/target images version from README file
         update_sonic_version_info_from_readme_file(setup_name, results_dict)
+        if not results_dict[setup_name]['target_ver']:  # If no info about target - use path to SONiC image as version
+            results_dict[setup_name]['target_ver'] = target_version
+
+    # If no info about base image - provide path(s) to SONiC image(s) which used by jenkins job
+    if not results_dict[setup_name]['base_ver']:
+        results_dict[setup_name]['base_ver'] = base_version
 
     update_reboot_type_for_setup(setup_name, results_dict)
 
