@@ -287,16 +287,16 @@ def main():
         registry_url = args.registry_url
         logger.info("Override default registry_url value, now registry_url=%s" % registry_url)
 
-    docker_name = args.docker_name
+    docker_image_name = 'docker-ngts'
     if args.docker_tag:
         docker_tag = args.docker_tag
     else:
-        docker_tag = get_docker_default_tag(docker_name)
+        docker_tag = get_docker_default_tag(docker_image_name)
 
     if args.dut_name:
-        container_name = '{}_{}'.format(args.dut_name, docker_name)
+        container_name = '{}_{}'.format(args.dut_name, docker_image_name)
     else:
-        container_name = docker_name
+        container_name = args.docker_name
 
     topo = parse_topology(args.topo)
     test_server_device = topo.get_device_by_topology_id(constants.TEST_SERVER_DEVICE_ID)
@@ -312,16 +312,17 @@ def main():
         send_takeover_notification(topo)
 
     logger.info("Pull docker image to ensure that it is up to date")
-    retry_call(test_server.run, fargs=["docker pull {}/{}:{}".format(registry_url, docker_name, docker_tag)], tries=3,
-               delay=10, logger=logger)
+    retry_call(test_server.run, fargs=["docker pull {}/{}:{}".format(registry_url, docker_image_name, docker_tag)],
+               tries=3, delay=10, logger=logger)
 
     logger.info("Check current docker container and image status")
-    inspect_res = inspect_container(test_server, "{}/{}".format(registry_url, docker_name), docker_tag, container_name)
+    inspect_res = inspect_container(test_server, "{}/{}".format(registry_url, docker_image_name), docker_tag,
+                                    container_name)
 
     if not inspect_res["image_exists"]:
         logger.error("No docker image. Please check using commands:")
         logger.error("    curl -X GET http://{}/v2/_catalog".format(registry_url))
-        logger.error("    curl -X GET http://{}/v2/{}/tags/list".format(registry_url, docker_name))
+        logger.error("    curl -X GET http://{}/v2/{}/tags/list".format(registry_url, docker_image_name))
         sys.exit(1)
 
     delete_container_required = args.delete_container
@@ -350,7 +351,8 @@ def main():
         test_server.run("docker rm -f {}".format(container_name), warn=True)
 
     logger.info("Need to create and start sonic-mgmt container")
-    create_and_start_container(test_server, "{}/{}".format(registry_url, docker_name), docker_tag, container_name, mac)
+    create_and_start_container(test_server, "{}/{}".format(registry_url, docker_image_name),
+                               docker_tag, container_name, mac)
 
     logger.info("Try to delete dangling docker images to save space")
     cleanup_dangling_docker_images(test_server)

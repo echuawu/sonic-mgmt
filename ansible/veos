@@ -767,6 +767,8 @@ VM2002 ansible_host=10.215.20.185
 [vms_56]
 VM2101 ansible_host=10.215.11.41
 VM2102 ansible_host=10.215.11.42
+VM2103 ansible_host=10.215.11.43
+VM2104 ansible_host=10.215.11.44
 
 [eos:children]
 vms_1
