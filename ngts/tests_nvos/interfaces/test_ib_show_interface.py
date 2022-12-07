@@ -7,12 +7,14 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
 
 
 @pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
+@pytest.mark.ib
 def test_ib_show_interface_name(engines):
     """
     Run show interface command and verify the required fields are exist
@@ -80,6 +82,8 @@ def test_ib_show_interface_all_state_up(engines):
             with allure.step('Set the state of selected port to "up"'):
                 selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
                                                           ask_for_confirmation=True).verify_result()
+                with allure.step("Start openSM"):
+                    OpenSmTool.start_open_sm(engines.dut).verify_result()
                 selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
                                                                logical_state='Active').verify_result()
 
@@ -92,6 +96,8 @@ def test_ib_show_interface_all_state_up(engines):
         with allure.step('Set the state of selected port to "up"'):
             selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
                                                       ask_for_confirmation=True).verify_result()
+            with allure.step("Start openSM"):
+                OpenSmTool.start_open_sm(engines.dut).verify_result()
             selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
                                                            logical_state='Active').verify_result()
 

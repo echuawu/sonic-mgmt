@@ -67,8 +67,8 @@ class IbInterface:
                         port=self.port_obj.name, state=logical_state)
 
                 if timer <= 0:
-                    result_obj.info += "Timeout occurred while waiting for '{port}' to reach logical_state " \
-                        "'state'".format(port=self.port_obj.name, state=logical_state)
+                    result_obj.info += "\nTimeout occurred while waiting for '{port}' to reach logical_state " \
+                        "'{state}'".format(port=self.port_obj.name, state=logical_state)
                     result_obj.result = False
 
             return result_obj

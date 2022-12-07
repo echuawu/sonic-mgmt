@@ -10,8 +10,8 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from dotted_dict import DottedDict
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
 
@@ -56,7 +56,12 @@ def devices(topology_obj):
 
 @pytest.fixture
 def start_sm(engines):
-    OpenSmTool.start_open_sm(engines.dut)
+    """
+    Starts OpenSM
+    """
+    result = OpenSmTool.start_open_sm(engines.dut)
+    if not result.result:
+        logging.warning("Failed to start openSM using NVUE commands")
 
 
 @pytest.fixture(scope="session")
@@ -116,17 +121,6 @@ def interfaces(topology_obj):
     interfaces_data.ha_dut_1 = topology_obj.ports['ha-dut-1']
     interfaces_data.hb_dut_1 = topology_obj.ports['hb-dut-1']
     return interfaces_data
-
-
-'''@pytest.fixture(scope='session')
-def traffic_ports(request):
-    """
-    Method for getting list of traffic ports
-    :param request: pytest builtin
-    :return: list of ports names
-    """
-    ports_str_list = request.config.getoption('--traffic_ports')
-    return ports_str_list.split(',')'''
 
 
 def clear_config():

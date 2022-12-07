@@ -43,14 +43,19 @@ def test_show_ib_sm_default_values(engines):
 
     if not active_ports:
         logger.info('no active ports!')
-        OpenSmTool.start_open_sm(engines.dut)
+        with allure.step("Start openSM"):
+            OpenSmTool.start_open_sm(engines.dut).verify_result()
         return
+
     with allure.step('set down the state of all active ports'):
         set_all_ports_state(active_ports, NvosConst.PORT_STATUS_DOWN)
 
     with allure.step('set up the state of all active ports as a clean up step'):
         set_all_ports_state(active_ports, NvosConst.PORT_STATUS_UP)
-    OpenSmTool.start_open_sm(engines.dut)
+
+    with allure.step("Start openSM"):
+        OpenSmTool.start_open_sm(engines.dut).verify_result()
+
     with allure.step('verify all ports back to active'):
         active_ports_after_sm_change = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=0,
                                                                                    requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).returned_value
@@ -77,10 +82,10 @@ def test_set_unset_sm_state_many_times(engines, times=5):
     with allure.step('enable and disable sm {times} times'.format(times=times)):
         for i in range(times):
             with allure.step('Run nv set ib sm {param} {value} and apply the configurations'.format(param=IbConsts.SM_STATE, value=IbConsts.SM_STATE_ENABLE)):
-                OpenSmTool.start_open_sm(engines.dut)
+                OpenSmTool.start_open_sm(engines.dut).verify_result()
 
             with allure.step('Run nv set ib sm {param} {value} and apply the configurations'.format(param=IbConsts.SM_STATE, value=IbConsts.SM_STATE_DISABLE)):
-                OpenSmTool.stop_open_sm(engines.dut)
+                OpenSmTool.stop_open_sm(engines.dut).verify_result()
 
     with allure.step('check if only one sm log file exist'):
         log_files = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.log.show(IbConsts.FILES)).verify_result()

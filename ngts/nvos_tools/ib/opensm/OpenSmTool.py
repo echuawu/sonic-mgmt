@@ -23,7 +23,9 @@ class OpenSmTool:
 
         with allure.step("start OpenSM"):
             ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_ENABLE)
-            return TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engine=TestToolkit.engines.dut,
+                                                                                 ask_for_confirmation=True)
+            return ResultObj("applied" in output, "Failed to start openSM")
 
     @staticmethod
     def stop_open_sm(engine):
@@ -36,7 +38,9 @@ class OpenSmTool:
 
         with allure.step("Stop OpenSM"):
             ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_DISABLE)
-            return TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engine=TestToolkit.engines.dut,
+                                                                                 ask_for_confirmation=True)
+            return ResultObj("applied" in output, "Failed to start openSM")
 
     @staticmethod
     def verify_open_sm_is_running():
