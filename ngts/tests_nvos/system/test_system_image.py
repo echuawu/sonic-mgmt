@@ -54,8 +54,9 @@ def test_show_system_image():
 
     with allure.step("Run show command to view system image files"):
         logging.info("Run show command to view system image files ")
-        show_output = system.image.files.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
+        output_dictionary = system.image.files.get_files()
+        for image_file, path_dict in output_dictionary.items():
+            assert image_file in path_dict['path'], "The image file {} has the wrong path {}".format(image_file, path_dict['path'])
 
 
 @pytest.mark.checklist
@@ -92,18 +93,20 @@ def test_system_image_rename(release_name):
         logging.info("Delete original image name, should fail")
         system.image.files.delete_system_files([fetched_image], "File not found")
 
-    with allure.step("Install new image name"):
-        logging.info("Install new image name: {}".format(new_name))
-        system.image.files.action_file_install(new_name)
+    try:
+        with allure.step("Install new image name"):
+            logging.info("Install new image name: {}".format(new_name))
+            system.image.files.action_file_install(new_name)
 
-    with allure.step("Verify installed image"):
-        logging.info("Verify installed image, we should see the origin name and not the new name,"
-                     "because the name is taken from the code it self and not from the file name")
-        expected_show_images_output = original_images.copy()
-        expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(fetched_image)
-        expected_show_images_output[partition_id_for_new_image] = expected_show_images_output[ImageConsts.NEXT_IMG]
-        system.image.verify_show_images_output(expected_show_images_output)
-    cleanup_test(system, original_images, original_image_partition, [new_name])
+        with allure.step("Verify installed image"):
+            logging.info("Verify installed image, we should see the origin name and not the new name,"
+                         "because the name is taken from the code it self and not from the file name")
+            expected_show_images_output = original_images.copy()
+            expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(fetched_image)
+            expected_show_images_output[partition_id_for_new_image] = expected_show_images_output[ImageConsts.NEXT_IMG]
+            system.image.verify_show_images_output(expected_show_images_output)
+    finally:
+        cleanup_test(system, original_images, original_image_partition, [new_name])
 
 
 @pytest.mark.checklist
@@ -227,12 +230,14 @@ def test_system_image_bad_flow(engines, release_name):
         with allure.step("Install image file that does not exist"):
             system.image.files.action_file_install(file_rand_name, "Image does not exist")
         with allure.step("Install the same image twice"):
-            with allure.step("First installation"):
-                system.image.files.action_file_install(image_name)
-            with allure.step("Second installation"):
-                system.image.files.action_file_install(image_name)
-            with allure.step("uninstall"):
-                system.image.action_uninstall(params='force')
+            try:
+                with allure.step("First installation"):
+                    system.image.files.action_file_install(image_name)
+                with allure.step("Second installation"):
+                    system.image.files.action_file_install(image_name)
+            finally:
+                with allure.step("uninstall"):
+                    system.image.action_uninstall(params='force')
 
     with allure.step("Boot-next bad flows"):
         logging.info("Boot-next bad flows")
@@ -293,22 +298,23 @@ def image_uninstall_test(release_name, uninstall_force=""):
         system.image.action_uninstall(params=uninstall_force, expected_str="Nothing to uninstall")
         system.image.verify_show_images_output(original_images)
 
-    with allure.step("Install image and verify"):
-        installed_images_output = install_image_and_verify(fetched_image, partition_id_for_new_image, original_images, system)
+    try:
+        with allure.step("Install image and verify"):
+            installed_images_output = install_image_and_verify(fetched_image, partition_id_for_new_image, original_images, system)
 
-    with allure.step("{} uninstall images, while both partitions are used - should {}"
-                     .format(uninstall_force, "success" if uninstall_force else "fail")):
-        if uninstall_force:
-            system.image.action_uninstall(params=uninstall_force)
-            system.image.verify_show_images_output(original_images)
+        with allure.step("{} uninstall images, while both partitions are used - should {}"
+                         .format(uninstall_force, "success" if uninstall_force else "fail")):
+            if uninstall_force:
+                system.image.action_uninstall(params=uninstall_force)
+                system.image.verify_show_images_output(original_images)
 
-            with allure.step("Install image"):
-                install_image_and_verify(fetched_image, partition_id_for_new_image, original_images, system)
-        else:
-            system.image.action_uninstall(expected_str="Not uninstalling. image set to boot-next")
-            system.image.verify_show_images_output(installed_images_output)
-
-    cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
+                with allure.step("Install image"):
+                    install_image_and_verify(fetched_image, partition_id_for_new_image, original_images, system)
+            else:
+                system.image.action_uninstall(expected_str="Not uninstalling. image set to boot-next")
+                system.image.verify_show_images_output(installed_images_output)
+    finally:
+        cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
 
 
 def normalize_image_name(image_name):
