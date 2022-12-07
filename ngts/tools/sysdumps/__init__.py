@@ -35,8 +35,10 @@ def pytest_runtest_makereport(item, call):
                     collect_stored_cmds_then_attach_to_allure_report(topology_obj)
                     remote_dump_path = dut_cli_object.general.generate_techsupport(duration)
 
-                    dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
-                    logger.info('Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder))
+                dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
+                copy_msg = 'Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder)
+                with allure.step(copy_msg):
+                    logger.info(copy_msg)
                     dut_engine.copy_file(source_file=remote_dump_path,
                                          dest_file=dest_file,
                                          file_system='/',
