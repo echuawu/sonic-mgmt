@@ -189,8 +189,11 @@ community_keys = ["additional_apps", "custom_tarball_name", "base_version", "rpc
 
 canonical_keys = ["additional_apps", "base_version", "custom_tarball_name", "send_takeover_notification",
                   "skip_weekend_cases", "execution_block_generator"]
-canonical_upgrade_keys = ["additional_apps", "base_version", "target_version", "custom_tarball_name",
-                          "send_takeover_notification", "skip_weekend_cases","execution_block_generator"]
+canonical_upgrade_keys = ["base_version", "target_version", "execution_block_generator"]
+
+canonical_weekend_keys = ["additional_apps", "base_version", "custom_tarball_name", "send_takeover_notification",
+                  "skip_weekend_cases", "execution_block_generator"]
+canonical_weekend_upgrade_keys = ["base_version", "target_version"]
 
 
 def print_configs(f, config_key_list, config_dict):
@@ -259,10 +262,17 @@ def print_community_configs(f, dbs):
 
 def print_cononical_configs(f, mars_branch, dbs, upgrade, is_weekend):
     mars_config_dict = gen_canonical_config(mars_branch, dbs, upgrade, is_weekend)
+
     if upgrade:
-        print_configs(f, canonical_upgrade_keys, mars_config_dict)
+        if is_weekend:
+            print_configs(f, canonical_weekend_upgrade_keys, mars_config_dict)
+        else:
+            print_configs(f, canonical_upgrade_keys, mars_config_dict)
     else:
-        print_configs(f, canonical_keys, mars_config_dict)
+        if is_weekend:
+            print_configs(f, canonical_keys, mars_config_dict)
+        else:
+            print_configs(f, canonical_weekend_keys, mars_config_dict)
 
 
 def print_mars_configs(branch):
@@ -333,8 +343,9 @@ def print_mars_configs(branch):
         print_cononical_configs(f, "side_branch_2", canonical_dbs, False, False)
 
         if branch != "201911" and branch != "202012":
-            f.write("+++++++++++++++++ main_branch weekend  +++++++++++\n")
+            f.write("++++++++++++++++++++++++++++++ friday_canonical_full_regression_main_branch ++++++++++++++\n")
             print_cononical_configs(f, "main_branch", canonical_upgrade_dbs, False, True)
+            f.write("########## friday_canonical_full_regression_main_branch, for setups which has upgrade ########\n")
             f.write("## sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56##\n")
             print_cononical_configs(f, "main_branch", canonical_upgrade_dbs, True, True)
         f.write("***************************************************************************************\n")
