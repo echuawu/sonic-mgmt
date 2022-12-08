@@ -111,6 +111,8 @@ class RandomizationTool:
     @staticmethod
     def get_random_active_port(number_of_values_to_select=1):
         list_of_ports = Port.get_list_of_active_ports()
+        if number_of_values_to_select == 0:
+            return ResultObj(True, "", list_of_ports)
         return RandomizationTool.select_random_values(list_of_ports, None, number_of_values_to_select)
 
     @staticmethod

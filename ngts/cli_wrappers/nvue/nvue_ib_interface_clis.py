@@ -75,7 +75,7 @@ class NvueIbInterfaceCli:
         :param output_format: format of the output: auto(table), json or yaml. OutputFormat object is expected
         :return: output str
         """
-        cmd = "nv show interface {port_name} --view signal-degrade --output {output_format}"\
+        cmd = "nv show interface {port_name} signal-degrade --output {output_format}"\
               .format(port_name=port_name, output_format=output_format)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))

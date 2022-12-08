@@ -260,43 +260,46 @@ class NVUECliCoverage:
         """
         This is the main method to run the NVUE CLI coverage process
         """
-        with allure.step("CLI coverage run start"):
-            logging.info("--------- CLI coverage run start---------")
-            cls.project = project
-            cls.department = department
-            cls.nvue_dir = nvue_dir
-            cls.nvue_full_list_dir = os.path.join(nvue_dir, 'full_command_lists')
-            cls.engine = TestToolkit.engines.dut
-            version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image'].split('-')
-            swversion = version[1]
-            build_id = version[2]
-            system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
+        try:
+            with allure.step("CLI coverage run start"):
+                logging.info("--------- CLI coverage run start---------")
+                cls.project = project
+                cls.department = department
+                cls.nvue_dir = nvue_dir
+                cls.nvue_full_list_dir = os.path.join(nvue_dir, 'full_command_lists')
+                cls.engine = TestToolkit.engines.dut
+                version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image'].split('-')
+                swversion = version[1]
+                build_id = version[2]
+                system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
 
-            with allure.step("Get full_commands list"):
-                result_obj = cls.get_full_command_list(cls.engine, cls.project, swversion)
-                if result_obj.result:
-                    cls.full_command_list[swversion] = result_obj.returned_value
-                else:
-                    logging.error(result_obj.info)
-                    return
-                logging.info("NVUE full command list count: {}".format(len(cls.full_command_list[swversion])))
-
-            with allure.step("Get used commands:"):
-                cls.create_used_commands_dictionary(cls.engine, swversion).verify_result()
-
-            date_folder = os.path.join(cls.nvue_dir, time.strftime("%Y%m%d"))
-
-            with allure.step("Create folder if not exist"):
-                logging.info("Create folder if not exist")
-                if not os.path.exists(date_folder):
-                    os.umask(0)
-                    try:
-                        os.mkdir(date_folder, 0o777)
-                    except (FileNotFoundError, PermissionError, OSError) as ex:
-                        logging.warning("Unable to mkdir: {}".format(ex))
+                with allure.step("Get full_commands list"):
+                    result_obj = cls.get_full_command_list(cls.engine, cls.project, swversion)
+                    if result_obj.result:
+                        cls.full_command_list[swversion] = result_obj.returned_value
+                    else:
+                        logging.error(result_obj.info)
                         return
+                    logging.info("NVUE full command list count: {}".format(len(cls.full_command_list[swversion])))
 
-            with allure.step("Create hit list file"):
-                logging.info("Create hit list file")
-                cls.create_hit_list_file(item, system_type, build_id, start_time, date_folder).verify_result()
-            logging.info("--------- CLI coverage run completed successfully ---------")
+                with allure.step("Get used commands:"):
+                    cls.create_used_commands_dictionary(cls.engine, swversion).verify_result()
+
+                date_folder = os.path.join(cls.nvue_dir, time.strftime("%Y%m%d"))
+
+                with allure.step("Create folder if not exist"):
+                    logging.info("Create folder if not exist")
+                    if not os.path.exists(date_folder):
+                        os.umask(0)
+                        try:
+                            os.mkdir(date_folder, 0o777)
+                        except (FileNotFoundError, PermissionError, OSError) as ex:
+                            logging.warning("Unable to mkdir: {}".format(ex))
+                            return
+
+                with allure.step("Create hit list file"):
+                    logging.info("Create hit list file")
+                    cls.create_hit_list_file(item, system_type, build_id, start_time, date_folder).verify_result()
+                logging.info("--------- CLI coverage run completed successfully ---------")
+        except BaseException as ex:
+            logging.info("--------- CLI coverage failed ---------\n" + str(ex))

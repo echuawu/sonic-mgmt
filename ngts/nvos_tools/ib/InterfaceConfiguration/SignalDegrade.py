@@ -50,7 +50,7 @@ class SignalDegrade(BaseComponent):
             logging.info("Un-setting signal degrade {}".format(comp))
             SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset_interface,
                                             TestToolkit.engines.dut, self.parent_obj.name,
-                                            comp).verify_result()
+                                            IbConsts.SIGNAL_DEGRADE + " " + comp).verify_result()
 
             if apply:
                 logging.info("Applying configuration")

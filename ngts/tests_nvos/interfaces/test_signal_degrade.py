@@ -11,31 +11,36 @@ logger = logging.getLogger()
 @pytest.mark.ib
 @pytest.mark.ib_interfaces
 @pytest.mark.checklist
-def test_show_signal_degrade(engines):
+def test_show_signal_degrade(engines, start_sm):
     """
     Execute show signal degrade and verify the output
     :param engines: ssh engine
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        active_ports, selected_port = _get_active_ports()
 
     with allure.step("Check show signal degrade output"):
-        output = selected_port.ib_interface.signal_degrade.show()
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            selected_port.ib_interface.signal_degrade.show()).get_returned_value()
         Tools.ValidationTool.verify_field_exist_in_json_output(json_output=output,
                                                                keys_to_search_for=[IbConsts.SIGNAL_DEGRADE_STATE,
                                                                                    IbConsts.SIGNAL_DEGRADE_ACTION,
                                                                                    "fec"]).verify_result()
 
+        with allure.step("Check nv set interface <> signal-degrade"):
+            engines.dut.run_cmd("nv set interface {} signal-degrade".format(selected_port.name))
 
+
+@pytest.mark.ib_interfaces
 @pytest.mark.ib
 @pytest.mark.checklist
-def test_set_unset_signal_degrade(engines):
+def test_set_unset_signal_degrade(engines, start_sm):
     """
     Check set/unset command for signal degrade (without traffic) and verify the output
     :param engines: ssh engine
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        active_ports, selected_port = _get_active_ports()
 
     with allure.step("Set signal degrade status to 'disabled'"):
         _set_signal_degrade_and_verify_output(port_obj=selected_port,
@@ -58,10 +63,23 @@ def test_set_unset_signal_degrade(engines):
                                               state_value=IbConsts.SIGNAL_DEGRADE_STATE_DISABLED,
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_SHUTDOWN)
 
-    with allure.step("Set signal degrade action to 'no-shutdown' and status to 'disabled'"):
+    with allure.step("Set signal degrade action to 'no-shutdown' and status to 'enabled'"):
         _set_signal_degrade_and_verify_output(port_obj=selected_port,
                                               state_value=IbConsts.SIGNAL_DEGRADE_STATE_ENABLED,
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN)
+
+    if len(active_ports) > 1:
+        with allure.step("Verify different port was not affected"):
+            other_port_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                active_ports[0].ib_interface.signal_degrade.show()).get_returned_value()
+            Tools.ValidationTool.verify_field_value_in_output(output_dictionary=other_port_output,
+                                                              field_name=IbConsts.SIGNAL_DEGRADE_ACTION,
+                                                              expected_value=IbConsts.SIGNAL_DEGRADE_ACTION_SHUTDOWN)\
+                .verify_result()
+            Tools.ValidationTool.verify_field_value_in_output(output_dictionary=other_port_output,
+                                                              field_name=IbConsts.SIGNAL_DEGRADE_STATE,
+                                                              expected_value=IbConsts.SIGNAL_DEGRADE_STATE_DISABLED) \
+                .verify_result()
 
     with allure.step("Unset action"):
         _unset_signal_degrade_and_verify_output(port_obj=selected_port, unset_action=True)
@@ -69,20 +87,28 @@ def test_set_unset_signal_degrade(engines):
     with allure.step("Unset state"):
         _unset_signal_degrade_and_verify_output(port_obj=selected_port, unset_state=True)
 
+    with allure.step("Unset signal degrade"):
+        selected_port.ib_interface.signal_degrade.unset(comp=IbConsts.SIGNAL_DEGRADE_STATE)
+        selected_port.ib_interface.signal_degrade.unset(comp=IbConsts.SIGNAL_DEGRADE_ACTION)
 
+    with allure.step("Check nv set interface <> signal-degrade"):
+        engines.dut.run_cmd("nv set interface {} signal-degrade".format(selected_port.name))
+
+
+@pytest.mark.ib_interfaces
 @pytest.mark.ib
 @pytest.mark.checklist
-def test_check_signal_degrade_functionality(engines, mst_device):
+def test_check_signal_degrade_functionality(engines, mst_device, start_sm):
     """
     Send broken traffic and make sure the signal degrade functionality works as expected
     :param engines: ssh engine
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        active_ports, selected_port = _get_active_ports()
 
     with allure.step("Verify selected port physical state is up"):
-        port_state = selected_port.ib_interface.physical_port_state.get_operational()
-        assert port_state == "up", "Physical state of selected port is down, can't proceed"
+        port_state = selected_port.ib_interface.link.physical_port_state.get_operational()
+        assert port_state == "LinkUp", "Physical state of selected port is down, can't proceed"
 
     try:
         with allure.step("Verify correct Noga setup"):
@@ -99,12 +125,11 @@ def test_check_signal_degrade_functionality(engines, mst_device):
             _check_signal_degrade_while_state_enabled_action_no_shutdown(engines, mst_device, selected_port)
 
         with allure.step("Check signal degrade for state = disabled and action = no-shutdown"):
-            _check_signal_degrade_while_state_enabled_action_no_shutdown(engines, mst_device, selected_port)
+            _check_signal_degrade_while_state_disabled_action_no_shutdown(engines, mst_device, selected_port)
 
     finally:
+        selected_port.ib_interface.signal_degrade.unset(comp="")
         _recover_port(selected_port)
-        selected_port.ib_interface.signal_degrade.unset(comp=IbConsts.SIGNAL_DEGRADE_STATE)
-        selected_port.ib_interface.signal_degrade.unset(comp=IbConsts.SIGNAL_DEGRADE_ACTION)
 
 
 def _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_device, selected_port):
@@ -114,7 +139,7 @@ def _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_devic
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_SHUTDOWN)
 
     port_state = _simulate_signal_degrade(engines, mst_device, selected_port)
-    assert port_state == "down", "The port is now down after signal degrade event"
+    assert port_state == "Disabled signal-degradation", "The port is now down after signal degrade event"
 
 
 def _check_signal_degrade_while_state_disabled_action_shutdown(engines, mst_device, selected_port):
@@ -124,7 +149,7 @@ def _check_signal_degrade_while_state_disabled_action_shutdown(engines, mst_devi
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_SHUTDOWN)
 
         port_state = _simulate_signal_degrade(engines, mst_device, selected_port)
-        assert port_state == "up", "The port is down while the status of signal degrade is disabled"
+        assert port_state == "LinkUp", "The port is down while the status of signal degrade is disabled"
 
 
 def _check_signal_degrade_while_state_enabled_action_no_shutdown(engines, mst_device, selected_port):
@@ -134,7 +159,7 @@ def _check_signal_degrade_while_state_enabled_action_no_shutdown(engines, mst_de
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN)
 
         port_state = _simulate_signal_degrade(engines, mst_device, selected_port)
-        assert port_state == "up", "The port is down while the action of signal degrade is no shutdown"
+        assert port_state == "LinkUp", "The port is down while the action of signal degrade is no shutdown"
 
 
 def _check_signal_degrade_while_state_disabled_action_no_shutdown(engines, mst_device, selected_port):
@@ -144,30 +169,34 @@ def _check_signal_degrade_while_state_disabled_action_no_shutdown(engines, mst_d
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN)
 
         port_state = _simulate_signal_degrade(engines, mst_device, selected_port)
-        assert port_state == "up", "The port is down while the action of signal degrade is no shutdown and" \
-                                   "the state is disabled"
+        assert port_state == "LinkUp", "The port is down while the action of signal degrade is no shutdown and" \
+                                       "the state is disabled"
 
 
 def _recover_port(selected_port):
-    with allure.step("Recover selected port"):
-        selected_port.ib_interface.signal_degrade.recover()
-        with allure.step("Wait until selected port is up after recovering"):
-            timer = 120
-            port_state = "down"
-            while timer > 0:
-                port_state = selected_port.ib_interface.physical_port_state.get_operational()
-                if port_state == "up":
-                    break
-                else:
-                    time.sleep(10)
-                    timer -= 10
-            assert port_state == "up", "Physical state of selected port is not up after 120 seconds"
+    with allure.step("Check if selected port state is down"):
+        port_state = selected_port.ib_interface.link.physical_port_state.get_operational()
+        if port_state != "LinkUp":
+            with allure.step("Recover selected port"):
+                selected_port.ib_interface.signal_degrade.recover()
+                with allure.step("Wait until selected port is up after recovering"):
+                    timer = 120
+                    port_state = "down"
+                    while timer > 0:
+                        port_state = selected_port.ib_interface.link.physical_port_state.get_operational()
+                        if port_state == "LinkUp":
+                            break
+                        else:
+                            time.sleep(10)
+                            timer -= 10
+                    assert port_state == "LinkUp", "Physical state of selected port is not up after 120 seconds"
 
 
 def _set_signal_degrade_and_verify_output(port_obj, state_value="", action_value=""):
     logging.info("Set signal degrade state to {} and/or action to {}".format(state_value, action_value))
     port_obj.ib_interface.signal_degrade.set(state=state_value, action=action_value)
-    output = port_obj.ib_interface.signal_degrade.show()
+    output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+        port_obj.ib_interface.signal_degrade.show()).get_returned_value()
     if state_value:
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output,
                                                           field_name=IbConsts.SIGNAL_DEGRADE_STATE,
@@ -180,7 +209,8 @@ def _set_signal_degrade_and_verify_output(port_obj, state_value="", action_value
 
 def _unset_signal_degrade_and_verify_output(port_obj, unset_state=False, unset_action=False):
     logging.info("Save the output before unset")
-    output = port_obj.ib_interface.signal_degrade.show()
+    output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+        port_obj.ib_interface.signal_degrade.show()).get_returned_value()
     pre_state = output[IbConsts.SIGNAL_DEGRADE_STATE]
     pre_action = output[IbConsts.SIGNAL_DEGRADE_ACTION]
 
@@ -191,7 +221,8 @@ def _unset_signal_degrade_and_verify_output(port_obj, unset_state=False, unset_a
         port_obj.ib_interface.signal_degrade.unset(comp=IbConsts.SIGNAL_DEGRADE_ACTION)
 
     logging.info("Verify output after unset")
-    output = port_obj.ib_interface.signal_degrade.show()
+    output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+        port_obj.ib_interface.signal_degrade.show()).get_returned_value()
 
     if unset_state:
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output,
@@ -214,16 +245,19 @@ def _unset_signal_degrade_and_verify_output(port_obj, unset_state=False, unset_a
 
 def _simulate_signal_degrade(engines, mst_device, selected_port):
     with allure.step("Signal degrade simulator"):
+        mst_devices = mst_device.split(",")
         try:
-            _start_signal_degrade_simulator(engines, mst_device)
-
-            time.sleep(3)
-
-            with allure.step("Read port status after signal degrade event"):
-                port_state = selected_port.ib_interface.physical_port_state.get_operational()
-
+            for mst in mst_devices:
+                _start_signal_degrade_simulator(engines, mst)
+            time.sleep(1)
         finally:
-            _stop_signal_degrade_simulator(engines, mst_device)
+            for mst in mst_devices:
+                _stop_signal_degrade_simulator(engines, mst)
+
+        time.sleep(2)
+        with allure.step("Read port status after signal degrade event"):
+            logging.info("Read port status after signal degrade event")
+            port_state = selected_port.ib_interface.link.physical_port_state.get_operational()
     return port_state
 
 
@@ -241,3 +275,15 @@ def _stop_signal_degrade_simulator(engines, mst_device):
         output = engines.server.run_cmd(
             "/auto/sw_system_project/MLNX_OS_INFRA/flaky_cable_new/cx4_ber_generator_qtm.sh {} 0".format(mst_device))
         assert "Done" in output, "Failed to stop signal degrade simulator"
+
+
+def _get_active_ports():
+    active_ports = Tools.RandomizationTool.get_random_active_port(0).get_returned_value()
+    relevant_ports = []
+    relevant_port_names = ["sw1p1", "sw1p2", "sw2p1", "sw2p2", "sw3p1", "sw3p2"]
+    for port in active_ports:
+        if port.name in relevant_port_names:
+            relevant_ports.append(port)
+    selected_port = Tools.RandomizationTool.select_random_value(relevant_ports).get_returned_value()
+    active_ports.remove(selected_port)
+    return active_ports, selected_port
