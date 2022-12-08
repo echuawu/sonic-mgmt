@@ -197,11 +197,15 @@ tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
-    reason: "Testcase ignored due to platform 2201 or ignore the test on all SPC1 by bug 3289396"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to platform 2201"
     conditions:
       - "'2201' in platform"
-      - "https://redmine.mellanox.com/issues/3289396 and 'SN2' in platform"
+
+tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
+  skip:
+    reason: "Testcase ignored on all SPC1 by bug 3289396"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3289396 and 'msn2' in platform"
 
 tests/nightly/fec:
   skip:
