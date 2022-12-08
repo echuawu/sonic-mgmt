@@ -5,6 +5,7 @@ import allure
 import math
 from ngts.constants.constants import PytestConst
 from ngts.tools.allure_report.allure_report_attacher import collect_stored_cmds_then_attach_to_allure_report, clean_stored_cmds_with_fixture_scope_list
+from ngts.scripts.store_techsupport_on_not_success import dump_simx_data
 
 logger = logging.getLogger()
 
@@ -46,6 +47,11 @@ def pytest_runtest_makereport(item, call):
                                          overwrite_file=True,
                                          verify_file=False)
                     os.chmod(dest_file, 0o777)
+                is_simx = item.funcargs.get('is_simx')
+                is_air = item.funcargs.get('is_air')
+                if is_simx and not is_air:
+                    with allure.step('Dump SIMX VM logs'):
+                        dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name)
             else:
                 logger.info('###  Session ID was not provided, assuming this is manual run,'
                             ' sysdump will not be created  ###')
