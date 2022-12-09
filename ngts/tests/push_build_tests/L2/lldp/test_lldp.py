@@ -3,6 +3,7 @@ import logging
 import pytest
 import re
 import collections
+import json
 from retry.api import retry_call
 
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
@@ -114,7 +115,7 @@ def verify_lldp_table_info_for_host_port(topology_obj, lldp_table_info, port, ne
     verify_lldp_table_info_for_port(port, lldp_table_info,
                                     hostname,
                                     host_port_mac,
-                                    port_neighbor, topo_neighbor_port_capability="R")
+                                    port_neighbor, topo_neighbor_port_capability=["R", "O"])
 
 
 def verify_lldp_table_info_for_sonic_port(port, lldp_table_info, topo_hostname,
@@ -129,7 +130,7 @@ def verify_lldp_table_info_for_sonic_port(port, lldp_table_info, topo_hostname,
     :return:  None, raise AssertionError in case of validation fails
     """
     verify_lldp_table_info_for_port(port, lldp_table_info, topo_hostname,
-                                    topo_remote_port_id, topo_neighbor_port_descr, topo_neighbor_port_capability="BR")
+                                    topo_remote_port_id, topo_neighbor_port_descr, topo_neighbor_port_capability=["BR"])
 
 
 def verify_lldp_table_info_for_port(port, lldp_table_info, topo_hostname, topo_remote_port_id,
@@ -198,8 +199,8 @@ def verify_port_capability(topo_neighbor_port_capability, lldp_neighbor_port_cap
     :param lldp_neighbor_port_capability:  switch/host port capability from lldp
     :return:  None, raise AssertionError in case of mismatch
     """
-    assert topo_neighbor_port_capability == lldp_neighbor_port_capability, \
-        "Assertion Error: Expected neighbor port capability is {}, LLDP neighbor port capability is {}" \
+    assert lldp_neighbor_port_capability in topo_neighbor_port_capability, \
+        "Assertion Error: Expected neighbor port capability is one of {}, LLDP neighbor port capability is {}" \
         .format(topo_neighbor_port_capability, lldp_neighbor_port_capability)
 
 
@@ -444,8 +445,8 @@ def verify_lldp_info_for_host_dut_ports(topology_obj):
     try:
         ports_for_validation = {'host_ports': ['ha-dut-1', 'ha-dut-2', 'hb-dut-1', 'hb-dut-2'],
                                 'dut_ports': ['dut-ha-1', 'dut-ha-2', 'dut-hb-1', 'dut-hb-2']}
-        dut_engine = topology_obj.players['dut']['engine']
         cli_object = topology_obj.players['dut']['cli']
+        dut_mgmt_ip = cli_object.ip.get_mgmt_interface_ipv4_address()
         dut_hostname = cli_object.chassis.get_hostname()
         for host_port_alias, dut_host_port_alias in zip(ports_for_validation['host_ports'], ports_for_validation['dut_ports']):
             host_name_alias = host_port_alias.split('-')[0]
@@ -461,7 +462,7 @@ def verify_lldp_info_for_host_dut_ports(topology_obj):
                 neighbor_mgmt_ip = parsed_lldp_output_dict["neighbor_mgmt_ip"]
                 verify_port_descr(dut_port, neighbor_port)
                 verify_hostname(dut_hostname, neighbor_hostname)
-                verify_mgmt_ip(dut_engine.ip, neighbor_mgmt_ip)
+                verify_mgmt_ip(dut_mgmt_ip, neighbor_mgmt_ip)
 
     except Exception as err:
         raise AssertionError(err)

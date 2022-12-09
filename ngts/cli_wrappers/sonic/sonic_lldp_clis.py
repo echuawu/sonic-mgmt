@@ -43,7 +43,7 @@ class SonicLldpCli(LldpCliCommon):
           }
         """
         lldp_table_output = self.show_lldp_table()
-        regex_pattern = r"(Ethernet\d+)\s*(\w*-[\w*-]*\w*\d+-*\d*)\s*([\d*\w*:]*\d*\w*)\s*(\w*)\s*(.*)"
+        regex_pattern = r"(Ethernet\d+)\s*(\w*-[\w*-]*\w*\d+-*\d*|ha|hb)\s*([\d*\w*:]*\d*\w*)\s*(\w*)\s*(.*)"
         output_list = re.findall(regex_pattern, lldp_table_output)
         res_dict = {}
         for lldp_info_tuple in output_list:

@@ -1,5 +1,6 @@
 import netaddr
 import re
+import json
 
 from ngts.cli_wrappers.common.ip_clis_common import IpCliCommon
 from ngts.helpers.network import generate_mac
@@ -253,3 +254,17 @@ class SonicIpCli(IpCliCommon):
         self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_FIRST}" > {tmp_resolv_conf_path}')
         self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_SECOND}" >> {tmp_resolv_conf_path}')
         self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
+
+    def get_mgmt_interface_ipv4_address(self):
+        """
+        Get eth0 mgmt interface IPv4 address
+        :return: string, IPv4 address
+        """
+        mgmt_iface_data = self.engine.run_cmd('ip -j addr show dev eth0')
+        mgmt_ips_list = json.loads(mgmt_iface_data)[0]['addr_info']
+        mgmt_ip_v4_addr = None
+        for mgmt_ip_data in mgmt_ips_list:
+            if mgmt_ip_data['family'] == 'inet':
+                mgmt_ip_v4_addr = mgmt_ip_data['local']
+                break
+        return mgmt_ip_v4_addr
