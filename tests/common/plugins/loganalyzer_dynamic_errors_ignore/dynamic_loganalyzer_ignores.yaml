@@ -1680,6 +1680,7 @@
       - show_techsupport/test_auto_techsupport.py
       - show_techsupport/test_techsupport_no_secret.py
       - show_techsupport/test_techsupport.py
+      - tests/nightly/arp/test_arp.py::test_arp_gratuitous_without_arp_update
 
 - Errors_list:
     - '.* ERR healthd: Get unit status determine-reboot-cause-''LoadState'''
@@ -1763,3 +1764,11 @@
       - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
       Redmine:
       - 3289596
+
+- Errors_list:
+    - '.*ERR kernel.*Unknown EEPROM type.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit
+      Redmine:
+      - 3293065

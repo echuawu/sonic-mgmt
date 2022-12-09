@@ -205,7 +205,7 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
     reason: "Testcase ignored on all SPC1 by bug 3289396"
     conditions:
-      - "https://redmine.mellanox.com/issues/3289396 and 'msn2' in platform"
+      - "https://redmine.mellanox.com/issues/3289396 and 'sn2' in platform"
 
 tests/nightly/fec:
   skip:
