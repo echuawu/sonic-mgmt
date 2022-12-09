@@ -100,13 +100,6 @@
     </case>
 
     <case>
-        <ignore>
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
         <info> Test Reload Config Case </info>
         <name> reload_config </name>
         <tout> 2000 </tout>
