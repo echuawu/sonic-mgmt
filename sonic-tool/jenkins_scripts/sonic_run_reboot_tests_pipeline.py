@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 # Get env variables
 fast_reboot_executors = os.environ.get('fast_reboot_executors')
-fast_reboot_iterations_number = os.environ['fast_reboot_iterations_number']
+fast_reboot_iterations_number = os.environ.get('fast_reboot_iterations_number', 1)
 warm_reboot_executors = os.environ.get('warm_reboot_executors')
-warm_reboot_iterations_number = os.environ['warm_reboot_iterations_number']
-base_version = os.environ['base_version']
+warm_reboot_iterations_number = os.environ.get('warm_reboot_iterations_number', 1)
+base_version = os.environ.get('base_version')
 target_version = os.environ.get('target_version')
 
 f_reboot_setups_list = []
@@ -188,7 +188,6 @@ def build_summary_report(results):
 
     for setup_name, setup_data in results.items():
         test_name = setup_data['reboot_type']
-        hwsku = setup_data['extra_data']['hwsku']
         total_iterations = len(setup_data['data'])
         base_ver = setup_data['base_ver']
         target_ver = setup_data['target_ver']
@@ -207,9 +206,13 @@ def build_summary_report(results):
         tests_status = '<span style="font-size:14px; color: green">Passed: {},</span> ' \
                        '<span style="font-size:14px; color: red">Failed: {}</span>'.format(passed_tests_num,
                                                                                            failed_tests_num)
-
-        total_ports_num = setup_data['extra_data']['total_ports']
-        active_ports_num = setup_data['extra_data']['active_ports']
+        hwsku = 'Unknown'
+        total_ports_num = 'Unknown'
+        active_ports_num = 'Unknown'
+        if setup_data.get('extra_data'):
+            hwsku = setup_data['extra_data'].get('hwsku', hwsku)
+            total_ports_num = setup_data['extra_data'].get('total_ports', total_ports_num)
+            active_ports_num = setup_data['extra_data'].get('active_ports', active_ports_num)
         ports = 'Total: {}, Active: {}'.format(total_ports_num, active_ports_num)
 
         setup_data = '<tr style="height: 18px;">' \
@@ -439,7 +442,12 @@ def update_test_case_data_results(setup_name, test_ids_reports_dict, results_dic
         tests_data_list.append(data)
 
     # Sort tests list by execution date
-    tests_data_list_sorted = sorted(tests_data_list, key=lambda d: d.get('date'))
+    try:
+        tests_data_list_sorted = sorted(tests_data_list, key=lambda d: d.get('date'))
+    except Exception as err:
+        logger.error('Unable to sort test runs by execution order. Got error: {}'.format(err))
+        tests_data_list_sorted = tests_data_list
+
     results_dict[setup_name]['data'] = tests_data_list_sorted
 
 
