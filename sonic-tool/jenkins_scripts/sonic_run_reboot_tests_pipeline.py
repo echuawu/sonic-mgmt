@@ -485,7 +485,7 @@ def get_results_for_session(session_id, setup_name):
             results_dict[setup_name]['target_ver'] = target_version
 
     # If no info about base image - provide path(s) to SONiC image(s) which used by jenkins job
-    if not results_dict[setup_name]['base_ver']:
+    if not results_dict[setup_name].get('base_ver'):
         results_dict[setup_name]['base_ver'] = base_version
 
     update_reboot_type_for_setup(setup_name, results_dict)
