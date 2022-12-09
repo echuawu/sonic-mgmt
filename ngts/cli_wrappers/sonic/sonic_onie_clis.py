@@ -118,9 +118,9 @@ class SonicOnieCli:
         prompts = ["Installed SONiC base image SONiC-OS successfully"] +\
                   [str(pexpect.TIMEOUT)] + DEFAULT_PROMPT
 
-        image_local_path = self.download_image(image_path, platform_params, topology_obj)
+        image_path = self.download_image(image_path, platform_params, topology_obj)
 
-        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_local_path}"])
+        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_path}"])
 
         while num_retry > 0:
             if pexpect_entry == 0:
@@ -153,12 +153,14 @@ class SonicOnieCli:
         with allure.step('Downloading SONiC image'):
             if 'air' in platform_params.setup_name:
                 self.download_image_into_air(topology_obj, image_path, image_name, dst_image_file_path)
+                dst_image_file_path = f'http://{SonicNvidiaAirConstants.NVIDIA_AIR_OOB_MGMT_SERVER_IP}/{image_name}'
             else:
                 self.download_image_into_nvidia_lab(image_path, dst_image_file_path)
 
         return dst_image_file_path
 
-    def download_image_into_air(self, topology_obj, image_path, image_name, dst_image_file_path):
+    @staticmethod
+    def download_image_into_air(topology_obj, image_path, image_name, dst_image_file_path):
         """
         Download SONiC image into NvidiaAir simulation
         First download image to oob-mgmt-server
@@ -168,12 +170,6 @@ class SonicOnieCli:
         oob_engine = topology_obj.players['oob-mgmt-server']['engine']
         oob_engine.copy_file(source_file=image_path, file_system='/tmp', dest_file=image_name)
         oob_engine.run_cmd(f'sudo mv {dst_image_file_path} /var/www/html/')
-        # Copy from oob-mgmt-server to DUT
-        download_image_cmd = f'wget -O {dst_image_file_path} ' \
-                             f'http://{SonicNvidiaAirConstants.NVIDIA_AIR_OOB_MGMT_SERVER_IP}/{image_name}'
-        SonicOnieCli(self.ip, self.ssh_port).run_cmd_set(
-            [download_image_cmd]
-        )
 
     def download_image_into_nvidia_lab(self, image_path, dst_image_file_path):
         """
