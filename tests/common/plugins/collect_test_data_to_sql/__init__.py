@@ -16,6 +16,7 @@ def collect_tests_data_to_sql(request):
         'tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer': NgtsPushGateRebootLossTimeCollector,
         'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage': NgtsCpuRamUsageCollector,
         'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage': NgtsCpuRamUsageCollector,
+        'tests/push_build_tests/system/test_startup_time_degradation.py::TestStartupTime::test_startup_time_degradation': StartupTimeCollector,
         'platform_tests/test_advanced_reboot.py::test_fast_reboot': AdvancedRebootCollector,
         'platform_tests/test_advanced_reboot.py::test_warm_reboot': AdvancedRebootCollector,
         'upgrade_path/test_upgrade_path.py::test_upgrade_path': UpgradePathCollector
@@ -311,3 +312,18 @@ class UpgradePathCollector(AdvancedRebootCollector):
             images['installed_list'].remove(target_ver)
         base_ver = images['installed_list'][0]  # supported only one base version
         self.setup_extra_info['base_version'] = base_ver
+
+
+class StartupTimeCollector(SonicDataCollector):
+    """
+    Class which collects reboot time for the Canonical test_startup_time_degradation test case
+    """
+    def __init__(self, request):
+        super(StartupTimeCollector, self).__init__(request)
+
+    def get_test_results(self):
+        try:
+            self.test_data = {'reboot_time': self.request.instance.elapsed_time}
+
+        except Exception as err:
+            logger.error("Couldn't get reboot time data for test: {}. Got err: {}".format(self.test_name, err))

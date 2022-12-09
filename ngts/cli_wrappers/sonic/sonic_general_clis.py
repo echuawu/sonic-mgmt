@@ -220,7 +220,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param dockers_list: list of dockers to check
         :return: None, raise error in case of unexpected result
         """
-        self._verify_dockers_are_up(dockers_list)
+        with allure.step('Check that dockers in UP state'):
+            self._verify_dockers_are_up(dockers_list)
 
     def _verify_dockers_are_up(self, dockers_list):
         """
