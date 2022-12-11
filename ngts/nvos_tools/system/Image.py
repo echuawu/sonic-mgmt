@@ -13,27 +13,21 @@ logger = logging.getLogger()
 
 
 class Image(BaseComponent):
-    image_id = ''
 
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/image/{image_id}'
+        self._resource_path = '/image'
         self.parent_obj = parent_obj
         self.files = Files(self)
 
-    def get_resource_path(self):
-        self_path = self._resource_path.format(image_id=self.image_id).rstrip("/")
-        return "{parent_path}{self_path}".format(
-            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self_path)
-
     def unset(self, op_param=""):
-        raise Exception("unset is not implemented for /image/{image_id}")
+        raise Exception("unset is not implemented for /image")
 
     def _action(self, action_type, op_param="", expected_str="Action succeeded"):
         return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_image,
                                                             expected_str,
                                                             TestToolkit.engines.dut,
-                                                            action_type, "image", op_param).get_returned_value()
+                                                            action_type, self.get_resource_path(), op_param).get_returned_value()
 
     def action_install(self, params="", expected_str=""):
         with allure.step("Install {params} system image".format(params=params)):

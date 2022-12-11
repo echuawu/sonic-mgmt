@@ -13,50 +13,57 @@ class OpenApiSystemCli(OpenApiBaseCli):
 
     @staticmethod
     def action_image(engine, action_str, action_component_str, op_param=""):
-        logging.info("Running action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
-
+        logging.info("Running image action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
+        action_type = '@' + action_str
         params = \
             {
-                ActionConsts.INSTALL:
+                ActionType.BOOT_NEXT:
                     {
-                        "image": op_param,
-                        "@install": {
-                            "state": "inactive",
-                            "status": "string",
-                            "timeout": 3600
-                        }
+                        "state": "start",
+                        "parameters": {"partition": op_param}
                     },
-                ActionConsts.BOOT_NEXT:
+                ActionType.UNINSTALL:
                     {
-                        "@boot-next": {
-                            "state": "inactive",
-                            "status": "string",
-                            "timeout": 3600
-                        },
-                        "image": op_param,
+                        "state": "start",
+                        "parameters": {"force": True if op_param == "force" else False}
                     },
-                ActionConsts.UNINSTALL:
+                ActionType.FETCH:
                     {
-                        "@uninstall": {
-                            "state": "inactive",
-                            "status": "string",
-                            "timeout": 3600
-                        },
-                        "image": op_param,
-                    },
-                ActionConsts.CLEANUP:
-                    {
-                        "@cleanup": {
-                            "state": "inactive",
-                            "status": "string",
-                            "timeout": 3600
-                        }
+                        "state": "start",
+                        "parameters": {"remote-url": op_param}
                     }
             }
+        return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
+                                                   engine.ip, action_component_str, params[action_type])
 
-        return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
-                                                   OpenApiReqType.PATCH, engine.ip, action_component_str,
-                                                   params[action_str])
+    @staticmethod
+    def action_files(engine, action_str, action_component_str, file, op_param=""):
+        logging.info("Running file action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
+        action_type = '@' + action_str
+        params = \
+            {
+                ActionType.DELETE:
+                    {
+                        "state": "start"
+                    },
+                ActionType.INSTALL:
+                    {
+                        "state": "start",
+                        "parameters": {"force": op_param}
+                    },
+                ActionType.RENAME:
+                    {
+                        "state": "start",
+                        "parameters": {"new-name": op_param}
+                    },
+                ActionType.UPLOAD:
+                    {
+                        "state": "start",
+                        "parameters": {"remote-url": op_param}
+                    }
+            }
+        return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
+                                                   engine.ip, action_component_str, params[action_type])
 
     @staticmethod
     def action_firmware_install(engine, action_str, action_component_str, op_param=""):

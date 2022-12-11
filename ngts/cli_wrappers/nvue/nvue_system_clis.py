@@ -12,9 +12,16 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_image(engine, action_str, action_component_str, op_param=""):
-        cmd = "nv action {action_type} system {action_component} {param}".format(action_type=action_str,
-                                                                                 action_component=action_component_str,
-                                                                                 param=op_param)
+        # action_component_str should stay even tough we dont use it, because this openApi function use it
+        cmd = "nv action {action_type} system image {param}".format(action_type=action_str, param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_files(engine, action_str, action_component_str, file='', op_param=""):
+        cmd = "nv action {action_type} system {action_component} files {file} {param}" \
+            .format(action_type=action_str, action_component=action_component_str, file=file, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
@@ -95,29 +102,6 @@ class NvueSystemCli(NvueBaseCli):
     @staticmethod
     def action_unset_system_log_component(engine, component):
         cmd = "nv unset system log component {component} level ".format(component=component)
-        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_upload(engine, action_component_str="", file_name="", path=""):
-        cmd = "nv action upload system {type} files {file} {path}".format(type=action_component_str, file=file_name,
-                                                                          path=path)
-        cmd = " ".join(cmd.split())
-        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_delete(engine, action_component_str, file):
-        cmd = "nv action delete system {type} files {file}".format(type=action_component_str, file=file)
-        cmd = " ".join(cmd.split())
-        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_rename(engine, action_component_str, original_name, new_name):
-        cmd = "nv action rename system {type} files {original_name} {new_name}".format(type=action_component_str,
-                                                                                       original_name=original_name,
-                                                                                       new_name=new_name)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 

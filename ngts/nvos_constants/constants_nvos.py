@@ -98,6 +98,10 @@ class ActionType:
     TURNOFF = '@turn-off'
     TURNON = '@turn-on'
     UNINSTALL = '@uninstall'
+    FETCH = '@fetch'
+    DELETE = '@delete'
+    RENAME = '@rename'
+    UPLOAD = '@upload'
 
 
 class SystemConsts:
@@ -286,4 +290,3 @@ class ImageConsts:
     CURRENT_IMG = 'current'
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
-

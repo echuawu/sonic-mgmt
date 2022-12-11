@@ -35,11 +35,12 @@ class System(BaseComponent):
     rotation = None
 
     def __init__(self, parent_obj=None, username='admin'):
+        self._resource_path = '/system'
+        self.parent_obj = parent_obj
         self.aaa = Aaa(self, username)
         self.log = Log(self)
         self.debug_log = DebugLog(self)
         self.component = Component(self)
-        self.files = Files(self)
         self.rotation = Rotation(self)
         self.security = Security(self)
         self.techsupport = TechSupport(self)
@@ -49,8 +50,6 @@ class System(BaseComponent):
         self.version = Version(self)
         self.reboot = Reboot(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/system'
-        self.parent_obj = parent_obj
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
