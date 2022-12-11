@@ -9,6 +9,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
@@ -125,9 +126,20 @@ def interfaces(topology_obj):
 
 def clear_config():
     try:
-        NvueGeneralCli.apply_empty_config(TestToolkit.engines.dut)
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
+        for comp in show_config_output:
+            if "set" in comp.keys() and "interface" in comp["set"].keys():
+                NvueGeneralCli.apply_empty_config(TestToolkit.engines.dut)
+                time.sleep(7)
+                break
+        else:
+            NvueSystemCli.unset(TestToolkit.engines.dut, 'system')
+            NvueSystemCli.unset(TestToolkit.engines.dut, 'ib')
+            NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
     except Exception as err:
-        logging.warning("Failed to detach config:" + str(err))
+        logging.warning("Failed to clear config:" + str(err))
 
 
 @pytest.hookimpl(trylast=True)

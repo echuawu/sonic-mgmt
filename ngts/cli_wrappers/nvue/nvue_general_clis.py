@@ -126,8 +126,14 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     @staticmethod
     def apply_empty_config(engine):
         logging.info("Running 'nv config apply empty' on dut")
-        output = engine.run_cmd('nv config apply empty')
-        return output
+        output = engine.run_cmd_set(['nv config apply empty', 'y'],
+                                    patterns_list=[r"Are you sure?"],
+                                    tries_after_run_cmd=1)
+        if 'Declined apply after warnings' in output or "Aborted apply after warnings" in output:
+            output = "Error: " + output
+        elif 'y: command not found' in output and 'applied' in output:
+            output = 'applied'
+        return "applied" in output
 
     @staticmethod
     def list_commands(engine):

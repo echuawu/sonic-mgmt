@@ -234,7 +234,7 @@ def test_interface_eth0_description(engines):
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=mgmt_port.interface.description.label,
-                                                          expected_value='')
+                                                          expected_value='').verify_result()
 
     with allure.step('Negative set description with spaces on mgmt port'):
         mgmt_port.interface.description.set(value='eth0 description', apply=True).verify_result(False)
