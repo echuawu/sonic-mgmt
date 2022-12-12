@@ -63,7 +63,18 @@ def wait_until_background_procs_done(processes_dict):
     for proc_name, proc in processes_dict.items():
         with allure.step(f'Checking background process: "{proc_name}" results'):
             std_out, std_err, rc = proc.result()
-            result = 'STDOUT:\n' + std_out.decode('utf-8') + '\n\nSTDERR:\n' + std_err.decode('utf-8')
+
+            result = ''
+            try:
+                result += 'STDOUT:\n' + std_out.decode('utf-8') + '\n\n'
+            except Exception as err:
+                result += 'STDOUT: failed to get process STDOUT, got error: {}\n'.format(err)
+
+            try:
+                result += 'STDERR:\n' + std_err.decode('utf-8')
+            except Exception as err:
+                result += 'STDERR: failed to get process STDERR, got error: {}\n'.format(err)
+
             allure.attach(result, proc_name, allure.attachment_type.TEXT)
             if rc:
                 raise AssertionError(f'Background thread process failed. '
