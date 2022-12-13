@@ -836,14 +836,6 @@
       - simx
 
 - Errors_list:
-    - '.*ERR dhcp_relay#dhcp6relay: sendto: Failed to send to target address'
-  Conditions:
-    - Redmine:
-      - 3263638
-      Platform:
-      - simx
-
-- Errors_list:
     - '.* ERR dhclient\[\d+\]: receive_packet failed on .*: Network is down'
   Conditions:
     - Affected_test_cases:
