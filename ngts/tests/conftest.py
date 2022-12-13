@@ -11,9 +11,9 @@ import pytest
 import os
 import yaml
 import logging
-from dotted_dict import DottedDict
 
-from ngts.cli_wrappers.linux.linux_mac_clis import LinuxMacCli
+from dotted_dict import DottedDict
+from deepdiff import DeepDiff
 from ngts.constants.constants import PytestConst
 from ngts.helpers import json_file_helper
 from ngts.tests.nightly.conftest import convert_speed_format_to_m_speed
@@ -24,12 +24,27 @@ CPU_SDK_USAGE_SIMX_COEFFICIENT = 6
 
 
 @pytest.fixture(scope='session', autouse=True)
-def show_version(cli_objects):
+def get_dut_device_info(cli_objects):
     """
-    Print show version output to logs
+    Print show version output and running configuration to logs
     :param cli_objects: cli_objects fixture
     """
     cli_objects.dut.general.show_version()
+    config_before_tests = cli_objects.dut.general.get_config_db_from_running_config()
+
+    yield
+
+    config_after_tests = cli_objects.dut.general.get_config_db_from_running_config()
+    configs_diff = DeepDiff(config_before_tests, config_after_tests)
+
+    new_items_added = configs_diff.get('dictionary_item_added')
+    values_changed = configs_diff.get('values_changed')
+    values_removed = configs_diff.get('dictionary_item_removed')
+
+    logger.info(f'SONiC configuration diff before/after pytest session execution:\n'
+                f'New items added: {new_items_added}\n'
+                f'Values changed: {values_changed}\n'
+                f'Values removed: {values_removed}\n')
 
 
 @pytest.fixture(scope='session')
