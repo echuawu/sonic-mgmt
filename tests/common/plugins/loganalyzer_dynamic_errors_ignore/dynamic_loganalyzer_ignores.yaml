@@ -1675,7 +1675,7 @@
       - tests/nightly/arp/test_arp.py::test_arp_gratuitous_without_arp_update
 
 - Errors_list:
-    - '.* ERR healthd: Get unit status determine-reboot-cause-''LoadState'''
+    - '.* ERR healthd: Get unit status .*''LoadState'''
     - '.* ERR healthd: system_service\[Errno \d+\] Connection reset by peer'
     - '.* ERR healthd: .*system_service\[Errno \d+\] Broken pipe.*'
   Conditions:
