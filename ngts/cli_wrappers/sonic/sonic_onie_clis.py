@@ -79,8 +79,7 @@ class SonicOnieCli:
         self.confirm_onie_boot_mode('update')
 
     def confirm_onie_boot_mode(self, mode):
-        get_boot_info_cmd = 'cat /proc/cmdline'
-        boot_info_output, _ = self.run_cmd_set([get_boot_info_cmd])
+        boot_info_output = self.get_boot_info()
         if f'boot_reason={mode}' not in boot_info_output:
             logger.info(f'Changing the ONIE boot mode to {mode}')
             self.is_nos_installed, _ = self.run_cmd_set(['ls /dev/sda3'])
@@ -96,6 +95,16 @@ class SonicOnieCli:
             self.reboot()
         else:
             logger.info(f'Switch is in ONIE {mode} mode')
+
+    def get_boot_info(self):
+        get_boot_info_cmd = 'cat /proc/cmdline'
+        # right after reboot, we can get the empty output from cmd run.
+        for _ in range(3):
+            boot_info_output, _ = self.run_cmd_set([get_boot_info_cmd])
+            if 'boot_reason' in boot_info_output:
+                break
+            time.sleep(1)
+        return boot_info_output
 
     def reboot(self):
         self.run_cmd_set(['reboot'])
