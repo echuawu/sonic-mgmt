@@ -277,7 +277,13 @@ class AdvancedRebootCollector(SonicDataCollector):
         if 'warm' in self.test_name:
             ptf_test_log_path = '/tmp/warm-reboot-report.json'
 
+        md5sum_log_file = '/tmp/advanced_reboot_sql_collected.log'
         try:
+            md5sum = self.ptfhost_engine.shell('md5sum {}'.format(ptf_test_log_path))['stdout']
+            if md5sum in self.ptfhost_engine.shell('cat {}'.format(md5sum_log_file), module_ignore_errors=True)['stdout_lines']:
+                raise Exception('Test report file: {} already collected by previous SQL data upload session.'.format(
+                    ptf_test_log_path))
+
             ptf_test_report = self.ptfhost_engine.shell('cat {}'.format(ptf_test_log_path))['stdout']
             ptf_test_report_dict = json.loads(ptf_test_report)
             dataplane_downtime = ptf_test_report_dict['dataplane']['downtime']
@@ -287,6 +293,9 @@ class AdvancedRebootCollector(SonicDataCollector):
 
         except Exception as err:
             logger.error('Can not get data/control plane loss for test: {}. Got err: {}'.format(self.test_name, err))
+        finally:
+            self.ptfhost_engine.shell('md5sum {} >> {}'.format(ptf_test_log_path, md5sum_log_file),
+                                      module_ignore_errors=True)
 
 
 class UpgradePathCollector(AdvancedRebootCollector):
