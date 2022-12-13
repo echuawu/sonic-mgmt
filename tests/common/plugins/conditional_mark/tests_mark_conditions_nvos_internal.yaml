@@ -47,4 +47,12 @@ tests_nvos/system/test_log_commands.py::test_delete_log_files:
     conditions:
       - https://redmine.mellanox.com/issues/3235228
 
+tests_nvos/system/test_system_profile_change.py::test_system_profile_ib_routing_mode:
+  skip:
+    reason: "Not implemented command"
+
+tests_nvos/system/test_system_profile_change.py::test_system_profile_change_upgrade_not_default_profile:
+  skip:
+    reason: "Not implemented command"
+
 ########################## NVOS IGNORE END ##########################

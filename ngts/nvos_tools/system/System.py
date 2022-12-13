@@ -9,6 +9,7 @@ from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
+from ngts.nvos_tools.system.Profile import Profile
 from ngts.nvos_tools.system.Log import Log
 from ngts.nvos_tools.system.Debug_log import DebugLog
 from ngts.nvos_tools.system.Component import Component
@@ -51,6 +52,7 @@ class System(BaseComponent):
         self.version = Version(self)
         self.reboot = Reboot(self)
         self.factory_default = FactoryDefault(self)
+        self.profile = Profile(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):

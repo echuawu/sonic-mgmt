@@ -62,6 +62,17 @@ class NvueSystemCli(NvueBaseCli):
         return engine.reload(cmd)
 
     @staticmethod
+    def action_profile_change(engine, resource_path, op_param=""):
+        """
+        Rebooting the switch
+        """
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action change {path} profile {op_param}".format(path=path, op_param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.reload(cmd)
+
+    @staticmethod
     def show_log(engine, log_type='', param='', exit_cmd=''):
         cmd = "nv show system {type}log {param}".format(type=log_type, param=param)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
