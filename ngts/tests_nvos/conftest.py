@@ -27,6 +27,8 @@ def pytest_addoption(parser):
                      help='The name of the release to be tested. For example: 25.01.0630')
     parser.addoption('--mst_device', action='store',
                      help='The name of the mst device. For example: /dev/mst/mt4123_pciconf0')
+    parser.addoption("--restore_to_image",
+                     action="store", default=None, help="restore image after error flow")
 
 
 @pytest.fixture(scope='session')
