@@ -248,7 +248,7 @@ class TestInterfaceVlanVrf(TestEcmpCalcBase):
         msg_pattern = NEGATIVE_CASE_EXPECTED_MSG[negative_case_type]
         ingress_port = self.interfaces.dut_ha_1 if negative_case_type != "non_physical_ingress_port" else "Vlan200"
         with allure.step(f"Verify packet file {packet_json_file_name}"):
-            cmd = f"show ip ecmp-egress-port -p /tmp/{packet_json_file_name} -i {ingress_port} -v Vrf_ecmp"
+            cmd = f"show ip ecmp-egress-port --packet /tmp/{packet_json_file_name} --ingress-port {ingress_port} --vrf Vrf_ecmp"
             calc_res = self.dut_engine.run_cmd(cmd)
             if not re.match(msg_pattern, calc_res):
                 raise Exception(f"Return error is not correct. The expected msg:{msg_pattern}, the actual one is {calc_res}")

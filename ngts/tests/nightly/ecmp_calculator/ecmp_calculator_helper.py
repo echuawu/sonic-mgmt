@@ -128,8 +128,8 @@ def calculate_ecmp_egress_port(engine_dut, ingress_port, packet_json_file, vrf="
     reg_egress_ports = r"^Egress (port|ports): (?P<ports>.*)"
     vrf_cmd = ''
     if vrf:
-        vrf_cmd = f" -v {vrf}"
-    cmd = f"show ip ecmp-egress-port -p /tmp/{packet_json_file} -i {ingress_port} {vrf_cmd}"
+        vrf_cmd = f" --vrf {vrf}"
+    cmd = f"show ip ecmp-egress-port --packet /tmp/{packet_json_file} --ingress-port {ingress_port} {vrf_cmd}"
     calc_reslt = engine_dut.run_cmd(cmd)
     res = re.match(reg_egress_ports, calc_reslt)
     if not res:
