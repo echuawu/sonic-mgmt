@@ -63,7 +63,8 @@ class NVUECliCoverage:
                     if command and command.startswith('nv '):
                         module, classification = cls.get_module_and_classification(command)
                         re_cli = cls.build_regex(command)
-                        commands.append((command, module, classification, re_cli))
+                        if re_cli:
+                            commands.append((command, module, classification, re_cli))
 
             with allure.step("Organize the data for the full_commands file"):
                 logging.info("Organize the data for the full_commands file")
@@ -93,7 +94,8 @@ class NVUECliCoverage:
                     for data in json.load(fp)['commands']:
                         command, module, classification = data['command'], data['module'], data.get('classification', None)
                         re_cli = cls.build_regex(command)
-                        commands.append((command, module, classification, re_cli))
+                        if re_cli:
+                            commands.append((command, module, classification, re_cli))
             result_cmds = ResultObj(True, '', commands)
         return result_cmds
 
@@ -145,9 +147,15 @@ class NVUECliCoverage:
         """
         Build and return the regex for a given command from the full command list
         """
-        command = cls.re_nvue_bracket.sub(r'( \\S+)?', command)
-        command = cls.re_nvue.sub(r'\\S+', command)
-        return re.compile(cls.re_nvue_space.sub(r' +', command) + '$')
+        try:
+            command_regex = cls.re_nvue_bracket.sub(r'( \\S+)?', command)
+            command_regex = cls.re_nvue.sub(r'\\S+', command_regex)
+            command_regex = re.compile(cls.re_nvue_space.sub(r' +', command_regex) + '$')
+            return command_regex
+        except Exception as e:
+            logging.error('got exception during build_regex to the command {}\n'
+                          'The regex we got:{} \n The error msg: {}'.format(command, command_regex, e))
+            return ''
 
     @classmethod
     def get_module_and_classification(cls, command):
