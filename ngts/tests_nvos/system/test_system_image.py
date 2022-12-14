@@ -275,6 +275,64 @@ def test_system_image_bad_flow(engines, release_name):
         system.image.files.delete_system_files(images_name)
 
 
+@pytest.mark.checklist
+@pytest.mark.image
+@pytest.mark.system
+def test_image_install(release_name):
+    """
+    Install system image test
+
+    1. Fetch 2 random images, Verify fetched images are listed in the show image files output
+    2. Install image <img_1>, Verify installed images are listed in the show images
+    3. Install image <img_2>, Verify installed images are listed in the show images
+    4. Select the original image to be booted next
+    5. Install image <img_1>, Verify installed images are listed in the show images
+    6. Reboot dut and make sure it bootes with <img_1> image and the fetched images
+    7. Set the original image to boot next
+    8. Reboot dut and make sure it bootes with original image
+    9. Uninstall all images that have been installed during the test
+    10. Delete all images that have been fetched during the test
+    """
+    system = System()
+    original_images, original_image, original_image_partition, partition_id_for_new_image, image_files = \
+        get_image_data_and_fetch_random_image_files(release_name, system, 2)
+
+    with allure.step("Verify fetched images are shown in the show command"):
+        system.image.files.verify_show_files_output(expected_files=image_files)
+    with allure.step("Verify show images output didn't change after the fetch command"):
+        system.image.verify_show_images_output(original_images)
+
+    try:
+        with allure.step("Install the first image"):
+            install_image_and_verify(image_files[1], partition_id_for_new_image, original_images, system)
+
+        with allure.step("Install the second image"):
+            expected_dictionary = install_image_and_verify(image_files[1], partition_id_for_new_image, original_images, system)
+
+        with allure.step("Set partition {} to boot next".format(partition_id_for_new_image)):
+            system.image.boot_next_and_verify(partition_id_for_new_image)
+
+        try:
+            with allure.step('Rebooting the dut after image installation'):
+                reboot_dut()
+                expected_dictionary[ImageConsts.CURRENT_IMG] = expected_dictionary[ImageConsts.NEXT_IMG]
+                system.image.verify_show_images_output(expected_dictionary)
+                system.image.files.verify_show_files_output(expected_files=image_files)
+        finally:
+            with allure.step("Set the original image to be booted next"):
+                system.image.set_next_boot_image(original_image_partition)
+
+            with allure.step("Rebooting the dut after origin image installation'"):
+                reboot_dut()
+                expected_dictionary[ImageConsts.CURRENT_IMG] = original_image
+                expected_dictionary[ImageConsts.NEXT_IMG] = original_image
+                system.image.verify_show_images_output(expected_dictionary)
+                system.image.files.verify_show_files_output(expected_files=image_files)
+
+    finally:
+        cleanup_test(system, original_images, original_image_partition, image_files, uninstall_force="force")
+
+
 def image_uninstall_test(release_name, uninstall_force=""):
     """
      Will check the uninstall commands
@@ -315,6 +373,15 @@ def image_uninstall_test(release_name, uninstall_force=""):
                 system.image.verify_show_images_output(installed_images_output)
     finally:
         cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
+
+
+def reboot_dut():
+    system = System()
+    logging.info("Rebooting dut")
+    system.reboot.action_reboot()
+    nvue_cli = NvueGeneralCli(TestToolkit.engines.dut)
+    nvue_cli.verify_dockers_are_up()
+    NvueGeneralCli.wait_for_nvos_to_become_functional(TestToolkit.engines.dut)
 
 
 def normalize_image_name(image_name):
