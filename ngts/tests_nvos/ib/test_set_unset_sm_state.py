@@ -33,7 +33,9 @@ def test_show_ib_sm_default_values(engines):
     """
     ib = Ib(None)
     with allure.step('get all active or initialize ports'):
-        active_ports = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=0, requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).returned_value
+        active_ports = \
+            Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=0,
+                                                        requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).get_returned_value()
 
     with allure.step('verify ib sm default values'):
         sm_dict = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
@@ -93,7 +95,9 @@ def test_set_unset_sm_state_many_times(engines, times=5):
 
 
 def set_all_ports_state(ports, state):
+    port = None
     for port in ports:
         TestToolkit.update_tested_ports([port])
         port.ib_interface.link.state.set(value=state, apply=True).verify_result()
-    port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_DOWN).verify_result()
+    if port:
+        port.ib_interface.wait_for_port_state(state=state).verify_result()

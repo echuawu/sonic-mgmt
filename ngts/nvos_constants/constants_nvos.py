@@ -102,6 +102,7 @@ class ActionType:
     DELETE = '@delete'
     RENAME = '@rename'
     UPLOAD = '@upload'
+    RESET = '@reset'
 
 
 class SystemConsts:

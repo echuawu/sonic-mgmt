@@ -27,9 +27,6 @@ def test_show_signal_degrade(engines, start_sm):
                                                                                    IbConsts.SIGNAL_DEGRADE_ACTION,
                                                                                    "fec"]).verify_result()
 
-        with allure.step("Check nv set interface <> signal-degrade"):
-            engines.dut.run_cmd("nv set interface {} signal-degrade".format(selected_port.name))
-
 
 @pytest.mark.ib_interfaces
 @pytest.mark.ib

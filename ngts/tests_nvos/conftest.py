@@ -131,8 +131,13 @@ def clear_config():
             NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
         for comp in show_config_output:
             if "set" in comp.keys() and "interface" in comp["set"].keys():
+                result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
+                active_port = None
+                if result.result:
+                    active_port = result.returned_value[0]
                 NvueGeneralCli.apply_empty_config(TestToolkit.engines.dut)
-                time.sleep(7)
+                if active_port:
+                    active_port.ib_interface.wait_for_port_state(state='up').verify_result()
                 break
         else:
             NvueSystemCli.unset(TestToolkit.engines.dut, 'system')

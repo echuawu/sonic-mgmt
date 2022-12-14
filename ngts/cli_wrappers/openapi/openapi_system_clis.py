@@ -99,3 +99,21 @@ class OpenApiSystemCli(OpenApiBaseCli):
 
         return OpenApiCommandHelper.execute_action(ActionType.GENERATE, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_reset(engine, comp, param):
+        logging.info("Running action: reset system {} on dut using OpenApi".format(comp))
+
+        assert not param, "params are not supported yet"
+
+        params = \
+            {
+                "state": "start"
+                # params are not supported yet
+                '''"parameters": {
+                    "since": value
+                }'''
+            }
+
+        return OpenApiCommandHelper.execute_action(ActionType.RESET, engine.engine.username, engine.engine.password,
+                                                   engine.ip, "system/{}".format(comp), params)

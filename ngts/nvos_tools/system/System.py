@@ -20,6 +20,7 @@ from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import OutputFormat
 
 logger = logging.getLogger()
 
@@ -49,6 +50,7 @@ class System(BaseComponent):
         self.message = Message(self)
         self.version = Version(self)
         self.reboot = Reboot(self)
+        self.factory_default = FactoryDefault(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
@@ -159,3 +161,29 @@ class Version(BaseComponent):
 
     def get_expected_fields(self, device):
         return device.constants.system['version']
+
+
+class FactoryDefault(BaseComponent):
+
+    def __init__(self, parent_obj):
+        BaseComponent.__init__(self)
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/factory-default'
+        self.parent_obj = parent_obj
+
+    def show(self, op_param="", output_format=OutputFormat.json):
+        raise Exception("unset is not implemented for system/factory-default")
+
+    def set(self, op_param_name="", op_param_value=None):
+        raise Exception("unset is not implemented for system/factory-default")
+
+    def unset(self, op_param=""):
+        raise Exception("unset is not implemented for system/factory-default")
+
+    def action_reset(self, engine=None, param=""):
+        with allure.step("Execute factory reset {}".format(param)):
+            logging.info("Execute factory reset {}".format(param))
+            if not engine:
+                engine = TestToolkit.engines.dut
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_reset,
+                                                   engine, "factory-default", param)

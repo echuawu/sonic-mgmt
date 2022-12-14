@@ -111,3 +111,10 @@ class NvueSystemCli(NvueBaseCli):
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_reset(engine, comp, param):
+        cmd = "nv action reset system {comp} {params}".format(comp=comp, params=param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.reload(cmd)
