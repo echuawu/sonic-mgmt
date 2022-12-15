@@ -40,38 +40,68 @@ def get_sonic_hwsku(duthost):
     return duthost.run('redis-cli -n 4 hget "DEVICE_METADATA|localhost" hwsku').stdout.strip()
 
 
-def update_device_neighbor_metadata(duthost, topo):
+def mock_t1_topo_on_ptf32(duthost):
     """
     Hack the DEVICE_NEIGHBOR_METADATA table for the ptf32 topo on "Mellanox-SN4600C-C64" to simulate the
-    dual tor qos scenario
+    dual tor t1 topo
     :param duthost: dut host engine
-    :param topo: topology value, expect ptf32 topo
     """
-    # need to make sure that the ssh connection to the dut is still active, call the open directly.
-    sonic_dut.open()
-    hwsku = get_sonic_hwsku(sonic_dut)
-    if topo != "ptf32" or hwsku != "Mellanox-SN4600C-C64":
-        return
+    logger.info("mock t1 topo on ptf32")
     neighbors = duthost.run("redis-cli -n 4 keys DEVICE_NEIGHBOR*").stdout.strip("\n").split("\n")
     vm_hwsku = "Arista-VM"
     lo_addr = None
+
     add_neighbor_metadata_cmd_pattern = 'redis-cli -n 4 hset "DEVICE_NEIGHBOR_METADATA|{}" hwsku {} lo_addr {} mgmt_addr {}  type {}'
+
     mgmt_addr_patern = "10.75.207.{}"
     for index, neighbor in enumerate(neighbors):
-        neighbor_name = sonic_dut.run('redis-cli -n 4 hget \"{}\" name'.format(neighbor)).stdout.strip("\n")
+        neighbor_name = duthost.run('redis-cli -n 4 hget \"{}\" name'.format(neighbor)).stdout.strip("\n")
         mgmt_addr = mgmt_addr_patern.format(10+index)
         if neighbor_name.endswith("T0"):
             router_type = "ToRRouter"
         else:
             router_type = "SpineRouter"
         add_neighbor_metadata_cmd = add_neighbor_metadata_cmd_pattern.format(neighbor_name, vm_hwsku, lo_addr, mgmt_addr, router_type)
-        sonic_dut.run(add_neighbor_metadata_cmd)
+        duthost.run(add_neighbor_metadata_cmd)
+    enable_qos_config_and_reload_config(duthost)
+
+
+def mock_t0_topo_on_ptf32(duthost):
+    """
+    Hack the DEVICE_NEIGHBOR_METADATA table for the ptf32 topo on "Mellanox-SN2700-D48C8" to simulate the
+    dual tor t0 topo
+    :param duthost: dut host engine
+    """
+    logger.info("mock t0 topo on ptf32")
+    neighbors = duthost.run("redis-cli -n 4 keys DEVICE_NEIGHBOR*").stdout.strip("\n").split("\n")
+    for index, neighbor in enumerate(neighbors):
+        neighbor_name = duthost.run('redis-cli -n 4 hget \"{}\" name'.format(neighbor)).stdout.strip("\n")
+        mgmt_addr = "10.75.207.{}".format(index+1)
+        if neighbor_name.endswith("T0"):
+            new_neighbor_name = neighbor_name.replace("T0", "T1")
+            router_type = "LeafRouter"
+            add_neighbor_metadata_cmd = 'redis-cli -n 4 hset "DEVICE_NEIGHBOR_METADATA|{}" ' \
+                                        'hwsku Arista-VM lo_addr None mgmt_addr {} type {}'.format(new_neighbor_name, mgmt_addr, router_type)
+            logger.info("Add DEVICE_NEIGHBOR_METADATA with cmd:{}".format(add_neighbor_metadata_cmd))
+            duthost.run(add_neighbor_metadata_cmd)
+            update_neighbor_name_cmd = 'redis-cli -n 4 hset "{}" name {}'.format(neighbor, new_neighbor_name)
+        elif neighbor_name.endswith("T2"):
+            update_neighbor_name_cmd = 'redis-cli -n 4 hset "{}" name Servers{} port eth0'.format(neighbor, index)
+        logger.info("Update DEVICE_NEIGHBOR name with cmd:{}".format(update_neighbor_name_cmd))
+        duthost.run(update_neighbor_name_cmd)
+    logger.info("Set type to ToRRouter and subtype to DualToR in DEVICE_METADATA|localhost")
+    duthost.run('redis-cli -n 4 hset "DEVICE_METADATA|localhost" type ToRRouter subtype DualToR')
+
+    enable_qos_config_and_reload_config(duthost)
+
+
+def enable_qos_config_and_reload_config(duthost):
     enable_qos_remap_table = 'redis-cli -n 4 hset "SYSTEM_DEFAULTS|tunnel_qos_remap" status enabled'
-    sonic_dut.run(enable_qos_remap_table)
-    sonic_dut.run("sudo config qos reload --no-dynamic-buffer")
-    sonic_dut.run("sudo config save -y")
-    sonic_dut.run("sudo config reload -y")
-    sonic_dut.run("sleep 180")
+    duthost.run(enable_qos_remap_table)
+    duthost.run("sudo config qos reload --no-dynamic-buffer")
+    duthost.run("sudo config save -y")
+    duthost.run("sudo config reload -y -f")
+    duthost.run("sleep 180")
 
 
 if __name__ == "__main__":
@@ -130,4 +160,9 @@ if __name__ == "__main__":
         logger.info("Running CMD: {}".format(cmd))
         sonic_mgmt.run(cmd)
 
-    update_device_neighbor_metadata(sonic_dut, expected_topo)
+    sonic_dut.open()
+    hwsku = get_sonic_hwsku(sonic_dut)
+    if expected_topo == "ptf32" and hwsku in ["Mellanox-SN4600C-C64"]:
+        mock_t1_topo_on_ptf32(sonic_dut)
+    elif expected_topo == "ptf32" and hwsku in ["Mellanox-SN2700-D48C8"]:
+        mock_t0_topo_on_ptf32(sonic_dut)
