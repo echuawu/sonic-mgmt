@@ -1,7 +1,7 @@
 import pytest
 import allure
 import logging
-from random import randint
+import time
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -59,10 +59,8 @@ def test_show_ib_sm_default_values(engines):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
 
     with allure.step('verify all ports back to active'):
-        active_ports_after_sm_change = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=0,
-                                                                                   requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).returned_value
-        compare_list = [l for l in active_ports if l in active_ports_after_sm_change]
-        assert len(compare_list) == len(active_ports), "at least one of the ports still not active"
+        active_ports[0].wait_for_port_state(state=NvosConsts.LINK_LOG_STATE_ACTIVE,
+                                            logical_state="Active").verify_result()
 
 
 @pytest.mark.system

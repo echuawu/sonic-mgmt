@@ -553,36 +553,57 @@ def test_delete_log_files(engines):
         4. Run show system image
         5. Check it exist in log
     """
+    syslog_file_name = "syslog"
+
     with allure.step("Create System object"):
         system = System(None)
 
     with allure.step("Rotate log 5 times to create log files"):
         logging.info("Rotate log 5 times to create log files")
-        system.log.rotate_logs()
-        system.log.rotate_logs()
-        system.log.rotate_logs()
-        system.log.rotate_logs()
-        system.log.rotate_logs()
+        for i in range(0, 5):
+            system.log.rotate_logs()
 
         logging.info("Check we have 5 log files")
         show_output = system.log.files.show()
         log_files_dict = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        assert len(log_files_dict.keys()) >= 6
+        assert len(log_files_dict.keys()) >= 6, "Not all 5 log files were created"
 
     with allure.step("Delete all log files and validate"):
         logging.info("Delete all log files and validate")
-        for log_file in log_files_dict.keys():
-            system.log.files.action_delete(file=log_file)
-            show_output = system.log.files.show()
-            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-            assert log_file not in output_dictionary.keys()
 
-    with allure.step("Check we didn't delete all log files"):
-        logging.info("Check we didn't delete all log files")
-        show_output = system.log.files.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        assert 'syslog' in output_dictionary.keys()
-        assert len(output_dictionary.keys()) >= 1
+        with allure.step("Get current size of " + syslog_file_name):
+            output = engines.dut.run_cmd("stat /var/log/{} | grep Size".format(syslog_file_name))
+            assert output, "Can't find syslog file"
+            prev_syslog_size = output.split()[1]
+
+        logs_names_to_delete = list(log_files_dict.keys())
+        logs_names_to_delete.remove(syslog_file_name)
+        left_files = logs_names_to_delete.copy()
+
+        for log_file in logs_names_to_delete:
+
+            with allure.step("Delete {} file".format(log_file)):
+                system.log.files.action_delete(file=log_file)
+                left_files.remove(log_file)
+
+                with allure.step("Verify only {} was deleted".format(log_file)):
+                    system.log.files.file_name = ""
+                    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.log.files.show())\
+                        .get_returned_value()
+
+                    with allure.step("Verify {} was deleted".format(log_file)):
+                        assert log_file not in output_dictionary.keys(), log_file + " was not actually deleted"
+
+                    with allure.step("Verify other files were not deleted"):
+                        ValidationTool.verify_field_exist_in_json_output(output_dictionary, left_files)
+
+        with allure.step("Verify syslog file was deleted and a new one was created"):
+            logging.info("Verify syslog file was deleted and a new one was created")
+            system.log.files.action_delete(file=syslog_file_name)
+            output = engines.dut.run_cmd("stat /var/log/{} | grep Size".format(syslog_file_name))
+            assert output, "Can't find syslog file"
+            curr_syslog_size = output.split()[1]
+            assert int(curr_syslog_size) < int(prev_syslog_size), "Syslog file probably was not deleted"
 
     with allure.step("Run show command to view system image"):
         logging.info("Run show command to view system image")
