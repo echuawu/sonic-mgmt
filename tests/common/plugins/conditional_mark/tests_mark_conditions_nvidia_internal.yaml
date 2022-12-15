@@ -61,12 +61,6 @@ tests/nightly/dynamic_port_breakout/test_dpb_introp.py:
     conditions:
       - https://redmine.mellanox.com/issues/2960190
 
-tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
-  skip:
-    reason: "Testcase ignored due to branch 202012"
-    conditions:
-      - "'202012' in release"
-
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2682609 on SIMX platform"
@@ -171,11 +165,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2934348 on branch 202012"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3302670"
     conditions:
-      - "https://redmine.mellanox.com/issues/2934348 and '202012' in release"
+      - https://redmine.mellanox.com/issues/3302670
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   skip:
