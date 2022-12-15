@@ -116,12 +116,13 @@ def save_packet_json(packet_info, file_name):
         json.dump(f)
 
 
-def copy_packet_json_to_dut(dut_engine, file_name, source_file_path=ECMP_PACKET_JSON_TEMPLATE_PATH):
+def copy_packet_json_to_syncd(dut_engine, file_name, source_file_path=ECMP_PACKET_JSON_TEMPLATE_PATH):
     dut_engine.copy_file(source_file=os.path.join(source_file_path, file_name),
                          dest_file=file_name,
                          file_system='/tmp/',
                          overwrite_file=True,
                          verify_file=False)
+    dut_engine.run_cmd(f"docker cp /tmp/{file_name} syncd:/{file_name}")
 
 
 def calculate_ecmp_egress_port(engine_dut, ingress_port, packet_json_file, vrf=""):
@@ -129,7 +130,7 @@ def calculate_ecmp_egress_port(engine_dut, ingress_port, packet_json_file, vrf="
     vrf_cmd = ''
     if vrf:
         vrf_cmd = f" --vrf {vrf}"
-    cmd = f"show ip ecmp-egress-port --packet /tmp/{packet_json_file} --ingress-port {ingress_port} {vrf_cmd}"
+    cmd = f"docker exec syncd bash -c '/usr/bin/ecmp_calc.py -i {ingress_port} -p ./{packet_json_file} {vrf_cmd}'"
     calc_reslt = engine_dut.run_cmd(cmd)
     res = re.match(reg_egress_ports, calc_reslt)
     if not res:

@@ -13,7 +13,7 @@ from ngts.config_templates.vrf_config_template import VrfConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.ecmp_calculator.constants import V4_CONFIG, V6_CONFIG, DEST_ROUTE_V4, DEST_ROUTE_V6
 from retry.api import retry_call
-from ngts.tests.nightly.ecmp_calculator.ecmp_calculator_helper import copy_packet_json_to_dut, ECMP_CALCULATOR_PATH
+from ngts.tests.nightly.ecmp_calculator.ecmp_calculator_helper import copy_packet_json_to_syncd, ECMP_CALCULATOR_PATH
 
 logger = logging.getLogger()
 
@@ -27,9 +27,9 @@ def generate_arp(players, interface, sender, dst_ip):
 
 @pytest.fixture(scope='package', autouse=True)
 def skipping_ecmp_calculator_test(engines):
-    ecmp_calculator_not_exist_pattern = r'.*Error: No such command \"ecmp-egress-port\".*'
-    res = engines.dut.run_cmd("show ip ecmp-egress-port --help")
-    if re.match(ecmp_calculator_not_exist_pattern, res, flags=re.DOTALL):
+    ecmp_calculator_not_exist_pattern = r".*ls: cannot access \'\/usr\/bin\/ecmp_calc.py\': No such file or directory.*"
+    res = engines.dut.run_cmd("docker exec syncd bash -c 'ls /usr/bin/ecmp_calc.py'")
+    if re.match(ecmp_calculator_not_exist_pattern, res):
         pytest.skip("The ECMP calculator feature is missing, skipping the test case")
 
 
@@ -503,7 +503,7 @@ def copy_negative_json_to_syncd(engines):
     """
     data_path = os.path.join(ECMP_CALCULATOR_PATH, "data")
     for file_name in os.listdir(data_path):
-        copy_packet_json_to_dut(engines.dut, file_name, data_path)
+        copy_packet_json_to_syncd(engines.dut, file_name, data_path)
 
 
 def get_interface_test_static_route_config(vrf=None):

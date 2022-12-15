@@ -5,7 +5,8 @@ import copy
 import re
 
 from ngts.tests.nightly.ecmp_calculator.ecmp_calculator_helper import calculate_ecmp_egress_port, Traffic, \
-    get_host_name_and_receive_port_as_egress_port, gen_packet_json_file, load_packet_json, copy_packet_json_to_dut, gen_test_data
+    get_host_name_and_receive_port_as_egress_port, gen_packet_json_file, load_packet_json, \
+    copy_packet_json_to_syncd, gen_test_data
 from ngts.tests.nightly.ecmp_calculator.constants import V4_CONFIG
 
 logger = logging.getLogger()
@@ -42,7 +43,7 @@ class TestEcmpCalcBase:
                                                            ingress_port, vrf=""):
         with allure.step(f'Gen packet json and copy to syncd container'):
             gen_packet_json_file(packet_type, packet, packet_json_file_name)
-            copy_packet_json_to_dut(self.dut_engine, packet_json_file_name)
+            copy_packet_json_to_syncd(self.dut_engine, packet_json_file_name)
 
         with allure.step(f'calculate egress port'):
             egress_ports = calculate_ecmp_egress_port(self.engines.dut, self.interfaces.dut_ha_1,
@@ -113,7 +114,7 @@ class TestEcmpCalcBase:
             packet = test_data["packet"]
             with allure.step(f'Gen packet json and copy to syncd container'):
                 gen_packet_json_file(packet_type, packet, packet_json_file_name)
-                copy_packet_json_to_dut(self.dut_engine, packet_json_file_name)
+                copy_packet_json_to_syncd(self.dut_engine, packet_json_file_name)
 
             with allure.step(f'calculate egress port'):
                 egress_ports = calculate_ecmp_egress_port(self.engines.dut, self.interfaces.dut_ha_1,
@@ -248,7 +249,7 @@ class TestInterfaceVlanVrf(TestEcmpCalcBase):
         msg_pattern = NEGATIVE_CASE_EXPECTED_MSG[negative_case_type]
         ingress_port = self.interfaces.dut_ha_1 if negative_case_type != "non_physical_ingress_port" else "Vlan200"
         with allure.step(f"Verify packet file {packet_json_file_name}"):
-            cmd = f"show ip ecmp-egress-port --packet /tmp/{packet_json_file_name} --ingress-port {ingress_port} --vrf Vrf_ecmp"
+            cmd = f"docker exec syncd bash -c '/usr/bin/ecmp_calc.py -i {ingress_port} -p ./{packet_json_file_name} -v Vrf_ecmp'"
             calc_res = self.dut_engine.run_cmd(cmd)
             if not re.match(msg_pattern, calc_res):
                 raise Exception(f"Return error is not correct. The expected msg:{msg_pattern}, the actual one is {calc_res}")
