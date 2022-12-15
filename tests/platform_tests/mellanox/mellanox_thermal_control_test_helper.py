@@ -8,7 +8,6 @@ from tests.platform_tests.thermal_control_test_helper import mocker, FanStatusMo
     SingleFanMocker
 from tests.common.mellanox_data import get_platform_data
 from minimum_table import get_min_table
-from tests.common.utilities import wait_until, check_skip_release
 
 
 NOT_AVAILABLE = 'N/A'
@@ -910,7 +909,6 @@ class RandomThermalStatusMocker(CheckMockerResultMixin, ThermalStatusMocker):
                                       'warning']
         self.primary_field = 'sensor'
         self.excluded_fields = ['timestamp', ]
-        self.dut = dut
 
     def deinit(self):
         """
@@ -927,12 +925,6 @@ class RandomThermalStatusMocker(CheckMockerResultMixin, ThermalStatusMocker):
         platform_data = get_platform_data(self.mock_helper.dut)
         thermal_dict = platform_data["thermals"]
         for category, content in thermal_dict.items():
-            # TODO: temp local solution, since the "sodimm" is only supported in master,
-            #  need to check if the branch is master or not
-            if category == "sodimm":
-                skip, _ = check_skip_release(self.dut, ["202205"])
-                if skip:
-                    continue
             number = int(content['number'])
             naming_rule = THERMAL_NAMING_RULE[category]
             if 'start' in content:
