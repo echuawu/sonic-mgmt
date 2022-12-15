@@ -11,7 +11,7 @@ def run_step(name) {
         if (env.RUN_COMMUNITY_REGRESSION && env.RUN_COMMUNITY_REGRESSION.toBoolean() == true &&  env.CHANGED_COMPONENTS && env.CHANGED_COMPONENTS.contains("NoMatch")) {
             print "Topic \"RUN_COMMUNITY_REGRESSION=true\" and changed files triggered community regression tests"
         } else {
-            env.SKIP_COMMUNITY_REGRESSION = true
+            env.SKIP_COMMUNITY_REGRESSION = "true"
             NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH Community", "SPC", "Skipped=status")
 
         }
@@ -20,9 +20,26 @@ def run_step(name) {
             print "'NVOS' related files were changed. Will run NVOS BAT."
             env.NVOS_BIN = (NGCITools().ciTools.run_sh_return_output("ls /auto/sw_system_release/nos/nvos/lastrc_master/nvos-amd64*.bin")).trim()
         } else {
-            env.SKIP_NVOS_BAT = true
+            print "'NVOS' BAT are skipped"
+            env.SKIP_NVOS_BAT = "true"
             NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
         }
+
+        //If NVOS only, disable all sonic BAT
+        if (env.GERRIT_BRANCH == "develop" && env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
+                && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
+            print "'SONIC' BAT are skipped"
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC2", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC3", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC2", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC3", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC4", "Skipped=status")
+            env.SKIP_BAT = "true"
+            env.SKIP_SIMX = "true"
+        }
+
         return true
     }
     catch (Throwable exc) {
