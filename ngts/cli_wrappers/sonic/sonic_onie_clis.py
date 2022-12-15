@@ -124,17 +124,16 @@ class SonicOnieCli:
         # restore engine after reboot
         self.create_engine(True)
 
-        prompts = ["Installed SONiC base image SONiC-OS successfully"] +\
-                  [str(pexpect.TIMEOUT)] + DEFAULT_PROMPT
+        prompts = ["Installed.*base\\s+image.*successfully", pexpect.TIMEOUT]
 
         image_path = self.download_image(image_path, platform_params, topology_obj)
 
-        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_path}"])
+        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_path}"], prompts)
 
         while num_retry > 0:
             if pexpect_entry == 0:
                 break
-            elif pexpect_entry == 3:
+            elif pexpect_entry == 1:
                 num_retry = num_retry - 1
                 pexpect_entry = self.get_pexpect_entry(prompts)
                 logger.info(f"Got timeout on {num_retry} time..")
