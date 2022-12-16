@@ -59,8 +59,8 @@ def test_show_ib_sm_default_values(engines):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
 
     with allure.step('verify all ports back to active'):
-        active_ports[0].wait_for_port_state(state=NvosConsts.LINK_LOG_STATE_ACTIVE,
-                                            logical_state="Active").verify_result()
+        active_ports[0].ib_interface.wait_for_port_state(state=NvosConsts.LINK_LOG_STATE_ACTIVE,
+                                                         logical_state="Active").verify_result()
 
 
 @pytest.mark.system
