@@ -221,10 +221,15 @@ class TestDHCP6Relay:
         server(dhcp request not forwarded)
         :return: raise exception in case of failure
         """
+        dhcp_v4_removed = False
+        main_dhcp_v6_removed = False
+        second_dhcp_v6_removed = False
+
         try:
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv4'.format(self.dhclient_main_vlan)):
                 self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_main_vlan, '69.0.0.2',
                                                               topology_ojb=self.topology)
+                dhcp_v4_removed = True
 
             with allure.step('Validate that IPv6 address provided by the DHCP server, iface: {}'.format(
                     self.dhclient_main_iface)):
@@ -238,6 +243,7 @@ class TestDHCP6Relay:
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_main_vlan)):
                 self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_main_vlan, '6900::2',
                                                               topology_obj=self.topology)
+                main_dhcp_v6_removed = True
 
             with allure.step('Trying to GET IPv6 address from DHCP server when DHCP relay settings removed, '
                              'iface: {}'.format(self.dhclient_main_iface)):
@@ -259,6 +265,8 @@ class TestDHCP6Relay:
             with allure.step('Remove DHCP relay setting from DUT for VLAN {} IPv6'.format(self.dhclient_second_vlan)):
                 self.dut_cli_object.dhcp_relay.del_dhcp_relay(self.dhclient_second_vlan, '6900::2',
                                                               topology_obj=self.topology)
+                second_dhcp_v6_removed = True
+
             with allure.step('Trying to GET IPv6 address from DHCP server when DHCP relay settings removed, '
                              'iface: {}'.format(self.dhclient_second_iface)):
                 logger.info('Trying to get IPv6 address - when IPv6 relay settings removed - second dhcp client vlan')
@@ -270,12 +278,16 @@ class TestDHCP6Relay:
         except BaseException as err:
             raise AssertionError(err)
         finally:
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_main_vlan, '69.0.0.2',
-                                                          topology_obj=self.topology)
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_main_vlan, '6900::2',
-                                                          topology_obj=self.topology)
-            self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_second_vlan, '6900::2',
-                                                          topology_obj=self.topology)
+            if dhcp_v4_removed:
+                self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_main_vlan, '69.0.0.2',
+                                                              topology_obj=self.topology)
+            if main_dhcp_v6_removed:
+                self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_main_vlan, '6900::2',
+                                                              topology_obj=self.topology)
+            if second_dhcp_v6_removed:
+                self.dut_cli_object.dhcp_relay.add_dhcp_relay(self.dhclient_second_vlan, '6900::2',
+                                                              topology_obj=self.topology)
+
             retry_call(verify_dhcp6_client_output,
                        fargs=[self.engines.ha, 'timeout 10 {}'.format(self.run_dhclient_main_iface),
                               self.dhclient_main_iface, self.expected_main_vlan_ip],
