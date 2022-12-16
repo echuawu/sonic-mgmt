@@ -65,15 +65,21 @@ def wait_until_background_procs_done(processes_dict):
             std_out, std_err, rc = proc.result()
 
             result = ''
-            try:
-                result += 'STDOUT:\n' + std_out.decode('utf-8') + '\n\n'
-            except Exception as err:
-                result += 'STDOUT: failed to get process STDOUT, got error: {}\n'.format(err)
+            if isinstance(std_out, str):
+                result += f'STDOUT:\n {std_out} \n\n'
+            else:
+                try:
+                    result += 'STDOUT:\n' + std_out.decode('utf-8') + '\n\n'
+                except Exception as err:
+                    result += 'STDOUT: failed to get process STDOUT, got error: {}\n'.format(err)
 
-            try:
-                result += 'STDERR:\n' + std_err.decode('utf-8')
-            except Exception as err:
-                result += 'STDERR: failed to get process STDERR, got error: {}\n'.format(err)
+            if isinstance(std_err, str):
+                result += f'STDERR:\n {std_err}'
+            else:
+                try:
+                    result += 'STDERR:\n' + std_err.decode('utf-8')
+                except Exception as err:
+                    result += 'STDERR: failed to get process STDERR, got error: {}\n'.format(err)
 
             allure.attach(result, proc_name, allure.attachment_type.TEXT)
             if rc:
