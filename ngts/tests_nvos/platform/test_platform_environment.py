@@ -40,6 +40,12 @@ def test_show_platform_environment_fan(engines, devices):
         for fan, fan_prop in output.items():
             _verify_fan_prop(fan, fan_prop.keys())
 
+    with allure.step("Check output of a specific Fan"):
+        fan_to_check = list(output.keys())[0]
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.show(op_param="fan {}".format(fan_to_check))).verify_result()
+        _verify_fan_prop(fan_to_check, output.keys())
+
 
 @pytest.mark.platform
 def test_show_platform_environment_led(engines, devices):
@@ -56,6 +62,12 @@ def test_show_platform_environment_led(engines, devices):
         logging.info("Check that all required properties for each led")
         for led, led_prop in output.items():
             _verify_led_prop(led, led_prop)
+
+    with allure.step("Check output of a specific Led"):
+        led_to_check = list(output.keys())[0]
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.show(op_param="led {}".format(led_to_check))).verify_result()
+        _verify_led_prop(led_to_check, output)
 
 
 @pytest.mark.platform
@@ -134,6 +146,12 @@ def test_show_platform_environment_psu(engines, devices):
         for psu, psu_prop in output.items():
             _verify_psu_prop(psu, psu_prop)
 
+    with allure.step("Check output of a specific PSU"):
+        psu_to_check = list(output.keys())[0]
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.show(op_param="psu {}".format(psu_to_check))).verify_result()
+        _verify_psu_prop(psu_to_check, output)
+
 
 @pytest.mark.platform
 def test_show_platform_environment_temperature(engines, devices):
@@ -154,6 +172,12 @@ def test_show_platform_environment_temperature(engines, devices):
     if "SODIMM 1 Temp" in output.keys():
         with allure.step('Verify "SODIMM 1 Temp" values'):
             _verify_temp_prop("SODIMM 1 Temp", output["SODIMM 1 Temp"])
+
+    with allure.step("Check output of a specific temperature comp"):
+        temperature_to_check = list(output.keys())[0]
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.show(op_param="temperature {}".format(temperature_to_check))).verify_result()
+        _verify_temp_prop(temperature_to_check, output)
 
 
 def _verify_temp_prop(temp, temp_prop):

@@ -50,7 +50,7 @@ class IbInterface:
                                                                                          state=state)
 
             if timer <= 0:
-                result_obj.info = "Timeout occurred while waiting for '{port}' to reach state 'state'".format(
+                result_obj.info = "Timeout occurred while waiting for '{port}' to reach state '{state}'".format(
                     port=self.port_obj.name, state=state)
                 result_obj.result = False
                 return result_obj

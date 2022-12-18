@@ -54,3 +54,10 @@ def test_show_platform_software(engines):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
                 platform.software.show("installed")).get_returned_value()
             assert output and len(output.keys()) > 0, "The list of installed software is empty"
+
+        with allure.step("Verify json output for a specific SW"):
+            logging.info("Verify json output for a specific SW")
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                platform.software.show("installed {}".format(list(output.keys())[1]))).get_returned_value()
+            assert not any(field not in output for field in ["description", "package", "version"]), \
+                "Not all required fields were found"

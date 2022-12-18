@@ -341,6 +341,10 @@ class OutputParsingTool:
         with allure.step('Create a list of dictionaries according to provided JSON output of "config history" command'):
             if output_json == '' or output_json == []:
                 return ResultObj(True, "", [])
+
+            if output_json.startswith("Currently pending"):
+                output_json = output_json.split('\n', 1)[1]
+
             output_list = json.loads(output_json)
             list_to_return = []
             for item in output_list:

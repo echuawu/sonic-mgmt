@@ -2,6 +2,7 @@ import pytest
 import allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 
 @pytest.mark.system
@@ -11,8 +12,24 @@ def test_reboot_command(engines):
         1. run nv action reboot system
     """
     system = System(None)
+
     with allure.step('Run nv action reboot system'):
         system.reboot.action_reboot()
+
+    with allure.step("Check system reboot output"):
+        output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
+        assert "reason" in output.keys(), "'reason' not in the output"
+        assert "history" in output.keys(), "'history' not in the output"
+
+        with allure.step("Check system reboot reason output"):
+            output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show("reason")).get_returned_value()
+            ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output, ["gentime", "reason", "user"])
+
+        with allure.step("Check system reboot history output"):
+            output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show("history")).get_returned_value()
+            if output and len(output.keys()) > 0:
+                ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output[list(output.keys())[0]],
+                                                                                  ["gentime", "reason", "user"])
 
 
 @pytest.mark.system

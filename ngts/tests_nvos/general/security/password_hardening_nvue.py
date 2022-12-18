@@ -95,3 +95,29 @@ def test_bad_flow_password_hardening():
                         break
                     else:
                         raise NameError('Error not expected')
+
+
+@pytest.mark.system
+@pytest.mark.security
+def test_show_system_security(engines):
+    """
+    Run show system security command and verify the required fields
+    """
+    expected_fields = ["digits-class", "history-cnt", "len-min", "lower-class", "reject-user-passw-match",
+                       "special-class", "state", "upper-class", "expiration", "expiration-warning"]
+
+    with allure.step("Create System object"):
+        system = System(None)
+
+    with allure.step("Show system security"):
+        output = OutputParsingTool.parse_json_str_to_dictionary(system.security.show()).get_returned_value()
+        assert "password-hardening" in output.keys(), "'password-hardening' can't be found in the output"
+
+        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output["password-hardening"],
+                                                                          expected_fields).verify_result()
+
+    with allure.step("Show system security password-hardening"):
+        output = OutputParsingTool.parse_json_str_to_dictionary(
+            system.security.show("password-hardening")).get_returned_value()
+        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output,
+                                                                          expected_fields).verify_result()
