@@ -132,6 +132,21 @@ class Gateway(IpBaseOperational):
                         field_name_in_db={}, output_hierarchy="{level1} {level2}".
                         format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.IP_GATEWAY))
 
+    def show(self, dut_engine=None, output_format=OutputFormat.json):
+        """
+        Executes show interface
+        :param dut_engine: ssh engine
+        :param output_format: OutputFormat
+        :return: str output
+        """
+        with allure.step('Execute show gateway for {port_name} interface'.format(port_name=self.port_obj.name)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+
+            return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
+                                                   dut_engine, self.port_obj.name, self.output_hierarchy,
+                                                   output_format).get_returned_value()
+
 
 class DhcpClient(IpBaseOperational):
     def __init__(self, port_obj, level2):

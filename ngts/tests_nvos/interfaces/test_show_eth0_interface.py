@@ -1,9 +1,9 @@
 import pytest
 
+from ngts.nvos_constants.constants_nvos import SystemConsts, IpConsts
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
-
 
 logger = logging.getLogger()
 
@@ -86,6 +86,45 @@ def test_ib_show_interface_ip(engines):
         validate_ip_fields(mgmt_port, output_dictionary)
 
 
+def check_dhcp(mgmt_port, ipv4=True):
+    # Run the desired show command (ipv4 / ipv6)
+    if ipv4:
+        with allure.step('Run show command on dhcp-client (ipv4) of eth0 mgmt port'):
+            output_json = mgmt_port.interface.ip.dhcp_client.show()
+    else:   # ipv6
+        with allure.step('Run show command on dhcp-client (ipv6) of eth0 mgmt port'):
+            output_json = mgmt_port.interface.ip.dhcp_client6.show()
+
+    output_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(output_json).get_returned_value()
+
+    # Verify the result
+    with allure.step('Verify required fields exist in the show output, and set to default value'):
+        Tools.ValidationTool.validate_fields_values_in_output(
+            expected_fields=SystemConsts.DHCP_SHOW_FIELDS, expected_values=SystemConsts.DHCP_SHOW_DEFAULT_VALUES,
+            output_dict=output_dict).verify_result()
+
+
+@pytest.mark.ib
+@pytest.mark.simx
+@pytest.mark.interfaces
+def test_show_interface_ip_dhcp(engines):
+    """
+    Run show interface command and verify the required fields exist
+    Command: nv show interface eth ip dhcp_client (and dhcp_client6)
+
+    flow:
+    1. Select eth0 port (status of which is up)
+    2. Run 'nv show interface eth0 ip dhcp_client'
+    3. Verify the required fields are presented in the output and set to default
+    4. Run 'nv show interface eth0 ip dhcp_client6'
+    5. Verify the required fields are presented in the output and set to default
+    """
+    mgmt_port = MgmtPort('eth0')
+
+    check_dhcp(mgmt_port=mgmt_port, ipv4=True)      # test ipv4
+    check_dhcp(mgmt_port=mgmt_port, ipv4=False)     # same test on ipv6
+
+
 def validate_interface_fields(selected_port, output_dictionary):
     with allure.step('Check that the following fields exist in the output: type, description, link, ip, ifindex'):
         logging.info('Check that the following fields exist in the output: type, description, link, ip, ifindex')
@@ -126,6 +165,10 @@ def validate_stats_fields(selected_port, output_dictionary):
 def validate_ip_fields(selected_port, output_dictionary):
     with allure.step('Check that all expected fields under eth ip field exist in the output'):
         logging.info('Check that all expected fields under eth ip field exist in the output')
-        field_to_check = [selected_port.interface.ip.vrf.label,
-                          selected_port.interface.ip.address.label]
+        port_ip = selected_port.interface.ip
+        field_to_check = [port_ip.vrf.label,
+                          port_ip.address.label,
+                          port_ip.dhcp_client.label,
+                          port_ip.dhcp_client6.label,
+                          IpConsts.ARP_TIMEOUT, IpConsts.AUTOCONF]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()

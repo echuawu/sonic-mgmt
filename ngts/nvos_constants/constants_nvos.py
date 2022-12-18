@@ -212,6 +212,10 @@ class SystemConsts:
         USERNAME_PASSWORD_SPECIAL_LABEL: USERNAME_PASSWORD_SPECIAL_LIST
     }
 
+    SHOW_VALUE_YES = 'yes'
+    DHCP_SHOW_FIELDS = ['has-lease', 'is-running', 'set-hostname', 'state']
+    DHCP_SHOW_DEFAULT_VALUES = [SHOW_VALUE_YES, SHOW_VALUE_YES, USER_STATE_ENABLED, USER_STATE_ENABLED]
+
 
 class ActionConsts:
     CLEANUP = "cleanup"
@@ -225,6 +229,8 @@ class ActionConsts:
 class IpConsts:
     MIN_IPV6_GROUP_VALUE = 0
     MAX_IPV6_GROUP_VALUE = 65535
+    ARP_TIMEOUT = "arp-timeout"
+    AUTOCONF = "autoconf"
 
 
 class ConfigConsts:
