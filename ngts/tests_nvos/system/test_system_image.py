@@ -18,6 +18,8 @@ logger = logging.getLogger()
 
 PATH_TO_IMAGED_DIRECTORY = "/auto/sw_system_release/nos/nvos/"
 PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
+IMAGE_VERSION_TO_INSTALL = "nvos-amd64-25.01.0730-030.bin"
+IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/25.01.0730-030/amd64/nvos-amd64-25.01.0730-030.bin"
 
 
 @pytest.mark.checklist
@@ -205,7 +207,7 @@ def test_system_image_bad_flow(engines, release_name):
     file_rand_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
 
     with allure.step("Get an available image file"):
-        image_name, image_path = get_images_to_install(release_name, original_image)[0]
+        image_name, image_path = get_images_to_fetch(release_name, original_image)[0]
         images_name = []
 
     with allure.step("Fetch bad flows"):
@@ -295,19 +297,25 @@ def test_image_install(release_name):
     """
     system = System()
     original_images, original_image, original_image_partition, partition_id_for_new_image, image_files = \
-        get_image_data_and_fetch_random_image_files(release_name, system, 2)
+        get_image_data_and_fetch_random_image_files(release_name, system)
 
     with allure.step("Verify fetched images are shown in the show command"):
         system.image.files.verify_show_files_output(expected_files=image_files)
     with allure.step("Verify show images output didn't change after the fetch command"):
         system.image.verify_show_images_output(original_images)
+    with allure.step("Fetch the second image"):
+        scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
+                                           InfraConst.HTTP_SERVER.replace("http://", ""))
+        with allure.step("Fetch an image {}".format(scp_path + IMAGE_VERSION_TO_INSTALL_PATH)):
+            system.image.action_fetch(scp_path + IMAGE_VERSION_TO_INSTALL_PATH)
+            image_files.append(IMAGE_VERSION_TO_INSTALL)
 
     try:
         with allure.step("Install the first image"):
-            install_image_and_verify(image_files[1], partition_id_for_new_image, original_images, system)
+            install_image_and_verify(image_files[0], partition_id_for_new_image, original_images, system)
 
         with allure.step("Install the second image"):
-            expected_dictionary = install_image_and_verify(image_files[1], partition_id_for_new_image, original_images, system)
+            expected_dictionary = install_image_and_verify(IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image, original_images, system)
 
         with allure.step("Set partition {} to boot next".format(partition_id_for_new_image)):
             system.image.boot_next_and_verify(partition_id_for_new_image)
@@ -418,17 +426,17 @@ def get_list_of_directories(current_installed_img, starts_with=None):
     return return_directories
 
 
-def get_images_to_install(release_name, current_installed_img, images_amount=1):
-    images_to_install = []
+def get_images_to_fetch(release_name, current_installed_img, images_amount=1):
+    images_to_fetch = []
     with allure.step("Get list of images"):
         logging.info("Get list of images")
         relevant_directories = get_list_of_directories(current_installed_img, release_name)
         for directory, images_list in relevant_directories.items():
-            images_to_install.append((images_list[0], directory + images_list[0]))
+            images_to_fetch.append((images_list[0], directory + images_list[0]))
             logging.info("Selected image: " + directory + images_list[0])
-            if len(images_to_install) == images_amount:
+            if len(images_to_fetch) == images_amount:
                 break
-    return images_to_install
+    return images_to_fetch
 
 
 def get_next_partition_id(partition_id):
@@ -462,9 +470,9 @@ def get_image_data_and_fetch_random_image_files(release_name, system, images_amo
     original_images, original_image, original_image_partition, partition_id_for_new_image = get_image_data(system)
 
     with allure.step("Get {} available image files".format(images_amount_to_fetch)):
-        images_to_install = get_images_to_install(release_name, original_image, images_amount_to_fetch)
+        images_to_fetch = get_images_to_fetch(release_name, original_image, images_amount_to_fetch)
         images_name = []
-        for image_name, image_path in images_to_install:
+        for image_name, image_path in images_to_fetch:
             scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                                InfraConst.HTTP_SERVER.replace("http://", ""))
             with allure.step("Fetch an image {}".format(scp_path + image_path)):
