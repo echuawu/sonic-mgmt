@@ -1,9 +1,6 @@
 import logging
 import pytest
 import allure
-from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiCommandHelper
-from ngts.nvos_constants.constants_nvos import OpenApiReqType
-import paramiko
 import subprocess
 
 logger = logging.getLogger()
@@ -40,9 +37,9 @@ def test_checklist_ipv6(engines):
             logging.info("Verify ssh connection using ipv6 address " + ipv6_add)
             _check_ssh_connection(ipv6_add, engines.dut.username, engines.dut.password)
 
-        '''with allure.step("Verify OpenApi command using ipv6 address " + ipv6_add):
+        with allure.step("Verify OpenApi command using ipv6 address " + ipv6_add):
             logging.info("Verify OpenApi command using ipv6 address " + ipv6_add)
-            _send_open_api_request(ipv6_add, engines.dut.username, engines.dut.password)'''
+            _send_open_api_request(ipv6_add, engines.dut.username, engines.dut.password)
 
     except BaseException as ex:
         logging.info("Something failed")
@@ -82,15 +79,19 @@ def _check_ssh_connection(ipv6_add, username, password):
         logging.info("SSH is reachable using ipv6 address: " + ipv6_add)
     except BaseException as ex:
         logging.error(str(ex))
-        assert "FAILED"
+        assert "SSH connection using ipv6 was failed"
 
 
 def _send_open_api_request(ipv6_add, username, password):
     try:
-        full_ip6_add = '[{}]'.format(ipv6_add)
-        logging.info("using full address: " + full_ip6_add)
-        output = OpenApiCommandHelper.execute_script(username, password, OpenApiReqType.GET,
-                                                     full_ip6_add, "/system/version", "", "")
-        logging.info(output)
+        url = "curl -gkvu {user_name}:{password} https://[{ipv6_add}]/nvue_v1/system/version".format(
+            user_name=username, password=password, ipv6_add=ipv6_add)
+        logging.info("url: " + url)
+        process = subprocess.Popen(url.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        logging.info("output: " + str(output))
+        logging.info("error: " + str(error))
+        assert "build-by" in str(output) and "build-date" in str(output), "API request failed using ipv6 address"
     except BaseException as ex:
         logging.error(str(ex))
+        #assert "API request failed using ipv6 address"

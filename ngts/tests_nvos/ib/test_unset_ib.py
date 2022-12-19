@@ -48,7 +48,9 @@ def test_set_ib_sm_prio_positive(engines):
         TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engines.dut)
 
     with allure.step('Run nv unset ib and apply the configuration'):
-        ib.unset()
+        ib.unset(IbConsts.SM_PRIORITY).verify_result()
+        ib.unset(IbConsts.SM_STATE).verify_result()
+        ib.unset("").verify_result()
         TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engines.dut)
 
     with allure.step('verify changes using the show command out'):
