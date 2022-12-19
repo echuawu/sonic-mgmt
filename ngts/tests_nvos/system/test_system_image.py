@@ -377,7 +377,7 @@ def image_uninstall_test(release_name, uninstall_force=""):
                 with allure.step("Install image"):
                     install_image_and_verify(fetched_image, partition_id_for_new_image, original_images, system)
             else:
-                system.image.action_uninstall(expected_str="Not uninstalling. image set to boot-next")
+                system.image.action_uninstall(expected_str="Failed to uninstall. Image set to boot-next")
                 system.image.verify_show_images_output(installed_images_output)
     finally:
         cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
