@@ -5,8 +5,10 @@ from .IfIndex import IfIndex
 from .Link import LinkMgmt
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 import allure
+from retry import retry
 import logging
 
 logger = logging.getLogger()
@@ -41,3 +43,11 @@ class MgmtInterface:
 
             return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
                                                    dut_engine, self.port_obj.name, output_format).get_returned_value()
+
+    @retry(Exception, tries=10, delay=2)
+    def wait_for_mtu_changed(self, mtu_to_verify):
+        with allure.step("Waiting for ib0 port mtu changed to {}".format(mtu_to_verify)):
+            output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+                self.link.show()).get_returned_value()
+            current_mtu = output_dictionary[self.link.mtu.label]
+            assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".format(current_mtu, mtu_to_verify)

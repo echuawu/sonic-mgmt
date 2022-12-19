@@ -25,9 +25,10 @@ class TechSupport(BaseComponent):
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             if not engine:
                 engine = TestToolkit.engines.dut
-            return TechSupport.get_techsupport_folder_name(SendCommandTool.execute_command(
-                self.api_obj[TestToolkit.tested_api].action_generate_techsupport, engine,
-                self.get_resource_path().replace('/files', ' '), option, time))
+
+            cmd_out = SendCommandTool.execute_command(NvueSystemCli.action_generate_techsupport, engine, self.get_resource_path().replace('/files', ' '), option, time)
+            result = TechSupport.get_techsupport_folder_name(cmd_out)
+            return result
 
     @staticmethod
     def get_techsupport_folder_name(techsupport_res):

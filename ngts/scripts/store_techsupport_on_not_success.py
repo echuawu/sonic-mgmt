@@ -5,7 +5,8 @@ import logging
 import pytest
 
 from infra.tools.general_constants.constants import DefaultCred
-
+from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
+from ngts.nvos_tools.system.System import System
 logger = logging.getLogger()
 
 
@@ -48,7 +49,12 @@ def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, 
     with allure.step('Generating a sysdump'):
         dut_cli_object = topology_obj.players['dut']['cli']
         dut_engine = topology_obj.players['dut']['engine']
-        tar_file = dut_cli_object.general.generate_techsupport(duration)
+        if isinstance(dut_cli_object, NvueCli):
+            system = System(None)
+            tar_file = system.techsupport.action_generate(dut_engine)
+        else:
+            tar_file = dut_cli_object.general.generate_techsupport(duration)
+
         logger.info("Dump was created at: {}".format(tar_file))
         tarball_file_name = str(tar_file.replace('/var/dump/', ''))
 

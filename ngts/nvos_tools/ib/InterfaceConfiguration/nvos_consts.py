@@ -20,6 +20,7 @@ class NvosConsts:
 class IbInterfaceConsts:
     INTERFACE_NAME = "name"
     DESCRIPTION = "description"
+    ARPTIMEOUT = "arp-timeout"
     DHCP_STATE = 'state'
     DHCP_SET_HOSTNAME = 'set-hostname'
     TYPE = "type"
@@ -79,6 +80,8 @@ class IbInterfaceConsts:
     DEFAULT_LANES = '1X,2X,4X'
     SUPPORTED_VLS = ['VL0', 'VL0-VL1', 'VL0-VL3', 'VL0-VL7']
     DEFAULT_VLS = 'VL0-VL7'
+    IB0_LINK_MTU_DEFAULT_VALUE = 2044
+    IB0_IP_ARP_DEFAULT_VALUE = 1800
 
 
 class DataBaseNames:

@@ -25,6 +25,7 @@ class Ip(ConfigurationBase):
                                    output_hierarchy=IbInterfaceConsts.IP)
         self.vrf = Vrf(port_obj)
         self.address = Address(port_obj)
+        self.arp_timeout = ArpTimeout(port_obj)
         self.gateway = Gateway(port_obj)
         self.dhcp_client = DhcpClient(port_obj, IbInterfaceConsts.IP_DHCP)
         self.dhcp_client6 = DhcpClient(port_obj, IbInterfaceConsts.IP_DHCP6)
@@ -118,6 +119,19 @@ class Address(IpBaseOperational):
                         description="IPv4 and IPv6 address",
                         field_name_in_db={}, output_hierarchy="{level1} {level2}".
                         format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.IP_ADDRESS))
+
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            value = {value: {}}
+        return IpBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
+
+
+class ArpTimeout(IpBaseOperational):
+    def __init__(self, port_obj):
+        IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.ARPTIMEOUT,
+                        description="Set IPv4 arp timeout in sec <60-28800>",
+                        field_name_in_db={}, output_hierarchy="{level1} {level2}".
+                        format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.ARPTIMEOUT))
 
     def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
         if TestToolkit.tested_api == ApiType.OPENAPI:

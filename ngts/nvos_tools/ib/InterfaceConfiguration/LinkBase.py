@@ -200,4 +200,3 @@ class State(LinkBaseOperational):
                                          output_hierarchy=self.output_hierarchy,
                                          value=value_to_use, apply=apply, port_obj=self.port_obj,
                                          ask_for_confirmation=ask_for_confirmation)
-
