@@ -70,6 +70,12 @@ R-R740-05 ansible_host=r-r740-05
 [vm_host_57]
 R-R740-03 ansible_host=r-r740-03
 
+[vm_host_58]
+R-R740-08 ansible_host=r-r740-08
+
+[vm_host_59]
+R-R740-09 ansible_host=r-r740-09
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -95,6 +101,8 @@ vm_host_54
 vm_host_55
 vm_host_56
 vm_host_57
+vm_host_58
+vm_host_59
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -778,6 +786,18 @@ VM2104 ansible_host=10.215.11.44
 VM2201 ansible_host=10.215.19.21
 VM2202 ansible_host=10.215.19.22
 
+[vms_58]
+VM2301 ansible_host=10.215.22.123
+VM2302 ansible_host=10.215.22.124
+VM2303 ansible_host=10.215.22.127
+VM2304 ansible_host=10.215.22.128
+
+[vms_59]
+VM2401 ansible_host=10.215.5.4
+VM2402 ansible_host=10.215.5.5
+VM2403 ansible_host=10.215.5.8
+VM2404 ansible_host=10.215.5.9
+
 [eos:children]
 vms_1
 vms_2
@@ -803,6 +823,8 @@ vms_54
 vms_55
 vms_56
 vms_57
+vms_58
+vms_59
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -997,6 +1019,28 @@ host_var_file=host_vars/R-R740-03.yml
 host_var_file=host_vars/R-R740-03.yml
 mgmt_prefixlen=16
 
+[server_58:children]
+vm_host_58
+vms_58
+
+[server_58:vars]
+host_var_file=host_vars/R-R740-08.yml
+
+[vms_58:vars]
+host_var_file=host_vars/R-R740-08.yml
+mgmt_prefixlen=16
+
+[server_59:children]
+vm_host_59
+vms_59
+
+[server_59:vars]
+host_var_file=host_vars/R-R740-09.yml
+
+[vms_59:vars]
+host_var_file=host_vars/R-R740-09.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1022,6 +1066,8 @@ server_54
 server_55
 server_56
 server_57
+server_58
+server_59
 
 [servers:vars]
 topologies=['dualtor', 't1', 't1-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', appliance]
