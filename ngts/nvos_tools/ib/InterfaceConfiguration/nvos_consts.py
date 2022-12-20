@@ -51,7 +51,7 @@ class IbInterfaceConsts:
     LINK_VL_ADMIN_CAPABILITIES = "vl-capabilities"
     LINK_OPERATIONAL_VLS = "op-vls"
     LINK_IB_SUBNET = "ib-subnet"
-    LINK_STATS = "stats"
+    LINK_STATS = "counters"
     LINK_STATS_CARRIER_TRANSITION = "carrier-transitions"
     LINK_STATS_IN_BYTES = "in-bytes"
     LINK_STATS_IN_DROPS = "in-drops"

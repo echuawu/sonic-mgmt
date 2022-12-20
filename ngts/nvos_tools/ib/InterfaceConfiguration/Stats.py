@@ -24,7 +24,7 @@ class Stats(ConfigurationBase):
     def __init__(self, port_obj):
         ConfigurationBase.__init__(self, port_obj=port_obj,
                                    label=IbInterfaceConsts.LINK_STATS,
-                                   description="interface stats",
+                                   description="interface counters",
                                    field_name_in_db={},
                                    output_hierarchy="{level1} {level2}".format(
                                        level1=IbInterfaceConsts.LINK,

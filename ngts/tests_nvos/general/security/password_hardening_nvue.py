@@ -11,7 +11,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 def output_verification(output, exp_key, exp_val):
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
     output_dictionary = {key: str(value) for key, value in output_dictionary.items()}
-    ValidationTool.verify_field_exist_in_json_output(output_dictionary, [exp_key]).verify_result()
+    ValidationTool.verify_field_exist_in_json_output(output_dictionary, exp_key).verify_result()
     ValidationTool.verify_field_value_in_output(output_dictionary, exp_key, exp_val, should_be_equal=True)
 
 
@@ -84,17 +84,8 @@ def test_bad_flow_password_hardening():
             passw_hardening_policy = policy
             passw_hardening_value = value
 
-            # TODO: extend verification infra to support set command expecting bad flow instead using try-except
-            try:
-                system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value)
-                raise NameError('nv set command should failed with key=%s, value=%s' % (passw_hardening_policy,
-                                                                                        passw_hardening_value))
-            except Exception as e:
-                for curr_err in e.args:
-                    if 'Error at %s' % policy in curr_err:
-                        break
-                    else:
-                        raise NameError('Error not expected')
+            system.security.password_hardening.set(passw_hardening_policy,
+                                                   passw_hardening_value).verify_result(False)
 
 
 @pytest.mark.system
