@@ -51,6 +51,15 @@ class NvueIbInterfaceCli:
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def action_clear_counters(engine):
+        """
+        Clear counters for all interfaces
+        """
+        cmd = 'nv action clear interface counters'
+        logging.info('Running ' + cmd)
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def show_interface(engine, port_name, interface_hierarchy="", output_format=OutputFormat.json):
         """
         Displays the configuration ans the status of the interface

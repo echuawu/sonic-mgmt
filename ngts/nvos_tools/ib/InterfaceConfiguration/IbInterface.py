@@ -9,6 +9,7 @@ from .SignalDegrade import SignalDegrade
 import time
 import logging
 import allure
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 
 logger = logging.getLogger()
 
@@ -71,4 +72,15 @@ class IbInterface:
                         "'{state}'".format(port=self.port_obj.name, state=logical_state)
                     result_obj.result = False
 
+            return result_obj
+
+    def action_clear_counter_for_all_interfaces(self, engine=None):
+        with allure.step("Clear counters for all interfaces"):
+            logging.info("Clear counters for all interfaces")
+
+            if not engine:
+                engine = TestToolkit.engines.dut
+
+            result_obj = SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].
+                                                         action_clear_counters, engine)
             return result_obj

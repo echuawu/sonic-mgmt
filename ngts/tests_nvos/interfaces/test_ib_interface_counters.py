@@ -16,11 +16,11 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib_interfaces
-def test_ib_clear_counters(engines, players, interfaces):
+def test_ib_clear_counters(engines, players, interfaces, start_sm):
     """
     Clear counters test
     Commands:
-        > nv action interface {port_name} link clear stats
+        > nv action interface {port_name} link clear counters
 
     flow:
     1. Select a random port (which is up)
@@ -30,8 +30,22 @@ def test_ib_clear_counters(engines, players, interfaces):
     5. Make sure the counters were cleared
     6. Run traffic and make sure the counters are not 0
     """
+    _clear_counters_test_flow(engines, players, interfaces, False)
+
+
+@pytest.mark.ib_interfaces
+def test_clear_all_counters(engines, players, interfaces, start_sm):
+    """
+    Clear counters for all interfaces
+    Commands:
+        > nv action clear interface counters
+    """
+    _clear_counters_test_flow(engines, players, interfaces, True)
+
+
+def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        temp_selected_ports = Tools.RandomizationTool.get_random_active_port(0).get_returned_value()
     user_name, password, user_id, file_name = "", "", "", ""
     system = None
     try:
@@ -50,27 +64,50 @@ def test_ib_clear_counters(engines, players, interfaces):
                                                                 user_name, password).get_returned_value()
 
         with allure.step("Clear counters for the default user"):
-            clear_counters_for_user(engines.dut, engines.dut.username, user_name, ssh_connection, selected_port)
+            temp_selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
 
             with allure.step('Send traffic through selected port'):
                 Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
             with allure.step('Check selected port counters'):
-                check_port_counters(selected_port, False, engines.dut).verify_result()
-                check_port_counters(selected_port, False, ssh_connection).verify_result()
+                selected_ports = temp_selected_ports.copy()
+
+                for port in temp_selected_ports:
+                    result = check_port_counters(port, False, engines.dut)
+                    if not result.result:
+                        selected_ports.remove(port)
+
+                assert len(selected_ports) != 0, "No traffic were detected"
+
+                if not all_counters:
+                    selected_ports = [selected_ports[0]]
+                    check_port_counters(selected_ports[0], False, engines.dut).verify_result()
+                check_port_counters(selected_ports[0], False, ssh_connection).verify_result()
 
         with allure.step("Clear counters for the a new user '{}'".format(user_name)):
-            clear_counters_for_user(ssh_connection, user_name, engines.dut.username, engines.dut, selected_port)
+            if all_counters:
+                selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(ssh_connection).verify_result()
+            else:
+                clear_counters_for_user(ssh_connection, user_name, engines.dut.username, engines.dut, selected_ports[0])
+
             with allure.step("Verify {} was created".format(file_name)):
                 output = engines.dut.run_cmd("ls -l {}".format(file_name))
                 assert "cannot access" not in output, file_name + " can't be found"
 
+            with allure.step('Check selected port counters'):
+                for port in selected_ports:
+                    check_port_counters(port, True, ssh_connection).verify_result()
+                for port in selected_ports:
+                    check_port_counters(port, False, engines.dut).verify_result()
+
             with allure.step('Send traffic through selected port'):
                 Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
             with allure.step('Check selected port counters'):
-                check_port_counters(selected_port, False, ssh_connection).verify_result()
-                check_port_counters(selected_port, False, engines.dut).verify_result()
+                for port in selected_ports:
+                    check_port_counters(port, False, ssh_connection).verify_result()
+                for port in selected_ports:
+                    check_port_counters(port, False, engines.dut).verify_result()
     finally:
         with allure.step("Delete created user {}".format(user_name)):
             if system and system.aaa and system.aaa.user:
@@ -105,7 +142,7 @@ def check_port_counters(selected_port, should_be_zero, ssh_engine):
     counters += selected_port.ib_interface.link.stats.out_errors.get_operational(renew_show_cmd_output=False)
     counters += selected_port.ib_interface.link.stats.out_pkts.get_operational(renew_show_cmd_output=False)
     counters += selected_port.ib_interface.link.stats.out_wait.get_operational(renew_show_cmd_output=False)
-    return ResultObj((should_be_zero and not counters) or {counters and not should_be_zero}, "")
+    return ResultObj((should_be_zero and not counters) or (counters and not should_be_zero), "")
 
 
 def get_port_obj(port_name):
