@@ -216,6 +216,15 @@ class SystemConsts:
     DHCP_SHOW_FIELDS = ['has-lease', 'is-running', 'set-hostname', 'state']
     DHCP_SHOW_DEFAULT_VALUES = [SHOW_VALUE_YES, SHOW_VALUE_YES, USER_STATE_ENABLED, USER_STATE_ENABLED]
 
+    MEMORY_PHYSICAL_KEY = 'Physical'
+    MEMORY_SWAP_KEY = 'Swap'
+    CPU_CORE_COUNT_KEY = 'core-count'
+    CPU_MODEL_KEY = 'model'
+    CPU_UTILIZATION_KEY = 'utilization'
+
+    PERCENT_THRESHOLD_MIN = 0.0
+    PERCENT_THRESHOLD_MAX = 100.0
+
 
 class ActionConsts:
     CLEANUP = "cleanup"

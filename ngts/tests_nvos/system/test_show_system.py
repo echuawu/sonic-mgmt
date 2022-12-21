@@ -1,6 +1,7 @@
 import logging
 import allure
 import pytest
+import datetime
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -157,3 +158,60 @@ def test_show_system_reboot(engines, devices):
         system = System()
         reboot_output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
         assert reboot_output['reason'], "reason field is missing"
+
+
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_memory(engines, devices):
+    """
+    Run show system memory and verify there is a correlation between the different values,
+    and the values are in appropriate range.
+        Test flow:
+            1. run show system memory
+            2. verify both keys (Physical and Swap) are exist
+            3. validate total value = (buffers + cache + free + used) values
+            4. validate Utilization percentages are not crossing 100% for both Physical and Swap types
+    """
+    with allure.step('Run show system memory command and verify that each field has a value'):
+        system = System()
+        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("memory")).get_returned_value()
+
+        assert (len(output_dictionary.keys()) == 2, "Unexpected Number of keys")
+        assert (list(output_dictionary.keys())[0] == SystemConsts.MEMORY_PHYSICAL_KEY, "Unexpected Key value")
+        assert (list(output_dictionary.keys())[1] == SystemConsts.MEMORY_SWAP_KEY, "Unexpected Key value")
+
+        total_sum = output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["buffer"] + \
+            output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["cache"] + \
+            output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["free"] + \
+            output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["used"]
+        total_diff = output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["total"] - total_sum
+        assert total_diff == 0
+
+        phy_utilization = output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["utilization"]
+        assert (SystemConsts.PERCENT_THRESHOLD_MIN <= phy_utilization <= SystemConsts.PERCENT_THRESHOLD_MAX)
+        swap_utilization = output_dictionary[SystemConsts.MEMORY_SWAP_KEY]["utilization"]
+        assert (SystemConsts.PERCENT_THRESHOLD_MIN <= swap_utilization <= SystemConsts.PERCENT_THRESHOLD_MAX)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_cpu(engines, devices):
+    """
+    Run show system memory and verify there is a correlation between the different values,
+    and the values are in appropriate range.
+        Test flow:
+            1. run show system memory
+            2. verify 3 keys (core-count, model and utilization) are exist
+            3. validate Utilization percentages are not crossing 100%
+    """
+    with allure.step('Run show system cpu command and verify that each field has a value'):
+        system = System()
+        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("cpu")).get_returned_value()
+
+        assert (len(output_dictionary.keys()) == 3, "Unexpected Number of keys")
+        assert (list(output_dictionary.keys())[0] == SystemConsts.CPU_CORE_COUNT_KEY, "Unexpected Key value")
+        assert (list(output_dictionary.keys())[1] == SystemConsts.CPU_MODEL_KEY, "Unexpected Key value")
+        assert (list(output_dictionary.keys())[2] == SystemConsts.CPU_UTILIZATION_KEY, "Unexpected Key value")
+
+        utilization = output_dictionary["utilization"]
+        assert (SystemConsts.PERCENT_THRESHOLD_MIN <= utilization <= SystemConsts.PERCENT_THRESHOLD_MAX)
