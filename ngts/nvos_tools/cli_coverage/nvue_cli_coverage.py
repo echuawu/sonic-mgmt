@@ -40,6 +40,14 @@ class NVUECliCoverage:
     last_matched_command_index = 0
     nvue_clis = defaultdict(list)
     full_command_list = {}
+    ignore_commands = {'nv set interface <interface-id>', 'nv set system',
+                       'nv set system aaa', 'nv set system security',
+                       'nv set system message', 'nv set system log',
+                       'nv set system log component <component-name>',
+                       'nv set system log rotation', 'nv set system debug-log',
+                       'nv set system debug-log rotation', 'nv set system firmware',
+                       'nv set system factory-default', 'nv set ib',
+                       'nv set ib sm', 'nv unset system factory-default'}
 
     @classmethod
     def get_full_command_list(cls, engine, project, swversion):
@@ -60,7 +68,7 @@ class NVUECliCoverage:
                 logging.info("Get module and classification of all the commands")
                 for line in commands_list_output.strip().splitlines():
                     command = line.strip()
-                    if command and command.startswith('nv '):
+                    if command and command.startswith('nv ') and command not in cls.ignore_commands:
                         module, classification = cls.get_module_and_classification(command)
                         re_cli = cls.build_regex(command)
                         if re_cli:
