@@ -1761,5 +1761,6 @@
   Conditions:
     - Affected_test_cases:
       - tests/show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit
+      - platform_tests/sfp/test_sfputil.py
       Redmine:
-      - 3293065
+      - 3283464
