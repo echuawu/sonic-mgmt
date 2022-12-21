@@ -11,7 +11,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 def output_verification(output, exp_key, exp_val):
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
     output_dictionary = {key: str(value) for key, value in output_dictionary.items()}
-    ValidationTool.verify_field_exist_in_json_output(output_dictionary, exp_key).verify_result()
+    ValidationTool.verify_field_exist_in_json_output(output_dictionary, [exp_key]).verify_result()
     ValidationTool.verify_field_value_in_output(output_dictionary, exp_key, exp_val, should_be_equal=True)
 
 

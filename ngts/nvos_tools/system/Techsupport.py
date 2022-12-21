@@ -12,10 +12,11 @@ class TechSupport(BaseComponent):
 
     def __init__(self, parent_obj):
         BaseComponent.__init__(self)
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/tech-support/files'
         self.parent_obj = parent_obj
 
-    def action_generate(self, engine, option="", time=""):
+    def action_generate(self, engine="", option="", time=""):
         """
         in the future the command will be nv action generate system tech-support (without files)
         changes to do :

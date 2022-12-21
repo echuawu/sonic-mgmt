@@ -27,7 +27,7 @@ def test_techsupport_show(engines):
         output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
             system.techsupport.show()).get_returned_value()
 
-    validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions)
+        validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions)
 
 
 @pytest.mark.system
@@ -45,11 +45,12 @@ def test_techsupport_since(engines):
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
         yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
         yesterday_str = yesterday.strftime("%Y%m%d")
-        tech_support_folder = system.techsupport.action_generate(SystemConsts.ACTIONS_GENERATE_SINCE, yesterday_str)
+        tech_support_folder = system.techsupport.action_generate(engines.dut, SystemConsts.ACTIONS_GENERATE_SINCE,
+                                                                 yesterday_str)
         output_dictionary = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
             system.techsupport.show()).get_returned_value()
 
-    validate_techsupport_since(output_dictionary, tech_support_folder)
+        validate_techsupport_since(output_dictionary, tech_support_folder)
 
 
 @pytest.mark.system
