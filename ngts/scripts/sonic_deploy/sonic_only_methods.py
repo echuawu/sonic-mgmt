@@ -328,6 +328,10 @@ class SonicInstallationSteps:
             topology_obj.players[dut['dut_alias']]['engine'].disconnect()
 
         if not is_community(sonic_topo):
+            # deploy the xmlrpc, the traffic may loss right after the xml rpc server is started
+            topology_obj.players['ha']['engine'].start_xml_rcp_server()
+            topology_obj.players['hb']['engine'].start_xml_rcp_server()
+
             # Only check port status at canonical setup, there is an ansible counterpart for community setup
             for dut in setup_info['duts']:
                 ports_list = topology_obj.players_all_ports[dut['dut_alias']]
