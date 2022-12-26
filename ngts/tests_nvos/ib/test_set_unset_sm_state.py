@@ -14,7 +14,8 @@ from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 logger = logging.getLogger()
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_show_ib_sm_default_values(engines):
     """
     Test flow:

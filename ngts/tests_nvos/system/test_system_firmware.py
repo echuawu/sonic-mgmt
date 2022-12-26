@@ -12,6 +12,7 @@ logger = logging.getLogger()
 
 @pytest.mark.checklist
 @pytest.mark.nvos_ci
+@pytest.mark.system
 def test_show_system_firmware(engines):
     """
     Show system firmware test
@@ -74,6 +75,7 @@ def test_show_system_firmware(engines):
 
 
 @pytest.mark.checklist
+@pytest.mark.system
 def test_set_unset_system_firmware_auto_update(engines):
     """
     set/unset system firmware auto update test
@@ -113,6 +115,7 @@ def test_set_unset_system_firmware_auto_update(engines):
 
 
 @pytest.mark.checklist
+@pytest.mark.system
 def test_set_unset_system_firmware_default(engines):
     """
     set/unset system firmware default test

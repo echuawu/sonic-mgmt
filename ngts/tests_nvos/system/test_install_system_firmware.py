@@ -10,6 +10,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.checklist
+@pytest.mark.system
 def test_install_system_firmware(engines):
     """
     Install system firmware test

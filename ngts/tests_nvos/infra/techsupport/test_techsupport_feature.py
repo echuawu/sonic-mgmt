@@ -9,6 +9,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.general
+@pytest.mark.tech_support
 def test_techsupport_folder_name(engines):
     """
     Test flow:
@@ -29,6 +30,7 @@ def test_techsupport_folder_name(engines):
 
 
 @pytest.mark.general
+@pytest.mark.tech_support
 def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
     """
     Test flow:
@@ -48,6 +50,7 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
 
 
 @pytest.mark.general
+@pytest.mark.tech_support
 def test_techsupport_expected_files(engines, devices):
     """
     Run nv show system tech-support files command and verify the required fields are exist

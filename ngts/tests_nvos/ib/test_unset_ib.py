@@ -11,7 +11,8 @@ from ngts.nvos_constants.constants_nvos import IbConsts
 logger = logging.getLogger()
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_set_ib_sm_prio_positive(engines):
     """
         testing nv unset ib command

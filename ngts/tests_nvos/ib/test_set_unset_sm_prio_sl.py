@@ -11,25 +11,29 @@ from ngts.nvos_constants.constants_nvos import IbConsts
 logger = logging.getLogger()
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_set_ib_sm_prio_positive(engines):
     with allure.step('set/unset sm priority'):
         set_param_positive(engines.dut, IbConsts.SM_PRIORITY)
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_set_ib_sm_prio_negative(engines):
     with allure.step('sm priority - invalid value'):
         set_param_negative(IbConsts.SM_PRIORITY)
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_set_ib_sm_sl_positive(engines):
     with allure.step('set/unset sm sl'):
         set_param_positive(engines.dut, IbConsts.SM_SL)
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_set_ib_sm_sl_negative(engines):
     with allure.step('sm sl - invalid value'):
         set_param_negative(IbConsts.SM_SL)
