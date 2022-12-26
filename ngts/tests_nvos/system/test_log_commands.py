@@ -5,6 +5,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -289,13 +290,13 @@ def _log_files_rotation_default_fields(system_log_obj):
 
     with allure.step("Verify default values"):
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                    field_name="frequency", expected_value="daily")
+                                                    field_name="frequency", expected_value="daily").verify_result()
 
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                    field_name='max-number', expected_value="20")
+                                                    field_name='max-number', expected_value="20").verify_result()
 
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                    field_name='size', expected_value="10.0")
+                                                    field_name='size', expected_value="10.0").verify_result()
 
 
 @pytest.mark.system
@@ -361,7 +362,7 @@ def _log_files_set_unset_log_rotation_frequency(engines, system_log_obj):
             NvueGeneralCli.apply_config(engines.dut)
             show_output = system_log_obj.rotation.show()
             output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-            ValidationTool.verify_field_value_in_output(output_dictionary, 'frequency', frequency)
+            ValidationTool.verify_field_value_in_output(output_dictionary, 'frequency', frequency).verify_result()
 
     with allure.step("Validate unset frequency"):
         logging.info("Validate unset frequency")
@@ -369,7 +370,7 @@ def _log_files_set_unset_log_rotation_frequency(engines, system_log_obj):
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'frequency', default_frequency)
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'frequency', default_frequency).verify_result()
 
 
 @pytest.mark.system
@@ -426,13 +427,13 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '0.001')
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '0.001').verify_result()
 
         system_log_obj.rotation.set('size', '3499.999')
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '3499.999')
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '3499.999').verify_result()
 
     with allure.step("Negative validation disk percentage configuration"):
         logging.info("Negative validation disk percentage configuration")
@@ -445,24 +446,25 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '1750')
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '50.0')
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '1750').verify_result()
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '50.0').verify_result()
 
         logging.info("Validate disk percentage configuration with lowest value")
         system_log_obj.rotation.set('disk-percentage', '0.001')
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '0.035')
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '0.001')
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '0.035').verify_result()
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '0.001').verify_result()
 
-        logging.info("Validate disk percentage configuration with highest value")
-        system_log_obj.rotation.set('disk-percentage', '100')
-        NvueGeneralCli.apply_config(engines.dut)
-        show_output = system_log_obj.rotation.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '3500')
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '3500')
+        if not is_redmine_issue_active([3215005]):
+            logging.info("Validate disk percentage configuration with highest value")
+            system_log_obj.rotation.set('disk-percentage', '100')
+            NvueGeneralCli.apply_config(engines.dut)
+            show_output = system_log_obj.rotation.show()
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
+            ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '3500').verify_result()
+            ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '3500').verify_result()
 
     with allure.step("Validate unset log rotation"):
         logging.info("Validate unset log rotation")
@@ -470,7 +472,7 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', default_size)
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'size', default_size).verify_result()
 
 
 @pytest.mark.system
@@ -529,7 +531,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'max-number', '5')
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'max-number', '5').verify_result()
 
         logging.info("Rotate log 5 times to check functionality of max-number")
         for i in range(0, 5):
@@ -547,7 +549,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'max-number', '1')
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'max-number', '1').verify_result()
 
         logging.info("Rotate log 1 time to check functionality of max-number")
         system_log_obj.rotate_logs()
@@ -564,7 +566,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        ValidationTool.verify_field_value_in_output(output_dictionary, 'max-number', default_max_number)
+        ValidationTool.verify_field_value_in_output(output_dictionary, 'max-number', default_max_number).verify_result()
 
 
 @pytest.mark.system
@@ -633,7 +635,7 @@ def test_log_components(engines):
                 default_log_level = "info"
             with allure.step("Validate component {component} with default log level {level}"
                              .format(component=component, level=default_log_level)):
-                ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level)
+                ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level).verify_result()
                 logging.info("All expected components were with default log levels")
 
     with allure.step("Rotate logs"):
@@ -649,7 +651,7 @@ def test_log_components(engines):
                 system.log.component.set_system_log_component(component, log_level)
                 show_output = system.log.component.show()
                 output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-                ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", log_level)
+                ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", log_level).verify_result()
                 if component == "nvued" and log_level is list_with_all_log_levels[-1]:
                     default_log_level_nvued = "info"
                     system.log.component.set_system_log_component(component, default_log_level_nvued)
@@ -657,7 +659,7 @@ def test_log_components(engines):
                     system.log.component.unset_system_log_component(component)
                     show_output = system.log.component.show()
                     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-                    ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level)
+                    ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level).verify_result()
 
 
 @pytest.mark.system
@@ -779,7 +781,7 @@ def test_delete_log_files(engines):
                         assert log_file not in output_dictionary.keys(), log_file + " was not actually deleted"
 
                     with allure.step("Verify other files were not deleted"):
-                        ValidationTool.verify_field_exist_in_json_output(output_dictionary, left_files)
+                        ValidationTool.verify_field_exist_in_json_output(output_dictionary, left_files).verify_result()
 
         with allure.step("Verify syslog file was deleted and a new one was created"):
             logging.info("Verify syslog file was deleted and a new one was created")

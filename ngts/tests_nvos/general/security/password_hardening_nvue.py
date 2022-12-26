@@ -8,8 +8,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 
-def output_verification(output, exp_key, exp_val):
-    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
+def output_verification(output_dictionary, exp_key, exp_val):
     output_dictionary = {key: str(value) for key, value in output_dictionary.items()}
     ValidationTool.verify_field_exist_in_json_output(output_dictionary, [exp_key]).verify_result()
     ValidationTool.verify_field_value_in_output(output_dictionary, exp_key, exp_val, should_be_equal=True)
@@ -36,24 +35,26 @@ def test_good_flow_password_hardening(engines):
         'lower-class': 'disabled',
         'special-class': 'disabled',
         'upper-class': 'disabled',
-        'digit-class': 'disabled',
+        'digits-class': 'disabled',
         'reject-user-passw-match': 'disabled',
         'state': 'enabled'
     }
-    for policy, value in passw_hardening_conf_dict.items():
-        with allure.step('Verify config & show system security password-hardening %s' % policy):
+    for passw_hardening_policy, passw_hardening_value in passw_hardening_conf_dict.items():
+        with allure.step('Verify config & show system security password-hardening %s' % passw_hardening_policy):
             system = System(None)
 
-            passw_hardening_policy = policy
-            passw_hardening_value = value
+            with allure.step("set {} = {}".format(passw_hardening_policy, passw_hardening_value)):
+                system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value)
+                NvueGeneralCli.apply_config(engines.dut, True)
 
-            system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value)
-            NvueGeneralCli.apply_config(engines.dut, True)
-            password_hardening_output = system.security.password_hardening.show()
-            output_verification(password_hardening_output, passw_hardening_policy, passw_hardening_value)
+                with allure.step("Verify output after set command - using show security/password_hardening output"):
+                    password_hardening_output = OutputParsingTool.parse_json_str_to_dictionary(
+                        system.security.password_hardening.show()).get_returned_value()
+                    output_verification(password_hardening_output, passw_hardening_policy, passw_hardening_value)
 
-            security_output = system.security.show()
-            output_verification(security_output, passw_hardening_policy, passw_hardening_value)
+                with allure.step("Verify output after set command - using show security output"):
+                    security_output = OutputParsingTool.parse_json_str_to_dictionary(system.security.show()).get_returned_value()
+                    output_verification(security_output["password-hardening"], passw_hardening_policy, passw_hardening_value)
 
 
 @pytest.mark.security
@@ -77,13 +78,9 @@ def test_bad_flow_password_hardening():
         'state': '1'
     }
 
-    for policy, value in passw_hardening_conf_dict.items():
-        with allure.step('Verify config & show system security password-hardening %s' % policy):
+    for passw_hardening_policy, passw_hardening_value in passw_hardening_conf_dict.items():
+        with allure.step('Verify config & show system security password-hardening %s' % passw_hardening_policy):
             system = System(None)
-
-            passw_hardening_policy = policy
-            passw_hardening_value = value
-
             system.security.password_hardening.set(passw_hardening_policy,
                                                    passw_hardening_value).verify_result(False)
 

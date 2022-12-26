@@ -28,7 +28,7 @@ def test_show_platform_software(engines):
                 logging.info("Verify text output")
                 output = platform.software.show(output_format=OutputFormat.auto)
                 list_of_sw = output.split("\n", 3)
-                assert 'operational' in list_of_sw[0] and 'applied' in list_of_sw[0] and 'description' in list_of_sw[0], \
+                assert 'operational' in list_of_sw[0] and 'applied' in list_of_sw[0], \
                     "Titles cant be found in the output"
                 if not is_redmine_issue_active([3215476]):
                     assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
@@ -44,8 +44,7 @@ def test_show_platform_software(engines):
                 logging.info("Verify text output")
                 output = platform.software.show("installed", output_format=OutputFormat.auto)
                 list_of_sw = output.split("\n", 3)
-                assert "Installed software" in list_of_sw[0] and "description" in list_of_sw[0], \
-                    "Titles cant be found in the output"
+                assert "Installed software" in list_of_sw[0], "'Installed software' title can't be found in the output"
                 if not is_redmine_issue_active([3215476]):
                     assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
