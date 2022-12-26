@@ -64,7 +64,8 @@ def test_show_ib_sm_default_values(engines):
                                                          logical_state="Active").verify_result()
 
 
-@pytest.mark.system
+@pytest.mark.ib
+@pytest.mark.sm
 def test_set_unset_sm_state_many_times(engines, times=5):
     """
     :param engines: dut engine
