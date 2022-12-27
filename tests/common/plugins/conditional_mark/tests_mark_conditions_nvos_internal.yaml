@@ -53,6 +53,12 @@ tests_nvos/system/test_log_commands.py::test_upload_log_files:
     conditions:
       - https://redmine.mellanox.com/issues/3235264
 
+tests_nvos/system/test_log_commands.py::test_upload_debug_log_files:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3235264"
+    conditions:
+      - https://redmine.mellanox.com/issues/3235264
+
 tests_nvos/system/test_system_profile_change.py::test_system_profile_ib_routing_mode:
   skip:
     reason: "Not implemented command"
@@ -60,5 +66,9 @@ tests_nvos/system/test_system_profile_change.py::test_system_profile_ib_routing_
 tests_nvos/system/test_system_profile_change.py::test_system_profile_change_upgrade_not_default_profile:
   skip:
     reason: "Not implemented command"
+
+tests_nvos/system/test_system_image.py::test_image_install:
+  skip:
+    reason: "Test bug"
 
 ########################## NVOS IGNORE END ##########################

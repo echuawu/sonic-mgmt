@@ -613,6 +613,7 @@ def test_log_components(engines):
         2. Run nv show system component and check default log levels for all components
         3. Run nv set/unset for all components with all log levels and validate
     """
+    default_log_level_nvued = "info"
     list_with_all_components = ["nvued", "orchagent", "portsyncd", "sai_api_port", "sai_api_switch", "syncd"]
     list_with_all_log_levels = ["critical", "debug", "error", "info", "notice", "warn"]
     with allure.step("Create System object"):
@@ -632,7 +633,7 @@ def test_log_components(engines):
         for component in list_with_all_components:
             default_log_level = "notice"
             if component == "nvued":
-                default_log_level = "info"
+                default_log_level = default_log_level_nvued
             with allure.step("Validate component {component} with default log level {level}"
                              .format(component=component, level=default_log_level)):
                 ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level).verify_result()
@@ -653,13 +654,14 @@ def test_log_components(engines):
                 output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
                 ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", log_level).verify_result()
                 if component == "nvued" and log_level is list_with_all_log_levels[-1]:
-                    default_log_level_nvued = "info"
                     system.log.component.set_system_log_component(component, default_log_level_nvued)
                 else:
                     system.log.component.unset_system_log_component(component)
                     show_output = system.log.component.show()
                     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-                    ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level).verify_result()
+                    ValidationTool.verify_field_value_in_output(
+                        output_dictionary[component], "level",
+                        default_log_level if component != "nvued" else default_log_level_nvued).verify_result()
 
 
 @pytest.mark.system
