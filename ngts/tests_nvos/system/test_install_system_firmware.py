@@ -53,7 +53,7 @@ def test_install_system_firmware(engines):
         show_output = system.firmware.asic.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         ValidationTool.verify_field_value_in_output(output_dictionary[first_asic_name], "installed-firmware",
-                                                    fw_file_name)
+                                                    fw_file_name).verify_result()
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
@@ -63,7 +63,7 @@ def test_install_system_firmware(engines):
         show_output = system.firmware.asic.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         ValidationTool.verify_field_value_in_output(output_dictionary[first_asic_name], "actual-firmware",
-                                                    fw_file_name)
+                                                    fw_file_name).verify_result()
 
     with allure.step("Install original system firmware file - " + original_fw_path):
         system.firmware.action_install(original_fw_path)
@@ -76,4 +76,4 @@ def test_install_system_firmware(engines):
         show_output = system.firmware.asic.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         ValidationTool.verify_field_value_in_output(output_dictionary[first_asic_name], "actual-firmware",
-                                                    actual_firmware)
+                                                    actual_firmware).verify_result()

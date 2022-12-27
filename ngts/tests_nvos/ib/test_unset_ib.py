@@ -55,7 +55,7 @@ def test_set_ib_sm_prio_positive(engines):
                                                         expected_fields=[IbConsts.SM_STATE, IbConsts.SM_PRIORITY,
                                                                          IbConsts.SM_SL],
                                                         expected_values=[IbConsts.SM_STATE_ENABLE, priority_random_val,
-                                                                         sl_random_val])
+                                                                         sl_random_val]).verify_result()
 
         with allure.step("Unset and verify output"):
             ib.sm.unset(IbConsts.SM_STATE).verify_result()
@@ -69,7 +69,7 @@ def test_set_ib_sm_prio_positive(engines):
                                                                              IbConsts.SM_SL],
                                                             expected_values=[IbConsts.SM_STATE_DISABLE,
                                                                              IbConsts.PRIO_SL_DEFAULT_VALUE,
-                                                                             IbConsts.PRIO_SL_DEFAULT_VALUE])
+                                                                             IbConsts.PRIO_SL_DEFAULT_VALUE]).verify_result()
 
     with allure.step('Run nv unset ib and apply the configuration'):
         ib.sm.unset("").verify_result()
@@ -92,4 +92,4 @@ def test_set_ib_sm_prio_positive(engines):
             output = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(output_dictionary=output,
                                                         field_name=IbConsts.SM_STATE,
-                                                        expected_value=IbConsts.SM_STATE_DISABLE)
+                                                        expected_value=IbConsts.SM_STATE_DISABLE).verify_result()

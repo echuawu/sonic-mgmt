@@ -23,13 +23,13 @@ def test_reboot_command(engines):
 
         with allure.step("Check system reboot reason output"):
             output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show("reason")).get_returned_value()
-            ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output, ["gentime", "reason", "user"])
+            ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output, ["gentime", "reason", "user"]).verify_result()
 
         with allure.step("Check system reboot history output"):
             output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show("history")).get_returned_value()
             if output and len(output.keys()) > 0:
                 ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output[list(output.keys())[0]],
-                                                                                  ["gentime", "reason", "user"])
+                                                                                  ["gentime", "reason", "user"]).verify_result()
 
 
 @pytest.mark.system

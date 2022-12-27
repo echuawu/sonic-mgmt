@@ -11,7 +11,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 def output_verification(output_dictionary, exp_key, exp_val):
     output_dictionary = {key: str(value) for key, value in output_dictionary.items()}
     ValidationTool.verify_field_exist_in_json_output(output_dictionary, [exp_key]).verify_result()
-    ValidationTool.verify_field_value_in_output(output_dictionary, exp_key, exp_val, should_be_equal=True)
+    ValidationTool.verify_field_value_in_output(output_dictionary, exp_key, exp_val, should_be_equal=True).verify_result()
 
 
 @pytest.mark.security

@@ -198,4 +198,4 @@ def compare_asic_names(first_dictionary, second_dictionary):
 
 def compare_asic_fields(first_dictionary, second_dictionary):
     logging.info("Compare asic fields")
-    ValidationTool.compare_dictionaries(first_dictionary, second_dictionary)
+    ValidationTool.compare_dictionaries(first_dictionary, second_dictionary).verify_result()
