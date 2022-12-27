@@ -6,6 +6,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Security import Security
+from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
@@ -35,6 +36,7 @@ class System(BaseComponent):
     component = None
     files = None
     rotation = None
+    syslog = None
 
     def __init__(self, parent_obj=None, username='admin'):
         self._resource_path = '/system'
@@ -45,6 +47,7 @@ class System(BaseComponent):
         self.component = Component(self)
         self.rotation = Rotation(self)
         self.security = Security(self)
+        self.syslog = Syslog(self)
         self.techsupport = TechSupport(self)
         self.image = Image(self)
         self.firmware = Firmware(self)

@@ -25,36 +25,36 @@ class BaseComponent:
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value()
 
-    def _set(self, param_name, param_value):
-        return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
-                                               TestToolkit.engines.dut,
-                                               self.get_resource_path(), param_name,
-                                               param_value)
+    def _set(self, param_name, param_value, expected_str=''):
+        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].set, expected_str,
+                                                            TestToolkit.engines.dut, self.get_resource_path(),
+                                                            param_name, param_value)
 
-    def set(self, op_param_name="", op_param_value={}):
+    def set(self, op_param_name="", op_param_value={}, expected_str=''):
         with allure.step('Execute set for {resource_path}'.format(resource_path=self.get_resource_path())):
 
             if op_param_name:
                 if isinstance(op_param_value, dict):
                     if TestToolkit.tested_api == ApiType.OPENAPI:
-                        return self._set(op_param_name, op_param_value)
+                        return self._set(op_param_name, op_param_value, expected_str)
                     else:
                         output = ''
                         for param_name, param_value in op_param_value.items():
-                            res = self._set(param_name, param_value)
+                            res = self._set(param_name, param_value, expected_str)
                             output = output + "\n" + res
                         return output
 
                 elif isinstance(op_param_value, str):
                     if TestToolkit.tested_api == ApiType.OPENAPI:
                         value = {op_param_name: op_param_value}
-                        return self._set(self._resource_path.replace("/", ""), value)
+                        return self._set(self._resource_path.replace("/", ""), value, expected_str)
                     else:
-                        return self._set(op_param_name, op_param_value)
+                        return self._set(op_param_name, op_param_value, expected_str)
             else:
                 raise Exception("Invalid param name or value")
 
     def unset(self, op_param=""):
-        with allure.step('Execute unset for {resource_path}'.format(resource_path=self.get_resource_path())):
+        with allure.step('Execute unset {op_param} for {resource_path}'.format(op_param=op_param,
+                                                                               resource_path=self.get_resource_path())):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset, TestToolkit.engines.dut,
                                                    self.get_resource_path(), op_param)

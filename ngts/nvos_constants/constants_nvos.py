@@ -321,3 +321,32 @@ class ImageConsts:
     CURRENT_IMG = 'current'
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
+
+
+class SyslogConsts:
+    FORMAT = 'format'
+    FIREWAL_NAME = 'firewall-name'
+    TRAP = 'trap'
+    SERVER = 'server'
+    SERVER_ID = 'server-id'
+    FILTER = 'filter'
+    EXCLUDE = 'exclude'
+    INCLUDE = 'include'
+    PORT = 'port'
+    VRF = 'vrf'
+    PROTOCOL = 'protocol'
+    STANDARD = 'standard'
+    WELF = 'welf'
+    DEFAULT_PORT = '514'
+
+
+class SyslogSeverityLevels:
+    NONE = 'none'
+    EMERG = 'emerg'
+    ALERT = 'alert'
+    CRITIC = 'critic'
+    ERR = 'err'
+    WARNING = 'warning'
+    NOTICE = 'notice'
+    INFO = 'info'
+    DEBUG = 'debug'
