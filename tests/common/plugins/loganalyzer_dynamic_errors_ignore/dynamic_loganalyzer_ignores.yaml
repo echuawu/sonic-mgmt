@@ -320,8 +320,8 @@
 
 # Errors which should be ignored on SPC1 when install the p4-examples, p4-sampling, and enable them
 - Errors_list:
-    - '.*ERR p4-examples: start.sh - unsupported DEVICE_TYPE=Spectrum.*'
-    - '.*ERR p4-sampling: start.sh - unsupported DEVICE_TYPE=Spectrum.*'
+    - '.*ERR p4.*examples: start.sh - unsupported DEVICE_TYPE=Spectrum.*'
+    - '.*ERR p4.*sampling: start.sh - unsupported DEVICE_TYPE=Spectrum.*'
   Conditions:
     - Platform:
         sn2
