@@ -64,6 +64,8 @@ class IbInterfaceConsts:
     LINK_STATS_OUT_ERRORS = "out-errors"
     LINK_STATS_OUT_PKTS = "out-pkts"
     LINK_STATS_OUT_WAIT = "out-wait"
+    LINK_BREAKOUT_NDR = "2x-ndr"
+    LINK_BREAKOUT_HDR = "2x-hdr"
     IP_VRF = "vrf"
     IP_ADDRESS = "address"
     IP_GATEWAY = "gateway"
@@ -78,6 +80,8 @@ class IbInterfaceConsts:
     SPEED_LIST = {'xdr': '800G', 'ndr': '400G', 'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
     SUPPORTED_LANES = ['1X', '1X,2X', '1X,4X', '1X,2X,4X']
     DEFAULT_LANES = '1X,2X,4X'
+    SPLIT_PORT_DEFAULT_LANES = '1X,2X'
+    SPLIT_PORT_DEFAULT_MTU = 256
     SUPPORTED_VLS = ['VL0', 'VL0-VL1', 'VL0-VL3', 'VL0-VL7']
     DEFAULT_VLS = 'VL0-VL7'
     IB0_LINK_MTU_DEFAULT_VALUE = 2044

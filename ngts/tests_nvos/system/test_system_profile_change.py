@@ -269,14 +269,10 @@ def test_system_profile_redis_db_crash(engines):
         3. Change system profile to default, verify changes
     """
     system = System(None)
-    hset_command = 'hset "DEVICE_METADATA|localhost" "ar_groups" 777'
-    redis_config_db_command = "redis-cli -n 4"
-    exit_command = "exit"
-    cmd_set = [redis_config_db_command, hset_command, exit_command]
+    cmd = "redis-cli -n 4 HSET DEVICE_METADATA\\|localhost ar_groups 777"
     with allure.step('Write value to adaptive routing groups via redis cli'):
-        for cmd in cmd_set:
-            engines.dut.engine.validate_command(cmd)
-            engines.dut.engine.write_channel(engines.dut.engine.normalize_cmd('\n'))
+        redis_cli_output = engines.dut.run_cmd(cmd)
+        assert redis_cli_output != 0, "Redis command failed"
 
     with allure.step('Verify changed values'):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
@@ -327,7 +323,6 @@ def test_system_profile_change_upgrade_not_default_profile(engines):
     with allure.step("Fetch and image which support system profile"):
         with allure.step("Fetch an image"):
             support_profile_image_path = ''
-            support_profile_image_name = ''
             scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                                InfraConst.HTTP_SERVER.replace("http://", ""))
             system.image.action_fetch(scp_path + support_profile_image_path)

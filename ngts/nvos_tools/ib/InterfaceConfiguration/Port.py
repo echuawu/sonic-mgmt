@@ -18,6 +18,7 @@ class PortRequirements:
     default_port_requirements = {IbInterfaceConsts.NAME: "",
                                  IbInterfaceConsts.DESCRIPTION: "",
                                  IbInterfaceConsts.LINK_MTU: "",
+                                 IbInterfaceConsts.LINK_BREAKOUT: "",
                                  IbInterfaceConsts.LINK_SPEED: "",
                                  IbInterfaceConsts.LINK_IB_SPEED: "",
                                  IbInterfaceConsts.LINK_STATE: "",

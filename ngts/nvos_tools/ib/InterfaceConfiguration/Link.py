@@ -50,12 +50,7 @@ class Link(ConfigurationBase):
 
         self.state = State(port_obj=self.port_obj)
 
-        self.breakout = LinkBase(port_obj=self.port_obj, label=IbInterfaceConsts.LINK_BREAKOUT,
-                                 description="sub-divide or disable ports (only valid on plug interfaces)",
-                                 field_name_in_db={},
-                                 output_hierarchy="{level1} {level2}".format(
-                                     level1=IbInterfaceConsts.LINK,
-                                     level2=IbInterfaceConsts.LINK_BREAKOUT))
+        self.breakout = Breakout(port_obj=self.port_obj)
 
         self.ib_speed = IbSpeed(port_obj=self.port_obj)
 
@@ -132,6 +127,7 @@ class LinkMgmt(ConfigurationBase):
     state = None
     speed = None
     mtu = None
+    breakout = None
     stats = None
     mac = None
     duplex = None
@@ -147,6 +143,7 @@ class LinkMgmt(ConfigurationBase):
         self.state = State(port_obj=self.port_obj)
         self.speed = Speed(port_obj=self.port_obj)
         self.mtu = Mtu(port_obj=self.port_obj)
+        self.breakout = Breakout(port_obj=self.port_obj)
         self.stats = MgmtStats(port_obj=self.port_obj)
         self.mac = Mac(port_obj=self.port_obj)
         self.duplex = Duplex(port_obj=self.port_obj)

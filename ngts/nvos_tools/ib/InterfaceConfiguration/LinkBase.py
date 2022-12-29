@@ -118,6 +118,20 @@ class Mtu(LinkBaseOperational):
         return LinkBaseOperational.set(self, int(value), dut_engine, apply, ask_for_confirmation)
 
 
+class Breakout(LinkBaseOperational):
+    def __init__(self, port_obj):
+        LinkBaseOperational.__init__(self, port_obj=port_obj,
+                                     label=IbInterfaceConsts.LINK_BREAKOUT,
+                                     description="interface breakout",
+                                     field_name_in_db={},
+                                     output_hierarchy="{level1} {level2}".format(
+                                         level1=IbInterfaceConsts.LINK,
+                                         level2=IbInterfaceConsts.LINK_BREAKOUT))
+
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
+        return LinkBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
+
+
 class OpVls(LinkBaseOperational):
     def __init__(self, port_obj):
         LinkBaseOperational.__init__(self, port_obj=port_obj,

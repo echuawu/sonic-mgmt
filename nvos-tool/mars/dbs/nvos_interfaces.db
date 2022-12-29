@@ -52,4 +52,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_eth0_dhcp.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ib_port_split.cases </cases>
+	</test>
 </DBDEF>

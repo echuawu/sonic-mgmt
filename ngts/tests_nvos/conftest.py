@@ -144,6 +144,7 @@ def clear_config():
         else:
             NvueSystemCli.unset(TestToolkit.engines.dut, 'system')
             NvueSystemCli.unset(TestToolkit.engines.dut, 'ib')
+            NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
