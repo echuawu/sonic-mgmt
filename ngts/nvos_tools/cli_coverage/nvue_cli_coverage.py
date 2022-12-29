@@ -36,10 +36,13 @@ class NVUECliCoverage:
     re_nvue_space = re.compile(r' +')
     re_nvue_pipe = re.compile(r'\|.*')
     re_nvue_endspace = re.compile(r' +$')
-    curr_log_line_number = None
     last_matched_command_index = 0
     nvue_clis = defaultdict(list)
     full_command_list = {}
+    swversion = None
+    build_id = None
+    system_type = None
+
     ignore_commands = {'nv set interface <interface-id>', 'nv set system',
                        'nv set system aaa', 'nv set system security',
                        'nv set system message', 'nv set system log',
@@ -284,22 +287,24 @@ class NVUECliCoverage:
                 cls.nvue_dir = nvue_dir
                 cls.nvue_full_list_dir = os.path.join(nvue_dir, 'full_command_lists')
                 cls.engine = TestToolkit.engines.dut
-                version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image'].split('-')
-                swversion = version[1]
-                build_id = version[2]
-                system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
+                if not cls.swversion:  # only init it once per session
+                    version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image'].split('-')
+                    cls.swversion = version[1]
+                    cls.build_id = version[2]
+                if not cls.system_type:  # only init it once per session
+                    cls.system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
 
                 with allure.step("Get full_commands list"):
-                    result_obj = cls.get_full_command_list(cls.engine, cls.project, swversion)
+                    result_obj = cls.get_full_command_list(cls.engine, cls.project, cls.swversion)
                     if result_obj.result:
-                        cls.full_command_list[swversion] = result_obj.returned_value
+                        cls.full_command_list[cls.swversion] = result_obj.returned_value
                     else:
                         logging.error(result_obj.info)
                         return
-                    logging.info("NVUE full command list count: {}".format(len(cls.full_command_list[swversion])))
+                    logging.info("NVUE full command list count: {}".format(len(cls.full_command_list[cls.swversion])))
 
                 with allure.step("Get used commands:"):
-                    cls.create_used_commands_dictionary(cls.engine, swversion).verify_result()
+                    cls.create_used_commands_dictionary(cls.engine, cls.swversion).verify_result()
 
                 date_folder = os.path.join(cls.nvue_dir, time.strftime("%Y%m%d"))
 
@@ -315,7 +320,7 @@ class NVUECliCoverage:
 
                 with allure.step("Create hit list file"):
                     logging.info("Create hit list file")
-                    cls.create_hit_list_file(item, system_type, build_id, start_time, date_folder).verify_result()
+                    cls.create_hit_list_file(item, cls.system_type, cls.build_id, start_time, date_folder).verify_result()
                 logging.info("--------- CLI coverage run completed successfully ---------")
         except BaseException as ex:
             logging.info("--------- CLI coverage failed ---------\n" + str(ex))
