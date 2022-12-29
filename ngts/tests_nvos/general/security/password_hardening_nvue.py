@@ -44,7 +44,7 @@ def test_good_flow_password_hardening(engines):
             system = System(None)
 
             with allure.step("set {} = {}".format(passw_hardening_policy, passw_hardening_value)):
-                system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value)
+                system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value).verify_result()
                 NvueGeneralCli.apply_config(engines.dut, True)
 
                 with allure.step("Verify output after set command - using show security/password_hardening output"):

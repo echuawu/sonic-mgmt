@@ -114,16 +114,16 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step('Negative validation with invalid value for duplex'):
-        mgmt_port.interface.link.duplex.set(value='a', apply=True).verify_result(False)
+        mgmt_port.interface.link.duplex.set(value='a', apply=False).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step('Negative validation with invalid value speed'):
-        mgmt_port.interface.link.speed.set(value='50F', apply=True).verify_result(False)
+        mgmt_port.interface.link.speed.set(value='50F', apply=False).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
-    with allure.step('Negative validation with half duplex and default speed 1G'):
+    '''with allure.step('Negative validation with half duplex and default speed 1G'):
         mgmt_port.interface.link.duplex.set(value='half', apply=True).verify_result(False)
-        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)'''
 
     with allure.step('Set all supported speeds with all supported duplex'):
         list_supported_speeds = ["10M", "100M"]
@@ -143,6 +143,7 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
 
     with allure.step('Set autoneg to off'):
         mgmt_port.interface.link.auto_negotiate.set(value='off', apply=True, ask_for_confirmation=True).verify_result()
+        time.sleep(5)
 
     with allure.step('Run show command on mgmt port and verify default values after unset'):
         mgmt_port.interface.link.auto_negotiate.unset(apply=True, ask_for_confirmation=True).verify_result()

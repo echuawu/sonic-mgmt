@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import allure
 import os
@@ -219,6 +221,7 @@ def test_patch_positive(engines):
 
         engines.dut.run_cmd('sudo rm {file}'.format(file=file))
         NvueGeneralCli.apply_config(engines.dut, True)
+        time.sleep(3)
         with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
             system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,

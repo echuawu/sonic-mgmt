@@ -254,7 +254,7 @@ def test_log_files_rotation_default_fields(engines):
     with allure.step("Create System object"):
         system = System(None)
 
-    _log_files_rotation_default_fields(system.log, "20")
+    _log_files_rotation_default_fields(system.log, "20", "10.0")
 
 
 @pytest.mark.system
@@ -274,10 +274,10 @@ def test_debug_log_files_rotation_default_fields(engines):
     with allure.step("Create System object"):
         system.debug_log.write_to_debug_log()
 
-    _log_files_rotation_default_fields(system.debug_log, "10")
+    _log_files_rotation_default_fields(system.debug_log, "10", "20.0")
 
 
-def _log_files_rotation_default_fields(system_log_obj, default_max_number):
+def _log_files_rotation_default_fields(system_log_obj, default_max_number, default_size):
     with allure.step("Run nv show system log rotation command and validate fields"):
         logging.info("Run nv show system log rotation command and validate fields")
         show_output = system_log_obj.rotation.show()
@@ -297,7 +297,7 @@ def _log_files_rotation_default_fields(system_log_obj, default_max_number):
                                                     expected_value=default_max_number).verify_result()
 
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                    field_name='size', expected_value="10.0").verify_result()
+                                                    field_name='size', expected_value=default_size).verify_result()
 
 
 @pytest.mark.system
