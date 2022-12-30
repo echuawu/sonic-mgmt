@@ -33,7 +33,7 @@ def get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number):
     Method which doing minigraph generation
     """
 
-    if sonic_topo == 'dualtor':
+    if is_dualtor_topo(sonic_topo):
         dut_name = setup_info['setup_name']
 
     cmd = "./testbed-cli.sh gen-mg {SWITCH}-{TOPO} lab vault".format(SWITCH=dut_name, TOPO=sonic_topo)
@@ -55,6 +55,14 @@ def get_deploy_minigraph_cmd(sonic_topo):
     return cmd
 
 
+def generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, port_number):
+    cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
+    with allure.step('Generate Minigraph'):
+        logger.info("Running CMD: {}".format(cmd))
+        logger.info("Generating minigraph")
+        return execute_script(cmd, ansible_path)
+
+
 def deploy_minigpraph(ansible_path, dut_name, sonic_topo, recover_by_reboot, topology_obj, cli_obj):
     """
     Method which doing minigraph deploy on DUT
@@ -73,6 +81,28 @@ def deploy_minigpraph(ansible_path, dut_name, sonic_topo, recover_by_reboot, top
                 cli_obj.reboot_reload_flow(topology_obj=topology_obj, ports_list=[])
         logger.info("Deploying minigraph")
         return execute_script(cmd, ansible_path)
+
+
+def config_y_cable_simulator(ansible_path, setup_info, sonic_topo):
+    setup_name = setup_info['setup_name']
+    with allure.step('Config y-cable simulator for dualtor topology'):
+        cmd = "./testbed-cli.sh -k ceos config-y-cable {SETUP}-{TOPO} lab vault".format(SETUP=setup_name, TOPO=sonic_topo)
+        logger.info("Configuring y-cable simulator")
+        logger.info("Running CMD: {}".format(cmd))
+        return execute_script(cmd, ansible_path)
+
+
+def add_host_for_y_cable_simulator(dut, setup_info):
+    with allure.step('Add hypervisor to dut hosts file'):
+        ip = setup_info['hypervisor']['hypervisor_ip']
+        name = setup_info['hypervisor']['hypervisor_name']
+        logger.info('Adding "{IP} {NAME}" to file /etc/hosts'.format(IP=ip, NAME=name))
+        engine = dut['engine']
+        try:
+            engine.run_cmd('sudo chmod 777 /etc/hosts')
+            engine.run_cmd('echo "{IP} {NAME}" >> /etc/hosts'.format(IP=ip, NAME=name))
+        except Exception:
+            logger.warning('Failed to add hypervisor to dut hosts file, please add it manually.')
 
 
 def reboot_validation(ansible_path, reboot, dut_name, sonic_topo):
@@ -125,3 +155,7 @@ def execute_script(cmd, exec_path, validate=True, timeout=None):
 
 def is_bf_topo(sonic_topo):
     return sonic_topo == 'appliance'
+
+
+def is_dualtor_topo(sonic_topo):
+    return 'dualtor' in sonic_topo

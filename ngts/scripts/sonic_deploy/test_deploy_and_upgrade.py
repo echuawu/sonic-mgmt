@@ -186,6 +186,11 @@ def get_info_from_topology(topology_obj, workspace_path):
                 dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine,
                             'cli_obj': cli_obj, 'dut_alias': dut_alias}
                 setup_info['duts'].append(dut_info)
+            elif host == 'hypervisor':
+                hypervisor_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
+                hypervisor_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']['ip']
+                hypervisor_info = {'hypervisor_name': hypervisor_name, 'hypervisor_ip': hypervisor_ip}
+                setup_info['hypervisor'] = hypervisor_info
 
     return setup_info
 

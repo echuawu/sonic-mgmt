@@ -9,7 +9,8 @@ from pathlib import Path
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants, SonicDeployConstants
 from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
-    reboot_validation, execute_script, is_bf_topo
+    reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, generate_minigraph, config_y_cable_simulator, \
+    add_host_for_y_cable_simulator
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_background_process_on_host
 
@@ -47,6 +48,8 @@ class SonicInstallationSteps:
             SonicInstallationSteps.start_community_background_threads(threads_dict, setup_name,
                                                                       dut_name, sonic_topo, ptf_tag, port_number,
                                                                       ansible_path, setup_info)
+            if is_dualtor_topo(sonic_topo):
+                generate_minigraph(ansible_path, setup_info, setup_info['setup_name'], sonic_topo, port_number)
         else:
             SonicInstallationSteps.start_canonical_background_threads(threads_dict, setup_name, dut_name, is_simx)
 
@@ -58,7 +61,7 @@ class SonicInstallationSteps:
         """
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=1800, exec_path=ansible_path)
-        if not is_bf_topo(sonic_topo):
+        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo):
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
@@ -186,7 +189,7 @@ class SonicInstallationSteps:
 
     @staticmethod
     def get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag):
-        if sonic_topo == 'dualtor':
+        if is_dualtor_topo(sonic_topo):
             dut_name = setup_name
         cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
               "ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
@@ -293,6 +296,8 @@ class SonicInstallationSteps:
                 for dut in setup_info['duts']:
                     SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                     ansible_path=ansible_path)
+            if is_dualtor_topo(sonic_topo):
+                config_y_cable_simulator(ansible_path=ansible_path, setup_info=setup_info, sonic_topo=sonic_topo)
 
         for dut in setup_info['duts']:
             SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj, dut_name=dut['dut_name'],
@@ -303,8 +308,13 @@ class SonicInstallationSteps:
                                                   reboot_after_install=reboot_after_install,
                                                   deploy_only_target=deploy_only_target, fw_pkg_path=fw_pkg_path,
                                                   cli=dut['cli_obj'])
+        if is_dualtor_topo(sonic_topo):
+            for dut in setup_info['duts']:
+                add_host_for_y_cable_simulator(dut, setup_info)
 
         for dut in setup_info['duts']:
+            if is_dualtor_topo(sonic_topo):
+                add_host_for_y_cable_simulator(dut, setup_info)
             SonicInstallationSteps.reboot_validation_sonic(dut_name=dut['dut_name'], sonic_topo=sonic_topo,
                                                            reboot=reboot, ansible_path=ansible_path)
 
