@@ -710,7 +710,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             config_db_localhost.update({ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE: mode})
 
         save_config_db_json(self.engine, config_db)
-        self.reload_configuration()
+        self.reload_configuration(force=True)
         self.verify_dockers_are_up()
 
     def update_config_db_metadata_mgmt_port(self, setup_name, config_db_json_file_name):
