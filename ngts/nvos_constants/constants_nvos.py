@@ -65,6 +65,8 @@ class NvosConst:
     ROOT_USER = 'root'
     ROOT_PASSWORD = '3tango'
 
+    SONIC_MGMT = 'sonic_mgmt'
+
 
 class ApiType:
     NVUE = "NVUE"
@@ -338,6 +340,9 @@ class SyslogConsts:
     STANDARD = 'standard'
     WELF = 'welf'
     DEFAULT_PORT = '514'
+    MODULE_LINE = "module(load=\"im{protocol}\")"
+    PORT_LINE = "input(type=\"im{protocol}\" port=\"514\")"
+    RSYSLOG_CONF_FILE = '/etc/rsyslog.conf'
 
 
 class SyslogSeverityLevels:
