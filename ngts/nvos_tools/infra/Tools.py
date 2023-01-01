@@ -6,6 +6,7 @@ from .TrafficGeneratorTool import TrafficGeneratorTool
 from .ValidationTool import ValidationTool
 from .IpTool import IpTool
 from .ConfigTool import ConfigTool
+from .SonicMgmtContainer import SonicMgmtContainer
 
 
 class Tools:
@@ -17,3 +18,4 @@ class Tools:
     ValidationTool = ValidationTool()
     IpTool = IpTool()
     ConfigTool = ConfigTool()
+    SonicMgmtContainer = SonicMgmtContainer()
