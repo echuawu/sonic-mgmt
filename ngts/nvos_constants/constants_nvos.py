@@ -220,12 +220,14 @@ class SystemConsts:
 
     MEMORY_PHYSICAL_KEY = 'Physical'
     MEMORY_SWAP_KEY = 'Swap'
+    MEMORY_PERCENT_THRESH_MIN = 0.0
+    MEMORY_PERCENT_THRESH_MAX = 60.0
+
     CPU_CORE_COUNT_KEY = 'core-count'
     CPU_MODEL_KEY = 'model'
     CPU_UTILIZATION_KEY = 'utilization'
-
-    PERCENT_THRESHOLD_MIN = 0.0
-    PERCENT_THRESHOLD_MAX = 100.0
+    CPU_PERCENT_THRESH_MIN = 0.0
+    CPU_PERCENT_THRESH_MAX = 30.0
 
 
 class ActionConsts:

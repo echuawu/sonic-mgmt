@@ -302,6 +302,7 @@ class BaseSwitch(BaseDevice, ABC):
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitch(BaseSwitch):
     GORILLA_IB_PORT_NUM = 64
+    SWITCH_CORE_COUNT = 4
 
     def __init__(self):
         BaseSwitch.__init__(self)
@@ -329,6 +330,7 @@ class GorillaSwitch(BaseSwitch):
 # -------------------------- Jaguar Switch ----------------------------
 class JaguarSwitch(BaseSwitch):
     JAGUAR_IB_PORT_NUM = 40
+    SWITCH_CORE_COUNT = 4
 
     def __init__(self):
         BaseSwitch.__init__(self)
