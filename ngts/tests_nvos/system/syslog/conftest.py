@@ -14,7 +14,8 @@ def enable_rsyslog_on_sonic_mgmt_container(engines):
     enable rsyslog on sonic-mgmt container
     """
     GeneralCliCommon(engines[NvosConst.SONIC_MGMT]).cp(SyslogConsts.RSYSLOG_CONF_FILE, tmp_rsyslog_file)
-    SonicMgmtContainer.enable_rsyslog(engines[NvosConst.SONIC_MGMT], 'udp', True)
+    SonicMgmtContainer.enable_rsyslog(engines[NvosConst.SONIC_MGMT], 'udp', False)
+    SonicMgmtContainer.enable_rsyslog(engines[NvosConst.SONIC_MGMT], 'tcp', True)
 
     yield
 
