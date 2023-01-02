@@ -16,7 +16,7 @@ def run_step(name) {
 
         }
 
-        if (env.GERRIT_BRANCH == "develop" && env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") || env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") )){
+        if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") || env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") )){
             print "'NVOS' related files were changed. Will run NVOS BAT."
             env.NVOS_BIN = (NGCITools().ciTools.run_sh_return_output("ls /auto/sw_system_release/nos/nvos/lastrc_master/nvos-amd64*.bin")).trim()
         } else {
@@ -26,7 +26,7 @@ def run_step(name) {
         }
 
         //If NVOS only, disable all sonic BAT
-        if (env.GERRIT_BRANCH == "develop" && env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
+        if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
                 && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
             print "'SONIC' BAT are skipped"
             NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC", "Skipped=status")
