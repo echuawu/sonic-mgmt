@@ -119,6 +119,13 @@ class Syslog(BaseComponent):
             output = OutputParsingTool.parse_json_str_to_dictionary(self.show_server()).get_returned_value()
             ValidationTool.validate_all_values_exists_in_list(expected_servers_list, output.keys()).verify_result()
 
+    def verify_global_severity_level(self, expected_severity_level):
+        actually_severity_level = self.get_syslog_field_value(SyslogConsts.TRAP)
+        assert actually_severity_level == expected_severity_level, "The trap severity level is not as expected\n" \
+                                                                   "Actual: {} \n" \
+                                                                   "Expected: {}".format(actually_severity_level,
+                                                                                         expected_severity_level)
+
 
 class Server(Syslog):
     def __init__(self, parent_obj, server_id):
@@ -162,6 +169,13 @@ class Server(Syslog):
             output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
             logger.info("Expected show server output:\n {}".format(expected_dictionary))
             ValidationTool.compare_dictionary_content(output, expected_dictionary).verify_result()
+
+    def verify_trap_severity_level(self, expected_severity_level):
+        actually_severity_level = self.get_syslog_field_value(SyslogConsts.TRAP)
+        assert actually_severity_level == expected_severity_level, "The trap severity level is not as expected\n" \
+                                                                   "Actual: {} \n" \
+                                                                   "Expected: {}".format(actually_severity_level,
+                                                                                         expected_severity_level)
 
 
 class WelfFormat(Syslog):

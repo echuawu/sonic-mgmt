@@ -343,17 +343,16 @@ class SyslogConsts:
     WELF = 'welf'
     DEFAULT_PORT = '514'
     MODULE_LINE = "module(load=\"im{protocol}\")"
-    PORT_LINE = "input(type=\"im{protocol}\" port=\"514\")"
+    PORT_LINE = "input(type=\"im{protocol}\" port=\"{port}\")"
     RSYSLOG_CONF_FILE = '/etc/rsyslog.conf'
 
 
 class SyslogSeverityLevels:
     NONE = 'none'
-    EMERG = 'emerg'
-    ALERT = 'alert'
-    CRITIC = 'critic'
-    ERR = 'err'
-    WARNING = 'warning'
+    CRIT = 'crit'
+    ERROR = 'error'
+    WARN = 'warn'
     NOTICE = 'notice'
     INFO = 'info'
     DEBUG = 'debug'
+    SEVERITY_LEVEL_LIST = [DEBUG, INFO, NOTICE, WARN, ERROR, CRIT]
