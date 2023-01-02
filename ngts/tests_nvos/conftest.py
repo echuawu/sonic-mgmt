@@ -8,6 +8,7 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.constants.constants import LinuxConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
@@ -166,3 +167,15 @@ def pytest_runtest_call(item):
         raise AssertionError(err)
     finally:
         clear_config()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_same_time_zone(engines):
+    '''
+    @summary: configure same time zone for local engine running device
+    and device under test
+    '''
+    # TODO: add ntp enable when ntp is implemented
+    logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+    engines.dut.run_cmd('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+    os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))

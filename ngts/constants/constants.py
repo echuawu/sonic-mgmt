@@ -135,6 +135,7 @@ class LinuxConsts:
     FEC_AUTO_MODE = 'auto'
     error_exit_code = 1
     linux = 'linux'
+    JERUSALEM_TIMEZONE = 'Asia/Jerusalem'
 
 
 class TopologyConsts:
