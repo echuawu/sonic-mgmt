@@ -6,6 +6,7 @@ from ngts.nvos_tools.system.System import *
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 def output_verification(output_dictionary, exp_key, exp_val):
@@ -28,7 +29,6 @@ def test_good_flow_password_hardening(engines):
     """
 
     passw_hardening_conf_dict = {
-        'expiration': '111',
         'expiration-warning': '11',
         'history-cnt': '11',
         'len-min': '11',
@@ -39,6 +39,10 @@ def test_good_flow_password_hardening(engines):
         'reject-user-passw-match': 'disabled',
         'state': 'enabled'
     }
+
+    if not is_redmine_issue_active([3313369]):
+        passw_hardening_conf_dict['expiration'] = '111'
+
     for passw_hardening_policy, passw_hardening_value in passw_hardening_conf_dict.items():
         with allure.step('Verify config & show system security password-hardening %s' % passw_hardening_policy):
             system = System(None)

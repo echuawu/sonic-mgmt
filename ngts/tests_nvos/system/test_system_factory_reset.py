@@ -43,6 +43,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
     with allure.step("Run reset factory without params"):
         current_time = datetime.now()
+        logging.info("Current time: " + str(current_time))
         system.factory_default.action_reset()
 
     with allure.step("Verify the cleanup done successfully"):
@@ -116,67 +117,83 @@ def _add_verification_data(engine, system):
 
 def _verify_cleanup_done(engine, current_time, system, username):
     logging.info("Verify cleanup done as expected")
+    errors = ""
     with allure.step("Verify NVUE reset done"):
         output = engine.run_cmd("stat /etc/sonic/nvue.d/platform/immutables.yaml | grep Birth")
         if output and "No such file or directory" not in output:
             file_date_time = _create_date_time_obj(output)
-            assert current_time < file_date_time, "/etc/sonic/nvue.d/platform/immutables.yaml was not deleted"
+            if current_time >= file_date_time:
+                errors += "\n/etc/sonic/nvue.d/platform/immutables.yaml was not deleted"
 
         output = engine.run_cmd("stat /etc/sonic/nvue.d/startup.yaml | grep Birth")
         if output and "No such file or directory" not in output:
             file_date_time = _create_date_time_obj(output)
-            assert current_time < file_date_time, "/etc/sonic/nvue.d/startup.yaml was not deleted"
+            if current_time >= file_date_time:
+                errors += "\n/etc/sonic/nvue.d/startup.yaml was not deleted"
 
     with allure.step("Verify sonic.target stopped"):
         output = engine.run_cmd("systemctl show sonic.target | grep StateChangeTimestamp=")
         if output:
             output = output.split('=')[1].split()
             file_date_time = _create_date_time_obj("date {} {}".format(output[1], output[2]))
-            assert current_time < file_date_time, "sonic.target probably was not stopped"
+            if current_time >= file_date_time:
+                errors += "\nsonic.target probably was not stopped"
 
     with allure.step("Verify new DB was created"):
         output = engine.run_cmd("stat /etc/sonic/config_db.json | grep Birth")
         if output and "No such file or directory" not in output:
             file_date_time = _create_date_time_obj(output)
-            assert current_time < file_date_time, "new /etc/sonic/config_db.json was not created"
+            if current_time >= file_date_time:
+                errors += "\nnew /etc/sonic/config_db.json was not created"
 
     with allure.step("Verify NVOS HOOKs were deleted"):
         output = engine.run_cmd("ls /host/mlnx/images")
-        assert not output or "No such file or directory" in output, "NVOS Hooks were not deleted"
+        if output or "No such file or directory" not in output:
+            errors += "\nNVOS Hooks were not deleted"
 
     with allure.step("Verify tech-support files were deleted"):
         output = engine.run_cmd("ls /var/dump")
-        assert not output or "No such file or directory" in output, "tech-support files were not deleted"
+        if output or "No such file or directory" not in output:
+            errors += "\ntech-support files were not deleted"
 
     with allure.step("Verify history was deleted"):
         output = engine.run_cmd("ls /home/.bash_history")
-        assert "No such file or directory" in output, "*.bash_history files were not deleted"
+        if "No such file or directory" not in output:
+            errors += "\n*.bash_history files were not deleted"
         output = engine.run_cmd("ls /home/.python_history")
-        assert "No such file or directory" in output, "*.python_history files were not deleted"
+        if "No such file or directory" not in output:
+            errors += "\n*.python_history files were not deleted"
         output = engine.run_cmd("ls /home/.viminfo")
-        assert "No such file or directory" in output, "*.viminfo files were not deleted"
+        if "No such file or directory" not in output:
+            errors += "\n*.viminfo files were not deleted"
         output = engine.run_cmd("find /home/ -maxdepth 1 -type f ")
 
     with allure.step("Verify utmp files were cleared"):
         output = engine.run_cmd("stat /var/log/btmp | grep Size")
-        assert not output or "No such file or directory" not in output, "/var/log/btmp can be found"
-        size = int(output.split()[1])
-        assert size == 0, "/var/log/btmp was not cleared"
+        if output and "No such file or directory" not in output:
+            size = int(output.split()[1])
+            if size != 0:
+                errors += "\n/var/log/btmp was not cleared"
 
         output = engine.run_cmd("stat /var/log/lastlog | grep Modify")
         if output and "No such file or directory" not in output:
             file_date_time = _create_date_time_obj(output)
-            assert current_time < file_date_time, "/var/log/lastlog was not created"
+            if current_time <= file_date_time:
+                errors += "\n/var/log/lastlog was not created"
 
         output = engine.run_cmd("stat /var/log/wtmp | grep Modify")
         if output and "No such file or directory" not in output:
             file_date_time = _create_date_time_obj(output)
-            assert current_time < file_date_time, "/var/log/wtmp was not created"
+            if current_time >= file_date_time:
+                errors += "\n/var/log/wtmp was not created"
 
     with allure.step("Create new user"):
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             engine.run_cmd("nv show system aaa user -o json")).get_returned_value()
-        assert username not in output.keys(), "Created user was not deleted"
+        if username in output.keys():
+            errors += "\nCreated user was not deleted"
+
+    assert not errors, errors
 
 
 def _verify_profile_and_split(selected_port):
