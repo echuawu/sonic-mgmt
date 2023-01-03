@@ -36,8 +36,7 @@ class TestMemoryExhaustion:
             if pdu_controller is None:
                 logging.error("No PDU controller for {}, failed to recover DUT!".format(hostname))
                 return
-            logger.critical("The DUT has stuck during the test. Temporary skipped PDU reboot for debugging purpose.")
-            # self.pdu_reboot(pdu_controller)
+            self.pdu_reboot(pdu_controller)
             # Waiting for SSH connection startup
             pytest_assert(self.check_ssh_state(localhost, dut_ip, SSH_STATE_STARTED, SSH_STARTUP_TIMEOUT),
                           'Recover {} by PDU reboot failed'.format(hostname))
