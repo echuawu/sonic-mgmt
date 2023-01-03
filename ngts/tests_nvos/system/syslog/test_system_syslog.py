@@ -3,6 +3,7 @@ import pytest
 import random
 import allure
 import string
+import time
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_constants.constants_nvos import SyslogConsts, SyslogSeverityLevels, NvosConst
@@ -167,6 +168,80 @@ def test_rsyslog_port(engines):
             system.syslog.unset(apply=True)
             SonicMgmtContainer.change_rsyslog_port(remote_server_engine, tmp_port, SyslogConsts.DEFAULT_PORT, 'udp',
                                                    restart_rsyslog=True)
+
+
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_protocol(engines):
+    """
+    Will check the syslog protocol options: TCP and UDP
+    Steps:
+        1. configure a remote syslog server
+        2. config syslog protocol to udp
+        3. validate with show commands
+        4. send a msg and validate server recieved it
+        5. config syslog protocol to tcp
+        6. validate with show commands
+        7. send a msg and validate server recieved it
+        8. simulate a disconnection, by stop the rsyslog process
+        9. send a msg and validate server did not recieve it
+        10. reconnect , restart the rsyslog process
+        11. send a msg and validate server recieved it
+    """
+    remote_server_engine = engines[NvosConst.SONIC_MGMT]
+    remote_server_ip = remote_server_engine.ip
+    system = System()
+
+    with allure.step("Configure remote syslog server {}".format(remote_server_ip)):
+        logging.info("Configure remote syslog server {}".format(remote_server_ip))
+        system.syslog.set_server(remote_server_ip, apply=True)
+
+    try:
+        with allure.step("Validate show commands"):
+            logging.info("Validate show commands")
+            expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
+            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+
+        config_and_verify_rsyslog_protocol(system.syslog.servers[remote_server_ip], remote_server_engine,
+                                           remote_server_ip, 'udp')
+        config_and_verify_rsyslog_protocol(system.syslog.servers[remote_server_ip], remote_server_engine,
+                                           remote_server_ip, 'tcp')
+
+        with allure.step("Disconnect and Reconnect to server"):
+            logging.info("Disconnect and Reconnect to server")
+
+            with allure.step("Simulate disconnection to the server"):
+                logging.info("Simulate disconnection to the server")
+                remote_server_engine.run_cmd('/etc/init.d/rsyslog stop')
+                random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
+                send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_didnt_received=True)
+
+            with allure.step("Reconnect to the server"):
+                logging.info("Reconnect to the server")
+                remote_server_engine.run_cmd('rm -f /var/run/rsyslogd.pid')
+                remote_server_engine.run_cmd('rsyslogd')
+                time.sleep(30)
+                random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
+                send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
+
+            with allure.step("Unset syslog server protocol"):
+                logging.info("Unset syslog server protocol")
+                system.syslog.servers[remote_server_ip].unset_protocol(apply=True)
+                system.syslog.servers[remote_server_ip].verify_show_server_output({SyslogConsts.PROTOCOL: 'udp'})
+
+    finally:
+        with allure.step("Cleanup syslog configurations"):
+            logging.info("Cleanup syslog configurations")
+            system.syslog.unset(apply=True)
+
+
+def config_and_verify_rsyslog_protocol(server, remote_server_engine, remote_server_ip, protocol):
+    with allure.step("Change rsyslog protocol to {}".format(protocol)):
+        logging.info("Change rsyslog protocol to {}".format(protocol))
+        server.set_protocol(protocol, apply=True)
+        server.verify_show_server_output({SyslogConsts.PROTOCOL: protocol})
+        random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
+        send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
 
 
 def config_and_verify_rsyslog_port(server, remote_server_engine, remote_server_ip, old_port, new_port):
