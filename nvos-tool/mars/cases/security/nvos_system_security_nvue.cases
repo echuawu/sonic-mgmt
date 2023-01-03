@@ -17,11 +17,61 @@
 
 
   <case>
-    <name> System Security test - NVUE </name>
+    <name> NVUE - Password Hardening </name>
     <info> </info>
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/password_hardening_nvue.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+   <case>
+    <name> NVUE - Secure Boot - Signed Kernel Module </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> -k test_signed_kernel_module_load --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --kernel_module_path=/root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/secure_boot_kernel_module/signed_kernel_modules/secure_kernel_module.ko --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+   <case>
+    <name> NVUE - Secure Boot - Unsigned Kernel Module </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> -k test_non_signed_kernel_module_load --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --kernel_module_path=/root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/secure_boot_kernel_module/unsigned_kernel_modules/unsecure_kernel_module.ko --showlocals\'"</static_args>
+      </params>
+    </cmd>
+
+
+   <case>
+    <name> NVUE - Secure Boot - Unsigned Shim </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> -k test_unsigned_shim_secure_boot --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --restore_to_image [[conf:extra_info.base_version]] --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> NVUE - Secure Boot - Unsigned grub </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> -k test_unsigned_grub_secure_boot --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --restore_to_image [[conf:extra_info.base_version]] --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+    <case>
+    <name> NVUE - Secure Boot - Unsigned vmilunz </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> -k test_unsigned_vmlinuz_secure_boot --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --restore_to_image [[conf:extra_info.base_version]] --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
