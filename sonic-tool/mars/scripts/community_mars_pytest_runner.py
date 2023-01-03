@@ -42,6 +42,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                               help="All the other options that to be passed to py.test")
         self.add_cmd_argument("--json-root-dir", required=True, dest="json_root_dir",
                               help="Root directory for storing json metadata")
+        self.add_cmd_argument("--is_python3_test", required=False, default=False, dest="is_python3_test",
+                              help="True if test case should run from python3, by default False(use python 2.7)")
 
     def _parse_junit_xml(self, content):
 
@@ -171,12 +173,18 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                         break
         except Exception as e:
             self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
+
+        pytest_bin_name = "py.test"
+        if self.is_python3_test:
+            pytest_bin_name = "/var/AzDevOps/env-python3/bin/py.test"
+
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
-        cmd = "py.test {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
+        cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
                --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
-        cmd = cmd.format(SCRIPTS=self.test_scripts,
+        cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
+                         SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
                          SONIC_TOPO=self.sonic_topo,
                          SESSION_ID=self.session_id,
