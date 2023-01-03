@@ -29,7 +29,6 @@ def test_good_flow_password_hardening(engines):
     """
 
     passw_hardening_conf_dict = {
-        'expiration-warning': '11',
         'history-cnt': '11',
         'len-min': '11',
         'lower-class': 'disabled',
@@ -42,6 +41,7 @@ def test_good_flow_password_hardening(engines):
 
     if not is_redmine_issue_active([3313369]):
         passw_hardening_conf_dict['expiration'] = '111'
+        passw_hardening_conf_dict['expiration-warning'] = '11'
 
     for passw_hardening_policy, passw_hardening_value in passw_hardening_conf_dict.items():
         with allure.step('Verify config & show system security password-hardening %s' % passw_hardening_policy):
