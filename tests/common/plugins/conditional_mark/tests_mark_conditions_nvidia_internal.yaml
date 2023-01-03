@@ -265,6 +265,12 @@ tests/nightly/rj45/test_rj45.py:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia_sn4' in platform or 'x86_64-nvidia_sn5' in platform"
       - https://redmine.mellanox.com/issues/3193857
 
+tests/nightly/rj45/test_rj45.py::test_rj45_type_verification:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318884"
+    conditions:
+      - https://redmine.mellanox.com/issues/3318884
+
 tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3016336"
