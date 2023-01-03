@@ -294,7 +294,8 @@ def prepare_pytest_args(pytest_args_list):
     :param pytest_args_list: list with pytest arguments
     :return: pytest run cmd
     """
-    skip_test_list = ["test_push_gate_reboot_policer", "test_validate_config_db_json_during_upgrade"]
+    skip_test_list = ["test_push_gate_reboot_policer", "test_validate_config_db_json_during_upgrade",
+                      "test_startup_time_degradation"]
     pytest_args_list = add_to_pytest_args_skip_tests(pytest_args_list, skip_test_list)
     pytest_args_list = add_to_pytest_args_disable_loganalyzer(pytest_args_list)
     # Disable export tests data to SQLm in case of failure after reboot, the desired behaviour is to list only
