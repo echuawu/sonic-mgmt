@@ -42,7 +42,8 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         username = _add_verification_data(engines.dut, system)
 
     with allure.step("Run reset factory without params"):
-        current_time = datetime.now()
+        date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
+        current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
         logging.info("Current time: " + str(current_time))
         system.factory_default.action_reset()
 
