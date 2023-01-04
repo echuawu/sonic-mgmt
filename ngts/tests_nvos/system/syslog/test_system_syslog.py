@@ -129,11 +129,10 @@ def test_rsyslog_configurations():
                 system.syslog.show_server()).get_returned_value()
             assert server_a not in server_list, "Did not expect to see {} in the list of servers".format(server_a)
 
-    except Exception as err:
+    finally:
         with allure.step("Cleanup syslog configurations"):
             logging.info("Cleanup syslog configurations")
             system.syslog.unset(apply=True)
-            raise err
 
 
 @pytest.mark.system
