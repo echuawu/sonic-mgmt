@@ -393,9 +393,21 @@ tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports:
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_mac_move_handling:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3227865"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3320013"
     conditions:
-      - "https://redmine.mellanox.com/issues/3227865"
+      - "https://redmine.mellanox.com/issues/3320013"
+
+tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_L2_BUM:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3318217 and 'simx' in platform"
+
+tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_cli_cmds_check:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3318217 and 'simx' in platform"
 ########################## NGTS IGNORE END ##########################
 
 
