@@ -339,19 +339,16 @@ def test_rj45_type_verification(engines, cli_objects, platform_params, rj45_port
             retry_call(verify_interfaces_state, fargs=[cli_objects, change_state_interfaces, "down", "down"],
                        tries=10, delay=5, logger=logger)
 
-        with allure.step('8. Verify the type changed to “N/A” for RJ45 ports'):
-            logger.info('8. Verifying the type changed to “N/A” for RJ45 ports')
-            retry_call(verify_interfaces_type_cli, fargs=[cli_objects, selected_rj45_interfaces, "N/A"],
-                       tries=10, delay=5, logger=logger)
-            retry_call(verify_interfaces_type_state_db, fargs=[engines.dut, selected_rj45_interfaces, "(nil)"],
-                       tries=10, delay=5, logger=logger)
-
-        with allure.step('9. Verify peers operational state is "DOWN", admin still "UP", port type - "N/A"'):
-            logger.info('9. Verifying peers operational state is "DOWN", admin still "UP", port type - "N/A"')
+        with allure.step('8. Verify peers operational state is "DOWN", admin still "UP"'):
+            logger.info('8. Verifying peers operational state is "DOWN", admin still "UP"')
             verify_interfaces_state(cli_objects, selected_rj45_peers, expected_oper="down", expected_admin="up")
-            retry_call(verify_interfaces_type_cli, fargs=[cli_objects, selected_rj45_peers, "N/A"],
+
+        with allure.step("9. Verify the type didn't change to 'N/A' for RJ45 ports"):
+            logger.info("9. Verifying the type didn't change to 'N/A' for RJ45 ports")
+            retry_call(verify_interfaces_type_cli, fargs=[cli_objects, selected_rj45_interfaces_with_peers, "RJ45"],
                        tries=10, delay=5, logger=logger)
-            retry_call(verify_interfaces_type_state_db, fargs=[engines.dut, selected_rj45_peers, "(nil)"],
+            retry_call(verify_interfaces_type_state_db,
+                       fargs=[engines.dut, selected_rj45_interfaces_with_peers, "(nil)"],
                        tries=10, delay=5, logger=logger)
 
         with allure.step('10. Verify SFP interface type and in "show interfaces status" and in STATE_DB'):
