@@ -27,7 +27,9 @@ def serial_engine(topology_obj):
     """
     att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
     # add connection options to pass connection problems
-    extended_rcon_command = att['Specific']['serial_conn_cmd']
+    extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
+    extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
+    extended_rcon_command = ' '.join(extended_rcon_command)
     serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
                                         username=att['Topology Conn.']['CONN_USER'],
                                         password=att['Topology Conn.']['CONN_PASSWORD'],
