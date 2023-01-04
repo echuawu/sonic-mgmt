@@ -9,6 +9,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_constants.constants_nvos import SyslogConsts, SyslogSeverityLevels, NvosConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SonicMgmtContainer import SonicMgmtContainer
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 
 logger = logging.getLogger()
@@ -51,6 +52,88 @@ def test_rsyslog_positive_minimal_flow(engines):
         with allure.step("Cleanup syslog configurations"):
             logging.info("Cleanup syslog configurations")
             system.syslog.unset_server(apply=True)
+
+
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_configurations():
+    """
+    will check rsyslog configurations
+
+    Test flow:
+    1. configure remote syslog servers : server_a, server_b
+    2. validate show commands
+    3. change global trap
+    4. unset server_a
+    5. validate show commands
+    6. unset server
+    7. validate show commands
+    """
+    system = System()
+    server_a = 'server_a'
+    server_b = 'server_b'
+
+    with allure.step("Configure remote syslog servers"):
+        logging.info("Configure remote syslog servers")
+        system.syslog.set_server(server_a, apply=False)
+        system.syslog.set_server(server_b, apply=True)
+
+    try:
+        with allure.step("Validate show commands"):
+            logging.info("Validate show commands")
+            expected_server_dictionary = create_remote_server_dictionary(server_a)
+            expected_server_dictionary.update(create_remote_server_dictionary(server_b))
+            expected_syslog_dictionary = create_syslog_output_dictionary(
+                server_dict={SyslogConsts.SERVER: expected_server_dictionary})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            system.syslog.verify_show_servers_list([server_a, server_b])
+            system.syslog.servers[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+
+        with allure.step("Set global trap and Validate"):
+            logging.info("Set global trap and Validate")
+            severity_level = SyslogSeverityLevels.ERROR
+            system.syslog.set_trap(severity_level, apply=True)
+            expected_syslog_dictionary.update({SyslogConsts.TRAP: severity_level})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            system.syslog.servers[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+
+        with allure.step("Unset {} and Validate".format(server_a)):
+            logging.info("Unset {} and Validate".format(server_a))
+            system.syslog.unset_server(server_a, apply=True)
+            expected_syslog_dictionary[SyslogConsts.SERVER].pop(server_a)
+            system.syslog.verify_show_servers_list([server_b])
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            server_list = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.show_server()).get_returned_value()
+            assert server_a not in server_list, "Did not expect to see {} in the list of servers".format(server_a)
+
+        with allure.step("Unset server and Validate"):
+            logging.info("Unset server and Validate")
+            system.syslog.unset_server(apply=True)
+            expected_syslog_dictionary[SyslogConsts.SERVER].pop(server_b)
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            server_list = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.show_server()).get_returned_value()
+            assert server_b not in server_list, "Did not expect to see {} in the list of servers".format(server_b)
+
+        with allure.step("Configure remote syslog server and validate unset syslog"):
+            logging.info("Configure remote syslog server and validate unset syslog")
+            system.syslog.set_server(server_a, apply=True)
+            expected_server_dictionary = create_remote_server_dictionary(server_a)
+            expected_syslog_dictionary.update({SyslogConsts.SERVER: expected_server_dictionary})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            system.syslog.verify_show_servers_list([server_a])
+            system.syslog.unset(apply=True)
+            expected_syslog_dictionary[SyslogConsts.SERVER].pop(server_a)
+            expected_syslog_dictionary.update({SyslogConsts.TRAP: SyslogSeverityLevels.NOTICE})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            server_list = OutputParsingTool.parse_json_str_to_dictionary(
+                system.syslog.show_server()).get_returned_value()
+            assert server_a not in server_list, "Did not expect to see {} in the list of servers".format(server_a)
+
+    except Exception as err:
+        with allure.step("Cleanup syslog configurations"):
+            logging.info("Cleanup syslog configurations")
+            system.syslog.unset(apply=True)
+            raise err
 
 
 @pytest.mark.system
@@ -296,15 +379,17 @@ def send_msg_to_server(msg, server_name, server_engine, protocol=None, priority=
         extra_flags = protocol_flag + priority_flag + port_flag
         logger_cmd = 'logger {flags} \"{msg}\" '.format(flags=extra_flags, msg=msg)
         TestToolkit.engines.dut.run_cmd(logger_cmd)
+        output = ''
 
         if verify_msg_received:
             with allure.step("Verify server {} received the msg".format(server_name)):
                 logging.info("Verify server {} received the msg".format(server_name))
-                verify_msg_in_syslog_file(server_engine, msg, should_find=True)
+                output = verify_msg_in_syslog_file(server_engine, msg, should_find=True)
         elif verify_msg_didnt_received:
             with allure.step("Verify server {} did not receive the msg".format(server_name)):
                 logging.info("Verify server {} did not receive the msg".format(server_name))
                 verify_msg_in_syslog_file(server_engine, msg, should_find=False)
+        return output
 
 
 def verify_msg_in_syslog_file(engine, msg_to_find, syslog_file='/var/log/syslog', should_find=True):
@@ -317,6 +402,7 @@ def verify_msg_in_syslog_file(engine, msg_to_find, syslog_file='/var/log/syslog'
         raise Exception("Didn't find the message, but expected to find it")
 
     logging.info("{} find the msg as expected".format('' if should_find else 'Did not'))
+    return output
 
 
 def create_syslog_output_dictionary(format=SyslogConsts.STANDARD, format_dict={}, trap=SyslogSeverityLevels.NOTICE,
