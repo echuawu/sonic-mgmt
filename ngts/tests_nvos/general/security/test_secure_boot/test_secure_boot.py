@@ -37,9 +37,9 @@ def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_k
     with allure.step("Inserting signed kernel module using insmod"):
         logger.info("Inserting signed kernel module using insmod")
         serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBoootConsts.TMP_FOLDER,
-                                                                        kernel_module_filename)).decode('utf-8')
+                                                                        kernel_module_filename))
     # assert
-    lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"secure_kernel_module\"')
+    lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"secure_kernel_module\"').decode('utf-8')
     assert "secure_kernel_module" in lsmod_output, "secure kernel module is not showing in lsmod output"
 
 
@@ -54,9 +54,9 @@ def test_non_signed_kernel_module_load(serial_engine, remove_kernel_module, uplo
     with allure.step("Inserting non signed kernel module using insmod"):
         logger.info("Inserting non signed kernel module using insmod")
         serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBoootConsts.TMP_FOLDER,
-                                                                        kernel_module_filename)).decode('utf-8')
+                                                                        kernel_module_filename))
     # assert
-    lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"unsecure_kernel_module\"')
+    lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"unsecure_kernel_module\"').decode('utf-8')
     assert "unsecure_kernel_module" not in lsmod_output, "unsecure kernel module is showing in lsmod output"
 
 
