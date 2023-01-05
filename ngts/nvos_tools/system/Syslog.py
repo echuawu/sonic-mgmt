@@ -126,6 +126,13 @@ class Syslog(BaseComponent):
                                                                    "Expected: {}".format(actually_severity_level,
                                                                                          expected_severity_level)
 
+    def verify_show_syslog_format_output(self, expected_dictionary):
+        with allure.step("Verify show syslog format output"):
+            logging.info("Verify show syslog format output")
+            logger.info("Expected format output:\n {}".format(expected_dictionary))
+            output = OutputParsingTool.parse_json_str_to_dictionary(self.show_format()).get_returned_value()
+            ValidationTool.compare_dictionary_content(output, expected_dictionary).verify_result()
+
 
 class Server(Syslog):
     def __init__(self, parent_obj, server_id):
@@ -191,7 +198,7 @@ class WelfFormat(Syslog):
                            expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)
             return res
 
-    def unset_firewall(self, apply=False, ask_for_confirmation=False):
+    def unset_firewall_name(self, apply=False, ask_for_confirmation=False):
         return self.unset(SyslogConsts.FIREWAL_NAME, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
 

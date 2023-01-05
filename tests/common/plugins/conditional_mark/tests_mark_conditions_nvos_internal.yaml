@@ -23,6 +23,12 @@ tests_nvos/system/test_log_commands.py::test_upload_debug_log_files:
     conditions:
       - https://redmine.mellanox.com/issues/3235264
 
+tests_nvos/system/test_system_syslog.py::test_rsyslog_format:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3322025"
+    conditions:
+      - https://redmine.mellanox.com/issues/3322025
+
 tests_nvos/system/test_system_profile_change.py::test_system_profile_ib_routing_mode:
   skip:
     reason: "Not implemented command"
