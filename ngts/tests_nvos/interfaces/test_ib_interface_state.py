@@ -2,9 +2,11 @@ import logging
 import allure
 import pytest
 
+from timeit import default_timer as timer
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+
 
 logger = logging.getLogger()
 
@@ -32,13 +34,8 @@ def test_ib_interface_state(engines):
     12. Send traffic through selected port
     """
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
-
     TestToolkit.update_tested_ports([selected_port])
-
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True,
-                                              ask_for_confirmation=True).verify_result()
-
-    selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_DOWN).verify_result()
+    toggle_port_state(selected_port, NvosConsts.LINK_STATE_DOWN)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -47,10 +44,7 @@ def test_ib_interface_state(engines):
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_UP, apply=True,
-                                              ask_for_confirmation=True).verify_result()
-
-    selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+    toggle_port_state(selected_port, NvosConsts.LINK_STATE_UP)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         selected_port.ib_interface.link.show_interface_link()).get_returned_value()
@@ -58,6 +52,15 @@ def test_ib_interface_state(engines):
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
+
+
+def toggle_port_state(selected_port, port_state):
+    selected_port.ib_interface.link.state.set(value=port_state, apply=True, ask_for_confirmation=True).verify_result()
+    start = timer()
+    with allure.step("Wait till port {} is {}".format(selected_port, port_state)):
+        selected_port.ib_interface.wait_for_port_state(port_state, sleep_time=0.2).verify_result()
+        end = timer()
+        logging.info("Port is {}. Action took {:.3f} seconds".format(port_state, end - start))
 
 
 @pytest.mark.ib_interfaces

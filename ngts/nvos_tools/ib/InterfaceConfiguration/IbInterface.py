@@ -30,7 +30,7 @@ class IbInterface:
         self.link = Link(self.port_obj)
         self.signal_degrade = SignalDegrade(port_obj=self.port_obj)
 
-    def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None):
+    def wait_for_port_state(self, state, engine=None, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None, sleep_time=2):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
                 port=self.port_obj.name, state=state, timeout=timeout)):
             logger.info("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
@@ -41,8 +41,8 @@ class IbInterface:
             result_obj = ResultObj(True, "")
             timer = timeout
             while self.port_obj.ib_interface.link.state.get_operational(engine) != state and timer > 0:
-                time.sleep(2)
-                timer -= 2
+                time.sleep(sleep_time)
+                timer -= sleep_time
 
             if self.port_obj.ib_interface.link.state.get_operational(engine) == state:
                 logger.info("'{port}' successfully reached state '{state}'".format(
@@ -59,8 +59,8 @@ class IbInterface:
             if logical_state:
                 while self.port_obj.ib_interface.link.logical_port_state.get_operational(engine) != logical_state \
                         and timer > 0:
-                    time.sleep(2)
-                    timer -= 2
+                    time.sleep(sleep_time)
+                    timer -= sleep_time
                 if self.port_obj.ib_interface.link.logical_port_state.get_operational(engine) == logical_state:
                     logger.info("'{port}' successfully reached logical_state '{state}'".format(
                         port=self.port_obj.name, state=logical_state))
