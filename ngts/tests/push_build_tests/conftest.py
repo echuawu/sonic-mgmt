@@ -121,7 +121,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         'dut': [{'vlan_id': 40, 'vlan_members': [{'PortChannel0002': 'trunk'}, {interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 69, 'vlan_members': [{'PortChannel0002': 'trunk'}]},
                 {'vlan_id': 690, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
-                {'vlan_id': 691, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 10, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 50, 'vlan_members': [{interfaces.dut_hb_1: 'trunk'}]},
                 {'vlan_id': 100, 'vlan_members': [{'PortChannel0002': 'trunk'}, {interfaces.dut_ha_2: 'trunk'}]},
@@ -129,7 +128,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 690, 'vlan_members': [{interfaces.ha_dut_2: None}]},
-               {'vlan_id': 691, 'vlan_members': [{interfaces.ha_dut_2: None}]},
                {'vlan_id': 10, 'vlan_members': [{interfaces.ha_dut_2: None}]}
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{'bond0': None}]},
@@ -145,7 +143,6 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 {'iface': 'PortChannel0001', 'ips': [('30.0.0.1', '24'), ('3000::1', '64')]},
                 {'iface': 'Vlan69', 'ips': [('69.0.0.1', '24'), ('6900::1', '64')]},
                 {'iface': 'Vlan690', 'ips': [('69.0.1.1', '24'), ('6900:1::1', '64')]},
-                {'iface': 'Vlan691', 'ips': [('69.1.0.1', '24'), ('6910::1', '64')]},
                 {'iface': 'Vlan50'.format(interfaces.dut_hb_1), 'ips': [(P4SamplingEntryConsts.duthb1_ip, '24')]},
                 {'iface': 'Vlan10', 'ips': [(P4SamplingEntryConsts.dutha2_ip, '24')]},
                 {'iface': 'Loopback0', 'ips': [('10.1.0.32', '32')]},
@@ -166,17 +163,9 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     # Static route config which will be used in test
     static_route_config_dict = {
         'hb': [{'dst': '69.0.1.0', 'dst_mask': 24, 'via': ['69.0.0.1']},
-               {'dst': '69.1.0.0', 'dst_mask': 24, 'via': ['69.0.0.1']},
-               {'dst': '6900:1::', 'dst_mask': 64, 'via': ['6900::1']},
-               {'dst': '6910::', 'dst_mask': 64, 'via': ['6900::1']}]
+               {'dst': '6900:1::', 'dst_mask': 64, 'via': ['6900::1']}]
     }
 
-    """
-    TODO: once EVPN-VXLAN will be supported - need to change line:
-    FROM: 'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
-    TO:   'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32', 'evpn_nvo': 'nvo',
-    For now if add 'evpn_nvo': 'nvo' - VXLAN decap test will fail
-    """
     vxlan_config_dict = {
         'dut': [{'evpn_nvo': 'my-nvo', 'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
                  'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}]

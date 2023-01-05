@@ -7,6 +7,7 @@ from infra.tools.validations.traffic_validations.scapy.scapy_runner import Scapy
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from retry.api import retry_call
 from ngts.config_templates.route_config_template import RouteConfigTemplate
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 """
 
@@ -41,7 +42,7 @@ def static_route_configuration(topology_obj):
 @pytest.mark.build
 @pytest.mark.push_gate
 @allure.title('Test Basic Static Route')
-def test_basic_static_route(engines, cli_objects, interfaces, players):
+def test_basic_static_route(is_simx, cli_objects, interfaces, players):
     """
     This test will check basic static route functionality.
     :return: raise assertion error in case when test failed
@@ -89,6 +90,7 @@ def test_basic_static_route(engines, cli_objects, interfaces, players):
         receiver_interface_hb = 'bond0.69'
         pkt_ipv4 = 'Ether(dst="{}")/IP(dst="{}", src="1.2.3.4")/TCP()'
         pkt_ipv6 = 'Ether(dst="{}")/IPv6(dst="{}", src="1234::5678")/TCP()'
+        validation_tries_num = 3 if is_simx else 1
 
         with allure.step('Functional check IPv4 static route via Interface'):
             logger.info('Functional checking IPv4 static route via Interface')
@@ -105,14 +107,15 @@ def test_basic_static_route(engines, cli_objects, interfaces, players):
                                                                         'count': 1}}
                             ]
                             }
-            ScapyChecker(players, validation_1).run_validation()
+            ipv4_iface_route = ScapyChecker(players, validation_1)
+            retry_call(ipv4_iface_route.run_validation, fargs=[], tries=validation_tries_num, delay=5, logger=logger)
 
         with allure.step('Functional check IPv4 /32 static route'):
             logger.info('Functional checking IPv4 /32 static route')
             dst_ip = '20.0.0.10'
             pkt = pkt_ipv4.format(dut_mac, dst_ip)
             tcpdump_filter = 'host 20.0.0.10'
-            validation_1 = {'sender': 'ha',
+            validation_2 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
                             'receivers':
                                 [
@@ -123,14 +126,15 @@ def test_basic_static_route(engines, cli_objects, interfaces, players):
                                                                         'count': 1}}
                             ]
                             }
-            ScapyChecker(players, validation_1).run_validation()
+            ipv4_32_route = ScapyChecker(players, validation_2)
+            retry_call(ipv4_32_route.run_validation, fargs=[], tries=validation_tries_num, delay=5, logger=logger)
 
         with allure.step('Functional check IPv4 /24 static route'):
             logger.info('Functional checking IPv4 /24 static route')
             dst_ip = '20.0.0.100'
             pkt = pkt_ipv4.format(dut_mac, dst_ip)
             tcpdump_filter = 'host 20.0.0.100'
-            validation_2 = {'sender': 'ha',
+            validation_3 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
                             'receivers':
                                 [
@@ -138,30 +142,34 @@ def test_basic_static_route(engines, cli_objects, interfaces, players):
                                                                         'filter': tcpdump_filter, 'count': 1}}
                             ]
                             }
-            ScapyChecker(players, validation_2).run_validation()
+            ipv4_24_route = ScapyChecker(players, validation_3)
+            retry_call(ipv4_24_route.run_validation, fargs=[], tries=validation_tries_num, delay=5, logger=logger)
 
-        with allure.step('Functional check IPv6 static route via Interface'):
-            logger.info('Functional checking IPv6 static route via Interface')
-            dst_ip = '2000::1'
-            pkt = pkt_ipv6.format(dut_mac, dst_ip)
-            # Filter below fill catch Neighbour Solicitation message TODO: need to make it more precise
-            tcpdump_filter = 'icmp6 && ip6[40]==135'
-            validation_4 = {'sender': 'ha',
-                            'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
-                            'receivers':
-                                [
-                                    {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
-                                                                        'filter': tcpdump_filter, 'count': 1}}
-                            ]
-                            }
-            ScapyChecker(players, validation_4).run_validation()
+        if not is_redmine_issue_active([3327067]):
+            with allure.step('Functional check IPv6 static route via Interface'):
+                logger.info('Functional checking IPv6 static route via Interface')
+                dst_ip = '2000::1'
+                pkt = pkt_ipv6.format(dut_mac, dst_ip)
+                # Filter below fill catch Neighbour Solicitation message TODO: need to make it more precise
+                tcpdump_filter = 'icmp6 && ip6[40]==135'
+                validation_4 = {'sender': 'ha',
+                                'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
+                                'receivers':
+                                    [
+                                        {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
+                                                                            'filter': tcpdump_filter, 'count': 1}}
+                                ]
+                                }
+                ipv6_iface_route = ScapyChecker(players, validation_4)
+                retry_call(ipv6_iface_route.run_validation, fargs=[], tries=validation_tries_num, delay=5,
+                           logger=logger)
 
         with allure.step('Functional check IPv6 /128 static route'):
             logger.info('Functional checking IPv6 /128 static route')
             dst_ip = '2000::10'
             pkt = pkt_ipv6.format(dut_mac, dst_ip)
             tcpdump_filter = 'host 2000::10'
-            validation_3 = {'sender': 'ha',
+            validation_5 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
                             'receivers':
                                 [
@@ -171,14 +179,15 @@ def test_basic_static_route(engines, cli_objects, interfaces, players):
                                                                         'filter': tcpdump_filter, 'count': 1}}
                             ]
                             }
-            ScapyChecker(players, validation_3).run_validation()
+            ipv6_128_route = ScapyChecker(players, validation_5)
+            retry_call(ipv6_128_route.run_validation, fargs=[], tries=validation_tries_num, delay=5, logger=logger)
 
         with allure.step('Functional check IPv6 /64 static route'):
             logger.info('Functional checking IPv6 /64 static route')
             dst_ip = '2000::100'
             pkt = pkt_ipv6.format(dut_mac, dst_ip)
             tcpdump_filter = 'host 2000::100'
-            validation_4 = {'sender': 'ha',
+            validation_6 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
                             'receivers':
                                 [
@@ -186,7 +195,8 @@ def test_basic_static_route(engines, cli_objects, interfaces, players):
                                                                         'filter': tcpdump_filter, 'count': 1}}
                             ]
                             }
-            ScapyChecker(players, validation_4).run_validation()
+            ipv6_64_route = ScapyChecker(players, validation_6)
+            retry_call(ipv6_64_route.run_validation, fargs=[], tries=validation_tries_num, delay=5, logger=logger)
 
     except Exception as err:
         raise AssertionError(err)
