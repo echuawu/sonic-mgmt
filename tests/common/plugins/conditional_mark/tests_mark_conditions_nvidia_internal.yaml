@@ -167,9 +167,9 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
   skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-buildimage/issues/13077"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3302670"
     conditions:
-      - https://github.com/Azure/sonic-buildimage/issues/13077
+      - https://redmine.mellanox.com/issues/3302670
 
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   skip:
