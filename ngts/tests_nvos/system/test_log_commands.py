@@ -254,7 +254,7 @@ def test_log_files_rotation_default_fields(engines):
     with allure.step("Create System object"):
         system = System(None)
 
-    _log_files_rotation_default_fields(system.log)
+    _log_files_rotation_default_fields(system.log, "20", "10.0")
 
 
 @pytest.mark.system
@@ -274,10 +274,10 @@ def test_debug_log_files_rotation_default_fields(engines):
     with allure.step("Create System object"):
         system.debug_log.write_to_debug_log()
 
-    _log_files_rotation_default_fields(system.debug_log)
+    _log_files_rotation_default_fields(system.debug_log, "10", "20.0")
 
 
-def _log_files_rotation_default_fields(system_log_obj):
+def _log_files_rotation_default_fields(system_log_obj, default_max_number, default_size):
     with allure.step("Run nv show system log rotation command and validate fields"):
         logging.info("Run nv show system log rotation command and validate fields")
         show_output = system_log_obj.rotation.show()
@@ -293,10 +293,11 @@ def _log_files_rotation_default_fields(system_log_obj):
                                                     field_name="frequency", expected_value="daily").verify_result()
 
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                    field_name='max-number', expected_value="20").verify_result()
+                                                    field_name='max-number',
+                                                    expected_value=default_max_number).verify_result()
 
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                    field_name='size', expected_value="10.0").verify_result()
+                                                    field_name='size', expected_value=default_size).verify_result()
 
 
 @pytest.mark.system
@@ -783,7 +784,9 @@ def test_delete_log_files(engines):
                         assert log_file not in output_dictionary.keys(), log_file + " was not actually deleted"
 
                     with allure.step("Verify other files were not deleted"):
-                        ValidationTool.verify_field_exist_in_json_output(output_dictionary, left_files).verify_result()
+                        if left_files:
+                            ValidationTool.verify_field_exist_in_json_output(output_dictionary,
+                                                                             left_files).verify_result()
 
         with allure.step("Verify syslog file was deleted and a new one was created"):
             logging.info("Verify syslog file was deleted and a new one was created")

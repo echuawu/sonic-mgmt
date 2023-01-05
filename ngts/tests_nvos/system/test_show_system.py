@@ -49,6 +49,7 @@ def test_system(engines, devices, topology_obj):
                                                             dhcp_hostname).verify_result()
 
         system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME).verify_result()
+        time.sleep(3)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                     new_hostname_value).verify_result()
@@ -59,6 +60,7 @@ def test_system(engines, devices, topology_obj):
             logging.info("Wait till the management interface will be reloaded to get a hostname from DHCP")
             time.sleep(20)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
+        time.sleep(3)
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                     hostname_default if dhcp_enabled
                                                     else SystemConsts.HOSTNAME_DEFAULT_VALUE).verify_result()
@@ -97,7 +99,7 @@ def test_system_message(engines, devices):
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
         system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
-
+        time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     new_pre_login_msg).verify_result()
@@ -106,12 +108,14 @@ def test_system_message(engines, devices):
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
         system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     new_post_login_msg).verify_result()
 
     with allure.step('Run unset system message pre-login command and verify that pre-login is updated'):
         system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+        time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
@@ -121,6 +125,7 @@ def test_system_message(engines, devices):
 
     with allure.step('Run unset system message post-login command and verify that pre-login is updated'):
         system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()

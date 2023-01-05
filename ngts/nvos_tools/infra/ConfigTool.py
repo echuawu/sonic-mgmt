@@ -22,10 +22,10 @@ class ConfigTool:
         if len(history_list) == 0:
             ResultObj(True, 'the applies history is empty', '')
         if apply_order < 0 or apply_order > len(history_list) - 1:
-            return ResultObj(False, '', 'history id is out of range, should be between 0 and {len}'.
+            return ResultObj(False, 'history id is out of range, should be between 0 and {len}'.
                              format(len=len(history_list)))
         if label_to_read not in history_list[apply_order].keys():
-            return ResultObj(False, '', 'no label name {label_name}'.format(label_name=label_to_read))
+            return ResultObj(False, 'no label name {label_name}'.format(label_name=label_to_read))
 
         return ResultObj(True, '', history_list[apply_order][label_to_read])
 

@@ -115,6 +115,13 @@ def test_check_signal_degrade_functionality(engines, mst_device, start_sm):
             _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_device, selected_port)
             _recover_port(selected_port)
 
+        with allure.step("Check signal degrade for state = enabled and action = no-shutdown"):
+            _check_signal_degrade_while_state_enabled_action_no_shutdown(engines, mst_device, selected_port)
+
+        with allure.step("Check signal degrade for state = enabled and action = shutdown"):
+            _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_device, selected_port)
+            _recover_port(selected_port)
+
         with allure.step("Check signal degrade for state = disabled and action = shutdown"):
             _check_signal_degrade_while_state_disabled_action_shutdown(engines, mst_device, selected_port)
 
@@ -136,7 +143,7 @@ def _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_devic
                                               action_value=IbConsts.SIGNAL_DEGRADE_ACTION_SHUTDOWN)
 
     port_state = _simulate_signal_degrade(engines, mst_device, selected_port)
-    assert port_state == "Disabled signal-degradation", "The port is now down after signal degrade event"
+    assert port_state == "Disabled signal-degradation", "The port is now {} after signal degrade event".format(port_state)
 
 
 def _check_signal_degrade_while_state_disabled_action_shutdown(engines, mst_device, selected_port):
@@ -261,8 +268,15 @@ def _simulate_signal_degrade(engines, mst_device, selected_port):
 def _start_signal_degrade_simulator(engines, mst_device):
     with allure.step("Start signal degrade simulator"):
         logging.info("Start signal degrade simulator")
-        output = engines.server.run_cmd(
-            "/auto/sw_system_project/MLNX_OS_INFRA/flaky_cable_new/cx4_ber_generator_qtm.sh {} 7".format(mst_device))
+        cmd = "/auto/sw_system_project/MLNX_OS_INFRA/flaky_cable_new/cx4_ber_generator_qtm.sh {} 7".format(mst_device)
+
+        output = engines.server.run_cmd(cmd)
+
+        if "[ERROR]MST_DEVICE doesnt exist" in output:
+            logging.info("Start mst service")
+            engines.server.run_cmd("sudo mst server start")
+            output = engines.server.run_cmd(cmd)
+
         assert "Done" in output, "Failed to start signal degrade simulator"
 
 
