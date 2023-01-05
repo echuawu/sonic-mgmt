@@ -6,6 +6,7 @@ from ngts.nvos_tools.system.System import *
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 def output_verification(output_dictionary, exp_key, exp_val):
@@ -28,8 +29,6 @@ def test_good_flow_password_hardening(engines):
     """
 
     passw_hardening_conf_dict = {
-        'expiration': '111',
-        'expiration-warning': '11',
         'history-cnt': '11',
         'len-min': '11',
         'lower-class': 'disabled',
@@ -39,12 +38,17 @@ def test_good_flow_password_hardening(engines):
         'reject-user-passw-match': 'disabled',
         'state': 'enabled'
     }
+
+    if not is_redmine_issue_active([3313369]):
+        passw_hardening_conf_dict['expiration'] = '111'
+        passw_hardening_conf_dict['expiration-warning'] = '11'
+
     for passw_hardening_policy, passw_hardening_value in passw_hardening_conf_dict.items():
         with allure.step('Verify config & show system security password-hardening %s' % passw_hardening_policy):
             system = System(None)
 
             with allure.step("set {} = {}".format(passw_hardening_policy, passw_hardening_value)):
-                system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value)
+                system.security.password_hardening.set(passw_hardening_policy, passw_hardening_value).verify_result()
                 NvueGeneralCli.apply_config(engines.dut, True)
 
                 with allure.step("Verify output after set command - using show security/password_hardening output"):

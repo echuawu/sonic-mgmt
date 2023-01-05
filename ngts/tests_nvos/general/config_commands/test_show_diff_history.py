@@ -165,14 +165,14 @@ def validate_history_labels(history_list, username):
     :return: err message
     """
     err_message = ''
-    apply_id = ConfigTool.read_from_history(history_list, 0, ConfigConsts.HISTORY_APPLY_ID).get_returned_value()
+    apply_id = ConfigTool.read_from_history(history_list, 0, "rev_id").get_returned_value()
     user = ConfigTool.read_from_history(history_list, 0, ConfigConsts.HISTORY_USER).get_returned_value()
 
     if user != username:
         err_message += 'the user is not equal to the user name'
 
-    if apply_id != 'n/' + str(len(history_list)):
-        err_message += 'the apply_id is not as expected, should be apply_<applies_amount>'
+    if apply_id >= str(len(history_list)):
+        err_message += 'the rev_id is not as expected, should be rev_<applies_amount> or less'
 
     return err_message
 

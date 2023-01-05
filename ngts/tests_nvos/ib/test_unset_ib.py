@@ -13,7 +13,7 @@ logger = logging.getLogger()
 
 @pytest.mark.ib
 @pytest.mark.sm
-def test_set_ib_sm_prio_positive(engines):
+def test_unset_ib_command(engines):
     """
         testing nv unset ib command
         test flow:
@@ -54,8 +54,9 @@ def test_set_ib_sm_prio_positive(engines):
         ValidationTool.validate_fields_values_in_output(output_dict=output,
                                                         expected_fields=[IbConsts.SM_STATE, IbConsts.SM_PRIORITY,
                                                                          IbConsts.SM_SL],
-                                                        expected_values=[IbConsts.SM_STATE_ENABLE, priority_random_val,
-                                                                         sl_random_val]).verify_result()
+                                                        expected_values=[IbConsts.SM_STATE_ENABLE,
+                                                                         str(priority_random_val),
+                                                                         str(sl_random_val)]).verify_result()
 
         with allure.step("Unset and verify output"):
             ib.sm.unset(IbConsts.SM_STATE).verify_result()

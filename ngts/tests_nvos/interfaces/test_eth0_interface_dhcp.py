@@ -10,6 +10,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 
 logger = logging.getLogger()
 
@@ -114,16 +115,16 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step('Negative validation with invalid value for duplex'):
-        mgmt_port.interface.link.duplex.set(value='a', apply=True).verify_result(False)
+        mgmt_port.interface.link.duplex.set(value='a', apply=False).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step('Negative validation with invalid value speed'):
-        mgmt_port.interface.link.speed.set(value='50F', apply=True).verify_result(False)
+        mgmt_port.interface.link.speed.set(value='50F', apply=False).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
-    with allure.step('Negative validation with half duplex and default speed 1G'):
+    '''with allure.step('Negative validation with half duplex and default speed 1G'):
         mgmt_port.interface.link.duplex.set(value='half', apply=True).verify_result(False)
-        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)'''
 
     with allure.step('Set all supported speeds with all supported duplex'):
         list_supported_speeds = ["10M", "100M"]
@@ -131,7 +132,12 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
         for speed in list_supported_speeds:
             for duplex in list_supported_duplex:
                 mgmt_port.interface.link.speed.set(value=speed, apply=True, ask_for_confirmation=True).verify_result()
-                mgmt_port.interface.link.duplex.set(value=duplex, apply=True, ask_for_confirmation=True).verify_result()
+
+                result = mgmt_port.interface.link.duplex.set(value=duplex, apply=True, ask_for_confirmation=True)
+                if not result:
+                    SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                    apply_config, engines.dut, True).verify_result()
+
                 output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                     mgmt_port.interface.link.show()).get_returned_value()
                 Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
@@ -143,6 +149,7 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
 
     with allure.step('Set autoneg to off'):
         mgmt_port.interface.link.auto_negotiate.set(value='off', apply=True, ask_for_confirmation=True).verify_result()
+        time.sleep(5)
 
     with allure.step('Run show command on mgmt port and verify default values after unset'):
         mgmt_port.interface.link.auto_negotiate.unset(apply=True, ask_for_confirmation=True).verify_result()

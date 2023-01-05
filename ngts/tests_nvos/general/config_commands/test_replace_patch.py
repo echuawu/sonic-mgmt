@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import allure
 import os
@@ -80,13 +82,19 @@ def test_replace_positive(engines):
                 description=new_ib0_description)):
             ib0_port.interface.description.set(value=new_ib0_description, apply=False).verify_result()
 
-        file_name = 'replace'
-        file_type = 'yaml'
-        file = create_file_with_content(engines.dut, file_name, file_type, diff_after_hostname_change)
-        TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
+        with allure.step("Replace config"):
+            file = create_file_with_content(engines.dut, 'replace', 'yaml', diff_after_hostname_change)
+            output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
+            assert not output, "Failed to replace config"
 
-        engines.dut.run_cmd('sudo rm {file}'.format(file=file))
-        NvueGeneralCli.apply_config(engines.dut, True)
+        with allure.step("Delete created yaml file: {}".format(file)):
+            engines.dut.run_cmd('sudo rm {file}'.format(file=file))
+
+        with allure.step("Applying configuration"):
+            output = NvueGeneralCli.apply_config(engines.dut, True)
+            assert "will be replaced with" in output, "Failed to apply config"
+            time.sleep(3)
+
         with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
             system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
@@ -98,7 +106,7 @@ def test_replace_positive(engines):
             ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                         field_name=ib0_port.interface.description.label,
                                                         expected_value=current_description).verify_result()
-            system.unset(engines.dut)
+            system.unset(engines.dut).verify_result()
 
 
 @pytest.mark.general
@@ -219,6 +227,7 @@ def test_patch_positive(engines):
 
         engines.dut.run_cmd('sudo rm {file}'.format(file=file))
         NvueGeneralCli.apply_config(engines.dut, True)
+        time.sleep(3)
         with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
             system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
