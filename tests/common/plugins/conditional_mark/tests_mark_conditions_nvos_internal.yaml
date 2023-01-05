@@ -1,28 +1,4 @@
 ########################## NVOS IGNORE START ##########################
-tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_dhcp_hostname:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3234041"
-    conditions:
-      - https://redmine.mellanox.com/issues/3234041
-
-tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_mtu:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3241864"
-    conditions:
-      - https://redmine.mellanox.com/issues/3241864
-
-tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_frequency:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3233068"
-    conditions:
-      - https://redmine.mellanox.com/issues/3233068
-
-tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotation_frequency:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3233068"
-    conditions:
-      - https://redmine.mellanox.com/issues/3233068
-
 tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_size_disk_percentage:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3215005"
@@ -34,18 +10,6 @@ tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotat
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3215005"
     conditions:
       - https://redmine.mellanox.com/issues/3215005
-
-tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_max_number:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3233070"
-    conditions:
-      - https://redmine.mellanox.com/issues/3233070
-
-tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotation_max_number:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3233070"
-    conditions:
-      - https://redmine.mellanox.com/issues/3233070
 
 tests_nvos/system/test_log_commands.py::test_upload_log_files:
   skip:
