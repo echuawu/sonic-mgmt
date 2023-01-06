@@ -13,7 +13,8 @@ from infra.tools.validations.traffic_validations.ping.ping_runner import PingChe
 logger = logging.getLogger()
 
 
-def send_and_validate_traffic(player, sender, sender_intf, sender_pkt_format, sender_count, receiver, receiver_intf, receiver_filter_format, receiver_count=-1):
+def send_and_validate_traffic(player, sender, sender_intf, sender_pkt_format, sender_count, receiver, receiver_intf,
+                              receiver_filter_format, receiver_count=-1):
     """
     This method is used to send then validate traffic
     :param player: player
@@ -24,7 +25,8 @@ def send_and_validate_traffic(player, sender, sender_intf, sender_pkt_format, se
     :param receiver: receiver, such as 'ha', 'hb'
     :param receiver_intf: receiver interface
     :param receiver_filter_format: receiver filter format
-    :param receiver_count: how many packets needed to be received, default value is -1, it means there should be no packet loss
+    :param receiver_count: how many packets needed to be received, default value is -1,
+    it means there should be no packet loss
     """
     if receiver_count == -1:
         receiver_count = sender_count
@@ -60,8 +62,7 @@ def generate_fdb_json_content(vlan_id, port, op, mac_address):
     fdb_config_json = []
     entry_key_template = "FDB_TABLE:Vlan{vid}:{mac}"
 
-    fdb_entry_json = {entry_key_template.format(vid=vlan_id, mac=mac_address):
-                      {"port": port, "type": "static"},
+    fdb_entry_json = {entry_key_template.format(vid=vlan_id, mac=mac_address): {"port": port, "type": "static"},
                       "OP": op
                       }
     fdb_config_json.append(fdb_entry_json)
@@ -142,7 +143,8 @@ def verify_mac_entry_learned(cli_objects, vlan_id, mac, port, fdb_type="dynamic"
     """
     mac_table = cli_objects.dut.mac.parse_mac_table()
     for k, v in mac_table.items():
-        if v["Vlan"] == str(vlan_id) and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v["Type"].lower() == fdb_type:
+        if v["Vlan"] == str(vlan_id) and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v[
+                "Type"].lower() == fdb_type:
             return True
     assert False, f"Fdb item: {mac} {vlan_id} {port} {fdb_type} is not saved into fdb table"
 
@@ -159,7 +161,8 @@ def verify_mac_entry_not_learned(cli_objects, vlan_id, mac, port, fdb_type="dyna
     """
     mac_table = cli_objects.dut.mac.parse_mac_table()
     for k, v in mac_table.items():
-        if v["Vlan"] == str(vlan_id) and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v["Type"].lower() == fdb_type:
+        if v["Vlan"] == str(vlan_id) and v["MacAddress"].lower() == mac.lower() and v["Port"] == port and v[
+                "Type"].lower() == fdb_type:
             assert False, f"Fdb item: {mac} {vlan_id} {port} {fdb_type} still exists in fdb table"
     return True
 
@@ -189,7 +192,8 @@ def check_vtep_based_vxlan_counter(vxlan_counters, tx_rx_type, packet_num):
     if matched:
         matched_packet_num = matched.group(1)
         logger.info(f"{matched_packet_num} {tx_rx_type} packets parsed")
-        assert int(matched_packet_num) >= packet_num, f"{matched_packet_num} packets is less than expected {packet_num} packets"
+        assert int(matched_packet_num) >= packet_num, \
+            f"{matched_packet_num} packets is less than expected {packet_num} packets"
 
 
 def check_vxlan_counter(vtep_name, vxlan_counters, tx_rx_type, packet_num):
@@ -260,7 +264,8 @@ def verify_underlay_ecmp_counter_entry(cli_objects, interface_counter_check_list
     """
     This method is to verify the vxlan counter
     :param cli_objects: cli_object fixture
-    :param interface_counter_check_list: counter check items, for example, [['Ethernet64', 'rx', 400], ['Ethernet0', 'tx', 200]]
+    :param interface_counter_check_list: counter check items, for example,
+    [['Ethernet64', 'rx', 400], ['Ethernet0', 'tx', 200]]
     """
     interface_counters_dict = cli_objects.dut.vxlan.show_interface_counter()
     check_item_num = len(interface_counter_check_list)
@@ -272,11 +277,13 @@ def verify_underlay_ecmp_counter_entry(cli_objects, interface_counter_check_list
         for _, counter_values in interface_counters_dict.items():
             if tx_rx_type == 'tx':
                 if counter_values["IFACE"] == intf_name and int(counter_values["TX_OK"]) >= packet_num:
-                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter is {counter_values["TX_OK"]}, need to be at least {packet_num}')
+                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter is \
+                    {counter_values["TX_OK"]}, need to be at least {packet_num}')
                     count += 1
             elif tx_rx_type == 'rx':
                 if counter_values["IFACE"] == intf_name and int(counter_values["RX_OK"]) >= packet_num:
-                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter is {counter_values["RX_OK"]}, need to be at least {packet_num}')
+                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter is \
+                    {counter_values["RX_OK"]}, need to be at least {packet_num}')
                     count += 1
     assert count == check_item_num, "Counter value not correct"
 
@@ -307,11 +314,12 @@ def validate_dest_files_exist_in_tarball(tarball_file_name, dest_json_file):
     with tarfile.open(tarball_file_name, "r") as t:
         filenames = t.getnames()
 
-    # get config_db.json and appl_db.json file path
+    # get config_db.json or appl_db.json file path
+    json_file_path = None
     for file_path in filenames:
         if dest_json_file in file_path:
             json_file_path = file_path
-            assert json_file_path, f"{dest_json_file} not found in {tarball_file_name}"
+    assert json_file_path, f"{dest_json_file} not found in {tarball_file_name}"
     return json_file_path
 
 
@@ -320,7 +328,8 @@ def validate_vxlan_table_in_dest_json(engines, tarball_file_name, json_path, vxl
     This method is used to check whether all the vxlan tables exist in given json file
     :param tarball_file_name: tech support tarball
     :param json_path: json file path, typically the path of CONFIG_DB.json or APPL_DB.json
-    :param vxlan_table_list: list contains vxlan table names, for example ['VXLAN_EVPN_NVO', 'VXLAN_TUNNEL_MAP', 'VXLAN_TUNNEL']
+    :param vxlan_table_list: list contains vxlan table names, for example
+    ['VXLAN_EVPN_NVO', 'VXLAN_TUNNEL_MAP', 'VXLAN_TUNNEL']
     """
     with tarfile.open(tarball_file_name, "r") as t:
         file_raw_content = t.extractfile(json_path)
@@ -345,7 +354,8 @@ def validate_vxlan_table_in_dest_json(engines, tarball_file_name, json_path, vxl
 
 
 @retry(Exception, tries=5, delay=2)
-def validate_basic_evpn_type_2_3_route(players, cli_objects, interfaces, vlan_id, dut_vlan_ip, dut_loopback_ip, ha_vtep_ip, hb_vlan_ip, rd):
+def validate_basic_evpn_type_2_3_route(players, cli_objects, interfaces, vlan_id, dut_vlan_ip, dut_loopback_ip,
+                                       ha_vtep_ip, hb_vlan_ip, rd):
     """
     This method is used to verify basic evpn type 2 and type 3 route states
     :param cli_objects: cli_objects fixture
@@ -353,8 +363,9 @@ def validate_basic_evpn_type_2_3_route(players, cli_objects, interfaces, vlan_id
     hb_vlan_mac = cli_objects.hb.mac.get_mac_address_for_interface(f"{interfaces.hb_dut_1}.{vlan_id}")
 
     logger.info(f"Send ping from HB to DUT via VLAN {vlan_id}")
-    ping_hb_dut_vlan = {'sender': 'hb', 'args': {'interface': f"{interfaces.hb_dut_1}.{vlan_id}", 'count': VxlanConstants.PACKET_NUM_3,
-                                                 'dst': dut_vlan_ip}}
+    ping_hb_dut_vlan = {'sender': 'hb',
+                        'args': {'interface': f"{interfaces.hb_dut_1}.{vlan_id}", 'count': VxlanConstants.PACKET_NUM_3,
+                                 'dst': dut_vlan_ip}}
     PingChecker(players, ping_hb_dut_vlan).run_validation()
 
     # VXLAN route validation
