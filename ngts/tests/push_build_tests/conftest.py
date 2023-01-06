@@ -37,10 +37,6 @@ def get_test_app_ext_info(cli_obj):
     app_name = APP_INFO["name"]
     app_repository_name = APP_INFO["repository"]
     version = APP_INFO["shut_down"]["version"]
-    # Temp skip the install and uninstall the apps due to the bug
-    # [SONIC - Design] Bug SW #2984113: [Functional] [APP Extension]| sudo sonic-package-manager
-    # uninstall cpu-report -y is hang in 20211 image. | Assignee: Moshe Moshe | Status: Assigned
-    is_support_app_ext = False
     return is_support_app_ext, app_name, version, app_repository_name
 
 
@@ -312,10 +308,10 @@ def install_app(dut_engine, cli_obj, app_name, app_repository_name, version):
         with allure.step("Clean up app before install"):
             app_cleanup(dut_engine, cli_obj, app_name)
         with allure.step("Install {}, verison=".format(app_name, version)):
-            cli_obj.app_ext.add_repository(dut_engine, app_name, app_repository_name, version=version)
-            cli_obj.app_ext.install_app(dut_engine, app_name)
+            cli_obj.app_ext.add_repository(app_name, app_repository_name, version=version)
+            cli_obj.app_ext.install_app(app_name)
         with allure.step("Enable app and save config"):
-            cli_obj.app_ext.enable_app(dut_engine, app_name)
+            cli_obj.app_ext.enable_app(app_name)
     except Exception as err:
         raise AssertionError(err)
 
