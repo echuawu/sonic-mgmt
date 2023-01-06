@@ -54,7 +54,8 @@ def test_loopback_action_basic(duthost, ptfadapter, ports_configuration):
             with allure.step("Check the traffic can be received on the destination"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, [ACTION_FORWARD] * intf_count)
             with allure.step("Check the TX_ERR in rif counter statistic will not increase"):
-                verify_rif_tx_err_count(duthost, rif_interfaces, [0] * intf_count)
+                pytest_assert(wait_until(10, 2, 0, verify_rif_tx_err_count, duthost, rif_interfaces, [0] * intf_count),
+                              "Checking TX ERR count failed, some counter is not as expected.")
 
 
 def test_loopback_action_port_flap(duthost, ptfadapter, ports_configuration):
@@ -79,7 +80,8 @@ def test_loopback_action_port_flap(duthost, ptfadapter, ports_configuration):
             with allure.step("Check the traffic can be received or dropped as expected"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, action_list)
             with allure.step("Check the TX_ERR in rif counter statistic will increase or not as expected"):
-                verify_rif_tx_err_count(duthost, rif_interfaces, count_list)
+                pytest_assert(wait_until(10, 2, 0, verify_rif_tx_err_count, duthost, rif_interfaces, count_list),
+                              "Checking TX ERR count failed, some counter is not as expected.")
 
 
 def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_configuration):
@@ -124,4 +126,5 @@ def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_c
             with allure.step("Check the traffic can be received or dropped as expected"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, action_list)
             with allure.step("Check the TX_ERR in rif counter statistic will increase or not as expected"):
-                verify_rif_tx_err_count(duthost, rif_interfaces, count_list)
+                pytest_assert(wait_until(10, 2, 0, verify_rif_tx_err_count, duthost, rif_interfaces, count_list),
+                              "Checking TX ERR count failed, some counter is not as expected.")

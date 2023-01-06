@@ -8,6 +8,7 @@ from .iface_loopback_action_helper import verify_interface_loopback_action
 from .iface_loopback_action_helper import verify_rif_tx_err_count
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
+from tests.common.utilities import wait_until
 
 
 pytestmark = [
@@ -54,7 +55,8 @@ def test_loopback_action_wjh(duthost, ptfadapter, ports_configuration):
             with allure.step("Check the traffic can be received or dropped as expected"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, action_list)
             with allure.step("Check the TX_ERR in rif counter statistic will increase or not as expected"):
-                verify_rif_tx_err_count(duthost, rif_interfaces, count_list)
+                pytest_assert(wait_until(10, 2, 0, verify_rif_tx_err_count, duthost, rif_interfaces, count_list),
+                              "Checking TX ERR count failed, some counter is not as expected.")
             with allure.step("Check WJH L3 drop group"):
                 verify_wjh_l3_drop_group(duthost, rif_interfaces, ports_configuration)
 
