@@ -408,6 +408,12 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX"
     conditions:
       - "https://redmine.mellanox.com/issues/3318217 and 'simx' in platform"
+
+scripts/check_and_store_sanitizer_dump.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3322943"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3322943"
 ########################## NGTS IGNORE END ##########################
 
 
