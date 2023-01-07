@@ -124,7 +124,7 @@ def vmiluz_filepath(serial_engine):
     @summary: will return the filepath of vmlinuz
     :param serial_engine:
     '''
-    output = serial_engine.run_cmd_and_get_output('ls {}'.format(SecureBoootConsts.VMILUNZ_DIR)).decode('utf-8')
+    output = serial_engine.run_cmd_and_get_output('ls {}'.format(SecureBoootConsts.VMILUNZ_DIR))
     path = re.findall(SecureBoootConsts.VMILUNZ_REGEX, output)[0]
     return SecureBoootConsts.VMILUNZ_DIR + path
 
@@ -139,7 +139,7 @@ def mount_uefi_disk_partition(serial_engine):
     serial_engine.run_cmd_and_get_output(SecureBoootConsts.ROOT_PRIVILAGE)
     serial_engine.run_cmd_and_get_output("mkdir {}".format(SecureBoootConsts.MOUNT_FOLDER))
     output = serial_engine.run_cmd(SecureBoootConsts.EFI_PARTITION_CMD,
-                                   SecureBoootConsts.LAST_OCCURENCE_REGEX.format('#'))[0].decode('utf-8')
+                                   SecureBoootConsts.LAST_OCCURENCE_REGEX.format('#'))[0]
     uefi_partition = re.findall('\\/dev\\/sda\\d', output)[0]
     serial_engine.run_cmd("mount -o rw,auto,user,fmask=0022,dmask=0000 {} {}".format(uefi_partition,
                                                                                      SecureBoootConsts.MOUNT_FOLDER))
