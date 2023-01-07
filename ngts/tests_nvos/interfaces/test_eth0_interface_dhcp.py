@@ -185,7 +185,7 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
 def test_interface_eth0_mtu(engines, topology_obj):
     """
     Verify default mtu configuration(1500), check that we can configure possible values(1280-9216),
-    negative check(1279, 9217), check changes, unset it to default
+    negative check(1279, 9000), check changes, unset it to default
 
     flow:
     1. Check default values
@@ -209,11 +209,11 @@ def test_interface_eth0_mtu(engines, topology_obj):
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         wait_for_mtu_changed(mgmt_port, 1500)
-    with allure.step('Set validation with supported for eth mtu 9200'):
-        mgmt_port.interface.link.mtu.set(value='9200', apply=True, ask_for_confirmation=True).verify_result()
+    with allure.step('Set validation with supported for eth mtu 9000'):
+        mgmt_port.interface.link.mtu.set(value='9000', apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        wait_for_mtu_changed(mgmt_port, 9200)
+        wait_for_mtu_changed(mgmt_port, 9000)
 
     with allure.step('Unset mtu validation'):
         mgmt_port.interface.link.mtu.unset(apply=True, ask_for_confirmation=True).verify_result()
