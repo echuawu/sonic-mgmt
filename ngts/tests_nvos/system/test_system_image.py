@@ -18,8 +18,8 @@ logger = logging.getLogger()
 
 PATH_TO_IMAGED_DIRECTORY = "/auto/sw_system_release/nos/nvos/"
 PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
-IMAGE_VERSION_TO_INSTALL = "nvos-amd64-25.01.0730-030.bin"
-IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/25.01.0730-030/amd64/nvos-amd64-25.01.0730-030.bin"
+BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-25.01.0800.bin"
+BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/25.01.0800/amd64/nvos-amd64-25.01.0800.bin"
 
 
 @pytest.mark.checklist
@@ -297,40 +297,55 @@ def test_image_install(release_name):
     """
     system = System()
     original_images, original_image, original_image_partition, partition_id_for_new_image, image_files = \
-        get_image_data_and_fetch_random_image_files(release_name, system)
+        get_image_data_and_fetch_random_image_files(release_name, system, 1)
 
     with allure.step("Verify fetched images are shown in the show command"):
+        logging.info("Verify fetched images are shown in the show command")
         system.image.files.verify_show_files_output(expected_files=image_files)
+
     with allure.step("Verify show images output didn't change after the fetch command"):
+        logging.info("Verify show images output didn't change after the fetch command")
         system.image.verify_show_images_output(original_images)
+
     with allure.step("Fetch the second image"):
+        logging.info("Fetch the second image")
         scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                            InfraConst.HTTP_SERVER.replace("http://", ""))
-        with allure.step("Fetch an image {}".format(scp_path + IMAGE_VERSION_TO_INSTALL_PATH)):
-            system.image.action_fetch(scp_path + IMAGE_VERSION_TO_INSTALL_PATH)
-            image_files.append(IMAGE_VERSION_TO_INSTALL)
+
+        with allure.step("Fetch an image {}".format(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH)):
+            logging.info("Fetch an image {}".format(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH))
+            system.image.action_fetch(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH)
+            image_files.append(BASE_IMAGE_VERSION_TO_INSTALL) if BASE_IMAGE_VERSION_TO_INSTALL not in image_files else image_files
 
     try:
         with allure.step("Install the first image"):
+            logging.info("Install the first image")
             install_image_and_verify(image_files[0], partition_id_for_new_image, original_images, system)
 
         with allure.step("Install the second image"):
-            expected_dictionary = install_image_and_verify(IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image, original_images, system)
+            logging.info("Install the second image")
+            expected_dictionary = install_image_and_verify(BASE_IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image,
+                                                           original_images, system)
 
         with allure.step("Set partition {} to boot next".format(partition_id_for_new_image)):
+            logging.info("Set partition {} to boot next".format(partition_id_for_new_image))
             system.image.boot_next_and_verify(partition_id_for_new_image)
 
         try:
             with allure.step('Rebooting the dut after image installation'):
+                logging.info('Rebooting the dut after image installation')
                 reboot_dut()
                 expected_dictionary[ImageConsts.CURRENT_IMG] = expected_dictionary[ImageConsts.NEXT_IMG]
                 system.image.verify_show_images_output(expected_dictionary)
                 system.image.files.verify_show_files_output(expected_files=image_files)
+
         finally:
             with allure.step("Set the original image to be booted next"):
-                system.image.set_next_boot_image(original_image_partition)
+                logging.info("Set the original image to be booted next")
+                system.image.action_boot_next(original_image_partition)
 
-            with allure.step("Rebooting the dut after origin image installation'"):
+            with allure.step("Rebooting the dut after origin image installation"):
+                logging.info("Rebooting the dut after origin image installation")
                 reboot_dut()
                 expected_dictionary[ImageConsts.CURRENT_IMG] = original_image
                 expected_dictionary[ImageConsts.NEXT_IMG] = original_image
@@ -445,13 +460,16 @@ def get_next_partition_id(partition_id):
 
 def cleanup_test(system, original_images, original_image_partition, fetched_image_files, uninstall_force=""):
     with allure.step("Set the original image to be booted next and verify"):
+        logging.info("Set the original image to be booted next and verify")
         system.image.boot_next_and_verify(original_image_partition)
 
     with allure.step("{} uninstall unused images and verify".format(uninstall_force)):
+        logging.info("{} uninstall unused images and verify".format(uninstall_force))
         system.image.action_uninstall(params=uninstall_force)
         system.image.verify_show_images_output(original_images)
 
     with allure.step("Delete all images that have been fetch during the test and verify"):
+        logging.info("Delete all images that have been fetch during the test and verify")
         system.image.files.delete_system_files(fetched_image_files)
         system.image.files.verify_show_files_output(unexpected_files=fetched_image_files)
 

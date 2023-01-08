@@ -100,7 +100,7 @@ class Files(BaseComponent):
 
     def delete_system_files(self, files_to_delete=[], expected_str=''):
         with allure.step("Delete files"):
-            logging.info("Delete files")
+            logging.info("Delete files: {}".format(files_to_delete))
             for file in files_to_delete:
                 self.action_delete(file, expected_str)
 

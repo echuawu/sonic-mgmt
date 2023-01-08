@@ -37,8 +37,4 @@ tests_nvos/system/test_system_profile_change.py::test_system_profile_change_upgr
   skip:
     reason: "Not implemented command"
 
-tests_nvos/system/test_system_image.py::test_image_install:
-  skip:
-    reason: "Test bug"
-
 ########################## NVOS IGNORE END ##########################
