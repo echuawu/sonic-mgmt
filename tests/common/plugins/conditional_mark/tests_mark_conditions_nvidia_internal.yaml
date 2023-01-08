@@ -15,6 +15,12 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
     conditions:
       - "'simx' in platform or '2201' in platform"
 
+tests/nightly/fec/test_fec.py::test_fec_capabilities_hosts_ports:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "'simx' in platform"
+
 tests/nightly/runtime/test_runtime.py:
   skip:
     reason: "Performance testcase ignored on simx platform"
