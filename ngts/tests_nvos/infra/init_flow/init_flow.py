@@ -22,17 +22,7 @@ def test_bugs_status():
 def test_system_services(engines, devices):
     """
     Verifying the NVOS system services are in active state
-    TODO
     Run sudo systemctl status and validate systemctl state is active and no jobs or failures"
-        should be:
-            State: active
-            Jobs: 0 queued
-            Failed: 0 units
-        for now it's:
-            State: degraded
-            Jobs: 0 queued
-            Failed: 1 units
-
     Run sudo systemctl is-active hw-management and validate hw_management is active"
     :return: None, raise error in case one or more services are inactive
     """

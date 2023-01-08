@@ -104,7 +104,7 @@ class BaseDevice:
             cmd_output = dut_engine.run_cmd('systemctl --type=service | grep {}'.format(service))
             if NvosConst.SERVICE_STATUS_ACTIVE not in cmd_output:
                 result_obj.result = False
-                result_obj.info += "{service} service is not active \n".format(service=service)
+                result_obj.info += "{} service is not active. {} \n".format(service, cmd_output)
 
         temp_res = self.verify_nvue_service(dut_engine)
         if not temp_res.result:
@@ -114,14 +114,10 @@ class BaseDevice:
         return result_obj
 
     def verify_nvue_service(self, dut_engine):
-        logging.info("Verify nvue/nvues service is active")
-
-        nvue_cmd_output = dut_engine.run_cmd("sudo systemctl status nvued")
-        nvued_cmd_output = dut_engine.run_cmd("sudo systemctl status nvue")
-
-        if (NvosConst.SERVICE_STATUS_ACTIVE not in nvue_cmd_output) and \
-           (NvosConst.SERVICE_STATUS_ACTIVE not in nvued_cmd_output):
-            return ResultObj(False, "nvue/nvues service is not active")
+        logging.info("Verify nvued service is active")
+        nvued_cmd_output = dut_engine.run_cmd("sudo systemctl status nvued")
+        if NvosConst.SERVICE_STATUS_ACTIVE not in nvued_cmd_output:
+            return ResultObj(False, "nvued service is not active. info: {}".format(nvued_cmd_output))
         return ResultObj(True)
 
     def get_database_id(self, db_name):
