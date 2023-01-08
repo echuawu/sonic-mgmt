@@ -104,7 +104,7 @@ class BaseDevice:
             cmd_output = dut_engine.run_cmd('systemctl --type=service | grep {}'.format(service))
             if NvosConst.SERVICE_STATUS_ACTIVE not in cmd_output:
                 result_obj.result = False
-                result_obj.info += "{service} service is not active \n".format(service=NvosConst.SERVICE_STATUS_ACTIVE)
+                result_obj.info += "{service} service is not active \n".format(service=service)
 
         temp_res = self.verify_nvue_service(dut_engine)
         if not temp_res.result:
