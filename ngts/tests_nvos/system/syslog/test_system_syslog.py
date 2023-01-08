@@ -321,6 +321,102 @@ def test_rsyslog_protocol(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+def test_rsyslog_filter(engines):
+    """
+    Will check the rsyslog filter options: exclude and include.
+    Validate that the server will get only the relevant messages.
+    Test flow:
+    1. configure remote syslog server with exclude filter
+    2. validate with show commands and send msgs
+    3. configure remote syslog server with include filter
+    4. validate with show commands and send msgs
+    5. unset filter
+    6. validate with show commands and send msgs
+    """
+
+    remote_server_engine = engines[NvosConst.SONIC_MGMT]
+    remote_server_ip = remote_server_engine.ip
+    system = System()
+
+    try:
+        with allure.step("Configure remote syslog server {} with exclude filter and validate".format(remote_server_ip)):
+            logging.info("Configure remote syslog server {} with exclude filter and validate".format(remote_server_ip))
+            system.syslog.set_server(remote_server_ip, apply=True)
+            exclude_regex = "a+"
+            system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.EXCLUDE, exclude_regex, apply=True)
+            expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
+            expected_server_dictionary[remote_server_ip].update({SyslogConsts.FILTER: {SyslogConsts.EXCLUDE: exclude_regex}})
+            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+
+            with allure.step("Send message with the exclude filter regex,\n"
+                             "expect message not to be recieved over the remote server"):
+                logging.info("Send message with the exclude filter regex,\n"
+                             "expect message not to be recieved over the remote server")
+                random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                send_msg_to_server(exclude_regex + random_msg, remote_server_ip, remote_server_engine,
+                                   verify_msg_didnt_received=True)
+
+            with allure.step("Send message without the exclude filter regex but with lower trap level,\n"
+                             "expect message not to be recieved over the remote server"):
+                logging.info("Send message without the exclude filter regex but with lower trap level,\n"
+                             "expect message not to be recieved over the remote server")
+                random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, priority=SyslogSeverityLevels.DEBUG,
+                                   verify_msg_didnt_received=True)
+
+            with allure.step("Send message without the exclude filter regex,\n"
+                             "expect message to be recieved over the remote server"):
+                logging.info("Send message without the exclude filter regex,\n"
+                             "expect message to be recieved over the remote server")
+                random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
+
+        with allure.step("Configure remote syslog server {} with include filter and validate".format(remote_server_ip)):
+            logging.info("Configure remote syslog server {} with include filter and validate".format(remote_server_ip))
+            include_regex = "b+"
+            system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.INCLUDE, include_regex, apply=True)
+            expected_server_dictionary[remote_server_ip].update({SyslogConsts.FILTER: {SyslogConsts.INCLUDE: include_regex}})
+            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+
+            with allure.step("Send message without the include filter regex,\n"
+                             "expect message not to be recieved over the remote server"):
+                logging.info("Send message without the include filter regex,\n"
+                             "expect message not to be recieved over the remote server")
+                random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_didnt_received=True)
+
+            with allure.step("Send message with the include filter regex but with lower trap level,\n"
+                             "expect message not to be recieved over the remote server"):
+                logging.info("Send message with the include filter regex but with lower trap level,\n"
+                             "expect message not to be recieved over the remote server")
+                random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                send_msg_to_server(include_regex + random_msg, remote_server_ip, remote_server_engine,
+                                   priority=SyslogSeverityLevels.DEBUG, verify_msg_didnt_received=True)
+
+            with allure.step("Send message with the include filter regex,\n"
+                             "expect message to be recieved over the remote server"):
+                logging.info("Send message with the include filter regex,\n"
+                             "expect message to be recieved over the remote server")
+                random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                send_msg_to_server(include_regex + random_msg, remote_server_ip, remote_server_engine,
+                                   verify_msg_received=True)
+
+        with allure.step("Unset filter and validate"):
+            logging.info("Unset filter and validate")
+            system.syslog.servers[remote_server_ip].unset_filter(apply=True)
+            expected_server_dictionary[remote_server_ip].pop(SyslogConsts.FILTER)
+            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+            send_msg_to_server(exclude_regex + random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
+
+    finally:
+        with allure.step("Cleanup syslog configurations"):
+            logging.info("Cleanup syslog configurations")
+            system.syslog.unset(apply=True)
+
+
+@pytest.mark.system
+@pytest.mark.syslog
 def test_rsyslog_format(engines):
     """
     Will validate all the format options:  standard, welf.
