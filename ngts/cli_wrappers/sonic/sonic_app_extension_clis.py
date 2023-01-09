@@ -49,14 +49,15 @@ class SonicAppExtensionCli:
         app_package_repo_list = self.show_app_list()
         # TODO: This is a workaround, need to remove the following code after the issue is fixed
         # TODO:  and the fix merged to other branches based on master, like DPU.
-        # TODO: [SONIC - Design] Bug SW #3141899: [Non-Functional ]| No YANG models for table BGP_DEVICE_GLOBAL
+        # TODO: [SONIC - Design] Bug SW #3322943:[Non-Functional ] [app|spm] |
+        # TODO: The return of sonic-package-manager list includes some redundant strings
         # -----------------------------workaround-------------------------------
-        unexpected_line = 'sonic_yang(6):Note: Below table(s) have no YANG models: BGP_DEVICE_GLOBAL'
+        unexpected_line = 'libyang[1]: Value "vnet-direct" does not satisfy the constraint "'
         if unexpected_line in app_package_repo_list:
             app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
-                                                                headers_ofset=1,
-                                                                len_ofset=2,
-                                                                data_ofset_from_start=3,
+                                                                headers_ofset=4,
+                                                                len_ofset=5,
+                                                                data_ofset_from_start=6,
                                                                 data_ofset_from_end=None,
                                                                 column_ofset=2,
                                                                 output_key='Name')
