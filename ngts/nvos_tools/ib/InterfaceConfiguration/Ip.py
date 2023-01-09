@@ -26,6 +26,7 @@ class Ip(ConfigurationBase):
         self.vrf = Vrf(port_obj)
         self.address = Address(port_obj)
         self.arp_timeout = ArpTimeout(port_obj)
+        self.autoconf = AutoConf(port_obj)
         self.gateway = Gateway(port_obj)
         self.dhcp_client = DhcpClient(port_obj, IbInterfaceConsts.IP_DHCP)
         self.dhcp_client6 = DhcpClient(port_obj, IbInterfaceConsts.IP_DHCP6)
@@ -139,6 +140,19 @@ class ArpTimeout(IpBaseOperational):
         return IpBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
 
 
+class AutoConf(IpBaseOperational):
+    def __init__(self, port_obj):
+        IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.ARPTIMEOUT,
+                        description="",
+                        field_name_in_db={}, output_hierarchy="{level1} {level2}".
+                        format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.AUTOCONFIG))
+
+    def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            value = {value: {}}
+        return IpBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
+
+
 class Gateway(IpBaseOperational):
     def __init__(self, port_obj):
         IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.IP_GATEWAY,
@@ -162,12 +176,30 @@ class Gateway(IpBaseOperational):
                                                    output_format).get_returned_value()
 
 
+class Hostname(IpBaseOperational):
+    def __init__(self, port_obj, level2):
+        IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.DHCP_SET_HOSTNAME,
+                        description="",
+                        field_name_in_db={}, output_hierarchy="{level1} {level2}".format(level1=IbInterfaceConsts.IP + ' ' + level2,
+                                                                                         level2=IbInterfaceConsts.DHCP_SET_HOSTNAME))
+
+
+class State(IpBaseOperational):
+    def __init__(self, port_obj, level2):
+        IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.DHCP_STATE,
+                        description="",
+                        field_name_in_db={}, output_hierarchy="{level1} {level2}".format(level1=IbInterfaceConsts.IP + ' ' + level2,
+                                                                                         level2=IbInterfaceConsts.DHCP_STATE))
+
+
 class DhcpClient(IpBaseOperational):
     def __init__(self, port_obj, level2):
         IpBase.__init__(self, port_obj=port_obj, label=level2,
                         description="default IPv4 dhcp-client",
                         field_name_in_db={}, output_hierarchy="{level1} {level2}".
                         format(level1=IbInterfaceConsts.IP, level2=level2))
+        self.hostname = Hostname(port_obj, level2)
+        self.state = State(port_obj, level2)
 
     def show(self, dut_engine=None, output_format=OutputFormat.json):
         """

@@ -21,6 +21,7 @@ class IbInterfaceConsts:
     INTERFACE_NAME = "name"
     DESCRIPTION = "description"
     ARPTIMEOUT = "arp-timeout"
+    AUTOCONFIG = "autoconf"
     DHCP_STATE = 'state'
     DHCP_SET_HOSTNAME = 'set-hostname'
     TYPE = "type"
@@ -86,6 +87,8 @@ class IbInterfaceConsts:
     DEFAULT_VLS = 'VL0-VL7'
     IB0_LINK_MTU_DEFAULT_VALUE = 2044
     IB0_IP_ARP_DEFAULT_VALUE = 1800
+    IB0_IP_AUTOCONF_DEFAULT_VALUE = 'disable'
+    IB0_DHCP_STATE_DEFAULT_VALUE = 'disabled'
 
 
 class DataBaseNames:
