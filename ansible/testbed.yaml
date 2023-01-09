@@ -2683,6 +2683,19 @@
     - r-anaconda-76
   comment: Mellanox MTR testbed
 
+  - conf-name: r-anaconda-77-ptf-any
+  group-name: vm-t1
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-dummy
+  ptf_ip: 1.1.1.1/16
+  ptf_ipv6:
+  server: server_54
+  vm_base: VM0000
+  dut:
+    - r-anaconda-77
+  comment: Mellanox MTR testbed
+
 - conf-name: r-panther-19-ptf-any
   group-name: vm-t1
   topo: ptf-any
@@ -2748,6 +2761,19 @@
     - r-leopard-45
   comment: Mellanox MTR testbed
 
+- conf-name: r-leopard-50-ptf-any
+  group-name: vm-t1
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-dummy
+  ptf_ip: 1.1.1.1/16
+  ptf_ipv6:
+  server: server_54
+  vm_base: VM0000
+  dut:
+    - r-leopard-50
+  comment: Mellanox MTR testbed
+
 - conf-name: r-panther-20-ptf-any
   group-name: vm-t1
   topo: ptf-any
@@ -2759,6 +2785,19 @@
   vm_base: VM0000
   dut:
     - r-panther-20
+  comment: Mellanox MTR testbed
+
+- conf-name: r-panther-22-ptf-any
+  group-name: vm-t1
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-dummy
+  ptf_ip: 1.1.1.1/16
+  ptf_ipv6:
+  server: server_54
+  vm_base: VM0000
+  dut:
+    - r-panther-22
   comment: Mellanox MTR testbed
 
 - conf-name: r-anaconda-15-ptf-any
@@ -2838,6 +2877,8 @@
   dut:
     - r-leopard-56
   comment: Mellanox MTR testbed
+
+
 
 - conf-name: r-liger-02-ptf-any
   group-name: vm-t1
@@ -3331,6 +3372,19 @@
   vm_base: VM0000
   dut:
     - r-moose-simx-34
+  comment: Mellanox MTR testbed
+
+- conf-name: r-moose-simx-38-ptf-any
+  group-name: vm-t1
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-dummy
+  ptf_ip: 1.1.1.1/16
+  ptf_ipv6:
+  server: server_54
+  vm_base: VM0000
+  dut:
+    - r-moose-simx-38
   comment: Mellanox MTR testbed
 
 - conf-name: r-spider-05-ptf-any
