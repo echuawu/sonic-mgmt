@@ -131,6 +131,10 @@
     - '.*ERR dhclient\[\d+\]: process and the information we find helpful for debugging.*'
     - '.*ERR dhclient\[\d+\]: exiting.*'
     - '.*ERR dhclient\[\d+\]: '
+    # Sud confirmed this Err could be ignored in # 3293075
+    # After issuing reboot command, if we get the above error log we can ignore them. Please note,
+    # this can be observed for any service that was issued to be enable but reboot command was give.
+    - '.*ERR hostcfgd: sudo systemctl start syncd.service - failed: return code - 1.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
