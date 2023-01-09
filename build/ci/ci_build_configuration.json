@@ -361,7 +361,7 @@
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
           "skip": "${SKIP_SIMX}",
-          "on_failure": "continue",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -380,7 +380,7 @@
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
           "skip": "${SKIP_SIMX}",
-          "on_failure": "continue",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -399,7 +399,7 @@
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
           "skip": "${SKIP_SIMX}",
-          "on_failure": "continue",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -418,7 +418,7 @@
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
           "skip": "${SKIP_SIMX}",
-          "on_failure": "continue",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
