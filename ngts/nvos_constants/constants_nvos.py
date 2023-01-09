@@ -1,3 +1,5 @@
+from ngts.constants.constants import InfraConst
+
 
 class DatabaseConst:
     APPL_DB_NAME = "APPL_DB"
@@ -325,6 +327,8 @@ class ImageConsts:
     CURRENT_IMG = 'current'
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
+    SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
+                                       InfraConst.HTTP_SERVER.replace("http://", ""))
 
 
 class SyslogConsts:
