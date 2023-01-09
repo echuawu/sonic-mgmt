@@ -371,6 +371,21 @@ def test_rsyslog_filter(engines):
                 random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
                 send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
 
+            with allure.step("Configure long regex for the exclude filter and validate"):
+                logging.info("Configure long regex for the exclude filter and validate")
+                long_exclude_regex = RandomizationTool.get_random_string(200, ascii_letters=string.digits + string.ascii_letters)
+                system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.EXCLUDE, long_exclude_regex, apply=True)
+                expected_server_dictionary[remote_server_ip].update(
+                    {SyslogConsts.FILTER: {SyslogConsts.EXCLUDE: long_exclude_regex}})
+                system.syslog.servers[remote_server_ip].verify_show_server_output(
+                    expected_server_dictionary[remote_server_ip])
+                with allure.step("Send message without the exclude filter regex,\n"
+                                 "expect message to be recieved over the remote server"):
+                    logging.info("Send message without the exclude filter regex,\n"
+                                 "expect message to be recieved over the remote server")
+                    random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
+                    send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
+
         with allure.step("Configure remote syslog server {} with include filter and validate".format(remote_server_ip)):
             logging.info("Configure remote syslog server {} with include filter and validate".format(remote_server_ip))
             include_regex = "b+"
@@ -400,6 +415,21 @@ def test_rsyslog_filter(engines):
                 random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
                 send_msg_to_server(include_regex + random_msg, remote_server_ip, remote_server_engine,
                                    verify_msg_received=True)
+
+            with allure.step("Configure long regex for the include filter and validate"):
+                logging.info("Configure long regex for the include filter and validate")
+                long_include_regex = RandomizationTool.get_random_string(200, ascii_letters=string.digits + string.ascii_letters)
+                system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.INCLUDE, long_include_regex, apply=True)
+                expected_server_dictionary[remote_server_ip].update(
+                    {SyslogConsts.FILTER: {SyslogConsts.INCLUDE: long_include_regex}})
+                system.syslog.servers[remote_server_ip].verify_show_server_output(
+                    expected_server_dictionary[remote_server_ip])
+                with allure.step("Send message with the include filter regex,\n"
+                                 "expect message to be recieved over the remote server"):
+                    logging.info("Send message with the include filter regex,\n"
+                                 "expect message to be recieved over the remote server")
+                    send_msg_to_server(long_include_regex, remote_server_ip, remote_server_engine,
+                                       verify_msg_received=True)
 
         with allure.step("Unset filter and validate"):
             logging.info("Unset filter and validate")
