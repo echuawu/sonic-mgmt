@@ -69,7 +69,7 @@ def create_sanitizer_dump(dut_engine, dumps_folder, test_name):
     """
     with allure.step('Generating a dump with sanitizer files'):
         now = datetime.now()
-        date_time = now.strftime("%m_%d_%Y_%H:%M:%S")
+        date_time = now.strftime("%m_%d_%Y_%H-%M-%S")
         sanitizer_dump_filename = f"{test_name}_sanitizer_files_{date_time}.tar.gz".replace("::", "_")
         sanitizer_dump_path = f"/tmp/{sanitizer_dump_filename}"
         add_date_to_files_name(dut_engine)
