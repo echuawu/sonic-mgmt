@@ -20,8 +20,8 @@ class Syslog(BaseComponent):
         self.servers = {}
         self.format = SyslogConsts.STANDARD
 
-    def unset(self, op_param="", apply=False, ask_for_confirmation=False):
-        result_obj = BaseComponent.unset(self, op_param)
+    def unset(self, op_param="", expected_str="", apply=False, ask_for_confirmation=False):
+        result_obj = BaseComponent.unset(self, op_param, expected_str)
         if result_obj.result and apply:
             with allure.step("Applying unset configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
@@ -216,16 +216,17 @@ class Filter(Server):
             return res
 
     def set_include_filter(self, regex, expected_str='', apply=False, ask_for_confirmation=False):
-        return self.set_filter("include", regex, expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set_filter(SyslogConsts.INCLUDE, regex, expected_str=expected_str, apply=apply,
+                               ask_for_confirmation=ask_for_confirmation)
 
     def set_exclude_filter(self, regex, expected_str='', apply=False, ask_for_confirmation=False):
-        return self.set_filter("exclude", regex, expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set_filter(SyslogConsts.EXCLUDE, regex, expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def unset_filter(self, filter='', apply=False, ask_for_confirmation=False):     # TODO maybe need to delete the "filter" param or all the function and use regulart unset
-        return self.unset(filter, apply=apply, ask_for_confirmation=ask_for_confirmation)
+    def unset_filter(self, filter='', expected_str='', apply=False, ask_for_confirmation=False):
+        return self.unset(filter, expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def unset_include_filter(self, apply=False, ask_for_confirmation=False):    # TODO maybe need to delete
-        return self.unset_filter("include", apply=apply, ask_for_confirmation=ask_for_confirmation)
+    def unset_include_filter(self, apply=False, expected_str='', ask_for_confirmation=False):    # illegal command - just for bad case check!
+        return self.unset_filter(SyslogConsts.INCLUDE, expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def unset_exclude_filter(self, apply=False, ask_for_confirmation=False):     # TODO maybe need to delete
-        return self.unset_filter("exclude", apply=apply, ask_for_confirmation=ask_for_confirmation)
+    def unset_exclude_filter(self, apply=False, expected_str='', ask_for_confirmation=False):     # illegal command - just for bad case check!
+        return self.unset_filter(SyslogConsts.EXCLUDE, expected_str=expected_str, apply=apply, ask_for_confirmation=ask_for_confirmation)

@@ -53,8 +53,8 @@ class BaseComponent:
             else:
                 raise Exception("Invalid param name or value")
 
-    def unset(self, op_param=""):
+    def unset(self, op_param="", expected_str=""):
         with allure.step('Execute unset {op_param} for {resource_path}'.format(op_param=op_param,
                                                                                resource_path=self.get_resource_path())):
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset, TestToolkit.engines.dut,
-                                                   self.get_resource_path(), op_param)
+            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].unset, expected_str,
+                                                                TestToolkit.engines.dut, self.get_resource_path(), op_param)

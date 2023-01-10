@@ -15,6 +15,9 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 
 
 logger = logging.getLogger()
+INCOMPLETE_COMMAND = "Incomplete Command"
+ERROR = "Error"
+INVALID_COMMAND = "Invalid Command"
 
 
 @pytest.mark.system
@@ -513,6 +516,74 @@ def test_rsyslog_format(engines):
         with allure.step("Cleanup syslog configurations"):
             logging.info("Cleanup syslog configurations")
             system.syslog.unset(apply=True)
+
+
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_bad_params():
+    """
+    Will check all the commands that get params, with bad params- empty or random
+    """
+
+    system = System()
+    rand_str = RandomizationTool.get_random_string(10)
+    server_name = RandomizationTool.get_random_string(5)
+
+    with allure.step("Global syslog commands"):
+        logging.info("Global syslog commands")
+
+        with allure.step("Configure and validate trap"):
+            logging.info("Configure and validate trap")
+            system.syslog.set_trap("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.set_trap(rand_str, expected_str=ERROR)
+
+        # TODO change when bug 3317235 will be fixed
+        # with allure.step("Configure and validate format"):
+            # logging.info("Configure and validate format")
+            # system.syslog.set_format("",expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.set_format(rand_str, expected_str=ERROR)
+
+    with allure.step("Specific syslog server commands"):
+        logging.info("Specific syslog server commands")
+        system.syslog.set_server(server_name, apply=False)
+
+        with allure.step("Configure and validate port"):
+            logging.info("Configure and validate port")
+            system.syslog.servers[server_name].set_port("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers[server_name].set_port(rand_str, expected_str=INVALID_COMMAND)
+
+        with allure.step("Configure and validate protocol"):
+            logging.info("Configure and validate protocol")
+            system.syslog.servers[server_name].set_protocol("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers[server_name].set_protocol(rand_str, expected_str=ERROR)
+
+        with allure.step("Configure and validate trap"):
+            logging.info("Configure and validate trap")
+            system.syslog.servers[server_name].set_trap("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers[server_name].set_trap(rand_str, expected_str=ERROR)
+
+        with allure.step("Configure and validate vrf"):
+            logging.info("Configure and validate vrf")
+            system.syslog.servers[server_name].set_vrf("", expected_str=INCOMPLETE_COMMAND)
+
+        with allure.step("Configure and validate filter"):
+            logging.info("Configure and validate filter")
+            # system.syslog.servers[server_name].set_filter("", "", expected_str=INCOMPLETE_COMMAND)  # bug #3325876
+            system.syslog.servers[server_name].set_filter(rand_str, rand_str, expected_str=INVALID_COMMAND)
+
+        with allure.step("Configure and validate filter include"):
+            logging.info("Configure and validate filter include")
+            system.syslog.servers[server_name].set_filter(SyslogConsts.INCLUDE, "", expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.servers[server_name].filter.unset_include_filter("", expected_str=INVALID_COMMAND) # bug #3325876
+
+        with allure.step("Configure and validate filter exclude"):
+            logging.info("Configure and validate filter exclude")
+            system.syslog.servers[server_name].set_filter(SyslogConsts.EXCLUDE, "", expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.servers[server_name].filter.unset_exclude_filter("", expected_str=INVALID_COMMAND) # bug #3325876
+
+    with allure.step("Cleanup syslog configurations"):
+        logging.info("Cleanup syslog configurations")
+        system.syslog.unset(apply=True)
 
 
 def verify_welf_format(line_to_check, firewall_name=".*", expect_welf_format=True):
