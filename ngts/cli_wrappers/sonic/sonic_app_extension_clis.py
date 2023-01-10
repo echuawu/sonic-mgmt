@@ -54,10 +54,16 @@ class SonicAppExtensionCli:
         # -----------------------------workaround-------------------------------
         unexpected_line = 'libyang[1]: Value "vnet-direct" does not satisfy the constraint "'
         if unexpected_line in app_package_repo_list:
+            name_offset = 0
+            for line in app_package_repo_list.split("\n"):
+                if "Name" in line and "Repository" in line:
+                    break
+                name_offset += 1
+
             app_package_repo_dict = generic_sonic_output_parser(app_package_repo_list,
-                                                                headers_ofset=4,
-                                                                len_ofset=5,
-                                                                data_ofset_from_start=6,
+                                                                headers_ofset=name_offset,
+                                                                len_ofset=1 + name_offset,
+                                                                data_ofset_from_start=2 + name_offset,
                                                                 data_ofset_from_end=None,
                                                                 column_ofset=2,
                                                                 output_key='Name')
