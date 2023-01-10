@@ -69,7 +69,8 @@ class TestAutoTechSupport:
         system_features_status = self.duthost.get_feature_status()
         for feature in auto_tech_support_features_list:
             if is_docker_enabled(system_features_status, feature):
-                self.dockers_list.append(feature)
+                if feature not in self.dockers_list:
+                    self.dockers_list.append(feature)
 
         self.number_of_test_dockers = len(self.dockers_list)
         self.test_docker = random.choice(self.dockers_list)
@@ -376,9 +377,9 @@ class TestAutoTechSupport:
         Validate max limit parameter for core/techsupport folder
         Test logic is as follows:
         - Set core/techsupport max limit to 0
-        - Create 5 core/techsupport dummy files(each file 5%) which will use 25% of space in test folder
+        - Create 4 core/techsupport dummy files(each file 5%) which will use 20% of space in test folder
         - Trigger techsupport and check that dummy files + new created core/techsupport files available
-        - Set core/techsupport max limit to 19
+        - Set core/techsupport max limit to 14
         - Trigger techsupport and check that 2 oldest dummy files removed, all other + new created core/techsupport
         files available
         :param test_mode: test mode - core or techsupport
@@ -401,8 +402,8 @@ class TestAutoTechSupport:
         with allure.step('Set {} limit to: {}'.format(test_mode, max_limit)):
             set_limit(self.duthost, test_mode, max_limit, cleanup_list)
 
-        with allure.step('Create 5 stub files(each file 5%) which will use 25% of space in test folder'):
-            num_of_dummy_files = 5
+        with allure.step('Create 4 stub files(each file 5%) which will use 20% of space in test folder'):
+            num_of_dummy_files = 4
             one_file_size_in_percent = 5
             one_percent_in_mb = total / 100
             expected_file_size_in_mb = one_percent_in_mb * one_file_size_in_percent
@@ -422,7 +423,7 @@ class TestAutoTechSupport:
                 validate_expected_stub_files(self.duthost, validation_folder, dummy_files_list,
                                              expected_number_of_additional_files=1)
 
-        max_limit = 19
+        max_limit = 14
         with allure.step('Validate: {} limit: {}'.format(test_mode, max_limit)):
             with allure.step('Set {} limit to: {}'.format(test_mode, max_limit)):
                 set_limit(self.duthost, test_mode, max_limit, cleanup_list=None)

@@ -227,12 +227,6 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     conditions:
       - "'simx' in platform"
 
-show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[core]:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3323057"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3323057"
-
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
     reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
