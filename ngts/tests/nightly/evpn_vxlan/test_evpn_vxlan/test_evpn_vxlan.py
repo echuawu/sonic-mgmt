@@ -7,15 +7,16 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.constants.constants import VxlanConstants
-from ngts.helpers.vxlan_helper import apply_fdb_config, send_and_validate_traffic, verify_counter_entry, verify_mac_entry_learned, verify_mac_entry_not_learned, vni_to_hex_vni, verify_bgp_container_up
+from ngts.helpers.vxlan_helper import apply_fdb_config, send_and_validate_traffic, verify_counter_entry, \
+    verify_mac_entry_learned, verify_mac_entry_not_learned, vni_to_hex_vni, verify_bgp_container_up
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 
 """
 
- EVPN VXLAN Test Cases
+EVPN VXLAN Test Cases
 
- Documentation: https://confluence.nvidia.com/pages/viewpage.action?spaceKey=SW&title=SONiC+NGTS+EVPN+VXLAN+Documentation
+Documentation: https://confluence.nvidia.com/pages/viewpage.action?spaceKey=SW&title=SONiC+NGTS+EVPN+VXLAN+Documentation
 
 """
 
@@ -39,12 +40,14 @@ def basic_configuration(topology_obj, engines, cli_objects, interfaces):
     """
     vlan_config_dict = {
         'dut': [{'vlan_id': 40, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}, {interfaces.dut_hb_2: 'trunk'}]},
+                {'vlan_id': 41, 'vlan_members': [{interfaces.dut_hb_2: 'trunk'}]},
                 {'vlan_id': 100, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}]},
                 {'vlan_id': 101, 'vlan_members': [{interfaces.dut_ha_2: 'trunk'}, {interfaces.dut_hb_2: 'trunk'}]}
                 ],
         'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_2: None}]}
                ],
         'hb': [{'vlan_id': 40, 'vlan_members': [{interfaces.hb_dut_2: None}]},
+               {'vlan_id': 41, 'vlan_members': [{interfaces.hb_dut_2: None}]},
                {'vlan_id': 101, 'vlan_members': [{interfaces.hb_dut_2: None}]}
                ]
     }
@@ -67,7 +70,8 @@ def basic_configuration(topology_obj, engines, cli_objects, interfaces):
     frr_config_folder = os.path.dirname(os.path.abspath(__file__))
     vxlan_config_dict = {
         'dut': [{'evpn_nvo': 'my-nvo', 'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
-                 'tunnels': [{'vni': VxlanConstants.VNI_500100, 'vlan': VxlanConstants.VLAN_100}, {'vni': VxlanConstants.VNI_500101, 'vlan': VxlanConstants.VLAN_101}]
+                 'tunnels': [{'vni': VxlanConstants.VNI_500100, 'vlan': VxlanConstants.VLAN_100},
+                             {'vni': VxlanConstants.VNI_500101, 'vlan': VxlanConstants.VLAN_101}]
                  }
                 ],
         'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': VxlanConstants.VNI_500100,
@@ -97,13 +101,17 @@ def basic_configuration(topology_obj, engines, cli_objects, interfaces):
     logger.info('Evpn vxlan configuration completed')
     logger.info("Enable vxlan counter")
     cli_objects.dut.vxlan.enable_vxlan_counter()
-    with allure.step(f"Configure static mac address:{VxlanConstants.STATIC_MAC_OPERATION_SET} vlan:{VxlanConstants.VLAN_101} port:{interfaces.dut_hb_2}"):
+    with allure.step(
+            f"Configure static mac address:{VxlanConstants.STATIC_MAC_OPERATION_SET} vlan:{VxlanConstants.VLAN_101} \
+            port:{interfaces.dut_hb_2}"):
         apply_fdb_config(engines, vlan_id=VxlanConstants.VLAN_101, port=interfaces.dut_hb_2,
                          op=VxlanConstants.STATIC_MAC_OPERATION_SET, static_mac=VxlanConstants.STATIC_MAC_ADDR)
 
     yield
 
-    with allure.step(f"Delete static mac address:{VxlanConstants.STATIC_MAC_OPERATION_SET} vlan:{VxlanConstants.VLAN_101} port:{interfaces.dut_hb_2}"):
+    with allure.step(
+            f"Delete static mac address:{VxlanConstants.STATIC_MAC_OPERATION_SET} vlan:{VxlanConstants.VLAN_101} \
+            port:{interfaces.dut_hb_2}"):
         apply_fdb_config(engines, vlan_id=VxlanConstants.VLAN_101, port=interfaces.dut_hb_2,
                          op=VxlanConstants.STATIC_MAC_OPERATION_DEL, static_mac=VxlanConstants.STATIC_MAC_ADDR)
     logger.info("Disable vxlan counter")
@@ -192,7 +200,8 @@ class TestEvpnVxlan:
         self.ha_vtep_ip = self.ha_dut_1_ip
         self.hb_vtep_ip = self.hb_vlan_40_ip
 
-        self.dut_mac, self.ha_br_500100_mac, self.ha_br_500101_mac, self.hb_br_500100_mac, self.hb_vlan_101_mac = mac_addresses
+        self.dut_mac, self.ha_br_500100_mac, self.ha_br_500101_mac, self.hb_br_500100_mac, self.hb_vlan_101_mac = \
+            mac_addresses
 
     def config_vlan_vni_map(self, topology_obj, interfaces, vlan_id, vni):
         """
@@ -208,8 +217,9 @@ class TestEvpnVxlan:
         }
 
         ip_config_dict = {
-            'dut': [{'iface': 'Vlan{}'.format(vlan_id), 'ips': [(VxlanConstants.DUT_VNI_INTF_ADDRESS_TEMPLATE.format(vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}
-                    ]
+            'dut': [{'iface': 'Vlan{}'.format(vlan_id), 'ips': [
+                (VxlanConstants.DUT_VNI_INTF_ADDRESS_TEMPLATE.format(vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}
+            ]
         }
 
         vxlan_config_dict = {
@@ -217,7 +227,8 @@ class TestEvpnVxlan:
                      'tunnels': [{'vni': '{}'.format(vni), 'vlan': '{}'.format(vlan_id)}]}
                     ],
             'ha': [{'vtep_name': 'vtep_{}'.format(vni), 'vtep_src_ip': '30.0.0.2', 'vni': '{}'.format(vni),
-                    'vtep_ips': [(VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.format(vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}],
+                    'vtep_ips': [(VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.format(
+                        vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}],
         }
 
         logger.info('Evpn vxlan configuration completed')
@@ -239,8 +250,9 @@ class TestEvpnVxlan:
         }
 
         ip_config_dict = {
-            'dut': [{'iface': 'Vlan{}'.format(vlan_id), 'ips': [(VxlanConstants.DUT_VNI_INTF_ADDRESS_TEMPLATE.format(vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}
-                    ]
+            'dut': [{'iface': 'Vlan{}'.format(vlan_id), 'ips': [
+                (VxlanConstants.DUT_VNI_INTF_ADDRESS_TEMPLATE.format(vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}
+            ]
         }
 
         vxlan_config_dict = {
@@ -248,7 +260,8 @@ class TestEvpnVxlan:
                      'tunnels': [{'vni': '{}'.format(vni), 'vlan': '{}'.format(vlan_id)}]}
                     ],
             'ha': [{'vtep_name': 'vtep_{}'.format(vni), 'vtep_src_ip': '30.0.0.2', 'vni': '{}'.format(vni),
-                    'vtep_ips': [(VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.format(vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}],
+                    'vtep_ips': [(VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.format(
+                        vlan_id % VxlanConstants.IP_GENERATE_SEED), '24')]}],
         }
 
         logger.info('Cleanup evpn vxlan configuration')
@@ -272,8 +285,9 @@ class TestEvpnVxlan:
         :param cli_objects: cli_objects fixture
         """
         with allure.step('Send ping from HB to DUT via VLAN 101'):
-            ping_hb_dut_vlan_101 = {'sender': 'hb', 'args': {'interface': self.hb_vlan_101_iface, 'count': VxlanConstants.PACKET_NUM_3,
-                                                             'dst': self.dut_vlan_101_ip}}
+            ping_hb_dut_vlan_101 = {'sender': 'hb',
+                                    'args': {'interface': self.hb_vlan_101_iface, 'count': VxlanConstants.PACKET_NUM_3,
+                                             'dst': self.dut_vlan_101_ip}}
             PingChecker(self.players, ping_hb_dut_vlan_101).run_validation()
 
         # VXLAN route validation
@@ -293,8 +307,9 @@ class TestEvpnVxlan:
         :param cli_objects: cli_objects fixture
         """
         with allure.step('Send ping from HB to DUT via VLAN 101'):
-            ping_hb_dut_vlan_101 = {'sender': 'hb', 'args': {'interface': self.hb_vlan_101_iface, 'count': VxlanConstants.PACKET_NUM_3,
-                                                             'dst': self.dut_vlan_101_ip}}
+            ping_hb_dut_vlan_101 = {'sender': 'hb',
+                                    'args': {'interface': self.hb_vlan_101_iface, 'count': VxlanConstants.PACKET_NUM_3,
+                                             'dst': self.dut_vlan_101_ip}}
             PingChecker(self.players, ping_hb_dut_vlan_101).run_validation()
 
         # VXLAN route validation
@@ -305,10 +320,13 @@ class TestEvpnVxlan:
 
         with allure.step('Validate CLI type-3 routes on DUT'):
             dut_type_3_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_multicast()
-            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.ha_dut_1_ip, self.ha_dut_1_ip, VxlanConstants.RD_100)
-            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.ha_dut_1_ip, self.ha_dut_1_ip, VxlanConstants.RD_101)
+            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.ha_dut_1_ip, self.ha_dut_1_ip,
+                                                      VxlanConstants.RD_100)
+            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.ha_dut_1_ip, self.ha_dut_1_ip,
+                                                      VxlanConstants.RD_101)
 
-            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.hb_vlan_40_ip, self.hb_vlan_40_ip, VxlanConstants.RD_100)
+            cli_objects.dut.frr.validate_type_3_route(dut_type_3_info, self.hb_vlan_40_ip, self.hb_vlan_40_ip,
+                                                      VxlanConstants.RD_100)
 
         with allure.step('Validate CLI type-2 routes on HA'):
             ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
@@ -317,44 +335,54 @@ class TestEvpnVxlan:
 
         with allure.step('Validate CLI type-3 routes on HA'):
             ha_type_3_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_multicast()
-            cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, VxlanConstants.RD_100)
-            cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, VxlanConstants.RD_101)
+            cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
+                                                     VxlanConstants.RD_100)
+            cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
+                                                     VxlanConstants.RD_101)
 
         with allure.step('Validate CLI type-3 routes on HB'):
             hb_type_3_info = cli_objects.hb.frr.get_l2vpn_evpn_route_type_multicast()
-            cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, VxlanConstants.RD_100)
-            cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip, VxlanConstants.RD_101)
+            cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
+                                                     VxlanConstants.RD_100)
+            cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
+                                                     VxlanConstants.RD_101)
 
     def validate_traffic_and_counters(self, cli_objects, interfaces, vtep_mode=False):
-        with allure.step(f"Send traffic from HB to HA via VLAN 101 to VNI 500101"):
+        with allure.step("Send traffic from HB to HA via VLAN 101 to VNI 500101"):
             logger.info("Clear vxlan counter")
             cli_objects.dut.vxlan.clear_vxlan_counter()
-            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac, self.ha_br_500101_mac,
+            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac,
+                                                                                self.ha_br_500101_mac,
                                                                                 self.hb_vlan_101_iface_ip,
                                                                                 self.ha_vni_500101_iface_ip)
             logger.info("Send and validate traffic")
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                      sender_intf=self.hb_vlan_101_iface,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=interfaces.ha_dut_1,
                                       receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_SRC_IP_FILTER.format(
                                           VxlanConstants.HEX_500101,
                                           VxlanConstants.HEX_101_0_0_3))
-            logger.info(f"Validate vxlan tx counters")
+            logger.info("Validate vxlan tx counters")
             verify_counter_entry(cli_objects, VxlanConstants.VTEP_NAME_DUT, 'tx', 500, vtep_mode)
 
-        with allure.step(f"Send traffic from HA to HB via to VNI 500101"):
+        with allure.step("Send traffic from HA to HB via to VNI 500101"):
             logger.info("Clear vxlan counter")
             cli_objects.dut.vxlan.clear_vxlan_counter()
-            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac, self.hb_vlan_101_mac,
+            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac,
+                                                                                self.hb_vlan_101_mac,
                                                                                 self.ha_vni_500101_iface_ip,
                                                                                 self.hb_vlan_101_iface_ip)
             logger.info("Send and validate traffic")
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HA,
-                                      sender_intf=VxlanConstants.VNI_500101_IFACE, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HB, receiver_intf=self.hb_vlan_101_iface,
+                                      sender_intf=VxlanConstants.VNI_500101_IFACE,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HB,
+                                      receiver_intf=self.hb_vlan_101_iface,
                                       receiver_filter_format=VxlanConstants.SIMPLE_PACKET_FILTER.format(
                                           self.hb_vlan_101_iface_ip))
-            logger.info(f"Validate vxlan rx counters")
+            logger.info("Validate vxlan rx counters")
             verify_counter_entry(cli_objects, VxlanConstants.VTEP_NAME_DUT, 'rx', 500, vtep_mode)
 
     def config_bgp_unnumbered_mode_between_ha_dut(self, cli_objects, interfaces):
@@ -364,10 +392,14 @@ class TestEvpnVxlan:
         :param interfaces: interfaces fixture
         :return:
         """
-        logger.info(f"Configure BGP unnumbered at DUT - {interfaces.dut_ha_1} - bgp session {VxlanConstants.BGP_SESSION_ID}")
-        cli_objects.dut.frr.config_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.dut_bgp_neighbor_30_0_0_2, interfaces.dut_ha_1)
-        logger.info(f"Configure BGP unnumbered at HA - {interfaces.ha_dut_1} - bgp session {VxlanConstants.BGP_SESSION_ID}")
-        cli_objects.ha.frr.config_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.ha_bgp_neighbor_30_0_0_1, interfaces.ha_dut_1)
+        logger.info(
+            f"Configure BGP unnumbered at DUT - {interfaces.dut_ha_1} - bgp session {VxlanConstants.BGP_SESSION_ID}")
+        cli_objects.dut.frr.config_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.dut_bgp_neighbor_30_0_0_2,
+                                                       interfaces.dut_ha_1)
+        logger.info(
+            f"Configure BGP unnumbered at HA - {interfaces.ha_dut_1} - bgp session {VxlanConstants.BGP_SESSION_ID}")
+        cli_objects.ha.frr.config_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.ha_bgp_neighbor_30_0_0_1,
+                                                      interfaces.ha_dut_1)
 
     def clean_bgp_unnumbered_mode_between_ha_dut(self, cli_objects, interfaces):
         """
@@ -376,10 +408,16 @@ class TestEvpnVxlan:
         :param interfaces: interfaces fixture
         :return:
         """
-        logger.info(f"Clean BGP unnumbered at DUT - {interfaces.dut_ha_1} - bgp session {VxlanConstants.BGP_SESSION_ID} then recover default BGP configuration")
-        cli_objects.dut.frr.clean_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.dut_bgp_neighbor_30_0_0_2, interfaces.dut_ha_1)
-        logger.info(f"Clean BGP unnumbered at HA - {interfaces.ha_dut_1} - bgp session {VxlanConstants.BGP_SESSION_ID} then recover default BGP configuration")
-        cli_objects.ha.frr.clean_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.ha_bgp_neighbor_30_0_0_1, interfaces.ha_dut_1)
+        logger.info(
+            f"Clean BGP unnumbered at DUT - {interfaces.dut_ha_1} - bgp session {VxlanConstants.BGP_SESSION_ID} \
+            then recover default BGP configuration")
+        cli_objects.dut.frr.clean_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.dut_bgp_neighbor_30_0_0_2,
+                                                      interfaces.dut_ha_1)
+        logger.info(
+            f"Clean BGP unnumbered at HA - {interfaces.ha_dut_1} - bgp session {VxlanConstants.BGP_SESSION_ID} \
+            then recover default BGP configuration")
+        cli_objects.ha.frr.clean_bgp_unnumbered_mode(VxlanConstants.BGP_SESSION_ID, self.ha_bgp_neighbor_30_0_0_1,
+                                                     interfaces.ha_dut_1)
 
     def validate_vxlan_tunnel(self, cli_objects):
         """
@@ -387,7 +425,8 @@ class TestEvpnVxlan:
         :param cli_objects: cli_objects fixture
         """
         expected_tunnel_infos = []
-        for vlan, vni in [(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100), (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)]:
+        for vlan, vni in [(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                          (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)]:
             expected_tunnel_info = {'vxlan tunnel name': VxlanConstants.VTEP_NAME_DUT,
                                     'source ip': self.dut_loopback_ip,
                                     'destination ip': '',
@@ -401,183 +440,187 @@ class TestEvpnVxlan:
         Trigger dut local mac learning at HB by unknown traffic
         HB is connected with DUT directly by vlan, this is called 'local' in vxlan scenario
         """
-        unknown_trigger_pkt = VxlanConstants.SIMPLE_PACKET.format(VxlanConstants.SOURCE_MAC_ADDR_1, VxlanConstants.UNKNOWN_UNICAST_MAC,
+        unknown_trigger_pkt = VxlanConstants.SIMPLE_PACKET.format(VxlanConstants.SOURCE_MAC_ADDR_1,
+                                                                  VxlanConstants.UNKNOWN_UNICAST_MAC,
                                                                   VxlanConstants.UNKNOWN_SRC_IP,
                                                                   VxlanConstants.UNKNOWN_DST_IP)
         logger.info("Trigger DUT local mac learning by send unknown traffic at HB")
         send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
                                   sender_intf=self.hb_vlan_101_iface, sender_pkt_format=unknown_trigger_pkt,
-                                  sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                  sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HA,
+                                  receiver_intf=interfaces.ha_dut_1,
                                   receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_SRC_IP_FILTER.format(
                                       VxlanConstants.HEX_500101,
                                       VxlanConstants.HEX_UNKNOWN_SRC_IP))
 
-    def trigger_remote_mac_learning(self, engine, namespace, dst_ip, count):
+    def trigger_remote_mac_learning(self, engines, intf, vlan):
         """
-        Trigger dut remote mac learning at HA or HB
-        Create a virtual eth in a namespace at HA or HB, and connect it with bridge which is in the default namespace at HA or HB
-        Trigger bridge mac local learning, and it would update mac to DUT by evpn vxlan
-        For DUT, it's a remote vxlan mac learning scenario
-        :param engine: player engine
-        :param namespace: namespace at linux host
-        :param dst_ip: destination ip
-        :param count: ping packet number
+        Trigger dut remote mac learning at HA by traffic
+        :param engines: engines interfaces
+        :param intf: interface name
+        :param vlan: vlan id
         """
-        engine.run_cmd(f"ip netns exec {namespace} ping {dst_ip} -c {count}")
+        unknown_trigger_pkt = VxlanConstants.SIMPLE_DOT1Q_PACKET.format(VxlanConstants.SOURCE_MAC_ADDR_1,
+                                                                        VxlanConstants.BROADCAST_MAC, vlan,
+                                                                        VxlanConstants.UNKNOWN_SRC_IP,
+                                                                        VxlanConstants.UNKNOWN_DST_IP)
+        logger.info("Trigger remote mac learning by send unknown traffic from DUT to HA")
+        cmd = '''
+cat << EOF > send_traffic.py
+from scapy.all import *
+from scapy.contrib.roce import *
 
-    def validate_mac_move_local_to_remote(self, cli_objects, interfaces, engines):
+sendp({}, iface="{}", count={})
+EOF
+'''.format(unknown_trigger_pkt, intf, VxlanConstants.PACKET_NUM_100)
+        logger.info(f"Traffic: {unknown_trigger_pkt}")
+        engines.dut.run_cmd(cmd)
+        engines.dut.run_cmd("sudo python3 send_traffic.py")
+
+    def validate_mac_move_local_to_remote(self, cli_objects, engines, interfaces):
         """
         This method is used to verify mac move from local(vlan) to remote(vxlan)
         :param cli_objects: cli_objects fixture
         :param interfaces: interfaces fixture
-        :param engines: engines fixture
         """
         try:
-            with allure.step('Configure veth pair to simulate host of VXLAN at HA'):
-                self.config_veth_pair_at_ha(cli_objects, VxlanConstants.VETH_NAME_101, VxlanConstants.VETH_PEER_NAME_101, VxlanConstants.VNI_500101_IFACE, self.hb_vlan_101_iface_ip, VxlanConstants.NAME_SPACE_101,
-                                            VxlanConstants.SOURCE_MAC_ADDR_1)
+            with allure.step('Bind {}.40 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500101_IFACE)):
+                cli_objects.ha.vxlan.bind_if_with_bridge(VxlanConstants.VNI_500101_IFACE,
+                                                         '{}.40'.format(interfaces.ha_dut_2))
 
             with allure.step('Validate local MAC learning'):
                 logger.info('Trigger switch local mac learning')
                 self.hb_trigger_local_mac_learning(interfaces)
                 logger.info('Check local mac learning')
-                verify_mac_entry_learned(cli_objects, vlan_id=VxlanConstants.VLAN_101, mac=VxlanConstants.SOURCE_MAC_ADDR_1,
+                verify_mac_entry_learned(cli_objects, vlan_id=VxlanConstants.VLAN_101,
+                                         mac=VxlanConstants.SOURCE_MAC_ADDR_1,
                                          port=interfaces.dut_hb_2)
 
             with allure.step('Validate remote MAC learning by VXLAN'):
-                logger.info('Trigger switch remote mac learning')
-                self.trigger_remote_mac_learning(engines.ha, VxlanConstants.NAME_SPACE_101, self.ha_vni_500101_iface_ip, VxlanConstants.PACKET_NUM_3)
-                logger.info(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HA by EVPN VXLAN - vlan {VxlanConstants.RD_101} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500101}")
+                logger.info('Trigger switch remote mac learning at HA')
+                self.trigger_remote_mac_learning(engines, interfaces.dut_ha_2, 40)
+                logger.info(
+                    f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HA by EVPN VXLAN - \
+                    vlan {VxlanConstants.RD_101} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500101}")
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
-                    (VxlanConstants.RD_101, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip, VxlanConstants.VNI_500101),
+                    (VxlanConstants.RD_101, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip,
+                     VxlanConstants.VNI_500101),
                 ])
 
             with allure.step(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is removed from local MAC table"):
-                verify_mac_entry_not_learned(cli_objects, vlan_id=VxlanConstants.VLAN_101, mac=VxlanConstants.SOURCE_MAC_ADDR_1,
+                verify_mac_entry_not_learned(cli_objects, vlan_id=VxlanConstants.VLAN_101,
+                                             mac=VxlanConstants.SOURCE_MAC_ADDR_1,
                                              port=interfaces.dut_hb_2)
 
         except Exception as err:
             raise AssertionError(err)
         finally:
-            with allure.step(f"Delete veth {VxlanConstants.VETH_NAME_101} and veth peer {VxlanConstants.VETH_PEER_NAME_101}, as well as namespace {VxlanConstants.NAME_SPACE_101} in HA"):
-                cli_objects.ha.vxlan.del_vxlan_veth_ns(VxlanConstants.VETH_PEER_NAME_101, VxlanConstants.NAME_SPACE_101)
+            with allure.step(
+                    'Unbind {}.40 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500101_IFACE)):
+                cli_objects.ha.vxlan.unbind_if_with_bridge(VxlanConstants.VNI_500101_IFACE,
+                                                           '{}.40'.format(interfaces.ha_dut_2))
 
-    def validate_mac_move_remote_to_local(self, cli_objects, interfaces, engines):
+    def validate_mac_move_remote_to_local(self, cli_objects, engines, interfaces):
         """
         This method is used to verify mac move from remote(vxlan) to local(vlan)
         :param cli_objects: cli_objects fixture
-        :param interfaces: interfaces fixture
         :param engines: engines fixture
+        :param interfaces: interfaces fixture
         """
         try:
-            with allure.step('Configure veth pair to simulate host of VXLAN at HA'):
-                self.config_veth_pair_at_ha(cli_objects, VxlanConstants.VETH_NAME_101, VxlanConstants.VETH_PEER_NAME_101, VxlanConstants.VNI_500101_IFACE, self.hb_vlan_101_iface_ip, VxlanConstants.NAME_SPACE_101,
-                                            VxlanConstants.SOURCE_MAC_ADDR_1)
+            with allure.step('Bind {}.40 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500101_IFACE)):
+                cli_objects.ha.vxlan.bind_if_with_bridge(VxlanConstants.VNI_500101_IFACE,
+                                                         '{}.40'.format(interfaces.ha_dut_2))
 
             with allure.step('Validate remote MAC learning by VXLAN'):
-                logger.info('Trigger switch remote mac learning')
-                self.trigger_remote_mac_learning(engines.ha, VxlanConstants.NAME_SPACE_101, self.ha_vni_500101_iface_ip, VxlanConstants.PACKET_NUM_3)
-                logger.info(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HA by EVPN VXLAN - vlan {VxlanConstants.RD_101} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500101}")
+                logger.info('Trigger switch remote mac learning at HA')
+                self.trigger_remote_mac_learning(engines, interfaces.dut_ha_2, 40)
+                logger.info(
+                    f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HA by EVPN VXLAN - \
+                    vlan {VxlanConstants.RD_101} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500101}")
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
-                    (VxlanConstants.RD_101, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip, VxlanConstants.VNI_500101),
+                    (VxlanConstants.RD_101, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip,
+                     VxlanConstants.VNI_500101),
                 ])
 
             with allure.step('Validate local MAC learning'):
                 logger.info('Trigger switch local mac learning')
                 self.hb_trigger_local_mac_learning(interfaces)
                 logger.info('Check local mac learning')
-                verify_mac_entry_learned(cli_objects, vlan_id=VxlanConstants.VLAN_101, mac=VxlanConstants.SOURCE_MAC_ADDR_1,
+                verify_mac_entry_learned(cli_objects, vlan_id=VxlanConstants.VLAN_101,
+                                         mac=VxlanConstants.SOURCE_MAC_ADDR_1,
                                          port=interfaces.dut_hb_2)
 
             with allure.step(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is removed from VXLAN remote mac table"):
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
-                    (VxlanConstants.RD_101, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip, VxlanConstants.VNI_500101),
+                    (VxlanConstants.RD_101, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip,
+                     VxlanConstants.VNI_500101),
                 ], learned=False)
 
         except Exception as err:
             raise AssertionError(err)
         finally:
-            with allure.step(f"Delete veth {VxlanConstants.VETH_NAME_101} and veth peer {VxlanConstants.VETH_PEER_NAME_101}, as well as namespace {VxlanConstants.NAME_SPACE_101} in HA"):
-                cli_objects.ha.vxlan.del_vxlan_veth_ns(VxlanConstants.VETH_PEER_NAME_101, VxlanConstants.NAME_SPACE_101)
+            with allure.step(
+                    'Unbind {}.40 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500101_IFACE)):
+                cli_objects.ha.vxlan.unbind_if_with_bridge(VxlanConstants.VNI_500101_IFACE,
+                                                           '{}.40'.format(interfaces.ha_dut_2))
 
-    def validate_mac_move_remote_to_remote(self, cli_objects, engines):
+    def validate_mac_move_remote_to_remote(self, cli_objects, engines, interfaces):
         """
         This method is used to verify mac move from remote(vxlan) to remote(vxlan)
         :param cli_objects: cli_objects fixture
         :param engines: engines fixture
+        :param engines: interfaces fixture
         """
         try:
-            with allure.step('Configure veth pair to simulate host of VXLAN at HA'):
-                self.config_veth_pair_at_ha(cli_objects, VxlanConstants.VETH_NAME_100, VxlanConstants.VETH_PEER_NAME_100, VxlanConstants.VNI_500100_IFACE, VxlanConstants.VETH_IP_ADDR_1, VxlanConstants.NAME_SPACE_100,
-                                            VxlanConstants.SOURCE_MAC_ADDR_1)
+            with allure.step('Bind {}.40 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500100_IFACE)):
+                cli_objects.ha.vxlan.bind_if_with_bridge(VxlanConstants.VNI_500100_IFACE,
+                                                         '{}.40'.format(interfaces.ha_dut_2))
 
-            with allure.step('Configure veth pair to simulate host of VXLAN at HB'):
-                self.config_veth_pair_at_hb(cli_objects, VxlanConstants.VETH_NAME_100, VxlanConstants.VETH_PEER_NAME_100, VxlanConstants.VNI_500100_IFACE, VxlanConstants.VETH_IP_ADDR_1, VxlanConstants.NAME_SPACE_100,
-                                            VxlanConstants.SOURCE_MAC_ADDR_1)
+            with allure.step('Bind {}.41 with bridge {}'.format(interfaces.hb_dut_2, VxlanConstants.VNI_500100_IFACE)):
+                cli_objects.hb.vxlan.bind_if_with_bridge(VxlanConstants.VNI_500100_IFACE,
+                                                         '{}.41'.format(interfaces.hb_dut_2))
 
             with allure.step('Validate remote MAC learning by VXLAN at HA'):
                 logger.info('Trigger switch remote mac learning at HA')
-                self.trigger_remote_mac_learning(engines.ha, VxlanConstants.NAME_SPACE_100, self.ha_vni_500100_iface_ip, VxlanConstants.PACKET_NUM_3)
-                logger.info(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HA by EVPN VXLAN - vlan {VxlanConstants.RD_100} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500100}")
+                self.trigger_remote_mac_learning(engines, interfaces.dut_ha_2, 40)
+                logger.info(
+                    f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HA by EVPN VXLAN - \
+                    vlan {VxlanConstants.RD_100} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500100}")
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
-                    (VxlanConstants.RD_100, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip, VxlanConstants.VNI_500100),
+                    (VxlanConstants.RD_100, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip,
+                     VxlanConstants.VNI_500100),
                 ])
 
             with allure.step('Validate remote MAC learning by VXLAN at HB'):
                 logger.info('Trigger switch remote mac learning at HB')
-                self.trigger_remote_mac_learning(engines.hb, VxlanConstants.NAME_SPACE_100, self.hb_vni_500100_iface_ip, VxlanConstants.PACKET_NUM_3)
-                logger.info(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HB by EVPN VXLAN - vlan {VxlanConstants.RD_100} - vtep {self.hb_vtep_ip} - vni {VxlanConstants.VNI_500100}")
+                self.trigger_remote_mac_learning(engines, interfaces.dut_hb_2, 41)
+                logger.info(
+                    f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} is learned from remote HB by EVPN VXLAN - \
+                    vlan {VxlanConstants.RD_100} - vtep {self.hb_vtep_ip} - vni {VxlanConstants.VNI_500100}")
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
-                    (VxlanConstants.RD_100, VxlanConstants.SOURCE_MAC_ADDR_1, self.hb_vtep_ip, VxlanConstants.VNI_500100),
+                    (VxlanConstants.RD_100, VxlanConstants.SOURCE_MAC_ADDR_1, self.hb_vtep_ip,
+                     VxlanConstants.VNI_500100),
                 ])
 
-            with allure.step(f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} from HA is removed from VXLAN remote mac table"):
+            with allure.step(
+                    f"Validate MAC {VxlanConstants.SOURCE_MAC_ADDR_1} from HA is removed from VXLAN remote mac table"):
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
-                    (VxlanConstants.RD_100, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip, VxlanConstants.VNI_500100),
+                    (VxlanConstants.RD_100, VxlanConstants.SOURCE_MAC_ADDR_1, self.ha_vtep_ip,
+                     VxlanConstants.VNI_500100),
                 ], learned=False)
 
         except Exception as err:
             raise AssertionError(err)
         finally:
-            with allure.step(f"Delete veth {VxlanConstants.VETH_NAME_101} and veth peer {VxlanConstants.VETH_PEER_NAME_101}, as well as namespace {VxlanConstants.NAME_SPACE_101} in HA and HB"):
-                cli_objects.ha.vxlan.del_vxlan_veth_ns(VxlanConstants.VETH_PEER_NAME_100, VxlanConstants.NAME_SPACE_100)
-                cli_objects.hb.vxlan.del_vxlan_veth_ns(VxlanConstants.VETH_PEER_NAME_100, VxlanConstants.NAME_SPACE_100)
-
-    def config_veth_pair_at_ha(self, cli_objects, veth_name, veth_peer_name, bridge_name, veth_ip, name_space, mac):
-        """
-        This method is used to configure veth pair to simulate host of VXLAN at HA
-        :param cli_objects: cli_objects fixture
-        :param veth_name: veth name
-        :param veth_peer_name: veth peer name
-        :param bridge_name: the bridge to bind veth peer to
-        :param veth_ip: ip address for veth
-        :param name_space: name space to bind veth
-        :param mac: mac address for veth
-        """
-        logger.info(f"Create veth {veth_name} in namespace {name_space} in HA, and bind veth peer {veth_peer_name} to bridge {bridge_name}")
-        cli_objects.ha.vxlan.add_vxlan_veth(name_space, bridge_name, veth_name, veth_peer_name)
-        logger.info(f"Set IP {veth_ip} to HA veth {veth_name} in namespace {name_space}")
-        cli_objects.ha.vxlan.set_veth_ip_addr(name_space, veth_name, veth_ip)
-        logger.info(f"Set MAC {mac} to HA veth {veth_name} in namespace {name_space}")
-        cli_objects.ha.vxlan.set_veth_mac_addr(name_space, veth_name, mac)
-
-    def config_veth_pair_at_hb(self, cli_objects, veth_name, veth_peer_name, bridge_name, veth_ip, name_space, mac):
-        """
-        This method is used to configure veth pair to simulate host of VXLAN at HB
-        :param cli_objects: cli_objects fixture
-        :param veth_name: veth name
-        :param veth_peer_name: veth peer name
-        :param bridge_name: the bridge to bind veth peer to
-        :param veth_ip: ip address for veth
-        :param name_space: name space to bind veth
-        :param mac: mac address for veth
-        """
-        logger.info(f"Create veth {veth_name} in namespace {name_space} in HA, and bind veth peer {veth_peer_name} to bridge {bridge_name}")
-        cli_objects.hb.vxlan.add_vxlan_veth(name_space, bridge_name, veth_name, veth_peer_name)
-        logger.info(f"Set IP {veth_ip} to HA veth {veth_name} in namespace {name_space}")
-        cli_objects.hb.vxlan.set_veth_ip_addr(name_space, veth_name, veth_ip)
-        logger.info(f"Set MAC {mac} to HA veth {veth_name} in namespace {name_space}")
-        cli_objects.hb.vxlan.set_veth_mac_addr(name_space, veth_name, mac)
+            with allure.step(
+                    'Unbind {}.40 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500100_IFACE)):
+                cli_objects.ha.vxlan.unbind_if_with_bridge(VxlanConstants.VNI_500100_IFACE,
+                                                           '{}.40'.format(interfaces.ha_dut_2))
+            with allure.step(
+                    'Unbind {}.41 with bridge {}'.format(interfaces.ha_dut_2, VxlanConstants.VNI_500100_IFACE)):
+                cli_objects.hb.vxlan.unbind_if_with_bridge(VxlanConstants.VNI_500100_IFACE,
+                                                           '{}.41'.format(interfaces.hb_dut_2))
 
     def test_local_mac_handling(self, engines, cli_objects):
         """
@@ -591,8 +634,9 @@ class TestEvpnVxlan:
         """
 
         with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                                                            (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
         with allure.step('Validate evpn type 2 and type 3 routes'):
             self.validate_basic_evpn_type_2_3_route(cli_objects)
@@ -600,7 +644,8 @@ class TestEvpnVxlan:
         # MAC route validation
         with allure.step(f"Validate route received at HA of Static MAC {VxlanConstants.STATIC_MAC_ADDR}"):
             ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
-            cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, VxlanConstants.STATIC_MAC_ADDR.replace('-', ':'), self.dut_loopback_ip, VxlanConstants.RD_101)
+            cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, VxlanConstants.STATIC_MAC_ADDR.replace('-', ':'),
+                                                     self.dut_loopback_ip, VxlanConstants.RD_101)
 
         with allure.step(f"Validate route received at HA of MAC {self.hb_vlan_101_mac}"):
             ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
@@ -614,14 +659,18 @@ class TestEvpnVxlan:
         Test has next steps:
         1. Check VLAN to VNI mapping
         2. Do type 2 and type 3 routes validations
-        3. Check on DUT that MAC address for interface br500100 on HA obtained via BGP and available in vxlan remote MAC table
-        4. Check on DUT that MAC address for interface br500101 on HA obtained via BGP and available in vxlan remote MAC table
-        5. Check on DUT that MAC address for interface br500100 on HB obtained via BGP and available in vxlan remote MAC table
+        3. Check on DUT that MAC address for interface br500100 on HA obtained via
+            BGP and available in vxlan remote MAC table
+        4. Check on DUT that MAC address for interface br500101 on HA obtained via
+            BGP and available in vxlan remote MAC table
+        5. Check on DUT that MAC address for interface br500100 on HB obtained via
+            BGP and available in vxlan remote MAC table
         """
 
         with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                                                            (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
         # VXLAN route validation
         self.validate_basic_evpn_type_2_3_route(cli_objects)
@@ -629,18 +678,21 @@ class TestEvpnVxlan:
         # MAC route validation
         with allure.step(f"Validate MAC route of HA {VxlanConstants.VNI_500100_IFACE} received at DUT"):
             dut_type_2_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_macip()
-            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.ha_br_500100_mac, self.ha_vtep_ip, VxlanConstants.RD_100, self.ha_vni_500100_iface_ip)
+            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.ha_br_500100_mac, self.ha_vtep_ip,
+                                                      VxlanConstants.RD_100, self.ha_vni_500100_iface_ip)
 
         with allure.step(f"Validate MAC route of HA {VxlanConstants.VNI_500101_IFACE} received at DUT"):
             dut_type_2_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_macip()
-            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.ha_br_500101_mac, self.ha_vtep_ip, VxlanConstants.RD_101, self.ha_vni_500101_iface_ip)
+            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.ha_br_500101_mac, self.ha_vtep_ip,
+                                                      VxlanConstants.RD_101, self.ha_vni_500101_iface_ip)
 
         with allure.step(f"Validate MAC route of HB {VxlanConstants.VNI_500100_IFACE} received at DUT"):
             dut_type_2_info = cli_objects.dut.frr.get_l2vpn_evpn_route_type_macip()
-            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.hb_br_500100_mac, self.hb_vtep_ip, VxlanConstants.RD_100, self.hb_vni_500100_iface_ip)
+            cli_objects.dut.frr.validate_type_2_route(dut_type_2_info, self.hb_br_500100_mac, self.hb_vtep_ip,
+                                                      VxlanConstants.RD_100, self.hb_vni_500100_iface_ip)
 
         # Remote MAC learning validation
-        with allure.step(f"Validate MACs are learned from remote HA and HB"):
+        with allure.step("Validate MACs are learned from remote HA and HB"):
             cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
                 (VxlanConstants.RD_100, self.ha_br_500100_mac, self.ha_vtep_ip, VxlanConstants.VNI_500100),
                 (VxlanConstants.RD_101, self.ha_br_500101_mac, self.ha_vtep_ip, VxlanConstants.VNI_500101),
@@ -662,20 +714,21 @@ class TestEvpnVxlan:
         """
 
         with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                                                            (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
         with allure.step('Validate evpn type 2 and type 3 routes'):
             self.validate_basic_evpn_type_2_3_route(cli_objects)
 
         with allure.step('Validate MAC move from local to remote'):
-            self.validate_mac_move_local_to_remote(cli_objects, interfaces, engines)
+            self.validate_mac_move_local_to_remote(cli_objects, engines, interfaces)
 
         with allure.step('Validate MAC move from remote to local'):
-            self.validate_mac_move_remote_to_local(cli_objects, interfaces, engines)
+            self.validate_mac_move_remote_to_local(cli_objects, engines, interfaces)
 
         with allure.step('Validate MAC move from remote to remote'):
-            self.validate_mac_move_remote_to_remote(cli_objects, engines)
+            self.validate_mac_move_remote_to_remote(cli_objects, engines, interfaces)
 
     def test_mac_ip_route_handling(self, engines, cli_objects):
         """
@@ -683,33 +736,44 @@ class TestEvpnVxlan:
 
         Test has next steps:
         1. Check VLAN to VNI mapping
-        2. Check on HA that in tunnel with VNI 500100 via BGP received type-2 route with MAC/IP from interface Vlan100 on HB(100.0.0.1)
-        3. Check on HA that in tunnel with VNI 500101 via BGP received type-2 route with MAC/IP from interface Vlan101 on HB(101.0.0.3)
-        4. Check on HA that in tunnel with VNI 500101 via BGP received type-2 route with MAC/IP from interface Vlan101 on DUT(101.0.0.1)
+        2. Check on HA that in tunnel with VNI 500100 via BGP received type-2 route
+            with MAC/IP from interface Vlan100 on HB(100.0.0.1)
+        3. Check on HA that in tunnel with VNI 500101 via BGP received type-2 route
+            with MAC/IP from interface Vlan101 on HB(101.0.0.3)
+        4. Check on HA that in tunnel with VNI 500101 via BGP received type-2 route
+            with MAC/IP from interface Vlan101 on DUT(101.0.0.1)
 
         :return: raise assertion error in case when test failed
         """
 
         with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                                                            (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
         # VXLAN route validation
         with allure.step('Validate CLI type-2 routes on HA'):
             with allure.step('Send ping from HB to DUT via VLAN 101'):
-                ping_hb_dut_vlan_101 = {'sender': 'hb', 'args': {'interface': self.hb_vlan_101_iface, 'count': VxlanConstants.PACKET_NUM_3,
+                ping_hb_dut_vlan_101 = {'sender': 'hb', 'args': {'interface': self.hb_vlan_101_iface,
+                                                                 'count': VxlanConstants.PACKET_NUM_3,
                                                                  'dst': self.dut_vlan_101_ip}}
                 PingChecker(self.players, ping_hb_dut_vlan_101).run_validation()
             ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
-            logger.info(f"Validate HA received type-2 route with MAC/IP from interface Vlan100 on DUT - {self.dut_mac} - {self.dut_vlan_100_ip}")
+            logger.info(
+                f"Validate HA received type-2 route with MAC/IP from interface Vlan100 on DUT - {self.dut_mac} - \
+                {self.dut_vlan_100_ip}")
             cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.dut_mac, self.dut_loopback_ip,
                                                      VxlanConstants.RD_100, self.dut_vlan_100_ip)
 
-            logger.info(f"Validate HA received type-2 route with MAC/IP from interface Vlan101 on HB - {self.hb_vlan_101_mac} - {self.hb_vlan_101_iface_ip}")
+            logger.info(
+                f"Validate HA received type-2 route with MAC/IP from interface Vlan101 on HB - {self.hb_vlan_101_mac} \
+                 - {self.hb_vlan_101_iface_ip}")
             cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.hb_vlan_101_mac, self.dut_loopback_ip,
                                                      VxlanConstants.RD_101, self.hb_vlan_101_iface_ip)
 
-            logger.info(f"Validate HA received type-2 route with MAC/IP from interface Vlan101 on DUT - {self.dut_mac} - {self.dut_vlan_101_ip}")
+            logger.info(
+                f"Validate HA received type-2 route with MAC/IP from interface Vlan101 on DUT - {self.dut_mac} - \
+                {self.dut_vlan_101_ip}")
             cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.dut_mac, self.dut_loopback_ip,
                                                      VxlanConstants.RD_101, self.dut_vlan_101_ip)
 
@@ -727,41 +791,48 @@ class TestEvpnVxlan:
         """
 
         with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                                                            (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
         with allure.step('Validate evpn type 2 and type 3 routes'):
             self.validate_basic_evpn_type_2_3_route(cli_objects)
 
-        with allure.step(f"Send traffic from HB to HA via VLAN 101 to VNI 500101"):
+        with allure.step("Send traffic from HB to HA via VLAN 101 to VNI 500101"):
             logger.info("Clear vxlan counter")
             cli_objects.dut.vxlan.clear_vxlan_counter()
-            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac, self.ha_br_500101_mac,
+            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac,
+                                                                                self.ha_br_500101_mac,
                                                                                 self.hb_vlan_101_iface_ip,
                                                                                 self.ha_vni_500101_iface_ip)
             logger.info("Send and validate traffic")
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                      sender_intf=self.hb_vlan_101_iface,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=interfaces.ha_dut_1,
                                       receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_SRC_IP_FILTER.format(
                                           VxlanConstants.HEX_500101,
                                           VxlanConstants.HEX_101_0_0_3))
-            logger.info(f"Validate vxlan tx counters")
+            logger.info("Validate vxlan tx counters")
             verify_counter_entry(cli_objects, VxlanConstants.VTEP_NAME_DUT, 'tx', 500)
 
-        with allure.step(f"Send traffic from HA to HB via to VNI 500101"):
+        with allure.step("Send traffic from HA to HB via to VNI 500101"):
             logger.info("Clear vxlan counter")
             cli_objects.dut.vxlan.clear_vxlan_counter()
-            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac, self.hb_vlan_101_mac,
+            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac,
+                                                                                self.hb_vlan_101_mac,
                                                                                 self.ha_vni_500101_iface_ip,
                                                                                 self.hb_vlan_101_iface_ip)
             logger.info("Send and validate traffic")
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HA,
-                                      sender_intf=VxlanConstants.VNI_500101_IFACE, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HB, receiver_intf=self.hb_vlan_101_iface,
+                                      sender_intf=VxlanConstants.VNI_500101_IFACE,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_500, receiver=VxlanConstants.HOST_HB,
+                                      receiver_intf=self.hb_vlan_101_iface,
                                       receiver_filter_format=VxlanConstants.SIMPLE_PACKET_FILTER.format(
                                           self.hb_vlan_101_iface_ip))
-            logger.info(f"Validate vxlan rx counters")
+            logger.info("Validate vxlan rx counters")
             verify_counter_entry(cli_objects, VxlanConstants.VTEP_NAME_DUT, 'rx', 500)
 
     def test_traffic_forwarding_between_tunnels(self, cli_objects):
@@ -775,21 +846,28 @@ class TestEvpnVxlan:
             - Send ping from HB 40.0.0.3 to DUT 40.0.0.1, it's only forwarded in vlan
         """
         with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                                                            (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
         with allure.step('Validate evpn type 2 and type 3 routes'):
             self.validate_basic_evpn_type_2_3_route(cli_objects)
 
-        with allure.step(f"Send ping from HA {self.ha_vni_500100_iface_ip} to HB {self.hb_vni_500100_iface_ip} via VNI {VxlanConstants.VNI_500100} (negative)"):
-            ping_ha_hb_vni_500100 = {'sender': 'ha', 'args': {'interface': VxlanConstants.VNI_500100_IFACE, 'count': VxlanConstants.PACKET_NUM_3,
-                                                              'expected_count': VxlanConstants.PACKET_NUM_0, 'dst': self.hb_vni_500100_iface_ip}}
+        with allure.step(
+                f"Send ping from HA {self.ha_vni_500100_iface_ip} to HB {self.hb_vni_500100_iface_ip} via VNI \
+                {VxlanConstants.VNI_500100} (negative)"):
+            ping_ha_hb_vni_500100 = {'sender': 'ha', 'args': {'interface': VxlanConstants.VNI_500100_IFACE,
+                                                              'count': VxlanConstants.PACKET_NUM_3,
+                                                              'expected_count': VxlanConstants.PACKET_NUM_0,
+                                                              'dst': self.hb_vni_500100_iface_ip}}
             PingChecker(self.players, ping_ha_hb_vni_500100).run_validation()
 
         with allure.step(f"Send ping from Hb {self.hb_vlan_40_ip} to DUT {self.dut_vlan_40_ip} via vlan 40"):
             logger.info("Clear vxlan counter")
             cli_objects.dut.vxlan.clear_vxlan_counter()
-            ping_hb_dut_vlan_40 = {'sender': 'hb', 'args': {'interface': self.hb_vlan_40_iface, 'count': VxlanConstants.PACKET_NUM_3, 'dst': self.dut_vlan_40_ip}}
+            ping_hb_dut_vlan_40 = {'sender': 'hb',
+                                   'args': {'interface': self.hb_vlan_40_iface, 'count': VxlanConstants.PACKET_NUM_3,
+                                            'dst': self.dut_vlan_40_ip}}
             PingChecker(self.players, ping_hb_dut_vlan_40).run_validation()
             logger.info('There should be no packet forwards in vxlan')
             verify_counter_entry(cli_objects, VxlanConstants.VTEP_NAME_DUT, 'rx', 0)
@@ -808,64 +886,81 @@ class TestEvpnVxlan:
             self.validate_basic_evpn_type_2_3_route(cli_objects)
 
         with allure.step('Send Broadcast traffic from HB to HA via VLAN 101 to VNI 500101'):
-            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac, VxlanConstants.BROADCAST_MAC,
+            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac,
+                                                                                VxlanConstants.BROADCAST_MAC,
                                                                                 self.hb_vlan_101_iface_ip,
                                                                                 VxlanConstants.BROADCAST_IP)
             logger.info('Check that Broadcast traffic forwarded to VXLAN tunnels')
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                      sender_intf=self.hb_vlan_101_iface,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=interfaces.ha_dut_1,
                                       receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_DST_IP_FILTER.format(
                                           VxlanConstants.HEX_500101,
                                           VxlanConstants.HEX_255_255_255_255))
             logger.info('Check that Broadcast traffic forwarded from VXLAN tunnels and not forwarded to other tunnels')
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                      sender_intf=self.hb_vlan_101_iface,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=interfaces.ha_dut_1,
                                       receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_DST_IP_FILTER.format(
                                           VxlanConstants.HEX_500100,
                                           VxlanConstants.HEX_255_255_255_255),
                                       receiver_count=VxlanConstants.PACKET_NUM_0)
 
         with allure.step('Send Broadcast traffic from HA to DUT via VNI 500101'):
-            pkt_ha_hb_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac, VxlanConstants.BROADCAST_MAC,
+            pkt_ha_hb_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac,
+                                                                        VxlanConstants.BROADCAST_MAC,
                                                                         self.ha_vni_500101_iface_ip,
                                                                         VxlanConstants.BROADCAST_IP)
             logger.info('Check that Broadcast traffic forwarded to VXLAN tunnels')
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HA,
-                                      sender_intf=VxlanConstants.VNI_500101_IFACE, sender_pkt_format=pkt_ha_hb_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HB, receiver_intf=self.hb_vlan_101_iface,
+                                      sender_intf=VxlanConstants.VNI_500101_IFACE,
+                                      sender_pkt_format=pkt_ha_hb_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HB,
+                                      receiver_intf=self.hb_vlan_101_iface,
                                       receiver_filter_format=VxlanConstants.SIMPLE_PACKET_FILTER.format(
                                           VxlanConstants.BROADCAST_IP))
 
         with allure.step('Send Unknown Unicast traffic from HB to HA via VLAN 101 to VNI 500101'):
-            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac, VxlanConstants.UNKNOWN_UNICAST_MAC,
+            pkt_hb_ha_vlan101_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac,
+                                                                                VxlanConstants.UNKNOWN_UNICAST_MAC,
                                                                                 self.hb_vlan_101_iface_ip,
                                                                                 self.ha_vni_500101_iface_ip)
             logger.info('Check that Unknown Unicast traffic forwarded to VXLAN tunnels')
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                      sender_intf=self.hb_vlan_101_iface,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=interfaces.ha_dut_1,
                                       receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_DST_IP_FILTER.format(
                                           VxlanConstants.HEX_500101,
                                           VxlanConstants.HEX_101_0_0_2))
-            logger.info('Check that Unknown Unicast traffic forwarded from VXLAN tunnels and not forwarded to other tunnels')
+            logger.info(
+                'Check that Unknown Unicast traffic forwarded from VXLAN tunnels and not forwarded to other tunnels')
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                      sender_intf=self.hb_vlan_101_iface,
+                                      sender_pkt_format=pkt_hb_ha_vlan101_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=interfaces.ha_dut_1,
                                       receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_DST_IP_FILTER.format(
                                           VxlanConstants.HEX_500100,
                                           VxlanConstants.HEX_101_0_0_2),
                                       receiver_count=VxlanConstants.PACKET_NUM_0)
 
         with allure.step('Send Unknown Unicast traffic from HA to DUT via VNI 500101'):
-            pkt_ha_hb_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac, VxlanConstants.UNKNOWN_UNICAST_MAC,
+            pkt_ha_hb_vni500101_r = VxlanConstants.SIMPLE_PACKET.format(self.ha_br_500101_mac,
+                                                                        VxlanConstants.UNKNOWN_UNICAST_MAC,
                                                                         self.ha_vni_500101_iface_ip,
                                                                         self.hb_vlan_101_iface_ip)
             logger.info('Check that traffic forwarded to VXLAN tunnels')
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HA,
-                                      sender_intf=VxlanConstants.VNI_500101_IFACE, sender_pkt_format=pkt_ha_hb_vni500101_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HB, receiver_intf=self.hb_vlan_101_iface,
+                                      sender_intf=VxlanConstants.VNI_500101_IFACE,
+                                      sender_pkt_format=pkt_ha_hb_vni500101_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HB,
+                                      receiver_intf=self.hb_vlan_101_iface,
                                       receiver_filter_format=VxlanConstants.SIMPLE_PACKET_FILTER.format(
                                           VxlanConstants.DST_IP_101_0_0_3))
 
@@ -887,7 +982,9 @@ class TestEvpnVxlan:
                 self.validate_basic_evpn_type_2_route(cli_objects)
             with allure.step('Validate vxlan traffic and counters'):
                 self.validate_traffic_and_counters(cli_objects, interfaces)
-            with allure.step(f"Validate MAC {self.ha_br_500101_mac} is learned from EVPN VXLAN - vlan {VxlanConstants.RD_101} - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500101}"):
+            with allure.step(
+                    f"Validate MAC {self.ha_br_500101_mac} is learned from EVPN VXLAN - vlan {VxlanConstants.RD_101} \
+                    - vtep {self.ha_vtep_ip} - vni {VxlanConstants.VNI_500101}"):
                 cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
                     (VxlanConstants.RD_101, self.ha_br_500101_mac, self.ha_vtep_ip, VxlanConstants.VNI_500101),
                 ])
@@ -918,18 +1015,23 @@ class TestEvpnVxlan:
                 with allure.step(f"Validate BGP neighbor {self.ha_dut_1_ip} established"):
                     cli_objects.dut.frr.validate_bgp_neighbor_established(self.ha_dut_1_ip)
                     ha_br_mac = self.get_ha_br_mac(cli_objects, vni)
-                with allure.step(f"Validate MAC {ha_br_mac} is learned from EVPN VXLAN - vlan {vid} - vtep {self.ha_vtep_ip} - vni {vni}"):
+                with allure.step(
+                        f"Validate MAC {ha_br_mac} is learned from EVPN VXLAN - vlan {vid} - vtep {self.ha_vtep_ip} \
+                        - vni {vni}"):
                     cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
                         (vid, ha_br_mac, self.ha_vtep_ip, vni)
                     ])
                 with allure.step(f"Send traffic from HB to HA via VLAN {vid} to VNI {vni}"):
-                    pkt_hb_ha_vid_vni = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac, self.dut_mac,
-                                                                            self.hb_vlan_101_iface_ip,
-                                                                            VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.format(vid % VxlanConstants.IP_GENERATE_SEED))
+                    pkt_hb_ha_vid_vni = VxlanConstants.SIMPLE_PACKET.\
+                        format(self.hb_vlan_101_mac, self.dut_mac,
+                               self.hb_vlan_101_iface_ip,
+                               VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.
+                               format(vid % VxlanConstants.IP_GENERATE_SEED))
                     logger.info(f"Check that traffic forwarded to VXLAN tunnel - VLAN {vid} to VNI {vni}")
                     send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
                                               sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vid_vni,
-                                              sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                              sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA,
+                                              receiver_intf=interfaces.ha_dut_1,
                                               receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_SRC_IP_FILTER.format(
                                                   vni_to_hex_vni(vni),
                                                   VxlanConstants.HEX_101_0_0_3))
@@ -964,18 +1066,23 @@ class TestEvpnVxlan:
                 with allure.step(f"Validate BGP neighbor {self.ha_dut_1_ip} established"):
                     cli_objects.dut.frr.validate_bgp_neighbor_established(self.ha_dut_1_ip)
                     ha_br_mac = self.get_ha_br_mac(cli_objects, vni)
-                with allure.step(f"Validate MAC {ha_br_mac} is learned from EVPN VXLAN - vlan {vid} - vtep {self.ha_vtep_ip} - vni {vni}"):
+                with allure.step(
+                        f"Validate MAC {ha_br_mac} is learned from EVPN VXLAN - vlan {vid} - vtep {self.ha_vtep_ip} \
+                        - vni {vni}"):
                     cli_objects.dut.vxlan.check_vxlan_remotemac(vlan_mac_vtep_vni_check_list=[
                         (vid, ha_br_mac, self.ha_vtep_ip, vni)
                     ])
                 with allure.step(f"Send traffic from HB to HA via VLAN {vid} to VNI {vni}"):
-                    pkt_hb_ha_vid_vni = VxlanConstants.SIMPLE_PACKET.format(self.hb_vlan_101_mac, self.dut_mac,
-                                                                            self.hb_vlan_101_iface_ip,
-                                                                            VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.format(vid % VxlanConstants.IP_GENERATE_SEED))
+                    pkt_hb_ha_vid_vni = VxlanConstants.SIMPLE_PACKET.\
+                        format(self.hb_vlan_101_mac, self.dut_mac,
+                               self.hb_vlan_101_iface_ip,
+                               VxlanConstants.VM_VNI_INTF_ADDRESS_TEMPLATE.
+                               format(vid % VxlanConstants.IP_GENERATE_SEED))
                     logger.info(f"Check that traffic forwarded to VXLAN tunnels - VLAN {vid} to VNI {vni}")
                     send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
                                               sender_intf=self.hb_vlan_101_iface, sender_pkt_format=pkt_hb_ha_vid_vni,
-                                              sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA, receiver_intf=interfaces.ha_dut_1,
+                                              sender_count=VxlanConstants.PACKET_NUM_3, receiver=VxlanConstants.HOST_HA,
+                                              receiver_intf=interfaces.ha_dut_1,
                                               receiver_filter_format=VxlanConstants.TCPDUMP_VXLAN_SRC_IP_FILTER.format(
                                                   vni_to_hex_vni(vni),
                                                   VxlanConstants.HEX_101_0_0_3))
@@ -1058,7 +1165,8 @@ class TestEvpnVxlan:
             config vxlan map_range del <vtepname> <vlanstart> <vlanend> <vnistart>
             config vrf add_vrf_vni_map <vrf-name> <vni>       # need to work with Type-5 route in the future
             config vrf del_vrf_vni_map <vrf-name>             # need to work with Type-5 route in the future
-            config neigh-suppress vlan <vlan-id> <"on"/"off"> # Both community and nvida did not implemented this function
+            config neigh-suppress vlan <vlan-id> <"on"/"off"> # Both community and nvida did not implemented
+                                                                this function
             show vxlan interface
             show vxlan vlanvnimap
             show vxlan vrfvnimap       # need to work with Type-5 route in the future
@@ -1076,10 +1184,15 @@ class TestEvpnVxlan:
                 (VxlanConstants.VLAN_100, self.hb_vtep_ip, VxlanConstants.VNI_500100),
             ], all=True)
         with allure.step('Reconfigure VXLAN by VXLAN range map command'):
-            cli_objects.dut.vxlan.del_vtep_mapping_range_to_vlan_vni(VxlanConstants.VTEP_NAME_DUT, VxlanConstants.VLAN_100, VxlanConstants.VLAN_101, VxlanConstants.VNI_500100)
-            cli_objects.dut.vxlan.add_vtep_mapping_range_to_vlan_vni(VxlanConstants.VTEP_NAME_DUT, VxlanConstants.VLAN_100, VxlanConstants.VLAN_101, VxlanConstants.VNI_500100)
+            cli_objects.dut.vxlan.del_vtep_mapping_range_to_vlan_vni(VxlanConstants.VTEP_NAME_DUT,
+                                                                     VxlanConstants.VLAN_100, VxlanConstants.VLAN_101,
+                                                                     VxlanConstants.VNI_500100)
+            cli_objects.dut.vxlan.add_vtep_mapping_range_to_vlan_vni(VxlanConstants.VTEP_NAME_DUT,
+                                                                     VxlanConstants.VLAN_100, VxlanConstants.VLAN_101,
+                                                                     VxlanConstants.VNI_500100)
         with allure.step('Vadidate VXLAN interface information'):
-            cli_objects.dut.vxlan.check_vxlan_interface_info(VxlanConstants.EVPN_NVO, VxlanConstants.VTEP_NAME_DUT, self.dut_loopback_ip, VxlanConstants.VTEP_INTERFACE)
+            cli_objects.dut.vxlan.check_vxlan_interface_info(VxlanConstants.EVPN_NVO, VxlanConstants.VTEP_NAME_DUT,
+                                                             self.dut_loopback_ip, VxlanConstants.VTEP_INTERFACE)
         with allure.step('Vadidate VXLAN tunnel'):
             self.validate_vxlan_tunnel(cli_objects)
         with allure.step('Validate VXLAN remote vni - using vtep ip option'):

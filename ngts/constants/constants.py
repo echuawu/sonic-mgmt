@@ -36,7 +36,8 @@ class SonicConst:
     DAEMONS_DICT_BF = {'swss': [],
                        'syncd': [],
                        'bgp': [],
-                       'pmon': ['pcied', 'rsyslogd', 'supervisor-proc-exit-listener', 'syseepromd', 'thermalctld', 'xcvrd'],
+                       'pmon': ['pcied', 'rsyslogd', 'supervisor-proc-exit-listener', 'syseepromd', 'thermalctld',
+                                'xcvrd'],
                        'lldp': []}
 
     CPU_RAM_CHECK_PROCESS_LIST = ['sx_sdk', 'syncd', 'redis-server', 'snmpd', 'zebra', 'bgpd', 'bgpcfgd', 'bgpmon',
@@ -53,7 +54,8 @@ class SonicConst:
 
     BREAKOUT_MODE_WITH_DIFF_LANE_SUPPORTED_SPEEDS_REGEX = r"\dx\d+G\(\d\)\+\dx\d+G\(\d\)"  # i.e, 2x25G(2)+1x50G(2)
 
-    BREAKOUT_MODE_WITH_ADDITIONAL_SUPPORTED_SPEEDS_REGEX = r"(\dx\d+G\[[\d+G,]+\]|\dx\d+\[[\d,]+\])"  # 1x100G[50G,25G,1G]
+    # 1x100G[50G,25G,1G]
+    BREAKOUT_MODE_WITH_ADDITIONAL_SUPPORTED_SPEEDS_REGEX = r"(\dx\d+G\[[\d+G,]+\]|\dx\d+\[[\d,]+\])"
     BREAKOUT_MODE_WITHOUT_ADDITIONAL_SUPPORTED_SPEEDS_REGEX = r"\dx\d+G"  # 2x50G
 
     BREAKOUT_MODES_REGEX = "{}|{}|{}".format(BREAKOUT_MODE_WITH_DIFF_LANE_SUPPORTED_SPEEDS_REGEX,
@@ -1005,10 +1007,13 @@ class VxlanConstants:
     VTEP_NAME_DUT = 'vtep101032'
     VTEP_INTERFACE = 'Loopback0'
     SIMPLE_PACKET = 'Ether(src="{}",dst="{}")/IP(src="{}",dst="{}")/UDP()'
+    SIMPLE_DOT1Q_PACKET = 'Ether(src="{}",dst="{}")/Dot1Q(vlan={})/IP(src="{}",dst="{}")/UDP()'
     ECMP_SIMPLE_PACKET = 'Ether(src="{}",dst="{}")/IP(src={},dst="{}")/UDP()'
     SIMPLE_PACKET_FILTER = 'udp and dst host {}'
-    TCPDUMP_VXLAN_SRC_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[76:4]={}'  # filter VXLAN packet with vni and encapsulated src IP
-    TCPDUMP_VXLAN_DST_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[80:4]={}'  # filter VXLAN packet with vni and encapsulated dst IP
+    # filter VXLAN packet with vni and encapsulated src IP
+    TCPDUMP_VXLAN_SRC_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[76:4]={}'
+    # filter VXLAN packet with vni and encapsulated dst IP
+    TCPDUMP_VXLAN_DST_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[80:4]={}'
     HEX_UNKNOWN_SRC_IP = '0x01000003'
     HEX_100_0_0_2 = '0x64000002'  # hex value for 100.0.0.2
     HEX_100_0_0_3 = '0x64000003'  # hex value for 100.0.0.3

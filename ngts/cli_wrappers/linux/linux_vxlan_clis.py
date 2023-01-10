@@ -138,3 +138,21 @@ class LinuxVxlanCli(VxlanCliCommon):
         self.engine.run_cmd(f"ip link set dev {if_name} up")
         # Add 2 seconds for FRR BGP to detect the port flap and send evpn vxlan mac route
         time.sleep(2)
+
+    def bind_if_with_bridge(self, bridge_name, interface):
+        """
+        This method is used to bind interface to a bridge
+        :param bridge_name: the bridge name
+        :param interface: interface name
+        """
+        bind_veth_peer_with_bridge = f"brctl addif {bridge_name} {interface}"
+        self.engine.run_cmd(bind_veth_peer_with_bridge)
+
+    def unbind_if_with_bridge(self, bridge_name, interface):
+        """
+        This method is used to unbind interface with a bridge
+        :param bridge_name: the bridge name
+        :param interface: interface name
+        """
+        unbind_veth_peer_with_bridge = f"brctl delif {bridge_name} {interface}"
+        self.engine.run_cmd(unbind_veth_peer_with_bridge)
