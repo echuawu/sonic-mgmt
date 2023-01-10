@@ -19,13 +19,6 @@ from infra.tools.validations.traffic_validations.ping.send import ping_till_aliv
 
 logger = logging.getLogger(__name__)
 
-pytestmark = [
-    pytest.mark.topology('any'),
-    pytest.mark.sanity_check(skip_sanity=True),
-    pytest.mark.disable_loganalyzer,
-    pytest.mark.skip_check_dut_health,
-]
-
 
 @pytest.mark.checklist
 @pytest.mark.secure_boot
