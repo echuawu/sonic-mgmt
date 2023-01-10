@@ -320,6 +320,11 @@ class IbConsts:
     SIGNAL_DEGRADE_ACTION_SHUTDOWN = "shutdown"
     SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN = "no-shutdown"
     SIGNAL_DEGRADE = "signal-degrade"
+    DEVICE_ASIC_PREFIX = 'ASIC'
+    DEVICE_SYSTEM = 'SYSTEM'
+    DEVICE_ASIC_LIST = ['guid', 'lid', 'subnet', 'type']
+    DEVICE_SYSTEM_LIST = ['guid']
+    GUID_FORMAT = "[0-9a-f]{2}([:])[0-9a-f]{2}(\\1[0-9a-f]{2}){6}$"
 
 
 class ImageConsts:

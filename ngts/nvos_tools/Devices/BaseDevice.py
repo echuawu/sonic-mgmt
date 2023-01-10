@@ -2,7 +2,7 @@ import re
 import logging
 from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import SystemConsts
 import time
@@ -299,6 +299,8 @@ class BaseSwitch(BaseDevice, ABC):
 class GorillaSwitch(BaseSwitch):
     GORILLA_IB_PORT_NUM = 64
     SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'Quantum2'
+    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
 
     def __init__(self):
         BaseSwitch.__init__(self)
@@ -327,6 +329,8 @@ class GorillaSwitch(BaseSwitch):
 class JaguarSwitch(BaseSwitch):
     JAGUAR_IB_PORT_NUM = 40
     SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'Quantum'
+    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
 
     def __init__(self):
         BaseSwitch.__init__(self)
