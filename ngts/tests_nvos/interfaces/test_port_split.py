@@ -124,8 +124,9 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
             child_port.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                       ask_for_confirmation=True).verify_result(False)
             NvueGeneralCli.detach_config(TestToolkit.engines.dut)
-        finally:
-            child_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Unset parrent port"):
+        child_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result(False)
 
 
 @pytest.mark.ib_interfaces

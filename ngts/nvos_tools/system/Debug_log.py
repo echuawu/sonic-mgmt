@@ -41,7 +41,7 @@ class DebugLog(BaseComponent):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_write_to_debug_logs,
                                                    TestToolkit.engines.dut).get_returned_value()
 
-    def rotate_debug_logs(self):
+    def rotate_logs(self):
         with allure.step('Rotate debug-logs'):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_rotate_debug_logs,
                                                    TestToolkit.engines.dut).get_returned_value()
