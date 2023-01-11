@@ -2,6 +2,7 @@ import logging
 import pytest
 import allure
 import random
+import time
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -87,9 +88,11 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+            port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
+                                                  logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
     with allure.step("Run traffic"):
+        time.sleep(5)
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step('Change adaptive-routing-groups, check changes and traffic'):
@@ -112,9 +115,11 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
         with allure.step("Start OpenSM and check traffic port up"):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
             for port in active_ports:
-                port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+                port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
+                                                      logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
         with allure.step("Run traffic"):
+            time.sleep(5)
             Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step('Disable adaptive routing'):
@@ -141,9 +146,11 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
         with allure.step("Start OpenSM and check traffic port up"):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
             for port in active_ports:
-                port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+                port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
+                                                      logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
         with allure.step("Run traffic"):
+            time.sleep(5)
             Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
 
