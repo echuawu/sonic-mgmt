@@ -6,7 +6,7 @@ Script doing next:
  - Get info about applications WJH/LCM
  - Create HTML with next content:
     - Email header
-    - Info about apps(WJH/LCM) - if available
+    - Info about apps(WJH/DoRoCe) - if available
     - Info about PRs and issues - if available
  - Write HTML file
 """
@@ -19,18 +19,20 @@ requests_imported = False
 urllib_imported = False
 try:
     import requests
+
     requests_imported = True
 except ImportError:
     import urllib
+
     urllib_imported = True
 
 # Gen env variables
 build_id = os.environ['BUILD_ID']
 
 wjh_ver = os.environ.get('WJH_VER')
-lcm_ver = os.environ.get('LCM_VER')
+doroce_ver = os.environ.get('DOROCE_VER')
 wjh_included_in_image = False
-lcm_included_in_image = False
+doroce_included_in_image = False
 
 included_prs = os.environ.get('INCLUDED_PRS')
 not_included_prs = os.environ.get('NOT_INCLUDED_PRS')
@@ -38,16 +40,16 @@ fixed_issues = os.environ.get('FIXED_ISSUES')
 known_issues = os.environ.get('KNOWN_ISSUES')
 
 
-def get_apps_info_from_build_params(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image):
+def get_apps_info_from_build_params(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image):
     """
-    Get info about WJH/LCM from build parameters
+    Get info about WJH/DoRoCe from build parameters
     :param wjh_ver: wjh version
     :param wjh_included_in_image: True/False
-    :param lcm_ver: lcm version
-    :param lcm_included_in_image: True/False
-    :return: wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image
+    :param doroce_ver: doroce version
+    :param doroce_included_in_image: True/False
+    :return: wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image
     """
-    print('Getting WJH/LCM versions info from orignal build job "sonic_build" build id {}'.format(build_id))
+    print('Getting WJH/DoRoCe versions info from orignal build job "sonic_build" build id {}'.format(build_id))
     api_url = 'http://jenkins-fit81-sws.mellanox.com/job/sonic_build/{}/api/json'.format(build_id)
     response = {}
     if requests_imported:
@@ -62,14 +64,14 @@ def get_apps_info_from_build_params(wjh_ver, wjh_included_in_image, lcm_ver, lcm
             wjh_ver, wjh_included_in_image = get_application_version_info_from_build_params(build_params,
                                                                                             app_param_name='WJH_VERSION',
                                                                                             app_ver=wjh_ver)
-            lcm_ver, lcm_included_in_image = get_application_version_info_from_build_params(build_params,
-                                                                                            app_param_name='LCM_VERSION',
-                                                                                            app_ver=lcm_ver)
+            doroce_ver, doroce_included_in_image = get_application_version_info_from_build_params(build_params,
+                                                                                            app_param_name='DOROCE_VERSION',
+                                                                                            app_ver=doroce_ver)
 
     print('WJH versions is: {}, is included in image: {}'.format(wjh_ver, wjh_included_in_image))
-    print('LCM versions is: {}, is included in image: {}'.format(lcm_ver, lcm_included_in_image))
+    print('DoRoCe versions is: {}, is included in image: {}'.format(doroce_ver, doroce_included_in_image))
 
-    return wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image
+    return wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image
 
 
 def get_application_version_info_from_build_params(build_params, app_param_name, app_ver, app_included_in_image=False):
@@ -110,17 +112,17 @@ def build_app_info_email_body(app, version, is_included):
     return app_info
 
 
-def build_email_info_about_apps(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image):
+def build_email_info_about_apps(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image):
     """
-    Add to email info about apps(WJH/LCM)
+    Add to email info about apps(WJH/DoRoCe)
     :param wjh_ver: WJH ver
     :param wjh_included_in_image: True/False
-    :param lcm_ver: LCM ver
-    :param lcm_included_in_image: True/False
+    :param doroce_ver: DoRoCe ver
+    :param doroce_included_in_image: True/False
     :return string(html)
     """
     email_body = ''
-    if wjh_ver or lcm_ver:
+    if wjh_ver or doroce_ver:
         wjh_lcp_header = '<table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">' \
                          '<tbody>' \
                          '<tr style="height: 18px; background-color: #777; color: white; font-weight: bold;">' \
@@ -134,13 +136,13 @@ def build_email_info_about_apps(wjh_ver, wjh_included_in_image, lcm_ver, lcm_inc
             wjh_info = build_app_info_email_body(app='sonic-wjh', version=wjh_ver, is_included=wjh_included_in_image)
             email_body += wjh_info
 
-        if lcm_ver:
-            lcm_info = build_app_info_email_body(app='sonic-lcm', version=lcm_ver, is_included=lcm_included_in_image)
-            email_body += lcm_info
+        if doroce_ver:
+            doroce_info = build_app_info_email_body(app='sonic-doroce', version=doroce_ver, is_included=doroce_included_in_image)
+            email_body += doroce_info
 
-        wjh_lcm_end = '</tbody>' \
+        wjh_doroce_end = '</tbody>' \
                       '</table>'
-        email_body += wjh_lcm_end
+        email_body += wjh_doroce_end
     return email_body
 
 
@@ -215,9 +217,8 @@ def build_known_issues_email_body(issues_list):
     return build_extended_email_body(title, issues_list)
 
 
-def create_email(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image, included_prs, not_included_prs,
+def create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image, included_prs, not_included_prs,
                  fixed_issues, known_issues):
-
     email_body = ''
 
     email_header = '<p style="font-size:14px">Hi All,</p>' \
@@ -225,7 +226,7 @@ def create_email(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image,
 
     email_body += email_header
 
-    email_body += build_email_info_about_apps(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image)
+    email_body += build_email_info_about_apps(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image)
 
     if included_prs:
         email_body += build_included_prs_email_body(included_prs.splitlines())
@@ -244,11 +245,10 @@ def create_email(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image,
 
 
 if __name__ == "__main__":
-
-    wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image = get_apps_info_from_build_params(wjh_ver,
+    wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image = get_apps_info_from_build_params(wjh_ver,
                                                                                                      wjh_included_in_image,
-                                                                                                     lcm_ver,
-                                                                                                     lcm_included_in_image)
+                                                                                                     doroce_ver,
+                                                                                                     doroce_included_in_image)
 
-    create_email(wjh_ver, wjh_included_in_image, lcm_ver, lcm_included_in_image,
+    create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image,
                  included_prs, not_included_prs, fixed_issues, known_issues)
