@@ -483,7 +483,7 @@ def test_rsyslog_format(engines):
 
         with allure.step("Set welf format and validate"):
             logging.info("Set welf format and validate")
-            system.syslog.set_format(SyslogConsts.WELF, apply=True)
+            system.syslog.format.set(SyslogConsts.WELF, apply=True)
             expected_syslog_dictionary[SyslogConsts.FORMAT] = {SyslogConsts.WELF: {}}
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF:
@@ -540,8 +540,8 @@ def test_rsyslog_bad_params():
         # TODO change when bug 3317235 will be fixed
         # with allure.step("Configure and validate format"):
             # logging.info("Configure and validate format")
-            # system.syslog.set_format("",expected_str=INCOMPLETE_COMMAND)
-            # system.syslog.set_format(rand_str, expected_str=ERROR)
+            # system.syslog.format.set("",expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.format.set(rand_str, expected_str=ERROR)
 
     with allure.step("Specific syslog server commands"):
         logging.info("Specific syslog server commands")
