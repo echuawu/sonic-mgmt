@@ -350,7 +350,7 @@ class SyslogConsts:
     PROTOCOL = 'protocol'
     STANDARD = 'standard'
     WELF = 'welf'
-    DEFAULT_PORT = '514'
+    DEFAULT_PORT = 514
     MODULE_LINE = "module(load=\"im{protocol}\")"
     PORT_LINE = "input(type=\"im{protocol}\" port=\"{port}\")"
     RSYSLOG_CONF_FILE = '/etc/rsyslog.conf'
@@ -359,9 +359,16 @@ class SyslogConsts:
 class SyslogSeverityLevels:
     NONE = 'none'
     CRIT = 'crit'
+    CRITICAL = 'critical'
     ERROR = 'error'
     WARN = 'warn'
     NOTICE = 'notice'
     INFO = 'info'
     DEBUG = 'debug'
-    SEVERITY_LEVEL_LIST = [DEBUG, INFO, NOTICE, WARN, ERROR, CRIT]
+    SEVERITY_LEVEL_LIST = [DEBUG, INFO, NOTICE, WARN, ERROR, CRITICAL]
+    SEVERITY_LEVEL_DICT = {DEBUG: DEBUG,   # key : severity level to configure, value: priority level to send msg, and show commands
+                           INFO: INFO,
+                           NOTICE: NOTICE,
+                           WARN: WARN,
+                           ERROR: ERROR,
+                           CRITICAL: CRIT}

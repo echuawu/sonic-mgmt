@@ -25,4 +25,4 @@ class OpenApiBaseCli:
     def unset(engine, resource_path, op_param=""):
         logging.info("Running DELETE method on dut using openApi for {}".format(resource_path))
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
-                                                   OpenApiReqType.DELETE, engine.ip, resource_path, op_param)
+                                                   OpenApiReqType.DELETE, engine.ip, resource_path, op_param, None)

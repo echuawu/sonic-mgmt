@@ -40,7 +40,7 @@ def test_rsyslog_positive_minimal_flow(engines):
 
     with allure.step("Configure remote syslog server {}".format(remote_server_ip)):
         logging.info("Configure remote syslog server {}".format(remote_server_ip))
-        system.syslog.set_server(remote_server_ip, apply=True)
+        system.syslog.servers.set_server(remote_server_ip, apply=True)
 
     try:
         with allure.step("Validate show commands"):
@@ -48,15 +48,15 @@ def test_rsyslog_positive_minimal_flow(engines):
             expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
             expected_syslog_dictionary = create_syslog_output_dictionary(server_dict={SyslogConsts.SERVER: expected_server_dictionary})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.verify_show_servers_list([remote_server_ip])
-            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            system.syslog.servers.verify_show_servers_list([remote_server_ip])
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
 
         random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
         send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
     finally:
         with allure.step("Cleanup syslog configurations"):
             logging.info("Cleanup syslog configurations")
-            system.syslog.unset_server(apply=True)
+            system.syslog.servers.unset(apply=True)
 
 
 @pytest.mark.system
@@ -80,8 +80,8 @@ def test_rsyslog_configurations():
 
     with allure.step("Configure remote syslog servers"):
         logging.info("Configure remote syslog servers")
-        system.syslog.set_server(server_a, apply=False)
-        system.syslog.set_server(server_b, apply=True)
+        system.syslog.servers.set_server(server_a, apply=True)
+        system.syslog.servers.set_server(server_b, apply=True)
 
     try:
         with allure.step("Validate show commands"):
@@ -91,8 +91,8 @@ def test_rsyslog_configurations():
             expected_syslog_dictionary = create_syslog_output_dictionary(
                 server_dict={SyslogConsts.SERVER: expected_server_dictionary})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.verify_show_servers_list([server_a, server_b])
-            system.syslog.servers[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+            system.syslog.servers.verify_show_servers_list([server_a, server_b])
+            system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
         with allure.step("Set global trap and Validate"):
             logging.info("Set global trap and Validate")
@@ -100,38 +100,38 @@ def test_rsyslog_configurations():
             system.syslog.set_trap(severity_level, apply=True)
             expected_syslog_dictionary.update({SyslogConsts.TRAP: severity_level})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.servers[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+            system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
         with allure.step("Unset {} and Validate".format(server_a)):
             logging.info("Unset {} and Validate".format(server_a))
-            system.syslog.unset_server(server_a, apply=True)
+            system.syslog.servers.unset_server(server_a, apply=True)
             expected_syslog_dictionary[SyslogConsts.SERVER].pop(server_a)
-            system.syslog.verify_show_servers_list([server_b])
+            system.syslog.servers.verify_show_servers_list([server_b])
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            server_list = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.show_server()).get_returned_value()
+            server_list = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.servers.show()).get_returned_value()
             assert server_a not in server_list, "Did not expect to see {} in the list of servers".format(server_a)
 
         with allure.step("Unset server and Validate"):
             logging.info("Unset server and Validate")
-            system.syslog.unset_server(apply=True)
+            system.syslog.servers.unset(apply=True)
             expected_syslog_dictionary[SyslogConsts.SERVER].pop(server_b)
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            server_list = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.show_server()).get_returned_value()
+            server_list = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.servers.show()).get_returned_value()
             assert server_b not in server_list, "Did not expect to see {} in the list of servers".format(server_b)
 
         with allure.step("Configure remote syslog server and validate unset syslog"):
             logging.info("Configure remote syslog server and validate unset syslog")
-            system.syslog.set_server(server_a, apply=True)
+            system.syslog.servers.set_server(server_a, apply=True)
             expected_server_dictionary = create_remote_server_dictionary(server_a)
             expected_syslog_dictionary.update({SyslogConsts.SERVER: expected_server_dictionary})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.verify_show_servers_list([server_a])
+            system.syslog.servers.verify_show_servers_list([server_a])
             system.syslog.unset(apply=True)
             expected_syslog_dictionary[SyslogConsts.SERVER].pop(server_a)
             expected_syslog_dictionary.update({SyslogConsts.TRAP: SyslogSeverityLevels.NOTICE})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             server_list = OutputParsingTool.parse_json_str_to_dictionary(
-                system.syslog.show_server()).get_returned_value()
+                system.syslog.servers.show()).get_returned_value()
             assert server_a not in server_list, "Did not expect to see {} in the list of servers".format(server_a)
 
     finally:
@@ -164,7 +164,7 @@ def test_rsyslog_server_severity_levels(engines):
 
     with allure.step("Configure remote syslog server {}".format(remote_server_ip)):
         logging.info("Configure remote syslog server {}".format(remote_server_ip))
-        server = system.syslog.set_server(remote_server_ip, apply=True)
+        server = system.syslog.servers.set_server(remote_server_ip, apply=True)
 
     try:
         with allure.step("Validate show commands"):
@@ -213,32 +213,32 @@ def test_rsyslog_port(engines):
     remote_server_engine = engines[NvosConst.SONIC_MGMT]
     remote_server_ip = remote_server_engine.ip
     system = System()
-    tmp_port = '500'    # in the system ports range
+    tmp_port = 500    # in the system ports range
 
     with allure.step("Configure remote syslog server {}".format(remote_server_ip)):
         logging.info("Configure remote syslog server {}".format(remote_server_ip))
-        system.syslog.set_server(remote_server_ip, apply=True)
+        system.syslog.servers.set_server(remote_server_ip, apply=True)
 
     try:
         with allure.step("Validate show commands and send msg"):
             logging.info("Validate show commands and send msg")
             expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
-            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
             random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
             send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
 
         with allure.step("Change rsyslog port to non default port"):
             logging.info("Change rsyslog port to non default port")
-            config_and_verify_rsyslog_port(system.syslog.servers[remote_server_ip], remote_server_engine,
+            config_and_verify_rsyslog_port(system.syslog.servers.servers_dict[remote_server_ip], remote_server_engine,
                                            remote_server_ip, SyslogConsts.DEFAULT_PORT, tmp_port)
-            config_and_verify_rsyslog_port(system.syslog.servers[remote_server_ip], remote_server_engine,
-                                           remote_server_ip, tmp_port, '1500')
-            tmp_port = '1500'   # out of system port range
+            config_and_verify_rsyslog_port(system.syslog.servers.servers_dict[remote_server_ip], remote_server_engine,
+                                           remote_server_ip, tmp_port, 1500)
+            tmp_port = 1500   # out of system port range
 
         with allure.step("Change back rsyslog port to default port, just on switch"):
             logging.info("Change back rsyslog port to default port, just on switch")
-            system.syslog.servers[remote_server_ip].set_port(SyslogConsts.DEFAULT_PORT, apply=True)
-            system.syslog.servers[remote_server_ip].verify_show_server_output({SyslogConsts.PORT: SyslogConsts.DEFAULT_PORT})
+            system.syslog.servers.servers_dict[remote_server_ip].unset_port(apply=True)
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output({SyslogConsts.PORT: str(SyslogConsts.DEFAULT_PORT)})
             random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
             send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_didnt_received=True)
 
@@ -281,17 +281,17 @@ def test_rsyslog_protocol(engines):
 
     with allure.step("Configure remote syslog server {}".format(remote_server_ip)):
         logging.info("Configure remote syslog server {}".format(remote_server_ip))
-        system.syslog.set_server(remote_server_ip, apply=True)
+        system.syslog.servers.set_server(remote_server_ip, apply=True)
 
     try:
         with allure.step("Validate show commands"):
             logging.info("Validate show commands")
             expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
-            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
 
-        config_and_verify_rsyslog_protocol(system.syslog.servers[remote_server_ip], remote_server_engine,
+        config_and_verify_rsyslog_protocol(system.syslog.servers.servers_dict[remote_server_ip], remote_server_engine,
                                            remote_server_ip, 'udp')
-        config_and_verify_rsyslog_protocol(system.syslog.servers[remote_server_ip], remote_server_engine,
+        config_and_verify_rsyslog_protocol(system.syslog.servers.servers_dict[remote_server_ip], remote_server_engine,
                                            remote_server_ip, 'tcp')
 
         with allure.step("Disconnect and Reconnect to server"):
@@ -313,8 +313,8 @@ def test_rsyslog_protocol(engines):
 
             with allure.step("Unset syslog server protocol"):
                 logging.info("Unset syslog server protocol")
-                system.syslog.servers[remote_server_ip].unset_protocol(apply=True)
-                system.syslog.servers[remote_server_ip].verify_show_server_output({SyslogConsts.PROTOCOL: 'udp'})
+                system.syslog.servers.servers_dict[remote_server_ip].unset_protocol(apply=True)
+                system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output({SyslogConsts.PROTOCOL: 'udp'})
 
     finally:
         with allure.step("Cleanup syslog configurations"):
@@ -344,12 +344,12 @@ def test_rsyslog_filter(engines):
     try:
         with allure.step("Configure remote syslog server {} with exclude filter and validate".format(remote_server_ip)):
             logging.info("Configure remote syslog server {} with exclude filter and validate".format(remote_server_ip))
-            system.syslog.set_server(remote_server_ip, apply=True)
+            system.syslog.servers.set_server(remote_server_ip, apply=True)
             exclude_regex = "a+"
-            system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.EXCLUDE, exclude_regex, apply=True)
+            system.syslog.servers.servers_dict[remote_server_ip].set_filter(SyslogConsts.EXCLUDE, exclude_regex, apply=True)
             expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
             expected_server_dictionary[remote_server_ip].update({SyslogConsts.FILTER: {SyslogConsts.EXCLUDE: exclude_regex}})
-            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
 
             with allure.step("Send message with the exclude filter regex,\n"
                              "expect message not to be recieved over the remote server"):
@@ -377,10 +377,10 @@ def test_rsyslog_filter(engines):
             with allure.step("Configure long regex for the exclude filter and validate"):
                 logging.info("Configure long regex for the exclude filter and validate")
                 long_exclude_regex = RandomizationTool.get_random_string(200, ascii_letters=string.digits + string.ascii_letters)
-                system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.EXCLUDE, long_exclude_regex, apply=True)
+                system.syslog.servers.servers_dict[remote_server_ip].set_filter(SyslogConsts.EXCLUDE, long_exclude_regex, apply=True)
                 expected_server_dictionary[remote_server_ip].update(
                     {SyslogConsts.FILTER: {SyslogConsts.EXCLUDE: long_exclude_regex}})
-                system.syslog.servers[remote_server_ip].verify_show_server_output(
+                system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(
                     expected_server_dictionary[remote_server_ip])
                 with allure.step("Send message without the exclude filter regex,\n"
                                  "expect message to be recieved over the remote server"):
@@ -392,9 +392,9 @@ def test_rsyslog_filter(engines):
         with allure.step("Configure remote syslog server {} with include filter and validate".format(remote_server_ip)):
             logging.info("Configure remote syslog server {} with include filter and validate".format(remote_server_ip))
             include_regex = "b+"
-            system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.INCLUDE, include_regex, apply=True)
+            system.syslog.servers.servers_dict[remote_server_ip].set_filter(SyslogConsts.INCLUDE, include_regex, apply=True)
             expected_server_dictionary[remote_server_ip].update({SyslogConsts.FILTER: {SyslogConsts.INCLUDE: include_regex}})
-            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
 
             with allure.step("Send message without the include filter regex,\n"
                              "expect message not to be recieved over the remote server"):
@@ -422,10 +422,10 @@ def test_rsyslog_filter(engines):
             with allure.step("Configure long regex for the include filter and validate"):
                 logging.info("Configure long regex for the include filter and validate")
                 long_include_regex = RandomizationTool.get_random_string(200, ascii_letters=string.digits + string.ascii_letters)
-                system.syslog.servers[remote_server_ip].set_filter(SyslogConsts.INCLUDE, long_include_regex, apply=True)
+                system.syslog.servers.servers_dict[remote_server_ip].set_filter(SyslogConsts.INCLUDE, long_include_regex, apply=True)
                 expected_server_dictionary[remote_server_ip].update(
                     {SyslogConsts.FILTER: {SyslogConsts.INCLUDE: long_include_regex}})
-                system.syslog.servers[remote_server_ip].verify_show_server_output(
+                system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(
                     expected_server_dictionary[remote_server_ip])
                 with allure.step("Send message with the include filter regex,\n"
                                  "expect message to be recieved over the remote server"):
@@ -436,9 +436,9 @@ def test_rsyslog_filter(engines):
 
         with allure.step("Unset filter and validate"):
             logging.info("Unset filter and validate")
-            system.syslog.servers[remote_server_ip].unset_filter(apply=True)
+            system.syslog.servers.servers_dict[remote_server_ip].unset_filter(apply=True)
             expected_server_dictionary[remote_server_ip].pop(SyslogConsts.FILTER)
-            system.syslog.servers[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
             random_msg = RandomizationTool.get_random_string(20, ascii_letters=string.digits)
             send_msg_to_server(exclude_regex + random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
 
@@ -473,7 +473,7 @@ def test_rsyslog_format(engines):
     try:
         with allure.step("Configure remote syslog server {} and validate".format(remote_server_ip)):
             logging.info("Configure remote syslog server {} and validate".format(remote_server_ip))
-            system.syslog.set_server(remote_server_ip, apply=True)
+            system.syslog.servers.set_server(remote_server_ip, apply=True)
             expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
             expected_syslog_dictionary = create_syslog_output_dictionary(
                 server_dict={SyslogConsts.SERVER: expected_server_dictionary})
@@ -545,41 +545,41 @@ def test_rsyslog_bad_params():
 
     with allure.step("Specific syslog server commands"):
         logging.info("Specific syslog server commands")
-        system.syslog.set_server(server_name, apply=False)
+        system.syslog.servers.set_server(server_name, apply=False)
 
         with allure.step("Configure and validate port"):
             logging.info("Configure and validate port")
-            system.syslog.servers[server_name].set_port("", expected_str=INCOMPLETE_COMMAND)
-            system.syslog.servers[server_name].set_port(rand_str, expected_str=INVALID_COMMAND)
+            system.syslog.servers.servers_dict[server_name].set_port("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers.servers_dict[server_name].set_port(rand_str, expected_str=INVALID_COMMAND)
 
         with allure.step("Configure and validate protocol"):
             logging.info("Configure and validate protocol")
-            system.syslog.servers[server_name].set_protocol("", expected_str=INCOMPLETE_COMMAND)
-            system.syslog.servers[server_name].set_protocol(rand_str, expected_str=ERROR)
+            system.syslog.servers.servers_dict[server_name].set_protocol("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers.servers_dict[server_name].set_protocol(rand_str, expected_str=ERROR)
 
         with allure.step("Configure and validate trap"):
             logging.info("Configure and validate trap")
-            system.syslog.servers[server_name].set_trap("", expected_str=INCOMPLETE_COMMAND)
-            system.syslog.servers[server_name].set_trap(rand_str, expected_str=ERROR)
+            system.syslog.servers.servers_dict[server_name].set_trap("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers.servers_dict[server_name].set_trap(rand_str, expected_str=ERROR)
 
         with allure.step("Configure and validate vrf"):
             logging.info("Configure and validate vrf")
-            system.syslog.servers[server_name].set_vrf("", expected_str=INCOMPLETE_COMMAND)
+            system.syslog.servers.servers_dict[server_name].set_vrf("", expected_str=INCOMPLETE_COMMAND)
 
         with allure.step("Configure and validate filter"):
             logging.info("Configure and validate filter")
-            # system.syslog.servers[server_name].set_filter("", "", expected_str=INCOMPLETE_COMMAND)  # bug #3325876
-            system.syslog.servers[server_name].set_filter(rand_str, rand_str, expected_str=INVALID_COMMAND)
+            # system.syslog.servers.servers_dict[server_name].set_filter("", "", expected_str=INCOMPLETE_COMMAND)  # bug #3325876
+            system.syslog.servers.servers_dict[server_name].set_filter(rand_str, rand_str, expected_str=INVALID_COMMAND)
 
         with allure.step("Configure and validate filter include"):
             logging.info("Configure and validate filter include")
-            system.syslog.servers[server_name].set_filter(SyslogConsts.INCLUDE, "", expected_str=INCOMPLETE_COMMAND)
-            # system.syslog.servers[server_name].filter.unset_include_filter("", expected_str=INVALID_COMMAND) # bug #3325876
+            system.syslog.servers.servers_dict[server_name].set_filter(SyslogConsts.INCLUDE, "", expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.servers.servers_dict[server_name].filter.unset_include_filter("", expected_str=INVALID_COMMAND) # bug #3325876
 
         with allure.step("Configure and validate filter exclude"):
             logging.info("Configure and validate filter exclude")
-            system.syslog.servers[server_name].set_filter(SyslogConsts.EXCLUDE, "", expected_str=INCOMPLETE_COMMAND)
-            # system.syslog.servers[server_name].filter.unset_exclude_filter("", expected_str=INVALID_COMMAND) # bug #3325876
+            system.syslog.servers.servers_dict[server_name].set_filter(SyslogConsts.EXCLUDE, "", expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.servers.servers_dict[server_name].filter.unset_exclude_filter("", expected_str=INVALID_COMMAND) # bug #3325876
 
     with allure.step("Cleanup syslog configurations"):
         logging.info("Cleanup syslog configurations")
@@ -618,7 +618,7 @@ def config_and_verify_rsyslog_port(server, remote_server_engine, remote_server_i
     with allure.step("Change rsyslog port to {}".format(new_port)):
         logging.info("Change rsyslog port to {}".format(new_port))
         server.set_port(new_port, apply=True)
-        server.verify_show_server_output({SyslogConsts.PORT: new_port})
+        server.verify_show_server_output({SyslogConsts.PORT: str(new_port)})
         try:
             SonicMgmtContainer.change_rsyslog_port(remote_server_engine, old_port, new_port, 'udp', restart_rsyslog=True)
             random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
@@ -634,7 +634,7 @@ def config_and_verify_trap(syslog, server, server_name, server_engine, severity_
         logging.info("Validate severity level: {}".format(severity_level))
         server.set_trap(severity_level, apply=True)
         syslog.verify_global_severity_level(global_severity_level)
-        server.verify_trap_severity_level(severity_level)
+        server.verify_trap_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[severity_level])
 
         random_msg = RandomizationTool.get_random_string(40, ascii_letters=string.ascii_letters + string.digits)
         severity_level_index = SyslogSeverityLevels.SEVERITY_LEVEL_LIST.index(severity_level)
@@ -661,7 +661,7 @@ def send_msg_to_server(msg, server_name, server_engine, protocol=None, priority=
     with allure.step("Send msg to server {}".format(server_name)):
         logging.info("Send msg to server {}".format(server_name))
         protocol_flag = ' --{}'.format(protocol) if protocol else ''  # must be tcp or udp
-        priority_flag = ' --priority {}'.format(priority) if priority else ''
+        priority_flag = ' --priority {}'.format(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[priority]) if priority else ''
         port_flag = ' --port {}'.format(port) if port else ''
         extra_flags = protocol_flag + priority_flag + port_flag
         logger_cmd = 'logger {flags} \"{msg}\" '.format(flags=extra_flags, msg=msg)
@@ -706,7 +706,7 @@ def create_syslog_output_dictionary(format=SyslogConsts.STANDARD, format_dict={}
 def create_remote_server_dictionary(server_name, port=SyslogConsts.DEFAULT_PORT, protocol='udp', vrf='default'):
     dictionary = {
         server_name: {
-            SyslogConsts.PORT: port,
+            SyslogConsts.PORT: str(port),
             SyslogConsts.PROTOCOL: protocol,
             SyslogConsts.VRF: vrf
         }

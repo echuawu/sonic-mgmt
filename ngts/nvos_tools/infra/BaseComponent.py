@@ -44,7 +44,7 @@ class BaseComponent:
                             output = output + "\n" + res
                         return output
 
-                elif isinstance(op_param_value, str):
+                elif isinstance(op_param_value, str) or isinstance(op_param_value, int):
                     if TestToolkit.tested_api == ApiType.OPENAPI:
                         value = {op_param_name: op_param_value}
                         return self._set(self._resource_path.replace("/", ""), value, expected_str)
