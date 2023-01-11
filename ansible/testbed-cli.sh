@@ -265,6 +265,7 @@ function add_topo
   cache_files_path_value=$(is_cache_exist)
   if [[ -n $cache_files_path_value ]]; then
     echo "$topo" > $cache_files_path_value/$dut
+    chmod 666 $cache_files_path_value/$dut
   fi
 
   echo Done
