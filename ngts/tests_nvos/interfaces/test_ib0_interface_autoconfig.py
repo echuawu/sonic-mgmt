@@ -8,7 +8,7 @@ logger = logging.getLogger()
 
 @pytest.mark.ib
 @pytest.mark.simx
-def test_interface_ib0_autoconfig(engines, topology_obj):
+def test_interface_ib0_autoconfig_disabled_sm(engines, topology_obj, stop_sm):
     """
     Verify default autoconf  (disable), check that we can configure possible value (enable).
     and we can unset the configuration

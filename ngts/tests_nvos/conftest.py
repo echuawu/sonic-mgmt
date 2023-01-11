@@ -68,6 +68,16 @@ def start_sm(engines):
         logging.warning("Failed to start openSM using NVUE commands")
 
 
+@pytest.fixture
+def stop_sm(engines):
+    """
+    Stops OpenSM
+    """
+    result = OpenSmTool.stop_open_sm(engines.dut)
+    if not result.result:
+        logging.warning("Failed to stop openSM using NVUE commands")
+
+
 @pytest.fixture(scope="session")
 def release_name(request):
     """
