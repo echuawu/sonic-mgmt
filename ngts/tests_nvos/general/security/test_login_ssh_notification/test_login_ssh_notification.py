@@ -3,7 +3,6 @@ import random
 import re
 import os
 import time
-
 import allure
 import pexpect
 import logging
@@ -11,7 +10,8 @@ import pytest
 from ngts.tests_nvos.general.security.test_login_ssh_notification.constants import LoginSSHNotificationConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-
+from ngts.nvos_tools.system.System import System
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,31 @@ def parse_ssh_login_notification(dut_ip, username, password):
     return result
 
 
-def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability):
+def change_username_password(engines, username, curr_password, new_password):
+    '''
+    @summary: in this test case we want to validate password message apperance
+    after changing it in the second ssh login notification
+    :param username: username
+    :param curr_password: current password for username
+    :param new_password: new password to change to
+    '''
+    with allure.step("Changing password for user: {}".format(username)):
+        logger.info("Changing password for user: {}\n"
+                    "Current password: {}\n"
+                    "New passsword proposed: {}".format(username, curr_password, new_password))
+
+    # create system class
+    system = System()
+    system.aaa.user.set_username(username=username)
+    system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password)
+    NvueGeneralCli.apply_config(engines.dut, True)
+    logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
+    time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
+
+
+def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability,
+                                                    check_password_change_msg=False,
+                                                    check_role_change_msg=False):
     '''
     @summary: in this test case we want to validate the output of default fields
     of login ssh notification, where we want to check the following parameters:
@@ -141,19 +165,16 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
     :param username: username to connect with to switch
     :param password: the password for username
     :param capability: the username capability, could be one of [admin, monitor]
+    :param check_password_change_msg: if set true will check if password message appeared
+    :param check_role_change_msg: if set true will check if role message appeared
     '''
-    with allure.step("Connect for the first time to switch and store details"):
-        logger.info("Connect for the first time to switch and store details")
-        first_login_notification_message = parse_ssh_login_notification(engines.dut.ip, username,
-                                                                        password)
-
     random_number_of_connection_fails = random.randint(5, 15)
     with allure.step("Fail connecting to device {}".format(random_number_of_connection_fails)):
         logger.info("Fail connecting to device {}".format(random_number_of_connection_fails))
         logger.info("Attempting {} wrong password attempts".format(random_number_of_connection_fails))
         for index in range(random_number_of_connection_fails):
             try:
-                connection = create_ssh_login_engine(engines.dut.ip, DefaultConnectionValues.ADMIN)
+                connection = create_ssh_login_engine(engines.dut.ip, username)
                 connection.expect(DefaultConnectionValues.PASSWORD_REGEX)
                 random_password = RandomizationTool.get_random_string(random.randint(LoginSSHNotificationConsts.PASSWORD_MIN_LEN,
                                                                                      LoginSSHNotificationConsts.PASSWORD_MAX_LEN))
@@ -165,8 +186,8 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
 
     with allure.step("Connect for the second time to switch and store details"):
         logger.info("Connect for the second time to switch and store details")
-        second_login_notification_message = parse_ssh_login_notification(engines.dut.ip, DefaultConnectionValues.ADMIN,
-                                                                         DefaultConnectionValues.DEFAULT_PASSWORD)
+        second_login_notification_message = parse_ssh_login_notification(engines.dut.ip, username,
+                                                                         password)
 
     with allure.step("Validating capability"):
         logger.info("Validating capability")
@@ -216,13 +237,21 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
         assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
                                                                                                     "The time difference is {}".format(time_delta_seconds)
 
-    with allure.step("Validating no password or capability has changed"):
-        logger.info("Validating no password or capability has changed")
-        assert second_login_notification_message[LoginSSHNotificationConsts.PASSWORD_CHANGED_MESSAGE] is None, \
-            "Password change message appeared when it should not"
-        assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is None, \
-            "Capability change message appeared when it should not"
+    with allure.step("Validating password or capability changes"):
+        logger.info("Validating password or capability changes")
+        if check_password_change_msg:
+            assert second_login_notification_message[LoginSSHNotificationConsts.PASSWORD_CHANGED_MESSAGE] is not None, \
+                "Password change message did not appear when it should"
+        else:
+            assert second_login_notification_message[LoginSSHNotificationConsts.PASSWORD_CHANGED_MESSAGE] is None, \
+                "Password change message appeared when it should not"
 
+        if check_role_change_msg:
+            assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is not None, \
+                "Capability change message did not appear when it should"
+        else:
+            assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is None, \
+                "Capability change message appeared when it should not"
     logger.info("Test is Done")
 
 
@@ -233,7 +262,46 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
     '''
     @summary: in this test case we want to validate admin username ssh login notification
     '''
+    with allure.step("Connecting to switch before validation to clear all failed messages"):
+        logger.info("Connecting to switch before validation to clear all failed messages")
+        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+                                                              username=DefaultConnectionValues.ADMIN,
+                                                              password=DefaultConnectionValues.DEFAULT_PASSWORD)
     validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                     username=DefaultConnectionValues.ADMIN,
                                                     password=DefaultConnectionValues.DEFAULT_PASSWORD,
                                                     capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY)
+
+
+@pytest.mark.simx
+@pytest.mark.login_ssh_notification
+@pytest.mark.checklist
+def test_ssh_login_notification_password_change_admin(engines, login_source_ip_address, disable_password_hardening_rules):
+    '''
+    @summary: in this test case we want to validate admin username ssh login notification
+    '''
+    system = System()
+    system.aaa.user.set_username(DefaultConnectionValues.ADMIN)
+
+    with allure.step("Connecting to switch before validation to clear all failed messages"):
+        logger.info("Connecting to switch before validation to clear all failed messages")
+        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+                                                              username=DefaultConnectionValues.ADMIN,
+                                                              password=DefaultConnectionValues.DEFAULT_PASSWORD)
+    try:
+        change_username_password(engines, username=DefaultConnectionValues.ADMIN,
+                                 curr_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                 new_password=DefaultConnectionValues.SIMPLE_PASSWORD)
+        validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
+                                                        username=DefaultConnectionValues.ADMIN,
+                                                        password=DefaultConnectionValues.SIMPLE_PASSWORD,
+                                                        capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY,
+                                                        check_password_change_msg=True)
+    finally:
+        with allure.step('Restoring original password'):
+            logger.info('Restoring original password')
+        system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD)
+        NvueGeneralCli.apply_config(engines.dut, True)
+        with allure.step("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME)):
+            logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
+        time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
