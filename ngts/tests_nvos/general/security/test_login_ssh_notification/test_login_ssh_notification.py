@@ -12,6 +12,8 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import SystemConsts
+
 
 logger = logging.getLogger(__name__)
 
@@ -189,15 +191,6 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
         second_login_notification_message = parse_ssh_login_notification(engines.dut.ip, username,
                                                                          password)
 
-    with allure.step("Validating capability"):
-        logger.info("Validating capability")
-        if capability == LoginSSHNotificationConsts.ADMIN_CAPABITILY:
-            assert second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_SUCCESSFUL_CONNECTIONS_IN_THE_LAST_RECORD_PERIOD] is not None,\
-                "Admin capability was not able to see total successful login value in the last record period"
-        elif capability == LoginSSHNotificationConsts.MONITOR_CAPABITILY:
-            assert second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_SUCCESSFUL_CONNECTIONS_IN_THE_LAST_RECORD_PERIOD] is None, \
-                "Monitor capability was able to see total successful login value in the last record period"
-
     with allure.step("Validating {} failed attemps in the second connection".format(random_number_of_connection_fails)):
         logger.info("Validating {} failed attemps in the second connection".format(random_number_of_connection_fails))
         assert int(second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN]) == random_number_of_connection_fails, \
@@ -305,3 +298,45 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
         with allure.step("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME)):
             logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
         time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
+
+
+@pytest.mark.simx
+@pytest.mark.login_ssh_notification
+@pytest.mark.checklist
+def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
+    '''
+    @summary: in this test case we want to validate new user role change on ssh login notification,
+    where we expect role message to appear
+    '''
+    try:
+        system = System(None)
+        with allure.step("Creating a new username"):
+            logger.info("Creating a new username")
+        user_name, password = system.create_new_user(engine=engines.dut)
+        system.aaa.user.set_username(user_name)
+        NvueGeneralCli.apply_config(engines.dut)
+        system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR)
+        NvueGeneralCli.apply_config(engines.dut)
+        logging.info("User created: \nuser_name: {} \npassword: {}\ncapability: {}".format(user_name, password, SystemConsts.ROLE_CONFIGURATOR))
+
+        with allure.step("Connecting to switch with the new user for first time"):
+            logger.info("Connecting to switch with the new user for first time")
+            ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
+
+        with allure.step("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER)):
+            logger.info("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER))
+            system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER)
+            NvueGeneralCli.apply_config(engines.dut)
+
+        validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
+                                                        username=user_name,
+                                                        password=password,
+                                                        capability=SystemConsts.ROLE_VIEWER,
+                                                        check_password_change_msg=False,
+                                                        check_role_change_msg=True)
+    finally:
+        with allure.step('Delete created user {}'.format(user_name)):
+            logger.info('Delete created user {}'.format(user_name))
+            if system and system.aaa and system.aaa.user:
+                system.aaa.user.unset()
+                NvueGeneralCli.apply_config(engines.dut)

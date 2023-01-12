@@ -25,36 +25,46 @@ class BaseComponent:
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value()
 
-    def _set(self, param_name, param_value, expected_str=''):
-        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].set, expected_str,
-                                                            TestToolkit.engines.dut, self.get_resource_path(),
-                                                            param_name, param_value)
+    def _set(self, param_name, param_value, expected_str='', apply=False, ask_for_confirmation=False):
+        result_obj = SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].set, expected_str,
+                                                                  TestToolkit.engines.dut, self.get_resource_path(),
+                                                                  param_name, param_value)
+        if result_obj.result and apply:
+            with allure.step("Applying unset configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                             TestToolkit.engines.dut, ask_for_confirmation)
+        return result_obj
 
-    def set(self, op_param_name="", op_param_value={}, expected_str=''):
+    def set(self, op_param_name="", op_param_value={}, expected_str='', apply=False, ask_for_confirmation=False):
         with allure.step('Execute set for {resource_path}'.format(resource_path=self.get_resource_path())):
 
             if op_param_name:
                 if isinstance(op_param_value, dict):
                     if TestToolkit.tested_api == ApiType.OPENAPI:
-                        return self._set(op_param_name, op_param_value, expected_str)
+                        return self._set(op_param_name, op_param_value, expected_str, apply, ask_for_confirmation)
                     else:
                         output = ''
                         for param_name, param_value in op_param_value.items():
-                            res = self._set(param_name, param_value, expected_str)
+                            res = self._set(param_name, param_value, expected_str, apply, ask_for_confirmation)
                             output = output + "\n" + res
                         return output
 
                 elif isinstance(op_param_value, str) or isinstance(op_param_value, int):
                     if TestToolkit.tested_api == ApiType.OPENAPI:
                         value = {op_param_name: op_param_value}
-                        return self._set(self._resource_path.replace("/", ""), value, expected_str)
+                        return self._set(self._resource_path.replace("/", ""), value, expected_str, apply, ask_for_confirmation)
                     else:
-                        return self._set(op_param_name, op_param_value, expected_str)
+                        return self._set(op_param_name, op_param_value, expected_str, apply, ask_for_confirmation)
             else:
                 raise Exception("Invalid param name or value")
 
-    def unset(self, op_param="", expected_str=""):
+    def unset(self, op_param="", expected_str="", apply=False, ask_for_confirmation=False):
         with allure.step('Execute unset {op_param} for {resource_path}'.format(op_param=op_param,
                                                                                resource_path=self.get_resource_path())):
-            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].unset, expected_str,
-                                                                TestToolkit.engines.dut, self.get_resource_path(), op_param)
+            result_obj = SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].unset, expected_str,
+                                                                      TestToolkit.engines.dut, self.get_resource_path(), op_param)
+        if result_obj.result and apply:
+            with allure.step("Applying unset configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                             TestToolkit.engines.dut, ask_for_confirmation)
+        return result_obj
