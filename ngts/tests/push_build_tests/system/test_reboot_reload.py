@@ -35,7 +35,8 @@ def validation_type(platform_params, is_simx):
 
     if is_simx:
         validation_type = random.choice(simx_validation_types)
-        expected_traffic_loss_dict[validation_type]['data'] = 60  # Update the data plane downtime to 60 sec in SIMX
+        expected_traffic_loss_dict[validation_type]['data'] = 360  # Update SIMX downtime due to SW limitations
+        expected_traffic_loss_dict[validation_type]['control'] = 360
 
     return validation_type
 
