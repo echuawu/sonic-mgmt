@@ -96,6 +96,15 @@ class Format(Syslog):
         self.parent_obj = parent_obj
         self.welf = WelfFormat(self)
 
+    def set(self, op_param_name="", op_param_value=None, expected_str='', apply=False, ask_for_confirmation=False):
+        value = op_param_value if op_param_value else ({} if TestToolkit.tested_api == ApiType.OPENAPI else "")
+        result_obj = BaseComponent.set(self, op_param_name=op_param_name, op_param_value=value, expected_str=expected_str)
+        if result_obj.result and apply:
+            with allure.step("Applying set configuration"):
+                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                             TestToolkit.engines.dut, ask_for_confirmation)
+        return result_obj
+
 
 class Servers(Syslog):
     def __init__(self, parent_obj):
