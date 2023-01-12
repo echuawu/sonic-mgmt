@@ -139,8 +139,7 @@ def change_username_password(engines, username, curr_password, new_password):
     # create system class
     system = System()
     system.aaa.user.set_username(username=username)
-    system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password)
-    NvueGeneralCli.apply_config(engines.dut, True)
+    system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
     logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
     time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
 
@@ -293,8 +292,7 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
     finally:
         with allure.step('Restoring original password'):
             logger.info('Restoring original password')
-        system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD)
-        NvueGeneralCli.apply_config(engines.dut, True)
+        system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD, apply=True, ask_for_confirmation=True)
         with allure.step("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME)):
             logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
         time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
@@ -314,9 +312,7 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
             logger.info("Creating a new username")
         user_name, password = system.create_new_user(engine=engines.dut)
         system.aaa.user.set_username(user_name)
-        NvueGeneralCli.apply_config(engines.dut)
-        system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR)
-        NvueGeneralCli.apply_config(engines.dut)
+        system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR, apply=True, ask_for_confirmation=True)
         logging.info("User created: \nuser_name: {} \npassword: {}\ncapability: {}".format(user_name, password, SystemConsts.ROLE_CONFIGURATOR))
 
         with allure.step("Connecting to switch with the new user for first time"):
@@ -325,8 +321,7 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
 
         with allure.step("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER)):
             logger.info("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER))
-            system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER)
-            NvueGeneralCli.apply_config(engines.dut)
+            system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER, apply=True, ask_for_confirmation=True)
 
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                         username=user_name,
@@ -338,5 +333,4 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
         with allure.step('Delete created user {}'.format(user_name)):
             logger.info('Delete created user {}'.format(user_name))
             if system and system.aaa and system.aaa.user:
-                system.aaa.user.unset()
-                NvueGeneralCli.apply_config(engines.dut)
+                system.aaa.user.unset(apply=True, ask_for_confirmation=True)
