@@ -177,6 +177,7 @@ class Server(Servers):
             output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
             logger.info("Expected show server output:\n {}".format(expected_dictionary))
             ValidationTool.compare_dictionary_content(output, expected_dictionary).verify_result()
+            return output
 
     def verify_trap_severity_level(self, expected_severity_level):
         actually_severity_level = self.get_syslog_field_value(SyslogConsts.TRAP)

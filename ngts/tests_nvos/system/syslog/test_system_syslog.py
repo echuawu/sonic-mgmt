@@ -196,6 +196,101 @@ def test_rsyslog_server_severity_levels(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+def test_rsyslog_server_and_global_severity_levels():
+    """
+    Will validate all the severity options:  debug, info, notice, warning, error, critical, alert, emerg, none.
+    Will configure the severity level, validate it in the show command and validate that the server catch the relevant
+    msgs only.
+
+    Test flow:
+    * Configure remote syslog server
+    To each severity level:
+         * Set severity level
+         * Validate with show command
+         * Print msg that the server should catch, validate
+         * Print msg that the server should not catch, validate
+    * Unset server trap
+    * Cleanup
+    """
+    system = System()
+    server_a_name = 'server_a'
+
+    try:
+        with allure.step("Configure remote syslog server and Validate"):
+            logging.info("Configure remote syslog server and Validate")
+            server_a = system.syslog.servers.set_server(server_a_name, apply=True)
+            system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.NOTICE])
+            server_a.verify_trap_severity_level(None)
+
+        with allure.step("Set global trap and Validate"):
+            logging.info("Set global trap and Validate")
+            system.syslog.set_trap(SyslogSeverityLevels.ERROR, apply=True)
+            system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.ERROR])
+            server_a.verify_trap_severity_level(None)
+
+        with allure.step("Unset server trap and Validate nothing change"):
+            logging.info("Unset server trap and Validate nothing change")
+            server_a.unset_trap(apply=True)
+            system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.ERROR])
+            server_a.verify_trap_severity_level(None)
+
+        with allure.step("set server trap and Validate"):
+            logging.info("set server trap and Validate")
+            server_a.set_trap(SyslogSeverityLevels.DEBUG, apply=True)
+            system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.ERROR])
+            server_a.verify_trap_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.DEBUG])
+
+        with allure.step("Unset server trap and Validate"):
+            logging.info("Unset server trap and Validate")
+            server_a.unset_trap(apply=True)
+            system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.ERROR])
+            server_a.verify_trap_severity_level(None)
+
+        with allure.step("Unset global trap and Validate"):
+            logging.info("Unset global trap and Validate")
+            system.syslog.unset_trap(apply=True)
+            system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.NOTICE])
+            server_a.verify_trap_severity_level(None)
+
+        with allure.step("Validate unset global trap override server trap"):
+            logging.info("Validate unset global trap override server trap")
+
+            with allure.step("set global and server trap and Validate"):
+                logging.info("set global and server trap and Validate")
+                system.syslog.set_trap(SyslogSeverityLevels.ERROR, apply=True)
+                server_a.set_trap(SyslogSeverityLevels.DEBUG, apply=True)
+                system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.ERROR])
+                server_a.verify_trap_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.DEBUG])
+
+            with allure.step("Unset global trap and Validate"):
+                logging.info("Unset global trap and Validate")
+                system.syslog.unset_trap(apply=True)
+                system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.NOTICE])
+                server_a.verify_trap_severity_level(None)
+
+        with allure.step("Validate set global trap override server trap"):
+            logging.info("Validate global trap override server trap")
+
+            with allure.step("set server trap and Validate"):
+                logging.info("set server trap and Validate")
+                server_a.set_trap(SyslogSeverityLevels.DEBUG, apply=True)
+                system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.NOTICE])
+                server_a.verify_trap_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.DEBUG])
+
+            with allure.step("Set global trap and Validate"):
+                logging.info("Set global trap and Validate")
+                system.syslog.set_trap(SyslogSeverityLevels.ERROR, apply=True)
+                system.syslog.verify_global_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[SyslogSeverityLevels.ERROR])
+                server_a.verify_trap_severity_level(None)
+
+    finally:
+        with allure.step("Cleanup syslog configurations"):
+            logging.info("Cleanup syslog configurations")
+            system.syslog.unset(apply=True)
+
+
+@pytest.mark.system
+@pytest.mark.syslog
 def test_rsyslog_port(engines):
     """
     Will check the syslog with non default port
