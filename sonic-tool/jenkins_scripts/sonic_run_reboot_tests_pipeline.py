@@ -159,7 +159,7 @@ def do_preparation_steps():
         reboot_type_iterations_dict['warm'] = int(warm_reboot_iterations_number)
 
     if not reboot_types_list:
-        raise Exception('Looks like setups which will run fast/warm reboot tests did not provided.'
+        raise Exception('Looks like setups which will run fast/warm reboot tests did not provided. '
                         'Please specify setups which will run fast/warm reboot tests.')
 
     is_upgrade_test = True if target_version else False
@@ -532,10 +532,6 @@ if __name__ == "__main__":
     session_id = args.session_id
     setup_name = args.setup_name
     generate_report_email = args.generate_report_email
-
-    if len(f_reboot_setups_list + w_reboot_setups_list) != len(set(f_reboot_setups_list + w_reboot_setups_list)):
-        raise Exception('Single setup can run only one test type: fast or warm but not both. '
-                        'Please choose correct setups for specific reboot type in Jenkins')
 
     if do_preparation:  # generate db and cases files
         do_preparation_steps()
