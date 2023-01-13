@@ -1,0 +1,73 @@
+{
+
+    "ACL_TABLE_TYPE": {
+
+        "CUSTOM_L3": {
+
+            "matches": "BTH_OPCODE,AETH_SYNDROME,SRC_IP,SRC_IPV6",
+
+            "actions": "PACKET_ACTION,MIRROR_INGRESS_ACTION,REDIRECT_ACTION",
+
+            "bind_points": "PORT,PORTCHANNEL"
+        },
+        "CUSTOM_L3_E": {
+
+            "matches": "BTH_OPCODE,AETH_SYNDROME,SRC_IP,SRC_IPV6",
+
+            "actions": "PACKET_ACTION,MIRROR_EGRESS_ACTION",
+
+            "bind_points": "PORT,PORTCHANNEL"
+        }
+
+    },
+
+    "ACL_TABLE": {
+
+            "ROCE_ACL_INGRESS": {
+
+                "stage": "INGRESS",
+
+                "type": "CUSTOM_L3",
+
+                "ports": ["{{physic_port}}", "{{lag_port}}"],
+
+                "policy_desc": "test BTH_OPCODE and AETH_SYNDROME on ingress port"
+
+            },
+            "ROCE_ACL_EGRESS": {
+
+                "stage": "EGRESS",
+
+                "type": "CUSTOM_L3_E",
+
+                "ports": ["{{physic_port}}", "{{lag_port}}"],
+
+                "policy_desc": "test BTH_OPCODE and AETH_SYNDROME on egress port"
+
+            }
+
+        },
+
+    "ACL_RULE": {
+
+                {% for acl_rule in acl_rule_list %}
+                "{{acl_rule.table_name}}|{{acl_rule.name}}": {
+                                "PRIORITY": "{{acl_rule.priority}}",
+                                "{{acl_rule.action_type}}": "{{acl_rule.action}}",
+                                {% if "bth_aeth_together" in acl_rule.scenario  %}
+                                "BTH_OPCODE": "{{acl_rule.bth_opcode}}",
+                                "AETH_SYNDROME": "{{acl_rule.aeth_syndrome}}",
+                                {% elif acl_rule.scenario == "bth_only" %}
+                                "BTH_OPCODE": "{{acl_rule.bth_opcode}}",
+                                {% elif acl_rule.scenario == "aeth_only" %}
+                                "AETH_SYNDROME": "{{acl_rule.aeth_syndrome}}",
+                                {% endif %}
+                                "{{acl_rule.src_type}}": "{{acl_rule.src_ip}}"
+                            {% if loop.index == acl_rule_len %}
+                            }
+                            {% else %}
+                            },
+                            {% endif %}
+                {% endfor %}
+        }
+}

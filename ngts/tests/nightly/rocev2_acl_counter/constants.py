@@ -1,0 +1,62 @@
+V4_CONFIG = {"dut_ha_1": "1.1.1.1", "ha_dut_1": "1.1.1.2",
+             "dut_ha_2": "2.2.2.1", "ha_dut_2": "2.2.2.2",
+             "dut_hb_1": "3.3.3.1", "hb_dut_1": "3.3.3.2",
+             }
+
+V6_CONFIG = {"dut_ha_1": "9001::1", "ha_dut_1": "9001::2",
+             "dut_ha_2": "9002::1", "ha_dut_2": "9002::2",
+             "dut_hb_1": "9003::1", "hb_dut_1": "9003::2",
+             }
+
+
+ROCEV2_ACL_BASIC_TEST_DATA = [
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_forward",
+     "priority": "1001", "action_type": "PACKET_ACTION", "action": "FORWARD",
+     "src_type": "SRC_IP", "src_ip": "10.0.1.1/24"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_drop",
+     "priority": "1002", "action_type": "PACKET_ACTION", "action": "DROP",
+     "src_type": "SRC_IP", "src_ip": "10.0.2.1/24"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_redirect",
+     "priority": "1003", "action_type": "PACKET_ACTION", "action": "",
+     "src_type": "SRC_IP", "src_ip": "10.0.3.1/24"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_mirror",
+     "priority": "1004", "action_type": "MIRROR_ACTION", "action": "port0",
+     "src_type": "SRC_IP", "src_ip": "10.0.4.1/24"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_forward_v6",
+     "priority": "1005", "action_type": "PACKET_ACTION", "action": "FORWARD",
+     "src_type": "SRC_IPV6", "src_ip": "1001::1/64"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_drop_v6",
+     "priority": "1006", "action_type": "PACKET_ACTION", "action": "DROP",
+     "src_type": "SRC_IPV6", "src_ip": "1002::1/64"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_redirect_v6",
+     "priority": "1007", "action_type": "PACKET_ACTION", "action": "",
+     "src_type": "SRC_IPV6", "src_ip": "1003::1/64"},
+    {"table_name": "ROCE_ACL_INGRESS", "name": "in_mirror_v6",
+     "priority": "1008", "action_type": "MIRROR_ACTION", "action": "port0",
+     "src_type": "SRC_IPV6", "src_ip": "1004::1/64"},
+
+    {"table_name": "ROCE_ACL_EGRESS", "name": "e_forward",
+     "priority": "1009", "action_type": "PACKET_ACTION", "action": "FORWARD",
+     "src_type": "SRC_IP", "src_ip": "10.0.5.1/24"},
+    {"table_name": "ROCE_ACL_EGRESS", "name": "e_drop",
+     "priority": "1010", "action_type": "PACKET_ACTION", "action": "DROP",
+     "src_type": "SRC_IP", "src_ip": "10.0.6.1/24"},
+    {"table_name": "ROCE_ACL_EGRESS", "name": "e_mirror",
+     "priority": "1011", "action_type": "MIRROR_EGRESS_ACTION", "action": "port0",
+     "src_type": "SRC_IP", "src_ip": "10.0.7.1/24"},
+    {"table_name": "ROCE_ACL_EGRESS", "name": "e_forword_v6",
+     "priority": "1012", "action_type": "PACKET_ACTION", "action": "FORWARD",
+     "src_type": "SRC_IPV6", "src_ip": "1005::1/64"},
+    {"table_name": "ROCE_ACL_EGRESS", "name": "e_drop_v6",
+     "priority": "1013", "action_type": "PACKET_ACTION", "action": "DROP",
+     "src_type": "SRC_IPV6", "src_ip": "1006::1/64"},
+    {"table_name": "ROCE_ACL_EGRESS", "name": "e_mirror_v6",
+     "priority": "1014", "action_type": "MIRROR_EGRESS_ACTION", "action": "port0",
+     "src_type": "SRC_IPV6", "src_ip": "1007::1/64"},
+]
+
+
+TEST_COMBINATION = [{"scenario": "bth_aeth_together", "bth_opcode": "0x11/0xbf", "aeth_syndrome": "0x60/0x60"},
+                    {"scenario": "bth_only", "bth_opcode": "0x80/0x80"},
+                    {"scenario": "aeth_only", "aeth_syndrome": "0x60/0x60"},
+                    {"scenario": "bth_aeth_together_random", "bth_opcode": "0x11/0x11", "aeth_syndrome": "0x60/0x60"}]
