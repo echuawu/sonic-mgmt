@@ -1814,3 +1814,13 @@
       - tests/drop_packets/test_configurable_drop_counters.py
       Redmine:
       - 3314632
+
+- Errors_list:
+    - '.*ERR swss#buffermgrd: :- isHeadroomResourceValid: Unable to update profile for port Ethernet\d+. Accumulative headroom size exceeds limit.*'
+    - '.*ERR swss#buffermgrd: :- refreshPgsForPort: Update speed \(\d+\) and cable length .* for port Ethernet0 failed, accumulative headroom size exceeds the limit*'
+    - '.*ERR swss#buffermgrd: :- doTask: Failed to process table update.*'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/test_auto_negotiation.py
+      Redmine:
+      - 3331335
