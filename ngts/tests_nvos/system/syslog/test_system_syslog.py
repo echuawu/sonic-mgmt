@@ -94,6 +94,22 @@ def test_rsyslog_configurations():
             system.syslog.servers.verify_show_servers_list([server_a, server_b])
             system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
+        # TODO change bak after bug #3330477  will be fixed
+        # with allure.step("set server vrf and Validate"):
+        #    logging.info("set server vrf and Validate")
+        #    random_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
+        #    system.syslog.servers.servers_dict[server_a].set_vrf(random_name, apply=True)
+        #    expected_syslog_dictionary[SyslogConsts.SERVER][server_a].update({SyslogConsts.VRF: random_name})
+        #    system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+        #    system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+
+        # with allure.step("unset server vrf and Validate"):
+        #    logging.info("unset server vrf and Validate")
+        #    system.syslog.servers.servers_dict[server_a].unset_vrf(apply=True)
+        #    expected_syslog_dictionary[SyslogConsts.SERVER][server_a].update({SyslogConsts.VRF: "default"})
+        #    system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+        #    system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+
         with allure.step("Set global trap and Validate"):
             logging.info("Set global trap and Validate")
             severity_level = SyslogSeverityLevels.ERROR
