@@ -11,6 +11,7 @@ from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayeresAliases
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 
 logger = logging.getLogger()
@@ -123,7 +124,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     """
     cli_type = setup_info['duts'][0]['cli_obj']
     if isinstance(cli_type, NvueGeneralCli):
-        NvosInstallationSteps.pre_installation_steps()
+        NvosInstallationSteps.pre_installation_steps(setup_info)
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
                                                       is_simx, threads_dict)
@@ -178,13 +179,16 @@ def get_info_from_topology(topology_obj, workspace_path):
                 dut_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
                 dut_alias = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Description']
                 cli_type = topology_obj[0][host]['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
+                switch_type = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']['TYPE']
+                dut_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']["ip address"]
                 engine = topology_obj.players[host]['engine']
                 if cli_type == "NVUE":
+                    engine.password = NvosConst.DEFAULT_PASS
                     cli_obj = NvueGeneralCli(engine)
                 else:
                     cli_obj = SonicCli(topology_obj, dut_alias=host).general
-                dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine,
-                            'cli_obj': cli_obj, 'dut_alias': dut_alias}
+                dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine, 'cli_obj': cli_obj,
+                            'dut_alias': dut_alias, 'switch_type': switch_type, 'dut_ip': dut_ip}
                 setup_info['duts'].append(dut_info)
             elif host == 'hypervisor':
                 hypervisor_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']

@@ -69,6 +69,8 @@ class NvosConst:
 
     SONIC_MGMT = 'sonic_mgmt'
 
+    DEFAULT_PASS = 'YourPaSsWoRd'
+
 
 class ApiType:
     NVUE = "NVUE"

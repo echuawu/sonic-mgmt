@@ -245,6 +245,7 @@ def update_topology_with_cli_class(topology):
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 player_info['cli'] = NvueCli(topology)
                 player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
+                player_info['attributes'].noga_query_data['attributes']['Common']['Description'] = "dut"
             else:
                 player_info['cli'] = SonicCli(topology)
                 player_info.update({'stub_cli': SonicCliStub(topology)})

@@ -149,12 +149,12 @@ def _verify_cleanup_done(engine, current_time, system, username):
 
     with allure.step("Verify NVOS HOOKs were deleted"):
         output = engine.run_cmd("ls /host/mlnx/images")
-        if output or "No such file or directory" not in output:
+        if output and "No such file or directory" not in output:
             errors += "\nNVOS Hooks were not deleted"
 
     with allure.step("Verify tech-support files were deleted"):
         output = engine.run_cmd("ls /var/dump")
-        if output or "No such file or directory" not in output:
+        if output and "No such file or directory" not in output:
             errors += "\ntech-support files were not deleted"
 
     with allure.step("Verify history was deleted"):
@@ -179,7 +179,7 @@ def _verify_cleanup_done(engine, current_time, system, username):
         output = engine.run_cmd("stat /var/log/lastlog | grep Modify")
         if output and "No such file or directory" not in output:
             file_date_time = _create_date_time_obj(output)
-            if current_time <= file_date_time:
+            if current_time >= file_date_time:
                 errors += "\n/var/log/lastlog was not created"
 
         output = engine.run_cmd("stat /var/log/wtmp | grep Modify")

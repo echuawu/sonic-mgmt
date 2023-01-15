@@ -6,6 +6,8 @@ import json
 import time
 import shutil
 import os
+import subprocess
+import shlex
 
 logger = logging.getLogger()
 
@@ -13,9 +15,12 @@ logger = logging.getLogger()
 class NvosInstallationSteps:
 
     @staticmethod
-    def pre_installation_steps():
+    def pre_installation_steps(setup_info):
         """
         Pre-installation steps for NVOS NOS
+
+        Check if MLNXOS installed on this setup. If so, use boot_to_onie script located in a static directory
+        /auto/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py to enter onie before installing NVOS
         """
         pass
 

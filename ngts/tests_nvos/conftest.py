@@ -17,6 +17,11 @@ from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
 
+available_mts_devices = \
+    {"10.7.144.154": "/dev/mst/mt4123_pciconf3 2, /dev/mst/mt4123_pciconf2 2",
+     "10.7.144.153": "/dev/mst/mt4123_pciconf3 1, /dev/mst/mt4123_pciconf2 1",
+     "10.7.144.119": "/dev/mst/mt4123_pciconf1 1, /dev/mst/mt4123_pciconf0 1"}
+
 
 def pytest_addoption(parser):
     """
@@ -30,6 +35,8 @@ def pytest_addoption(parser):
                      help='The name of the mst device. For example: /dev/mst/mt4123_pciconf0')
     parser.addoption("--restore_to_image",
                      action="store", default=None, help="restore image after error flow")
+    parser.addoption("--traffic_available",
+                     action="store", default='True', help="True to run traffic tests")
 
 
 @pytest.fixture(scope='session')
@@ -59,13 +66,26 @@ def devices(topology_obj):
 
 
 @pytest.fixture
-def start_sm(engines):
+def traffic_available(request):
+    """
+    True is traffic functionality is available for current setup
+    :param request: pytest builtin
+    :return: True/False
+    """
+    return bool(request.config.getoption('--traffic_available'))
+
+
+@pytest.fixture
+def start_sm(engines, traffic_available):
     """
     Starts OpenSM
     """
-    result = OpenSmTool.start_open_sm(engines.dut)
-    if not result.result:
-        logging.warning("Failed to start openSM using NVUE commands")
+    if traffic_available:
+        result = OpenSmTool.start_open_sm(engines.dut)
+        if not result.result:
+            logging.warning("Failed to start openSM using NVUE commands")
+    else:
+        logging.warning("Traffic is not available on this setup")
 
 
 @pytest.fixture
@@ -89,8 +109,11 @@ def release_name(request):
 
 
 @pytest.fixture(scope="session")
-def mst_device(request):
-    return request.config.getoption('--mst_device')
+def mst_device(request, engines):
+    mts_device = request.config.getoption('--mst_device')
+    if not mts_device and engines.dut.ip in available_mts_devices.keys():
+        mts_device = available_mts_devices[engines.dut.ip]
+    return mts_device
 
 
 @pytest.fixture(scope='session', autouse=True)

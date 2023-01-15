@@ -171,7 +171,7 @@ def validate_history_labels(history_list, username):
     if user != username:
         err_message += 'the user is not equal to the user name'
 
-    if apply_id >= str(len(history_list)):
+    if apply_id < str(len(history_list)):
         err_message += 'the rev_id is not as expected, should be rev_<applies_amount> or less'
 
     return err_message

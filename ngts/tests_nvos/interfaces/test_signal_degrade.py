@@ -100,6 +100,10 @@ def test_check_signal_degrade_functionality(engines, mst_device, start_sm):
     Send broken traffic and make sure the signal degrade functionality works as expected
     :param engines: ssh engine
     """
+    if not mst_device:
+        logging.info("Signal degrade testing functionality is not available for this setup")
+        pytest.skip("Signal degrade testing functionality is not available for this setup")
+
     with allure.step("Get a random active port"):
         active_ports, selected_port = _get_active_ports()
 
