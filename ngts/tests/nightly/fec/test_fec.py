@@ -12,7 +12,7 @@ from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
-from ngts.helpers.interface_helpers import get_lb_mutual_speed
+from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.push_build_tests.L2.lldp.test_lldp import verify_lldp_neighbor_info_for_sonic_port
 
 
@@ -355,6 +355,8 @@ class TestFec:
             logger.info(f"Configure FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}")
             self.configure_fec_speed_on_ports(dut_host_conf, [dut_host_port], speed, fec_mode,
                                               interface_type, cleanup_list)
+        with allure.step(f"Configure AUTONEG mode: enabled on dut host port: {dut_host_port}"):
+            self.cli_objects.dut.interface.config_auto_negotiation_mode(dut_host_port, mode="enabled")
         with allure.step(f"Verify FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}"):
             logger.info(f"Verify FEC mode: {fec_mode} with speed: {speed} on dut host port: {dut_host_port}")
             self.verify_fec_configuration(dut_host_conf, lldp_checker=False)
@@ -451,11 +453,16 @@ class TestFec:
                                   interface_type, cleanup_list, set_cleanup=True):
         if set_cleanup:
             self.set_speed_fec_cleanup(port, cleanup_list)
+        self.cli_objects.dut.interface.config_auto_negotiation_mode(port, "disabled")
         self.cli_objects.dut.interface.config_interface_type(port, 'none')
         self.cli_objects.dut.interface.set_interface_speed(port, speed)
+        self.cli_objects.dut.interface.config_advertised_speeds(port, speed_string_to_int_in_mb(speed))
         self.cli_objects.dut.interface.config_interface_type(port, interface_type)
+        self.cli_objects.dut.interface.config_advertised_interface_types(port, interface_type)
         self.cli_objects.dut.interface.configure_interface_fec(port, tested_fec_mode)
         conf[port] = {AutonegCommandConstants.SPEED: speed,
+                      AutonegCommandConstants.ADV_SPEED: speed,
+                      AutonegCommandConstants.ADV_TYPES: interface_type,
                       AutonegCommandConstants.FEC: tested_fec_mode,
                       AutonegCommandConstants.WIDTH: self.get_interface_width(interface_type),
                       AutonegCommandConstants.ADMIN: 'up',
@@ -488,6 +495,8 @@ class TestFec:
         cleanup_list.append((self.cli_objects.dut.interface.set_interface_speed, (port, base_speed)))
         cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (port,
                                                                                     base_interface_type)))
+        cleanup_list.append((self.cli_objects.dut.interface.config_advertised_speeds, (port, "all")))
+        cleanup_list.append((self.cli_objects.dut.interface.config_advertised_interface_types, (port, "all")))
         cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (port, base_fec)))
 
     def update_conf(self, conf):

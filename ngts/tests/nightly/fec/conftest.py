@@ -24,8 +24,6 @@ def fec_configuration(topology_obj, interfaces, setup_name, engines, cli_objects
     tested_ports += get_tested_ports(tested_lb_dict)
     tested_ports += get_tested_ports(tested_lb_dict_for_bug_2705016_flow)
     tested_ports += tested_dut_host_ports
-    for port in tested_ports:
-        cli_objects.dut.interface.config_auto_negotiation_mode(port, mode="disabled")
     yield
 
     logger.info('Starting FEC configuration cleanup')
