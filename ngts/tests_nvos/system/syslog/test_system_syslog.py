@@ -604,7 +604,7 @@ def test_rsyslog_format(engines):
         with allure.step("Set firewall name and validate"):
             logging.info("Set firewall name and validate")
             firewall_name = RandomizationTool.get_random_string(6, ascii_letters=string.ascii_letters)
-            system.syslog.format.set_firewall_name(firewall_name, apply=True)
+            system.syslog.format.welf.set_firewall_name(firewall_name, apply=True)
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             output = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.show_format()).get_returned_value()
             ValidationTool.compare_dictionary_content(output, {SyslogConsts.FORMAT:
@@ -616,7 +616,7 @@ def test_rsyslog_format(engines):
 
         with allure.step("Unset firewall name and validate"):
             logging.info("Unset firewall name and validate")
-            system.syslog.format.unset_firewall_name(apply=True)
+            system.syslog.format.welf.unset_firewall_name(apply=True)
             expected_syslog_dictionary[SyslogConsts.FORMAT] = {SyslogConsts.WELF: {}}
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF:
