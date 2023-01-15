@@ -42,3 +42,16 @@ def disable_password_hardening_rules(engines):
         logger.info('Enbaling back password hardening rules')
         system.security.password_hardening.set(SystemConsts.USERNAME_PASSWORD_HARDENING_STATE, SystemConsts.USER_STATE_ENABLED)
         NvueGeneralCli.apply_config(engines.dut, True)
+
+
+@pytest.fixture(scope='function')
+def restore_original_record_period():
+    '''
+    @summary: reset the login record period param back to default
+    '''
+    system = System()
+
+    yield
+
+    logger.info("Restoring login-record-period original value")
+    system.ssh_server.unset(LoginSSHNotificationConsts.RECORD_PERIOD)

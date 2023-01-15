@@ -7,6 +7,7 @@ import allure
 import pexpect
 import logging
 import pytest
+import json
 from ngts.tests_nvos.general.security.test_login_ssh_notification.constants import LoginSSHNotificationConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -146,7 +147,8 @@ def change_username_password(engines, username, curr_password, new_password):
 
 def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability,
                                                     check_password_change_msg=False,
-                                                    check_role_change_msg=False):
+                                                    check_role_change_msg=False,
+                                                    expected_login_record_period=None):
     '''
     @summary: in this test case we want to validate the output of default fields
     of login ssh notification, where we want to check the following parameters:
@@ -168,6 +170,7 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
     :param capability: the username capability, could be one of [admin, monitor]
     :param check_password_change_msg: if set true will check if password message appeared
     :param check_role_change_msg: if set true will check if role message appeared
+    :param expected_login_record_period: if not None, will validate same value as the notification value
     '''
     random_number_of_connection_fails = random.randint(5, 15)
     with allure.step("Fail connecting to device {}".format(random_number_of_connection_fails)):
@@ -244,7 +247,13 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
         else:
             assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is None, \
                 "Capability change message appeared when it should not"
-    logger.info("Test is Done")
+
+    if expected_login_record_period:
+        with allure.step("Validating login-record-period value"):
+            logger.info("Validating login-record-period value")
+            assert second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD] == str(expected_login_record_period), \
+                "Not same login record period value, expected: {}, actual: {}".format(expected_login_record_period,
+                                                                                      second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD])
 
 
 @pytest.mark.simx
@@ -334,3 +343,40 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
             logger.info('Delete created user {}'.format(user_name))
             if system and system.aaa and system.aaa.user:
                 system.aaa.user.unset(apply=True, ask_for_confirmation=True)
+
+
+@pytest.mark.simx
+@pytest.mark.login_ssh_notification
+@pytest.mark.checklist
+def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_address,
+                                                       restore_original_record_period):
+    '''
+    @summary: in this test case we want to test the new cli commands for login ssh notification,
+    this test case will contain the good flow,
+    commands to be tested:
+    1. nv set system ssh-server login-record-period
+    2. nv show system ssh-server
+    '''
+    system = System(None)
+
+    with allure.step("Validating ssh login record period set command"):
+        logger.info("Validating ssh login record period set command")
+
+    with allure.step("Setting new value for login record period"):
+        logger.info("Setting new value for login record period")
+        record_days = random.randint(LoginSSHNotificationConsts.MIN_RECORD_PERIOD_VAL, LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL)
+        system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD, record_days, apply=True, ask_for_confirmation=True)
+        validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
+                                                        username=DefaultConnectionValues.ADMIN,
+                                                        password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                        capability=SystemConsts.ROLE_CONFIGURATOR,
+                                                        check_password_change_msg=False,
+                                                        check_role_change_msg=False,
+                                                        expected_login_record_period=record_days)
+
+    with allure.step("Validating Validating show system ssh-server command"):
+        logger.info("Validating Validating show system ssh-server command")
+        output = json.loads(system.ssh_server.show())
+        assert output[LoginSSHNotificationConsts.RECORD_PERIOD] == str(record_days), \
+            "Could not match same login record period ib the show system ssh-server command\n" \
+            "expected: {}, actual: {}".format(record_days, output[LoginSSHNotificationConsts.RECORD_PERIOD])

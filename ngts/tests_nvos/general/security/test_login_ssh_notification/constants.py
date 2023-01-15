@@ -14,7 +14,7 @@ class LoginSSHNotificationConsts:
     LAST_UNSUCCESSFUL_LOGIN_TIME = 'last_unsuccessful_login_time'
     LAST_UNSUCCESSFUL_LOGIN_IP = 'last_unsuccessful_login_ip'
     NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN = 'number_of_unsuccessful_attempts_since_last_login'
-    RECORD_PERIOD = 'record_period'
+    RECORD_PERIOD = 'login-record-period'
     NUMBER_OF_SUCCESSFUL_CONNECTIONS_IN_THE_LAST_RECORD_PERIOD = 'number_of_successful_connections_in_the_last_record_period'
     PASSWORD_CHANGED_MESSAGE = 'password_changed_message'
     ROLE_CHANGED_MESSAGE = 'role_changed_message'
@@ -53,3 +53,5 @@ class LoginSSHNotificationConsts:
     MONITOR_CAPABITILY = 'monitor'
 
     MAX_TIME_DELTA_BETWEEEN_CONNECTIONS = 120
+    MIN_RECORD_PERIOD_VAL = 1
+    MAX_RECORD_PERIOD_VAL = 30
