@@ -378,13 +378,11 @@ class SonicInterfaceCli(InterfaceCliCommon):
             Running Breakout Mode : 1x100G[50G,40G,25G,10G,1G]
             Target Breakout Mode : 2x50G[25G,10G,1G]
             ​...
-            Final list of ports to be added :
+            ports to be added :
              {
                 "Ethernet124": "50000",
                 "Ethernet126": "50000"
             }
-            ...
-            Do you wish to Continue? [y/N]: y
             U+001B[4mBreakout process got successfully completed.
             Please note loaded setting will be lost after system reboot. To preserve setting, run `config save`.
         :return: a dictionary of created ports after breakout command:
@@ -401,7 +399,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
                          r"Mode", r"are", r"same"])
         created_breakout_ports = {}
         if not re.search(expected_msg_breakout_mode_same, breakout_cmd_output, re.IGNORECASE):
-            regex_prefix = r"Final list of ports to be added :.*(\r|\n)*.*"
+            regex_prefix = r"ports to be added :.*(\r|\n)*.*"
             regex_grep_added_ports_json_dict = r"({(.|\n)*,*(\n|\r|.)*})"
             regex_suffix = r"(\n|\r|.)*sonic_yang" if "sonic_yang" in breakout_cmd_output else ''
             regex = regex_prefix + regex_grep_added_ports_json_dict + regex_suffix
