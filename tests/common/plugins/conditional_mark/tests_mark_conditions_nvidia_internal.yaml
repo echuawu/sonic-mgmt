@@ -543,6 +543,12 @@ platform_tests/test_auto_negotiation.py:
     conditions:
       - "'3800' in platform"
 
+platform_tests/test_auto_negotiation.py::test_force_speed:
+  skip:
+    reason: "Missing adaptation of fanout code to this test. Community issue https://github.com/sonic-net/sonic-mgmt/issues/7271"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7271
+
 platform_tests/api/test_sfp.py::TestSfpApi::test_reset:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3065705 and branch 202205/master and platform msn2410/msn3420/msn2010"
