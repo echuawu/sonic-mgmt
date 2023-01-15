@@ -55,3 +55,6 @@ class LoginSSHNotificationConsts:
     MAX_TIME_DELTA_BETWEEEN_CONNECTIONS = 120
     MIN_RECORD_PERIOD_VAL = 1
     MAX_RECORD_PERIOD_VAL = 30
+    AUTH_LOGS_SHARED_LOCATION = '/auto/sw_system_release/nos/nvos/security/login_ssh_notification/*'
+    AUTH_LOG_SWITCH_PATH = '/var/log'
+    MAX_LOGIN_TIME = 10

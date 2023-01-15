@@ -380,3 +380,41 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
         assert output[LoginSSHNotificationConsts.RECORD_PERIOD] == str(record_days), \
             "Could not match same login record period ib the show system ssh-server command\n" \
             "expected: {}, actual: {}".format(record_days, output[LoginSSHNotificationConsts.RECORD_PERIOD])
+
+
+@pytest.mark.simx
+@pytest.mark.login_ssh_notification
+@pytest.mark.checklist
+def test_login_ssh_notification_performance(engines, login_source_ip_address, restore_original_record_period,
+                                            delete_auth_logs):
+    '''
+    @summary: in this test case we want to validate the performance of the feature when there is a huge
+    auth.log file
+    '''
+    system = System(None)
+
+    with allure.step("Setting max value for login record period"):
+        logger.info("Setting max value for login record period")
+        system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD,
+                              LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL,
+                              apply=True, ask_for_confirmation=False)
+
+    with allure.step("populating auth. logs by uploading from previously created files"):
+        logger.info("populating auth. logs by uploading from previously created files")
+        player_engine = engines['sonic_mgmt']
+        player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                            dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                            dest_folder=LoginSSHNotificationConsts.AUTH_LOG_SWITCH_PATH,
+                                            dest_ip=engines.dut.ip,
+                                            local_file_path=LoginSSHNotificationConsts.AUTH_LOGS_SHARED_LOCATION)
+
+    with allure.step("Measuring login time"):
+        logger.info("Measuring login time")
+        start_time = datetime.datetime.now()
+        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip)
+        end_time = datetime.datetime.now()
+        login_time_sec = end_time.second - start_time.second
+        logger.info("Login time is: {} secs".format(login_time_sec))
+        assert login_time_sec <= LoginSSHNotificationConsts.MAX_LOGIN_TIME, \
+            "Took too long to login to switch using ssh, max threshold: {}," \
+            "actual: {}".format(LoginSSHNotificationConsts.MAX_LOGIN_TIME, login_time_sec)

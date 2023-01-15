@@ -55,3 +55,13 @@ def restore_original_record_period():
 
     logger.info("Restoring login-record-period original value")
     system.ssh_server.unset(LoginSSHNotificationConsts.RECORD_PERIOD)
+
+
+@pytest.fixture(scope='function')
+def delete_auth_logs(engines):
+    '''
+    @summary: will be used to delete all the auth.logs under /var/log/
+    '''
+    dut_engine = engines.dut
+    logger.info("Deleting all the auth. logs in the switch")
+    dut_engine.run_cmd('sudo rm -f /var/log/auth.log*')
