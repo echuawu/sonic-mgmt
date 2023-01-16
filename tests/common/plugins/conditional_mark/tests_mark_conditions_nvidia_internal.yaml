@@ -202,9 +202,11 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored on all SPC1 by bug 3289396"
+    reason: "Testcase ignored on some SPC1 platforms by bug 3331715"
     conditions:
-      - "https://redmine.mellanox.com/issues/3289396 and 'sn2' in platform"
+      - "https://redmine.mellanox.com/issues/3331715 and '2100' in platform"
+      - "https://redmine.mellanox.com/issues/3331715 and '2410' in platform"
+      - "https://redmine.mellanox.com/issues/3331715 and '2700' in platform"
 
 tests/nightly/fec:
   skip:
@@ -1135,9 +1137,9 @@ pc/test_lag_2.py::test_lag:
 
 platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_option_dom:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3226742"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3331528"
     conditions:
-      - "https://redmine.mellanox.com/issues/3226742"
+      - "https://redmine.mellanox.com/issues/3331528"
 
 ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
   skip:
