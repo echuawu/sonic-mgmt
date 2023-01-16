@@ -528,9 +528,11 @@ platform_tests:
 
 platform_tests/test_auto_negotiation.py:
   skip:
-    reason: "Testcase ignored due to platform 3800"
+    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3332324 or platform 3800"
+    conditions_logical_operator: or
     conditions:
       - "'3800' in platform"
+      - https://redmine.mellanox.com/issues/3332324
 
 platform_tests/test_auto_negotiation.py::test_force_speed:
   skip:
