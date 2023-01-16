@@ -33,6 +33,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                                     /root/mars/workspace/sonic-mgmt")
         self.add_cmd_argument("--dut-name", required=True, dest="dut_name",
                               help="DUT name, for example: arc-switch1029")
+        self.add_cmd_argument("--setup-name", required=False, dest="setup_name",
+                              help="Setup name, for example: sonic-dual-tor-tigon")
         self.add_cmd_argument("--sonic-topo", required=True, dest="sonic_topo",
                               help="Topology for SONiC testing, for example: t0, t1, t1-lag, ptf32, etc.")
         self.add_cmd_argument("--test-scripts", required=True, dest="test_scripts",
@@ -192,6 +194,22 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                          REPORT_FILE=self.report_file,
                          OPTIONS=self.raw_options,
                          ALLURE_PROJ=allure_proj_pytest_arg)
+        # For dualtor test, need to use setup name in --testbed
+        if 'dualtor' in (self.sonic_topo):
+            cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
+                           ../ansible/library/ --testbed {SETUP_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
+                           --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
+                           --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
+            cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
+                             SCRIPTS=self.test_scripts,
+                             DUT_NAME=self.dut_name,
+                             SETUP_NAME=self.setup_name,
+                             SONIC_TOPO=self.sonic_topo,
+                             SESSION_ID=self.session_id,
+                             MARS_KEY_ID=self.mars_key_id,
+                             REPORT_FILE=self.report_file,
+                             OPTIONS=self.raw_options,
+                             ALLURE_PROJ=allure_proj_pytest_arg)
         # Take the first epoint as just one is specified in *.setup file. Currently supported are: SONIC_MGMT or NGTS
         # Take the first player as just one is specified in *.setup file
         epoint = self.EPoints[0]
@@ -244,6 +262,9 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         topos = [self.sonic_topo.split('-')[testbed_type_index]]
         topos.append("any")
         topos.append("util")  # this is only for test_pretest and test_nbr_health
+        # Need to add t0 for dualtor topology as some community dualtor tests only mark topology as t0
+        if 'dualtor' in self.sonic_topo:
+            topos.append('t0')
         self.topology = ",".join(topos)
 
     def collect_allure_report_data(self):
