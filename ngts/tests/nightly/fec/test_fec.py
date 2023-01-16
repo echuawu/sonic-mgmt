@@ -80,10 +80,6 @@ class TestFec:
             logger.info("Configure IP on dut - host connectivities for traffic validation")
             ip_conf = self.set_peer_port_ip_conf(cleanup_list)
 
-        with allure.step("Configure FEC on host - dut connectivities"):
-            logger.info("Configure FEC on host - dut connectivities")
-            self.configure_fec_mode_on_host(cleanup_list)
-
         with allure.step("Configure and verify FEC with all speed options on dut - host ports"):
             logger.info("Configure and verify FEC with all speed options on dut - host ports")
             dut_host_conf = self.check_all_speeds_with_fec_on_host_ports(ip_conf, cleanup_list)
@@ -106,6 +102,10 @@ class TestFec:
             logger.info("Cleanup Configuration")
             cleanup(cleanup_list)
             self.update_conf(dut_host_conf)
+
+        for dut_host_port in dut_host_conf.keys():
+            with allure.step(f"Configure AUTONEG mode: enabled on dut host port: {dut_host_port}"):
+                self.cli_objects.dut.interface.config_auto_negotiation_mode(dut_host_port, mode="enabled")
 
         with allure.step("Verify FEC on dut - host connectivities"):
             logger.info("Verify FEC on dut - host connectivities returned to default configuration")
@@ -146,6 +146,9 @@ class TestFec:
             self.configure_fec_on_dut_host_port(conf, mode_to_configure_on_host,
                                                 split_mode, dut_host_port, host_dut_port,
                                                 cleanup_list)
+
+        with allure.step(f"Configure AUTONEG mode: enabled on dut host port: {dut_host_port}"):
+            self.cli_objects.dut.interface.config_auto_negotiation_mode(dut_host_port, mode="enabled")
 
         with allure.step("Verify FEC on dut - host connectivity is UP after correct FEC configuration"):
             self.verify_fec_configuration(conf, lldp_checker=False)
@@ -490,13 +493,14 @@ class TestFec:
         base_speed = self.dut_ports_basic_speeds_configuration[port]
         base_fec = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.FEC]
         base_interface_type = self.dut_ports_basic_mlxlink_configuration[port][AutonegCommandConstants.TYPE]
+        cleanup_list.append((self.cli_objects.dut.interface.config_auto_negotiation_mode, (port, "disabled")))
         cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (port,
                                                                                     'none')))
         cleanup_list.append((self.cli_objects.dut.interface.set_interface_speed, (port, base_speed)))
         cleanup_list.append((self.cli_objects.dut.interface.config_interface_type, (port,
                                                                                     base_interface_type)))
-        cleanup_list.append((self.cli_objects.dut.interface.config_advertised_speeds, (port, "all")))
-        cleanup_list.append((self.cli_objects.dut.interface.config_advertised_interface_types, (port, "all")))
+        cleanup_list.append((self.cli_objects.dut.interface.config_advertised_speeds, (port, speed_string_to_int_in_mb(base_speed))))
+        cleanup_list.append((self.cli_objects.dut.interface.config_advertised_interface_types, (port, base_interface_type)))
         cleanup_list.append((self.cli_objects.dut.interface.configure_interface_fec, (port, base_fec)))
 
     def update_conf(self, conf):
