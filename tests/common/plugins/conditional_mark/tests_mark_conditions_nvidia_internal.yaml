@@ -105,7 +105,6 @@ tests/push_build_tests/general/qos/test_qos_reload.py:
     conditions_logical_operator: or
     conditions:
       - "'202012' in release or '202111' in release"
-      - "https://redmine.mellanox.com/issues/3288459 and 'master' in release"
 
 tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
   skip:
@@ -233,8 +232,6 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
     conditions_logical_operator: or
     conditions:
       - "'3800' in platform or 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3130505 and '3700' in platform and '202205' in release"
-      - "https://redmine.mellanox.com/issues/3130505 and '3700' in platform and 'master' in release"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   skip:
@@ -322,7 +319,7 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
       - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member:
@@ -330,7 +327,7 @@ tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
       - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_renew_request_from_global_ip:
@@ -338,7 +335,7 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
       - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route:
@@ -346,7 +343,7 @@ tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_r
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and 'master' in release"
+      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
       - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
@@ -487,14 +484,6 @@ platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
     conditions:
       - "https://redmine.mellanox.com/issues/3269464 and 'sn2201' in platform"
 
-pfcwd/test_pfcwd_warm_reboot.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3115164 and branch 202111/master"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3115164 and '202111' in release"
-      - "https://redmine.mellanox.com/issues/3115164 and 'master' in release"
-
 platform_tests/test_cpu_memory_usage.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3084909 and platform nvda_bf"
@@ -549,25 +538,11 @@ platform_tests/test_auto_negotiation.py::test_force_speed:
     conditions:
       - https://github.com/sonic-net/sonic-mgmt/issues/7271
 
-platform_tests/api/test_sfp.py::TestSfpApi::test_reset:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3065705 and branch 202205/master and platform msn2410/msn3420/msn2010"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3065705 and ('202205' in release or 'master' in release) and ('msn2410' in platform or 'msn3420' in platform or 'msn2010' in platform)"
-
 pfc_asym/test_pfc_asym.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2918636"
     conditions:
       - https://redmine.mellanox.com/issues/2918636
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3123080 and branch master"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3123080 and 'master' in release"
-      - "https://redmine.mellanox.com/issues/3168593 and '202205' in release and ('r-tigris-22' in testbed or 'r-panther-13' in testbed)"
 
 ecmp/test_fgnhg.py:
   skip:
@@ -649,18 +624,6 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2382365 and '2100' in platform"
-
-platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
-  skip:
-    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3108303 and 'msn4' in platform and ('202111' in release or 'master' in release)"
-
-platform_tests/cli/test_show_platform.py::test_show_platform_firmware_status:
-  skip:
-    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3236436 and 'master' in release"
 
 platform_tests/test_reboot.py:
   skip:
@@ -1179,12 +1142,6 @@ ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3208701"
     conditions:
       - "https://redmine.mellanox.com/issues/3208701"
-
-memory_checker/test_memory_checker.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3267065 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3267065 and 'master' in release"
 
 platform_tests/mellanox/test_reboot_cause.py:
   skip:
