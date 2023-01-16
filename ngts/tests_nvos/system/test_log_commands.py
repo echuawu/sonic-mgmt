@@ -219,7 +219,7 @@ def test_rotate_debug_log_files(engines):
     with allure.step("Rotate debug-log 5 times to create log files"):
         logging.info("Rotate log 5 times to create log files")
         for i in range(0, 5):
-            system.debug_log.rotate_debug_logs()
+            system.debug_log.rotate_logs()
 
         logging.info("Check we have 5 log files")
         show_output = system.debug_log.files.show()

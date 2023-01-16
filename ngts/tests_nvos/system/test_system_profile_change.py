@@ -82,6 +82,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
     """
     system = System(None)
     with allure.step("Verify correct Noga setup"):
+        traffic_hosts = [engines.ha, engines.hb]
         assert engines.ha and engines.hb, "Traffic hosts details can't be found in Noga setup"
 
     with allure.step("Start OpenSM and check traffic port up"):
@@ -91,8 +92,11 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
             port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
                                                   logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
+    with allure.step('Check host ports up'):
+        for host in traffic_hosts:
+            _check_port_up_on_hosts(host)
+
     with allure.step("Run traffic"):
-        time.sleep(5)
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step('Change adaptive-routing-groups, check changes and traffic'):
@@ -118,8 +122,11 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
                 port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
                                                       logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
+        with allure.step('Check host ports up'):
+            for host in traffic_hosts:
+                _check_port_up_on_hosts(host)
+
         with allure.step("Run traffic"):
-            time.sleep(5)
             Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step('Disable adaptive routing'):
@@ -149,8 +156,11 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
                 port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
                                                       logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
+        with allure.step('Check host ports up'):
+            for host in traffic_hosts:
+                _check_port_up_on_hosts(host)
+
         with allure.step("Run traffic"):
-            time.sleep(5)
             Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
 
@@ -343,6 +353,18 @@ def test_system_profile_change_upgrade_not_default_profile(engines):
                                                         SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
+
+
+def _check_port_up_on_hosts(host, state='Up', tries=10, timeout=1):
+    for _ in range(tries):
+        link_info_output = host.run_cmd('ibdev2netdev')
+        if state in link_info_output:
+            break
+        elif state not in link_info_output:
+            time.sleep(timeout)
+            continue
+        else:
+            assert 'Traffic port on host not in {} state'.format(state)
 
 
 def _run_cmd_nvue(engines, cmds_to_run, num_of_iterations):
