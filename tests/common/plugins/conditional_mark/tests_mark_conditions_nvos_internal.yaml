@@ -53,4 +53,10 @@ tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotat
   skip:
     reason: "Not implemented command"
 
+tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled_sm:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3319326"
+    conditions:
+      - https://redmine.mellanox.com/issues/3319326
+
 ########################## NVOS IGNORE END ##########################
