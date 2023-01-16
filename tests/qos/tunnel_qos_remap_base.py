@@ -233,14 +233,16 @@ def _remove_ssh_tunnel_to_syncd_rpc(duthost):
 
 
 @pytest.fixture(scope='module')
-def swap_syncd(rand_selected_dut, creds):
-    # Swap syncd container
-    docker.swap_syncd(rand_selected_dut, creds)
-    _create_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
+def swap_syncd(rand_selected_dut, creds, request):
+    if request.config.getoption("--qos_swap_syncd"):
+        # Swap syncd container
+        docker.swap_syncd(rand_selected_dut, creds)
+        _create_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
     yield
-    # Restore syncd container
-    docker.restore_default_syncd(rand_selected_dut, creds)
-    _remove_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
+    if request.config.getoption("--qos_swap_syncd"):
+        # Restore syncd container
+        docker.restore_default_syncd(rand_selected_dut, creds)
+        _remove_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
 
 
 def _update_docker_service(duthost, docker="", action="", service=""):
