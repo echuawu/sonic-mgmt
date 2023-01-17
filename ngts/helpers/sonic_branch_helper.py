@@ -64,6 +64,12 @@ def is_sanitizer_image(topology):
         logger.warning(f'Unable to get sanitizer. Assuming that the device is not reachable. '
                        f'Setting the sanitizer as False, '
                        f'Got error: {err}')
+    except BaseException as err:
+        if topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] \
+                in NvosCliTypes.NvueCliTypes:
+            logger.info(f"Error ignored ({err}) - this is NVOS setup ")
+        else:
+            raise err
     if sanitizer == "yes":
         logger.info("The sonic image has sanitizer")
         is_sanitizer = True

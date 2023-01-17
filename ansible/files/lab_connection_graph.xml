@@ -167,6 +167,14 @@
       <Device Hostname="gorilla-simx-87" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-simx-88" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="jaguar-113" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="jaguar-112" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-126" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-125" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-62" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-11" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-170" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-169" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-168" HwSku="ACS-MQM8700" Type="DevSonic"/>
     </Devices>
     <DeviceInterfaceLinks>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1007" EndPort="ethernet 1/1" StartDevice="arc-switch1038" StartPort="Ethernet0"/>

@@ -114,6 +114,8 @@ def test_check_signal_degrade_functionality(engines, mst_device, start_sm):
     try:
         with allure.step("Verify correct Noga setup"):
             assert engines.server, "Traffic server details can't be found in Noga setup"
+            with allure.step("Start mst on server"):
+                _start_mst(engines)
 
         with allure.step("Check signal degrade for state = enabled and action = shutdown"):
             _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_device, selected_port)
@@ -138,6 +140,16 @@ def test_check_signal_degrade_functionality(engines, mst_device, start_sm):
     finally:
         selected_port.ib_interface.signal_degrade.unset(comp="")
         _recover_port(selected_port)
+
+
+def _start_mst(engines):
+    with allure.step("Check if mst is already running"):
+        logging.info("Check if mst is already running")
+        output = engines.server.run_cmd("mst status -v")
+        if "MST PCI configuration module loaded" not in output:
+            engines.server.run_cmd("mst start")
+            output = engines.server.run_cmd("mst status -v")
+            assert "MST PCI configuration module loaded" in output, "Failed to start mst on server"
 
 
 def _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_device, selected_port):

@@ -11,7 +11,6 @@ from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayeresAliases
-from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 
 logger = logging.getLogger()
@@ -183,7 +182,6 @@ def get_info_from_topology(topology_obj, workspace_path):
                 dut_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('ip address', '')
                 engine = topology_obj.players[host]['engine']
                 if cli_type == "NVUE":
-                    engine.password = NvosConst.DEFAULT_PASS
                     cli_obj = NvueGeneralCli(engine)
                 else:
                     cli_obj = SonicCli(topology_obj, dut_alias=host).general

@@ -25,6 +25,8 @@ from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
 from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
+from ngts.nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -243,15 +245,25 @@ def update_topology_with_cli_class(topology):
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
-                player_info['cli'] = NvueCli(topology)
-                player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
-                player_info['attributes'].noga_query_data['attributes']['Common']['Description'] = "dut"
+                update_nvos_topology(topology, player_info)
             else:
                 player_info['cli'] = SonicCli(topology)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})
+
+
+def update_nvos_topology(topology, player_info):
+    player_info['cli'] = NvueCli(topology)
+
+    if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
+        player_info['attributes'].noga_query_data['attributes']['Specific']['TYPE'] = ""
+    else:
+        player_info['engine'] = LinuxSshEngine(player_info['engine'].ip, player_info['engine'].username,
+                                               NvosConst.DEFAULT_PASS)
+        player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
+        player_info['attributes'].noga_query_data['attributes']['Common']['Description'] = "dut"
 
 
 @pytest.fixture(scope='session')
