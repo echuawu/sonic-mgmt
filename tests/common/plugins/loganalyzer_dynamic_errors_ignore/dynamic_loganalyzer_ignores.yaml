@@ -188,6 +188,7 @@
       Branch:
       - 202111
       - master
+      - 202211
 
 - Errors_list:
     - '.* ERR swss#orchagent: :- handlePortQosMapTable: Failed to apply QoS maps to port global\. Port is not found.*'
@@ -424,6 +425,7 @@
         - 202012
         - 202111
         - master
+        - 202211
 
 - Errors_list:
     - '.* ERR swss#fdbsyncd: :- readData: netlink reports an error=-25 on reading a netlink socket'
@@ -509,6 +511,7 @@
       Branch:
         - 202111
         - master
+        - 202211
       Platform:
         - x86_64-mlnx_msn2
         - x86_64-mlnx_msn2700-r0
@@ -526,6 +529,7 @@
       Branch:
         - 202111
         - master
+        - 202211
 
 - Errors_list:
     - '.* ERR teamd#tlm_teamd: :- get_dump: Can''t get dump for LAG ''PortChannel\d+''. Skipping'
@@ -537,6 +541,7 @@
       Branch:
         - 202111
         - master
+        - 202211
 
 - Errors_list:
     - '.*ERR teamd#tlm_teamd: :- process_add_queue:.*connect to teamd after 10 attempts. LAG.*'
@@ -559,6 +564,7 @@
         - 202111
         - master
         - 202012
+        - 202211
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[PORT_DB.ERR\] Failed to get SWID\(255\) type - Parameter Exceeds Range'
@@ -582,6 +588,7 @@
       Branch:
         - 202111
         - master
+        - 202211
 
 - Errors_list:
     - '.* ERR memory_checker: \[memory_checker\] Failed to execute the command ''docker stats --no-stream --format \\{\\{.MemUsage\\}\\} .*''. Return code: ''1'''
@@ -596,6 +603,7 @@
       Branch:
         - 202111
         - master
+        - 202211
 
 - Errors_list:
     - '.* ERR syncd#SDK: :- threadFunction: time span WD exceeded \d+ ms for create:SAI_OBJECT_TYPE_SWITCH:oid:0x.*'
@@ -885,6 +893,7 @@
       Branch:
       - master
       - 202111
+      - 202211
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[FDB_UC\.ERR\] FDB: not supported fid type \(\d+\) for fid \(\d+\)\. \(Success\)'
@@ -1198,6 +1207,7 @@
       - 3110376
       Branch:
       - master
+      - 202211
 
 - Errors_list:
     - '.* ERR pmon#xcvrd: :- checkReplyType: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY'
@@ -1251,6 +1261,7 @@
       - 3123080
       Branch:
       - master
+      - 202211
 
 - Errors_list:
     - '.* ERR syncd#SDK: :- translateVidToRid: unable to get RID for VID oid:0x.*'
@@ -1261,6 +1272,7 @@
       - master
       - 202111
       - 202205
+      - 202211
 
 # #3071827: Won't fix
 - Errors_list:
@@ -1440,6 +1452,7 @@
       - 2876749
       Branch:
       - master
+      - 202211
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_MIRROR.ERR\] mlnx_sai_mirror.c.*- mlnx_mirror_policer_sx_attrs_validate: Span policer must be SAI_POLICER_COLOR_SOURCE_BLIND.*'
@@ -1566,6 +1579,7 @@
       - 3216736
       Branch:
       - master
+      - 202211
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[BULK_COUNTER\.ERR\] BULK-CNTR ioctl failed \(cmd=\d+\) error Invalid argument.*'
@@ -1773,6 +1787,7 @@
       - 3273797
       Branch:
       - master
+      - 202211
 
 - Errors_list:
     - '.*Bulk-Cntr PPCNT parser - unexpected local port.*'
