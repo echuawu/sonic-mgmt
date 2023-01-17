@@ -117,23 +117,23 @@ class TestFec:
     def test_negative_fec(self, cleanup_list, skip_if_active_optical_cable):
         split_mode = 1
         conf = {}
-        dut_host_port = self.interfaces.dut_ha_1
-        host_dut_port = self.interfaces.ha_dut_1
+        dut_host_port = self.interfaces.dut_hb_2
+        host_dut_port = self.interfaces.hb_dut_2
         port_supported_fec_modes = self.fec_capability_for_dut_ports[dut_host_port]
         mode_to_configure_on_host = random.choice(port_supported_fec_modes)
         modes_to_configure_on_dut = set(port_supported_fec_modes)
         modes_to_configure_on_dut.remove(mode_to_configure_on_host)
 
         self.configure_fec_mode_on_host_port(mode_to_configure_on_host,
-                                             self.cli_objects.ha,
-                                             self.engines.ha,
-                                             self.interfaces.ha_dut_1,
+                                             self.cli_objects.hb,
+                                             self.engines.hb,
+                                             host_dut_port,
                                              cleanup_list)
 
         for fec_mode in modes_to_configure_on_dut:
             with allure.step("Configure mismatched FEC mode: {} on dut port: {}".format(fec_mode, dut_host_port)):
                 self.configure_fec_on_dut_host_port(conf, fec_mode, split_mode,
-                                                    dut_host_port, host_dut_port, cleanup_list)
+                                                    dut_host_port, host_dut_port, cleanup_list, disable_autoneg=False)
                 conf[dut_host_port][AutonegCommandConstants.OPER] = "down"
 
             with allure.step("Verify link is down with mismatched FEC modes"):
@@ -153,7 +153,7 @@ class TestFec:
         with allure.step("Verify FEC on dut - host connectivity is UP after correct FEC configuration"):
             self.verify_fec_configuration(conf, lldp_checker=False)
             retry_call(self.verify_fec_configuration_on_host_port,
-                       fargs=[conf[dut_host_port], self.cli_objects.ha, self.interfaces.ha_dut_1],
+                       fargs=[conf[dut_host_port], self.cli_objects.hb, host_dut_port],
                        tries=6, delay=10, logger=logger)
 
     def test_fec_bug_2705016(self, cli_objects, cleanup_list, skip_if_active_optical_cable):
@@ -386,12 +386,14 @@ class TestFec:
         mutual_speeds_option = list(fec_mode_supported_speeds.intersection(ports_supported_speeds))
         return mutual_speeds_option
 
-    def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list):
+    def configure_fec_on_dut_host_port(self, conf, fec_mode, split_mode, dut_host_port, host_dut_port, cleanup_list,
+                                       disable_autoneg=True):
         mutual_speeds_option = self.get_dut_host_port_speeds_option_for_fec_mode(fec_mode, split_mode,
                                                                                  dut_host_port, host_dut_port)
         speed = random.choice(mutual_speeds_option)
         interface_type = random.choice(self.fec_modes_speed_support[fec_mode][split_mode][speed])
-        self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, interface_type, cleanup_list)
+        self.update_port_fec_conf_dict(conf, dut_host_port, speed, fec_mode, interface_type, cleanup_list,
+                                       disable_autoneg=disable_autoneg)
 
     def configure_fec_mode_on_host(self, cleanup_list):
         for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
@@ -453,10 +455,11 @@ class TestFec:
             ping.run_validation()
 
     def update_port_fec_conf_dict(self, conf, port, speed, tested_fec_mode,
-                                  interface_type, cleanup_list, set_cleanup=True):
+                                  interface_type, cleanup_list, set_cleanup=True, disable_autoneg=True):
         if set_cleanup:
             self.set_speed_fec_cleanup(port, cleanup_list)
-        self.cli_objects.dut.interface.config_auto_negotiation_mode(port, "disabled")
+        if disable_autoneg:
+            self.cli_objects.dut.interface.config_auto_negotiation_mode(port, "disabled")
         self.cli_objects.dut.interface.config_interface_type(port, 'none')
         self.cli_objects.dut.interface.set_interface_speed(port, speed)
         self.cli_objects.dut.interface.config_advertised_speeds(port, speed_string_to_int_in_mb(speed))
