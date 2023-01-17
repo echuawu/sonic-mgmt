@@ -179,8 +179,8 @@ def get_info_from_topology(topology_obj, workspace_path):
                 dut_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
                 dut_alias = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Description']
                 cli_type = topology_obj[0][host]['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
-                switch_type = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']['TYPE']
-                dut_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific']["ip address"]
+                switch_type = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', '')
+                dut_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('ip address', '')
                 engine = topology_obj.players[host]['engine']
                 if cli_type == "NVUE":
                     engine.password = NvosConst.DEFAULT_PASS
