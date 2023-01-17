@@ -413,6 +413,58 @@ scripts/check_and_store_sanitizer_dump.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3322943"
     conditions:
       - "https://redmine.mellanox.com/issues/3322943"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVrf::test_ecmp_calculator_interface_vrf[outer_dip-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVlanVrf::test_ecmp_calculator_vlan_vrf[outer_sport-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestLag::test_ecmp_calculator_lag[inner_dip-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag[inner_sip-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag[inner_next_header-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestSubInterfaceLag::test_ecmp_calculator_sub_interface_lag[inner_sip-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestSubInterface::test_ecmp_calculator_sub_interface[inner_sip-outer_inner]:
+  skip:
+    reason: "Testcase not supported on SimX platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py:
+  skip:
+    reason: "Testcase failed on some specific platform"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3333124 and 'SN4600C' in platform"
+      - "https://redmine.mellanox.com/issues/3332330 and 'SN4600' in platform"
+      - "https://redmine.mellanox.com/issues/3332330 and 'SN2201' in platform"
+
 ########################## NGTS IGNORE END ##########################
 
 
