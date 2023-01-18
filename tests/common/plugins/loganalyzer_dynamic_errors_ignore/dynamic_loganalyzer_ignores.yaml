@@ -1099,6 +1099,14 @@
       - 3320283
 
 - Errors_list:
+    - '.*ERR watchdogutil: Failed to get watchdog module.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3273006
+
+- Errors_list:
     - '.* INFO kernel: \[   \d+\.\d+\] orchagent\[\d+\]: segfault at 60 ip \S+ sp \S+ error 4 in libc-\d+.\d+.so\[\S+\+\S+\].*'
     - '.* ERR hostcfgd: sudo systemctl start pmon\.service - failed: return code - 1, output:#012None.*'
   Conditions:
