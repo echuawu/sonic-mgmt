@@ -436,6 +436,23 @@ def get_entries_num(used, available):
     return ((used + available) / 100) + 1
 
 
+def get_crm_resources_fdb_and_ip_route (duthost):
+    keys = ['ipv4_route', 'ipv6_route', 'fdb_entry']
+    output = duthost.shell("crm show resources all")
+    result = {}
+    for line in output['stdout_lines']:
+        if line:
+            line = line.split()
+            if line[0] in keys:
+                counters = {'used': int(line[1]), 'available': int(line[2])}
+                result[line[0]] = counters
+                keys.remove(line[0])
+                if not keys:
+                    break
+    pytest_assert(keys == [], "Failed to get crm resource for {}".format(str(keys)))
+    return result
+
+
 @pytest.mark.usefixtures('disable_route_checker')
 @pytest.mark.parametrize("ip_ver,route_add_cmd,route_del_cmd",
                          [("4", "{} route add 2.{}.2.0/24 via {}", "{} route del 2.{}.2.0/24 via {}"),
@@ -467,22 +484,13 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
     del_routes_template = Template(del_template)
     add_routes_template = Template(add_template)
 
-    # Get "crm_stats_ipv[4/6]_route" used and available counter value
-    get_route_stats = "{redis_cli} COUNTERS_DB HMGET \
-                            CRM:STATS crm_stats_ipv{ip_ver}_route_used \
-                            crm_stats_ipv{ip_ver}_route_available"\
-                                .format(redis_cli=asichost.sonic_db_cli,
-                                        ip_ver=ip_ver)
-    crm_stats_route_used, crm_stats_route_available = get_crm_stats(get_route_stats, duthost)
-    logging.info("crm_stats_route_used {} crm_stats_route_available {} ".format(
-        crm_stats_route_used, crm_stats_route_available))
-
-    # TODO: debug print - need to remove later
-    logging.info(duthost.shell("sudo crm show resources all")["stdout"])
-    get_fdb_stats = "{redis_cli} COUNTERS_DB HMGET CRM:STATS crm_stats_fdb_entry_used crm_stats_fdb_entry_available" \
-        .format(redis_cli=asichost.sonic_db_cli)
-    crm_stats_fdb_used, _ = get_crm_stats(get_fdb_stats, duthost)
-
+    # Get ipv[4/6]_route/fdb_entry used and available counter value
+    crm_stats = get_crm_resources_fdb_and_ip_route(duthost)
+    crm_stats_route_used = crm_stats['ipv{}_route'.format(ip_ver)]['used']
+    crm_stats_route_available = crm_stats['ipv{}_route'.format(ip_ver)]['available']
+    crm_stats_fdb_used = crm_stats['fdb_entry']['used']
+    logging.info("crm_stats_route_used {}, crm_stats_route_available {}, crm_stats_fdb_used {}".format(
+        crm_stats_route_used, crm_stats_route_available, crm_stats_fdb_used))
     # Get NH IP
     cmd = "{ip_cmd} -{ip_ver} neigh show dev {crm_intf} nud reachable nud stale \
             | grep -v fe80".format(ip_cmd=asichost.ip_cmd, ip_ver=ip_ver, crm_intf=crm_interface[0])
@@ -504,15 +512,15 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
     # Make sure CRM counters updated
     time.sleep(CRM_UPDATE_TIME)
 
-    # Get new "crm_stats_ipv[4/6]_route" used and available counter value
-    new_crm_stats_route_used, new_crm_stats_route_available = get_crm_stats(get_route_stats, duthost)
-    logging.info(" new_crm_stats_route_used {}, new_crm_stats_route_available{} ".format(
-        new_crm_stats_route_used, new_crm_stats_route_available))
+    # Get new ipv[4/6]_route/fdb_entry used and available counter value
+    crm_stats = get_crm_resources_fdb_and_ip_route(duthost)
+    new_crm_stats_route_used = crm_stats['ipv{}_route'.format(ip_ver)]['used']
+    new_crm_stats_route_available = crm_stats['ipv{}_route'.format(ip_ver)]['available']
+    crm_stats_fdb_used_after_add_route = crm_stats['fdb_entry']['used']
+    logging.info("new_crm_stats_route_used {}, new_crm_stats_route_available {}, crm_stats_fdb_used_after_add_route {}".
+                 format(new_crm_stats_route_used, new_crm_stats_route_available, crm_stats_fdb_used_after_add_route))
 
-    # TODO: debug print - need to remove later
-    logging.info(duthost.shell("sudo crm show resources all")["stdout"])
     # Get CRM available route diff in case when FDB updated during test run
-    crm_stats_fdb_used_after_add_route, _ = get_crm_stats(get_fdb_stats, duthost)
     crm_stats_route_available = get_expected_crm_stats_route_available(crm_stats_route_available, crm_stats_fdb_used,
                                                                        crm_stats_fdb_used_after_add_route)
 
@@ -534,13 +542,12 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
     # Make sure CRM counters updated
     time.sleep(CRM_UPDATE_TIME)
 
-    # Get new "crm_stats_ipv[4/6]_route" used and available counter value
-    new_crm_stats_route_used, new_crm_stats_route_available = get_crm_stats(get_route_stats, duthost)
-
-    # TODO: debug print - need to remove later
-    logging.info(duthost.shell("sudo crm show resources all")["stdout"])
+    # Get new ipv[4/6]_route/fdb_entry used and available counter value
+    crm_stats = get_crm_resources_fdb_and_ip_route(duthost)
+    new_crm_stats_route_used = crm_stats['ipv{}_route'.format(ip_ver)]['used']
+    new_crm_stats_route_available = crm_stats['ipv{}_route'.format(ip_ver)]['available']
+    crm_stats_fdb_used_after_del_route = crm_stats['fdb_entry']['used']
     # Get CRM available route diff in case when FDB updated during test run
-    crm_stats_fdb_used_after_del_route, _ = get_crm_stats(get_fdb_stats, duthost)
     crm_stats_route_available = get_expected_crm_stats_route_available(crm_stats_route_available,
                                                                        crm_stats_fdb_used_after_add_route,
                                                                        crm_stats_fdb_used_after_del_route)
@@ -579,6 +586,11 @@ def test_crm_route(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
         RESTORE_CMDS["wait"] = SONIC_RES_UPDATE_TIME
 
     # Verify thresholds for "IPv[4/6] route" CRM resource
+    # Get "crm_stats_ipv[4/6]_route" used and available counter value
+    get_route_stats = "{redis_cli} COUNTERS_DB HMGET \
+                            CRM:STATS crm_stats_ipv{ip_ver}_route_used \
+                            crm_stats_ipv{ip_ver}_route_available"\
+        .format(redis_cli=asichost.sonic_db_cli, ip_ver=ip_ver)
     verify_thresholds(duthost, asichost, crm_cli_res="ipv{ip_ver} route".format(ip_ver=ip_ver), crm_cmd=get_route_stats)
 
 
