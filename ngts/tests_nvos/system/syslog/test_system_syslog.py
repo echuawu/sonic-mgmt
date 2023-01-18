@@ -676,6 +676,7 @@ def test_rsyslog_bad_params():
         with allure.step("Configure and validate vrf"):
             logging.info("Configure and validate vrf")
             system.syslog.servers.servers_dict[server_name].set_vrf("", expected_str=INCOMPLETE_COMMAND)
+            # system.syslog.servers.servers_dict[server_name].set_vrf(rand_str, expected_str=ERROR)  # bug 3333978
 
         with allure.step("Configure and validate filter"):
             logging.info("Configure and validate filter")
