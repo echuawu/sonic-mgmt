@@ -56,10 +56,6 @@ TRANSMITTED_OCTETS = 10
 TRANSMITTED_PKTS = 11
 INGRESS_PORT_BUFFER_DROP = 12
 EGRESS_PORT_BUFFER_DROP = 13
-RECEIVED_PKTS = 14
-RECEIVED_NON_UC_PKTS = 15
-TRANSMITTED_NON_UC_PKTS = 16
-EGRESS_PORT_QLEN = 17
 port_counter_fields = ['0 OutDiscard',
                        '1 InDiscard',
                        '2 Pfc0TxPkt',
@@ -73,11 +69,7 @@ port_counter_fields = ['0 OutDiscard',
                        '10 OutOct',
                        '11 OutUcPkt',
                        '12 InDropPkt',
-                       '13 OutDropPkt',
-                       '14 InUcPkt',
-                       '15 InNonUcPkt',
-                       '16 OutNonUcPkt',
-                       '17 OutQlen']
+                       '13 OutDropPkt']
 QUEUE_0 = 0
 QUEUE_1 = 1
 QUEUE_2 = 2
@@ -1588,7 +1580,7 @@ class PFCXonTest(sai_base_test.ThriftInterfaceDataPlane):
         port_counter_indexes = [pg]
         port_counter_indexes += ingress_counters
         port_counter_indexes += egress_counters
-        port_counter_indexes += [TRANSMITTED_PKTS, RECEIVED_PKTS, RECEIVED_NON_UC_PKTS, TRANSMITTED_NON_UC_PKTS, EGRESS_PORT_QLEN]
+        port_counter_indexes += [TRANSMITTED_PKTS]
 
         # create packet
         pkt_dst_mac = router_mac if router_mac != '' else dst_port_mac
@@ -2032,7 +2024,7 @@ class HdrmPoolSizeTest(sai_base_test.ThriftInterfaceDataPlane):
         port_counter_indexes = [pg for pg in self.pgs]
         port_counter_indexes += self.ingress_counters
         port_counter_indexes += self.egress_counters
-        port_counter_indexes += [TRANSMITTED_PKTS, RECEIVED_PKTS, RECEIVED_NON_UC_PKTS, TRANSMITTED_NON_UC_PKTS, EGRESS_PORT_QLEN]
+        port_counter_indexes += [TRANSMITTED_PKTS]
         port_cnt_tbl = texttable.TextTable([''] + [port_counter_fields[fieldIdx] for fieldIdx in port_counter_indexes])
         for srcPortIdx, srcPortId in enumerate(self.src_port_ids):
             port_cnt_tbl.add_row(['base src_port{}_id{}'.format(srcPortIdx, srcPortId)] + [rx_base[srcPortIdx][fieldIdx] for fieldIdx in port_counter_indexes])
@@ -3056,7 +3048,7 @@ class PGSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
         port_counter_indexes = [pg + 2]
         port_counter_indexes += ingress_counters
         port_counter_indexes += egress_counters
-        port_counter_indexes += [TRANSMITTED_PKTS, RECEIVED_PKTS, RECEIVED_NON_UC_PKTS, TRANSMITTED_NON_UC_PKTS, EGRESS_PORT_QLEN]
+        port_counter_indexes += [TRANSMITTED_PKTS]
         stats_tbl = texttable.TextTable(['']
                                       + [port_counter_fields[fieldIdx] for fieldIdx in port_counter_indexes]
                                       + ['Ing Pg{} Pkt'.format(pg)]
@@ -3552,7 +3544,7 @@ class QSharedWatermarkTest(sai_base_test.ThriftInterfaceDataPlane):
         port_counter_indexes = [que + 2]
         port_counter_indexes += ingress_counters
         port_counter_indexes += egress_counters
-        port_counter_indexes += [TRANSMITTED_PKTS, RECEIVED_PKTS, RECEIVED_NON_UC_PKTS, TRANSMITTED_NON_UC_PKTS, EGRESS_PORT_QLEN]
+        port_counter_indexes += [TRANSMITTED_PKTS]
         stats_tbl = texttable.TextTable(['']
                                       + [port_counter_fields[fieldIdx] for fieldIdx in port_counter_indexes]
                                       + ['Ing Pg{} Pkt'.format(que)]
