@@ -461,9 +461,9 @@ tests/nightly/ecmp_calculator/test_ecmp_calculator.py:
     reason: "Testcase failed on some specific platform"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3333124 and 'SN4600C' in platform"
-      - "https://redmine.mellanox.com/issues/3332330 and 'SN4600' in platform"
-      - "https://redmine.mellanox.com/issues/3332330 and 'SN2201' in platform"
+      - "https://redmine.mellanox.com/issues/3333124 and 'sn4600c' in platform"
+      - "https://redmine.mellanox.com/issues/3332330 and 'sn4600' in platform"
+      - "https://redmine.mellanox.com/issues/3332330 and 'sn2201' in platform"
 
 ########################## NGTS IGNORE END ##########################
 
