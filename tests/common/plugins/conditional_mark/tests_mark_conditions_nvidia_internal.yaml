@@ -1222,4 +1222,11 @@ platform_tests/test_reload_config.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006 on 2700/2410"
     conditions:
       - "https://redmine.mellanox.com/issues/3273006 and ('sn2700' in platform or 'sn2410' in platform) "
+
+system_health/test_system_health.py::test_external_checker:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335093"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3335093"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
