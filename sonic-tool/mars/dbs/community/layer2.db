@@ -78,4 +78,8 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/vlan.cases </cases>
     </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bum_traffic.cases </cases>
+    </test>
 </DBDEF>
