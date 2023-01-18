@@ -176,6 +176,18 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
     conditions:
       - https://redmine.mellanox.com/issues/3302670
 
+tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3333915 and branch 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3333915 and '202211' in release"
+
+dhcp_relay/test_dhcpv6_relay:py::test_dhcpv6_relay_counter:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3333915 and branch 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3333915 and '202211' in release"
+
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2637874"
