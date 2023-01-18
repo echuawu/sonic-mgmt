@@ -1906,6 +1906,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit
       Redmine:
       - 3333068
 
@@ -1930,5 +1931,15 @@
       - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
       Redmine:
         - 3333468
+      Platform:
+        - 2201
+
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan1_speed_get - OSError.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      Redmine:
+        - 3334337
       Platform:
         - 2201
