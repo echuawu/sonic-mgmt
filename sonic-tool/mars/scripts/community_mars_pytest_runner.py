@@ -153,7 +153,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         if '--allure_server_project_id' in self.raw_options:
             allure_proj_pytest_arg = ''
         else:
-            allure_proj = get_allure_project_id(self.dut_name, self.test_scripts, get_dut_name_only=False)
+            allure_proj = get_allure_project_id(os.environ.get('MARS_SETUP_ID', self.dut_name), self.test_scripts, get_dut_name_only=False)
             allure_proj_pytest_arg = '--allure_server_project_id={}'.format(allure_proj)
 
         # If the test case contains a topology mark, add --topology parameter to the pytest raw option
@@ -249,7 +249,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
     def collect_allure_report_data(self):
         self.Logger.info('Going to upload allure data to server')
 
-        cmd = 'PYTHONPATH=/devts /ngts_venv/bin/python {}/ngts/scripts/allure_reporter.py --action upload --setup_name {}'.format(self.sonic_mgmt_path, self.dut_name)
+        cmd = 'PYTHONPATH=/devts /ngts_venv/bin/python {}/ngts/scripts/allure_reporter.py --action upload --setup_name {}'.format(self.sonic_mgmt_path, os.environ.get('MARS_SETUP_ID', self.dut_name))
         self.Logger.info('Running cmd: {}'.format(cmd))
         self.EPoints[0].Player.run_process(cmd, shell=True, disable_realtime_log=False, delete_files=False)
 

@@ -10,7 +10,6 @@ path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
 sys.path.append(sonic_mgmt_path)
 
-from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases  # noqa: E402
 from ngts.constants.constants import InfraConst  # noqa: E402
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'
@@ -128,16 +127,9 @@ if __name__ == "__main__":
     allure_server_addr = InfraConst.ALLURE_SERVER_URL
     setup_name = args.setup_name
 
-    allure_project_id = setup_name.replace('_', '-')
-
-    try:
-        topology = get_topology_by_setup_name_and_aliases(setup_name, slow_cli=False)
-        dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        allure_project_id = dut_name.replace('_', '-')
-    except Exception as err:
-        logger.warning(f'Impossible to get DUT name from Noga, using default Allure project ID: {allure_project_id}')
-
+    allure_project_id = setup_name.replace('_', '-').lower()
     allure_server_base_url = '{}/{}'.format(allure_server_addr, ALLURE_DOCKER_SERVICE)
+
     if args.action == 'upload':
         upload_results(allure_report_dir, allure_server_base_url, allure_project_id)
     if args.action == 'generate':
