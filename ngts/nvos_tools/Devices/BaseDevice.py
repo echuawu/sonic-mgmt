@@ -272,7 +272,7 @@ class BaseSwitch(BaseDevice, ABC):
                       'interface.xcvrs.presence', 'ip.addr', 'ip.interface', 'ip.link', 'ip.link.stats', 'ip.neigh',
                       'ip.neigh.noarp', 'ip.route', 'ip.rule', 'lspci', 'lsusb', 'machine.conf', 'mount', 'nat.config',
                       'nat.conntrack', 'nat.conntrackall', 'nat.conntrackallcount', 'nat.conntrackcount',
-                      'nat.iptables', 'netstat.counters_1', 'netstat.counters_2', 'nvue.gz', 'platform.summary',
+                      'nat.iptables', 'netstat.counters_1', 'netstat.counters_2', 'platform.summary',
                       'ps.aux', 'ps.extended', 'psustatus', 'queue.counters_1', 'queue.counters_2', 'reboot.cause',
                       'saidump', 'sensors', 'services.summary', 'ssdhealth', 'STATE_DB.json', 'swapon', 'sysctl',
                       'syseeprom', 'systemd.analyze.blame', 'systemd.analyze.dump', 'systemd.analyze.plot.svg',
