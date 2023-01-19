@@ -75,7 +75,7 @@ class SonicInstallationSteps:
 
         if not is_simx:
             run_containers_cmd = SonicInstallationSteps.generate_run_containers_command(python_bin_path, setup_name)
-            run_background_process_on_host(threads_dict, 'containers_bringup', run_containers_cmd, timeout=300)
+            run_background_process_on_host(threads_dict, 'containers_bringup', run_containers_cmd, timeout=600)
 
         update_repo_cmd = SonicInstallationSteps.generate_update_sonic_mgmt_cmd(python_bin_path, dut_name)
         run_background_process_on_host(threads_dict, 'update_sonic_mgmt', update_repo_cmd)
