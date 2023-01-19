@@ -236,3 +236,31 @@ class ValidationTool:
         if any(field not in str_output for field in req_fields):
             return ResultObj(False, "Not all required fields were found")
         return ResultObj(True)
+
+    @staticmethod
+    def verify_all_files_in_compressed_folder(engine, zipped_folder, files_list):
+        """
+
+        :param engine:
+        :param zipped_folder: the zipped folder path
+        :param files_list: expected files
+        :return:
+        """
+        with allure.step('Validate all expected files are exist in the compressed folder{}'.format(zipped_folder)):
+            with allure.step('Get files list in compressed folder'):
+                engine.run_cmd('sudo tar -xf ' + zipped_folder + ' -C /host/dump')
+                folder_name = zipped_folder.replace('.tar.gz', "")
+                output = engine.run_cmd('ls ' + folder_name + '/dump').split()
+                engine.run_cmd('sudo rm -rf ' + folder_name)
+
+            with allure.step('Validate that all expected files are exist and nothing more'):
+                files = [file for file in output if file not in files_list]
+                if not len(files):
+                    return ResultObj(False, "the next files are missed {files}".format(files=files))
+
+                files = [file for file in files_list if file not in output]
+                if len(files) != 0:
+                    logger.warning(
+                        "the next files are in the dump folder but not in our check list {files}".format(files=files))
+
+            ResultObj(True, "all expected files are exist", True)

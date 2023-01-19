@@ -327,6 +327,15 @@ class IbConsts:
     DEVICE_ASIC_LIST = ['guid', 'lid', 'subnet', 'type']
     DEVICE_SYSTEM_LIST = ['guid']
     GUID_FORMAT = "[0-9a-f]{2}([:])[0-9a-f]{2}(\\1[0-9a-f]{2}){6}$"
+    IBDIAGNET_PATH = '/var/tmp/ibdiagnet2'
+    IBDIAGNET_COMMAND = 'ibdiagnet'
+    IBDIAGNET_FILE_NAME = 'ibdiagnet_output.tgz'
+    IBDIAGNET_LOG_FINE_MIN_LINES = 50
+    IBDIAGNET_PHY_INFO = '--get_phy_info'
+    IBDIAGNET_CABLE_INFO = '--get_cable_info'
+    IBDIAGNET_EXPECTED_FILES_LIST = ['ibdiagnet2.log', 'ibdiagnet2.db_csv', 'ibdiagnet2.lst', 'ibdiagnet2.pm', 'ibdiagnet2.mlnx_cntrs',
+                                     'ibdiagnet2.net_dump', 'ibdiagnet2.pkey', 'ibdiagnet2.aguid', 'ibdiagnet2.sm', 'ibdiagnet2.fdbs',
+                                     'ibdiagnet2.mcfdbs', 'ibdiagnet2.slvl', 'ibdiagnet2.nodes_info', 'ibdiagnet2.plft', 'ibdiagnet2.ar', 'ibdiagnet2.vl2vl']
 
 
 class ImageConsts:
