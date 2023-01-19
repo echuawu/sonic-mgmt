@@ -15,12 +15,6 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
     conditions:
       - "'simx' in platform or '2201' in platform"
 
-tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "'simx' in platform"
-
 tests/nightly/runtime/test_runtime.py:
   skip:
     reason: "Performance testcase ignored on simx platform"
@@ -214,8 +208,10 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored on some SPC1 platforms by bug 3331715"
+    reason: "Testcase ignored on some SPC1 platforms by bug 3331715 or simx in platform"
+    conditions_logical_operator: or
     conditions:
+      - "'simx' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2100' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2410' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2700' in platform"
@@ -318,9 +314,9 @@ tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggl
 
 tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3216129 on SIMX platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3272016 on SIMX platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3216129 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3272016 and 'simx' in platform"
 
 tests/nightly/app_extension:
   skip:
