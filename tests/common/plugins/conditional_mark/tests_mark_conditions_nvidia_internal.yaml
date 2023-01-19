@@ -176,7 +176,7 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
     conditions:
       - "https://redmine.mellanox.com/issues/3333915 and '202211' in release"
 
-dhcp_relay/test_dhcpv6_relay:py::test_dhcpv6_relay_counter:
+dhcp_relay/test_dhcpv6_relay.py::test_dhcpv6_relay_counter:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3333915 and branch 202211"
     conditions:
