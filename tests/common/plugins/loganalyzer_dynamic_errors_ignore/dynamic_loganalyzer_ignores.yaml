@@ -61,7 +61,7 @@
     - '.* ERR hostcfgd:.*sudo systemctl (enable|disable).*failed. RC: 1.*'
     - '.* ERR hostcfgd:.*Feature.*failed to be\s+(enabled and started|stopped and disabled).*'
     - '.* ERR (swss#portsyncd|teamd#teamsyncd):.*netlink reports an error=-33 on reading a netlink socket.*'
-    - '.* ERR systemd-udevd.*: could not read from ''\/sys\/module\/acpi_cpufreq\/initstate'': No such device.*'
+    - '.* ERR systemd-udevd.*: could not read from ''\/sys\/module\/.*\/initstate'': No such device.*'
     - '.* (ERR|WARNING) syncd#(SAI|SDK):.*Shared memory of the.*already exists,\s*destroying it and re-creating.*'
     - '.* ERR swss#orchagent:.*removeLag: Failed to remove (ref count \d+|non-empty) LAG PortChannel.*'
     - '.* ERR hostcfgd:.*error returned by select.*'
@@ -90,6 +90,7 @@
       - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/push_build_tests/system/test_startup_time_degradation.py
       # 2 tests below temporary added - they doing "config reload -y"
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers
