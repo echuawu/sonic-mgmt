@@ -1775,6 +1775,7 @@
       - 3263805
       Branch:
       - 202205
+      - 202211
 
 - Errors_list:
     - '.* ERR pmon#sensord: Error getting sensor data: emc\d+/#\d+: Can''t read'
@@ -1943,3 +1944,11 @@
         - 3334337
       Platform:
         - 2201
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ AN from 0 to 1.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      Redmine:
+        - 3335880
