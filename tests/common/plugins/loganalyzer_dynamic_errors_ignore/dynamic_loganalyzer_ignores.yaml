@@ -1952,3 +1952,18 @@
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
       Redmine:
         - 3335880
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] mlnx_sai_interfacequery_eth.c\[\d+\]- sai_dbg_generate_dump_ext: Failed to lock DFW semaphore - Connection timed out'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] dump generation failed'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] Cr space dump failed#\d+'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] FW dump generation failed to move meta file to:\[/tmp/saisdkdump/sdkdump_ext_meta_.*\]'
+    - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file:\[/tmp/saisdkdump/.*.tmp\] to:\[/tmp/saisdkdump/.*\] code:\[2,No such file or directory\]'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] FW dump generation failed to move CR file to:\[/tmp/saisdkdump/.*]'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
+      - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
+      Redmine:
+        - 3272016
