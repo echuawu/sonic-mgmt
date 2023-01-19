@@ -16,6 +16,7 @@ from tests.common.fixtures.ptfhost_utils import remove_ip_addresses, change_mac_
                                                 copy_arp_responder_py, copy_ptftests_directory
 from tests.flow_counter.flow_counter_utils import RouteFlowCounterTestContext, is_route_flow_counter_supported # lgtm[py/unused-import]
 from tests.common.config_reload import config_reload
+from infra.tools.redmine.redmine_api import is_redmine_issue_active  # nvidia internal
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +167,13 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
         cleanup_dut_vnets(duthost, vnet_config)
         cleanup_vxlan_tunnels(duthost, vnet_test_params)
     elif request.param == "WR_ARP":
+        if is_redmine_issue_active([3201571]):
+            # TODO: local change to skip only 33k WR_ARP test. Please remove when the issue will be fixed.
+            is_33k_scale_test = request.config.option.num_vnet > 8 and \
+                                request.config.option.num_routes > 3000 and \
+                                request.config.option.num_endpoints > 512
+            if is_33k_scale_test:
+                pytest.skip("The test is skipped due to RM issue: https://redmine.mellanox.com/issues/3201571")
         testWrArp = test_wr_arp.TestWrArp()
         testWrArp.Setup(duthost, ptfhost, tbinfo)
         try:
