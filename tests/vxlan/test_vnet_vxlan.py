@@ -169,10 +169,10 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
     elif request.param == "WR_ARP":
         if is_redmine_issue_active([3201571]):
             # TODO: local change to skip only 33k WR_ARP test. Please remove when the issue will be fixed.
-            is_33k_scale_test = request.config.option.num_vnet > 8 and \
-                                request.config.option.num_routes > 3000 and \
-                                request.config.option.num_endpoints > 512
-            if is_33k_scale_test:
+            is_scale_test = request.config.option.num_vnet > 8 and \
+                            request.config.option.num_routes >= 3000 and \
+                            request.config.option.num_endpoints >= 512
+            if is_scale_test:
                 pytest.skip("The test is skipped due to RM issue: https://redmine.mellanox.com/issues/3201571")
         testWrArp = test_wr_arp.TestWrArp()
         testWrArp.Setup(duthost, ptfhost, tbinfo)
