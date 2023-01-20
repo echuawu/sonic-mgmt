@@ -289,6 +289,10 @@ class AdvancedRebootCollector(SonicDataCollector):
             dataplane_downtime = ptf_test_report_dict['dataplane']['downtime']
             controlplane_downtime = ptf_test_report_dict['controlplane']['downtime']
 
+            # if not able to check dataplane loss - then use 99 value as default
+            if not ptf_test_report_dict['dataplane']['checked_successfully']:
+                dataplane_downtime = '99'
+
             self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime}
 
         except Exception as err:
