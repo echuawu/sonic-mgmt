@@ -175,6 +175,9 @@
       <Device Hostname="gorilla-170" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="gorilla-169" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="gorilla-168" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="marlin-104" HwSku="ACS-MQM9520" Type="DevSonic"/>
+      <Device Hostname="marlin-100" HwSku="ACS-MQM9520" Type="DevSonic"/>
+      <Device Hostname="marlin-101" HwSku="ACS-MQM9520" Type="DevSonic"/>
     </Devices>
     <DeviceInterfaceLinks>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1007" EndPort="ethernet 1/1" StartDevice="arc-switch1038" StartPort="Ethernet0"/>
