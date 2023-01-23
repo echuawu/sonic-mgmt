@@ -943,6 +943,7 @@ class BluefieldConstants:
     BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
     BMC_USER = 'root'
     BMC_PASS = '3tango11'
+    BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-9009d3b600CVAA']
 
 
 class SonicDeployConstants:
