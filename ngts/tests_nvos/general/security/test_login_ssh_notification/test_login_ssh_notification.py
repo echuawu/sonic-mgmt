@@ -14,55 +14,10 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.tests_nvos.general.security.conftest import ssh_to_device_and_retrieve_raw_login_ssh_notification, create_ssh_login_engine
 
 
 logger = logging.getLogger(__name__)
-
-
-def create_ssh_login_engine(dut_ip, username):
-    '''
-    @summary: in this function we want to create ssh connection to device,
-    ssh connection means that only executing the command:
-    'ssh {-o OPTIONS} -l {username} {dut_ip}'
-    without entering password!
-    :param dut_ip: device IP
-    :param username: username intiaiting the ssh connection
-    :return: pexpect python module with ssh connection command executed as the spwan command
-    '''
-    _ssh_command = 'ssh {} -l {} {}'.format(DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS,
-                                            username,
-                                            dut_ip)
-    # connect to device
-    child = pexpect.spawn(_ssh_command, env={'TERM': 'dumb'}, timeout=10)
-    return child
-
-
-def ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
-                                                          username=DefaultConnectionValues.ADMIN,
-                                                          password=DefaultConnectionValues.DEFAULT_PASSWORD):
-    '''
-    @summary: in this function we create ssh connection
-    and return the raw output after connecting to device
-    '''
-    notification_login_message = ''
-
-    with allure.step("Connection to dut device with SSH"):
-        logger.info("Connection to dut device with SSH")
-        # connecting using pexpect
-        try:
-            child = create_ssh_login_engine(dut_ip, username)
-            respond = child.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
-            if respond == 0:
-                notification_login_message += child.before.decode('utf-8')
-                child.sendline(password)
-                child.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
-
-            # convert output to decode
-            notification_login_message += child.before.decode('utf-8')
-            # close connection
-        finally:
-            child.close()
-        return notification_login_message
 
 
 def convert_linux_date_output_to_datetime_object(linux_date_string):
