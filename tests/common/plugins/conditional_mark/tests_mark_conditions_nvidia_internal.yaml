@@ -215,6 +215,7 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
       - "https://redmine.mellanox.com/issues/3331715 and '2100' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2410' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2700' in platform"
+      - "https://redmine.mellanox.com/issues/3331715 and '2201' in platform"
 
 tests/nightly/fec:
   skip:
