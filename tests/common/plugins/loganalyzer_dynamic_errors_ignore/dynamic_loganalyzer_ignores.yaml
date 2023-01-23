@@ -1967,3 +1967,35 @@
       - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
       Redmine:
         - 3272016
+
+- Errors_list:
+    - '.* ERR what-just-happened#wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set trap ID \(\d+\) to trap group \(\d+\) with trap action \(\d+\), error: Communication Error'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set traps.'
+    - '.* ERR what-just-happened#wjhd\[\d+]: \[WJH_LIB.ERROR  \]: Failed to enable severity bits .* on drop reason group \d+'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_drop_reason_group_disable_cb failed, err = 1.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group ACL on channel acl, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Drop reason group \(\d+\) is bound to user channel \(id: \d+\), please unbind first.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel acl, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to get the current number of ports, err: Invalid Handle'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to bind all ports to the span session, err: 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set drop reason bits .* on group \d+ to state 0.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to enable drop reasons for drop group 0.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group BUFFER on channel buffer, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel buffer, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set trap ID \(\d+\) to trap group \(\d+\) with trap action \(\d+\), error: Invalid Handle'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group L\d on channel forwarding, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group TUNNEL on channel forwarding, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+]\: :- destroy: Failed to destroy channel forwarding, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to unbind policer \(\d+\) from trap group \(\d+\), error: Invalid Handle'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_user_channel_destroy_cb failed, err = 1.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: __wjh_user_channel_destroy failed, err = 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel layer-1, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: User channel \d+ is not destroyed, destroy it first.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_db_deinit_resource_check failed, err = 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status 1'
+  Conditions:
+    - Affected_test_cases:
+      - autorestart/test_container_autorestart.py::test_containers_autorestart
+      Redmine:
+        - 3315995
