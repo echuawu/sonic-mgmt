@@ -193,6 +193,19 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
         second_login_notification_message = parse_ssh_login_notification(engines.dut.ip, username,
                                                                          password)
 
+    with allure.step("Valiadting same date"):
+        logger.info("Valiadting same date")
+        output = os.popen("date").read()
+        current_date_string = re.findall(LoginSSHNotificationConsts.LINUX_DATE_REGEX, output)[0]
+        logger.info("Linux date is {}".format(current_date_string))
+        current_date = convert_linux_date_output_to_datetime_object(current_date_string)
+        time_delta_seconds = (current_date - second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE]).seconds
+        assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
+                                                                                                    "The time difference is {}".format(time_delta_seconds)
+        time_delta_seconds = (current_date - second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE]).seconds
+        assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
+                                                                                                    "The time difference is {}".format(time_delta_seconds)
+
     with allure.step("Validating {} failed attemps in the second connection".format(random_number_of_connection_fails)):
         logger.info("Validating {} failed attemps in the second connection".format(random_number_of_connection_fails))
         assert int(second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN]) == random_number_of_connection_fails, \
@@ -218,19 +231,6 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
                 "Actual : {}".format(
                     second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_IP],
                     login_source_ip_address)
-
-    with allure.step("Valiadting same date"):
-        logger.info("Valiadting same date")
-        output = os.popen("date").read()
-        current_date_string = re.findall(LoginSSHNotificationConsts.LINUX_DATE_REGEX, output)[0]
-        logger.info("Linux date is {}".format(current_date_string))
-        current_date = convert_linux_date_output_to_datetime_object(current_date_string)
-        time_delta_seconds = (current_date - second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE]).seconds
-        assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
-                                                                                                    "The time difference is {}".format(time_delta_seconds)
-        time_delta_seconds = (current_date - second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE]).seconds
-        assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
-                                                                                                    "The time difference is {}".format(time_delta_seconds)
 
     with allure.step("Validating password or capability changes"):
         logger.info("Validating password or capability changes")
