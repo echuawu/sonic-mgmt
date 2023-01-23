@@ -103,7 +103,8 @@ def change_username_password(engines, username, curr_password, new_password):
 def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability,
                                                     check_password_change_msg=False,
                                                     check_role_change_msg=False,
-                                                    expected_login_record_period=None):
+                                                    expected_login_record_period=None,
+                                                    last_successful_login=None):
     '''
     @summary: in this test case we want to validate the output of default fields
     of login ssh notification, where we want to check the following parameters:
@@ -126,6 +127,7 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
     :param check_password_change_msg: if set true will check if password message appeared
     :param check_role_change_msg: if set true will check if role message appeared
     :param expected_login_record_period: if not None, will validate same value as the notification value
+    :param last_successful_login: datetime object of the time since last successful login
     '''
     random_number_of_connection_fails = random.randint(5, 15)
     with allure.step("Fail connecting to device {}".format(random_number_of_connection_fails)):
@@ -148,18 +150,15 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
         second_login_notification_message = parse_ssh_login_notification(engines.dut.ip, username,
                                                                          password)
 
-    with allure.step("Valiadting same date"):
-        logger.info("Valiadting same date")
-        output = os.popen("date").read()
-        current_date_string = re.findall(LoginSSHNotificationConsts.LINUX_DATE_REGEX, output)[0]
-        logger.info("Linux date is {}".format(current_date_string))
-        current_date = convert_linux_date_output_to_datetime_object(current_date_string)
-        time_delta_seconds = (current_date - second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE]).seconds
-        assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
-                                                                                                    "The time difference is {}".format(time_delta_seconds)
-        time_delta_seconds = (current_date - second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE]).seconds
-        assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
-                                                                                                    "The time difference is {}".format(time_delta_seconds)
+    if last_successful_login:
+        with allure.step("Valiadting same date"):
+            logger.info("Valiadting same date")
+            time_delta_seconds = (last_successful_login - second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE]).seconds
+            assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
+                                                                                                        "The time difference is {}".format(time_delta_seconds)
+            time_delta_seconds = (last_successful_login - second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE]).seconds
+            assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
+                                                                                                        "The time difference is {}".format(time_delta_seconds)
 
     with allure.step("Validating {} failed attemps in the second connection".format(random_number_of_connection_fails)):
         logger.info("Validating {} failed attemps in the second connection".format(random_number_of_connection_fails))
@@ -211,6 +210,18 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
                                                                                       second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD])
 
 
+def get_current_time_in_secs():
+    '''
+    @summary: in this function we convert the current date to seconds
+    :return:
+    '''
+    output = os.popen("date").read()
+    current_date_string = re.findall(LoginSSHNotificationConsts.LINUX_DATE_REGEX, output)[0]
+    logger.info("Linux date is {}".format(current_date_string))
+    current_date = convert_linux_date_output_to_datetime_object(current_date_string)
+    return current_date
+
+
 @pytest.mark.simx
 @pytest.mark.login_ssh_notification
 @pytest.mark.checklist
@@ -220,13 +231,15 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
     '''
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
+        successful_login_time = get_current_time_in_secs()
         ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                               username=DefaultConnectionValues.ADMIN,
                                                               password=DefaultConnectionValues.DEFAULT_PASSWORD)
     validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                     username=DefaultConnectionValues.ADMIN,
                                                     password=DefaultConnectionValues.DEFAULT_PASSWORD,
-                                                    capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY)
+                                                    capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY,
+                                                    last_successful_login=successful_login_time)
 
 
 @pytest.mark.simx
@@ -241,6 +254,7 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
+        successful_login_time = get_current_time_in_secs()
         ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                               username=DefaultConnectionValues.ADMIN,
                                                               password=DefaultConnectionValues.DEFAULT_PASSWORD)
@@ -252,7 +266,8 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
                                                         username=DefaultConnectionValues.ADMIN,
                                                         password=DefaultConnectionValues.SIMPLE_PASSWORD,
                                                         capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY,
-                                                        check_password_change_msg=True)
+                                                        check_password_change_msg=True,
+                                                        last_successful_login=successful_login_time)
     finally:
         with allure.step('Restoring original password'):
             logger.info('Restoring original password')
@@ -281,6 +296,7 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
 
         with allure.step("Connecting to switch with the new user for first time"):
             logger.info("Connecting to switch with the new user for first time")
+            successful_login_time = get_current_time_in_secs()
             ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
 
         with allure.step("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER)):
@@ -292,7 +308,8 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
                                                         password=password,
                                                         capability=SystemConsts.ROLE_VIEWER,
                                                         check_password_change_msg=False,
-                                                        check_role_change_msg=True)
+                                                        check_role_change_msg=True,
+                                                        last_successful_login=successful_login_time)
     finally:
         with allure.step('Delete created user {}'.format(user_name)):
             logger.info('Delete created user {}'.format(user_name))
