@@ -27,7 +27,7 @@ class BaseDevice:
         self._init_available_databases()
         self._init_services()
         self._init_dockers()
-        self._init_contants()
+        self._init_constants()
         self._init_ib_speeds()
         self._init_fan_list()
         self._init_psu_list()
@@ -50,7 +50,7 @@ class BaseDevice:
         pass
 
     @abstractmethod
-    def _init_contants(self):
+    def _init_constants(self):
         pass
 
     @abstractmethod
@@ -96,6 +96,16 @@ class BaseDevice:
         result_obj = self._verify_value_in_table(dut_engine, DatabaseConst.CONFIG_DB_NAME,
                                                  NvosConst.PORT_CONFIG_DB_TABLES_PREFIX,
                                                  NvosConst.PORT_STATUS_LABEL, expected_port_state)
+        return result_obj
+
+    def verify_dockers(self, dut_engine):
+        result_obj = ResultObj(True, "")
+        cmd_output = dut_engine.run_cmd('docker ps --format \"table {{.Names}}\"')
+        for docker in self.available_dockers:
+            if docker not in cmd_output:
+                result_obj.result = False
+                result_obj.info += "{} docker is not active.\n".format(docker)
+
         return result_obj
 
     def verify_services(self, dut_engine):
@@ -249,11 +259,11 @@ class BaseSwitch(BaseDevice, ABC):
             'syncd-ibv0.service', 'pmon.service'))
 
     def _init_dockers(self):
-        BaseDevice._init_services(self)
+        BaseDevice._init_dockers(self)
         self.available_dockers.extend(('pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils'))
 
-    def _init_contants(self):
-        BaseDevice._init_contants(self)
+    def _init_constants(self):
+        BaseDevice._init_constants(self)
         Constants = namedtuple('Constants', ['system', 'dump_files'])
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
@@ -267,7 +277,7 @@ class BaseSwitch(BaseDevice, ABC):
         dump_files = ['APPL_DB.json', 'ASIC_DB.json', 'boot.conf', 'bridge.fdb', 'bridge.vlan', 'CONFIG_DB.json',
                       'COUNTERS_DB_1.json', 'COUNTERS_DB_2.json', 'COUNTERS_DB.json', 'date.counter_1',
                       'date.counter_2', 'df', 'dmesg', 'docker.pmon', 'docker.ps', 'docker.stats',
-                      'docker.swss-ibv0.log', 'dpkg', 'fan', 'FLEX_COUNTER_DB.json', 'free', 'hdparm', 'ib-utils.gz',
+                      'docker.swss-ibv0.log', 'dpkg', 'fan', 'FLEX_COUNTER_DB.json', 'free', 'hdparm', 'ib-utils.dump',
                       'ifconfig.counters_1', 'ifconfig.counters_2', 'interface.status', 'interface.xcvrs.eeprom',
                       'interface.xcvrs.presence', 'ip.addr', 'ip.interface', 'ip.link', 'ip.link.stats', 'ip.neigh',
                       'ip.neigh.noarp', 'ip.route', 'ip.rule', 'lspci', 'lsusb', 'machine.conf', 'mount', 'nat.config',
@@ -345,3 +355,59 @@ class JaguarSwitch(BaseSwitch):
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
         self.temperature_list += ["Ambient COMEX Temp", ]
+
+
+# -------------------------- Multi ASIC Switch ----------------------------
+class MultiAsicSwitch(BaseSwitch):
+
+    def __init__(self, asic_amount):
+        self.asic_amount = asic_amount
+        BaseSwitch.__init__(self)
+
+    def _init_services(self):
+        BaseSwitch._init_services(self)
+        for deamon in NvosConst.DOCKER_PER_ASIC_LIST:
+            for asic_num in range(0, self.asic_amount):
+                self.available_services.append('{deamon}@{asic_num}.service'.format(deamon=deamon, asic_num=asic_num))
+        self.available_services.extend(('configmgrd.service', 'countermgrd.service',
+                                        'portsyncmgrd.service', 'statemgrd.service'))
+        self.available_services.remove('syncd-ibv0.service')
+        self.available_services.remove('swss-ibv0.service')
+
+    def _init_dockers(self):
+        BaseSwitch._init_dockers(self)
+        for deamon in NvosConst.DOCKER_PER_ASIC_LIST:
+            for asic_num in range(0, self.asic_amount):
+                self.available_dockers.append("{deamon}{asic_num}".format(deamon=deamon, asic_num=asic_num))
+        self.available_dockers.remove('syncd-ibv0')
+        self.available_dockers.remove('swss-ibv0')
+
+    def _init_constants(self):
+        BaseSwitch._init_constants(self)
+        dump_files_to_replace_for_each_asic = ['docker.swss-ibv0{}.log', 'saidump{}']
+        dump_files_to_add_for_each_asic = ['APPL_DB.json.{}', 'ASIC_DB.json.{}', 'CONFIG_DB.json.{}',
+                                           'STATE_DB.json.{}', 'FLEX_COUNTER_DB.json.{}', 'COUNTERS_DB.json.{}',
+                                           'COUNTERS_DB_1.json.{}', 'COUNTERS_DB_2.json.{}']
+
+        for dump_file in dump_files_to_replace_for_each_asic:
+            self.constants.dump_files.remove(dump_file.format(''))
+            for asic_num in range(0, self.asic_amount):
+                self.constants.dump_files.append(dump_file.format(asic_num))
+
+        for dump_file in dump_files_to_add_for_each_asic:
+            for asic_num in range(0, self.asic_amount):
+                self.constants.dump_files.append(dump_file.format(asic_num))
+
+
+# -------------------------- Marlin Switch ----------------------------
+class MarlinSwitch(MultiAsicSwitch):
+    ASIC_AMOUNT = 2
+    MARLIN_IB_PORT_NUM = 64
+    SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'Quantum2'
+
+    def __init__(self):
+        MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
+
+    def ib_ports_num(self):
+        return self.MARLIN_IB_PORT_NUM
