@@ -1227,4 +1227,10 @@ system_health/test_system_health.py::test_external_checker:
     conditions:
       - "https://redmine.mellanox.com/issues/3335093"
 
+memory_checker/test_memory_checker.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3339191 and branch master or 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3339191 and ('202211' in release or 'master' in release)"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
