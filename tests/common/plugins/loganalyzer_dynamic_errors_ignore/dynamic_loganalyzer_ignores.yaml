@@ -1942,6 +1942,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval
       Redmine:
         - 3334337
       Platform:
