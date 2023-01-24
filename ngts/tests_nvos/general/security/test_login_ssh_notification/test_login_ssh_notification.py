@@ -331,6 +331,13 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
     '''
     system = System(None)
 
+    with allure.step("Connecting to switch before validation to clear all failed messages"):
+        logger.info("Connecting to switch before validation to clear all failed messages")
+        successful_login_time = get_current_time_in_secs()
+        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+                                                              username=DefaultConnectionValues.ADMIN,
+                                                              password=DefaultConnectionValues.DEFAULT_PASSWORD)
+
     with allure.step("Validating ssh login record period set command"):
         logger.info("Validating ssh login record period set command")
 
@@ -344,7 +351,8 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
                                                         capability=SystemConsts.ROLE_CONFIGURATOR,
                                                         check_password_change_msg=False,
                                                         check_role_change_msg=False,
-                                                        expected_login_record_period=record_days)
+                                                        expected_login_record_period=record_days,
+                                                        last_successful_login=successful_login_time)
 
     with allure.step("Validating Validating show system ssh-server command"):
         logger.info("Validating Validating show system ssh-server command")
