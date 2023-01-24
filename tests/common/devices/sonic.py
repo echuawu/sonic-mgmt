@@ -24,7 +24,9 @@ from tests.common import constants
 
 logger = logging.getLogger(__name__)
 
-PLATFORM_SPECIFIC_ASIC_SERVICES = {'Nvidia-MBF2H536C': ["bgp", "database", "lldp", "swss", "syncd"]}
+BF_ASIC_SERVICES = ["bgp", "database", "lldp", "swss", "syncd"]
+PLATFORM_SPECIFIC_ASIC_SERVICES = {'Nvidia-MBF2H536C': BF_ASIC_SERVICES,
+                                   'Nvidia-9009d3b600CVAA': BF_ASIC_SERVICES}
 
 
 class SonicHost(AnsibleHostBase):
