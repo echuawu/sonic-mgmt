@@ -1116,8 +1116,8 @@
       - 3168487
 
 - Errors_list:
-    - '.* ERR bgp#rsyslogd: omfwd\/udp: socket 6: sendto\(\) error: Network is unreachable.*'
-    - '.* ERR bgp#rsyslogd: omfwd: socket 6: error 101 sending via udp: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd\/udp: socket 6: sendto\(\) error: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd: socket 6: error 101 sending via udp: Network is unreachable.*'
   Conditions:
     - Redmine:
       - 3168474
