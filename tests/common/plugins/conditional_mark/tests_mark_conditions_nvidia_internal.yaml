@@ -657,6 +657,12 @@ drop_packets/test_wjh.py::test_l1_agg_port_down:
     conditions:
       - https://redmine.mellanox.com/issues/3217918
 
+drop_packets/test_wjh.py::test_fid_miss:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3340212"
+    conditions:
+      - https://redmine.mellanox.com/issues/3340212
+
 platform_tests/fwutil/test_fwutil.py:
   skip:
     reason: "Testcase ignored due to branch 202106"
