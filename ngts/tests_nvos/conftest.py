@@ -10,6 +10,10 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.constants.constants import LinuxConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
@@ -161,8 +165,10 @@ def interfaces(topology_obj):
     return interfaces_data
 
 
-def clear_config():
+def clear_config(markers):
     try:
+        if 'system_profile_cleanup' in markers:
+            clear_system_profile_config()
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
@@ -183,6 +189,18 @@ def clear_config():
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
+
+
+def clear_system_profile_config():
+    system = System(None)
+    system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()).get_returned_value()
+    try:
+        ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
+                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        system_profile_output).verify_result()
+    except AssertionError:
+        system.profile.action_profile_change(
+            params='adaptive-routing enabled breakout-mode disabled')
 
 
 def pytest_exception_interact(report):
@@ -209,7 +227,7 @@ def save_results_and_clear_after_test(item):
         logging.exception(' ---------------- The test failed - an exception occurred: ---------------- ')
         raise AssertionError(err)
     finally:
-        clear_config()
+        clear_config(markers)
 
 
 @pytest.fixture(scope="session", autouse=True)
