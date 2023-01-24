@@ -2,6 +2,8 @@ import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -34,3 +36,13 @@ def test_interface_ib0_autoconfig_disabled_sm(engines, topology_obj, stop_sm):
         ipoib_port.interface.ip.autoconf.unset(apply=True, ask_for_confirmation=True)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.AUTOCONFIG, IbInterfaceConsts.IB0_IP_AUTOCONF_DEFAULT_VALUE).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_interface_ib0_autoconfig_disabled_sm_openapi(engines, topology_obj, stop_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_interface_ib0_autoconfig_disabled_sm(engines, topology_obj, stop_sm)

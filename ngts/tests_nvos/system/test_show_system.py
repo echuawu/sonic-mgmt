@@ -6,6 +6,9 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from tests.common.helpers.assertions import pytest_assert
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
+
 import time
 logger = logging.getLogger()
 
@@ -229,3 +232,53 @@ def test_show_system_cpu(engines, devices):
         utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
         assert SystemConsts.CPU_PERCENT_THRESH_MIN < utilization < SystemConsts.CPU_PERCENT_THRESH_MAX, \
             "utilization percentage is out of range"
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_system_openapi(engines, devices, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system(engines, devices, topology_obj)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_cpu_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_cpu(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_memory_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_memory(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+def test_show_system_reboot_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_reboot(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.nvos_ci
+def test_show_system_version_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_version(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_system_message_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_message(engines, devices)

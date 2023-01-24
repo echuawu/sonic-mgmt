@@ -3,7 +3,8 @@ import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
-
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -120,3 +121,34 @@ def validate_ip_fields(selected_port, output_dictionary):
         logging.info('Check that all expected fields under eth ip field exist in the output')
         field_to_check = [selected_port.interface.ip.address.label]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.nvos_ci
+def test_ib0_show_interface_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_show_interface(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+def test_ib0_show_interface_link_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_show_interface_link(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+def test_ib0_show_interface_stats_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_show_interface_stats(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+def test_ib0_show_interface_ip_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_show_interface_ip(engines)

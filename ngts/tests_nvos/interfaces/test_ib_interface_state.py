@@ -6,7 +6,7 @@ from timeit import default_timer as timer
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -128,3 +128,26 @@ def test_ib_interface_state_unset(engines):
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=selected_port.ib_interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_state_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_state(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_state_invalid_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_state_invalid(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_state_unset_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_state_unset(engines)

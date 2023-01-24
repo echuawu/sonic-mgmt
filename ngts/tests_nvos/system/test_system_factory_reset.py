@@ -8,6 +8,8 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -45,7 +47,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
         current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
         logging.info("Current time: " + str(current_time))
-        system.factory_default.action_reset()
+        system.factory_default.action_reset().verify_result()
 
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)
@@ -242,3 +244,21 @@ def test_error_flow_reset_factory_with_params(engines, devices, topology_obj):
         output = engines.dut.run_cmd("nv action reset system factory-default only-config")
         assert "Invalid Command" in output, "Reset factory with param should fail"
         # system.factory_default.action_reset(param="only-config").verify_result(should_succeed=False)
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.checklist
+def test_error_flow_reset_factory_with_params_openapi(engines, devices, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_error_flow_reset_factory_with_params(engines, devices, topology_obj)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.checklist
+def test_reset_factory_without_params_openapi(engines, devices, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_reset_factory_without_params(engines, devices, topology_obj)

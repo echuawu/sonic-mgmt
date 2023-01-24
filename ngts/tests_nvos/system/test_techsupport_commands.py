@@ -3,8 +3,10 @@ import allure
 import datetime
 import json
 from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 @pytest.mark.system
@@ -186,3 +188,26 @@ def validate_techsupport_since(output_dictionary, substring):
     with allure.step('Validating the generate command and show command working as expected'):
         assert substring in output_dictionary,\
             "at least one of the new tech-support folders not found, expected folders"
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_show_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_show(engines)
+
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_since_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_since(engines)
+
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_since_invalid_date_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_since_invalid_date(engines)

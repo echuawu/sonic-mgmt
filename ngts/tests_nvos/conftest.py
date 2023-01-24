@@ -139,6 +139,7 @@ def cli_objects(topology_obj):
 
 @pytest.fixture(scope='function', autouse=True)
 def log_test_wrapper(request, engines):
+    pytest.item = request.node
     test_name = request.module.__name__
     pytest.s_time = time.time()
     logging.info(' ---------------- TEST STARTED - {test_name} ---------------- '.format(test_name=test_name))
@@ -184,8 +185,17 @@ def clear_config():
         logging.warning("Failed to clear config:" + str(err))
 
 
+def pytest_exception_interact(report):
+    save_results_and_clear_after_test(pytest.item)
+    logging.error(f'---------------- The test failed - an exception occurred: ---------------- \n{report.longreprtext}')
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_runtest_call(item):
+    save_results_and_clear_after_test(item)
+
+
+def save_results_and_clear_after_test(item):
     try:
         markers = item.keywords._markers
         logging.info(' ---------------- The test completed successfully ---------------- ')

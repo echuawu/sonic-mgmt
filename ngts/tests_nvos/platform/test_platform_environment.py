@@ -6,6 +6,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -239,3 +240,42 @@ def _verify_led_color(led, led_prop):
 def _verify_psu_prop(psu, psu_prop):
     logging.info("psu {}".format(psu))
     Tools.ValidationTool.verify_field_exist_in_json_output(psu_prop, PlatformConsts.ENV_PSU_PROP).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.platform
+def test_show_platform_environment_temperature_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform_environment_temperature(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.platform
+def test_show_platform_environment_psu_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform_environment_psu(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.platform
+def test_set_platform_environment_led_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_platform_environment_led(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.platform
+def test_show_platform_environment_fan_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform_environment_fan(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.platform
+@pytest.mark.simx
+@pytest.mark.nvos_ci
+def test_show_platform_environment_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform_environment(engines)

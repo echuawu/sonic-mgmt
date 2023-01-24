@@ -12,6 +12,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SonicMgmtContainer import SonicMgmtContainer
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 logger = logging.getLogger()
@@ -824,3 +825,77 @@ def create_remote_server_dictionary(server_name, port=SyslogConsts.DEFAULT_PORT,
         }
     }
     return dictionary
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_bad_params_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_bad_params()
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_format_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_format(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_filter_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_filter(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_protocol_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_protocol(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_port_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_port(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_server_and_global_severity_levels_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_server_and_global_severity_levels()
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_server_severity_levels_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_server_severity_levels(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_configurations_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_configurations()
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_positive_minimal_flow_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_positive_minimal_flow(engines)
