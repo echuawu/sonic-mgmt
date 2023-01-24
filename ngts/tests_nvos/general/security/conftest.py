@@ -7,7 +7,7 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 logger = logging.getLogger(__name__)
 
 
-def create_ssh_login_engine(dut_ip, username, port=22):
+def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):
     '''
     @summary: in this function we want to create ssh connection to device,
     ssh connection means that only executing the command:
@@ -18,7 +18,8 @@ def create_ssh_login_engine(dut_ip, username, port=22):
     :param port: connection port, by default 22
     :return: pexpect python module with ssh connection command executed as the spwan command
     '''
-    _ssh_command = 'ssh {} -p {} -l {} {}'.format(DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS,
+    ssh_options = custom_ssh_options if custom_ssh_options is not None else DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS
+    _ssh_command = 'ssh {} -p {} -l {} {}'.format(ssh_options,
                                                   port,
                                                   username,
                                                   dut_ip)

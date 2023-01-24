@@ -11,6 +11,13 @@ tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotat
     conditions:
       - https://redmine.mellanox.com/issues/3215005
 
+tests_nvos/general/security/test_ssh_config/test_ssh_config.py::test_ssh_config_good_flow:
+  skip:
+    reason: "Testcase skipped due to RM issues: https://redmine.mellanox.com/issues/3340346 & https://redmine.mellanox.com/issues/3340165"
+    conditions:
+      - https://redmine.mellanox.com/issues/3340346
+      - https://redmine.mellanox.com/issues/3340165
+
 tests_nvos/system/test_log_commands.py::test_upload_log_files:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3235264"
