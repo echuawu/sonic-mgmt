@@ -153,10 +153,10 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
     if last_successful_login:
         with allure.step("Valiadting same date"):
             logger.info("Valiadting same date")
-            time_delta_seconds = (last_successful_login - second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE]).seconds
+            time_delta_seconds = (second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE] - last_successful_login).seconds
             assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
                                                                                                         "The time difference is {}".format(time_delta_seconds)
-            time_delta_seconds = (last_successful_login - second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE]).seconds
+            time_delta_seconds = (second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE] - last_successful_login).seconds
             assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
                                                                                                         "The time difference is {}".format(time_delta_seconds)
 
