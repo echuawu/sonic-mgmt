@@ -315,7 +315,12 @@ def test_rj45_type_verification(engines, cli_objects, platform_params, rj45_port
 
     with allure.step("5. Select four random RJ45 ports and one SFP"):
         logger.info("5. Selecting four random RJ45 ports and one SFP")
-        selected_rj45_interfaces = random.sample(rj45_ports_list, 4)
+        selected_rj45_interfaces = []
+        while len(selected_rj45_interfaces) != 4:
+            iface = random.choice(rj45_ports_list)
+            # Preventing case when two interconnected interfaces is chosen
+            if dut_ports_interconnects[iface] not in selected_rj45_interfaces:
+                selected_rj45_interfaces.append(iface)
         selected_rj45_peers = [dut_ports_interconnects[iface] for iface in selected_rj45_interfaces]
         selected_rj45_interfaces_with_peers = selected_rj45_interfaces + selected_rj45_peers
         selected_sfp_interface = random.choice(sfp_ports_list)
