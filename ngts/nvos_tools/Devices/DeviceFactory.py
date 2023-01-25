@@ -16,6 +16,8 @@ class DeviceFactory:
     @staticmethod
     def create_device(device_name):
         try:
+            if device_name not in DeviceFactory.device_type_dict.keys():
+                device_name = device_name[0:7]
             instance_type = DeviceFactory.device_type_dict[device_name]
             instance = instance_type()
             logger.info('Received switch type {device_name}, created Device instance {instance_type}'.format(device_name=device_name, instance_type=str(instance_type)))

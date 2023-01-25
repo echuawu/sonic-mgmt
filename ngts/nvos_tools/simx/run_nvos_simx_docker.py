@@ -32,6 +32,8 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
         while not all_components_are_up and timeout > 0:
             output = server_engine.run_cmd('docker exec {user}-{dut_name} systemctl status chipsim fw simx | '.format(
                 user="nvos_reg", dut_name=dut_name) + 'grep Active:')
+            if "Active: failed" in output:
+                break
             if "inactive" not in output and "activating" not in output:
                 all_components_are_up = True
             else:

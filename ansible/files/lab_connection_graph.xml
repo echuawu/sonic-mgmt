@@ -185,6 +185,8 @@
       <Device Hostname="gorilla-170" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="gorilla-169" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="gorilla-168" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-100" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-152" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="marlin-104" HwSku="ACS-MQM9520" Type="DevSonic"/>
       <Device Hostname="marlin-100" HwSku="ACS-MQM9520" Type="DevSonic"/>
       <Device Hostname="marlin-101" HwSku="ACS-MQM9520" Type="DevSonic"/>
