@@ -1241,4 +1241,10 @@ memory_checker/test_memory_checker.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3339191 and ('202211' in release or 'master' in release)"
 
+iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335820"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3335820"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
