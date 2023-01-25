@@ -1939,6 +1939,14 @@
         - 2201
 
 - Errors_list:
+    - '.* ERR teamd#teammgrd: :- addLagMember: Failed to add Ethernet\d+ to port channel .*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+        - 3137284
+
+- Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan1_speed_get - OSError.*'
   Conditions:
     - Affected_test_cases:
