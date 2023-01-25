@@ -214,6 +214,7 @@ def topology_obj(setup_name, request):
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
     enable_record_cmds(topology)
+    topology.players['dut']['is_nvos'] = topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes
 
     yield topology
 

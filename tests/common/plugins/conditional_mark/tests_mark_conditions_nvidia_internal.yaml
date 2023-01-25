@@ -420,11 +420,6 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test
       - "https://redmine.mellanox.com/issues/3334720 and 'sn2' in platform"
       - "https://redmine.mellanox.com/issues/3334720 and 'sn3' in platform"
 
-scripts/check_and_store_sanitizer_dump.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3322943"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3322943"
 
 tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVrf::test_ecmp_calculator_interface_vrf[outer_dip-outer_inner]:
   skip:
