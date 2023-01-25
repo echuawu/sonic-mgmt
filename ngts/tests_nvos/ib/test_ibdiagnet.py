@@ -1,6 +1,5 @@
 import pytest
 import allure
-import random
 import logging
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -33,15 +32,14 @@ def test_ibdiagnet_run(engines):
     """
     ib = Ib(None)
     with allure.step('Validate ibdiagnet files does not exist by default'):
-        error_message = "file not exist message"
-        assert error_message in ib.ibdiagnet.show(), "ibdiagnet dump files should be deleted"
+        assert '{}' == ib.ibdiagnet.show(), "ibdiagnet dump files should be deleted"
 
     with allure.step('Validate ibdiagnet directory does not exist'):
         output = engines.dut.run_cmd('cd {path}'.format(path=IbConsts.IBDIAGNET_PATH))
-        error_message = "file not exist message"
+        error_message = "No such file or directory"
         assert error_message in output, "ibdiagnet temp directory should be deleted"
 
-    expected_msg = 'WE NEED TO ADD THE RIGHT MESSAGE'
+    expected_msg = 'ibdiagnet output files were archived into ibdiagnet2_output.tgz'
     ib.ibdiagnet.action_run(command=IbConsts.IBDIAGNET_COMMAND, option=IbConsts.IBDIAGNET_PHY_INFO, expected_str=expected_msg)
 
     with allure.step('Make sure the files are created under the right expected path'):
@@ -163,11 +161,11 @@ def test_ibdiagnet_upload(engines):
 
     with allure.step('try to upload ibdiagnet to inalid url - url is not in the right format'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_1)
-        assert "ERROR MESSAGE" in output, "URL was not in the right format"
+        assert "ERROR MESSAGE" in output.info, "URL was not in the right format"
 
     with allure.step('try to upload ibdiagnet to inalid url - using non supported transfer protocol'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_2)
-        assert "ERROR MESSAGE" in output, "URL used non supported transfer protocol"
+        assert "ERROR MESSAGE" in output.info, "URL used non supported transfer protocol"
 
 
 @pytest.mark.ib
