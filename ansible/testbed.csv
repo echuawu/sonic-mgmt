@@ -328,7 +328,16 @@ gorilla-simx-85-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,serv
 gorilla-simx-86-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-86,Mellanox MTR testbed
 gorilla-simx-87-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-87,Mellanox MTR testbed
 gorilla-simx-88-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-88,Mellanox MTR testbed
+gorilla-simx-89-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-89,Mellanox MTR testbed
+gorilla-simx-90-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-90,Mellanox MTR testbed
+gorilla-simx-91-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-91,Mellanox MTR testbed
+gorilla-simx-92-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-92,Mellanox MTR testbed
+gorilla-simx-93-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-93,Mellanox MTR testbed
+gorilla-simx-94-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-94,Mellanox MTR testbed
+gorilla-simx-95-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-95,Mellanox MTR testbed
+gorilla-simx-96-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-96,Mellanox MTR testbed
 gorilla-simx-97-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-97,Mellanox MTR testbed
+gorilla-simx-98-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-98,Mellanox MTR testbed
 jaguar-113-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,jaguar-113,Mellanox MTR testbed
 jaguar-112-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,jaguar-113,Mellanox MTR testbed
 gorilla-126-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,jaguar-113,Mellanox MTR testbed
