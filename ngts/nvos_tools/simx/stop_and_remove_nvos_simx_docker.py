@@ -11,7 +11,7 @@ def test_stop_and_remove_nvos_simx_docker(topology_obj):
         server_engine = topology_obj.players['server']['engine']
 
     with allure.step("Check docker id"):
-        docker_info = server_engine.run_cmd("docker ps | grep {}".format(dut_name))
+        docker_info = server_engine.run_cmd("docker ps -l | grep {}".format(dut_name))
         if docker_info:
             docker_id = docker_info.split()[0]
             logging.info("Simx docker id: {}".format(docker_id))
@@ -30,12 +30,13 @@ def test_stop_and_remove_nvos_simx_docker(topology_obj):
     try:
         with allure.step("Stop all SIMX dockers on current server"):
             dockers_info = server_engine.run_cmd("docker ps")
-            dockers_list = dockers_info.split("\n")
-            for docker in dockers_list:
-                docker_id = docker.split()[0]
-                with allure.step(f"Stop docker id {docker_id}"):
-                    output = server_engine.run_cmd("docker stop {}".format(docker_id))
-                    if docker_id not in output:
-                        logging.warning(f"Failed to stop simx docker {docker_id}")
+            docker_info_list = dockers_info.split()[1:]
+            for docker_info in docker_info_list:
+                if "nvos_reg" not in docker_info:
+                    docker_id = docker_info.split()[0]
+                    with allure.step(f"Stop docker id {docker_id}"):
+                        output = server_engine.run_cmd("docker stop {}".format(docker_id))
+                        if docker_id not in output:
+                            logging.warning(f"Failed to stop simx docker {docker_id}")
     except Exception as err:
         logging.warning(f"Failed to stop simx dockers: {str(err)}")

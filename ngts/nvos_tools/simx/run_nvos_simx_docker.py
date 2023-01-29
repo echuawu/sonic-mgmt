@@ -23,6 +23,7 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
                                                                             ip=dut_engine.ip,
                                                                             username="nvos_reg",
                                                                             path_to_image=base_version))
+        time.sleep(5)
         assert "Docker container is running" in output, "Failed to start simx docker"
 
     with allure.step("Wait untill the switch is ready (~10-12 min)"):
@@ -30,12 +31,12 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
         all_components_are_up = False
         timeout = 15    # min
         while not all_components_are_up and timeout > 0:
-            output = server_engine.run_cmd('docker exec {user}-{dut_name} systemctl status chipsim fw simx | '.format(
-                user="nvos_reg", dut_name=dut_name) + 'grep Active:')
-            if "Active: failed" in output:
-                break
-            if "inactive" not in output and "activating" not in output:
+            output = server_engine.run_cmd('docker exec {user}-{dut_name} systemctl status chipsim fw simx'.format(
+                user="nvos_reg", dut_name=dut_name))
+            if "Started SimX VM." in output:
                 all_components_are_up = True
+            elif "Failed to start SimX VM." in output:
+                break
             else:
                 timeout -= 1
                 time.sleep(60)

@@ -3,14 +3,18 @@ import allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 @pytest.mark.system
-def test_reboot_command(engines):
+def test_reboot_command(engines, devices):
     """
     Test flow:
         1. run nv action reboot system
     """
+    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
+        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
+
     system = System(None)
 
     with allure.step('Run nv action reboot system'):
@@ -38,6 +42,9 @@ def test_reboot_command_immediate(engines):
     Test flow:
         1. run nv action reboot system mode immediate
     """
+    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
+        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
+
     system = System(None)
     with allure.step('Run nv action reboot system mode immediate'):
         system.reboot.action_reboot(params='immediate')
@@ -49,6 +56,9 @@ def test_reboot_command_force(engines):
     Test flow:
         1. run nv action reboot system mode force
     """
+    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
+        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
+
     system = System(None)
     with allure.step('Run nv action reboot system mode force'):
         system.reboot.action_reboot(params='force')
@@ -63,6 +73,9 @@ def test_reboot_command_type(engines):
         3. run nv action reboot system --type warm
         4. expected message: not supported for IB
     """
+    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
+        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
+
     substring = 'NVOS cant perform it'
     err_message = 'User requested a fast reboot, but NVOS cant perform it'
 
