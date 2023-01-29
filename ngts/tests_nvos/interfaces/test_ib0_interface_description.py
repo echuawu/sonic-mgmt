@@ -26,25 +26,28 @@ def test_ib0_interface_description(engines):
     3. UnSet ib0 port description
     4. Verify the configuration applied by running “show” command
     """
-    ib0_port = MgmtPort('ib0')
+    with allure.step("Create MgmtPort object"):
+        ib0_port = MgmtPort('ib0')
 
-    ib0_port.interface.description.set(value='"ib0 description"', apply=True).verify_result()
+    with allure.step("Set description and verify"):
+        ib0_port.interface.description.set(value='ib0 description', apply=True).verify_result()
 
-    output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-        ib0_port.show()).get_returned_value()
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
+            ib0_port.show()).get_returned_value()
 
-    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=ib0_port.interface.description.label,
-                                                      expected_value='ib0 description').verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                          field_name=ib0_port.interface.description.label,
+                                                          expected_value='ib0 description').verify_result()
 
-    ib0_port.interface.description.unset(apply=True).verify_result()
+    with allure.step("Set description and verify"):
+        ib0_port.interface.description.unset(apply=True).verify_result()
 
-    output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-        ib0_port.show()).get_returned_value()
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
+            ib0_port.show()).get_returned_value()
 
-    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=ib0_port.interface.description.label,
-                                                      expected_value='').verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                          field_name=ib0_port.interface.description.label,
+                                                          expected_value='').verify_result()
 
 
 # ------------ Open API tests -----------------
