@@ -367,6 +367,10 @@ class SyslogConsts:
     MODULE_LINE = "module(load=\"im{protocol}\")"
     PORT_LINE = "input(type=\"im{protocol}\" port=\"{port}\")"
     RSYSLOG_CONF_FILE = '/etc/rsyslog.conf'
+    MULTIPLE_SERVERS_NUMBER = 10
+    CONFIG_TIME_DIFF_THRESHOLD = 1.0      # [sec]
+    SHOW_TIME_DIFF_THRESHOLD = 1.0        # [sec]
+    CPU_UTILIZATION_DIFF_THRESHOLD = 5.0  # [percent]
 
 
 class SyslogSeverityLevels:

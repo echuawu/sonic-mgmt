@@ -5,14 +5,15 @@ import allure
 import string
 import time
 import re
+import socket
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_constants.constants_nvos import SyslogConsts, SyslogSeverityLevels, NvosConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SonicMgmtContainer import SonicMgmtContainer
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import SystemConsts
 
 
 logger = logging.getLogger()
@@ -23,41 +24,142 @@ INVALID_COMMAND = "Invalid Command"
 
 @pytest.mark.system
 @pytest.mark.syslog
-def test_rsyslog_positive_minimal_flow(engines):
+def test_rsyslog_positive_minimal_flow_by_hostname(engines):
     """
     Will validate the minimal positive flow:
         set server and send UDP msg , verify the server get the msg and show commands
 
     Test flow:
-    1. Configure remote syslog server
+    1. Configure remote syslog server by hostname
     2. Validate show commands
     3. Print msg that the server should catch, validate it gets the msg
     4. Print msg that the server should not catch, validate it doesnt get the msg
     5. Cleanup
     """
     remote_server_engine = engines[NvosConst.SONIC_MGMT]
-    remote_server_ip = remote_server_engine.ip
-    system = System()
+    remote_server_hostname = get_hostname_from_ip(remote_server_engine.ip)
+    positive_minimal_flow(remote_server_engine, remote_server_hostname)
 
-    with allure.step("Configure remote syslog server {}".format(remote_server_ip)):
-        logging.info("Configure remote syslog server {}".format(remote_server_ip))
-        system.syslog.servers.set_server(remote_server_ip, apply=True)
+
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_positive_minimal_flow_by_ipv4(engines):
+    """
+    Will validate the minimal positive flow:
+        set server and send UDP msg , verify the server get the msg and show commands
+
+    Test flow:
+    1. Configure remote syslog server by ipv4
+    2. Validate show commands
+    3. Print msg that the server should catch, validate it gets the msg
+    4. Print msg that the server should not catch, validate it doesnt get the msg
+    5. Cleanup
+    """
+    remote_server_engine = engines[NvosConst.SONIC_MGMT]
+    positive_minimal_flow(remote_server_engine, remote_server_engine.ip)
+
+
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_multiple_servers_configuration(engines):
+    """
+    Validates the following:
+    - Time to configure 1 and 10 servers should be similar (<< 1sec of difference)
+    - No degradation in time to "nv show system syslog" when a lot servers are configured (10 for example)
+    - Normal system resources utilization when a lot servers configured (10 for example)
+
+    Test flow:
+    1. configuring 1 single server and measuring its time.
+    2. Measure "nv show system syslog" command time with 1 server configured.
+    3. Check system resources utilization with 1 server.
+    4. configuring 11 servers and measuring its time.
+    5. Measure "nv show system syslog" command time with 11 server configured.
+    6. Verify all configured servers displayed in show command
+    7. Check system resources utilization with 11 servers.
+    8. Compare between server configuration times.
+    9. Compare between "nv show system syslog" command times.
+    10. Compare between system resources utilization percentages.
+    11. Cleanup
+    """
+    system = System()
+    server_name = 'server_0'
 
     try:
-        with allure.step("Validate show commands"):
-            logging.info("Validate show commands")
-            expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
-            expected_syslog_dictionary = create_syslog_output_dictionary(server_dict={SyslogConsts.SERVER: expected_server_dictionary})
-            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.servers.verify_show_servers_list([remote_server_ip])
-            system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
+        with allure.step("Configure 1 remote syslog server {}".format(server_name)):
+            logging.info("Configure 1 remote syslog server {}".format(server_name))
+            start_time = time.time()
+            system.syslog.servers.set_server(server_name, apply=True)
+            end_time = time.time()
+            config_single_duration = end_time - start_time
 
-        random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
-        send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
+        with allure.step("Calculate a single server show time"):
+            logging.info("Calculate a single server show time")
+            start_time = time.time()
+            system.syslog.servers.show()
+            end_time = time.time()
+            show_single_duration = end_time - start_time
+
+        with allure.step("Check system resources utilization"):
+            logging.info("Check system resources utilization")
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("cpu")).get_returned_value()
+            single_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
+
+        with allure.step("Configure 10 remote syslog servers"):
+            logging.info("Configure 10 remote syslog servers")
+            for x in range(1, SyslogConsts.MULTIPLE_SERVERS_NUMBER):
+                server_name = 'server_' + str(x)
+                system.syslog.servers.set_server(server_name, apply=False)
+            server_name = 'server_10'
+            start_time = time.time()
+            system.syslog.servers.set_server(server_name, apply=True)
+            end_time = time.time()
+            config_multiple_duration = end_time - start_time
+
+        with allure.step("Calculate 10 server configuration time"):
+            logging.info("Calculate 10 server configuration time")
+            start_time = time.time()
+            system.syslog.servers.show()
+            end_time = time.time()
+            show_multiple_duration = end_time - start_time
+
+        with allure.step("Verify all configured servers displayed in show command"):
+            logging.info("Verify all configured servers displayed in show command")
+            server_list = OutputParsingTool.parse_json_str_to_dictionary(
+                system.syslog.servers.show()).get_returned_value()
+            server_len = len(server_list)
+            assert server_len == (SyslogConsts.MULTIPLE_SERVERS_NUMBER + 1), \
+                "Number of servers configured is different than expected"
+
+        with allure.step("Check system resources utilization"):
+            logging.info("Check system resources utilization")
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("cpu")).get_returned_value()
+            multiple_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
+
+        with allure.step("Verify configuration diff time"):
+            logging.info("Verify configuration diff time")
+            config_duration_diff = config_multiple_duration - config_single_duration
+            assert config_duration_diff < SyslogConsts.CONFIG_TIME_DIFF_THRESHOLD, \
+                "Configuration diff time: {actual} is higher than expected time: {expected}" \
+                "".format(actual=config_duration_diff, expected=SyslogConsts.CONFIG_TIME_DIFF_THRESHOLD)
+
+        with allure.step("Verify show diff time"):
+            logging.info("Verify show diff time")
+            show_duration_diff = show_multiple_duration - show_single_duration
+            assert show_duration_diff < SyslogConsts.SHOW_TIME_DIFF_THRESHOLD, \
+                "Show diff time: {actual} is higher than expected time: {expected}" \
+                "".format(actual=show_duration_diff, expected=SyslogConsts.SHOW_TIME_DIFF_THRESHOLD)
+
+        with allure.step("Verify system resources utilization diff percentages"):
+            logging.info("Verify system resources utilization diff percentages")
+            utilization_diff = multiple_utilization - single_utilization
+            assert utilization_diff < SyslogConsts.CPU_UTILIZATION_DIFF_THRESHOLD, \
+                "CPU utilization diff time: {actual} is higher than expected time: {expected}" \
+                "".format(actual=utilization_diff, expected=SyslogConsts.CPU_UTILIZATION_DIFF_THRESHOLD)
+
     finally:
         with allure.step("Cleanup syslog configurations"):
             logging.info("Cleanup syslog configurations")
-            system.syslog.servers.unset(apply=True)
+            system.syslog.unset(apply=True)
 
 
 @pytest.mark.system
@@ -821,6 +923,46 @@ def create_remote_server_dictionary(server_name, port=SyslogConsts.DEFAULT_PORT,
     return dictionary
 
 
+def positive_minimal_flow(remote_server_engine, remote_server):
+    system = System()
+
+    with allure.step("Configure remote syslog server: {}".format(remote_server)):
+        logging.info("Configure remote syslog server: {}".format(remote_server))
+        system.syslog.servers.set_server(remote_server, apply=True)
+
+    try:
+        with allure.step("Validate show commands"):
+            logging.info("Validate show commands")
+            expected_server_dictionary = create_remote_server_dictionary(remote_server)
+            expected_syslog_dictionary = create_syslog_output_dictionary(server_dict={SyslogConsts.SERVER: expected_server_dictionary})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            system.syslog.servers.verify_show_servers_list([remote_server])
+            system.syslog.servers.servers_dict[remote_server].verify_show_server_output(expected_server_dictionary[remote_server])
+
+        random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
+        send_msg_to_server(random_msg, remote_server, remote_server_engine, verify_msg_received=True)
+    finally:
+        with allure.step("Cleanup syslog configurations"):
+            logging.info("Cleanup syslog configurations")
+            system.syslog.servers.unset(apply=True)
+
+
+def get_hostname_from_ip(ip):
+    host_name_index = 0
+    hostname_str = socket.gethostbyaddr(ip)[host_name_index]
+    return remove_mlnx_lab_suffix(hostname_str)
+
+
+def remove_mlnx_lab_suffix(hostname_string):
+    """
+    Returns switch hostname without mlnx lab prefix
+    :param hostname_string: 'arc-switch1030.mtr.labs.mlnx'
+    :return: arc-switch1030
+    """
+    host_name_index = 0
+    return hostname_string.split('.')[host_name_index]
+
+
 # ------------ Open API tests -----------------
 
 @pytest.mark.openapi
@@ -890,6 +1032,14 @@ def test_rsyslog_configurations_openapi():
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
-def test_rsyslog_positive_minimal_flow_openapi(engines):
+def test_rsyslog_positive_minimal_flow_openapi_by_hostname(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_rsyslog_positive_minimal_flow(engines)
+    test_rsyslog_positive_minimal_flow_by_hostname(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_positive_minimal_flow_openapi_by_ipv4(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_positive_minimal_flow_by_ipv4(engines)
