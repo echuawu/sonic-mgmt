@@ -354,7 +354,7 @@ def test_rj45_type_verification(engines, cli_objects, platform_params, rj45_port
                        tries=10, delay=5, logger=logger)
             retry_call(verify_interfaces_type_state_db,
                        fargs=[engines.dut, selected_rj45_interfaces_with_peers, "(nil)"],
-                       tries=10, delay=10, logger=logger)
+                       tries=10, delay=5, logger=logger)
 
         with allure.step('10. Verify SFP interface type in "show interfaces status" and in STATE_DB'):
             logger.info('10. Verifying SFP interface type in "show interfaces status" and in STATE_DB')
