@@ -433,6 +433,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
 
 
 @pytest.mark.ib_interfaces
+@pytest.mark.system_profile_cleanup
 def test_split_port_redis_db_crash(engines, interfaces, start_sm):
     """
     Test flow:
