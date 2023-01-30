@@ -238,29 +238,30 @@ class ValidationTool:
         return ResultObj(True)
 
     @staticmethod
-    def verify_all_files_in_compressed_folder(engine, zipped_folder, files_list):
+    def verify_all_files_in_compressed_folder(engine, zipped_folder_name, files_list, zipped_folder_path="", path=""):
         """
 
         :param engine:
-        :param zipped_folder: the zipped folder path
-        :param files_list: expected files
+        :param zipped_folder_name:
+        :param files_list:
+        :param zipped_folder_path:
+        :param path:
         :return:
         """
-        with allure.step('Validate all expected files are exist in the compressed folder{}'.format(zipped_folder)):
+        with allure.step('Validate all expected files are exist in the compressed folder{}'.format(zipped_folder_name)):
             with allure.step('Get files list in compressed folder'):
-                engine.run_cmd('sudo tar -xf ' + zipped_folder + ' -C /host/dump')
-                folder_name = zipped_folder.replace('.tar.gz', "")
-                output = engine.run_cmd('ls ' + folder_name + '/dump').split()
-                engine.run_cmd('sudo rm -rf ' + folder_name)
+                engine.run_cmd('sudo tar -xf ' + zipped_folder_path + '/' + zipped_folder_name + ' -C ' + zipped_folder_path)
+                output = engine.run_cmd('ls ' + zipped_folder_path + path).split()
+                engine.run_cmd('sudo rm -rf ' + zipped_folder_path + '/' + path.split('/')[1])
 
             with allure.step('Validate that all expected files are exist and nothing more'):
                 files = [file for file in output if file not in files_list]
-                if not len(files):
+                if len(files):
                     return ResultObj(False, "the next files are missed {files}".format(files=files))
 
                 files = [file for file in files_list if file not in output]
-                if len(files) != 0:
+                if len(files):
                     logger.warning(
                         "the next files are in the dump folder but not in our check list {files}".format(files=files))
 
-            ResultObj(True, "all expected files are exist", True)
+            return ResultObj(True, "all expected files are exist", True)
