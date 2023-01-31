@@ -4,6 +4,8 @@ from ngts.nvos_constants.constants_nvos import SystemConsts, IpConsts
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -172,3 +174,48 @@ def validate_ip_fields(selected_port, output_dictionary):
                           port_ip.dhcp_client6.label,
                           IpConsts.ARP_TIMEOUT, IpConsts.AUTOCONF]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+@pytest.mark.nvos_ci
+@pytest.mark.ib_interfaces
+def test_mgmt_show_interface_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_mgmt_show_interface(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_mgmt_show_interface_link_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_mgmt_show_interface_link(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_ib_show_interface_stats_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_stats(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_ib_show_interface_ip_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_ip(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+@pytest.mark.interfaces
+def test_show_interface_ip_dhcp_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_interface_ip_dhcp(engines)

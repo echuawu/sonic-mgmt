@@ -786,8 +786,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     @staticmethod
     def is_bluefield(hwsku):
-        bluefield_hwsku = 'mbf2h536c'
-        return bluefield_hwsku in hwsku.lower()
+        for bf_hwsku in BluefieldConstants.BLUEFIELD_HWSKUS_LIST:
+            if bf_hwsku.lower() in hwsku.lower():
+                return True
+        return False
 
     @staticmethod
     def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
@@ -926,13 +928,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def get_config_db_from_running_config(self):
         config = self.engine.run_cmd('sudo show runningconfiguration all', print_output=False)
         return json.loads(config)
-
-    def is_dpu(self):
-        """
-        Function to check if the current DUT is DPU
-        """
-        platform = self.cli_obj.chassis.get_platform()
-        return 'arm64-nvda_bf-mbf2h536c' in platform
 
     def is_spc1(self, cli_object):
         """

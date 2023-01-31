@@ -315,7 +315,12 @@ def test_rj45_type_verification(engines, cli_objects, platform_params, rj45_port
 
     with allure.step("5. Select four random RJ45 ports and one SFP"):
         logger.info("5. Selecting four random RJ45 ports and one SFP")
-        selected_rj45_interfaces = random.sample(rj45_ports_list, 4)
+        selected_rj45_interfaces = []
+        while len(selected_rj45_interfaces) != 4:
+            iface = random.choice(rj45_ports_list)
+            # Preventing case when two interconnected interfaces is chosen
+            if dut_ports_interconnects[iface] not in selected_rj45_interfaces:
+                selected_rj45_interfaces.append(iface)
         selected_rj45_peers = [dut_ports_interconnects[iface] for iface in selected_rj45_interfaces]
         selected_rj45_interfaces_with_peers = selected_rj45_interfaces + selected_rj45_peers
         selected_sfp_interface = random.choice(sfp_ports_list)
@@ -351,8 +356,8 @@ def test_rj45_type_verification(engines, cli_objects, platform_params, rj45_port
                        fargs=[engines.dut, selected_rj45_interfaces_with_peers, "(nil)"],
                        tries=10, delay=5, logger=logger)
 
-        with allure.step('10. Verify SFP interface type and in "show interfaces status" and in STATE_DB'):
-            logger.info('10. Verifying SFP interface type and in "show interfaces status" and in STATE_DB')
+        with allure.step('10. Verify SFP interface type in "show interfaces status" and in STATE_DB'):
+            logger.info('10. Verifying SFP interface type in "show interfaces status" and in STATE_DB')
             # Port type should remain unchanged for non-RJ45 interfaces
             verify_interfaces_type_cli(cli_objects, [selected_sfp_interface],
                                        expected_type=initial_state_db_ifaces_types[selected_sfp_interface])

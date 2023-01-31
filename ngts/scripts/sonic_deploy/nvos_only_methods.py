@@ -20,10 +20,10 @@ class NvosInstallationSteps:
         Pre-installation steps for NVOS NOS
 
         Check if MLNXOS installed on this setup. If so, use boot_to_onie script located in a static directory
-        /auto/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py to enter onie before installing NVOS
+        /.autodirect/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py to enter onie before installing NVOS
         """
         if setup_info['duts'][0]['switch_type'] == "MLNX_SWITCH":
-            cmd = "python /auto/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py {}".format(
+            cmd = "python /.autodirect/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py {}".format(
                 setup_info['duts'][0]['dut_ip'])
             logger.info("Executing script: {}".format(cmd))
             p = subprocess.Popen(shlex.split(cmd))

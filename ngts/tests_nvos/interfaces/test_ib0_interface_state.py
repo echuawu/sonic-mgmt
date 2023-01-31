@@ -6,6 +6,9 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.cli_wrappers.nvue.nvue_opensm_clis import NvueOpenSmCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
+
 logger = logging.getLogger()
 
 
@@ -94,3 +97,26 @@ def test_ib0_interface_state_unset(engines):
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=ib0_port.interface.link.state.label,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib
+def test_ib0_interface_state_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_interface_state(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+def test_ib0_interface_state_invalid_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_interface_state_invalid(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+def test_ib0_interface_state_unset_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_interface_state_unset(engines)

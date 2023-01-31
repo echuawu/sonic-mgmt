@@ -12,6 +12,9 @@ from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
+
 logger = logging.getLogger()
 
 
@@ -156,3 +159,18 @@ def get_port_obj(port_name):
                                              "Make sure the name of the port is accurate and the state of " \
                                              "this port is UP".format(port_name)
     return port_list[0]
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_clear_all_counters_openapi(engines, players, interfaces, start_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_clear_all_counters(engines, players, interfaces, start_sm)
+
+
+@pytest.mark.openapi
+def test_ib_clear_counters_openapi(engines, players, interfaces, start_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_clear_counters(engines, players, interfaces, start_sm)

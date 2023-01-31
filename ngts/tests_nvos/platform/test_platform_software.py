@@ -60,3 +60,13 @@ def test_show_platform_software(engines):
                 platform.software.show("installed {}".format(list(output.keys())[1]))).get_returned_value()
             assert not any(field not in output for field in ["description", "package", "version"]), \
                 "Not all required fields were found"
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.simx
+@pytest.mark.nvos_ci
+def test_show_platform_software_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform_software(engines)

@@ -25,12 +25,12 @@ class Ibdiagnet(BaseComponent):
 
     def action_upload(self, upload_path, file_name=IbConsts.IBDIAGNET_FILE_NAME):
         with allure.step("Upload ibdiagnet to '{path}".format(path=upload_path)):
-            logging.info("Upload ibdiagnet to '{path}".format(path=upload_path))
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload, self.get_resource_path(),
-                                                   TestToolkit.engines.dut, file_name, upload_path).get_returned_value()
+            logging.info("Upload ibdiagnet to '{path} ".format(path=upload_path))
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload, TestToolkit.engines.dut,
+                                                   self.get_resource_path() + ' files', file_name, upload_path)
 
     def action_delete(self, file_name):
         with allure.step("Delete ibdiagnet"):
             logging.info("Delete ibdiagnet")
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_delete, self.get_resource_path(),
-                                                   TestToolkit.engines.dut, file_name).get_returned_value()
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_delete, TestToolkit.engines.dut,
+                                                   self.get_resource_path() + ' files', file_name)

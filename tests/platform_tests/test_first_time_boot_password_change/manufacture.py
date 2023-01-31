@@ -155,9 +155,9 @@ def enter_onie_install_mode(dut_ip):
     # create ssh connection device
     sonic_engine = create_engine(dut_ip, DefaultConsts.DEFAULT_USER, DefaultConsts.DEFAULT_PASSWORD)
     sonic_engine.sendline('sudo su')
-    sonic_engine.expect(DefaultConsts.SONIC_PROMPT)
+    sonic_engine.expect(DefaultConsts.DEFAULT_PROMPT)
     sonic_engine.sendline('cd /tmp')
-    sonic_engine.expect(DefaultConsts.SONIC_PROMPT)
+    sonic_engine.expect(DefaultConsts.DEFAULT_PROMPT)
     print_log("Validating file \"{}\" existence".format(DefaultConsts.ONIE_INSTALL_PATH.split('/')[-1]))
     # validate the file is there
     sonic_engine.sendline('ls')
@@ -165,7 +165,7 @@ def enter_onie_install_mode(dut_ip):
     # # change permissions
     print_log("Executing the bash script uploaded")
     sonic_engine.sendline('sudo chmod +777 onie_install.sh')
-    sonic_engine.expect(DefaultConsts.SONIC_PROMPT)
+    sonic_engine.expect(DefaultConsts.DEFAULT_PROMPT)
     sonic_engine.sendline('sudo ./onie_install.sh install')
     sonic_engine.expect('Reboot will be done after 3 sec')
     # # close session, the system will perform reboot

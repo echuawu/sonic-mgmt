@@ -5,6 +5,8 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -40,3 +42,14 @@ def test_show_platform(engines):
                                                                    PlatformConsts.ENV_COMP).verify_result()
             Tools.ValidationTool.verify_field_exist_in_json_output(output[PlatformConsts.PLATFORM_HW],
                                                                    ["component"]).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.platform
+@pytest.mark.simx
+@pytest.mark.nvos_ci
+def test_show_platform_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform(engines)

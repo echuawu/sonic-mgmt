@@ -19,6 +19,22 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def action_upload(engine, path, file_name, url, op_param=""):
+        path = path.replace('/', ' ')
+        cmd = "nv action upload {path} {filename} {url}".format(path=path, filename=file_name, url=url)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_delete(engine, path, file_name, op_param=""):
+        path = path.replace('/', ' ')
+        cmd = "nv action delete {path} {filename}".format(path=path, filename=file_name)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def action_files(engine, action_str, action_component_str, file='', op_param=""):
         cmd = "nv action {action_type} system {action_component} files {file} {param}" \
             .format(action_type=action_str, action_component=action_component_str, file=file, param=op_param)

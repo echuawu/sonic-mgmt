@@ -9,10 +9,11 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts, OutputFormat
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 @pytest.mark.general
-def test_save_reboot(engines):
+def test_save_reboot(engines, devices):
     """
         Test flow:
             1. run nv set system hostname <new_hostname> with apply
@@ -25,6 +26,9 @@ def test_save_reboot(engines):
             8. verify the applied description value is ''
             9. run nv unset system hostname
         """
+    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
+        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
+
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
         new_hostname_value = 'TestingConfigCmds'

@@ -11,6 +11,8 @@ from ngts.nvos_constants.constants_nvos import ImageConsts, NvosConst
 from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import ApiType
+
 from infra.tools.redmine.redmine_api import *
 
 
@@ -497,3 +499,75 @@ def get_image_data_and_fetch_random_image_files(release_name, system, images_amo
                 system.image.action_fetch(scp_path + image_path)
                 images_name.append(image_name)
     return original_images, original_image, original_image_partition, partition_id_for_new_image, images_name
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.image
+@pytest.mark.system
+def test_image_install_openapi(release_name):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_image_install(release_name)
+
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_bad_flow_openapi(engines, release_name):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_image_bad_flow(engines, release_name)
+
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_image_uninstall_force_openapi(release_name):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_image_uninstall_force(release_name)
+
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_image_uninstall_openapi(release_name):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_image_uninstall(release_name)
+
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_upload_openapi(engines, release_name):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_image_upload(engines, release_name)
+
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_rename_openapi(release_name):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_image_rename(release_name)
+
+
+@pytest.mark.openapi
+@pytest.mark.checklist
+@pytest.mark.nvos_ci
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_show_system_image_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_image()

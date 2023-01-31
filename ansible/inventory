@@ -314,6 +314,14 @@ gorilla-153 ansible_host=gorilla-153  sonic_version=v2  sonic_hwsku=ACS-MQM9700 
 gorilla-154-ptf-any ansible_host=gorilla-154  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 gorilla-154 ansible_host=gorilla-154  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
+# NVOS testbed gorilla-100 topologies
+gorilla-100-ptf-any ansible_host=gorilla-100  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-100 ansible_host=gorilla-100  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-152 topologies
+gorilla-152-ptf-any ansible_host=gorilla-152  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-152 ansible_host=gorilla-152  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
 # NVOS testbed nvidia-arm-orion topologies
 nvidia-arm-orion-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 nvidia-arm-orion ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
@@ -338,9 +346,45 @@ gorilla-simx-87 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS
 gorilla-simx-88-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10088" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 gorilla-simx-88 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10088" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
+# NVOS testbed gorilla-simx-89 topologies
+gorilla-simx-89-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-89 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-90 topologies
+gorilla-simx-90-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-90 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-91 topologies
+gorilla-simx-91-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-91 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-92 topologies
+gorilla-simx-92-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-92 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-93 topologies
+gorilla-simx-93-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-93 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-94 topologies
+gorilla-simx-94-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-94 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-95 topologies
+gorilla-simx-95-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-95 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-96 topologies
+gorilla-simx-96-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-96 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
 # NVOS testbed gorilla-simx-97 topologies
 gorilla-simx-97-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 gorilla-simx-97 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# NVOS testbed gorilla-simx-98 topologies
+gorilla-simx-98-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-simx-98 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="telnet fit-l-vrt-660 10097" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:58 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
 # NVOS testbed jaguar-113 topologies
 jaguar-113-ptf-any ansible_host=jaguar-113  sonic_version=v2  sonic_hwsku=ACS-MQM8700            serial_console="ssh -l rcon:7004 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=1C:34:DA:B7:2E:00 serial=MT2145T06690 model=MQM8700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_mqm8700-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM8700-WS2F_QP1', '0x23': u'MT2145T06690', '0x21': u'mqm8700', '0x26': u'17', '0x24': u'1C:34:DA:B7:2E:00', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
@@ -643,9 +687,9 @@ r-r740-03-bf2-sonic-01-appliance ansible_host=10.215.19.39 sonic_version=v2 soni
 r-r740-03-bf2-sonic-01-ptf-any ansible_host=10.215.19.39 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:82" pdu_host=pdu-
 
 # MTR testbed r-r740-08-bf3-sonic-01 topologies
-r-r740-08-bf3-sonic-01 ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
-r-r740-08-bf3-sonic-01-appliance ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
-r-r740-08-bf3-sonic-01-ptf-any ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
+r-r740-08-bf3-sonic-01 ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
+r-r740-08-bf3-sonic-01-appliance ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
+r-r740-08-bf3-sonic-01-ptf-any ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
 
 # MTR testbed r-r740-08-bf2-sonic-01 topologies
 r-r740-08-bf2-sonic-01 ansible_host=10.215.22.179 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:70" pdu_host=pdu-
@@ -653,9 +697,9 @@ r-r740-08-bf2-sonic-01-appliance ansible_host=10.215.22.179 sonic_version=v2 son
 r-r740-08-bf2-sonic-01-ptf-any ansible_host=10.215.22.179 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:70" pdu_host=pdu-
 
 # MTR testbed r-r740-09-bf3-sonic-01 topologies
-r-r740-09-bf3-sonic-01 ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
-r-r740-09-bf3-sonic-01-appliance ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
-r-r740-09-bf3-sonic-01-ptf-any ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
+r-r740-09-bf3-sonic-01 ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
+r-r740-09-bf3-sonic-01-appliance ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
+r-r740-09-bf3-sonic-01-ptf-any ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
 
 # MTR testbed r-r740-09-bf2-sonic-02 topologies
 r-r740-09-bf2-sonic-01 ansible_host=10.215.5.19 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:90" pdu_host=pdu-
@@ -1459,6 +1503,12 @@ gorilla-153
 gorilla-154-ptf-any
 gorilla-154
 
+gorilla-152-ptf-any
+gorilla-152
+
+gorilla-100-ptf-any
+gorilla-100
+
 nvidia-arm-orion-ptf-any
 nvidia-arm-orion
 
@@ -1477,8 +1527,35 @@ gorilla-simx-87
 gorilla-simx-88-ptf-any
 gorilla-simx-88
 
+gorilla-simx-89-ptf-any
+gorilla-simx-89
+
+gorilla-simx-90-ptf-any
+gorilla-simx-90
+
+gorilla-simx-91-ptf-any
+gorilla-simx-91
+
+gorilla-simx-92-ptf-any
+gorilla-simx-92
+
+gorilla-simx-93-ptf-any
+gorilla-simx-93
+
+gorilla-simx-94-ptf-any
+gorilla-simx-94
+
+gorilla-simx-95-ptf-any
+gorilla-simx-95
+
+gorilla-simx-96-ptf-any
+gorilla-simx-96
+
 gorilla-simx-97-ptf-any
 gorilla-simx-97
+
+gorilla-simx-98-ptf-any
+gorilla-simx-98
 
 jaguar-113-ptf-any
 jaguar-113

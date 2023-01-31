@@ -2,6 +2,7 @@ from .ConfigurationBase import ConfigurationBase
 from .CmdBase import CmdBase
 from .nvos_consts import IbInterfaceConsts
 from .IbInterfaceDecorators import *
+from ngts.nvos_constants.constants_nvos import ApiType
 import logging
 import allure
 
@@ -22,13 +23,17 @@ class Description(ConfigurationBase, CmdBase):
                                                                                port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
+
+            value = f'"{value}"' if TestToolkit.tested_api == ApiType.NVUE else value
             return CmdBase.set_interface(engine=dut_engine, field_name=IbInterfaceConsts.DESCRIPTION,
                                          port_obj=self.port_obj,
-                                         output_hierarchy=self.output_hierarchy, value=value, apply=apply)
+                                         output_hierarchy=self.output_hierarchy, value=value, apply=apply,
+                                         ask_for_confirmation=True)
 
     def unset(self, dut_engine=None, apply=True):
         with allure.step('Unset `description` for {port_name}'.format(port_name=self.port_obj.name)):
             if not dut_engine:
                 dut_engine = TestToolkit.engines.dut
             return CmdBase.unset_interface(engine=dut_engine, field_name=IbInterfaceConsts.DESCRIPTION,
-                                           port_obj=self.port_obj, output_hierarchy=self.output_hierarchy, apply=apply)
+                                           port_obj=self.port_obj, output_hierarchy=self.output_hierarchy, apply=apply,
+                                           ask_for_confirmation=True)

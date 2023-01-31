@@ -12,6 +12,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SonicMgmtContainer import SonicMgmtContainer
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 logger = logging.getLogger()
@@ -94,21 +95,19 @@ def test_rsyslog_configurations():
             system.syslog.servers.verify_show_servers_list([server_a, server_b])
             system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
-        # TODO change bak after bug #3330477  will be fixed
-        # with allure.step("set server vrf and Validate"):
-        #    logging.info("set server vrf and Validate")
-        #    random_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
-        #    system.syslog.servers.servers_dict[server_a].set_vrf(random_name, apply=True)
-        #    expected_syslog_dictionary[SyslogConsts.SERVER][server_a].update({SyslogConsts.VRF: random_name})
-        #    system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-        #    system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+        with allure.step("set server vrf and Validate"):
+            logging.info("set server vrf and Validate")
+            system.syslog.servers.servers_dict[server_a].set_vrf("mgmt", apply=True)
+            expected_syslog_dictionary[SyslogConsts.SERVER][server_a].update({SyslogConsts.VRF: "mgmt"})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
-        # with allure.step("unset server vrf and Validate"):
-        #    logging.info("unset server vrf and Validate")
-        #    system.syslog.servers.servers_dict[server_a].unset_vrf(apply=True)
-        #    expected_syslog_dictionary[SyslogConsts.SERVER][server_a].update({SyslogConsts.VRF: "default"})
-        #    system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-        #    system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
+        with allure.step("unset server vrf and Validate"):
+            logging.info("unset server vrf and Validate")
+            system.syslog.servers.servers_dict[server_a].unset_vrf(apply=True)
+            expected_syslog_dictionary[SyslogConsts.SERVER][server_a].update({SyslogConsts.VRF: "default"})
+            system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
+            system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
         with allure.step("Set global trap and Validate"):
             logging.info("Set global trap and Validate")
@@ -597,8 +596,7 @@ def test_rsyslog_format(engines):
             system.syslog.format.set(SyslogConsts.WELF, apply=True)
             expected_syslog_dictionary[SyslogConsts.FORMAT] = {SyslogConsts.WELF: {}}
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF:
-                                                                                  {SyslogConsts.FIREWAL_NAME: ""}}})
+            system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF: {}}})
             send_random_msg_and_validate_format(remote_server_ip, remote_server_engine, expect_welf_format=True)
 
         with allure.step("Set firewall name and validate"):
@@ -606,11 +604,9 @@ def test_rsyslog_format(engines):
             firewall_name = RandomizationTool.get_random_string(6, ascii_letters=string.ascii_letters)
             system.syslog.format.welf.set_firewall_name(firewall_name, apply=True)
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            output = OutputParsingTool.parse_json_str_to_dictionary(system.syslog.show_format()).get_returned_value()
-            ValidationTool.compare_dictionary_content(output, {SyslogConsts.FORMAT:
-                                                               {SyslogConsts.WELF:
-                                                                {SyslogConsts.FIREWAL_NAME:
-                                                                 firewall_name}}}).verify_result()
+            system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF:
+                                                                                  {SyslogConsts.FIREWAL_NAME:
+                                                                                   firewall_name}}})
             send_random_msg_and_validate_format(remote_server_ip, remote_server_engine, expect_welf_format=True,
                                                 firewall_name=firewall_name)
 
@@ -619,8 +615,7 @@ def test_rsyslog_format(engines):
             system.syslog.format.welf.unset_firewall_name(apply=True)
             expected_syslog_dictionary[SyslogConsts.FORMAT] = {SyslogConsts.WELF: {}}
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
-            system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF:
-                                                                                  {SyslogConsts.FIREWAL_NAME: ""}}})
+            system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF: {}}})
             send_random_msg_and_validate_format(remote_server_ip, remote_server_engine, expect_welf_format=True)
 
     finally:
@@ -676,7 +671,7 @@ def test_rsyslog_bad_params():
         with allure.step("Configure and validate vrf"):
             logging.info("Configure and validate vrf")
             system.syslog.servers.servers_dict[server_name].set_vrf("", expected_str=INCOMPLETE_COMMAND)
-            # system.syslog.servers.servers_dict[server_name].set_vrf(rand_str, expected_str=ERROR)  # bug 3333978
+            system.syslog.servers.servers_dict[server_name].set_vrf(rand_str, expected_str=ERROR)
 
         with allure.step("Configure and validate filter"):
             logging.info("Configure and validate filter")
@@ -824,3 +819,77 @@ def create_remote_server_dictionary(server_name, port=SyslogConsts.DEFAULT_PORT,
         }
     }
     return dictionary
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_bad_params_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_bad_params()
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_format_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_format(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_filter_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_filter(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_protocol_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_protocol(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_port_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_port(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_server_and_global_severity_levels_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_server_and_global_severity_levels()
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_server_severity_levels_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_server_severity_levels(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_configurations_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_configurations()
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.syslog
+def test_rsyslog_positive_minimal_flow_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_rsyslog_positive_minimal_flow(engines)

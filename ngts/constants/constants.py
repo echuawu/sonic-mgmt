@@ -21,9 +21,11 @@ class SonicConst:
     PORT_SPLIT_NUM_1 = 1
     PORT_SPLIT_NUM_2 = 2
     PORT_SPLIT_NUM_4 = 4
+    PORT_SPLIT_NUM_8 = 8
     PORT_LANE_NUM_1 = 1
     PORT_LANE_NUM_2 = 2
     PORT_LANE_NUM_4 = 4
+    PORT_LANE_NUM_8 = 8
     FEC_RS_MODE = 'rs'
     FEC_FC_MODE = 'fc'
     FEC_NONE_MODE = 'none'
@@ -588,6 +590,10 @@ class FecConstants:
                 SonicConst.PORT_SPLIT_NUM_4: {
                     '25G': ['CR'],
                     '50G': ['CR2']
+                },
+                SonicConst.PORT_SPLIT_NUM_8: {
+                    '10G': ['CR'],
+                    '25G': ['CR']
                 }
             },
             SonicConst.FEC_RS_MODE: {
@@ -609,6 +615,10 @@ class FecConstants:
                                               '100G': ['CR'],
                                               '200G': ['CR2'],
                                               },
+                SonicConst.PORT_SPLIT_NUM_8: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR']
+                                              }
             },
             SonicConst.FEC_NONE_MODE: {
                 SonicConst.PORT_SPLIT_NUM_1: {'1G': ['CR'],
@@ -630,6 +640,9 @@ class FecConstants:
                                               '25G': ['CR'],
                                               '40G': ['CR4'],
                                               '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_8: {'10G': ['CR'],
+                                              '25G': ['CR']
                                               }
             }
         }
@@ -943,6 +956,7 @@ class BluefieldConstants:
     BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
     BMC_USER = 'root'
     BMC_PASS = '3tango11'
+    BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-9009d3b600CVAA']
 
 
 class SonicDeployConstants:

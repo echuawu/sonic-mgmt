@@ -7,6 +7,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -365,3 +366,33 @@ def get_port_obj(port_name):
                                              "Make sure the name of the port is accurate and the state of " \
                                              "this port is UP".format(port_name)
     return port_list[0]
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_speed_openapi(engines, players, interfaces, devices, start_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_speed(engines, players, interfaces, devices, start_sm)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_mtu_openapi(engines, players, interfaces, start_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_mtu(engines, players, interfaces, start_sm)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_lanes_openapi(engines, players, interfaces, devices, start_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_lanes(engines, players, interfaces, devices, start_sm)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_interface_vls_openapi(engines, players, interfaces, start_sm):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_interface_vls(engines, players, interfaces, start_sm)

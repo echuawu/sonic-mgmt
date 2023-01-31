@@ -28,7 +28,7 @@ class DefaultConsts:
     ONIE_INSTALL_PATH = 'platform_tests/test_first_time_boot_password_change/onie_install.sh'
     # expired password message regex
     PASSWORD_REGEX = 'assword'
-    SONIC_PROMPT = '$'
+    SONIC_PROMPT = '\\$'
     ONIE_PROMPT = '#'
     DEFAULT_PROMPT = [SONIC_PROMPT, ONIE_PROMPT]
     LONG_PERIOD = 30

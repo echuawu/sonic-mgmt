@@ -32,6 +32,7 @@ class TestRouting:
         self.interfaces = interfaces
         self.players = players
         self.platform_params = platform_params
+        self.hwsku = platform_params.hwsku
         self.dut_mac = dut_mac
         self.dut_ha_1_mac = dut_ha_1_mac
 
@@ -45,7 +46,7 @@ class TestRouting:
         self.ha_dut_1_ip = '20.0.0.2'
         self.hb_dut_1_ip = '30.0.0.2'
 
-        self.tcpdump_src_mac = self.dut_mac if self.dut_cli.general.is_dpu() else self.dut_ha_1_mac
+        self.tcpdump_src_mac = self.dut_mac if self.dut_cli.general.is_bluefield(self.hwsku) else self.dut_ha_1_mac
         # Get random IP in range: 59.154.200.0 - 196.178.1.0
         self.test_ip = str(ipaddress.IPv4Address(random.choice(range(1000000000, 3300000000))))
         self.static_route_32_ip = '50.0.0.1'

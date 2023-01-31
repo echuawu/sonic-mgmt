@@ -197,7 +197,7 @@ def get_mail_address(topology_obj):
 
 @pytest.mark.disable_loganalyzer
 def test_sanitizer(topology_obj, cli_objects, dumps_folder, test_name, send_mail, setup_name):
-    asan_apps = get_asan_apps(cli_objects.dut)
+    asan_apps = [] if topology_obj.players['dut']['is_nvos'] else get_asan_apps(cli_objects.dut)
     if topology_obj.players['dut']['sanitizer'] or asan_apps:
         os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
         dut_engine = topology_obj.players['dut']['engine']

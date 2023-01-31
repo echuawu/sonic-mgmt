@@ -1,6 +1,9 @@
 import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
+
 logger = logging.getLogger()
 
 
@@ -50,3 +53,21 @@ def validate_interface_ip_address(address, output_dictionary, validate_in=True):
         if not validate_in:
             assert address not in output_dictionary['address'].keys(), "address found and should be deleted: {add}"\
                 .format(add=address)
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_ib0_interface_ipv6_address_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_interface_ipv6_address(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_ib0_interface_ipv4_address_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib0_interface_ipv4_address(engines)

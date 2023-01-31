@@ -5,6 +5,8 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
@@ -59,3 +61,13 @@ def _compare_general_output_to_comp_output(platform, comp_name, general_comp_out
 
     with allure.step("Verify all {} fields and values equal to general output".format(comp_name)):
         Tools.ValidationTool.compare_dictionary_content(comp_output, general_comp_output).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.platform
+@pytest.mark.nvos_ci
+def test_show_platform_firmware_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_platform_firmware(engines)

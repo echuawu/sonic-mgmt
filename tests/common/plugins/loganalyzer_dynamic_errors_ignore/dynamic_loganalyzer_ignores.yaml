@@ -309,6 +309,7 @@
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port
       - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
 
 # From ngts/tests/nightly/fdb/log_analyzer_ignores.txt
 - Errors_list:
@@ -1116,8 +1117,8 @@
       - 3168487
 
 - Errors_list:
-    - '.* ERR bgp#rsyslogd: omfwd\/udp: socket 6: sendto\(\) error: Network is unreachable.*'
-    - '.* ERR bgp#rsyslogd: omfwd: socket 6: error 101 sending via udp: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd\/udp: socket 6: sendto\(\) error: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd: socket 6: error 101 sending via udp: Network is unreachable.*'
   Conditions:
     - Redmine:
       - 3168474
@@ -1730,6 +1731,9 @@
       - show_techsupport/test_techsupport_no_secret.py
       - show_techsupport/test_techsupport.py
       - tests/nightly/arp/test_arp.py::test_arp_gratuitous_without_arp_update
+      - tests/nightly/fec/test_fec.py
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
 
 - Errors_list:
     - '.* ERR healthd: Get unit status .*''LoadState'''
@@ -1833,11 +1837,12 @@
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_DEBUG_COUNTER\.ERR\] mlnx_sai_debug_counter\.c\[\d+\]- mlnx_debug_counter_db_idx_to_data: Debug counter at index \d+ is removed or not created yet.*'
     - '.*ERR syncd#SDK: :- collectSwitchDebugCounters: Failed to get stats of port.*'
+    - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Switch Debug Counter.*'
   Conditions:
     - Affected_test_cases:
       - tests/drop_packets/test_configurable_drop_counters.py
       Redmine:
-      - 3314632
+      - 3310078
 
 - Errors_list:
     - '.*ERR swss#buffermgrd: :- isHeadroomResourceValid: Unable to update profile for port Ethernet\d+. Accumulative headroom size exceeds limit.*'
@@ -1936,10 +1941,19 @@
         - 2201
 
 - Errors_list:
+    - '.* ERR teamd#teammgrd: :- addLagMember: Failed to add Ethernet\d+ to port channel .*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py
+      Redmine:
+        - 3137284
+
+- Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan1_speed_get - OSError.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+      - show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval
       Redmine:
         - 3334337
       Platform:
@@ -1967,3 +1981,44 @@
       - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
       Redmine:
         - 3272016
+
+- Errors_list:
+    - '.* ERR what-just-happened#wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set trap ID \(\d+\) to trap group \(\d+\) with trap action \(\d+\), error: Communication Error'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set traps.'
+    - '.* ERR what-just-happened#wjhd\[\d+]: \[WJH_LIB.ERROR  \]: Failed to enable severity bits .* on drop reason group \d+'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_drop_reason_group_disable_cb failed, err = 1.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group ACL on channel acl, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Drop reason group \(\d+\) is bound to user channel \(id: \d+\), please unbind first.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel acl, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to get the current number of ports, err: Invalid Handle'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to bind all ports to the span session, err: 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set drop reason bits .* on group \d+ to state 0.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to enable drop reasons for drop group 0.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group BUFFER on channel buffer, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel buffer, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set trap ID \(\d+\) to trap group \(\d+\) with trap action \(\d+\), error: Invalid Handle'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group L\d on channel forwarding, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deleteDropGroupReason: Failed to disable drop group TUNNEL on channel forwarding, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+]\: :- destroy: Failed to destroy channel forwarding, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to unbind policer \(\d+\) from trap group \(\d+\), error: Invalid Handle'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_user_channel_destroy_cb failed, err = 1.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: __wjh_user_channel_destroy failed, err = 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel layer-1, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: User channel \d+ is not destroyed, destroy it first.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_db_deinit_resource_check failed, err = 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status 1'
+  Conditions:
+    - Affected_test_cases:
+      - autorestart/test_container_autorestart.py::test_containers_autorestart
+      Redmine:
+        - 3315995
+
+- Errors_list:
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''
+  Conditions:
+    - Platform:
+      - arm64-nvda_bf-mbf2h536c
+      - arm64-nvda_bf-9009d3b600cvaa
+      Redmine:
+      - 3346254

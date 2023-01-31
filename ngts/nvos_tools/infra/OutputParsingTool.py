@@ -261,11 +261,11 @@ class OutputParsingTool:
             return ResultObj(True, "", output_dictionary)
 
     @staticmethod
-    def parse_show_system_techsupport_output_to_dictionary(output_json):
+    def parse_show_system_techsupport_output_to_list(output_json):
         """
         Creates a dictionary according to provided JSON output of "show system tech-support"
             :param output_json: json output
-            :return: a dictionary
+            :return: a list of techsupports files
 
                      Example of the input json:
                         {

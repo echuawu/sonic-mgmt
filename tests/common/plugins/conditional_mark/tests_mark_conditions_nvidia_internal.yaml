@@ -215,6 +215,7 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
       - "https://redmine.mellanox.com/issues/3331715 and '2100' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2410' in platform"
       - "https://redmine.mellanox.com/issues/3331715 and '2700' in platform"
+      - "https://redmine.mellanox.com/issues/3331715 and '2201' in platform"
 
 tests/nightly/fec:
   skip:
@@ -412,17 +413,13 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_cli_cmds_check:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX or https://redmine.mellanox.com/issues/3334720 at SPC1"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX or https://redmine.mellanox.com/issues/3334720 on SPC1 and SPC2"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3318217 and 'simx' in platform"
       - "https://redmine.mellanox.com/issues/3334720 and 'sn2' in platform"
+      - "https://redmine.mellanox.com/issues/3334720 and 'sn3' in platform"
 
-scripts/check_and_store_sanitizer_dump.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3322943"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3322943"
 
 tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVrf::test_ecmp_calculator_interface_vrf[outer_dip-outer_inner]:
   skip:
@@ -654,6 +651,12 @@ drop_packets/test_wjh.py::test_l1_agg_port_down:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3217918"
     conditions:
       - https://redmine.mellanox.com/issues/3217918
+
+drop_packets/test_wjh.py::test_fid_miss:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3340212"
+    conditions:
+      - https://redmine.mellanox.com/issues/3340212
 
 platform_tests/fwutil/test_fwutil.py:
   skip:
@@ -1226,5 +1229,17 @@ system_health/test_system_health.py::test_external_checker:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335093"
     conditions:
       - "https://redmine.mellanox.com/issues/3335093"
+
+memory_checker/test_memory_checker.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3339191 and branch master or 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3339191 and ('202211' in release or 'master' in release)"
+
+iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335820"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3335820"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
