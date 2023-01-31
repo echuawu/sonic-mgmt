@@ -17,6 +17,8 @@ class BaseDevice:
         self.available_tables = {}
         self.available_services = []
         self.available_dockers = []
+        self.dependent_dockers = []
+        self.dependent_services = []
         self.constants = None
         self.supported_ib_speeds = {}
         self.invalid_ib_speeds = {}
@@ -26,7 +28,9 @@ class BaseDevice:
 
         self._init_available_databases()
         self._init_services()
+        self._init_dependent_services()
         self._init_dockers()
+        self._init_dependent_dockers()
         self._init_constants()
         self._init_ib_speeds()
         self._init_fan_list()
@@ -43,6 +47,14 @@ class BaseDevice:
 
     @abstractmethod
     def _init_services(self):
+        pass
+
+    @abstractmethod
+    def _init_dependent_services(self):
+        pass
+
+    @abstractmethod
+    def _init_dependent_dockers(self):
         pass
 
     @abstractmethod
@@ -258,9 +270,16 @@ class BaseSwitch(BaseDevice, ABC):
             'rsyslog-config.service', 'procdockerstatsd.service', 'swss-ibv0.service',
             'syncd-ibv0.service', 'pmon.service'))
 
+    def _init_dependent_services(self):
+        BaseDevice._init_dependent_services(self)
+
     def _init_dockers(self):
         BaseDevice._init_dockers(self)
         self.available_dockers.extend(('pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils'))
+
+    def _init_dependent_dockers(self):
+        BaseDevice._init_dependent_dockers(self)
+        self.dependent_dockers.extend([['swss-ibv0', 'syncd-ibv0']])
 
     def _init_constants(self):
         BaseDevice._init_constants(self)
@@ -381,6 +400,10 @@ class MultiAsicSwitch(BaseSwitch):
         self.available_services.remove('swss-ibv0.service')
         self.available_services.remove('pmon.service')
 
+    def _init_dependent_services(self):
+        BaseDevice._init_dependent_services(self)
+        self.dependent_services.append(NvosConst.SYM_MGR_SERVICES)
+
     def _init_dockers(self):
         BaseSwitch._init_dockers(self)
         for deamon in NvosConst.DOCKER_PER_ASIC_LIST:
@@ -389,6 +412,13 @@ class MultiAsicSwitch(BaseSwitch):
         self.available_dockers.remove('syncd-ibv0')
         self.available_dockers.remove('swss-ibv0')
         self.available_dockers.remove('pmon')
+
+    def _init_dependent_dockers(self):
+        BaseDevice._init_dependent_dockers(self)
+        ibv0_dependent_services = []
+        for asic_num in range(self.asic_amount):
+            ibv0_dependent_services.extend(['swss-ibv0{}'.format(asic_num), 'syncd-ibv0{}'.format(asic_num)])
+        self.dependent_dockers.append(ibv0_dependent_services)
 
     def _init_constants(self):
         BaseSwitch._init_constants(self)
