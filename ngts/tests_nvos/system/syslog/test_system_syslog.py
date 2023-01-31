@@ -164,6 +164,7 @@ def test_rsyslog_multiple_servers_configuration(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_configurations():
     """
     will check rsyslog configurations
@@ -259,6 +260,7 @@ def test_rsyslog_configurations():
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_server_severity_levels(engines):
     """
     Will validate all the severity options:  debug, info, notice, warning, error, critical, alert, emerg, none.
@@ -313,6 +315,7 @@ def test_rsyslog_server_severity_levels(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_server_and_global_severity_levels():
     """
     Will validate all the severity options:  debug, info, notice, warning, error, critical, alert, emerg, none.
@@ -408,6 +411,7 @@ def test_rsyslog_server_and_global_severity_levels():
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_port(engines):
     """
     Will check the syslog with non default port
@@ -471,6 +475,7 @@ def test_rsyslog_port(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_protocol(engines):
     """
     Will check the syslog protocol options: TCP and UDP
@@ -536,6 +541,7 @@ def test_rsyslog_protocol(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_filter(engines):
     """
     Will check the rsyslog filter options: exclude and include.
@@ -662,6 +668,7 @@ def test_rsyslog_filter(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_format(engines):
     """
     Will validate all the format options:  standard, welf.
@@ -728,6 +735,7 @@ def test_rsyslog_format(engines):
 
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_bad_params():
     """
     Will check all the commands that get params, with bad params- empty or random
@@ -968,6 +976,7 @@ def remove_mlnx_lab_suffix(hostname_string):
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_bad_params_openapi():
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_bad_params()
@@ -976,6 +985,7 @@ def test_rsyslog_bad_params_openapi():
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_format_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_format(engines)
@@ -984,6 +994,7 @@ def test_rsyslog_format_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_filter_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_filter(engines)
@@ -992,6 +1003,7 @@ def test_rsyslog_filter_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_protocol_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_protocol(engines)
@@ -1000,6 +1012,7 @@ def test_rsyslog_protocol_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_port_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_port(engines)
@@ -1008,6 +1021,7 @@ def test_rsyslog_port_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_server_and_global_severity_levels_openapi():
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_server_and_global_severity_levels()
@@ -1016,6 +1030,7 @@ def test_rsyslog_server_and_global_severity_levels_openapi():
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_server_severity_levels_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_server_severity_levels(engines)
@@ -1024,6 +1039,7 @@ def test_rsyslog_server_severity_levels_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.syslog
+@pytest.mark.simx
 def test_rsyslog_configurations_openapi():
     TestToolkit.tested_api = ApiType.OPENAPI
     test_rsyslog_configurations()

@@ -388,4 +388,4 @@ class SyslogSeverityLevels:
                            NOTICE: NOTICE,
                            WARN: WARN,
                            ERROR: ERROR,
-                           CRITICAL: CRIT}
+                           CRITICAL: CRITICAL}

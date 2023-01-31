@@ -37,7 +37,7 @@ def test_reboot_command(engines, devices):
 
 
 @pytest.mark.system
-def test_reboot_command_immediate(engines):
+def test_reboot_command_immediate(engines, devices):
     """
     Test flow:
         1. run nv action reboot system mode immediate
@@ -51,7 +51,7 @@ def test_reboot_command_immediate(engines):
 
 
 @pytest.mark.system
-def test_reboot_command_force(engines):
+def test_reboot_command_force(engines, devices):
     """
     Test flow:
         1. run nv action reboot system mode force
@@ -65,7 +65,7 @@ def test_reboot_command_force(engines):
 
 
 @pytest.mark.system
-def test_reboot_command_type(engines):
+def test_reboot_command_type(engines, devices):
     """
     Test flow:
         1. run nv action reboot system --type fast

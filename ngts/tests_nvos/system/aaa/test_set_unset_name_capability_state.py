@@ -39,6 +39,7 @@ def test_set_unset_full_name(engines):
 
 
 @pytest.mark.system
+@pytest.mark.simx
 def test_set_unset_full_name_newuser(engines):
     """
 
@@ -72,6 +73,7 @@ def test_set_unset_full_name_newuser(engines):
 
 
 @pytest.mark.system
+@pytest.mark.simx
 def test_set_unset_state(engines):
     """
 
@@ -103,6 +105,7 @@ def test_set_unset_state(engines):
 
 
 @pytest.mark.system
+@pytest.mark.simx
 def test_set_unset_capability(engines):
     """
 
