@@ -180,7 +180,7 @@ class BaseDevice:
         result_obj.returned_value = database_dic[field_name] if field_name else database_dic
         return result_obj
 
-    def get_all_table_names_in_database(self, engine, database_name, table_name_substring='.'):
+    def get_all_table_names_in_database(self, engine, database_name, table_name_substring='.', database_docker=None):
         """
         :param engine: dut engine
         :param database_name: database name
@@ -188,7 +188,8 @@ class BaseDevice:
         :return: any database table that includes the substring, if table_name_substring is none we will return all the tables
         """
         result_obj = ResultObj(True, "")
-        cmd = "redis-cli -n {database_name} keys * | grep {prefix}".format(
+        docker_exec_cmd = 'docker exec -it {database_docker} '.format(database_docker=database_docker) if database_docker else ''
+        cmd = docker_exec_cmd + "redis-cli -n {database_name} keys * | grep {prefix}".format(
             database_name=self.get_database_id(database_name), prefix=table_name_substring)
         output = engine.run_cmd(cmd)
         result_obj.returned_value = output.splitlines()
@@ -245,7 +246,6 @@ class BaseSwitch(BaseDevice, ABC):
                      "FEATURE": 11,
                      "CONFIG_DB_INITIALIZED": 1,
                      "DEVICE_METADATA": 1,
-                     "XCVRD_LOG": 1,
                      "VERSIONS": 1,
                      "KDUMP": 1}
             })
@@ -362,7 +362,13 @@ class MultiAsicSwitch(BaseSwitch):
 
     def __init__(self, asic_amount):
         self.asic_amount = asic_amount
+        self.DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + str(index) for index in range(1, asic_amount + 1)]
+        self.DEVICE_LIST.append(IbConsts.DEVICE_SYSTEM)
         BaseSwitch.__init__(self)
+
+    def _init_available_databases(self):
+        BaseSwitch._init_available_databases(self)
+        self.available_tables = {'database': self.available_tables}
 
     def _init_services(self):
         BaseSwitch._init_services(self)
@@ -373,6 +379,7 @@ class MultiAsicSwitch(BaseSwitch):
                                         'portsyncmgrd.service', 'statemgrd.service'))
         self.available_services.remove('syncd-ibv0.service')
         self.available_services.remove('swss-ibv0.service')
+        self.available_services.remove('pmon.service')
 
     def _init_dockers(self):
         BaseSwitch._init_dockers(self)
@@ -381,6 +388,7 @@ class MultiAsicSwitch(BaseSwitch):
                 self.available_dockers.append("{deamon}{asic_num}".format(deamon=deamon, asic_num=asic_num))
         self.available_dockers.remove('syncd-ibv0')
         self.available_dockers.remove('swss-ibv0')
+        self.available_dockers.remove('pmon')
 
     def _init_constants(self):
         BaseSwitch._init_constants(self)
@@ -398,16 +406,75 @@ class MultiAsicSwitch(BaseSwitch):
             for asic_num in range(0, self.asic_amount):
                 self.constants.dump_files.append(dump_file.format(asic_num))
 
+    def verify_databases(self, dut_engine):
+        """
+        validate the redis includes all expected tables
+        :param dut_engine: ssh dut engine
+        Return result_obj with True result if all tables exists, False and a relevant info if one or more tables are missing
+        """
+        time.sleep(10)
+        result_obj = ResultObj(True, "")
+        for db_name, db_id in self.available_databases.items():
+            if db_name == DatabaseConst.STATE_DB_NAME:
+                continue
+
+            for database_docker in self.available_tables.keys():
+                table_info = self.available_tables[database_docker][db_id]
+                for table_name, expected_entries in table_info.items():
+                    output = self.get_all_table_names_in_database(dut_engine, db_name, table_name, database_docker=database_docker).returned_value
+                    if len(output) < expected_entries:
+                        result_obj.result = False
+                        result_obj.info += "Database docker: {database_docker} DB: {db_name}, Table: {table_name}. Table count mismatch, Expected: {expected} != Actual {actual}\n" \
+                            .format(database_docker=database_docker, db_name=db_name, table_name=table_name, expected=str(expected_entries),
+                                    actual=str(len(output)))
+
+        return result_obj
+
 
 # -------------------------- Marlin Switch ----------------------------
 class MarlinSwitch(MultiAsicSwitch):
     ASIC_AMOUNT = 2
-    MARLIN_IB_PORT_NUM = 64
+    MARLIN_IB_PORT_NUM = 128
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum2'
 
     def __init__(self):
         MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
+
+    def _init_available_databases(self):
+        MultiAsicSwitch._init_available_databases(self)
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"LANES": 0,
+                                                                            "VIDCOUNTER": 0,
+                                                                            "RIDTOVID": 0,
+                                                                            "HIDDEN": 0,
+                                                                            "COLDVIDS": 0})
+
+        available_tables_per_asic = {
+            DatabaseConst.APPL_DB_ID:
+                {"IB_PORT_TABLE:Infiniband": self.ib_ports_num() / 2,
+                 "ALIAS_PORT_MAP": self.ib_ports_num() / 2,
+                 "IB_PORT_TABLE:Port": 2},
+            DatabaseConst.ASIC_DB_ID:
+                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,    # TODO why 1 ?! check on gorilla
+                 "LANES": 1,
+                 "VIDCOUNTER": 1,
+                 "RIDTOVID": 1,
+                 "HIDDEN": 1,
+                 "COLDVIDS": 1},
+            DatabaseConst.COUNTERS_DB_ID:
+                {"COUNTERS_PORT_NAME_MAP": 1,
+                 "COUNTERS:oid": self.ib_ports_num() / 2},
+            DatabaseConst.CONFIG_DB_ID:
+                {"IB_PORT": self.ib_ports_num() / 2,
+                 "BREAKOUT_CFG": self.ib_ports_num() / 2,
+                 "FEATURE": 6,
+                 "CONFIG_DB_INITIALIZED": 1,
+                 "DEVICE_METADATA": 1,
+                 "VERSIONS": 0,
+                 "KDUMP": 0}
+        }
+        self.available_tables.update({'database0': available_tables_per_asic,
+                                      'database1': available_tables_per_asic})
 
     def ib_ports_num(self):
         return self.MARLIN_IB_PORT_NUM

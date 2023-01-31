@@ -12,7 +12,8 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
-def test_show_platform_hardware(engines):
+# TODO need to add pytest.mark.nvos_ci
+def test_show_platform_hardware(devices):
     """
     Show platform hardware test
     """
@@ -23,7 +24,9 @@ def test_show_platform_hardware(engines):
         output = _verify_output(platform, "", PlatformConsts.HW_COMP)
 
     with allure.step("Check hardware fields values"):
-        assert output[PlatformConsts.HW_ASIC_COUNT] >= 1, PlatformConsts.HW_ASIC_COUNT + " must be >= 1"
+        assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1,\
+            "Unexpected value in {}\n Expect to have {}, but got {}"\
+            .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.DEVICE_LIST) - 1, output[PlatformConsts.HW_ASIC_COUNT])
         assert "mqm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
         mac = output[PlatformConsts.HW_MAC].split(":")
         assert len(mac) == 6, "Invalid mac format"
@@ -61,7 +64,11 @@ def _verify_output(platform, comp_name, req_fields):
     with allure.step("Verify text output"):
         logging.info("Verify text output")
         output = platform.hardware.show(comp_name, output_format=OutputFormat.auto)
-        assert not any(comp not in output for comp in req_fields), "Not all required components were found"
+        missing_fields = []
+        for field in req_fields:
+            if field not in output:
+                missing_fields.append(field)
+        assert missing_fields == [], "Missing fields: {}".format(missing_fields)
 
     with allure.step("Verify json output"):
         logging.info("Verify json output")
