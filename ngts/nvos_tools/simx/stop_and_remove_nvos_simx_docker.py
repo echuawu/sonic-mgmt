@@ -4,12 +4,24 @@ import allure
 logger = logging.getLogger()
 
 
-@pytest.mark.platform
 def test_stop_and_remove_nvos_simx_docker(topology_obj):
     with allure.step("Get server and dut details"):
         dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
         server_engine = topology_obj.players['server']['engine']
 
+    stop_and_remove_reg_simx_docker(dut_name, server_engine)
+    stop_all_nvos_simx_dockers(server_engine)
+
+
+def test_stop_and_remove_reg_simx_docker(topology_obj):
+    with allure.step("Get server and dut details"):
+        dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+        server_engine = topology_obj.players['server']['engine']
+
+    stop_and_remove_reg_simx_docker(dut_name, server_engine)
+
+
+def stop_and_remove_reg_simx_docker(dut_name, server_engine):
     with allure.step("Check docker id"):
         docker_info = server_engine.run_cmd("docker ps -l | grep {}".format(dut_name))
         if docker_info:
@@ -27,6 +39,8 @@ def test_stop_and_remove_nvos_simx_docker(topology_obj):
         else:
             logging.info("Simx docker is not running for {} - nothing to stop".format(dut_name))
 
+
+def stop_all_nvos_simx_dockers(server_engine):
     try:
         with allure.step("Stop all SIMX dockers on current server"):
             dockers_info = server_engine.run_cmd("docker ps")
