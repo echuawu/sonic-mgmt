@@ -27,17 +27,6 @@
   </case>
 
   <case>
-    <name> System Image - OpenAPI </name>
-    <info> </info>
-    <tout> 1200 </tout>
-    <cmd>
-      <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_system_image.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --release_name=[[conf:extra_info.release_name]] --clean-alluredir -v -m openapi --disable_loganalyzer --nvos_api_type=openapi  --alluredir=/tmp/allure-results --showlocals\'"</static_args>
-      </params>
-    </cmd>
-  </case>
-
-  <case>
     <name> System Firmware </name>
     <info> </info>
     <tout> 1200 </tout>
