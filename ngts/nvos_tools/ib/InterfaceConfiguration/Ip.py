@@ -135,21 +135,17 @@ class ArpTimeout(IpBaseOperational):
                         format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.ARPTIMEOUT))
 
     def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
-        if TestToolkit.tested_api == ApiType.OPENAPI:
-            value = {value: {}}
         return IpBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
 
 
 class AutoConf(IpBaseOperational):
     def __init__(self, port_obj):
-        IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.ARPTIMEOUT,
+        IpBase.__init__(self, port_obj=port_obj, label=IbInterfaceConsts.AUTOCONFIG,
                         description="",
                         field_name_in_db={}, output_hierarchy="{level1} {level2}".
                         format(level1=IbInterfaceConsts.IP, level2=IbInterfaceConsts.AUTOCONFIG))
 
     def set(self, value, dut_engine=None, apply=True, ask_for_confirmation=False):
-        if TestToolkit.tested_api == ApiType.OPENAPI:
-            value = {value: {}}
         return IpBaseOperational.set(self, value, dut_engine, apply, ask_for_confirmation)
 
 
