@@ -4,6 +4,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 
 @pytest.mark.system
@@ -18,7 +19,7 @@ def test_reboot_command(engines, devices):
     system = System(None)
 
     with allure.step('Run nv action reboot system'):
-        system.reboot.action_reboot()
+        res_obj = system.reboot.action_reboot()
 
     with allure.step("Check system reboot output"):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
@@ -47,7 +48,7 @@ def test_reboot_command_immediate(engines, devices):
 
     system = System(None)
     with allure.step('Run nv action reboot system mode immediate'):
-        system.reboot.action_reboot(params='immediate')
+        res_obj = system.reboot.action_reboot(params='immediate')
 
 
 @pytest.mark.system
@@ -61,7 +62,7 @@ def test_reboot_command_force(engines, devices):
 
     system = System(None)
     with allure.step('Run nv action reboot system mode force'):
-        system.reboot.action_reboot(params='force')
+        res_obj = system.reboot.action_reboot(params='force')
 
 
 @pytest.mark.system

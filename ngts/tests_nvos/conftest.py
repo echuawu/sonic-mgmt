@@ -167,11 +167,13 @@ def interfaces(topology_obj):
 
 def clear_config(markers):
     try:
+        TestToolkit.update_apis(ApiType.NVUE)
         if 'system_profile_cleanup' in markers:
             clear_system_profile_config()
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
+
         for comp in show_config_output:
             if "set" in comp.keys() and "interface" in comp["set"].keys():
                 result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
@@ -204,6 +206,10 @@ def clear_system_profile_config():
 
 
 def pytest_exception_interact(report):
+    try:
+        TestToolkit.engines.dut.run_cmd("docker ps -l")
+    except BaseException as err:
+        logging.warning(err)
     save_results_and_clear_after_test(pytest.item)
     logging.error(f'---------------- The test failed - an exception occurred: ---------------- \n{report.longreprtext}')
 
@@ -214,8 +220,8 @@ def pytest_runtest_call(item):
 
 
 def save_results_and_clear_after_test(item):
+    markers = item.keywords._markers
     try:
-        markers = item.keywords._markers
         logging.info(' ---------------- The test completed successfully ---------------- ')
         if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/') \
                 and 'no_cli_coverage_run' not in markers and not pytest.is_sanitizer:
