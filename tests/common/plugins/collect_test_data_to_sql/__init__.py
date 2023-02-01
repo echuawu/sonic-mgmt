@@ -12,7 +12,9 @@ logger = logging.getLogger()
 
 @pytest.fixture(autouse=True)
 def collect_tests_data_to_sql(request):
-    skynet_run = hasattr(request.config.option, 'skynet')
+    skynet_run = False
+    if hasattr(request.config.option, 'skynet'):
+        skynet_run = request.config.getoption("skynet")
     cpu_ram_usage_collector = SkynetSonicCpuRamUsageCollector if skynet_run else NgtsCpuRamUsageCollector
 
     pytest_node_ids_which_should_be_collected = {
