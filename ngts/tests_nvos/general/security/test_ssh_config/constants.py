@@ -20,4 +20,5 @@ class SshConfigConsts:
         '  -o ControlPersist=60s ' \
         '-o StrictHostKeyChecking=no ' \
         '-o UserKnownHostsFile=/dev/null ' \
-        '-o ConnectTimeout=30 '
+        '-o ConnectTimeout=30 ' \
+        '-o PubkeyAuthentication=no -o PreferredAuthentications=password -o NumberOfPasswordPrompts=100'
