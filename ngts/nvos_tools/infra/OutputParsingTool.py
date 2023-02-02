@@ -252,6 +252,9 @@ class OutputParsingTool:
         :param output_json: json output
         :return: a dictionary
         """
+        if isinstance(output_json, dict):
+            return ResultObj(True, "", output_json)  # if output is already dict -> do nothing
+
         if '2004l' in output_json:
             output_json = ''.join(output_json.split('\n')[1:])
         if output_json == '{}' or output_json == '':
@@ -407,3 +410,36 @@ class OutputParsingTool:
 
         result['Last logs'] = logs[1:]
         return ResultObj(True, "", result)
+
+    @staticmethod
+    def parse_timedatectl_cmd_output_to_dic(output):
+        """
+        ****** THE FOLLOWING OUTPUT STR:
+                   Local time: Mon 2023-01-16 18:53:18 IST
+               Universal time: Mon 2023-01-16 16:53:18 UTC
+                     RTC time: Mon 2023-01-16 16:53:18
+                    Time zone: Asia/Jerusalem (IST, +0200)
+    System clock synchronized: no
+                  NTP service: n/a
+              RTC in local TZ: no
+
+        ****** WILL BECOME THE FOLLOWING DICT:
+        {
+            'Local time': 'Mon 2023-01-16 18:53:18 IST',
+            'Universal time': 'Mon 2023-01-16 16:53:18 UTC'
+            ...
+        }
+        """
+        dic = {}
+
+        # split string by '\n'
+        output_rows = output.split('\n')
+
+        # parse each row to key, val
+        for row in output_rows:
+            colon_idx = row.find(':')
+            k = row[0: colon_idx].strip()
+            v = row[colon_idx + 1:].strip()
+            dic[k] = v
+
+        return ResultObj(True, "", dic)

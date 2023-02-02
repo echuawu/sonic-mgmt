@@ -1,0 +1,68 @@
+import allure
+import logging
+import yaml
+from datetime import datetime, timedelta
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.tests_nvos.system.clock_and_timezone.ClockConsts import ClockConsts
+
+
+class ClockTestTools:
+
+    @staticmethod
+    def parse_yaml_to_dic(yaml_file_path):
+        """
+        @summary:
+            Parse a given .yaml file into a dictionary
+        @param yaml_file_path: path of the given .yaml file
+        @return: ResultObj containing: True with parsed yaml as a dictionary, or False if parsing failed
+        """
+        with allure.step("Parsing .yaml file to dictionary"):
+            logging.info("Parsing .yaml file to dictionary")
+            with open(yaml_file_path, 'r') as file:
+                logging.info("Reading provided .yaml file")
+                dic = yaml.safe_load(file)
+                res_obj = ResultObj(True, info="yaml parsing success", returned_value=dic)
+
+                if not dic or len(dic.keys()) == 0:
+                    logging.info('Failed to read .yaml file')
+                    res_obj = ResultObj(False, info="yaml parsing fail")
+
+            return res_obj
+
+    @staticmethod
+    def get_datetime_from_timedatectl_output(timedatectl_output):
+        """
+        @summary:
+            Extract date-time value from 'timedatectl' output
+        @return: date-time as a string of the format 'YYYY-MM-DD hh:mm:ss'
+        """
+        return " ".join(OutputParsingTool.parse_timedatectl_cmd_output_to_dic(timedatectl_output)
+                        .get_returned_value()[ClockConsts.TIMEDATECTL_DATE_TIME_FIELD_NAME].split(' ')[1:3])
+
+    @staticmethod
+    def get_datetime_from_show_system_output(show_system_output):
+        """
+        @summary:
+            Extract date-time value from 'nv show system' output
+        @return: date-time as a string of the format 'YYYY-MM-DD hh:mm:ss'
+        """
+        return OutputParsingTool.parse_json_str_to_dictionary(show_system_output) \
+            .get_returned_value()[SystemConsts.DATE_TIME]
+
+    @staticmethod
+    def datetime_difference_in_seconds(dt1, dt2):
+        """
+        @summary:
+            Calc difference (in seconds) between two given date-time values.
+            both given date-time values are strings in the format 'YYYY-MM-DD hh:mm:ss'
+        @param dt1: first date-time
+        @param dt2: second date-time
+        @return: date-times difference (in whole seconds)
+        """
+        # create datetime objects out of the date-time strings
+        datetime_obj1 = datetime.fromisoformat(dt1)
+        datetime_obj2 = datetime.fromisoformat(dt2)
+        # subtracting datetime objects result a datetime.timedelta object that holds the diff, and return the diff in seconds
+        return int(abs(datetime_obj1 - datetime_obj2).total_seconds())

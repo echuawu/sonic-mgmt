@@ -1,0 +1,182 @@
+import logging
+import datetime
+import pytest
+import allure
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ClockConsts import ClockConsts
+from ngts.tests_nvos.system.clock_and_timezone.conftest import ClockTestTools
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_show_system_contains_timezone_and_datetime(engines, system_obj):
+    """
+    @summary:
+    Check that show system command's output contains timezone and date-time fields
+        1. run show system
+        2. verify timezone & date-time fields exist in output
+        3. validate fields' values
+    """
+    logging.info("Starting test : test_show_system_contains_timezone_and_datetime")
+
+    with allure.step('Run show system and timedatectl commands'):
+        logging.info('Run show system and timedatectl commands')
+        # run commands
+        show_system_output_str = system_obj.show()
+        timedatectl_output_str = engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
+        # parse outputs to dicts
+        show_system_output = OutputParsingTool \
+            .parse_json_str_to_dictionary(show_system_output_str).get_returned_value()
+        timedatectl_output = OutputParsingTool \
+            .parse_timedatectl_cmd_output_to_dic(timedatectl_output_str).get_returned_value()
+
+    with allure.step('Verify timezone & date-time fields exist in output'):
+        logging.info('Verify timezone & date-time fields exist in output')
+        tested_fields = [SystemConsts.TIMEZONE, SystemConsts.DATE_TIME]
+        Tools.ValidationTool\
+            .verify_field_exist_in_json_output(json_output=show_system_output, keys_to_search_for=tested_fields)\
+            .verify_result()
+
+    with allure.step("Validate timezone value"):
+        logging.info("Validate timezone value")
+        # verify that timezones are the same
+        Tools.ValidationTool.compare_values(value1=show_system_output[SystemConsts.TIMEZONE],
+                                            value2=timedatectl_output[ClockConsts.TIMEDATECTL_TIMEZONE_FIELD_NAME],
+                                            should_equal=True).verify_result()
+
+    with allure.step("Validate date-time value"):
+        logging.info("Validate date-time value")
+        # extract date-time value from outputs
+        show_system_datetime = ClockTestTools.get_datetime_from_show_system_output(show_system_output_str)
+        timedatectl_datetime = ClockTestTools.get_datetime_from_timedatectl_output(timedatectl_output_str)
+        # verify both date-time values are the same
+        verify_same_datetimes(show_system_datetime, timedatectl_datetime)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_set_unset_system_timezone_ntp_off(engines, system_obj, valid_system_timezones, orig_timezone):
+    # todo: what would disable ntp?
+    """
+    @summary:
+    Check that system timezone set & unset commands work correctly with valid inputs
+        1. Set new timezone to random timezone from timezone.yaml
+        2. Verify new timezone is set in 'nv show system' and 'timedatectl'
+        3. Unset timezone
+        4. verify timezone returned to default in 'nv show system' and 'timedatectl'
+    """
+
+    with allure.step("Pick a random new timezone to set (from timezone.yaml)"):
+        logging.info("Pick a random new timezone to set (from timezone.yaml)")
+        new_timezone = RandomizationTool.select_random_value(list_of_values=valid_system_timezones,
+                                                             forbidden_values=[orig_timezone]).get_returned_value()
+
+    with allure.step("Set the new timezone with 'nv set system timezone'"):
+        logging.info("Set the new timezone with 'nv set system timezone'")
+        system_obj.timezone.set(new_timezone, apply=True).verify_result()
+
+    with allure.step("Verify new timezone in 'nv show system' and in 'timedatectl'"):
+        logging.info("Verify new timezone in 'nv show system' and in 'timedatectl'")
+        verify_timezone(engines, system_obj, expected_timezone=new_timezone,
+                        verify_with_linux=ClockConsts.DESIGN_FINISHED)
+
+    with allure.step("Unet the timezone with 'nv unset system timezone'"):
+        logging.info("Unet the timezone with 'nv unset system timezone'")
+        system_obj.timezone.unset(apply=True).verify_result()
+
+    with allure.step("Verify default timezone in 'nv show system' and in 'timedatectl'"):
+        logging.info("Verify default timezone in 'nv show system' and in 'timedatectl'")
+        verify_timezone(engines, system_obj, expected_timezone=ClockConsts.DEFAULT_TIMEZONE,
+                        verify_with_linux=ClockConsts.DESIGN_FINISHED)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_action_change_date_time_ntp_off(engines, system_obj, datetime_backup_restore):  # todo: what would disable ntp?
+    """
+    @summary:
+    Check that system date-time change action command work correctly with valid input
+        1. Pick a random date and time
+        2. Set new date and time with the action change command
+        3. Verify new date-time in 'nv show system' and 'timedatectl'
+    """
+
+    # todo: find a way to backup and restore date & time in a fixture and then remove these steps from the test function
+
+    with allure.step("Pick random new date-time to set"):
+        logging.info("Pick random new date-time to set")
+        new_datetime = RandomizationTool.select_random_datetime().get_returned_value()
+
+    with allure.step("Set the new date-time with 'nv action change system date-time'"):
+        logging.info("Set the new date-time with 'nv action change system date-time'")
+        system_obj.datetime.action_change_datetime(params=new_datetime).verify_result()  # todo: implement System.DateTime.action_change_datetime()
+
+    with allure.step("Run 'nv show system' and 'timedatectl' immediately to verify date-time changed"):
+        logging.info("Run 'nv show system' and 'timedatectl' immediately to verify date-time changed")
+        show_system_output_str = system_obj.show()
+        timedatectl_output_str = engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
+
+    with allure.step("Verify date-time value is same as the new random date-time"):
+        logging.info("Verify date-time value is same as the new random date-time")
+        show_system_datetime = ClockTestTools.get_datetime_from_show_system_output(show_system_output_str)
+        verify_same_datetimes(new_datetime, show_system_datetime)
+        if ClockConsts.DESIGN_FINISHED:
+            timedatectl_datetime = ClockTestTools.get_datetime_from_timedatectl_output(timedatectl_output_str)
+            verify_same_datetimes(new_datetime, timedatectl_datetime)
+
+
+def verify_timezone(engines, system_obj, expected_timezone, verify_with_linux=True):
+    """
+    @summary:
+    Verify that timezone is as expected in 'nv show system' cmd
+
+    @param engines: the engines object (from fixture)
+    @param system_obj: System object (from fixture)
+    @param expected_timezone: the expected timezone
+    @param verify_with_linux:
+        [True/False] verify also in 'timedatectl' cmd. this method should be called with False until design team
+        finish feature implementation, because until then, there is a mock feature implementation,
+        which doesn't touch the linux clock.
+    """
+    show_system_timezone = OutputParsingTool.parse_json_str_to_dictionary(system_obj.show()) \
+        .get_returned_value()[SystemConsts.TIMEZONE]
+    logging.info("Verify nv show: expected timezone: {expected}\t'nv show system' timezone: {timezone}"
+                 .format(expected=expected_timezone, timezone=show_system_timezone))
+    Tools.ValidationTool.compare_values(show_system_timezone, expected_timezone).verify_result()
+
+    if verify_with_linux:
+        timedatectl_timezone = OutputParsingTool \
+            .parse_timedatectl_cmd_output_to_dic(engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)) \
+            .get_returned_value()[ClockConsts.TIMEDATECTL_TIMEZONE_FIELD_NAME]
+        logging.info("Verify timedatectl: expected timezone: {expected}\t'nv show system' timezone: {timezone}"
+                     .format(expected=expected_timezone, timezone=timedatectl_timezone))
+        Tools.ValidationTool.compare_values(timedatectl_timezone, expected_timezone).verify_result()
+
+
+def verify_same_datetimes(dt1, dt2, allowed_margin=ClockConsts.DATETIME_MARGIN):
+    """
+    @summary:
+        Verify that two date-time values are the same (with small margin allowed).
+        the allowed margin is up to a constant number of seconds, held in ClockConsts.DATETIME_MARGIN
+        date-time values are given as strings in the format 'YYYY-MM-DD hh:mm:ss'
+    @param dt1: 1st given date-time value
+    @param dt2: 2nd given date-time value
+    @param allowed_margin: the allowed margin (seconds)
+    """
+    with allure.step("Calculate diff (in seconds) between dt1: {dt1} and dt2 {dt2}".format(dt1=dt1, dt2=dt2)):
+        logging.info("Calculate diff (in seconds) between dt1: {dt1} and dt2 {dt2}".format(dt1=dt1, dt2=dt2))
+        diff = ClockTestTools.datetime_difference_in_seconds(dt1, dt2)
+
+    with allure.step("Assert diff: {diff} < const {const}".format(diff=diff, const=ClockConsts.DATETIME_MARGIN)):
+        logging.info("Assert diff: {diff} < const {const}".format(diff=diff, const=ClockConsts.DATETIME_MARGIN))
+        assert diff < ClockConsts.DATETIME_MARGIN, \
+            ("Difference (delta) between times in 'nv show system' and 'timedatectl' is too high! \n"
+             "Expected delta: less than '{expected}' seconds, Actual delta: '{actual}' seconds"
+             .format(expected=allowed_margin, actual=diff))

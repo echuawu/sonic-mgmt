@@ -7,6 +7,7 @@ from .ValidationTool import ValidationTool
 from .IpTool import IpTool
 from .ConfigTool import ConfigTool
 from .SonicMgmtContainer import SonicMgmtContainer
+from .ClockTestTools import ClockTestTools
 
 
 class Tools:
@@ -19,3 +20,4 @@ class Tools:
     IpTool = IpTool()
     ConfigTool = ConfigTool()
     SonicMgmtContainer = SonicMgmtContainer()
+    ClockTestTools = ClockTestTools()

@@ -5,6 +5,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ssh_server import SshServer
@@ -60,6 +61,8 @@ class System(BaseComponent):
         self.factory_default = FactoryDefault(self)
         self.profile = Profile(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self.timezone = Timezone(self)
+        self.datetime = DateTime(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
@@ -195,3 +198,109 @@ class FactoryDefault(BaseComponent):
                 engine = TestToolkit.engines.dut
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_reset,
                                                    engine, "factory-default", param)
+
+
+class Timezone(BaseComponent):
+    """
+    @summary:
+    Infra class for system.timezone field object
+
+    NOTE:
+        currently it's a mock, until design is ready.
+
+        mock - set & unset don't really change anything,
+        except for setting/unsetting a variable (parent_obj.timezone_val),
+        which holds the current timezone during the test.
+
+        parent_obj should always be MockSystem (until design ready).
+
+        when design is ready, uncomment the real infra implementation.
+    """
+
+    def __init__(self, parent_obj):
+        self.parent_obj = parent_obj
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/timezone'  # todo: verify this; not listed in HLD
+
+    def set(self, op_param_name="", op_param_value={}, expected_str='', apply=False, ask_for_confirmation=False):
+        result_obj = ResultObj(True)
+
+        rsrc_path = self.get_resource_path()
+        with allure.step('Execute set for {resource_path}'.format(resource_path=rsrc_path)):
+            logging.info('Execute set for {resource_path}'.format(resource_path=rsrc_path))
+            if apply:
+                with allure.step("Applying set configuration"):
+                    logging.info("Applying set configuration")
+
+                    self.parent_obj.timezone_val = op_param_name  # <-- the mock
+
+            """result_obj = BaseComponent.set(self, op_param_name=op_param_name, op_param_value=op_param_value, expected_str=expected_str)
+            if result_obj.result and apply:
+                with allure.step("Applying set configuration"):
+                    result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                                 TestToolkit.engines.dut, ask_for_confirmation)"""
+
+        return result_obj
+
+    def unset(self, op_param="", expected_str="", apply=False, ask_for_confirmation=False):
+        from ngts.tests_nvos.system.clock_and_timezone.ClockConsts import ClockConsts
+
+        result_obj = ResultObj(True)
+
+        rsrc_path = self.get_resource_path()
+        with allure.step('Execute set for {resource_path}'.format(resource_path=rsrc_path)):
+            logging.info('Execute set for {resource_path}'.format(resource_path=rsrc_path))
+            if apply:
+                with allure.step("Applying set configuration"):
+                    logging.info("Applying set configuration")
+
+                    self.parent_obj.timezone_val = ClockConsts.DEFAULT_TIMEZONE  # <-- the mock
+
+            """result_obj = BaseComponent.unset(self, op_param, expected_str)
+            if result_obj.result and apply:
+                with allure.step("Applying unset configuration"):
+                    result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                                 TestToolkit.engines.dut, ask_for_confirmation)"""
+
+        return result_obj
+
+
+class DateTime(BaseComponent):
+    """
+    @summary:
+    Infra class for system.date-time field object
+
+    NOTE:
+        currently it's a mock, until design is ready.
+
+        mock - action change doesn't really change anything,
+        except for setting/unsetting a variable (parent_obj.datetime_val),
+        which holds the current date-time during the test.
+
+        parent_obj should always be MockSystem (until design ready).
+
+        when design is ready, uncomment the real infra implementation.
+    """
+
+    def __init__(self, parent_obj):
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/date-time'  # todo: verify this
+        self.parent_obj = parent_obj
+
+    def action_change_datetime(self, engine=None, params=""):
+        result_obj = ResultObj(True)
+
+        rsrc_path = self.get_resource_path()
+        with allure.step('Execute action change for {resource_path}'.format(resource_path=rsrc_path)):
+            logging.info('Execute action change for {resource_path}'.format(resource_path=rsrc_path))
+            self.parent_obj.datetime_val = params  # <-- the mock
+
+        """with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
+            if not engine:
+                engine = TestToolkit.engines.dut
+            # todo: implemented action_change_system_datetime() in NvueSystemCli. do this in OpenApiSystemCli too?
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_change_system_datetime,
+                                                   engine,
+                                                   self.get_resource_path().replace('/date-time', ' '), params)"""
+
+        return result_obj

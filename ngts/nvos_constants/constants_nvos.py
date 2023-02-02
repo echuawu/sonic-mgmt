@@ -122,7 +122,11 @@ class SystemConsts:
     SYSTEM_MEMORY = 'system-memory'
     UPTIME = 'uptime'
     TIMEZONE = 'timezone'
+    DATE_TIME = 'date-time'
     VERSION = 'version'
+
+    MIN_SYSTEM_DATETIME = "1980-01-01 00:00:00"     # todo: verify this
+    MAX_SYSTEM_DATETIME = "2050-12-31 23:59:59"     # todo: verify this
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'
