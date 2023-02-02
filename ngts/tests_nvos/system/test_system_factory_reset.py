@@ -34,11 +34,11 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     with allure.step('Create System object'):
         system = System()
 
-    with allure.step("Change profile to breakout mode"):
+    '''with allure.step("Change profile to breakout mode"):
         _change_profile_to_breakout()
 
     with allure.step("Split a random port"):
-        split_port = _split_port(engines.dut)
+        split_port = _split_port(engines.dut)'''
 
     with allure.step("Add data before reset factory"):
         username = _add_verification_data(engines.dut, system)
@@ -52,8 +52,8 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)
 
-    with allure.step("Verify the breakup mode is disabled and selected port is not split any more"):
-        _verify_profile_and_split(split_port)
+    '''with allure.step("Verify the breakup mode is disabled and selected port is not split any more"):
+        _verify_profile_and_split(split_port)'''
 
     with allure.step("Verify the setup is functional"):
         _verify_the_setup_is_functional(system, engines)

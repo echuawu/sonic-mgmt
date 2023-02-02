@@ -114,7 +114,7 @@ def test_techsupport_delete(engines):
             second_file = system.techsupport.action_generate()
 
         with allure.step('Delete the first created tech-support file'):
-            output = system.techsupport.action_delete(first_file.replace('/host/dump/', ''))
+            output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()
 
         assert success_message in output, 'failed to delete'
         output_dictionary_after_delete = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(

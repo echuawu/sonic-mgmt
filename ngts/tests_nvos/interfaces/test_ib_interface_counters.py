@@ -163,14 +163,14 @@ def get_port_obj(port_name):
 
 # ------------ Open API tests -----------------
 
-@pytest.mark.openapi
+'''@pytest.mark.openapi
 @pytest.mark.ib_interfaces
 def test_clear_all_counters_openapi(engines, players, interfaces, start_sm):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_clear_all_counters(engines, players, interfaces, start_sm)
 
 
-'''@pytest.mark.openapi
+@pytest.mark.openapi
 def test_ib_clear_counters_openapi(engines, players, interfaces, start_sm):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib_clear_counters(engines, players, interfaces, start_sm)'''
