@@ -603,6 +603,9 @@ def test_rsyslog_format(engines):
             logging.info("Set firewall name and validate")
             firewall_name = RandomizationTool.get_random_string(6, ascii_letters=string.ascii_letters)
             system.syslog.format.welf.set_firewall_name(firewall_name, apply=True)
+            expected_syslog_dictionary[SyslogConsts.FORMAT] = expected_syslog_dictionary[SyslogConsts.FORMAT] \
+                if TestToolkit.tested_api == ApiType.NVUE else {SyslogConsts.WELF:
+                                                                {SyslogConsts.FIREWAL_NAME: firewall_name}}
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             system.syslog.verify_show_syslog_format_output({SyslogConsts.FORMAT: {SyslogConsts.WELF:
                                                                                   {SyslogConsts.FIREWAL_NAME:
