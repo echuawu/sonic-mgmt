@@ -1,4 +1,5 @@
 import allure
+from functools import partial
 
 
 class RouteConfigTemplate:
@@ -6,14 +7,20 @@ class RouteConfigTemplate:
     This class contain 2 methods for configuration and deletion of static route related settings.
     """
     @staticmethod
-    def configuration(topology_obj, static_route_config_dict):
+    def configuration(topology_obj, static_route_config_dict, request=None):
         """
         This method applies static route configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param static_route_config_dict: configuration dictionary with all route related info
         Example: {'dut': [{'dst': '30.0.0.0', 'dst_mask': 24, 'via': ['33.1.1.1', '34.1.1.1', '35.1.1.1', '36.1.1.1'],
                  'vrf': 'Vrf_custom'}]}
         """
+        if request:
+            cleanup = partial(RouteConfigTemplate.cleanup, topology_obj, static_route_config_dict)
+            with allure.step('Add route configuration cleanup into finalizer'):
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying route configuration'):
             for player_alias, configuration in static_route_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']

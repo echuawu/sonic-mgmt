@@ -2,6 +2,7 @@ import allure
 
 from ngts.cli_util.stub_engine import StubEngine
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
+from functools import partial
 
 
 class InterfaceConfigTemplate:
@@ -9,14 +10,20 @@ class InterfaceConfigTemplate:
     This class contain 2 methods: configuration and deletion of interfaces related setting.
     """
     @staticmethod
-    def configuration(topology_obj, interfaces_config_dict):
+    def configuration(topology_obj, interfaces_config_dict, request=None):
         """
         This method applies interfaces configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param interfaces_config_dict: configuration dictionary with all interfaces related info
         Example: {'dut': [{'iface': eth0, 'speed': 1000, 'mtu': 1500, 'original_speed': 10000, 'original_mtu': 1500},
         {'iface': 'static_route', 'create': True, 'type': 'dummy'}]}
         """
+        if request:
+            with allure.step('Add interfaces configuration cleanup into finalizer'):
+                cleanup = partial(InterfaceConfigTemplate.cleanup, topology_obj, interfaces_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying interfaces configuration'):
             conf = {}
             for player_alias, configuration in interfaces_config_dict.items():
