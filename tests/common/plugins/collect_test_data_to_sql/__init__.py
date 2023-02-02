@@ -282,6 +282,9 @@ class AdvancedRebootCollector(SonicDataCollector):
         if 'warm' in self.test_name:
             ptf_test_log_path = '/tmp/warm-reboot-report.json'
 
+        default_loss_value = '-1'
+        self.test_data = {'dataplane': default_loss_value, 'controlplane': default_loss_value}
+
         md5sum_log_file = '/tmp/advanced_reboot_sql_collected.log'
         try:
             md5sum = self.ptfhost_engine.shell('md5sum {}'.format(ptf_test_log_path))['stdout']
@@ -294,9 +297,11 @@ class AdvancedRebootCollector(SonicDataCollector):
             dataplane_downtime = ptf_test_report_dict['dataplane']['downtime']
             controlplane_downtime = ptf_test_report_dict['controlplane']['downtime']
 
-            # if not able to check dataplane loss - then use 99 value as default
+            # if not able to check dataplane loss or control plane loss - then use '-1' value as default
             if not ptf_test_report_dict['dataplane']['checked_successfully']:
-                dataplane_downtime = '99'
+                dataplane_downtime = default_loss_value
+            if not controlplane_downtime:
+                controlplane_downtime = default_loss_value
 
             self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime}
 
