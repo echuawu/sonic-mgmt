@@ -200,6 +200,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
         IpConfigTemplate.configuration(topology_obj, ip_config_dict)
         RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+        acl_helper.add_acl_table(cli_objects.dut, acl_table_config_list)
+        acl_helper.add_acl_rules(engines.dut, cli_objects.dut, acl_table_config_list)
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
 
@@ -263,7 +265,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                         remove_docker_routing_config_mode=True)
 
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
-
+        acl_helper.clear_acl_rules(engines.dut, cli_objects.dut)
+        acl_helper.remove_acl_table(cli_objects.dut, acl_table_config_list)
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
         IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
         VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
