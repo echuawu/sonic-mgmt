@@ -3,6 +3,7 @@ import allure
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.infra.ClockTestTools import ClockTestTools
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.ResultObj import ResultObj
@@ -293,7 +294,17 @@ class DateTime(BaseComponent):
         rsrc_path = self.get_resource_path()
         with allure.step('Execute action change for {resource_path}'.format(resource_path=rsrc_path)):
             logging.info('Execute action change for {resource_path}'.format(resource_path=rsrc_path))
-            self.parent_obj.datetime_val = params  # <-- the mock
+            if ClockTestTools.is_time_format(params):  # change only time
+                logging.info('Execute action change for time only - {p}'.format(p=params))
+                cur_datetime = ClockTestTools.get_datetime_from_show_system_output(self.parent_obj.show())
+                self.parent_obj.datetime_val = cur_datetime.split(' ')[0] + ' ' + params
+            elif ClockTestTools.is_datetime_format(params):
+                logging.info('Execute action change for date & time - {p}'.format(p=params))
+                self.parent_obj.datetime_val = params  # <-- the mock
+            else:
+                logging.info("Invalid param for action date-time command: {p}".format(p=params))
+                result_obj.result = False
+                result_obj.info = "Invalid param for action date-time command: {p}".format(p=params)
 
         """with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             if not engine:

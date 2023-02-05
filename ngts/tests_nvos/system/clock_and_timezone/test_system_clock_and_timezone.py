@@ -102,13 +102,11 @@ def test_set_unset_system_timezone_ntp_off(engines, system_obj, valid_system_tim
 def test_action_change_date_time_ntp_off(engines, system_obj, datetime_backup_restore):  # todo: what would disable ntp?
     """
     @summary:
-    Check that system date-time change action command work correctly with valid input
+    Check that system date-time change action command work correctly with valid input of date and time
         1. Pick a random date and time
         2. Set new date and time with the action change command
         3. Verify new date-time in 'nv show system' and 'timedatectl'
     """
-
-    # todo: find a way to backup and restore date & time in a fixture and then remove these steps from the test function
 
     with allure.step("Pick random new date-time to set"):
         logging.info("Pick random new date-time to set")
@@ -123,8 +121,46 @@ def test_action_change_date_time_ntp_off(engines, system_obj, datetime_backup_re
         show_system_output_str = system_obj.show()
         timedatectl_output_str = engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
 
-    with allure.step("Verify date-time value is same as the new random date-time"):
-        logging.info("Verify date-time value is same as the new random date-time")
+    with allure.step("Verify date-time"):
+        logging.info("Verify date-time")
+        show_system_datetime = ClockTestTools.get_datetime_from_show_system_output(show_system_output_str)
+        verify_same_datetimes(new_datetime, show_system_datetime)
+        if ClockConsts.DESIGN_FINISHED:
+            timedatectl_datetime = ClockTestTools.get_datetime_from_timedatectl_output(timedatectl_output_str)
+            verify_same_datetimes(new_datetime, timedatectl_datetime)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_action_change_time_only_ntp_off(engines, system_obj, datetime_backup_restore):  # todo: what would disable ntp?
+    """
+    @summary:
+        Check that system date-time change action command work correctly with valid input of time only
+        example: 'nv action change system date-time' should allow parameter 'hh:mm:ss' only
+
+        Test steps:
+        1. Pick a random time
+        2. Set new time with the action change command
+        3. Verify new time in 'nv show system' and 'timedatectl'
+    """
+
+    with allure.step("Pick random new time to set"):
+        logging.info("Pick random new time to set")
+        new_time = RandomizationTool.select_random_time().get_returned_value()
+        new_datetime = datetime_backup_restore.split(' ')[0] + ' ' + new_time
+
+    with allure.step("Set the new time with 'nv action change system date-time'"):
+        logging.info("Set the new time with 'nv action change system date-time'")
+        system_obj.datetime.action_change_datetime(params=new_time).verify_result()  # todo: implement System.DateTime.action_change_datetime()
+
+    with allure.step("Run 'nv show system' and 'timedatectl' immediately to verify date-time changed"):
+        logging.info("Run 'nv show system' and 'timedatectl' immediately to verify date-time changed")
+        show_system_output_str = system_obj.show()
+        timedatectl_output_str = engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
+
+    with allure.step("Verify date-time"):
+        logging.info("Verify date-time")
         show_system_datetime = ClockTestTools.get_datetime_from_show_system_output(show_system_output_str)
         verify_same_datetimes(new_datetime, show_system_datetime)
         if ClockConsts.DESIGN_FINISHED:

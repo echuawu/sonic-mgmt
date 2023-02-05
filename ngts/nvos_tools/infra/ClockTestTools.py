@@ -6,6 +6,7 @@ from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.tests_nvos.system.clock_and_timezone.ClockConsts import ClockConsts
+import re
 
 
 class ClockTestTools:
@@ -66,3 +67,27 @@ class ClockTestTools:
         datetime_obj2 = datetime.fromisoformat(dt2)
         # subtracting datetime objects result a datetime.timedelta object that holds the diff, and return the diff in seconds
         return int(abs(datetime_obj1 - datetime_obj2).total_seconds())
+
+    @staticmethod
+    def is_time_format(s):
+        """
+        @summary:
+            check if a given string is in the time format- "hh:mm:ss",
+            and represents a valid time.
+        @param s: the given string
+        @return: [True/False]
+        """
+        time_regex = re.compile(r'\b(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])\b')
+        return bool(time_regex.match(s))
+
+    @staticmethod
+    def is_datetime_format(s):
+        """
+        @summary:
+            check if a given string is in the time format- "YYYY:MM:DD hh:mm:ss",
+            and represents a valid time.
+        @param s: the given string
+        @return: [True/False]
+        """
+        time_regex = re.compile(r'\b((\d{4}-\d{2}-\d{2}) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]))\b')
+        return bool(time_regex.match(s))

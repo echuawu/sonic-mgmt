@@ -230,3 +230,22 @@ class RandomizationTool:
                 random_datetime = random_dt_obj.strftime("%Y-%m-%d %H:%M:%S")
 
             return ResultObj(True, "Picked random date-time success", random_datetime)
+
+    @staticmethod
+    def select_random_time(forbidden_time_values=[]):
+        """
+        @summary:
+            Selects a random time in a day.
+            all time values (the retuend one and given forbidden ones) are strings in the format 'hh:mm:ss'
+        @param forbidden_time_values: list of time values (strings) that should not be picked
+        @return: ResultObj object containing a random time
+        """
+        with allure.step("Select a random time"):
+            # select random date-time and remove the date
+            base_date = "2023-01-01 "
+            result_obj = RandomizationTool.select_random_datetime(min_datetime=base_date + "00:00:00",
+                                                                  max_datetime=base_date + "23:59:59",
+                                                                  forbidden_datetimes=[base_date + t for t in forbidden_time_values])
+            if result_obj.result:
+                result_obj.returned_value = result_obj.returned_value.split(' ')[1]
+            return result_obj

@@ -68,13 +68,19 @@ def datetime_backup_restore(system_obj, valid_system_timezones, orig_timezone):
         orig_timezone fixture will restore the timezone, which will fix
         the date-time value too.
     """
+    with allure.step("Backup date-time: saving orig_datetime"):
+        logging.info("Backup date-time: saving orig_datetime")
+        orig_datetime = ClockTestTools.get_datetime_from_show_system_output(system_obj.show())
+        logging.info("Backup date-time: saving orig_datetime - {dt}".format(dt=orig_datetime))
+
     with allure.step("Backup date-time: changing to another timezone"):
+        logging.info("Backup date-time: changing to another timezone")
         different_timezone = RandomizationTool.select_random_value(valid_system_timezones,
                                                                    forbidden_values=[orig_timezone]).get_returned_value()
         logging.info("Backup date-time: changing to another timezone\t{tz}".format(tz=different_timezone))
         system_obj.timezone.set(different_timezone, apply=True)
 
-    yield
+    yield orig_datetime
 
     with allure.step("Restore date-time: orig_timezone restores the timezone -> fixes the date-time too"):
         logging.info("Restore date-time: orig_timezone restores the timezone -> fixes the date-time too")
