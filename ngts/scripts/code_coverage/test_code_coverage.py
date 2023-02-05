@@ -6,6 +6,7 @@ import time
 import pytest
 from ngts.helpers import system_helpers
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
+from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 
 logger = logging.getLogger()
 
@@ -82,7 +83,7 @@ def test_extract_python_coverage(topology_obj, dest):
 
 @pytest.mark.disable_loganalyzer
 @allure.title('Extract GCOV Coverage')
-def test_extract_gcov_coverage(topology_obj, dest, nvos):
+def test_extract_gcov_coverage(topology_obj, dest):
     """
     Extracts code coverage collected by GCOV for C/C++ binaries that were
     compiled with GCOV flags.
@@ -104,7 +105,7 @@ def test_extract_gcov_coverage(topology_obj, dest, nvos):
 
         sudo_engine = system_helpers.PrefixEngine(engine, 'sudo')
         sudo_cli_general = GeneralCliCommon(sudo_engine)
-        containers = GCOV_CONTAINERS_NVOS if nvos else GCOV_CONTAINERS_SONIC
+        containers = GCOV_CONTAINERS_NVOS if isinstance(cli_obj, NvueCli) else GCOV_CONTAINERS_SONIC
         logger.info(f'Containers with GCOV coverage: {containers}')
         logger.info(f'GCOV dir: {GCOV_DIR}')
         sudo_cli_general.mkdir(GCOV_DIR, flags='-p')

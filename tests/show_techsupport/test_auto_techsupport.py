@@ -5,6 +5,7 @@ import dateutil.parser
 import random
 import copy
 import os
+import re
 
 from tests.common.config_reload import config_reload
 from tests.common.errors import RunAnsibleModuleFail
@@ -475,13 +476,8 @@ class TestAutoTechSupport:
             self.duthost.shell('sudo config portchannel add {}'.format(po_name))
             cleanup_list.append((config_reload, (self.duthost,), {}))
 
-        test_port_vlan = get_port_vlan(minigraph_facts, test_port)
-        if test_port_vlan:
-            with allure.step('Remove interface: {} from VLAN: {}'.format(test_port, test_port_vlan)):
-                self.duthost.shell('sudo config vlan member del {} {}'.format(test_port_vlan, test_port))
-
         with allure.step('Add interface: {} to PortChannel: {}'.format(test_port, po_name)):
-            self.duthost.shell('sudo config portchannel member add {} {}'.format(po_name, test_port))
+            add_po_member(self.duthost, po_name, test_port, minigraph_facts)
 
         with allure.step('Apply config(which will cause SAI call failure) on DUT'):
             self.duthost.shell('sudo config load -y {}'.format(DUT_SAI_CALL_CONFIG_PATH))
@@ -667,8 +663,8 @@ def validate_saidump_file_inside_techsupport(duthost, techsupport_folder):
     :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: AssertionError in case when validation failed
     """
-    with allure.step('Validate SAI dump file inside in techsuport file'):
-        saidump_files_inside_techsupport = duthost.shell('ls {}/sai_sdk_dump'.format(techsupport_folder))['stdout_lines']
+    with allure.step('Validate SAI dump file is included in the tech-support dump'):
+        saidump_files_inside_techsupport = duthost.shell('ls {}/sai_failure_dump'.format(techsupport_folder))['stdout_lines']
         assert saidump_files_inside_techsupport, 'Expected SAI dump file(folder) not available in techsupport dump'
 
 
@@ -1192,6 +1188,12 @@ def validate_folder_size_less_than_allowed(duthost, folder, expected_max_folder_
 
 
 def is_docker_enabled(system_features_status, docker):
+    """
+    Check if docker(feature) enabled
+    :param system_features_status: output of features status
+    :param docker: docker/feature name
+    :return: True or False
+    """
     docker_enabled = False
     if system_features_status[0].get(docker) in ['enabled', 'always_enabled']:
         docker_enabled = True
@@ -1199,22 +1201,39 @@ def is_docker_enabled(system_features_status, docker):
 
 
 def clear_auto_techsupport_history(duthost):
+    """
+    Clear auto-techsupport history
+    :param duthost: duthost object
+    """
     auto_tech_history_entries = duthost.shell(CMD_GET_AUTO_TECH_SUPPORT_HISTORY_REDIS_KEYS)['stdout_lines']
     for entry in auto_tech_history_entries:
         duthost.shell('sudo redis-cli -n 6 DEL "{}"'.format(entry))
 
 
 def clear_folders(duthost):
+    """
+    Clear auto-techsupport related folders
+    :param duthost: duthost object
+    """
     duthost.shell('sudo rm -rf /var/core/*')
     duthost.shell('sudo rm -rf /var/dump/*')
 
 
 def create_core_file_generator_script(duthost):
+    """
+    Create core file generator script
+    :param duthost: duthost object
+    """
     duthost.shell('sudo echo \'sleep 10 & kill -6 $!\' > /etc/sonic/core_file_generator.sh')
     duthost.shell('sudo echo \'echo $?\' >> /etc/sonic/core_file_generator.sh')
 
 
 def get_available_tech_support_files(duthost):
+    """
+    Get available techsupport files list
+    :param duthost: duthost object
+    :return: list of available techsupport files
+    """
     try:
         available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
     except RunAnsibleModuleFail:
@@ -1223,6 +1242,11 @@ def get_available_tech_support_files(duthost):
 
 
 def get_random_physical_port_non_po_member(minigraph_facts):
+    """
+    Get physical port which is not PortChannel member
+    :param minigraph_facts: minigraph_facts(dict) object
+    :return: string, port name
+    """
     po_members = []
     for po_iface, po_data in minigraph_facts['minigraph_portchannels'].items():
         po_members += po_data['members']
@@ -1231,7 +1255,14 @@ def get_random_physical_port_non_po_member(minigraph_facts):
     test_port = random.choice(non_po_ports)
     return test_port
 
+
 def get_port_vlan(minigraph_facts, port):
+    """
+    Get VLAN related to test port
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param port: string, port name
+    :return: string with Vlan ID, or None
+    """
     test_port_vlan = None
     for vlan in minigraph_facts['minigraph_vlans']:
         if port in minigraph_facts['minigraph_vlans'][vlan]['members']:
@@ -1239,3 +1270,82 @@ def get_port_vlan(minigraph_facts, port):
             break
 
     return test_port_vlan
+
+
+def get_port_ips(minigraph_facts, port):
+    """
+    Get IPs which are assigned to port
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param port: string, port name
+    :return: list, example: [(ip, mask), (ip, mask)]
+    """
+    iface_ips_data = []
+    for iface_data in minigraph_facts['minigraph_interfaces']:
+        if iface_data['attachto'] == port:
+            ip_addr = iface_data['addr']
+            ip_mask = iface_data['prefixlen']
+            iface_ips_data.append((ip_addr, ip_mask))
+
+    return iface_ips_data
+
+
+def remove_port_from_vlan(duthost, minigraph_facts, test_port):
+    """
+    Remove test port from VLAN
+    :param duthost: duthost object
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param test_port: string, port name
+    """
+    test_port_vlan = get_port_vlan(minigraph_facts, test_port)
+    if test_port_vlan:
+        with allure.step('Remove interface: {} from VLAN: {}'.format(test_port, test_port_vlan)):
+            duthost.shell('sudo config vlan member del {} {}'.format(test_port_vlan, test_port))
+
+
+def remove_ips_from_port(duthost, minigraph_facts, test_port):
+    """
+    Remove IPs from test port
+    :param duthost: duthost object
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param test_port: string, port name
+    """
+    test_port_ips = get_port_ips(minigraph_facts, test_port)
+    if test_port_ips:
+        with allure.step('Remove IP addresses from port: {}'.format(test_port)):
+            for ip_addr, ip_mask in test_port_ips:
+                duthost.shell('sudo config interface ip remove {} {}/{}'.format(test_port, ip_addr, ip_mask))
+
+
+def remove_acl_tables(duthost, failure_info):
+    """
+    Remove ACL tables which related to our test port
+    :param duthost: duthost object
+    :param failure_info: string with output which contains ACL tables
+    """
+    acl_tables_list = re.findall(r'ACL_TABLE\|(\w+)', failure_info)
+    for acl_table in acl_tables_list:
+        with allure.step('Remove ACL table: {}'.format(acl_table)):
+            duthost.shell('sudo config acl remove table {}'.format(acl_table))
+
+
+def add_po_member(duthost, po_name, test_port, minigraph_facts):
+    """
+    Add interface to PortChannel
+    :param duthost: duthost object
+    :param po_name: string, PortChannel iface name
+    :param test_port: string, port name
+    :param minigraph_facts: minigraph_facts(dict) object
+    :return:
+    """
+    add_po_member_cmd = 'sudo config portchannel member add {} {}'.format(po_name, test_port)
+
+    remove_port_from_vlan(duthost, minigraph_facts, test_port)
+    remove_ips_from_port(duthost, minigraph_facts, test_port)
+
+    po_member_add = duthost.shell(add_po_member_cmd, module_ignore_errors=True)
+    if po_member_add['failed']:
+        failure_info = po_member_add['stderr_lines'][-1]
+        if 'is already bound to following ACL_TABLES' in failure_info:
+            remove_acl_tables(duthost, failure_info)
+
+        duthost.shell(add_po_member_cmd)

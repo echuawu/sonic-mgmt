@@ -1,5 +1,6 @@
 import logging
 import allure
+import pytest
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -8,6 +9,8 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 logger = logging.getLogger()
 
 
+@pytest.mark.system
+@pytest.mark.simx
 def test_capability_functionality(engines):
     """
     Run show system message command and verify the required message

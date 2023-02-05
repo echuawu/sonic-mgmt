@@ -42,10 +42,6 @@ class SonicConst:
                                 'xcvrd'],
                        'lldp': []}
 
-    CPU_RAM_CHECK_PROCESS_LIST = ['sx_sdk', 'syncd', 'redis-server', 'snmpd', 'zebra', 'bgpd', 'bgpcfgd', 'bgpmon',
-                                  'fpmsyncd', 'orchagent', 'ntpd', 'neighsyncd', 'vlanmgrd', 'intfmgrd', 'portmgrd',
-                                  'buffermgrd', 'vrfmgrd', 'nbrmgrd', 'vxlanmgrd', 'sensord']
-
     SONIC_CONFIG_FOLDER = '/etc/sonic/'
     PORT_CONFIG_INI = 'port_config.ini'
     CONFIG_DB_JSON = 'config_db.json'
@@ -92,6 +88,7 @@ class CliType:
     SONIC = 'Sonic'
     SHELL = 'SHELL'
     MLNX_OS = 'MLNX_OS'
+    SKYNET = 'skynet'
 
 
 class DbConstants:
@@ -101,11 +98,14 @@ class DbConstants:
     CLI_TYPE_PATH_MAPPING = {CliType.SONIC: METADATA_PATH,
                              CliType.NVUE: METADATA_PATH_NVOS,
                              CliType.SHELL: METADATA_PATH,
-                             CliType.MLNX_OS: METADATA_PATH_NVOS}
+                             CliType.MLNX_OS: METADATA_PATH_NVOS,
+                             CliType.SKYNET: METADATA_PATH}
     CREDENTIALS = {CliType.SONIC: {'server': 'YOKNVSQLDB.nvidia.com', 'database': 'sonic_mars',
                                    'username': 'sonic_db_user', 'password': 'Pa$$word01'},
                    CliType.NVUE: {'server': 'YOKNVSQLDB.nvidia.com', 'database': "NVOS", 'username': 'NVOS_ADMIN',
-                                  'password': "Nvos1234$$"}}
+                                  'password': "Nvos1234$$"},
+                   CliType.SKYNET: {'server': 'YOKNVSQLDB.nvidia.com', 'database': 'skynet',
+                                    'username': 'Skynet_admin', 'password': 'Skynet_admin$$!!'}}
 
 
 class InfraConst:

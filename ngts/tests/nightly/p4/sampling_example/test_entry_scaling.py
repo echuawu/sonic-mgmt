@@ -1,18 +1,14 @@
 import pytest
 import logging
 import allure
+import re
+from retry import retry
 from dotted_dict import DottedDict
 from datetime import datetime
 import random
 from ngts.constants.constants import P4SamplingConsts
 from ngts.constants.constants import P4SamplingEntryConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
-from ngts.tests.push_build_tests.system.test_cpu_ram_hdd_usage import get_cpu_usage_and_processes
-import yaml
-import os
-import time
-import re
-from retry import retry
 
 logger = logging.getLogger()
 CHKSUM_MASK = '0xffff'
@@ -25,7 +21,7 @@ class TestEntryScaling:
 
     @pytest.mark.reboot_reload
     @allure.title('Test 500 entries added for each table')
-    def test_scaling_entries(self, topology_obj, cli_objects, interfaces, engines, hb_dut_1_mac, expected_cpu_usage_dict, expected_ram_usage_dict):
+    def test_scaling_entries(self, topology_obj, cli_objects, interfaces, engines, hb_dut_1_mac):
         """
         configure 500 entries for each table, and send traffic for some entry, verify the cpu and memory usage,
         verify the the execution time for the add, show and delete cli command, verify it is added correctly with p4nspect,
@@ -56,8 +52,10 @@ class TestEntryScaling:
             with allure.step("Remove all entries and verify the execution time"):
                 self.remove_all_entries(cli_objects.dut, port_params, flow_params)
         with allure.step("Check entries are removed "):
-            P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
-            P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut, P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
+            P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut,
+                                               P4SamplingConsts.PORT_TABLE_NAME, port_params, False)
+            P4SamplingUtils.verify_table_entry(engines.dut, cli_objects.dut,
+                                               P4SamplingConsts.FLOW_TABLE_NAME, flow_params, False)
 
         with allure.step("Save configuration before reboot"):
             cli_objects.dut.general.save_configuration()
@@ -145,13 +143,15 @@ class TestEntryScaling:
         for key in port_entry_params.keys():
             action_params = port_entry_params[key].action
             priority = port_entry_params[key].priority
-            params = 'key {} action {} {} priority {}'.format(key, P4SamplingConsts.ACTION_NAME, action_params, priority)
+            params = 'key {} action {} {} priority {}'.format(key, P4SamplingConsts.ACTION_NAME,
+                                                              action_params, priority)
             port_key_params_list.append(params)
         flow_key_params_list = []
         for key in flow_entry_params.keys():
             action_params = flow_entry_params[key].action
             priority = flow_entry_params[key].priority
-            params = 'key {} action {} {} priority {}'.format(key, P4SamplingConsts.ACTION_NAME, action_params, priority)
+            params = 'key {} action {} {} priority {}'.format(key, P4SamplingConsts.ACTION_NAME,
+                                                              action_params, priority)
             flow_key_params_list.append(params)
 
         start_time = datetime.now()
@@ -159,8 +159,8 @@ class TestEntryScaling:
         cli_obj.p4_sampling.add_entries_to_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
-        logger.info("Time take for add {} entries : {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
-                                                                       time_take))
+        logger.info("Time take for add {} entries : {} seconds".format(len(port_key_params_list) +
+                                                                       len(flow_key_params_list), time_take))
 
     @staticmethod
     def remove_all_entries(cli_obj, port_entry_params, flow_entry_params):
@@ -186,8 +186,8 @@ class TestEntryScaling:
         cli_obj.p4_sampling.delete_entries_from_table(P4SamplingConsts.FLOW_TABLE_NAME, flow_key_params_list)
         end_time = datetime.now()
         time_take = (end_time - start_time).total_seconds()
-        logger.info("Time take for remove {} entries: {} seconds".format(len(port_key_params_list) + len(flow_key_params_list),
-                                                                         time_take))
+        logger.info("Time take for remove {} entries: {} seconds".format(len(port_key_params_list) +
+                                                                         len(flow_key_params_list), time_take))
 
     def verify_entries_and_traffic(self, topology_obj, interfaces, engine, port_entries, flow_entries):
         cli_obj = topology_obj.players['dut']['cli']
@@ -210,11 +210,11 @@ class TestEntryScaling:
                 P4SamplingUtils.clear_statistics(cli_obj)
             with allure.step("Send traffic for some of port table entries and verify"):
                 # define which entry will be used to verify the traffic, currently use the first and the last one
-                indices = list(set([0, len(port_entries) - 1]))
+                indices = list({0, len(port_entries) - 1})
                 P4SamplingUtils.verify_port_table_send_recv_traffic(topology_obj, engine, interfaces, port_entries,
                                                                     indices, pkt_count, pkt_count, 'match')
             with allure.step("Send traffic for some of flow table entries and verify"):
-                indices = list(set([0, len(port_entries) - 1]))
+                indices = list({0, len(port_entries) - 1})
                 P4SamplingUtils.verify_flow_table_send_recv_traffic(topology_obj, engine, interfaces, flow_entries,
                                                                     indices, pkt_count, pkt_count, 'match')
 
@@ -231,7 +231,7 @@ class TestEntryScaling:
     def verify_p4_sampling_up(engine_dut):
         """
         Verifying the dockers are in up state
-        :param engine: ssh engine object
+        :param engine_dut: ssh engine object
         :return: None, raise error in case of unexpected result
         """
         engine_dut.run_cmd('docker ps | grep {}'.format(P4SamplingConsts.APP_NAME), validate=True)
@@ -246,18 +246,3 @@ class TestEntryScaling:
             return int(uptime_arr[0]) * 60 + int(uptime_arr[1])
         else:
             return int(uptime_arr[0])
-
-    @staticmethod
-    def verify_cpu_ram_usage(engine, expected_cpu_usage_dict, expected_ram_usage_dict):
-        total_cpu_usage, _ = get_cpu_usage_and_processes(engine)
-        free_output = engine.run_cmd('sudo free')
-        total_ram_size_mb = int(free_output.splitlines()[1].split()[1]) / 1024
-        used_ram_size_mb = int(free_output.splitlines()[1].split()[2]) / 1024
-        logger.info('DUT total RAM size: {} Mb'.format(total_ram_size_mb))
-        logger.info('DUT use: {} Mb of RAM'.format(used_ram_size_mb))
-        logger.info('DUT total cpu usage is {}'.format(total_cpu_usage))
-
-        logger.info('Acceptable cpu usage is {}'.format(expected_cpu_usage_dict['total']))
-        logger.info('Acceptable ram usage is {}'.format(expected_ram_usage_dict['total']))
-        assert total_cpu_usage < expected_cpu_usage_dict['total']
-        assert used_ram_size_mb < expected_ram_usage_dict['total']

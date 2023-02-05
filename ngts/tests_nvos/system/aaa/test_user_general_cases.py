@@ -1,6 +1,7 @@
 import logging
 import random
 import allure
+import pytest
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -12,6 +13,8 @@ from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 logger = logging.getLogger()
 
 
+@pytest.mark.system
+@pytest.mark.simx
 def test_delete_user_with_multiple_terminals(engines):
     """
     Test flow:
@@ -37,6 +40,8 @@ def test_delete_user_with_multiple_terminals(engines):
         verify_after_delete(system, engine.username, engines.dut)
 
 
+@pytest.mark.system
+@pytest.mark.simx
 def test_disconnect_user_with_multiple_terminals(engines):
     """
     Test flow:
@@ -60,6 +65,8 @@ def test_disconnect_user_with_multiple_terminals(engines):
         verify_after_disconnect(engines.dut, system, output, engine.username, engine.password, connections_number)
 
 
+@pytest.mark.system
+@pytest.mark.simx
 def test_disable_user_with_multiple_terminals(engines):
     """
     Test flow:
@@ -85,6 +92,8 @@ def test_disable_user_with_multiple_terminals(engines):
         verify_after_disable(engines.dut, system, engine.username, engine.password, connections_number)
 
 
+@pytest.mark.system
+@pytest.mark.simx
 def test_disconnect_nonuser(engines):
     """
     Test flow:

@@ -34,7 +34,7 @@ def test_ssh_config_good_flow(engines):
             logger.info("Failing to Connect {} times to get logged out of session".format(auth_retries))
             try:
                 connection = create_ssh_login_engine(engines.dut.ip, username=DefaultConnectionValues.ADMIN, port=SshConfigConsts.DEFAULT_PORT, custom_ssh_options=SshConfigConsts.SSH_CONFIG_CONNECTION_OPTIONS)
-                for iteration in range(auth_retries - 1):
+                for iteration in range(auth_retries):
                     random_password = RandomizationTool.get_random_string(
                         random.randint(LoginSSHNotificationConsts.PASSWORD_MIN_LEN,
                                        LoginSSHNotificationConsts.PASSWORD_MAX_LEN))
@@ -79,7 +79,7 @@ def test_ssh_config_good_flow(engines):
             connection = create_ssh_login_engine(dut_ip=engines.dut.ip, username=DefaultConnectionValues.ADMIN, custom_ssh_options=SshConfigConsts.SSH_CONFIG_CONNECTION_OPTIONS)
             time.sleep(login_timeout + 0.1)  # 0.1 represents a small delta after timeout
             connection.sendline(DefaultConnectionValues.DEFAULT_PASSWORD)
-            connection.expect('Authentication\\s+failed')
+            connection.expect('[Cc]onnection\\s+closed')
         finally:
             connection.close()
     with allure.step("Validating login timeout passed"):
