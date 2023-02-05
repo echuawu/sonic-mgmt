@@ -47,6 +47,18 @@
           "out_of_mail": true
         },
         {
+          "name": "Components Match",
+          "module": "com.mellanox.jenkins.generic_modules.ComponentMatch",
+          "category": "Pre BAT",
+          "node": "SONIC_LITE",
+          "parameters": {
+            "MAP_FILE": "${PROJECT_NAME}/build/ci/file_mapping.yaml",
+            "VERBOSE": true
+          },
+          "skip": false,
+          "on_failure": "stop"
+        },
+        {
           "name": "Validation",
           "module": "build/ci/pre_ci_validation.groovy",
           "category": "Pre BAT",
@@ -64,7 +76,7 @@
           "parameters": {
             "readme_folder" : "${README_PATH}"
           },
-          "skip": false,
+          "skip": "${SKIP_SIMX}",
           "on_failure": "stop",
           "out_of_mail": true
         },
@@ -75,18 +87,6 @@
           "node": "SONIC_LITE",
           "parameters": {
             "beautifier_params": "--ignore build/ci/beautify/beautifier_ignore_list.txt --config build/ci/config/beautify"
-          },
-          "skip": false,
-          "on_failure": "stop"
-        },
-        {
-          "name": "Components Match",
-          "module": "com.mellanox.jenkins.generic_modules.ComponentMatch",
-          "category": "Pre BAT",
-          "node": "SONIC_LITE",
-          "parameters": {
-            "MAP_FILE": "${PROJECT_NAME}/build/ci/file_mapping.yaml",
-            "VERBOSE": true
           },
           "skip": false,
           "on_failure": "stop"
@@ -281,7 +281,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_COMMUNITY_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_COMMUNITY_SPC_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type": "REGRESSION",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -299,7 +299,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -318,7 +318,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SPC2_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC2_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -337,7 +337,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SPC3_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC3_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -356,7 +356,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -375,7 +375,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC2_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC2_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -394,7 +394,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC3_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC3_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
@@ -413,7 +413,7 @@
             "global_conf": "${MARS_GLOBAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC4_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC4_SETUP}/",
-            "base_version": "${BASE_VERSION}",
+            "base_version": "${SONIC_BIN}",
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
