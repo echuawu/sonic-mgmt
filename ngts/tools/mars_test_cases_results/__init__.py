@@ -15,6 +15,7 @@ ALLURE_URL = "allure_url"
 NAME = "name"
 RESULT = "result"
 SKIP_REASON = "skip_reason"
+SKYNET = "skynet"
 
 
 def pytest_addoption(parser):
@@ -63,6 +64,8 @@ def pytest_sessionfinish(session, exitstatus):
         mars_key_id = session.config.option.mars_key_id
         session.config.cache.set(SESSION_ID, session_id)
         session.config.cache.set(MARS_KEY_ID, mars_key_id)
+        if hasattr(session.config.option, SKYNET):
+            session.config.cache.set(SKYNET, session.config.getoption(SKYNET))
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -74,7 +77,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     report_url = config.cache.get(ALLURE_REPORT_URL, None)
     session_id = config.cache.get(SESSION_ID, None)
     mars_key_id = config.cache.get(MARS_KEY_ID, None)
-    cli_type = config.cache.get('CLI_TYPE', CliType.SONIC)
+    skynet = config.cache.get(SKYNET, None)
+    cli_type = SKYNET if skynet else config.cache.get('CLI_TYPE', CliType.SONIC)
     if valid_tests_data(report_url, session_id, mars_key_id):
         tests_results, tests_skipreason = parse_tests_results(terminalreporter)
         for test_case_name, test_result in tests_results.items():
