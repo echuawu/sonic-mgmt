@@ -854,7 +854,7 @@ def config_and_verify_trap(syslog, server, server_name, server_engine, severity_
         logging.info("Validate severity level: {}".format(severity_level))
         server.set_trap(severity_level, apply=True)
         syslog.verify_global_severity_level(global_severity_level)
-        server.verify_trap_severity_level(SyslogSeverityLevels.SEVERITY_LEVEL_DICT[severity_level])
+        server.verify_trap_severity_level(severity_level)
 
         random_msg = RandomizationTool.get_random_string(40, ascii_letters=string.ascii_letters + string.digits)
         severity_level_index = SyslogSeverityLevels.SEVERITY_LEVEL_LIST.index(severity_level)

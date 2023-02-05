@@ -125,7 +125,7 @@ def test_techsupport_delete(engines):
             assert second_file in output_dictionary_after_delete, "{} does not exist".format(first_file)
 
         with allure.step('Delete non exist tech-support file {}'.format(first_file)):
-            output = system.techsupport.action_delete(first_file.replace('/host/dump/', ''))
+            output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()
             assert 'Action failed with the following issue:' in output, "Can not delete non exist file!"
 
 
