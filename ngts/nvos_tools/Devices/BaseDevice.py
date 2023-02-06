@@ -279,7 +279,8 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_dependent_dockers(self):
         BaseDevice._init_dependent_dockers(self)
-        self.dependent_dockers.extend([['swss-ibv0', 'syncd-ibv0']])
+        # TODO maybe in the future we will need it again, but for now they removed this dependency
+        # self.dependent_dockers.extend([['swss-ibv0', 'syncd-ibv0']])
 
     def _init_constants(self):
         BaseDevice._init_constants(self)
@@ -395,7 +396,7 @@ class MultiAsicSwitch(BaseSwitch):
             for asic_num in range(0, self.asic_amount):
                 self.available_services.append('{deamon}@{asic_num}.service'.format(deamon=deamon, asic_num=asic_num))
         self.available_services.extend(('configmgrd.service', 'countermgrd.service',
-                                        'portsyncmgrd.service', 'statemgrd.service'))
+                                        'portsyncmgrd.service'))
         self.available_services.remove('syncd-ibv0.service')
         self.available_services.remove('swss-ibv0.service')
         self.available_services.remove('pmon.service')
@@ -415,10 +416,11 @@ class MultiAsicSwitch(BaseSwitch):
 
     def _init_dependent_dockers(self):
         BaseDevice._init_dependent_dockers(self)
-        ibv0_dependent_services = []
-        for asic_num in range(self.asic_amount):
-            ibv0_dependent_services.extend(['swss-ibv0{}'.format(asic_num), 'syncd-ibv0{}'.format(asic_num)])
-        self.dependent_dockers.append(ibv0_dependent_services)
+        # TODO maybe in the future we will need it again, but for now they removed this dependency
+        # ibv0_dependent_services = []
+        # for asic_num in range(self.asic_amount):
+        #     ibv0_dependent_services.extend(['swss-ibv0{}'.format(asic_num), 'syncd-ibv0{}'.format(asic_num)])
+        # self.dependent_dockers.append(ibv0_dependent_services)
 
     def _init_constants(self):
         BaseSwitch._init_constants(self)
