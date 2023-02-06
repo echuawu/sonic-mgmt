@@ -114,9 +114,15 @@ class TestAutoNegNegative(TestAutoNegBase):
             logger.info("verify ports are down due to mismatch")
             retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[lb, 'down'],
                        tries=10, delay=10, logger=logger)
-        with allure.step("Cleanup mismatch configuration and validate ports are up"):
-            logger.info("Cleanup mismatch configuration and validate ports are up")
+        with allure.step("Cleanup mismatch configuration"):
+            logger.info("Cleanup mismatch configuration")
             cleanup(cleanup_list)
+        with allure.step("Enable auto neg on ports: {}".format(lb)):
+            logger.info("Enable auto neg on ports: {}".format(lb))
+            self.configure_port_auto_neg(self.cli_objects.dut, ports_list=lb, conf=conf,
+                                         cleanup_list=cleanup_list, mode='enabled')
+        with allure.step("validate ports are up"):
+            logger.info("validate ports are up")
             retry_call(self.cli_objects.dut.interface.check_ports_status, fargs=[lb],
                        tries=10, delay=10, logger=logger)
 
