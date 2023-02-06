@@ -14,16 +14,6 @@ from ngts.tests_nvos.system.clock_and_timezone.ClockConsts import ClockConsts
 
 
 @pytest.fixture(scope='session')
-def system_obj():
-    """
-    @summary:
-    Return a System object
-    @return: System object
-    """
-    return System() if ClockConsts.DESIGN_FINISHED else MockSystem()
-
-
-@pytest.fixture(scope='function')
 def valid_system_timezones():
     """
     @summary:
@@ -35,6 +25,15 @@ def valid_system_timezones():
         timezone_yaml_dic['components']['schemas']['system-timezone-config']['properties']['timezone']['enum']
 
     return valid_timezones
+
+
+@pytest.fixture(scope='session')
+def system_obj(valid_system_timezones):
+    """
+    @summary:
+    Return a System object
+    """
+    return System() if ClockConsts.DESIGN_FINISHED else MockSystem(valid_timezones=valid_system_timezones)
 
 
 @pytest.fixture(scope='function')
@@ -76,7 +75,8 @@ def datetime_backup_restore(system_obj, valid_system_timezones, orig_timezone):
     with allure.step("Backup date-time: changing to another timezone"):
         logging.info("Backup date-time: changing to another timezone")
         different_timezone = RandomizationTool.select_random_value(valid_system_timezones,
-                                                                   forbidden_values=[orig_timezone]).get_returned_value()
+                                                                   forbidden_values=[orig_timezone],
+                                                                   work_with_copies=True).get_returned_value()
         logging.info("Backup date-time: changing to another timezone\t{tz}".format(tz=different_timezone))
         system_obj.timezone.set(different_timezone, apply=True)
 
@@ -93,10 +93,11 @@ class MockSystem(System):
     used for testing until design team finish feature implementation.
     """
 
-    def __init__(self):
+    def __init__(self, valid_timezones):
         System.__init__(self)
         self.timezone_val = None
         self.datetime_val = None
+        self.valid_timezones = valid_timezones
 
     def show(self, op_param="", output_format=OutputFormat.json):
         """
@@ -112,16 +113,16 @@ class MockSystem(System):
 
         logging.info("MOCK SYSTEM.SHOW: Run 'timedatectl'")
         # take 'timedatectl' output
-        timedatectl_output = OutputParsingTool \
-            .parse_timedatectl_cmd_output_to_dic(TestToolkit.engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)) \
-            .get_returned_value()
-        logging.info("MOCK SYSTEM.SHOW: 'timedatectl' output: \n{output}".format(output=timedatectl_output))
+        timedatectl_raw_output = TestToolkit.engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
+        logging.info("MOCK SYSTEM.SHOW: 'timedatectl' output: \n{output}"
+                     .format(output=OutputParsingTool.parse_timedatectl_cmd_output_to_dic(timedatectl_raw_output)
+                             .get_returned_value()))
 
         # extract timezone and date-time values from timedatectl
         timezone = self.timezone_val if self.timezone_val \
-            else timedatectl_output[ClockConsts.TIMEDATECTL_TIMEZONE_FIELD_NAME]    # <-- mock
+            else ClockTestTools.get_timezone_from_timedatectl_output(timedatectl_raw_output)    # <-- mock
         date_time = self.datetime_val if self.datetime_val \
-            else " ".join(timedatectl_output[ClockConsts.TIMEDATECTL_DATE_TIME_FIELD_NAME].split(' ')[1:3])  # <-- mock
+            else ClockTestTools.get_datetime_from_timedatectl_output(timedatectl_raw_output)  # <-- mock
         logging.info("MOCK SYSTEM.SHOW: 'timedatectl' : timezone: {tz}\tdate-time: {dt}"
                      .format(tz=timezone, dt=date_time))
 

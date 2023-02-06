@@ -46,7 +46,8 @@ def test_show_system_contains_timezone_and_datetime(engines, system_obj):
         logging.info("Validate timezone value")
         # verify that timezones are the same
         Tools.ValidationTool.compare_values(value1=show_system_output[SystemConsts.TIMEZONE],
-                                            value2=timedatectl_output[ClockConsts.TIMEDATECTL_TIMEZONE_FIELD_NAME],
+                                            value2=ClockTestTools
+                                            .get_timezone_from_timedatectl_output(timedatectl_output_str),
                                             should_equal=True).verify_result()
 
     with allure.step("Validate date-time value"):
@@ -75,7 +76,8 @@ def test_set_unset_system_timezone_ntp_off(engines, system_obj, valid_system_tim
     with allure.step("Pick a random new timezone to set (from timezone.yaml)"):
         logging.info("Pick a random new timezone to set (from timezone.yaml)")
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_system_timezones,
-                                                             forbidden_values=[orig_timezone]).get_returned_value()
+                                                             forbidden_values=[orig_timezone],
+                                                             work_with_copies=True).get_returned_value()
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
         logging.info("Set the new timezone with 'nv set system timezone'")
@@ -83,8 +85,7 @@ def test_set_unset_system_timezone_ntp_off(engines, system_obj, valid_system_tim
 
     with allure.step("Verify new timezone in 'nv show system' and in 'timedatectl'"):
         logging.info("Verify new timezone in 'nv show system' and in 'timedatectl'")
-        verify_timezone(engines, system_obj, expected_timezone=new_timezone,
-                        verify_with_linux=ClockConsts.DESIGN_FINISHED)
+        verify_timezone(engines, system_obj, expected_timezone=new_timezone, verify_with_linux=ClockConsts.DESIGN_FINISHED)
 
     with allure.step("Unet the timezone with 'nv unset system timezone'"):
         logging.info("Unet the timezone with 'nv unset system timezone'")
@@ -92,8 +93,7 @@ def test_set_unset_system_timezone_ntp_off(engines, system_obj, valid_system_tim
 
     with allure.step("Verify default timezone in 'nv show system' and in 'timedatectl'"):
         logging.info("Verify default timezone in 'nv show system' and in 'timedatectl'")
-        verify_timezone(engines, system_obj, expected_timezone=ClockConsts.DEFAULT_TIMEZONE,
-                        verify_with_linux=ClockConsts.DESIGN_FINISHED)
+        verify_timezone(engines, system_obj, expected_timezone=ClockConsts.DEFAULT_TIMEZONE, verify_with_linux=ClockConsts.DESIGN_FINISHED)
 
 
 @pytest.mark.system
@@ -166,6 +166,70 @@ def test_action_change_time_only_ntp_off(engines, system_obj, datetime_backup_re
         if ClockConsts.DESIGN_FINISHED:
             timedatectl_datetime = ClockTestTools.get_datetime_from_timedatectl_output(timedatectl_output_str)
             verify_same_datetimes(new_datetime, timedatectl_datetime)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_set_system_invalid_timezone_ntp_off_error_flow(engines, system_obj, valid_system_timezones, orig_timezone):
+    # todo: what would disable ntp?
+    """
+    @summary:
+        Check that system timezone set command works correctly with invalid inputs
+        * invalid - not exist in timezone.yaml file
+
+        Main Steps:
+            1. Set new timezone to random invalid timezone
+            2. Verify error
+            3. verify timezone hasn't changed (still the original one) in 'nv show system' and 'timedatectl'
+    """
+    # try to set random strings of varying length (also len 0 -> "")
+    with allure.step("Pick random strings of different lengths as bad timezone"):
+        logging.info("Pick random strings of different lengths as bad timezone")
+    for n in range(0, 10, 3):
+        with allure.step("Pick a random string of length {n} as bad timezone".format(n=n)):
+            logging.info("Pick a random string of length {n} as bad timezone".format(n=n))
+            bad_timezone = RandomizationTool.get_random_string(length=n)
+
+        with allure.step("Set the bad timezone"):
+            logging.info("Set the bad timezone ( {btz} )".format(btz=bad_timezone))
+            res_obj = system_obj.timezone.set(bad_timezone, apply=True).verify_result(should_succeed=False)
+
+        with allure.step("Verify error occurred"):
+            logging.info("Verify error occurred for the bad timezone ( {btz} )".format(btz=bad_timezone))
+            res_obj.verify_result(should_succeed=False)
+
+        with allure.step("Verify error message"):
+            logging.info("Verify error message for the bad timezone ( {btz} )".format(btz=bad_timezone))
+            test_error_msg = "Failure: set system timezone failed but error message is not right.\n" \
+                "expected error message should contain: '{em}' ,\n" \
+                "actual error message: {aem}".format(em=ClockConsts.ERR_MSG_INVALID_TIMEZONE,
+                                                     aem=res_obj.info)
+            ValidationTool.verify_substring_in_output(output=res_obj.info,
+                                                      substring=ClockConsts.ERR_MSG_INVALID_TIMEZONE,
+                                                      err_message_in_case_of_failure=test_error_msg)
+
+        with allure.step("Verify timezone hasn't changed"):
+            logging.info("Verify timezone hasn't changed")
+            verify_timezone(engines, system_obj, expected_timezone=orig_timezone,
+                            verify_with_linux=ClockConsts.DESIGN_FINISHED)
+
+    # try to change random existing timezones from timezone.yaml and set them
+    with allure.step("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity"):
+        logging.info("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity")
+        random_timezones = RandomizationTool.select_random_values(list_of_values=valid_system_timezones,
+                                                                  number_of_values_to_select=3).get_returned_value()
+        bad_timezones = list(map(lambda s: ClockTestTools.alternate_capital_lower(s), random_timezones))
+
+    for bad_timezone in bad_timezones:
+        with allure.step("Set the bad timezone and verify error"):
+            logging.info("Set the bad timezone ( {btz} ), and verify error".format(btz=bad_timezone))
+            system_obj.timezone.set(bad_timezone, apply=True).verify_result(should_succeed=False)
+
+        with allure.step("Verify timezone hasn't changed"):
+            logging.info("Verify timezone hasn't changed")
+            verify_timezone(engines, system_obj, expected_timezone=orig_timezone,
+                            verify_with_linux=ClockConsts.DESIGN_FINISHED)
 
 
 def verify_timezone(engines, system_obj, expected_timezone, verify_with_linux=True):

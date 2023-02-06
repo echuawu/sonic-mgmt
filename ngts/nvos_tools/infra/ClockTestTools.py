@@ -33,10 +33,20 @@ class ClockTestTools:
             return res_obj
 
     @staticmethod
+    def get_timezone_from_timedatectl_output(timedatectl_output):
+        """
+        @summary:
+            Extract timezone value from 'timedatectl' raw output
+        @return: timezone as a string
+        """
+        return OutputParsingTool.parse_timedatectl_cmd_output_to_dic(timedatectl_output)\
+            .get_returned_value()[ClockConsts.TIMEDATECTL_TIMEZONE_FIELD_NAME].split(' ')[0]
+
+    @staticmethod
     def get_datetime_from_timedatectl_output(timedatectl_output):
         """
         @summary:
-            Extract date-time value from 'timedatectl' output
+            Extract date-time value from 'timedatectl' raw output
         @return: date-time as a string of the format 'YYYY-MM-DD hh:mm:ss'
         """
         return " ".join(OutputParsingTool.parse_timedatectl_cmd_output_to_dic(timedatectl_output)
@@ -91,3 +101,22 @@ class ClockTestTools:
         """
         time_regex = re.compile(r'\b((\d{4}-\d{2}-\d{2}) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]))\b')
         return bool(time_regex.match(s))
+
+    @staticmethod
+    def alternate_capital_lower(s):
+        """
+        @summary:
+            Convert a given string to capital-lower alternating form.
+            example: "Hello world!" --> "HeLlO WoRlD!"
+        @param s: given string
+        @return: the converted string
+        """
+        result = []
+        for i, c in enumerate(s):
+            if not c.isalpha():
+                result.append(c)
+            elif i % 2 == 0:
+                result.append(c.upper())
+            else:
+                result.append(c.lower())
+        return "".join(result)

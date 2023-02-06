@@ -117,27 +117,45 @@ class RandomizationTool:
         return RandomizationTool.select_random_values(list_of_ports, None, number_of_values_to_select)
 
     @staticmethod
-    def select_random_value(list_of_values, forbidden_values=None):
+    def select_random_value(list_of_values, forbidden_values=None, work_with_copies=False):
         """
-        Select a random value from provided list of values
+        Select a random value from provided list of values.
+        * user can also specify which values shouldn't be chosen (using 'forbidden_values' parameter).
+        * note that when specifying forbidden values, the original given lists are changed (elements contained
+            both in 'list_of_values' and 'forbidden_values' are removed from original 'list_of_values').
+        * if user wishes to specify forbidden values, and keep original lists unchanged, you should give
+            'work_with_copies' parameter as True when calling this function
         :param list_of_values: list of values to select from
         :param forbidden_values: forbidden values that should not be selected
+        :param work_with_copies: [True/False] flag for whether to make copy of original
+            'list_of_values' and 'forbidden_values' lists (for not changing them), or not
         :return: A random value from the list
         """
-        result_obj = RandomizationTool.select_random_values(list_of_values, forbidden_values, 1)
+        result_obj = RandomizationTool.select_random_values(list_of_values, forbidden_values, 1, work_with_copies)
         if result_obj.result:
             result_obj.returned_value = result_obj.returned_value[0]
         return result_obj
 
     @staticmethod
-    def select_random_values(list_of_values, forbidden_values=None, number_of_values_to_select=1):
+    def select_random_values(list_of_values, forbidden_values=None, number_of_values_to_select=1, work_with_copies=False):
         """
-        Select random values from provided list of values
+        Select random values from provided list of values.
+        * user can also specify which values shouldn't be chosen (using 'forbidden_values' parameter).
+        * note that when specifying forbidden values, the original given lists are changed (elements contained
+            both in 'list_of_values' and 'forbidden_values' are removed from original 'list_of_values').
+        * if user wishes to specify forbidden values, and keep original lists unchanged, you should give
+            'work_with_copies' parameter as True when calling this function
         :param list_of_values: list of values to select from
         :param forbidden_values: list of forbidden values that should not be selected
         :param number_of_values_to_select: number of values to select
+        :param work_with_copies: [True/False] flag for whether to make copy of original
+            'list_of_values' and 'forbidden_values' lists (for not changing them), or not
         :return: list of random selected values
         """
+        if work_with_copies:
+            list_of_values = list_of_values.copy()
+            forbidden_values = None if forbidden_values is None else forbidden_values.copy()
+
         with allure.step('Select random values from provided list of values'):
             result_obj = ResultObj(False, "")
             list_of_values_to_select_from = list_of_values
@@ -150,10 +168,12 @@ class RandomizationTool:
                 result_obj.info = "number of values to select is invalid"
                 return result_obj
 
+            removed_values = []
             if forbidden_values:
                 for value in forbidden_values:
                     if value in list_of_values_to_select_from:
                         list_of_values_to_select_from.remove(value)
+                        removed_values.append(value)
 
             if len(list_of_values_to_select_from) == number_of_values_to_select:
                 result_obj.returned_value = list_of_values_to_select_from

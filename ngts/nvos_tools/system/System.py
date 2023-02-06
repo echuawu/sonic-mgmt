@@ -227,8 +227,10 @@ class Timezone(BaseComponent):
         result_obj = ResultObj(True)
 
         rsrc_path = self.get_resource_path()
-        with allure.step('Execute set for {resource_path}'.format(resource_path=rsrc_path)):
-            logging.info('Execute set for {resource_path}'.format(resource_path=rsrc_path))
+        with allure.step('Execute set for {resource_path}\ttimezone param: {tz}'.format(resource_path=rsrc_path, tz=op_param_name)):
+            logging.info('Execute set for {resource_path}\ttimezone param: {tz}'.format(resource_path=rsrc_path, tz=op_param_name))
+            if op_param_name not in self.parent_obj.valid_timezones:
+                return ResultObj(False, "Error:\tcommand 'nv set system timezone'\tresource {rsc}\tInvalid timezone arg".format(rsc=rsrc_path))
             if apply:
                 with allure.step("Applying set configuration"):
                     logging.info("Applying set configuration")
