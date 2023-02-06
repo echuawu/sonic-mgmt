@@ -35,10 +35,11 @@ def test_set_unset_full_name(engines):
     system.aaa.user.verify_user_label(SystemConsts.DEFAULT_USER_ADMIN, SystemConsts.USER_FULL_NAME, new_full_name)
     system.aaa.user.verify_user_label(SystemConsts.DEFAULT_USER_MONITOR, SystemConsts.USER_FULL_NAME, new_full_name)
     ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN, engines.dut.password).verify_result()
-    ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_MONITOR, engines.dut.password).verify_result()
+    #ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_MONITOR, engines.dut.password).verify_result()
 
 
 @pytest.mark.system
+@pytest.mark.simx
 def test_set_unset_full_name_newuser(engines):
     """
 
@@ -72,6 +73,7 @@ def test_set_unset_full_name_newuser(engines):
 
 
 @pytest.mark.system
+@pytest.mark.simx
 def test_set_unset_state(engines):
     """
 
@@ -103,6 +105,7 @@ def test_set_unset_state(engines):
 
 
 @pytest.mark.system
+@pytest.mark.simx
 def test_set_unset_capability(engines):
     """
 

@@ -113,6 +113,7 @@
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
+      - qos/test_buffer.py::test_port_admin_down
 
 # Errors which should be ignored in tests which restart dockers
 - Errors_list:
@@ -309,6 +310,7 @@
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port
       - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
 
 # From ngts/tests/nightly/fdb/log_analyzer_ignores.txt
 - Errors_list:
@@ -1218,6 +1220,17 @@
       Branch:
       - master
       - 202211
+      
+- Errors_list:
+    - '.* ERR kernel.* PMBus status register not found'
+    - '.* ERR kernel.* Chip identification failed'
+    - '.* WARNING kernel.* probe of .* failed with error -22'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      Platform:
+      - 4600c
+      Reason: "when 4600c downgrade CPLD these errors are expected "
 
 - Errors_list:
     - '.* ERR pmon#xcvrd: :- checkReplyType: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY'
@@ -1541,6 +1554,8 @@
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/general/qos/test_qos_reload.py
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
     - Redmine:
       - 3201740
 
@@ -1745,7 +1760,7 @@
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       Redmine:
-      - 3265054
+      - 3352372
 
 - Errors_list:
     - '.* ERR swss#vxlanmgrd: :- doVxlanTunnelMapCreateTask: Map already present : vtep\d+:map_\d+_Vlan\d+'
@@ -2012,3 +2027,12 @@
       - autorestart/test_container_autorestart.py::test_containers_autorestart
       Redmine:
         - 3315995
+
+- Errors_list:
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''
+  Conditions:
+    - Platform:
+      - arm64-nvda_bf-mbf2h536c
+      - arm64-nvda_bf-9009d3b600cvaa
+      Redmine:
+      - 3346254

@@ -332,14 +332,16 @@ class IbConsts:
     DEVICE_SYSTEM_LIST = ['guid']
     GUID_FORMAT = "[0-9a-f]{2}([:])[0-9a-f]{2}(\\1[0-9a-f]{2}){6}$"
     IBDIAGNET_PATH = '/var/tmp/ibdiagnet2'
+    IBDIAGNET_ZIPPED_FOLDER_PATH = '/host/ibdiagnet'
     IBDIAGNET_COMMAND = 'ibdiagnet'
-    IBDIAGNET_FILE_NAME = 'ibdiagnet_output.tgz'
+    IBDIAGNET_FILE_NAME = 'ibdiagnet2_output.tgz'
     IBDIAGNET_LOG_FINE_MIN_LINES = 50
     IBDIAGNET_PHY_INFO = '--get_phy_info'
     IBDIAGNET_CABLE_INFO = '--get_cable_info'
-    IBDIAGNET_EXPECTED_FILES_LIST = ['ibdiagnet2.log', 'ibdiagnet2.db_csv', 'ibdiagnet2.lst', 'ibdiagnet2.pm', 'ibdiagnet2.mlnx_cntrs',
-                                     'ibdiagnet2.net_dump', 'ibdiagnet2.pkey', 'ibdiagnet2.aguid', 'ibdiagnet2.sm', 'ibdiagnet2.fdbs',
-                                     'ibdiagnet2.mcfdbs', 'ibdiagnet2.slvl', 'ibdiagnet2.nodes_info', 'ibdiagnet2.plft', 'ibdiagnet2.ar', 'ibdiagnet2.vl2vl']
+    IBDIAGNET_EXPECTED_FILES_LIST = ['ibdiagnet2.db_csv', 'ibdiagnet2.ibnetdiscover', 'ibdiagnet2.log', 'ibdiagnet2.lst',
+                                     'ibdiagnet2.net_dump', 'ibdiagnet2.nodes_info', 'ibdiagnet2.pkey', 'ibdiagnet2.pm',
+                                     'ibdiagnet2.sm', 'ibdiagnet2.vports', 'ibdiagnet2.vports_pkey']
+    IBDIAGNET_EXPECTED_MESSAGE = 'ibdiagnet output files were archived into ibdiagnet2_output.tgz'
 
 
 class ImageConsts:
@@ -369,6 +371,10 @@ class SyslogConsts:
     MODULE_LINE = "module(load=\"im{protocol}\")"
     PORT_LINE = "input(type=\"im{protocol}\" port=\"{port}\")"
     RSYSLOG_CONF_FILE = '/etc/rsyslog.conf'
+    MULTIPLE_SERVERS_NUMBER = 10
+    CONFIG_TIME_DIFF_THRESHOLD = 1.0      # [sec]
+    SHOW_TIME_DIFF_THRESHOLD = 1.0        # [sec]
+    CPU_UTILIZATION_DIFF_THRESHOLD = 5.0  # [percent]
 
 
 class SyslogSeverityLevels:

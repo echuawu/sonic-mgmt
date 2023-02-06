@@ -242,7 +242,6 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
                                                     last_successful_login=successful_login_time)
 
 
-@pytest.mark.simx
 @pytest.mark.login_ssh_notification
 @pytest.mark.checklist
 def test_ssh_login_notification_password_change_admin(engines, login_source_ip_address, disable_password_hardening_rules):
@@ -277,7 +276,6 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
         time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
 
 
-@pytest.mark.simx
 @pytest.mark.login_ssh_notification
 @pytest.mark.checklist
 def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):

@@ -2,6 +2,7 @@ import allure
 
 from ngts.cli_util.stub_engine import StubEngine
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
+from functools import partial
 
 
 class VlanConfigTemplate:
@@ -9,13 +10,19 @@ class VlanConfigTemplate:
     This class contain 2 methods for configure and cleanup VLAN related settings.
     """
     @staticmethod
-    def configuration(topology_obj, vlan_config_dict):
+    def configuration(topology_obj, vlan_config_dict, request=None):
         """
         Method which are doing VLAN configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param vlan_config_dict: configuration dictionary with all VLANs related info
         Example: {'dut': [{'vlan_id': 31, 'vlan_members': []},{'vlan_id': 500, 'vlan_members': [{dutha2: 'trunk'}]}]}
         """
+        if request:
+            with allure.step('Add VLAN configuration cleanup into finalizer'):
+                cleanup = partial(VlanConfigTemplate.cleanup, topology_obj, vlan_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying VLAN configuration'):
             conf = {}
             for player_alias, configuration in vlan_config_dict.items():

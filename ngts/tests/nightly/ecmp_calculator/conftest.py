@@ -34,7 +34,7 @@ def skipping_ecmp_calculator_test(engines):
 
 
 @pytest.fixture(scope='class')
-def pre_configure_for_interface_default_vrf(engines, topology_obj, interfaces, cli_objects, players):
+def pre_configure_for_interface_default_vrf(request, engines, topology_obj, interfaces, cli_objects, players):
     """
     Pytest fixture which are doing configuration for ecmp interface default vrf case
     :param engines: engines object fixture
@@ -67,20 +67,15 @@ def pre_configure_for_interface_default_vrf(engines, topology_obj, interfaces, c
                       {"host": "hb", "src_intf": interfaces.hb_dut_1, "dst_intf": 'dut_hb_1'},
                       {"host": "hb", "src_intf": interfaces.hb_dut_2, "dst_intf": 'dut_hb_2'}]
 
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # Generate arp table
     gen_arp_table_via_ping(players, ping_info_list, only_ping_v4=True)
 
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-
 
 @pytest.fixture(scope='class', autouse=False)
-def pre_configure_for_interface_vrf(engines, topology_obj, interfaces, cli_objects, players):
+def pre_configure_for_interface_vrf(request, engines, topology_obj, interfaces, cli_objects, players):
     """
     Pytest fixture which are doing configuration for ecmp interface default vrf case
     :param engines: engines object fixture
@@ -117,22 +112,16 @@ def pre_configure_for_interface_vrf(engines, topology_obj, interfaces, cli_objec
     # Static route config
     static_route_config_dict = get_interface_test_static_route_config(vrf="Vrf_ecmp")
 
-    VrfConfigTemplate.configuration(topology_obj, vrf_config_dict)
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    VrfConfigTemplate.configuration(topology_obj, vrf_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # generate arp by pinging from host
     gen_arp_table_via_ping(players, ping_info_list)
 
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    VrfConfigTemplate.cleanup(topology_obj, vrf_config_dict)
-
 
 @pytest.fixture(scope='class', autouse=False)
-def pre_configure_for_interface_vlan_vrf(engines, topology_obj, interfaces, cli_objects, players):
+def pre_configure_for_interface_vlan_vrf(request, engines, topology_obj, interfaces, cli_objects, players):
     """
     Pytest fixture which are doing configuration for ecmp interface vrf case
     :param engines: engines object fixture
@@ -184,24 +173,17 @@ def pre_configure_for_interface_vlan_vrf(engines, topology_obj, interfaces, cli_
                       {"host": "ha", "src_intf": interfaces.ha_dut_2, "dst_intf": 'dut_ha_2'},
                       {"host": "hb", "src_intf": interfaces.hb_dut_1, "dst_intf": 'dut_hb_1'}]
 
-    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
-    VrfConfigTemplate.configuration(topology_obj, vrf_config_dict)
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict, request)
+    VrfConfigTemplate.configuration(topology_obj, vrf_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # generate arp by pinging from host
     gen_arp_table_via_ping(players, ping_info_list)
 
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    VrfConfigTemplate.cleanup(topology_obj, vrf_config_dict)
-    VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
-
 
 @pytest.fixture(scope='class', autouse=False)
-def pre_configure_for_sub_interface(engines, topology_obj, interfaces, cli_objects, players):
+def pre_configure_for_sub_interface(request, engines, topology_obj, interfaces, cli_objects, players):
     """
     Pytest fixture which are doing configuration for ecmp sub interface vrf case
     :param engines: engines object fixture
@@ -264,24 +246,17 @@ def pre_configure_for_sub_interface(engines, topology_obj, interfaces, cli_objec
     # Static route config
     static_route_config_dict = get_interface_test_static_route_config()
 
-    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
-    SubIntConfigTemplate.configuration(topology_obj, sub_int_config_dict)
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict, request)
+    SubIntConfigTemplate.configuration(topology_obj, sub_int_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # generate arp by pinging from host
     gen_arp_table_via_ping(players, ping_info_list)
 
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    SubIntConfigTemplate.cleanup(topology_obj, sub_int_config_dict)
-    VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
-
 
 @pytest.fixture(scope='module', autouse=False)
-def adapt_speed_for_lag(engines, topology_obj, interfaces, cli_objects):
+def adapt_speed_for_lag(request, engines, topology_obj, interfaces, cli_objects):
     """
     Pytest fixture which is doing configuration for lag
     :param engines: engines object fixture
@@ -302,15 +277,11 @@ def adapt_speed_for_lag(engines, topology_obj, interfaces, cli_objects):
                  'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '10G')}
                 ]
     }
-    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
-
-    yield
-
-    InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
+    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict, request)
 
 
 @pytest.fixture(scope='class', autouse=False)
-def pre_configure_for_lag(engines, topology_obj, interfaces, cli_objects, players, adapt_speed_for_lag):
+def pre_configure_for_lag(request, engines, topology_obj, interfaces, cli_objects, players, adapt_speed_for_lag):
     """
     Pytest fixture which is doing configuration for ecmp lag case
     :param engines: engines object fixture
@@ -346,22 +317,16 @@ def pre_configure_for_lag(engines, topology_obj, interfaces, cli_objects, player
     # Static route config
     static_route_config_dict = get_lag_test_static_route_config()
 
-    LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # generate arp by pinging from host
     gen_arp_table_via_ping(players, ping_info_list)
 
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
-
 
 @pytest.fixture(scope='class', autouse=False)
-def pre_configure_for_vlan_lag(engines, topology_obj, interfaces, cli_objects, players, adapt_speed_for_lag):
+def pre_configure_for_vlan_lag(request, engines, topology_obj, interfaces, cli_objects, players, adapt_speed_for_lag):
     """
     Pytest fixture which is doing configuration for lag in vlan case
     :param engines: engines object fixture
@@ -406,24 +371,17 @@ def pre_configure_for_vlan_lag(engines, topology_obj, interfaces, cli_objects, p
                       {"host": "ha", "src_intf": interfaces.ha_dut_2, "dst_intf": 'dut_ha_2'},
                       {"host": "hb", "src_intf": "bond1", "dst_intf": 'dut_ha_2'}]
 
-    LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
-    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict, request)
+    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # generate arp by pinging from host
     gen_arp_table_via_ping(players, ping_info_list)
 
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
-    LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
-
 
 @pytest.fixture(scope='class', autouse=False)
-def pre_configure_for_sub_interface_lag(engines, topology_obj, interfaces, cli_objects, players, adapt_speed_for_lag):
+def pre_configure_for_sub_interface_lag(request, engines, topology_obj, interfaces, cli_objects, players, adapt_speed_for_lag):
     """
     Pytest fixture which is doing configuration for lag
     :param engines: engines object fixture
@@ -477,22 +435,14 @@ def pre_configure_for_sub_interface_lag(engines, topology_obj, interfaces, cli_o
     # Static route config
     static_route_config_dict = get_lag_test_static_route_config()
 
-    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict)
-    LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict)
-    SubIntConfigTemplate.configuration(topology_obj, sub_int_config_dict)
-    IpConfigTemplate.configuration(topology_obj, ip_config_dict)
-    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
+    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict, request)
+    LagLacpConfigTemplate.configuration(topology_obj, lag_lacp_config_dict, request)
+    SubIntConfigTemplate.configuration(topology_obj, sub_int_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    RouteConfigTemplate.configuration(topology_obj, static_route_config_dict, request)
 
     # generate arp by pinging from host
     gen_arp_table_via_ping(players, ping_info_list)
-
-    yield
-
-    RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
-    IpConfigTemplate.cleanup(topology_obj, ip_config_dict)
-    SubIntConfigTemplate.cleanup(topology_obj, sub_int_config_dict)
-    LagLacpConfigTemplate.cleanup(topology_obj, lag_lacp_config_dict)
-    VlanConfigTemplate.cleanup(topology_obj, vlan_config_dict)
 
 
 @pytest.fixture(scope='class')

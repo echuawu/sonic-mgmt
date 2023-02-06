@@ -12,6 +12,7 @@ logger = logging.getLogger()
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_show_log(engines):
     """
     Write to log file on switch, run nv show system log command and verify system/image are exist
@@ -45,6 +46,7 @@ def test_show_log(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_show_log_continues(engines):
     """
     Write to log file on switch, run nv show system log command and verify system/image are exist
@@ -78,6 +80,7 @@ def test_show_log_continues(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_show_log_files(engines):
     """
     Check all fields in files commands, write to log check it exist in show files command
@@ -120,6 +123,7 @@ def test_show_log_files(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_show_debug_log(engines):
     """
     Check version on switch, run nv show system log command and verify the image method are exist
@@ -147,6 +151,7 @@ def test_show_debug_log(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_show_debug_log_continues(engines):
     """
     Check version on switch, run nv show system log command and verify the image method are exist
@@ -177,6 +182,7 @@ def test_show_debug_log_continues(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_show_debug_log_files(engines):
     """
     Check all fields in debug-log filles command
@@ -203,6 +209,7 @@ def test_show_debug_log_files(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_rotate_debug_log_files(engines):
     """
     Check all fields in debug-log files command
@@ -242,6 +249,7 @@ def test_rotate_debug_log_files(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_log_files_rotation_default_fields(engines):
     """
     Check all fields and default values exist in nv show system log files rotation
@@ -259,6 +267,7 @@ def test_log_files_rotation_default_fields(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_debug_log_files_rotation_default_fields(engines):
     """
     Check all fields and default values exist in nv show system debug-log files rotation
@@ -302,6 +311,7 @@ def _log_files_rotation_default_fields(system_log_obj, default_max_number, defau
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_log_files_set_unset_log_rotation_frequency(engines):
     """
     Check set unset for files rotation parameters
@@ -320,6 +330,7 @@ def test_log_files_set_unset_log_rotation_frequency(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_debug_log_files_set_unset_log_rotation_frequency(engines):
     """
     Check set unset for files rotation parameters
@@ -376,6 +387,7 @@ def _log_files_set_unset_log_rotation_frequency(engines, system_log_obj):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_log_files_set_unset_log_rotation_size_disk_percentage(engines):
     """
     Check set unset for files rotation file size and disk percentage
@@ -394,6 +406,7 @@ def test_log_files_set_unset_log_rotation_size_disk_percentage(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_debug_log_files_set_unset_log_rotation_size_disk_percentage(engines):
     """
     Check set unset for files rotation file size and disk percentage
@@ -478,6 +491,7 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_log_files_set_unset_log_rotation_max_number(engines):
     """
     Check set unset for files rotation max-number
@@ -497,6 +511,7 @@ def test_log_files_set_unset_log_rotation_max_number(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_debug_log_files_set_unset_log_rotation_max_number(engines):
     """
     Check set unset for files rotation max-number
@@ -572,6 +587,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_log_files_rotation_force(engines):
     """
     Check version on switch, rotate logs, check that it doesn't exist in the logs
@@ -605,6 +621,7 @@ def test_log_files_rotation_force(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_log_components(engines):
     """
     Check all fields in components command, check all components can be set/uset with all log levels
@@ -667,6 +684,7 @@ def test_log_components(engines):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_upload_log_files(engines, topology_obj):
     """
     Check uploading log files to shared location and validate
@@ -686,6 +704,7 @@ def test_upload_log_files(engines, topology_obj):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_upload_debug_log_files(engines, topology_obj):
     """
     Check uploading log files to shared location and validate
@@ -730,6 +749,7 @@ def _upload_log_files(topology_obj, system_log_obj):
 
 @pytest.mark.system
 @pytest.mark.log
+@pytest.mark.simx
 def test_delete_log_files(engines):
     """
     Check user can delete debug-log files

@@ -1,5 +1,6 @@
 import allure
 import pytest
+import time
 import logging
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_constants.constants_nvos import IbConsts
@@ -25,7 +26,12 @@ class OpenSmTool:
             ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_ENABLE)
             output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engine=TestToolkit.engines.dut,
                                                                                  ask_for_confirmation=True)
-            return ResultObj("applied" in output, "Failed to start openSM")
+            if "applied" not in output:
+                return ResultObj(False, "Failed to start openSM")
+
+            time.sleep(7)
+            res = OpenSmTool.verify_open_sm_is_running()
+            return ResultObj(res, "Failed to start openSM")
 
     @staticmethod
     def stop_open_sm(engine):
