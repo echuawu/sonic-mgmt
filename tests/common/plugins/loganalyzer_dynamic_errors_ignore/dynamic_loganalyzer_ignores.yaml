@@ -661,6 +661,15 @@
         - simx
 
 - Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\].*Failed to prepare bulk counter for pg occupancy stats.*'
+    - '.*ERR syncd#SDK: \[SAI_QUEUE\.ERR\] mlnx_sai_queue.c\[\d*\]- .*Failed to prepare bulk counter for queue stats.'
+  Conditions:
+    - Redmine:
+      - 3356398
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR syncd#SDK: \[SAI_LAG.ERR\] mlnx_sai_lag.c\[\d+\]- mlnx_hostif_reapply: Failed running.*'
     - '.* ERR syncd#SDK: \[SAI_LAG.ERR\] mlnx_sai_lag.c\[\d+\]- mlnx_remove_lag_member: Error reapplying host interface on port.*'
     - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_REMOVE failed in syncd mode: SAI_STATUS_FAILURE.*'
