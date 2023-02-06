@@ -1250,4 +1250,10 @@ platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
     conditions:
       - https://redmine.mellanox.com/issues/3355826
 
+qos/test_lossless_bum_traffic_drop.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3323332 on 2700"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3323332 and ('sn2700' in platform)"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

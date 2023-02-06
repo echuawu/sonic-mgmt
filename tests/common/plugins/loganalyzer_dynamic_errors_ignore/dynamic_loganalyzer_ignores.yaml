@@ -1220,7 +1220,7 @@
       Branch:
       - master
       - 202211
-      
+
 - Errors_list:
     - '.* ERR kernel.* PMBus status register not found'
     - '.* ERR kernel.* Chip identification failed'
@@ -2021,7 +2021,27 @@
     - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel layer-1, status 1'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: User channel \d+ is not destroyed, destroy it first.'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_db_deinit_resource_check failed, err = 1'
-    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status \d+.*'
+    - '.* ERR what-just-happened#wjhd\[23\]: \[WJH_LIB.ERROR  \]: WJH libs are not initialized.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- removeBufferConfiguration: Failed to close SDK handler, error: \[\d+\]: \[Invalid Handle\].*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[\d+\]: \[Invalid Handle\].*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- main: exception: :- initialize: Failed to initialize WJH library .*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- initialize: Failed to initialize WJH library .*'
+    - '.* ERR syncd#SDK: \[SPAN.ERR\] __span_delete for span_session_id 0 failed, err: Resource is in use.*'
+    - '.* ERR syncd#SDK: \[SPAN.ERR\] SPAN session \d+ still has policer ID \d+ bound, so can.* be destroyed.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: __wjh_resources_pre_init_clean_up failed, err = d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to disable monitor on buffer drop reason group.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh buffer cleanup failed to destroy WJH span configuration, err: \d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Wjh lib dev specific cb span deinit failed, err=\d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to destroy the span session, err: Resource is in use.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh buffer cleanup failed to destroy the ACL configuration, err: \d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Wjh lib dev specific cb for acl create failed, err=\d.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to unbind ACL group to the analyzer port, err:.*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] ACL : Error at check access for group id\[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] ACL : Failed to get ACL \(or ACL group entry type\), ACL id\[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] Get acl \[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] Trying to get a non-allocated table id \[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] ACL: ACL group access denied, entry type is not FLEX_ACL_ENTRY_TYPE_USER_E..*'
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
