@@ -9,8 +9,8 @@ def set_sonic_bin(topic_map, project) {
             topic_map["IMAGE_VERSION"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_VERSION"])) {
         error "IMAGE_BRANCH and IMAGE_VERSION cannot be defined together. remove one or both of them from Gerrit topic to continue "
     }
-  
-    def sonic_branch = env.DEFAULT_SONIC_BRANCH ? env.DEFAULT_SONIC_BRANCH : "develop"
+
+    def sonic_branch = env.DEFAULT_SONIC_BRANCH ? env.DEFAULT_SONIC_BRANCH : "master"
     if (topic_map["IMAGE_BRANCH"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_BRANCH"])) {
         sonic_branch = topic_map["IMAGE_BRANCH"]
         print "SONiC image branch name is defined by topic: ${sonic_branch}"
