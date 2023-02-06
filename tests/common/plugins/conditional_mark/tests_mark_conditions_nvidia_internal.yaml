@@ -164,11 +164,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3302670"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3357378"
     conditions:
-      - https://redmine.mellanox.com/issues/3302670
+      - https://redmine.mellanox.com/issues/3357378
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   skip:
