@@ -1580,6 +1580,15 @@
     - Redmine:
       - 3205239
 
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Can''t get object type availability before creating a switch'
+    - '.* ERR syncd#SAI: message repeated \d+ times: \[ \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Can''t get object type availability before creating a switch\]'
+  Conditions:
+    - Redmine:
+        - 3358104
+      Platform:
+        - arm64-nvda_bf-mbf2h536c
+        - arm64-nvda_bf-9009d3b600cvaa
 
 - Errors_list:
     - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
