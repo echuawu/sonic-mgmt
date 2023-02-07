@@ -208,16 +208,11 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored on some SPC1 platforms by bug 3331715 or simx in platform"
+    reason: "Testcase ignored by bug 3331715 or simx in platform"
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2100' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2410' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2700' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2201' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '3420' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '3700' in platform"
+      - https://redmine.mellanox.com/issues/3331715
 
 tests/nightly/fec:
   skip:
@@ -1255,5 +1250,29 @@ qos/test_lossless_bum_traffic_drop.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3323332 on 2700"
     conditions:
       - "https://redmine.mellanox.com/issues/3323332 and ('sn2700' in platform)"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+platform_tests/api/test_watchdog.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+platform_tests/test_reload_config.py::test_reload_configuration:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+platform_tests/test_reload_config.py::test_reload_configuration_checks:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

@@ -208,6 +208,7 @@ class TestEvpnVxlan:
               (vxlan encap/decap)              (vxlan encap/decap)                            (vxlan encap/decap)
 
         """
+        self.skip_test_if_upgrade_flow(cli_objects)
         with allure.step('Check CLI VLAN to VNI mapping'):
             cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
                 vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
@@ -220,3 +221,10 @@ class TestEvpnVxlan:
 
         with allure.step('Validate evpn type 2 and type 3 routes'):
             self.validate_basic_evpn_type_2_3_route(cli_objects)
+
+    @staticmethod
+    def skip_test_if_upgrade_flow(cli_objects):
+        base_image, target_image = cli_objects.dut.general.get_base_and_target_images()
+        if '202012' in base_image and '202211' in target_image:
+            pytest.skip("202012 doesn't support VxLAN and this test shouldn't be run in the upgrade flow"
+                        " - see https://redmine.mellanox.com/issues/3360541")
