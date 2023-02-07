@@ -11,6 +11,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
 import random
 import allure
+import datetime as dt
 from datetime import timedelta, datetime
 
 logger = logging.getLogger()
@@ -269,3 +270,35 @@ class RandomizationTool:
             if result_obj.result:
                 result_obj.returned_value = result_obj.returned_value.split(' ')[1]
             return result_obj
+
+    @staticmethod
+    def select_random_date(min_date=SystemConsts.MIN_SYSTEM_DATE, max_date=SystemConsts.MAX_SYSTEM_DATE, forbidden_dates=[]):
+        """
+        @summary:
+            Selects a random date between two given dates.
+            All date values (parameters and returned value) are strings in the format 'YYYY-MM-DD'
+        @param min_date: minimum date value
+        @param max_date: maximal date value
+        @param forbidden_dates: list of date values (strings) that should not be picked
+        @return: ResultObj object containing a random date between min and max
+        """
+        with allure.step("Select date from given range of date"):
+            min_date_obj, max_date_obj = dt.date.fromisoformat(min_date), dt.date.fromisoformat(max_date)
+            # validate parameters
+            if min_date_obj > max_date_obj:
+                return ResultObj(False, "Invalid date range")
+            if min_date == max_date and min_date in forbidden_dates:
+                return ResultObj(False, "Can't pick a random date between {dt} and {dt} and shouldn't be {dt}".format(dt=min_date))
+            # calc diff between min and max into timedelta object
+            diff_timedelta_obj = max_date_obj - min_date_obj
+            diff_in_seconds = diff_timedelta_obj.total_seconds()
+            random_date = None
+            while random_date is None or random_date in forbidden_dates:
+                # randomize delta for the new random time
+                random_delta_in_seconds = random.randint(0, int(diff_in_seconds))
+                random_delta_timedelta_obj = timedelta(seconds=random_delta_in_seconds)
+                # create the random date-time by adding the delta to the min_datetime
+                random_date_obj = min_date_obj + random_delta_timedelta_obj
+                random_date = random_date_obj.strftime("%Y-%m-%d")
+
+            return ResultObj(True, "Picked random date success", random_date)

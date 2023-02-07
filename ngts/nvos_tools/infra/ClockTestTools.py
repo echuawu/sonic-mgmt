@@ -1,12 +1,15 @@
+import random
 import allure
 import logging
 import yaml
+import datetime as dt
 from datetime import datetime, timedelta
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.tests_nvos.system.clock_and_timezone.ClockConsts import ClockConsts
 import re
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 
 
 class ClockTestTools:
@@ -120,3 +123,113 @@ class ClockTestTools:
             else:
                 result.append(c.lower())
         return "".join(result)
+
+    @staticmethod
+    def get_invalid_date():
+        """
+        @summary:
+            Select an invalid date
+            * invalid date - 'YYYY-MM-DD' , while 'YYYY' is any year, and 'MM-DD' compose a date which doesn't appear
+            in the calendar.
+        @return: invalid date as a string
+        """
+        # keep randomizing until got an invalid date
+        while True:
+            yyyy = str(random.randint(1000, 9999))
+            month = random.randint(0, 99)
+            mm = str(month) if month > 9 else "0" + str(month)
+            day = random.randint(0, 99)
+            dd = str(day) if day > 9 else "0" + str(day)
+            random_date = yyyy + "-" + mm + "-" + dd
+            if not ClockTestTools.is_valid_date(random_date):
+                return random_date
+
+    @staticmethod
+    def is_valid_date(s):
+        """
+        @summary:
+            Check if a given string represents a valid date
+            * valid date - in 'YYYY-MM-DD' format , and the represented date exists in the calendar
+        @param s: the given string to be checked
+        @return: [True/False] whether the given string is a valid date or not
+        """
+        try:
+            dt.date.fromisoformat(s)  # parse s, validate its format, and verify its a real date
+        except ValueError:
+            return False
+
+        return True
+
+    @staticmethod
+    def get_invalid_time():
+        """
+        @summary:
+            Select an invalid time
+            * invalid date - 'hh:mm:ss' which isn't a real time in a day.
+        @return: invalid time as a string
+        """
+        # keep randomizing until got an invalid time
+        while True:
+            hours = random.randint(0, 99)
+            hh = str(hours) if hours > 9 else "0" + str(hours)
+            minutes = random.randint(0, 99)
+            mm = str(minutes) if minutes > 9 else "0" + str(minutes)
+            seconds = random.randint(0, 99)
+            ss = str(seconds) if seconds > 9 else "0" + str(seconds)
+            random_time = hh + ":" + mm + ":" + ss
+            if not ClockTestTools.is_valid_time(random_time):
+                return random_time
+
+    @staticmethod
+    def is_valid_time(s):
+        """
+        @summary:
+            Check if a given string represents a valid time
+            * valid time - in 'hh:mm:ss' format , and the represented time exists in a day
+        @param s: the given string to be checked
+        @return: [True/False] whether the given string is a valid time or not
+        """
+        try:
+            dt.time.fromisoformat(s)  # parse s, validate its format, and verify its a real time
+        except ValueError:
+            return False
+
+        return True
+
+    @staticmethod
+    def generate_invalid_datetime_inputs():
+        """
+        @summary:
+            Generate a list of invalid date-time inputs.
+            The invalid inputs include several combinations of good/bad date, with good/bad time,
+            composed together as an input string
+        @return: list of strings (invalid inputs)
+        """
+        date_bad_format = RandomizationTool.get_random_string(length=10)  # bad format date - just random str
+        date_not_exist = ClockTestTools.get_invalid_date()  # good format but invalid (doesn't really exist in the calendar)
+        date_before_range = RandomizationTool.select_random_date(min_date="1111-01-01",
+                                                                 max_date=SystemConsts.MIN_SYSTEM_DATE,
+                                                                 forbidden_dates=[SystemConsts.MIN_SYSTEM_DATE]) \
+            .get_returned_value()  # good format and valid, but not in allowed range (before)
+        date_after_range = RandomizationTool.select_random_date(min_date=SystemConsts.MAX_SYSTEM_DATE,
+                                                                max_date="2222-12-31",
+                                                                forbidden_dates=[SystemConsts.MAX_SYSTEM_DATE]) \
+            .get_returned_value()  # good format and valid, but not in allowed range (after)
+        date_good = RandomizationTool.select_random_date().get_returned_value()  # valid from all aspects
+
+        time_bad_format = RandomizationTool.get_random_string(length=8)  # bad format time - just random str
+        time_not_exist = ClockTestTools.get_invalid_time()  # good format but invalid (doesn't really exist in a day)
+        time_good = RandomizationTool.select_random_time().get_returned_value()  # valid from all aspects
+
+        date_inputs = [date_bad_format, date_not_exist, date_before_range, date_after_range, date_good]
+        time_inputs = [time_bad_format, time_not_exist, time_good]
+
+        # all bad combinations
+        bad_inputs = [""] + date_inputs  # should also test with empty input, and with date only
+        for date_input in date_inputs:
+            for time_input in time_inputs:
+                if date_input == date_good and time_input == time_good:
+                    continue  # this case composes a good date-time input -> skip it
+                bad_inputs.append(date_input + " " + time_input)
+
+        return bad_inputs

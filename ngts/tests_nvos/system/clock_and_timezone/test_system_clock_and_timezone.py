@@ -9,6 +9,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock_and_timezone.conftest import ClockTestTools
+import random
 
 
 @pytest.mark.system
@@ -204,6 +205,33 @@ def test_set_system_invalid_timezone_ntp_off_error_flow(engines, system_obj, val
         set_invalid_timezone_and_verify(bad_timezone, system_obj, engines, orig_timezone)
 
 
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_change_invalid_datetime_ntp_off_error_flow(engines, system_obj):
+    # todo: what would disable ntp?
+    """
+    @summary:
+        Check that system date-time change action command works correctly (error) with invalid inputs.
+        * valid input can be any parameter in the format "YYYY-MM-DD hh:mm:ss" or just "hh:mm:ss",
+            while both date ("YYYY-MM-DD") and time ("hh:mm:ss") define a valid date and time, which exists in the
+            calendar year, and is in the 'allowed range'
+        * the 'allowed range' is between SystemConsts.MIN_SYSTEM_DATETIME to SystemConsts.MAX_SYSTEM_DATETIME
+
+        Main Steps:
+            1. Try to change date-time with several invalid inputs
+            2. verify error
+            3. verify that date-time hasn't changed
+    """
+    with allure.step("Generate several invalid inputs for 'nv action change system date-time"):
+        logging.info("Generate several invalid inputs for 'nv action change system date-time")
+        bad_inputs = ClockTestTools.generate_invalid_datetime_inputs()
+        logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
+
+    for bad_datetime in bad_inputs:
+        set_invalid_datetime_and_verify(bad_datetime, system_obj, engines)
+
+
 def verify_timezone(engines, system_obj, expected_timezone, verify_with_linux=True):
     """
     @summary:
@@ -286,3 +314,50 @@ def set_invalid_timezone_and_verify(bad_timezone, system_obj, engines, orig_time
         logging.info("Verify timezone hasn't changed")
         verify_timezone(engines, system_obj, expected_timezone=orig_timezone,
                         verify_with_linux=ClockConsts.DESIGN_FINISHED)
+
+
+def set_invalid_datetime_and_verify(bad_datetime, system_obj, engines):
+    """
+    @summary:
+        Sets a given invalid datetime, verifies error, and checks that datetime hasn't changed
+    @param bad_datetime: the invalid datetime to be set
+    @param system_obj: the System object
+    @param engines: engines object
+    """
+    with allure.step("Save original date-time from show system"):
+        logging.info("Save original date-time from show system")
+        orig_datetime = ClockTestTools.get_datetime_from_show_system_output(system_obj.show())
+        logging.info("original date-time: {odt}".format(odt=orig_datetime))
+
+    with allure.step("Set the bad datetime"):
+        logging.info("Set the bad datetime ( {bdt} )".format(bdt=bad_datetime))
+        res_obj = system_obj.datetime.action_change_datetime(params=bad_datetime)
+
+    with allure.step("Take date-time from show system and 'timedatectl (after the change command)"):
+        logging.info("Take date-time from show system and 'timedatectl (after the change command)")
+        show_datetime = ClockTestTools.get_datetime_from_show_system_output(system_obj.show())
+        timedatectl_datetime = ClockTestTools.get_datetime_from_timedatectl_output(
+            engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD))
+        logging.info("show system date-time (after the change command): {dt}".format(dt=show_datetime))
+        logging.info("timedatectl date-time (after the change command): {dt}".format(dt=timedatectl_datetime))
+
+    with allure.step("Verify error occurred"):
+        logging.info("Verify error occurred for the bad datetime ( {bdt} )".format(bdt=bad_datetime))
+        res_obj.verify_result(should_succeed=False)
+
+    with allure.step("Verify error message"):
+        logging.info("Verify error message for the bad datetime ( {bdt} )".format(bdt=bad_datetime))
+        test_error_msg = "Failure: set system datetime failed but error message is not right.\n" \
+                         "expected error message should contain: '{em}' ,\n" \
+                         "actual error message: {aem}".format(em=ClockConsts.ERR_MSG_INVALID_DATETIME,
+                                                              aem=res_obj.info)
+        ValidationTool.verify_substring_in_output(output=res_obj.info,
+                                                  substring=ClockConsts.ERR_MSG_INVALID_DATETIME,
+                                                  err_message_in_case_of_failure=test_error_msg,
+                                                  should_be_found=True)
+
+    with allure.step("Verify date-time hasn't changed"):
+        logging.info("Verify date-time hasn't changed")
+        verify_same_datetimes(orig_datetime, show_datetime)
+        if ClockConsts.DESIGN_FINISHED:
+            verify_same_datetimes(orig_datetime, timedatectl_datetime)

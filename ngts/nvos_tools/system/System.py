@@ -26,6 +26,7 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import OutputFormat
+import datetime
 
 logger = logging.getLogger()
 
@@ -296,17 +297,30 @@ class DateTime(BaseComponent):
         rsrc_path = self.get_resource_path()
         with allure.step('Execute action change for {resource_path}'.format(resource_path=rsrc_path)):
             logging.info('Execute action change for {resource_path}'.format(resource_path=rsrc_path))
-            if ClockTestTools.is_time_format(params):  # change only time
+            result_obj.info = "action change system date-time success"
+            try:
                 logging.info('Execute action change for time only - {p}'.format(p=params))
+                datetime.time.fromisoformat(params)
                 cur_datetime = ClockTestTools.get_datetime_from_show_system_output(self.parent_obj.show())
-                self.parent_obj.datetime_val = cur_datetime.split(' ')[0] + ' ' + params
-            elif ClockTestTools.is_datetime_format(params):
-                logging.info('Execute action change for date & time - {p}'.format(p=params))
-                self.parent_obj.datetime_val = params  # <-- the mock
-            else:
-                logging.info("Invalid param for action date-time command: {p}".format(p=params))
-                result_obj.result = False
-                result_obj.info = "Invalid param for action date-time command: {p}".format(p=params)
+                self.parent_obj.datetime_val = cur_datetime.split(' ')[0] + ' ' + params  # <-- the mock
+                logging.info('Execute action change for time only - {p} - SUCCESS'.format(p=params))
+            except ValueError:
+                try:
+                    logging.info('Execute action change for date & time - {p}'.format(p=params))
+                    if not ClockTestTools.is_datetime_format(params):
+                        raise ValueError()
+                    dt_obj = datetime.datetime.fromisoformat(params)
+                    min_range_dt_obj = datetime.datetime.fromisoformat(SystemConsts.MIN_SYSTEM_DATETIME)
+                    max_range_dt_obj = datetime.datetime.fromisoformat(SystemConsts.MAX_SYSTEM_DATETIME)
+                    if dt_obj < min_range_dt_obj or dt_obj > max_range_dt_obj:
+                        raise ValueError()
+                    self.parent_obj.datetime_val = params  # <-- the mock
+                    logging.info('Execute action change for date & time - {p} - SUCCESS'.format(p=params))
+                except ValueError:
+                    logging.info('Execute action change for - {p} - FAIL'.format(p=params))
+                    result_obj.result = False
+                    result_obj.info = "Invalid date-time arg \nInvalid param for action date-time command: {p}"\
+                        .format(p=params)
 
         """with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             if not engine:

@@ -10,3 +10,4 @@ class ClockConsts:
     TIMEDATECTL_DATE_TIME_FIELD_NAME = "Local time"
 
     ERR_MSG_INVALID_TIMEZONE = "Invalid timezone arg"   # todo: what should be the error message? verify with meir
+    ERR_MSG_INVALID_DATETIME = "Invalid date-time arg"   # todo: what should be the error message? verify with meir
