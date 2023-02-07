@@ -12,6 +12,7 @@ ALLURE_REPORT_URL = 'allure_report_url'
 SESSION_ID = "session_id"
 MARS_KEY_ID = "mars_key_id"
 ALLURE_URL = "allure_url"
+DUMP_INFO = "dump_info"
 NAME = "name"
 RESULT = "result"
 SKIP_REASON = "skip_reason"
@@ -42,7 +43,7 @@ def create_metadata_dir(session_id, cli_type):
     return folder_path
 
 
-def create_test_record(session_id, mars_key_id, test_name, result, skipreason, allure_url):
+def create_test_record(session_id, mars_key_id, test_name, result, skipreason, allure_url, dump_info):
     test_record = {}
     test_record.update({SESSION_ID: session_id})
     test_record.update({MARS_KEY_ID: mars_key_id})
@@ -50,6 +51,7 @@ def create_test_record(session_id, mars_key_id, test_name, result, skipreason, a
     test_record.update({RESULT: result})
     test_record.update({SKIP_REASON: skipreason})
     test_record.update({ALLURE_URL: allure_url})
+    test_record.update({DUMP_INFO: dump_info})
     return test_record
 
 
@@ -82,12 +84,14 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     if valid_tests_data(report_url, session_id, mars_key_id):
         tests_results, tests_skipreason = parse_tests_results(terminalreporter)
         for test_case_name, test_result in tests_results.items():
+            dump_info = prepare_dump_dest_path(test_case_name, session_id)
             json_obj.append(create_test_record(session_id,
                                                mars_key_id,
                                                test_case_name,
                                                test_result,
                                                tests_skipreason[test_case_name],
-                                               report_url))
+                                               report_url,
+                                               dump_info))
         logger.debug("Tests results to be exported to SQL DB: {}".format(json_obj))
         dump_json_to_file(json_obj, session_id, mars_key_id, cli_type)
         export_data(session_id, mars_key_id, cli_type)
@@ -178,3 +182,36 @@ def get_updated_skipped_type(skipped_type, skipped_flavors, skipreason):
             if skipreason_key in skipreason:
                 return skipped_flavor
     return skipped_type
+
+
+def prepare_dump_dest_path(test_case_full_name, session_id):
+    """
+    Prepare the dump of failed test.
+    For CI and nightly regression the path is different.
+        Nightly dump: the dump will be inside tar file of all the mars session.
+                    In this case will be provided session tar file path(the tar will be generated at the end of
+                    Mars session) and path to test dump inside this tar file.
+        CI: the dump file will not compressed to tar file. Providing  the path to dump file
+    :param test_case_full_name: test case full name, tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::
+                                                        TestCpuRamHddUsage::test_cpu_usage'
+    :param session_id: mars session_id
+    :return: string with dump info
+        Example:
+            In case of CI: '/path/to/dump'
+            Regular Mars session: 'mars_tar_file: /path/to/tar_file,
+                                   dump_path_in_mars_tar_file':'path/to/dump/into/tar_file'
+    """
+    dump_dest_info = ''
+    test_case_name = test_case_full_name.split('::')[-1]
+    dump_dest = os.environ.get(test_case_name, None)
+    if dump_dest:
+        # in CI run, one of parameters is 'LOG_FOLDER' for dump files.
+        # this parameter doesn't contain the 'cases_dumps' directory
+        if 'cases_dumps' not in dump_dest:
+            dump_dest_info = dump_dest
+        else:
+            tar_path, dump_file_name = dump_dest.split('cases_dumps')
+            tar_file = '{}{}.tgz'.format(tar_path, session_id)
+            path_in_tar_file = 'cases_dumps{}'.format(dump_file_name)
+            dump_dest_info = 'mars_tar_file: {}, dump_path_in_mars_tar_file: {}'.format(tar_file, path_in_tar_file)
+    return dump_dest_info

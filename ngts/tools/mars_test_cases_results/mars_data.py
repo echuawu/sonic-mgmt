@@ -10,3 +10,4 @@ class SonicMarsData:
         result: ''
         allure_url: ''
         skip_reason: ''
+        dump_info: ''

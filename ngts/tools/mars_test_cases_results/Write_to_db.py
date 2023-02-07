@@ -30,9 +30,10 @@ class MarsConnectDB(ConnectMSSQL):
         self.disconnect_db()
 
     def insert_session(self):
-        insert = r"INSERT INTO [dbo].[mars_respond]([session_id], [mars_key_id] ,[mars_name] ,[mars_result],[allure_url], [skip_reason]) VALUES (" + \
+
+        insert = r"INSERT INTO [dbo].[mars_respond]([session_id], [mars_key_id] ,[mars_name] ,[mars_result],[allure_url], [skip_reason], [dump_info]) VALUES (" + \
                  str(self.data.session_id) + ", '" + self.data.mars_key_id + "', '" + self.data.name + "', '" + \
-                 self.data.result + "', '" + self.data.allure_url + "','" + self.data.skip_reason + "' )"
+                 self.data.result + "', '" + self.data.allure_url + "','" + self.data.skip_reason + "','" + str(self.data.dump_info) + "' )"
         logger.info('Inserting: {} to MARS SQL DB'.format(insert))
         try:
             self.query_insert(insert)

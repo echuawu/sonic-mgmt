@@ -22,6 +22,7 @@ class JsonHandler:
         self.data.result = json_row['result']
         self.data.allure_url = json_row['allure_url']
         self.data.skip_reason = json_row['skip_reason']
+        self.data.dump_info = json_row['dump_info']
         self.all_data.append(self.data)
         self.data = None
         self.data = SonicMarsData()
