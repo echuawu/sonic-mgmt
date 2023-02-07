@@ -60,5 +60,8 @@
 	</test>
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_ntp.cases </cases>
+    </test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_snmp.cases </cases>
 	</test>
 </DBDEF>
