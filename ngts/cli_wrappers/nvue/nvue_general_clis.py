@@ -6,8 +6,6 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
 from ngts.constants.constants import InfraConst
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 
 logger = logging.getLogger()
 
@@ -97,7 +95,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def apply_config(engine, ask_for_confirmation=False, option=''):
+    def apply_config(engine, ask_for_confirmation=False, option='', validate_apply_message=''):
         """
         Apply configuration
         :param option: could be [-y, --assume-yes, --assume-no, --confirm-yes, --confirm-no, --confirm-status]
@@ -115,6 +113,10 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 output = "Error: " + output
             elif 'y: command not found' in output and 'applied' in output:
                 output = 'applied'
+        elif validate_apply_message:
+            output = engine.run_cmd('nv {option} config apply'.format(option=option))
+            assert validate_apply_message in output, 'Message {0} not exist in output {1}'.\
+                format(validate_apply_message, output)
         else:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
         return output

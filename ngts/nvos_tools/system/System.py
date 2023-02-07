@@ -19,6 +19,9 @@ from ngts.nvos_tools.system.Log import Log
 from ngts.nvos_tools.system.Debug_log import DebugLog
 from ngts.nvos_tools.system.Component import Component
 from ngts.nvos_tools.system.Rotation import Rotation
+from ngts.nvos_tools.system.SnmpServer import SnmpServer
+from ngts.nvos_tools.system.ListeningAddress import ListeningAddress
+from ngts.nvos_tools.system.ReadonlyCommunity import ReadonlyCommunity
 from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
@@ -42,6 +45,9 @@ class System(BaseComponent):
     component = None
     files = None
     rotation = None
+    snmp_server = None
+    listening_address = None
+    readonly_community = None
     syslog = None
     ntp = None
     ssh_server = None
@@ -56,6 +62,9 @@ class System(BaseComponent):
         self.debug_log = DebugLog(self)
         self.component = Component(self)
         self.rotation = Rotation(self)
+        self.snmp_server = SnmpServer(self)
+        self.listening_address = ListeningAddress(self)
+        self.readonly_community = ReadonlyCommunity(self)
         self.security = Security(self)
         self.ssh_server = SshServer(self)
         self.syslog = Syslog(self)
