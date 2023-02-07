@@ -392,6 +392,19 @@
       - 2615940
 
 - Errors_list:
+    - '.* ERR bgp#bgpmon: \*ERROR\* Failed with rc:1 when execute: \[''vtysh'', ''-c'', ''show bgp summary json''\]'
+    - '.* INFO bgp#supervisord .* INFO exited: bgpd \(terminated by SIGABRT \(core dumped\); not expected\)'
+    - '.* INFO bgp#supervisor-proc-exit-listener: Process ''bgpd'' exited unexpectedly\. Terminating supervisor ''bgp'''
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      Redmine:
+      - 3339955
+      Branch:
+        - 202205
+        - 202211
+
+- Errors_list:
     - '.*ERR kernel:.*mlxsw_minimal .* Eeprom query failed.*'
   Conditions:
     - Affected_test_cases:
@@ -1766,6 +1779,7 @@
       - tests/nightly/fec/test_fec.py
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch
 
 - Errors_list:
     - '.* ERR healthd: Get unit status .*''LoadState'''
