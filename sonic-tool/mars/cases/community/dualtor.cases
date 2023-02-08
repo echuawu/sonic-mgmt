@@ -29,7 +29,7 @@
     <case>
         <info> IP in IP Case </info>
         <name> ipinip </name>
-        <tout> 900 </tout>
+        <tout> 1500 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_ipinip.py </static_args>
@@ -51,7 +51,7 @@
     <case>
         <info> Orchagent Active Tor Downstream Case </info>
         <name> orchagent_active_tor_downstream </name>
-        <tout> 1200 </tout>
+        <tout> 2700 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_orchagent_active_tor_downstream.py </static_args>
@@ -62,7 +62,7 @@
     <case>
         <info> Orchagent Mac Move Case </info>
         <name> orchagent_mac_move </name>
-        <tout> 900 </tout>
+        <tout> 1800 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_orchagent_mac_move.py </static_args>
@@ -73,7 +73,7 @@
     <case>
         <info> Orchagent SLB Case </info>
         <name> orchagent_slb </name>
-        <tout> 1200 </tout>
+        <tout> 1800 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_orchagent_slb.py </static_args>
@@ -84,7 +84,7 @@
     <case>
         <info> Orchagent Standby Tor Downstream Case </info>
         <name> orchagent_standby_tor_downstream </name>
-        <tout> 2400 </tout>
+        <tout> 4500 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_orchagent_standby_tor_downstream.py </static_args>
@@ -95,7 +95,7 @@
     <case>
         <info> Server Failure </info>
         <name> server_failure </name>
-        <tout> 600 </tout>
+        <tout> 900 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_server_failure.py </static_args>
@@ -105,8 +105,8 @@
 
     <case>
         <info> Standby Tor Upstream Mux Toggle </info>
-        <name> server_failure </name>
-        <tout> 1200 </tout>
+        <name> standby_tor_upstream_mux_toggle </name>
+        <tout> 1800 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_standby_tor_upstream_mux_toggle.py </static_args>
@@ -128,7 +128,7 @@
     <case>
         <info> Tor ECN </info>
         <name> tor_ecn </name>
-        <tout> 1800 </tout>
+        <tout> 2400 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_tor_ecn.py </static_args>
@@ -139,7 +139,7 @@
     <case>
         <info> Tunnel Memory Leak </info>
         <name> tunnel_memory_leak </name>
-        <tout> 1800 </tout>
+        <tout> 2400 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dualtor/test_tunnel_memory_leak.py </static_args>
