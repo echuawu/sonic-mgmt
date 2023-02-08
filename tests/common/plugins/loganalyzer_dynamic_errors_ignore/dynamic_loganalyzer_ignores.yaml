@@ -2088,3 +2088,12 @@
       - arm64-nvda_bf-9009d3b600cvaa
       Redmine:
       - 3346254
+
+- Errors_list:
+    - '.* ERR docker-wait-any: :- blockable: Bad DB request \[STATE_DB\].*'
+    - '.* ERR docker-wait-any: :- guard: RedisReply catches system_error: command:.* reason: WRONGTYPE Operation against a key holding the wrong kind of value: Input\/output error.*'
+  Conditions:
+    - Affected_test_cases:
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      Redmine:
+      - 3359469
