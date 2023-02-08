@@ -257,7 +257,8 @@ class TestDHCP6Relay:
         Test checks that DHCP6 message from DHCP6 client forwarded to DHCP6 server from relay as Relay-FWD message
         :return: raise exception in case of failure
         """
-        solicit_pkt = self.base_packet.format(dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
+        solicit_pkt = self.base_packet.format(src_mac=self.ha_dut_2_mac,
+                                              dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
                                               src_ip=self.dhclient_main_iface_linklocal_ipv6,
                                               dst_ip=LinuxDhcpCli.dhcpv6_reserved_dst_ip,
                                               s_port=LinuxDhcpCli.ipv6_src_port,
@@ -299,7 +300,8 @@ class TestDHCP6Relay:
                                                         )
 
         # DHCP response with few options - should forward only Relay content(without IAAdress)
-        server_response_pkt = self.base_packet.format(dst_mac=self.dut_mac,
+        server_response_pkt = self.base_packet.format(src_mac=self.hb_dut_2_mac,
+                                                      dst_mac=self.dut_mac,
                                                       src_ip=self.dhcp_server_ip,
                                                       dst_ip=self.dut_dhclient_main_vlan_ip,
                                                       s_port=LinuxDhcpCli.ipv6_server_src_port,
@@ -336,7 +338,8 @@ class TestDHCP6Relay:
         Test checks tha message from DHCP6 client with empty payload correctly forwarded by DHCP6 relay to server
         :return: raise exception in case of failure
         """
-        dhcp_request_pkt = self.base_packet.format(dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
+        dhcp_request_pkt = self.base_packet.format(src_mac=self.ha_dut_2_mac,
+                                                   dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
                                                    src_ip=self.dhclient_main_iface_linklocal_ipv6,
                                                    dst_ip=LinuxDhcpCli.dhcpv6_reserved_dst_ip,
                                                    s_port=LinuxDhcpCli.ipv6_src_port,
@@ -369,7 +372,8 @@ class TestDHCP6Relay:
         Test checks that message with malformed payload not forwarded by DHCP6 relay to DHCP6 server
         :return: raise exception in case of failure
         """
-        dhcp_request_pkt_raw_payload = self.base_packet.format(dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
+        dhcp_request_pkt_raw_payload = self.base_packet.format(src_mac=self.ha_dut_2_mac,
+                                                               dst_mac=LinuxDhcpCli.dhcpv6_reserved_dst_mac,
                                                                src_ip=self.dhclient_main_iface_linklocal_ipv6,
                                                                dst_ip=LinuxDhcpCli.dhcpv6_reserved_dst_ip,
                                                                s_port=LinuxDhcpCli.ipv6_src_port,
@@ -409,7 +413,8 @@ class TestDHCP6Relay:
                          "and ip6[48:1] == 0x0c " \
                          "and ip6[49:1] == 0x00)'".format(self.expected_main_vlan_ip, self.dhcp_server_ip)
 
-        dhcp_renew_pkt_from_global_ip = self.base_packet.format(dst_mac=self.dut_mac,
+        dhcp_renew_pkt_from_global_ip = self.base_packet.format(src_mac=self.ha_dut_2_mac,
+                                                                dst_mac=self.dut_mac,
                                                                 src_ip=self.expected_main_vlan_ip,
                                                                 dst_ip=self.dhcp_server_ip,
                                                                 s_port=LinuxDhcpCli.ipv6_src_port,
