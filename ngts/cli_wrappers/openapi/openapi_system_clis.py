@@ -106,14 +106,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
 
         assert not param, "params are not supported yet"
 
-        params = \
-            {
-                "state": "start"
-                # params are not supported yet
-                '''"parameters": {
-                    "since": value
-                }'''
-            }
+        params = {}
 
         return OpenApiCommandHelper.execute_action(ActionType.RESET, engine.engine.username, engine.engine.password,
-                                                   engine.ip, "system/{}".format(comp), params)
+                                                   engine.ip, "/system/{}".format(comp), params)

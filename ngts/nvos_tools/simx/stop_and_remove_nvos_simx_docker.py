@@ -23,7 +23,7 @@ def test_stop_and_remove_reg_simx_docker(topology_obj):
 
 def stop_and_remove_reg_simx_docker(dut_name, server_engine):
     with allure.step("Check docker id"):
-        docker_info = server_engine.run_cmd("docker ps -l | grep {}".format(dut_name))
+        docker_info = server_engine.run_cmd("docker ps | grep {}".format(dut_name))
         if docker_info:
             docker_id = docker_info.split()[0]
             logging.info("Simx docker id: {}".format(docker_id))

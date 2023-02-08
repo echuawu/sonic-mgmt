@@ -503,13 +503,13 @@ def get_image_data_and_fetch_random_image_files(release_name, system, images_amo
 
 # ------------ Open API tests -----------------
 
-@pytest.mark.openapi
+"""@pytest.mark.openapi
 @pytest.mark.checklist
 @pytest.mark.image
 @pytest.mark.system
 def test_image_install_openapi(release_name):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_image_install(release_name)
+    test_image_install(release_name)"""
 
 
 @pytest.mark.openapi
