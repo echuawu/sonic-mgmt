@@ -6,6 +6,8 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
 from ngts.constants.constants import InfraConst
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 
 logger = logging.getLogger()
 
@@ -202,3 +204,72 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         with allure.step("Verifying NVOS initialized successfully"):
             NvueGeneralCli.verify_dockers_are_up()
             NvueGeneralCli.wait_for_nvos_to_become_functional(engine)
+
+    def remote_reboot(self, topology_obj):
+        '''
+        @summary: perform remote reboot from the physical server using the noga remote reboot command,
+        usually the command should be like this: '/auto/mswg/utils/bin/rreboot <ip|hostname>'
+        '''
+        cmd = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']['Specific'][
+            'remote_reboot']
+        assert cmd, "Reboot command is empty"
+        topology_obj.players['server']['engine'].run_cmd(cmd)
+
+    def enter_serial_connection_context(self, topology_obj):
+        '''
+        @summary: in this function we will execute the rcon command and return the serial engine
+        :return: serial connection engine
+        '''
+        att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
+        # add connection options to pass connection problems
+        extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
+        extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
+        extended_rcon_command = ' '.join(extended_rcon_command)
+        serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
+                                            username=att['Topology Conn.']['CONN_USER'],
+                                            password=att['Topology Conn.']['CONN_PASSWORD'],
+                                            rcon_command=extended_rcon_command,
+                                            timeout=120)
+        # we don't want to login to switch becuase we are doing remote reboot
+        serial_engine.create_serial_engine(login_to_switch=False)
+        return serial_engine
+
+    def enter_onie_install_mode(self, topology_obj):
+        '''
+        @summary: in this function we want to enter install mode,
+        we are doing so by the following step:
+            1.create a serial engine
+            2.remote reboot
+            3.wait till GRUB menu appears:
+                a. if the NVOS grub menu appears then select ONIE entry (pressing down 2 key arrows)
+                b. if the ONIE grun menu appears just do nothing (the install entry will be marked and after 5 secs it
+                will enter the install mode)
+        '''
+        logger.info("Initializng serial connection to device")
+        serial_engine = self.enter_serial_connection_context(topology_obj)
+        logger.info('Executing remote reboot')
+        self.remote_reboot(topology_obj)
+        logger.info("Enter ONIE install mode")
+        output, respond = serial_engine.run_cmd('', ['ONIE\\s+', '\\*ONIE: Install OS'], timeout=240,
+                                                send_without_enter=True)
+        if respond == 0:
+            logger.info("System is NVOS grub menu, entering ONIE grub menu")
+            for i in range(2):
+                logger.info("Sending one arrow down")
+                serial_engine.run_cmd("\x1b[B", expected_value='.*', send_without_enter=True)
+            logger.info("Pressing Enter to enter ONIE menu")
+        serial_engine.run_cmd('\r', 'Please press Enter to activate this console', timeout=240)
+
+    def prepare_for_installation(self, topology_obj):
+        '''
+        @summary: in this function we will enter onie install mode using remote reboot
+        '''
+        switch_in_onie = False
+        try:
+            self.enter_onie_install_mode(topology_obj)
+            switch_in_onie = True
+        except Exception as err:
+            logger.info("Got an expection: {}".format(str(err)))
+            switch_in_onie = False
+        finally:
+            return switch_in_onie
