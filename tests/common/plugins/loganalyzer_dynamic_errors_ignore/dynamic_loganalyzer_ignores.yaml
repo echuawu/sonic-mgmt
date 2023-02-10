@@ -2227,3 +2227,11 @@
       - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
       Redmine:
       - 3345290
+
+- Errors_list:
+    - '.* ERR systemd\[\d+\]: Failed to start System Logging Service.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3362009
