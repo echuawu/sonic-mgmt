@@ -162,7 +162,7 @@ def verify_acl_rule_counter(topology_obj, send_packet_count, rocev2_acl_rule_lis
 
 def is_support_rocev2_acl_counter_feature(cli_objects, is_simx, sonic_branch):
     logger.info(f"sonic brnach: {sonic_branch}, is_simx:{is_simx}")
-    if sonic_branch == "202211":
+    if sonic_branch in ["202211", "202205"]:
         return False
     if is_simx:
         simx_version, simx_chipe_type = cli_objects.dut.general.get_simx_version_and_chip_type()

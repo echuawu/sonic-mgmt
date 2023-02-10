@@ -25,12 +25,16 @@ from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_s
 from ngts.helpers.sflow_helper import kill_sflowtool_process, remove_tmp_sample_file
 from ngts.tools.infra import is_test_skipped
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, \
+    is_support_rocev2_acl_counter_feature
+from ngts.helpers.sonic_branch_helper import get_sonic_branch
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
 POST_UPGRADE_CONFIG = '/tmp/config_db_{}_target.json'
 FRR_CONFIG_FOLDER = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger()
+ROCEV2_ACL_COUNTER_PATH = os.path.join(FRR_CONFIG_FOLDER, "L3/rocev2_acl_counter")
 
 
 def get_test_app_ext_info(cli_obj):
@@ -44,7 +48,7 @@ def get_test_app_ext_info(cli_obj):
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, shared_params,
-                            app_extension_dict_path, acl_table_config_list, request):
+                            app_extension_dict_path, acl_table_config_list, request, is_simx, sonic_branch):
     """
     Pytest fixture which are doing configuration fot test case based on push gate config
     :param topology_obj: topology object fixture
@@ -64,6 +68,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     skip_tests = False
 
     # Check if app_ext supported and get app name, repo, version
+    base_sonic_branch = sonic_branch
     shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
         get_test_app_ext_info(cli_objects.dut)
     if run_config_only or full_flow_run:
@@ -76,6 +81,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                                                      platform_params=platform_params,
                                                      deploy_type='onie', reboot_after_install=reboot_after_install,
                                                      disable_ztp=True)
+                base_sonic_branch = get_sonic_branch(topology_obj)
 
             with allure.step('Check that APP Extension supported on base version'):
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
@@ -207,6 +213,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         RouteConfigTemplate.configuration(topology_obj, static_route_config_dict)
         acl_helper.add_acl_table(cli_objects.dut, acl_table_config_list)
         acl_helper.add_acl_rules(engines.dut, cli_objects.dut, acl_table_config_list)
+        if is_support_rocev2_acl_counter_feature(cli_objects, is_simx, base_sonic_branch):
+            copy_apply_rocev2_acl_config(engines.dut, "rocev2_acl.json", ROCEV2_ACL_COUNTER_PATH)
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
 
@@ -270,6 +278,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                         remove_docker_routing_config_mode=True)
 
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
+        if is_support_rocev2_acl_counter_feature(cli_objects, is_simx, base_sonic_branch):
+            remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS"])
         acl_helper.clear_acl_rules(engines.dut, cli_objects.dut)
         acl_helper.remove_acl_table(cli_objects.dut, acl_table_config_list)
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
