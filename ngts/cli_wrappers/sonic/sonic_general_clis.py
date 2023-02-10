@@ -1111,6 +1111,36 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_path = os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, SonicConst.CONFIG_DB_JSON)
         self.create_extended_config_db_file(setup_name, config_db_dict, config_db_path)
 
+    def get_simx_version_and_chip_type(self):
+        """
+        This method is to get the simx version and chip type
+        :return: version, chip_type
+        """
+        reg_simx_version = ".*Vendor specific: SimX version (?P<version>.*)"
+        reg_simx_chip_type = ".*Vendor specific: SimX chip type: (?P<chip_type>.*)"
+
+        simx_info = self.engine.run_cmd('sudo lspci -vvv | grep SimX')
+        '''
+        simx info like below:
+        Product Name: SimX: Spectrum simulation
+                        [V1] Vendor specific: SimX version 5.1.1057
+                        [V2] Vendor specific: SimX chip type: Spectrum-3
+        '''
+
+        chip_type, version = '', ''
+
+        for line in simx_info.split("\n"):
+            match_version = re.match(reg_simx_version, line)
+            if match_version:
+                version = match_version.groupdict()["version"].strip()
+            else:
+                match_chip_type = re.match(reg_simx_chip_type, line)
+                if match_chip_type:
+                    chip_type = match_chip_type.groupdict()["chip_type"].strip()
+
+        logger.info(f'Simx version:{version}, simx chip type:{chip_type}')
+        return version, chip_type
+
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
 

@@ -2,6 +2,7 @@ import logging
 import allure
 import os
 import struct
+import semantic_version
 
 from retry.api import retry_call
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
@@ -157,3 +158,18 @@ def verify_acl_rule_counter(topology_obj, send_packet_count, rocev2_acl_rule_lis
                     f'expected:{acl_rule["priority"]}, actual: {show_acl_rule["PRIO"]}'
                 assert send_packet_count == int(show_acl_rule['PACKETS COUNT']), \
                     f'expected:{send_packet_count}, actual: {show_acl_rule["PACKETS COUNT"]}'
+
+
+def is_support_rocev2_acl_counter_feature(cli_objects, is_simx, sonic_branch):
+    logger.info(f"sonic brnach: {sonic_branch}, is_simx:{is_simx}")
+    if sonic_branch == "202211":
+        return False
+    if is_simx:
+        simx_version, simx_chipe_type = cli_objects.dut.general.get_simx_version_and_chip_type()
+        simx_version = simx_version.replace("-", ".")
+        if simx_chipe_type and simx_version:
+            base_simx_version = "5.1.1057" if simx_chipe_type == "Spectrum-1" else '23.4.2005'
+            return semantic_version.Version(simx_version) >= semantic_version.Version(base_simx_version)
+        else:
+            return False
+    return True

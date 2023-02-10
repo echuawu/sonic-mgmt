@@ -10,7 +10,8 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.rocev2_acl_counter.constants import V4_CONFIG, V6_CONFIG, ROCEV2_ACL_BASIC_TEST_DATA, TEST_COMBINATION
-from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, BTH_OPCODE_NAK_TYPE_AMP
+from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, \
+    BTH_OPCODE_NAK_TYPE_AMP, is_support_rocev2_acl_counter_feature
 from retry.api import retry_call
 from jinja2 import Template
 
@@ -26,6 +27,12 @@ def generate_arp(players, interface, sender, dst_ip):
     ping = PingChecker(players, validation)
     logger.info('Sending 3 ping packets to {} from interface {}'.format(dst_ip, interface))
     retry_call(ping.run_validation, fargs=[], tries=3, delay=5, logger=logger)
+
+
+@pytest.fixture(scope='package', autouse=True)
+def skipping_rocev2_acl_counter_tests(cli_objects, is_simx, sonic_branch):
+    if not is_support_rocev2_acl_counter_feature(cli_objects, is_simx, sonic_branch):
+        pytest.skip("The rocev2 acl counter feature is missing, skipping the test case")
 
 
 @pytest.fixture(scope='class', autouse=False)
