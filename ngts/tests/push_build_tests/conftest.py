@@ -24,6 +24,7 @@ from ngts.helpers.acl_helper import ACLConstants
 from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_sanitizer_in_topology
 from ngts.helpers.sflow_helper import kill_sflowtool_process, remove_tmp_sample_file
 from ngts.tools.infra import is_test_skipped
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -93,7 +94,11 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         # Install app here in order to test migrating app from base image to target image
         if shared_params.app_ext_is_app_ext_supported:
             with allure.step("Install app {}".format(app_name)):
-                install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
+                retries = 1
+                if is_redmine_issue_active([3350959]):
+                    retries = 3
+                retry_call(install_app, fargs=[engines.dut, cli_objects.dut, app_name, app_repository_name,
+                                               version], tries=retries, logger=logger)
     # variable below required for correct interfaces speed cleanup
     dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
                                                                                      interfaces.dut_hb_2])
