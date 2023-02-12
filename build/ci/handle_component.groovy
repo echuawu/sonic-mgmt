@@ -12,7 +12,7 @@ def run_step(name) {
             print "Topic \"RUN_COMMUNITY_REGRESSION=true\" and changed files triggered community regression tests"
         } else {
             env.SKIP_COMMUNITY_REGRESSION = "true"
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH Community", "SPC", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH_COMMUNITY", "SPC", "Skipped=status")
 
         }
 
