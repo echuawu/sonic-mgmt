@@ -7,6 +7,7 @@ from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.Devices.BaseDevice import MarlinSwitch
 
 logger = logging.getLogger()
 
@@ -21,7 +22,11 @@ def test_show_platform_hardware(devices):
         platform = Platform()
 
     with allure.step("Check show hardware output"):
-        output = _verify_output(platform, "", PlatformConsts.HW_COMP)
+        expected_fields = PlatformConsts.HW_COMP
+        if isinstance(devices.dut, MarlinSwitch):
+            expected_fields.remove("manufacturer")
+            expected_fields.remove("hw-revision")
+        output = _verify_output(platform, "", expected_fields)
 
     with allure.step("Check hardware fields values"):
         assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1,\
