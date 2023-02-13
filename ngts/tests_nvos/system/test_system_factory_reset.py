@@ -10,6 +10,7 @@ from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
 
@@ -50,6 +51,9 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
         logging.info("Current time: " + str(current_time))
         system.factory_default.action_reset().verify_result()
+
+    with allure.step("Wait while the system initializing"):
+        NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
 
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)
