@@ -1717,9 +1717,6 @@
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       Redmine:
       - 3263805
-      Branch:
-      - 202205
-      - 202211
 
 - Errors_list:
     - '.* ERR pmon#sensord: Error getting sensor data: emc\d+/#\d+: Can''t read'
