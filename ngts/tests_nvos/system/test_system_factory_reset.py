@@ -10,6 +10,7 @@ from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
 
@@ -21,11 +22,14 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     Validate reset factory without params cleanup done as expected
 
         Test flow:
-            1. Change profile to breakout mode
-            2. Split a random port
-            3. Run reset factory without params
-            4. After system is up again, verify the cleanup done successfully
-            5. Verify the breakup mode is disabled and selected port is not split any more
+            1. set description to ib ports:
+                - set, apply and save configuration
+                - set and apply
+                - set
+            2. Validate ports description
+            3. Add data
+            4. Run reset factory without params
+            5. After system is up again, verify the cleanup done successfully
             6. Verify the setup is functional:
                 6.1.	Start openSM
                 6.2.	Run several show commands
@@ -34,11 +38,37 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     with allure.step('Create System object'):
         system = System()
 
+    with allure.step('Set description to ib ports'):
+        logger.info("Set description to ib ports")
+        description = "test_reset_factory_without_params"
+        ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=None,
+                                                            num_of_ports_to_select=3).get_returned_value()
+        apply_and_save_port = ports[0]
+        just_apply_port = ports[1]
+        not_apply_port = ports[2]
+
     '''with allure.step("Change profile to breakout mode"):
         _change_profile_to_breakout()
 
     with allure.step("Split a random port"):
         split_port = _split_port(engines.dut)'''
+
+    with allure.step('Set and apply description to ib port, save config after it'):
+        logger.info("Set and apply description to ib port, save config after it")
+        apply_and_save_port.ib_interface.description.set(value=description, apply=True).verify_result()
+        TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
+        NvueGeneralCli.save_config(engines.dut)
+    with allure.step('Set and apply description to ib port'):
+        logger.info("Set and apply description to ib port")
+        just_apply_port.ib_interface.description.set(value=description, apply=True).verify_result()
+    with allure.step('Set description to ib port'):
+        logger.info("Set description to ib port")
+        not_apply_port.ib_interface.description.set(value=description, apply=False).verify_result()
+    with allure.step('Validate ports description'):
+        logger.info("Validate ports description")
+        _validate_port_description(engines.dut, apply_and_save_port, description)
+        _validate_port_description(engines.dut, just_apply_port, description)
+        _validate_port_description(engines.dut, not_apply_port, "")
 
     with allure.step("Add data before reset factory"):
         username = _add_verification_data(engines.dut, system)
@@ -49,6 +79,11 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         logging.info("Current time: " + str(current_time))
         system.factory_default.action_reset().verify_result()
 
+    with allure.step("Verify description has been deleted"):
+        _validate_port_description(engines.dut, apply_and_save_port, "")
+        _validate_port_description(engines.dut, just_apply_port, "")
+        _validate_port_description(engines.dut, not_apply_port, "")
+
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)
 
@@ -57,6 +92,14 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
     with allure.step("Verify the setup is functional"):
         _verify_the_setup_is_functional(system, engines)
+
+
+def _validate_port_description(engine, port, expected_description):
+    output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
+        port.show_interface(engine, port.name)).get_returned_value()
+    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                      field_name=port.ib_interface.description.label,
+                                                      expected_value=expected_description).verify_result()
 
 
 def _change_profile_to_breakout():
