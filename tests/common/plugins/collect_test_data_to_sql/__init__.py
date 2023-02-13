@@ -261,9 +261,9 @@ class AdvancedRebootCollector(SonicDataCollector):
 
     def get_ports_info(self):
         config_facts = self.dut_engine.config_facts(host=self.dut_engine.hostname, source="running")['ansible_facts']
-        self.setup_extra_info['total_ports'] = len(config_facts['PORT'])
+        self.setup_extra_info['total_ports'] = len(config_facts.get('PORT', {}))
         active_ports = 0
-        for port, port_data in config_facts['PORT'].items():
+        for port, port_data in config_facts.get('PORT', {}).items():
             if port_data.get('admin_status') == 'up':
                 active_ports += 1
         self.setup_extra_info['active_ports'] = active_ports
