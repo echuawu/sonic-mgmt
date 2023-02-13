@@ -1301,4 +1301,10 @@ platform_tests/test_reload_config.py::test_reload_configuration_checks:
     conditions:
       - "https://redmine.mellanox.com/issues/3273006"
 
+snmp/test_snmp_phy_entity.py::test_turn_off_psu_and_check_psu_info:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
+    conditions:
+      - https://redmine.mellanox.com/issues/3355826
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
