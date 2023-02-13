@@ -1055,14 +1055,10 @@
       - 3168474
 
 - Errors_list:
-    - '.* ERR bgp#rsyslogd: imfile: error reading state file for .*'
+    - '.* ERR .*#rsyslogd: imfile: error reading state file for .*'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
-      Redmine:
-      - 3358387
-      Platform:
-      - simx
+    - Redmine:
+      - 3186637
 
 - Errors_list:
     - '.* ERR systemd\[\d\]: \/etc\/systemd\/system\/mst\.service:97: Invalid section header.*'

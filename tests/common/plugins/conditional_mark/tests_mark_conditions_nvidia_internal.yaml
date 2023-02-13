@@ -126,6 +126,14 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
     conditions:
       - "https://redmine.mellanox.com/issues/2939326 and 'simx' in platform"
 
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_reply_message:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3362352 on simx/4600 platform"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3362352 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3362352 and '4600' in platform"
+
 tests/push_build_tests/general/wjh/test_wjh.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3008967 on SIMX platform"
