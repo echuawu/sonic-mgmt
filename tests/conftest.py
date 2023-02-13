@@ -542,6 +542,8 @@ def fanouthosts(ansible_adhoc, conn_graph_facts, creds, duthosts):      # noqa F
         if duthost.facts['platform'] == 'x86_64-kvm_x86_64-r0':
             continue  # skip for kvm platform which has no fanout
         mg_facts = duthost.minigraph_facts(host=duthost.hostname)['ansible_facts']
+        if not mg_facts['minigraph_neighbors']:
+            continue  # skip for canonical setups which has no fanout
         for dut_port in value.keys():
             fanout_rec = value[dut_port]
             fanout_host = str(fanout_rec['peerdevice'])
