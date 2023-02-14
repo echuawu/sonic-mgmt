@@ -15,7 +15,7 @@ def test_check_errors_in_log_during_last_idle_period(engines, request, loganalyz
     Test logic is next:
     - Get syslog file with last end string
     - Get current LogAnalyzer start_string as variable and remove existing start_string from syslog file
-    - Update LogAnalyzer start_string and put it instead of last end_string
+    - Update LogAnalyzer start_string and put it after the last end_string
     - Then on teardown step LogAnalyzer will analyze all logs since start_string till end_string(which will be
             added after current test case automatically by LogAnalyzer logic)
     Note: The test doesn't make sense to run after install image from ONIE,
@@ -27,7 +27,7 @@ def test_check_errors_in_log_during_last_idle_period(engines, request, loganalyz
 
     if end_string_line:
         start_string_line = get_la_start_string(engines.dut, request)
-        replace_start_marker(engines.dut, start_string_line, end_string_line, last_end_marker_file)
+        insert_start_marker(engines.dut, start_string_line, end_string_line, last_end_marker_file)
     else:
         logger.warning('No end-LogAnalyzer marker found. It is a first test')
 
@@ -128,9 +128,9 @@ def find_last_end_marker_in_file(engine, file_path):
     return string_full_line
 
 
-def replace_start_marker(engine, new_start_line, end_string_line, last_end_marker_file):
+def insert_start_marker(engine, new_start_line, end_string_line, last_end_marker_file):
     """
-    Replace new LogAnalyzer start string instead of last end string
+    Insert new LogAnalyzer start string after the last end string
     :param engine: due engine
     :param new_start_line: new LogAnalyzer start string
     :param end_string_line: original LogAnalyzer end string
@@ -144,11 +144,11 @@ def replace_start_marker(engine, new_start_line, end_string_line, last_end_marke
     if '.gz' in last_end_marker_file:
         not_gz_last_end_marker_file = last_end_marker_file.replace('.gz', '')
         engine.run_cmd(f"sudo gzip -dk {last_end_marker_file}", validate=True)
-        engine.run_cmd(f"sudo sed -i 's/{end_string_regex}/{new_start_line}/g'"
+        engine.run_cmd(f"sudo sed -i '/{end_string_regex}/a {new_start_line}'"
                        f" {not_gz_last_end_marker_file}", validate=True)
         engine.run_cmd(f"sudo gzip -f {not_gz_last_end_marker_file}", validate=True)
     else:
-        engine.run_cmd(f"sudo sed -i 's/{end_string_regex}/{new_start_line}/g' {last_end_marker_file}", validate=True)
+        engine.run_cmd(f"sudo sed -i '/{end_string_regex}/a {new_start_line}' {last_end_marker_file}", validate=True)
 
 
 def update_end_string_to_regex(end_string_line):
