@@ -709,6 +709,7 @@ r-r740-09-bf2-sonic-01-ptf-any ansible_host=10.215.5.19 sonic_version=v2 sonic_h
 # MTR Lab devices info
 arc-build-server ansible_host=arc-build-server ansible_user=root ansible_ssh_pass=3tango
 arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
+r-anaconda-86 ansible_host=r-anaconda-86 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 arc-switch1007 ansible_host=arc-switch1007 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 r-leopard-59 ansible_host=r-leopard-59 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
 arc-switch1035 ansible_host=arc-switch1035 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
