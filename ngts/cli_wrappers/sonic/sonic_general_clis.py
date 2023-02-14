@@ -1141,6 +1141,26 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         logger.info(f'Simx version:{version}, simx chip type:{chip_type}')
         return version, chip_type
 
+    def get_sai_version(self):
+        """
+        This method is to get the sai version
+        :return: sai_version
+        """
+        reg_sai_version = r".*mlnx.SAIBuild(?P<version>[\d.]+)\s+.*"
+
+        sai_info = self.engine.run_cmd('docker exec syncd bash -c "dpkg -l | grep mlnx-sai"')
+        '''
+        sai info like below:
+        ii  mlnx-sai     1.mlnx.SAIBuild2211.23.1.0     amd64        contains SAI implementation for Mellanox hardware
+        '''
+        sai_version = None
+        sai_res = re.match(reg_sai_version, sai_info)
+        if sai_res:
+            sai_version = sai_res.groupdict()["version"].strip()
+
+        logger.info(f'sai version:{sai_version}')
+        return sai_version
+
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
 

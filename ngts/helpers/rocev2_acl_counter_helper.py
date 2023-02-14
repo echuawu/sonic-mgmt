@@ -2,12 +2,12 @@ import logging
 import allure
 import os
 import struct
-import semantic_version
 
 from retry.api import retry_call
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from retry import retry
 from scapy.all import Ether, IP, IPv6, UDP, ICMP, wrpcap
+from ngts.common.checkers import is_ver1_greater_or_equal_ver2
 
 logger = logging.getLogger()
 
@@ -164,12 +164,20 @@ def is_support_rocev2_acl_counter_feature(cli_objects, is_simx, sonic_branch):
     logger.info(f"sonic brnach: {sonic_branch}, is_simx:{is_simx}")
     if sonic_branch in ["202211", "202205"]:
         return False
+
+    sai_version = cli_objects.dut.general.get_sai_version()
+    base_sai_version = "2211.23.1.60"
+    logger.info(f'sai_version: {sai_version}, base sai_version:{base_sai_version}')
+    if not sai_version or not is_ver1_greater_or_equal_ver2(sai_version, base_sai_version):
+        logger.info(f'sai_version not support recev2 acl counter feature')
+        return False
+
     if is_simx:
         simx_version, simx_chipe_type = cli_objects.dut.general.get_simx_version_and_chip_type()
         simx_version = simx_version.replace("-", ".")
         if simx_chipe_type and simx_version:
-            base_simx_version = "5.1.1057" if simx_chipe_type == "Spectrum-1" else '23.4.2005'
-            return semantic_version.Version(simx_version) >= semantic_version.Version(base_simx_version)
+            base_simx_version = "5.1.1057" if simx_chipe_type == "Spectrum-1" else '23.4.0005'
+            return is_ver1_greater_or_equal_ver2(simx_version, base_simx_version)
         else:
             return False
     return True
