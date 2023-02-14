@@ -5,6 +5,8 @@ from ngts.constants.constants import VxlanConstants
 from ngts.helpers.vxlan_helper import send_and_validate_traffic
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
+from ngts.tests.push_build_tests.conftest import is_evpn_support
+from ngts.helpers.sonic_branch_helper import get_sonic_branch
 
 """
 
@@ -39,7 +41,11 @@ def mac_addresses(engines, cli_objects):
 class TestEvpnVxlan:
 
     @pytest.fixture(autouse=True)
-    def prepare_param(self, topology_obj, engines, players, interfaces, mac_addresses):
+    def prepare_param(self, topology_obj, engines, players, interfaces, mac_addresses, cli_objects, upgrade_params):
+        base_sonic_branch = get_sonic_branch(topology_obj)
+        if not is_evpn_support(base_sonic_branch):
+            pytest.skip(f"{base_sonic_branch} doesn't support EVPN VxLAN feature")
+
         self.topology_obj = topology_obj
         self.engines = engines
         self.players = players
@@ -209,7 +215,6 @@ class TestEvpnVxlan:
               (vxlan encap/decap)              (vxlan encap/decap)                            (vxlan encap/decap)
 
         """
-        self.skip_test_if_upgrade_flow(cli_objects)
         with allure.step('Check CLI VLAN to VNI mapping'):
             cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
                 vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
@@ -222,10 +227,3 @@ class TestEvpnVxlan:
 
         with allure.step('Validate evpn type 2 and type 3 routes'):
             self.validate_basic_evpn_type_2_3_route(cli_objects)
-
-    @staticmethod
-    def skip_test_if_upgrade_flow(cli_objects):
-        base_image, target_image = cli_objects.dut.general.get_base_and_target_images()
-        if '202012' in base_image and '202211' in target_image:
-            pytest.skip("202012 doesn't support VxLAN and this test shouldn't be run in the upgrade flow"
-                        " - see https://redmine.mellanox.com/issues/3360541")

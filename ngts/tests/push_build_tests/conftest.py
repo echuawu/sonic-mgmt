@@ -45,6 +45,15 @@ def get_test_app_ext_info(cli_obj):
     return is_support_app_ext, app_name, version, app_repository_name
 
 
+def is_evpn_support(image_branch):
+    logger.info(f"SONiC image version: {image_branch}")
+    unsupport_version_list = ['202012', '202205']
+    for version in unsupport_version_list:
+        if version in image_branch:
+            return False
+    return True
+
+
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, shared_params,
@@ -87,7 +96,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 shared_params.app_ext_is_app_ext_supported, app_name, version, app_repository_name = \
                     get_test_app_ext_info(cli_objects.dut)
 
-        else:
+        if is_evpn_support(base_sonic_branch):
             if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
                 with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
                     cli_objects.dut.general.update_config_db_docker_routing_config_mode()
@@ -154,7 +163,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 {'iface': 'PortChannel0001', 'ips': [('30.0.0.1', '24'), ('3000::1', '64')]},
                 {'iface': 'Vlan69', 'ips': [('69.0.0.1', '24'), ('6900::1', '64')]},
                 {'iface': 'Vlan690', 'ips': [('69.0.1.1', '24'), ('6900:1::1', '64')]},
-                {'iface': 'Vlan50'.format(interfaces.dut_hb_1), 'ips': [(P4SamplingEntryConsts.duthb1_ip, '24')]},
+                {'iface': 'Vlan50', 'ips': [(P4SamplingEntryConsts.duthb1_ip, '24')]},
                 {'iface': 'Vlan10', 'ips': [(P4SamplingEntryConsts.dutha2_ip, '24')]},
                 {'iface': 'Loopback0', 'ips': [('10.1.0.32', '32')]},
                 {'iface': 'Vlan100', 'ips': [('100.0.0.1', '24'), ('100::1', '64')]},
@@ -178,6 +187,13 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     }
 
     vxlan_config_dict = {
+        'dut': [{'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
+                 'tunnels': [{'vni': 76543, 'vlan': 69}]
+                 }
+                ]
+    }
+
+    evpn_vxlan_config_dict = {
         'dut': [{'evpn_nvo': 'my-nvo', 'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
                  'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}]
                  }
@@ -218,10 +234,11 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
 
-            if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
-                # in case there is useless bgp configuration exist
-                FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
-                FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
+        if is_evpn_support(base_sonic_branch):
+            VxlanConfigTemplate.configuration(topology_obj, evpn_vxlan_config_dict)
+            # in case there is useless bgp configuration exist
+            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+            FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
 
         with allure.step('Doing debug logs print'):
             log_debug_info(cli_objects.dut)
@@ -270,14 +287,14 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     if run_cleanup_only or full_flow_run:
         logger.info('Starting PushGate Common configuration cleanup')
         if not upgrade_params.is_upgrade_required:
-            if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
-                FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
-
-                with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
-                    cli_objects.dut.general.update_config_db_docker_routing_config_mode(
-                        remove_docker_routing_config_mode=True)
-
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
+        if is_evpn_support(base_sonic_branch):
+            VxlanConfigTemplate.cleanup(topology_obj, evpn_vxlan_config_dict)
+            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+
+            with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
+                cli_objects.dut.general.update_config_db_docker_routing_config_mode(
+                    remove_docker_routing_config_mode=True)
         if is_support_rocev2_acl_counter_feature(cli_objects, is_simx, base_sonic_branch):
             remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS"])
         acl_helper.clear_acl_rules(engines.dut, cli_objects.dut)
@@ -314,7 +331,7 @@ def install_app(dut_engine, cli_obj, app_name, app_repository_name, version):
     try:
         with allure.step("Clean up app before install"):
             app_cleanup(dut_engine, cli_obj, app_name)
-        with allure.step("Install {}, verison=".format(app_name, version)):
+        with allure.step("Install {}, verison={}".format(app_name, version)):
             cli_obj.app_ext.add_repository(app_name, app_repository_name, version=version)
             cli_obj.app_ext.install_app(app_name)
         with allure.step("Enable app and save config"):
