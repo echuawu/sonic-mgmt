@@ -33,10 +33,10 @@ def test_check_errors_in_log_during_last_idle_period(engines, request, loganalyz
 
     # Logic below is required to overcome the issue the when end_marker is not present in syslog - in this case,
     # the end_marker will be added forcefully
-    logger.info('Adding end_marker in syslog')
+    logger.info('Adding end_marker in syslog. Command below may fail, but we do not care about it -'
+                ' LA will do the same after test executed(it will pass)')
     for dut in loganalyzer:
         run_id = loganalyzer[dut].ansible_loganalyzer.run_id
-        # Command below may fail, but we do not care about it - LA will do the same after test executed(it will pass)
         engines.dut.run_cmd(f'sudo python /tmp/loganalyzer.py --action add_end_marker --run_id {run_id}')
 
 
@@ -47,8 +47,6 @@ def get_la_start_string(engine, request):
     :param request: pytest build-in
     :return: LogAnalyzer start_string line
         example: Jan 19 08:08:48.543280 r-bulldog-02 INFO start-LogAnalyzer-test_max_limit[core].2023-01-19-05:59:30
-
-
     """
     test_name = request.node.name
     start = 'start-LogAnalyzer'
