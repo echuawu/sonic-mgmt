@@ -73,7 +73,10 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds):
     2: [('Ethernet12', 'Ethernet16')],
     4: [('Ethernet20', 'Ethernet24')]}
     """
-    lb_list_in_split_mode_1 = random.sample(get_dut_loopbacks(topology_obj), k=3)
+    lb_ports = get_dut_loopbacks(topology_obj)
+    if len(lb_ports) < 3:
+        pytest.skip(f'Test expected at least 3 loopback ports, but found next ports only: {lb_ports}')
+    lb_list_in_split_mode_1 = random.sample(lb_ports, k=3)
     split_2_lb = get_split_loopbacks_set(topology_obj, split_mode=2)
     split_4_lb = get_split_loopbacks_set(topology_obj, split_mode=4)
 
