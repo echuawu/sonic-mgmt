@@ -5,6 +5,7 @@ import dateutil.parser
 import random
 import copy
 import os
+import re
 
 from tests.common.config_reload import config_reload
 from tests.common.errors import RunAnsibleModuleFail
@@ -65,6 +66,7 @@ class TestAutoTechSupport:
     test_docker = None
 
     def set_test_dockers_list(self):
+        self.dockers_list = []
         auto_tech_support_features_list = self.dut_cli.auto_techsupport.parse_show_auto_techsupport_feature().keys()
         system_features_status = self.duthost.get_feature_status()
         for feature in auto_tech_support_features_list:
@@ -273,7 +275,10 @@ class TestAutoTechSupport:
         test_parameters_dict = {'@{}'.format(current_time): 60, '5 minutes ago': 360, '300 sec ago': 360}
         since_value = random.choice(list(test_parameters_dict.keys()))
 
-        # force log rotate - because in some cases, when there's no file older than since, there will be no syslog file in techsupport dump
+        """
+        Force log rotate - because in some cases, when there's no file older than since, there will be
+        no syslog file in techsupport dump
+        """
         with allure.step('Rotate logs'):
             self.duthost.shell('/usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1')
 
@@ -405,7 +410,11 @@ class TestAutoTechSupport:
         with allure.step('Create 4 stub files(each file 5%) which will use 20% of space in test folder'):
             num_of_dummy_files = 4
             one_file_size_in_percent = 5
+
             one_percent_in_mb = total / 100
+            # On some platforms one_percent_in_mb may be up to 800 Mb, in case of core test_mode
+            # this significantly increases the generation time needed for techsupport
+            one_file_size_in_percent = 1 if one_percent_in_mb > 300 and test_mode == 'core' else 5
             expected_file_size_in_mb = one_percent_in_mb * one_file_size_in_percent
             dummy_file_generator = create_techsupport_stub_file if test_mode == 'techsupport' else create_core_stub_file
             dummy_files_list = []
@@ -423,7 +432,8 @@ class TestAutoTechSupport:
                 validate_expected_stub_files(self.duthost, validation_folder, dummy_files_list,
                                              expected_number_of_additional_files=1)
 
-        max_limit = 14
+        max_limit = 3 if one_percent_in_mb > 300 and test_mode == 'core' else 14
+
         with allure.step('Validate: {} limit: {}'.format(test_mode, max_limit)):
             with allure.step('Set {} limit to: {}'.format(test_mode, max_limit)):
                 set_limit(self.duthost, test_mode, max_limit, cleanup_list=None)
@@ -475,13 +485,8 @@ class TestAutoTechSupport:
             self.duthost.shell('sudo config portchannel add {}'.format(po_name))
             cleanup_list.append((config_reload, (self.duthost,), {}))
 
-        test_port_vlan = get_port_vlan(minigraph_facts, test_port)
-        if test_port_vlan:
-            with allure.step('Remove interface: {} from VLAN: {}'.format(test_port, test_port_vlan)):
-                self.duthost.shell('sudo config vlan member del {} {}'.format(test_port_vlan, test_port))
-
         with allure.step('Add interface: {} to PortChannel: {}'.format(test_port, po_name)):
-            self.duthost.shell('sudo config portchannel member add {} {}'.format(po_name, test_port))
+            add_po_member(self.duthost, po_name, test_port, minigraph_facts)
 
         with allure.step('Apply config(which will cause SAI call failure) on DUT'):
             self.duthost.shell('sudo config load -y {}'.format(DUT_SAI_CALL_CONFIG_PATH))
@@ -619,6 +624,7 @@ def is_techsupport_generation_in_expected_state(duthost, expected_in_progress=Tr
     """
     Check if techsupport generation in progress
     :param duthost: duthost object
+    :param expected_in_progress: True in case when auto-techsuport in running state expected, else False
     :return: True in case when techsupport generation in progress
     """
     with allure.step('Checking techsupport generation process'):
@@ -647,7 +653,8 @@ def validate_core_files_inside_techsupport(duthost, techsupport_folder, expected
     """
     Validated that expected .core files available inside in techsupport dump file
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :param expected_core_files_list: list with expected .core files which should be in techsupport dump
     :return: AssertionError in case when validation failed
     """
@@ -664,11 +671,13 @@ def validate_saidump_file_inside_techsupport(duthost, techsupport_folder):
     """
     Validated that expected SAI dump file available inside in techsupport dump file
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: AssertionError in case when validation failed
     """
-    with allure.step('Validate SAI dump file inside in techsuport file'):
-        saidump_files_inside_techsupport = duthost.shell('ls {}/sai_sdk_dump'.format(techsupport_folder))['stdout_lines']
+    with allure.step('Validate SAI dump file is included in the tech-support dump'):
+        saidump_files_inside_techsupport = \
+            duthost.shell('ls {}/sai_failure_dump'.format(techsupport_folder))['stdout_lines']
         assert saidump_files_inside_techsupport, 'Expected SAI dump file(folder) not available in techsupport dump'
 
 
@@ -676,7 +685,8 @@ def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_
     """
     Validate that techsupport file does not have logs which are older than value provided in 'since_value_in_seconds'
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :param expected_oldest_log_line_timestamps_list: list of expected(possible) oldest log timestamp in datetime format
     :return: pytest.fail - in case when validation failed
     """
@@ -685,10 +695,11 @@ def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_
         logger.debug('Oldest timestamp: {}'.format(oldest_timestamp_datetime))
 
         assert oldest_timestamp_datetime in expected_oldest_log_line_timestamps_list, \
-            'Timestamp: {} not in expected list: {}. --since validation failed'.format(oldest_timestamp_datetime,
-                                                                                       expected_oldest_log_line_timestamps_list)
+            'Timestamp: {} not in expected list: {}. --since validation failed'.format(
+                oldest_timestamp_datetime, expected_oldest_log_line_timestamps_list)
 
-        available_syslogs_list = duthost.shell('sudo ls -l {}/log/syslog*'.format(techsupport_folder))['stdout'].splitlines()
+        available_syslogs_list = \
+            duthost.shell('sudo ls -l {}/log/syslog*'.format(techsupport_folder))['stdout'].splitlines()
         assert len(available_syslogs_list) <= len(expected_oldest_log_line_timestamps_list), \
             'Number of syslog files in techsupport bigger than expected'
 
@@ -697,7 +708,8 @@ def get_oldest_syslog_timestamp(duthost, techsupport_folder):
     """
     Get oldest syslog timestamp
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: date timestamp in format: 2021-11-17 16:42:19.629013
     """
     with allure.step('Getting syslog oldest timestamp'):
@@ -715,7 +727,8 @@ def get_all_syslog_files_from_techsupport(duthost, techsupport_folder):
     """
     Get list of syslog files which are available in techsupport dump file
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: list of files, example: ['syslog.gz', 'syslog.1.gz', 'syslog.2.gz', ...]
     """
     with allure.step('Getting all syslog files from techsupport'):
@@ -1188,10 +1201,16 @@ def validate_folder_size_less_than_allowed(duthost, folder, expected_max_folder_
         used_by_folder = get_used_space(duthost, folder)
         err_msg = 'Folder {} has size: {}Mb more than expected: {}Mb'.format(folder, used_by_folder,
                                                                              expected_max_folder_size)
-        assert used_by_folder < expected_max_folder_size, err_msg
+        assert used_by_folder <= expected_max_folder_size, err_msg
 
 
 def is_docker_enabled(system_features_status, docker):
+    """
+    Check if docker(feature) enabled
+    :param system_features_status: output of features status
+    :param docker: docker/feature name
+    :return: True or False
+    """
     docker_enabled = False
     if system_features_status[0].get(docker) in ['enabled', 'always_enabled']:
         docker_enabled = True
@@ -1199,22 +1218,39 @@ def is_docker_enabled(system_features_status, docker):
 
 
 def clear_auto_techsupport_history(duthost):
+    """
+    Clear auto-techsupport history
+    :param duthost: duthost object
+    """
     auto_tech_history_entries = duthost.shell(CMD_GET_AUTO_TECH_SUPPORT_HISTORY_REDIS_KEYS)['stdout_lines']
     for entry in auto_tech_history_entries:
         duthost.shell('sudo redis-cli -n 6 DEL "{}"'.format(entry))
 
 
 def clear_folders(duthost):
+    """
+    Clear auto-techsupport related folders
+    :param duthost: duthost object
+    """
     duthost.shell('sudo rm -rf /var/core/*')
     duthost.shell('sudo rm -rf /var/dump/*')
 
 
 def create_core_file_generator_script(duthost):
+    """
+    Create core file generator script
+    :param duthost: duthost object
+    """
     duthost.shell('sudo echo \'sleep 10 & kill -6 $!\' > /etc/sonic/core_file_generator.sh')
     duthost.shell('sudo echo \'echo $?\' >> /etc/sonic/core_file_generator.sh')
 
 
 def get_available_tech_support_files(duthost):
+    """
+    Get available techsupport files list
+    :param duthost: duthost object
+    :return: list of available techsupport files
+    """
     try:
         available_tech_support_files = duthost.shell('ls /var/dump/*.tar.gz')['stdout_lines']
     except RunAnsibleModuleFail:
@@ -1223,6 +1259,11 @@ def get_available_tech_support_files(duthost):
 
 
 def get_random_physical_port_non_po_member(minigraph_facts):
+    """
+    Get physical port which is not PortChannel member
+    :param minigraph_facts: minigraph_facts(dict) object
+    :return: string, port name
+    """
     po_members = []
     for po_iface, po_data in minigraph_facts['minigraph_portchannels'].items():
         po_members += po_data['members']
@@ -1231,7 +1272,14 @@ def get_random_physical_port_non_po_member(minigraph_facts):
     test_port = random.choice(non_po_ports)
     return test_port
 
+
 def get_port_vlan(minigraph_facts, port):
+    """
+    Get VLAN related to test port
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param port: string, port name
+    :return: string with Vlan ID, or None
+    """
     test_port_vlan = None
     for vlan in minigraph_facts['minigraph_vlans']:
         if port in minigraph_facts['minigraph_vlans'][vlan]['members']:
@@ -1239,3 +1287,82 @@ def get_port_vlan(minigraph_facts, port):
             break
 
     return test_port_vlan
+
+
+def get_port_ips(minigraph_facts, port):
+    """
+    Get IPs which are assigned to port
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param port: string, port name
+    :return: list, example: [(ip, mask), (ip, mask)]
+    """
+    iface_ips_data = []
+    for iface_data in minigraph_facts['minigraph_interfaces']:
+        if iface_data['attachto'] == port:
+            ip_addr = iface_data['addr']
+            ip_mask = iface_data['prefixlen']
+            iface_ips_data.append((ip_addr, ip_mask))
+
+    return iface_ips_data
+
+
+def remove_port_from_vlan(duthost, minigraph_facts, test_port):
+    """
+    Remove test port from VLAN
+    :param duthost: duthost object
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param test_port: string, port name
+    """
+    test_port_vlan = get_port_vlan(minigraph_facts, test_port)
+    if test_port_vlan:
+        with allure.step('Remove interface: {} from VLAN: {}'.format(test_port, test_port_vlan)):
+            duthost.shell('sudo config vlan member del {} {}'.format(test_port_vlan, test_port))
+
+
+def remove_ips_from_port(duthost, minigraph_facts, test_port):
+    """
+    Remove IPs from test port
+    :param duthost: duthost object
+    :param minigraph_facts: minigraph_facts(dict) object
+    :param test_port: string, port name
+    """
+    test_port_ips = get_port_ips(minigraph_facts, test_port)
+    if test_port_ips:
+        with allure.step('Remove IP addresses from port: {}'.format(test_port)):
+            for ip_addr, ip_mask in test_port_ips:
+                duthost.shell('sudo config interface ip remove {} {}/{}'.format(test_port, ip_addr, ip_mask))
+
+
+def remove_acl_tables(duthost, failure_info):
+    """
+    Remove ACL tables which related to our test port
+    :param duthost: duthost object
+    :param failure_info: string with output which contains ACL tables
+    """
+    acl_tables_list = re.findall(r'ACL_TABLE\|(\w+)', failure_info)
+    for acl_table in acl_tables_list:
+        with allure.step('Remove ACL table: {}'.format(acl_table)):
+            duthost.shell('sudo config acl remove table {}'.format(acl_table))
+
+
+def add_po_member(duthost, po_name, test_port, minigraph_facts):
+    """
+    Add interface to PortChannel
+    :param duthost: duthost object
+    :param po_name: string, PortChannel iface name
+    :param test_port: string, port name
+    :param minigraph_facts: minigraph_facts(dict) object
+    :return:
+    """
+    add_po_member_cmd = 'sudo config portchannel member add {} {}'.format(po_name, test_port)
+
+    remove_port_from_vlan(duthost, minigraph_facts, test_port)
+    remove_ips_from_port(duthost, minigraph_facts, test_port)
+
+    po_member_add = duthost.shell(add_po_member_cmd, module_ignore_errors=True)
+    if po_member_add['failed']:
+        failure_info = po_member_add['stderr_lines'][-1]
+        if 'is already bound to following ACL_TABLES' in failure_info:
+            remove_acl_tables(duthost, failure_info)
+
+        duthost.shell(add_po_member_cmd)

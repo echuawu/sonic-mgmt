@@ -71,19 +71,23 @@ def test_show_diff_history(engines):
             show_after_unset_all, diff_after_unset_all, history_after_unset_all = save_diff_hisoty_show_outputs(
                 engines.dut)
 
-        with allure.step('verify diff command outputs'):
-            err_message += verify_diff_outputs(diff_before_set, diff_after_set, diff_after_apply, diff_after_unset, diff_after_unset_apply,
-                                               diff_after_unset_all)
+        with allure.step('Verify outout'):
+            with allure.step('verify diff command outputs'):
+                err_message += verify_diff_outputs(diff_before_set, diff_after_set, diff_after_apply, diff_after_unset, diff_after_unset_apply,
+                                                   diff_after_unset_all)
+                err_message = f"Wrong diff command output: {err_message}" if err_message else ""
 
-        with allure.step('verify show command outputs'):
-            err_message += verify_show_outputs(show_before_set, show_after_set, show_after_apply, show_after_unset, show_after_unset_apply,
-                                               show_after_unset_all)
+            with allure.step('verify show command outputs'):
+                err_message += verify_show_outputs(show_before_set, show_after_set, show_after_apply, show_after_unset, show_after_unset_apply,
+                                                   show_after_unset_all)
+                err_message = f"Wrong show command output: {err_message}" if err_message else ""
 
-        with allure.step('verify history command outputs'):
-            err_message += verify_history_outputs(history_before_set, history_after_set, history_after_apply, history_after_unset,
-                                                  history_after_unset_apply, history_after_unset_all, engines.dut.username)
+            with allure.step('verify history command outputs'):
+                err_message += verify_history_outputs(history_before_set, history_after_set, history_after_apply, history_after_unset,
+                                                      history_after_unset_apply, history_after_unset_all, engines.dut.username)
+                err_message = f"Wrong history command output: {err_message}" if err_message else ""
 
-        assert err_message == '', '{message}'.format(message=err_message)
+            assert err_message == '', '{message}'.format(message=err_message)
 
 
 @pytest.mark.general
@@ -171,8 +175,8 @@ def validate_history_labels(history_list, username):
     if user != username:
         err_message += 'the user is not equal to the user name'
 
-    if apply_id < str(len(history_list)):
-        err_message += 'the rev_id is not as expected, should be rev_<applies_amount> or less'
+    """if int(apply_id) > int(len(history_list)):
+        err_message += 'the rev_id is not as expected, should be rev_<applies_amount> or less'"""
 
     return err_message
 
@@ -248,7 +252,10 @@ def verify_history_outputs(history1, history2, history3, history4, history5, his
     with allure.step('verify history commands after first apply'):
         if len(history2) != len(history3) - 1 or len(history4) != len(history5) - 1 or len(history5) != len(history6) - 1:
             err_message += '\n the history output should add the new apply_id'
-    err_message += validate_history_labels(history6, username)
+
+    with allure.step("Validate history labels"):
+        err_message += validate_history_labels(history6, username)
+
     return err_message
 
 

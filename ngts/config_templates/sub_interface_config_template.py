@@ -1,6 +1,7 @@
 import allure
 
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
+from functools import partial
 
 
 class SubIntConfigTemplate:
@@ -9,14 +10,20 @@ class SubIntConfigTemplate:
     """
 
     @staticmethod
-    def configuration(topology_obj, sub_int_config_dict):
+    def configuration(topology_obj, sub_int_config_dict, request=None):
         """
         This method applies sub interfaces configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param sub_int_config_dict: configuration dictionary with all sub interfaces related info
         Example: {'dut': [{'iface': eth0.100, ', vlan_id': ''},{'iface': 'Po1.200', vlan_id': '200'}]
                   'ha':[{'iface': "bond1", vlan_id': '200'}]}
         """
+        if request:
+            with allure.step('Add sub interfaces configuration cleanup into finalizer'):
+                cleanup = partial(SubIntConfigTemplate.cleanup, topology_obj, sub_int_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying sub interfaces configuration'):
             conf = {}
             for player_alias, configuration in sub_int_config_dict.items():

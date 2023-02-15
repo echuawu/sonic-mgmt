@@ -22,6 +22,7 @@ def pytest_runtest_makereport(item, call):
     rep = outcome.get_result()
 
     if rep.when == 'teardown':
+        os.environ.pop(item.name, None)
         is_teardown_failed = item.rep_teardown.failed  # if LA failed, but may be not only LA
         session_id = item.funcargs.get('session_id', '')
         if item.rep_setup.passed and (item.rep_call.failed or is_teardown_failed) and \
@@ -52,6 +53,7 @@ def pytest_runtest_makereport(item, call):
                 if is_simx and not is_air:
                     with allure.step('Dump SIMX VM logs'):
                         dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name)
+                store_dest_file_path(dest_file, item.name)
             else:
                 logger.info('###  Session ID was not provided, assuming this is manual run,'
                             ' sysdump will not be created  ###')
@@ -67,3 +69,12 @@ def get_test_duration(item):
     :return: integer, test duration
     """
     return math.ceil(item.rep_setup.duration) + math.ceil(item.rep_call.duration) + 120
+
+
+def store_dest_file_path(dest_file, test_name):
+    """
+    Store the dump path to environment variables to later usage by pytest_terminal_summary
+    :param dest_file: dump file
+    :param test_name: test_name
+    """
+    os.environ[test_name] = dest_file

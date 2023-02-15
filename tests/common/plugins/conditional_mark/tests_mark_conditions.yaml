@@ -101,11 +101,6 @@ bgp/test_bgp_speaker.py:
 #######################################
 #####            cacl             #####
 #######################################
-cacl/test_cacl_application.py:
-  skip:
-    reason: "Caclmgrd change to allow mgmt traffic by default requires test case update"
-    conditions: https://github.com/sonic-net/sonic-buildimage/issues/12464
-
 cacl/test_cacl_application.py::test_cacl_application_dualtor:
   skip:
     reason: "test_cacl_application_dualtor is only supported on dualtor topology"
@@ -150,13 +145,25 @@ copp/test_copp.py:
   skip:
     reason: "Topology not supported by COPP tests"
     conditions:
-      - "topo_name not in ['ptf32', 'ptf64', 't0', 't0-64', 't0-52', 't0-116', 't1', 't1-lag', 't1-64-lag', 't1-backend', 't2', 'm0', 'mx']"
+      - "(topo_name not in ['ptf32', 'ptf64', 't0', 't0-64', 't0-52', 't0-116', 't1', 't1-lag', 't1-64-lag', 't1-56-lag', 't1-backend', 'm0', 'mx'] and 't2' not in topo)"
+
+copp/test_copp.py::TestCOPP::test_add_new_trap:
+  skip:
+    reason: "Copp test_add_new_trap is not yet supported on multi-asic platform"
+    conditions:
+      - "is_multi_asic==True"
+
+copp/test_copp.py::TestCOPP::test_remove_trap:
+  skip:
+    reason: "Copp test_remove_trap is not yet supported on multi-asic platform"
+    conditions:
+      - "is_multi_asic==True"
 
 copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot:
-  xfail:
-    reason: "'Add always_enabled field to coppmgr' is not merged into 202012 yet"
+  skip:
+    reason: "Copp test_trap_config_save_after_reboot is not yet supported on multi-asic platform"
     conditions:
-      - "release in ['202012']"
+      - "is_multi_asic==True"
 
 #######################################
 #####            crm              #####
@@ -184,15 +191,15 @@ decap/test_decap.py::test_decap[ttl=pipe, dscp=pipe, vxlan=set_unset]:
 
 decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=disable]:
   skip:
-    reason: "Not supported on backend and broadcom before 202012 release"
+    reason: "Not supported on backend , broadcom before 202012 release and innovium"
     conditions:
-      - "(topo_name in ['t1-backend', 't0-backend']) or (asic_type in ['broadcom'] and release in ['201811', '201911'])"
+      - "(topo_name in ['t1-backend', 't0-backend']) or (asic_type in ['broadcom'] and release in ['201811', '201911']) or asic_type in ['innovium']"
 
 decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=set_unset]:
   skip:
-    reason: "Not supported on backend, T2 topologies and broadcom platforms before 202012 release"
+    reason: "Not supported on backend, T2 topologies , broadcom platforms before 202012 release and innovium"
     conditions:
-      - "('t2' in topo_name) or (topo_name in ['t1-backend', 't0-backend']) or (asic_type in ['broadcom'] and release in ['201811', '201911'])"
+      - "('t2' in topo_name) or (topo_name in ['t1-backend', 't0-backend']) or (asic_type in ['broadcom'] and release in ['201811', '201911']) or asic_type in ['innovium']"
 
 decap/test_decap.py::test_decap[ttl=uniform, dscp=pipe, vxlan=disable]:
   skip:
@@ -375,10 +382,6 @@ generic_config_updater/test_incremental_qos.py::test_incremental_qos_config_upda
     conditions:
       - "not any(i in hwsku for i in ['2700', 'Arista-7170-64C', 'montara', 'newport'])"
 
-gnmi/test_gnmi_configdb.py::test_gnmi_configdb_full_01:
-  skip:
-    reason: "We still have issue for config reload command, and we will enable this test after merging the fix."
-
 #######################################
 #####           http              #####
 #######################################
@@ -431,15 +434,15 @@ ip/test_ip_packet.py:
 
 ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_drop:
   skip:
-    reason: "Broadcom, Cisco and Marvell Asic will tolorate IP packets with 0xffff checksum"
+    reason: "Broadcom, Cisco, Barefoot and Marvell Asic will tolorate IP packets with 0xffff checksum"
     conditions:
-      - "asic_type in ['broadcom', 'cisco-8000', 'marvell']"
+      - "asic_type in ['broadcom', 'cisco-8000', 'marvell', 'barefoot'] and hwsku not in ['Arista-7280CR3-C40']"
 
 ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_tolerant:
   skip:
     reason: "Mellanox Asic will drop IP packets with 0xffff checksum"
     conditions:
-      - "asic_type in ['mellanox']"
+      - "asic_type in ['mellanox'] or hwsku in ['Arista-7280CR3-C40']"
 
 #######################################
 #####            ipfwd            #####
@@ -476,13 +479,13 @@ macsec/test_macsec.py:
     conditions:
       - "platform not in ['x86_64-arista_7280cr3mk_32d4', 'x86_64-kvm_x86_64-r0']"
 
-macsec/test_macsec.py::TestDataPlane::test_server_to_neighbor:
+macsec/test_dataplane.py::TestDataPlane::test_server_to_neighbor:
   skip:
     reason: 'test_server_to_neighbor needs downstream neighbors, which is not present in this topo'
     conditions:
       - "'t2' in topo_name"
 
-macsec/test_macsec.py::TestInteropProtocol::test_bgp:
+macsec/test_interop_protocol.py::TestInteropProtocol::test_bgp:
   skip:
     reason: 'test_bgp skip in Brcm based T2, complete portchannel SAI fix planned for 8.1'
     conditions:
@@ -541,9 +544,9 @@ passw_hardening/test_passw_hardening.py:
 #######################################
 pc/test_lag_2.py::test_lag_db_status_with_po_update:
   skip:
-    reason: "Only support t1-lag topology"
+    reason: "Only support t1-lag and t2 topology"
     conditions:
-        - "topo_name not in ['t1-lag']"
+        - "topo_name not in ['t1-lag'] and 't2' not in topo_name"
 
 pc/test_po_cleanup.py:
   skip:
@@ -656,6 +659,12 @@ qos:
     conditions:
       - "topo_name in ['m0', 'mx']"
 
+qos/test_buffer.py:
+  skip:
+    reason: "These tests don't apply to cisco 8000 platforms, since they support only traditional model."
+    conditions:
+      - "asic_type in ['cisco-8000']"
+
 qos/test_buffer_traditional.py:
   skip:
     reason: "Buffer traditional test is only supported 201911 branch and not yet supported on multi-ASIC platform."
@@ -673,9 +682,9 @@ qos/test_pfc_pause.py::test_pfc_pause_lossless:
 
 qos/test_qos_masic.py:
   skip:
-    reason: "QoS tests for multi-ASIC only. Supported topos: t1-lag, t1-64-lag, t1-backend."
+    reason: "QoS tests for multi-ASIC only. Supported topos: t1-lag, t1-64-lag, t1-56-lag, t1-backend."
     conditions:
-      - "is_multi_asic==False or topo_name not in ['t1-lag', 't1-64-lag', 't1-backend']"
+      - "is_multi_asic==False or topo_name not in ['t1-lag', 't1-64-lag', 't1-56-lag', 't1-backend']"
 
 qos/test_qos_sai.py:
   skip:
@@ -687,7 +696,7 @@ qos/test_qos_sai.py::TestQosSai:
   skip:
     reason: "Unsupported testbed type."
     conditions:
-      - "topo_name not in ['t0', 't0-64', 't0-116', 't0-35', 'dualtor-56', 'dualtor-120', 'dualtor', 't0-80', 't0-backend', 't1-lag', 't1-64-lag', 't1-backend', 't2', 't2_2lc_36p-masic', 't2_2lc_min_ports-masic'] and asic_type not in ['mellanox']"
+      - "topo_name not in ['t0', 't0-64', 't0-116', 't0-35', 'dualtor-56', 'dualtor-120', 'dualtor', 't0-80', 't0-backend', 't1-lag', 't1-64-lag', 't1-56-lag', 't1-backend', 't2', 't2_2lc_36p-masic', 't2_2lc_min_ports-masic'] and asic_type not in ['mellanox']"
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiDot1pPgMapping:
   skip:
@@ -796,6 +805,12 @@ show_techsupport/test_techsupport.py::test_techsupport:
     conditions:
       - "branch in ['internal-202012']"
       - "build_version <= '20201231.33'"
+
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sai_sdk_dump:
+  skip:
+    reason: "Test supported only on Nvidia(Mellanox) devices"
+    conditions:
+      - "asic_type not in ['mellanox']"
 
 #######################################
 #####            snmp             #####
@@ -968,7 +983,7 @@ vxlan/test_vxlan_ecmp.py:
   skip:
     reason: "VxLAN ECMP test is not yet supported on multi-ASIC platform. Also this test can only run 8102. 4600 has issue https://github.com/sonic-net/sonic-mgmt/issues/6616"
     conditions:
-      - "(is_multi_asic==True) or (platform not in ['x86_64-8102_64h_o-r0'] and asic_type not in ['barefoot'])"
+      - "(is_multi_asic==True) or (platform not in ['x86_64-8102_64h_o-r0', 'x86_64-8101_32fh_o-r0'] and asic_type not in ['barefoot'])"
 
 vxlan/test_vnet_vxlan.py:
   skip:
@@ -983,21 +998,20 @@ telemetry/test_telemetry.py:
   skip:
     reason: "Skip telemetry test for 201911 and older branches"
     conditions:
-      - "(is_multi_asic==True) and (release in ['201811', '201911'])"                
+      - "(is_multi_asic==True) and (release in ['201811', '201911'])"
 
 #######################################
-######           vrf_attr          #####
-########################################
+#####           vrf_attr          #####
+#######################################
 vrf/test_vrf_attr.py::TestVrfAttrSrcMac::test_vrf1_neigh_with_default_router_mac:
   skip:
     reason: "RIF MAC taking precedence over VRF MAC"
     conditions:
       - "asic_type in ['barefoot']"
 
-
 #######################################
-######           wan_lacp          #####
-########################################
+#####           wan_lacp          #####
+#######################################
 wan/lacp/test_wan_lag_min_link.py::test_lag_min_link:
   skip:
     reason: "Skip test due to there isn't enough port channel or members exists in current topology."
@@ -1005,439 +1019,3 @@ wan/lacp/test_wan_lag_min_link.py::test_lag_min_link:
     conditions:
       - "len(minigraph_portchannels) < 2"
       - "not any(len(v['members']) > 1 for _, v in minigraph_portchannels.items())"
-
-
-###### Nvidia not supported APIs ignore START #################################
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_components:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_presence:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_supervisor_slot:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_my_slot:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_fan_drawers:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_status_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis_fans.py::TestChassisFans::test_set_fans_speed:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis_fans.py::TestChassisFans::test_set_fans_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu.py::TestPsuApi::test_get_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu.py::TestPsuApi::test_power:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu.py::TestPsuApi::test_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu.py::TestPsuApi::test_master_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu_fans.py::TestPsuFans::test_get_fans_target_speed:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu_fans.py::TestPsuFans::test_set_fans_speed:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_psu_fans.py::TestPsuFans::test_set_fans_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_set_fan_drawers_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer.py::TestFanDrawerApi::test_get_maximum_consumed_power:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_speed:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_led:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_name:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_position_in_parent:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_reset_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_rx_los:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_fault:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_temperature:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_voltage:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_bias:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_rx_power:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_tx_power:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_tx_disable:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_tx_disable_channel:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_power_override:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_thermals:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_name:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_presence:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_position_in_parent:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_is_replaceable:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_description:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_firmware_version:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_available_firmware_version:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_get_firmware_update_notification:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_install_firmware:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_component.py::TestComponentApi::test_update_firmware:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_presence:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_model:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_serial:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_status:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_temperature:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_minimum_recorded:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_maximum_recorded:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_low_threshold:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_high_threshold:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_low_critical_threshold:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_get_high_critical_threshold:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_set_low_threshold:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-platform_tests/api/test_thermal.py::TestThermalApi::test_set_high_threshold:
-  skip:
-    reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia"
-    conditions:
-      - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-###### Nvidia not supported APIs ignore END #################################
-

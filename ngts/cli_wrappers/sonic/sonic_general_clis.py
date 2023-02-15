@@ -786,8 +786,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     @staticmethod
     def is_bluefield(hwsku):
-        bluefield_hwsku = 'mbf2h536c'
-        return bluefield_hwsku in hwsku.lower()
+        for bf_hwsku in BluefieldConstants.BLUEFIELD_HWSKUS_LIST:
+            if bf_hwsku.lower() in hwsku.lower():
+                return True
+        return False
 
     @staticmethod
     def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
@@ -926,13 +928,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def get_config_db_from_running_config(self):
         config = self.engine.run_cmd('sudo show runningconfiguration all', print_output=False)
         return json.loads(config)
-
-    def is_dpu(self):
-        """
-        Function to check if the current DUT is DPU
-        """
-        platform = self.cli_obj.chassis.get_platform()
-        return 'arm64-nvda_bf-mbf2h536c' in platform
 
     def is_spc1(self, cli_object):
         """
@@ -1115,6 +1110,56 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_dict['MGMT_INTERFACE'] = {f'eth0|{dut_ip}/24': {'gwaddr': gw_ip}}
         config_db_path = os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, SonicConst.CONFIG_DB_JSON)
         self.create_extended_config_db_file(setup_name, config_db_dict, config_db_path)
+
+    def get_simx_version_and_chip_type(self):
+        """
+        This method is to get the simx version and chip type
+        :return: version, chip_type
+        """
+        reg_simx_version = ".*Vendor specific: SimX version (?P<version>.*)"
+        reg_simx_chip_type = ".*Vendor specific: SimX chip type: (?P<chip_type>.*)"
+
+        simx_info = self.engine.run_cmd('sudo lspci -vvv | grep SimX')
+        '''
+        simx info like below:
+        Product Name: SimX: Spectrum simulation
+                        [V1] Vendor specific: SimX version 5.1.1057
+                        [V2] Vendor specific: SimX chip type: Spectrum-3
+        '''
+
+        chip_type, version = '', ''
+
+        for line in simx_info.split("\n"):
+            match_version = re.match(reg_simx_version, line)
+            if match_version:
+                version = match_version.groupdict()["version"].strip()
+            else:
+                match_chip_type = re.match(reg_simx_chip_type, line)
+                if match_chip_type:
+                    chip_type = match_chip_type.groupdict()["chip_type"].strip()
+
+        logger.info(f'Simx version:{version}, simx chip type:{chip_type}')
+        return version, chip_type
+
+    def get_sai_version(self):
+        """
+        This method is to get the sai version
+        :return: sai_version
+        """
+        reg_sai_version = r".*mlnx.SAIBuild(?P<version>[\d.]+)\s+.*"
+
+        sai_info = self.engine.run_cmd('docker exec syncd bash -c "dpkg -l | grep mlnx-sai"')
+        '''
+        sai info like below:
+        ii  mlnx-sai     1.mlnx.SAIBuild2211.23.1.0     amd64        contains SAI implementation for Mellanox hardware
+        '''
+        sai_version = None
+        sai_res = re.match(reg_sai_version, sai_info)
+        if sai_res:
+            sai_version = sai_res.groupdict()["version"].strip()
+
+        logger.info(f'sai version:{sai_version}')
+        return sai_version
 
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):

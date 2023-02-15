@@ -26,6 +26,7 @@ negative_profile_commands = ['breakout-mode aa adaptive-routing bb',
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_change_default(engines):
     """
     Test flow:
@@ -49,6 +50,7 @@ def test_system_profile_change_default(engines):
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_negative(engines):
     """
     Test flow:
@@ -73,6 +75,7 @@ def test_system_profile_negative(engines):
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm):
     """
     Test flow:
@@ -165,6 +168,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_change_breakout_mode(engines):
     """
     Test flow:
@@ -219,6 +223,7 @@ def test_system_profile_change_breakout_mode(engines):
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_ib_routing_mode(engines):
     """
     TBD
@@ -228,6 +233,7 @@ def test_system_profile_ib_routing_mode(engines):
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_changes_stress(engines):
     """
     Test flow:
@@ -269,6 +275,8 @@ def test_system_profile_changes_stress(engines):
                                                             system_profile_output).verify_result()
 
         with allure.step('Verify default values'):
+            system.profile.action_profile_change(
+                params='adaptive-routing enabled adaptive-routing-groups 2048 breakout-mode disabled')
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
             ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
@@ -278,6 +286,7 @@ def test_system_profile_changes_stress(engines):
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_redis_db_crash(engines):
     """
     Test flow:
@@ -313,6 +322,7 @@ def test_system_profile_redis_db_crash(engines):
 
 
 @pytest.mark.system
+@pytest.mark.system_profile_cleanup
 def test_system_profile_change_upgrade_not_default_profile(engines):
     """
     TBD, to do after fetch feature work

@@ -17,6 +17,16 @@
 
 
    <case>
+    <name> NVUE - SSH Config </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_ssh_config/test_ssh_config.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+   <case>
     <name> NVUE - Login SSH Notification </name>
     <info> </info>
     <cmd>

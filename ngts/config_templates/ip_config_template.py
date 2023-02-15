@@ -2,6 +2,7 @@ import allure
 
 from ngts.cli_util.stub_engine import StubEngine
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
+from functools import partial
 
 
 class IpConfigTemplate:
@@ -9,13 +10,19 @@ class IpConfigTemplate:
     This class contain 2 methods for configure and cleanup IP related settings.
     """
     @staticmethod
-    def configuration(topology_obj, ip_config_dict):
+    def configuration(topology_obj, ip_config_dict, request=None):
         """
         Method which are doing IP configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param ip_config_dict: configuration dictionary with all IP related info
         Example: {'dut': [{'iface': 'Vlan31', 'ips': [('31.1.1.1', '24')]}]}
         """
+        if request:
+            with allure.step('Add IP configuration cleanup into finalizer'):
+                cleanup = partial(IpConfigTemplate.cleanup, topology_obj, ip_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying IP configuration'):
             conf = {}
             for player_alias, configuration in ip_config_dict.items():

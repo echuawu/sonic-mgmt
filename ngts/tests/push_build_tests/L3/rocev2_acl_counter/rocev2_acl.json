@@ -1,0 +1,83 @@
+{
+
+    "ACL_TABLE_TYPE": {
+
+        "CUSTOM_L3": {
+
+            "matches": "BTH_OPCODE,AETH_SYNDROME,SRC_IP,SRC_IPV6",
+
+            "actions": "PACKET_ACTION",
+
+            "bind_points": "PORT,PORTCHANNEL"
+        }
+
+    },
+
+"ACL_TABLE": {
+
+        "ROCE_ACL_INGRESS": {
+
+            "stage": "INGRESS",
+
+            "type": "CUSTOM_L3",
+
+            "ports": ["PortChannel0001"],
+
+            "policy_desc": "some description"
+
+        }
+    },
+
+"ACL_RULE": {
+
+        "ROCE_ACL_INGRESS|in_forward_rule1": {
+
+            "PRIORITY": "3301",
+
+            "PACKET_ACTION": "FORWARD",
+
+            "BTH_OPCODE": "0x11/0xbf",
+
+            "AETH_SYNDROME": "0x60/0x60",
+            "SRC_IP": "112.110.1.1/24"
+        },
+        "ROCE_ACL_INGRESS|in_drop_rule2": {
+
+            "PRIORITY": "3302",
+
+            "PACKET_ACTION": "DROP",
+
+            "BTH_OPCODE": "0x11/0xbf",
+
+            "AETH_SYNDROME": "0x60/0x60",
+            "SRC_IP": "113.110.1.1/24"
+        },
+        "ROCE_ACL_INGRESS|in_forward_v6_3": {
+
+            "PRIORITY": "5501",
+
+            "PACKET_ACTION": "FORWARD",
+
+            "BTH_OPCODE": "0x11/0xbf",
+
+            "AETH_SYNDROME": "0x60/0x60",
+
+            "SRC_IPV6": "5501::1/64"
+
+        },
+
+        "ROCE_ACL_INGRESS|in_drop_v6_4": {
+
+            "PRIORITY": "5502",
+
+            "PACKET_ACTION": "DROP",
+
+            "BTH_OPCODE": "0x11/0xbf",
+
+            "AETH_SYNDROME": "0x60/0x60",
+
+            "SRC_IPV6": "5502::1/64"
+
+        }
+}
+}

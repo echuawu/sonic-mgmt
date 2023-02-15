@@ -250,7 +250,8 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
                                                   conn["neighbor_addr"]))
                 # NOTE: this enables the standby ToR to passively learn
                 # all the neighbors configured on the ptf interfaces
-                ptfhost.shell("arping %s -S %s -C 5" % (vlan_intf_addr, conn["neighbor_addr"].split("/")[0]), module_ignore_errors=True)
+                ptfhost.shell("arping %s -S %s -C 5" % (vlan_intf_addr, conn["neighbor_addr"].split("/")[0]),
+                              module_ignore_errors=True)
             ptfhost.shell("ip route add %s via %s" % (loopback_intf_addr, vlan_intf_addr))
             yield connections
 
@@ -378,24 +379,24 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
 
             for intf, subnet in zip(random.sample(ipv4_interfaces + ipv4_lag_interfaces + vlan_sub_interfaces,
                                                   peer_count), subnets):
+                def _get_namespace(minigraph_config, intf):
+                    namespace = DEFAULT_NAMESPACE
+                    if intf in minigraph_config and 'namespace' in minigraph_config[intf] and \
+                            minigraph_config[intf]['namespace']:
+                        namespace = minigraph_config[intf]['namespace']
+                    return namespace
                 conn = {}
                 local_addr, neighbor_addr = [_ for _ in subnet][:2]
                 conn["local_intf"] = "%s" % intf
                 conn["local_addr"] = "%s/%s" % (local_addr, subnet_prefixlen)
                 conn["neighbor_addr"] = "%s/%s" % (neighbor_addr, subnet_prefixlen)
                 conn["loopback_ip"] = loopback_ip
-
-                if intf in mg_facts['minigraph_neighbors'] and \
-                        'namespace' in mg_facts['minigraph_neighbors'][intf] and \
-                        mg_facts['minigraph_neighbors'][intf]['namespace']:
-                    conn["namespace"] = mg_facts['minigraph_neighbors'][intf]['namespace']
-                else:
-                    conn["namespace"] = DEFAULT_NAMESPACE
+                conn["namespace"] = _get_namespace(mg_facts['minigraph_neighbors'], intf)
 
                 if intf.startswith("PortChannel"):
                     member_intf = mg_facts["minigraph_portchannels"][intf]["members"][0]
                     conn["neighbor_intf"] = "eth%s" % mg_facts["minigraph_ptf_indices"][member_intf]
-                    conn["namespace"] = mg_facts["minigraph_portchannels"][intf]["namespace"]
+                    conn["namespace"] = _get_namespace(mg_facts["minigraph_portchannels"], intf)
                 elif constants.VLAN_SUB_INTERFACE_SEPARATOR in intf:
                     orig_intf, vlan_id = intf.split(constants.VLAN_SUB_INTERFACE_SEPARATOR)
                     ptf_port_index = str(mg_facts["minigraph_port_indices"][orig_intf])
@@ -587,3 +588,38 @@ def bgpmon_setup_teardown(ptfhost, duthosts, enum_rand_one_per_hwsku_frontend_ho
     # Remove the route to DUT loopback IP  and the interface router mac
     ptfhost.shell("ip route del %s" % dut_lo_addr + "/32")
     ptfhost.shell("ip neigh flush to %s nud permanent" % dut_lo_addr)
+
+
+def pytest_addoption(parser):
+    """
+    Adds options to pytest that are used by bgp suppress fib pending test
+    """
+
+    parser.addoption(
+        "--bgp_suppress_fib_pending",
+        action="store_true",
+        dest="bgp_suppress_fib_pending",
+        default=False,
+        help="enable bgp suppress fib pending function, by default it will not enable bgp suppress fib pending function"
+    )
+
+
+@pytest.fixture(scope="module", autouse=True)
+def config_bgp_suppress_fib(duthosts, rand_one_dut_hostname, request):
+    """
+    Enable or disable bgp suppress-fib-pending function
+    """
+    duthost = duthosts[rand_one_dut_hostname]
+    config = request.config.getoption("--bgp_suppress_fib_pending")
+    logger.info("--bgp_suppress_fib_pending:{}".format(config))
+    if config:
+        logger.info('Enable BGP suppress fib pending function')
+        duthost.shell('sudo config suppress-fib-pending enabled')
+        duthost.shell('sudo config save -y')
+
+    yield
+
+    if config:
+        logger.info('Disable BGP suppress fib pending function')
+        duthost.shell('sudo config suppress-fib-pending disabled')
+        duthost.shell('sudo config save -y')

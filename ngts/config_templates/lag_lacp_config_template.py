@@ -2,6 +2,7 @@ import allure
 
 from ngts.cli_util.stub_engine import StubEngine
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
+from functools import partial
 
 
 class LagLacpConfigTemplate:
@@ -9,7 +10,12 @@ class LagLacpConfigTemplate:
     This class contain 2 methods for configure and cleanup LAG/LACP related settings.
     """
     @staticmethod
-    def configuration(topology_obj, lag_lacp_config_dict):
+    def configuration(topology_obj, lag_lacp_config_dict, request=None):
+        if request:
+            with allure.step('Add sub interfaces configuration cleanup into finalizer'):
+                cleanup = partial(LagLacpConfigTemplate.cleanup, topology_obj, lag_lacp_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying LAG/LACP configuration'):
             conf = {}
             for player_alias, lag_list in lag_lacp_config_dict.items():

@@ -5,6 +5,8 @@ from ngts.constants.constants import VxlanConstants
 from ngts.helpers.vxlan_helper import send_and_validate_traffic
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
+from ngts.tests.push_build_tests.conftest import is_evpn_support
+from ngts.helpers.sonic_branch_helper import get_sonic_branch
 
 """
 
@@ -39,7 +41,11 @@ def mac_addresses(engines, cli_objects):
 class TestEvpnVxlan:
 
     @pytest.fixture(autouse=True)
-    def prepare_param(self, topology_obj, engines, players, interfaces, mac_addresses):
+    def prepare_param(self, topology_obj, engines, players, interfaces, mac_addresses, cli_objects, upgrade_params):
+        base_sonic_branch = get_sonic_branch(topology_obj)
+        if not is_evpn_support(base_sonic_branch):
+            pytest.skip(f"{base_sonic_branch} doesn't support EVPN VxLAN feature")
+
         self.topology_obj = topology_obj
         self.engines = engines
         self.players = players
@@ -178,6 +184,7 @@ class TestEvpnVxlan:
                                           VxlanConstants.HEX_100_0_0_3), receiver_count=VxlanConstants.PACKET_NUM_0)
 
     @pytest.mark.build
+    @pytest.mark.simx_uncovered
     @pytest.mark.push_gate
     def test_evpn_vxlan_basic(self, cli_objects, interfaces):
         """

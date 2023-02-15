@@ -18,7 +18,8 @@ class SonicDhcpRelayCli:
                                  'master': SonicDhcpRelayCliMaster(engine, cli_obj),
                                  '202205': SonicDhcpRelayCli202205(engine, cli_obj),
                                  '202012': SonicDhcpRelayCli202012(engine, cli_obj),
-                                 '202111': SonicDhcpRelayCli202111(engine, cli_obj)}
+                                 '202111': SonicDhcpRelayCli202111(engine, cli_obj),
+                                 '202211': SonicDhcpRelayCli202211(engine, cli_obj)}
 
         cli_class = supported_cli_classes.get(branch, supported_cli_classes['default'])
         cli_class_name = cli_class.__class__.__name__
@@ -152,11 +153,10 @@ class SonicDhcpRelayCliMaster(SonicDhcpRelayCliDefault):
         logger.info(f'Adding DHCP relay: {dhcp_server} for VLAN: {vlan}')
         self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HSET "DHCP_RELAY|{vlan_iface}" '
                             f'"dhcpv6_servers@" "{dhcpv6_servers}"')
-        self.engine.run_cmd(f'sudo sonic-db-cli CONFIG_DB HSET "VLAN|{vlan_iface}" '
-                            f'"dhcpv6_servers@" "{dhcpv6_servers}"')
 
         self.engine.run_cmd('sudo config save -y')
-        self.engine.run_cmd('sudo service dhcp_relay restart')
+        self.engine.run_cmd('sudo systemctl reset-failed dhcp_relay')
+        self.engine.run_cmd('sudo systemctl restart dhcp_relay')
 
     def del_ipv6_dhcp_relay(self, vlan, dhcp_server, topology_obj):
         """
@@ -256,6 +256,13 @@ class SonicDhcpRelayCli202111(SonicDhcpRelayCliMaster):
 
 
 class SonicDhcpRelayCli202205(SonicDhcpRelayCliMaster):
+
+    def __init__(self, engine, cli_obj):
+        self.engine = engine
+        self.cli_obj = cli_obj
+
+
+class SonicDhcpRelayCli202211(SonicDhcpRelayCliMaster):
 
     def __init__(self, engine, cli_obj):
         self.engine = engine

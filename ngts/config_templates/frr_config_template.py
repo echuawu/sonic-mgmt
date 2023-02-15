@@ -2,6 +2,7 @@ import allure
 
 from ngts.cli_util.stub_engine import StubEngine
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
+from functools import partial
 
 
 class FrrConfigTemplate:
@@ -9,16 +10,22 @@ class FrrConfigTemplate:
     This class contain 2 methods for configuration and cleanup of FRR related settings.
     """
     @staticmethod
-    def configuration(topology_obj, frr_config_dict):
+    def configuration(topology_obj, frr_config_dict, request=None):
         """
         Method which are doing FRR configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param frr_config_dict: configuration dictionary with all FRR related info
         Example: {
         'dut': {'configuration': {'config_name': 'dut_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
                 'cleanup': ['configure terminal', 'no router bgp 65000', 'exit', 'exit']},
         }
         """
+        if request:
+            with allure.step('Add Frr configuration cleanup into finalizer'):
+                cleanup = partial(FrrConfigTemplate.cleanup, topology_obj, frr_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying FRR configuration'):
             for player_alias, configuration in frr_config_dict.items():
                 cli_object = topology_obj.players[player_alias]['cli']

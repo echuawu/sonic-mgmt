@@ -10,6 +10,10 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.constants.constants import LinuxConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
@@ -139,6 +143,7 @@ def cli_objects(topology_obj):
 
 @pytest.fixture(scope='function', autouse=True)
 def log_test_wrapper(request, engines):
+    pytest.item = request.node
     test_name = request.module.__name__
     pytest.s_time = time.time()
     logging.info(' ---------------- TEST STARTED - {test_name} ---------------- '.format(test_name=test_name))
@@ -160,11 +165,15 @@ def interfaces(topology_obj):
     return interfaces_data
 
 
-def clear_config():
+def clear_config(markers):
     try:
+        TestToolkit.update_apis(ApiType.NVUE)
+        if 'system_profile_cleanup' in markers:
+            clear_system_profile_config()
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
+
         for comp in show_config_output:
             if "set" in comp.keys() and "interface" in comp["set"].keys():
                 result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
@@ -184,10 +193,35 @@ def clear_config():
         logging.warning("Failed to clear config:" + str(err))
 
 
+def clear_system_profile_config():
+    system = System(None)
+    system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()).get_returned_value()
+    try:
+        ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
+                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        system_profile_output).verify_result()
+    except AssertionError:
+        system.profile.action_profile_change(
+            params='adaptive-routing enabled breakout-mode disabled')
+
+
+def pytest_exception_interact(report):
+    try:
+        TestToolkit.engines.dut.run_cmd("docker ps -l")
+    except BaseException as err:
+        logging.warning(err)
+    save_results_and_clear_after_test(pytest.item)
+    logging.error(f'---------------- The test failed - an exception occurred: ---------------- \n{report.longreprtext}')
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_runtest_call(item):
+    save_results_and_clear_after_test(item)
+
+
+def save_results_and_clear_after_test(item):
+    markers = item.keywords._markers
     try:
-        markers = item.keywords._markers
         logging.info(' ---------------- The test completed successfully ---------------- ')
         if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/') \
                 and 'no_cli_coverage_run' not in markers and not pytest.is_sanitizer:
@@ -199,7 +233,7 @@ def pytest_runtest_call(item):
         logging.exception(' ---------------- The test failed - an exception occurred: ---------------- ')
         raise AssertionError(err)
     finally:
-        clear_config()
+        clear_config(markers)
 
 
 @pytest.fixture(scope="session", autouse=True)

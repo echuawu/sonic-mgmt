@@ -8,6 +8,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -300,3 +301,52 @@ def validate_one_port_in_show_all_ports(selected_port, output_dictionary, port_u
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
     validate_link_fields(selected_port, output_dictionary[selected_port.ib_interface.link.label], port_up)
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+@pytest.mark.nvos_ci
+@pytest.mark.ib
+def test_ib_show_interface_name_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_name(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_show_interface_all_state_up_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_all_state_up(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+@pytest.mark.simx
+def test_ib_show_interface_all_state_down_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_all_state_down(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+@pytest.mark.nvos_ci
+@pytest.mark.ib
+def test_ib_show_interface_name_link_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_name_link(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_show_interface_name_pluggable_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_name_pluggable(engines)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib_interfaces
+def test_ib_show_interface_name_stats_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ib_show_interface_name_stats(engines)

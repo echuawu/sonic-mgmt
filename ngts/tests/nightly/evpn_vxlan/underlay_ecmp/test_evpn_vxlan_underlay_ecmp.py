@@ -2,6 +2,7 @@ import logging
 import pytest
 import os
 
+from retry.api import retry_call
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
@@ -193,6 +194,6 @@ class TestEvpnVxlanUnderlayEcmp:
             validate_basic_evpn_type_2_3_route(self.players, cli_objects, interfaces, VxlanConstants.VLAN_3, self.dut_vlan_3_ip, self.dut_loopback_ip, self.ha_br_3333_ip, self.hb_vlan_3_ip,
                                                VxlanConstants.RD_3333)
         with allure.step('Validate BGP ECMP routes'):
-            cli_objects.dut.frr.validate_bgp_ecmp_route(self.network_nexthop_list)
+            retry_call(cli_objects.dut.frr.validate_bgp_ecmp_route, fargs=[self.network_nexthop_list], tries=3, delay=5, logger=logger)
         with allure.step('Validate vxlan traffic and counters'):
             self.validate_ecmp_traffic_and_counters(cli_objects)

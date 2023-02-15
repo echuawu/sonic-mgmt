@@ -12,14 +12,12 @@ def run_step(name) {
             print "Topic \"RUN_COMMUNITY_REGRESSION=true\" and changed files triggered community regression tests"
         } else {
             env.SKIP_COMMUNITY_REGRESSION = "true"
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH Community", "SPC", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH_COMMUNITY", "SPC", "Skipped=status")
 
         }
 
-        if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") || env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") )){
-            print "'NVOS' related files were changed. Will run NVOS BAT."
-            env.NVOS_BIN = (NGCITools().ciTools.run_sh_return_output("ls /auto/sw_system_release/nos/nvos/lastrc_master/nvos-amd64*.bin")).trim()
-        } else {
+        if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY")
+                && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
             print "'NVOS' BAT are skipped"
             env.SKIP_NVOS_BAT = "true"
             NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")

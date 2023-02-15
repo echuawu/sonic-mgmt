@@ -1,9 +1,12 @@
 import pytest
 import allure
 import datetime
+import json
 from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 @pytest.mark.system
@@ -20,14 +23,21 @@ def test_techsupport_show(engines):
     """
     system = System(None)
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
-        output_dictionary_before_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+        output_dictionary_before_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
         system.techsupport.action_generate()
         system.techsupport.action_generate()
-        output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+        output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
 
         validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions)
+
+    with allure.step('Validate show tech-support command format'):
+        show_output = system.techsupport.show()
+        tech_support_files_list_with_path = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(show_output).get_returned_value()
+        output_dictionary_json = json.loads(show_output).keys()
+        techsupport_names_without_path = [file.replace('/host/dump/', '') for file in tech_support_files_list_with_path]
+        assert output_dictionary_json != techsupport_names_without_path, "The show tech-support command format is not as expected, output: {} expected: {}".format(output_dictionary_json, techsupport_names_without_path)
 
 
 @pytest.mark.system
@@ -47,7 +57,7 @@ def test_techsupport_since(engines):
         yesterday_str = yesterday.strftime("%Y%m%d")
         tech_support_folder = system.techsupport.action_generate(engines.dut, SystemConsts.ACTIONS_GENERATE_SINCE,
                                                                  yesterday_str)
-        output_dictionary = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+        output_dictionary = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
 
         validate_techsupport_since(output_dictionary, tech_support_folder)
@@ -79,6 +89,96 @@ def test_techsupport_since_invalid_date(engines):
         assert 'Command failed with the following output' in output_dictionary, ""
 
 
+@pytest.mark.system
+def test_techsupport_delete(engines):
+    """
+    Run nv show system tech-support files command and verify the required fields are exist
+    command: nv show system tech-support files
+
+    Test flow:
+        1. run nv action generate system tech-support save as <first_file>
+        2. run nv action generate system tech-support save as <second_file>
+        3. run nv action delete system techsupport file <first_file>
+        4. verify "File delete successfully" message
+        5. run nv show system techsupport files
+        6. verify <second_file> still exist and <first_file> has been deleted
+        7. run nv action delete system techsupport file <first_file>
+        8. File not found: <first_file>
+    """
+    system = System(None)
+    success_message = 'File delete successfully'
+    with allure.step('Run action delete system tech-support and verify that each results updated as expected'):
+
+        with allure.step('Generate two tech-support files'):
+            first_file = system.techsupport.action_generate()
+            second_file = system.techsupport.action_generate()
+
+        with allure.step('Delete the first created tech-support file'):
+            output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()
+
+        assert success_message in output, 'failed to delete'
+        output_dictionary_after_delete = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
+            system.techsupport.show()).get_returned_value()
+
+        with allure.step('Check {} has been deleted and {} still exist'.format(first_file, second_file)):
+            assert first_file not in output_dictionary_after_delete, "{} still exist even after deleting it".format(first_file)
+            assert second_file in output_dictionary_after_delete, "{} does not exist".format(first_file)
+
+        with allure.step('Delete non exist tech-support file {}'.format(first_file)):
+            res_obj = system.techsupport.action_delete(first_file.replace('/host/dump/', ''))
+            res_obj.verify_result(should_succeed=False)
+            assert 'Action failed with the following issue:' in res_obj.info, "Can not delete non exist file!"
+
+
+@pytest.mark.system
+def test_techsupport_upload(engines):
+    """
+    Test flow:
+        1. upload non exist tech-support file
+        2. verify the error message
+        3. generate tech-support file save as tech_file
+        4. upload to valid_url
+        5. verify the success message
+        6. check the size of tgz in target path
+        7. invalid_url_1 : using invalid format nv action upload system techsupport files <tech_file> <invalid_url1>
+        8. invalid_url_2 : using invalid opt nv action upload system techsupport files <tech_file> <invalid_url2>
+        9. run nv action upload system techsupport files  <tech_file> <invalid_url1> and verify error message
+        10. run nv action upload system techsupport files  <tech_file> <invalid_url2> and verify error message
+    :param engines:
+    :return:
+    """
+    system = System(None)
+    with allure.step('generate valid and invalid urls'):
+        player = engines['sonic_mgmt']
+        invalid_url_1 = 'scp://{}:{}{}/tmp/'.format(player.username, player.password, player.ip)
+        invalid_url_2 = 'ffff://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
+        upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
+
+    with allure.step('Try to upload non exist tech-support file'):
+        output = system.techsupport.action_upload(file_name='nonexist', upload_path=upload_path)
+        assert "File not found: nonexist" in output.info, "we can not upload a non exist file!"
+
+    with allure.step('Generate tech-support file'):
+        tech_file = system.techsupport.action_generate().replace('/host/dump/', '')
+
+    with allure.step('try to upload techsupport {} to {} - Positive Flow'.format(tech_file, upload_path)):
+        output = system.techsupport.action_upload(upload_path, tech_file).verify_result()
+        with allure.step('verify the upload message'):
+            assert "File upload successfully" in output, "Failed to upload the techsupport file"
+
+        with allure.step('verify the uploaded file exist in target path'):
+            output = player.run_cmd('ls /tmp/')
+            assert tech_file in output
+
+    with allure.step('try to upload techsupport to invalid url - url is not in the right format'):
+        output = system.techsupport.action_upload(file_name='nonexist', upload_path=invalid_url_1)
+        assert "Invalid Command" in output.info, "URL was not in the right format"
+
+    with allure.step('try to upload ibdiagnet to inalid url - using non supported transfer protocol'):
+        output = system.techsupport.action_upload(file_name='nonexist', upload_path=invalid_url_2)
+        assert "Invalid Command" in output.info, "URL used non supported transfer protocol"
+
+
 def validate_techsupport_output(output_dictionary_before, output_dictionary_after):
     with allure.step('Validating the generate command and show command working as expected'):
         new_folders = [file for file in output_dictionary_after if file not in output_dictionary_before]
@@ -89,3 +189,26 @@ def validate_techsupport_since(output_dictionary, substring):
     with allure.step('Validating the generate command and show command working as expected'):
         assert substring in output_dictionary,\
             "at least one of the new tech-support folders not found, expected folders"
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_show_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_show(engines)
+
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_since_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_since(engines)
+
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_since_invalid_date_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_since_invalid_date(engines)

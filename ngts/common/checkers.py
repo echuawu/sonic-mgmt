@@ -1,3 +1,8 @@
+import logging
+
+
+logger = logging.getLogger()
+
 
 def verify_deviation(value, expected_value, deviation):
     """
@@ -92,3 +97,16 @@ def is_docker_exists(cli_objects, docker_name):
         status = False
         msg = f"{docker_name} docker doesn't exist"
     return status, msg
+
+
+def is_ver1_greater_or_equal_ver2(version1, version2):
+    ver1 = version1.split(".")
+    ver2 = version2.split(".")
+    logger.info(f"ver1:{ver1}, ver2:{ver2}")
+    len_version = len(ver2) if len(ver1) > len(ver2) else len(ver1)
+    for i in range(len_version):
+        if int(ver1[i]) > int(ver2[i]):
+            return True
+        if int(ver1[i]) < int(ver2[i]):
+            return False
+    return len(ver1) >= len(ver2)

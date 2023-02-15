@@ -2,6 +2,8 @@ import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -121,3 +123,29 @@ def test_interface_ib0_set_dhcp_state(engines, topology_obj):
                 ipoib_port.interface.ip.dhcp_client.show()).verify_result()
             Tools.ValidationTool.verify_field_value_in_output(dhcp_client_dict, IbInterfaceConsts.DHCP_STATE,
                                                               IbInterfaceConsts.IB0_DHCP_STATE_DEFAULT_VALUE).verify_result()
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_interface_ib0_dhcp_default_values_openapi(engines, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_interface_ib0_dhcp_default_values(engines, topology_obj)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_interface_ib0_dhcp_set_hostname_openapi(engines, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_interface_ib0_dhcp_set_hostname(engines, topology_obj)
+
+
+@pytest.mark.openapi
+@pytest.mark.ib
+@pytest.mark.simx
+def test_interface_ib0_set_dhcp_state_openapi(engines, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_interface_ib0_set_dhcp_state(engines, topology_obj)

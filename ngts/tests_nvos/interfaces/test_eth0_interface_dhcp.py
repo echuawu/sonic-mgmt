@@ -243,8 +243,8 @@ def test_interface_eth0_description(engines):
                                                           field_name=mgmt_port.interface.description.label,
                                                           expected_value='').verify_result()
 
-    with allure.step('Negative set description with spaces on mgmt port'):
-        mgmt_port.interface.description.set(value='eth0 description', apply=True).verify_result(False)
+    with allure.step('Set description with spaces on mgmt port'):
+        mgmt_port.interface.description.set(value='eth0 description', apply=True).verify_result()
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             mgmt_port.show()).get_returned_value()
@@ -273,7 +273,6 @@ def test_interface_eth0_description(engines):
 
 
 @pytest.mark.ib
-@pytest.mark.simx
 def test_interface_eth0_ip_address(engines, topology_obj):
     """
     Verify can configure ipv address, switch ip updated by dhcp

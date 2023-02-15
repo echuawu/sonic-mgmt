@@ -22,8 +22,14 @@ def test_cpld_version_check(engines, platform_params):
         fw_pkg_path = f'{path_to_current_test_folder}/updated-fw.tar.gz'
         fw_data = extract_fw_data(fw_pkg_path)
         current_platform = platform_params.filtered_platform.upper()
+        dut_name = platform_params['setup_name'].strip('_setup').split('_')[-1]
+        chassis_components_dict = {}
         try:
-            chassis_components_dict = fw_data['chassis'][current_platform]['component']
+            if "host" in fw_data and dut_name in fw_data["host"]:
+                for component_type in fw_data["host"][dut_name]["component"].keys():
+                    chassis_components_dict[component_type] = fw_data["host"][dut_name]["component"][component_type]
+            else:
+                chassis_components_dict = fw_data['chassis'][current_platform]['component']
         except KeyError as err:
             err_mgs = f'Can not find components list for platform: {current_platform}. Got err: {err}'
             raise KeyError(err_mgs)

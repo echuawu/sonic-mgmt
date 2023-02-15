@@ -19,11 +19,11 @@ def test_techsupport_folder_name(engines):
     """
     with allure.step('Run nv action generate system tech-support and validate the tech-support name'):
         system = System(None)
-        output_dictionary_before = OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+        output_dictionary_before = OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
         tech_support_folder = system.techsupport.action_generate()
         validate_techsupport_folder_name(system, tech_support_folder)
-        output_dictionary_after = OutputParsingTool.parse_show_system_techsupport_output_to_dictionary(
+        output_dictionary_after = OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
 
         cleanup_techsupport(engines.dut, output_dictionary_before, output_dictionary_after)
@@ -44,7 +44,7 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
             engines.dut.run_cmd('sudo systemctl stop {docker}'.format(docker=docker))
         tech_support_folder = system.techsupport.action_generate()
     with allure.step('validate commands works as expected'):
-        assert '/var/dump/nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
+        assert '/host/dump/nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
 
     cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
@@ -76,20 +76,6 @@ def test_techsupport_expected_files(engines, devices):
     cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
 
-def validate_techsupport_folder_name(system, tech_support_folder):
-    """
-    Test flow:
-        1. run nv show system
-        2. get the hosname value
-        3. validate the tar.gz name is /var/dump/nvos_dump_<hostname>_<time_now>.tar.gz
-    """
-    with allure.step('Check that tech-support name is as expected :/var/dump/nvos_dump_<hostname>_<time_now>.tar.gz'):
-        system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
-        hostname = system_output[SystemConsts.HOSTNAME]
-        assert '/var/dump/nvos_dump_' + hostname in tech_support_folder, 'the tech-support should be under var dump ' \
-                                                                         'and includes hostname'
-
-
 def get_techsupport_dump_files_names(engine, techsupport):
     """
     :param engine:
@@ -97,11 +83,17 @@ def get_techsupport_dump_files_names(engine, techsupport):
     :return: list of the fump files in the tech-support
     """
     with allure.step('Get all tech-support dump files'):
-        engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /var/dump')
+        engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
         folder_name = techsupport.replace('.tar.gz', "")
         output = engine.run_cmd('ls ' + folder_name + '/dump')
         engine.run_cmd('sudo rm -rf ' + folder_name)
         return output.split()
+
+
+def cleanup_techsupport(engine, before, after):
+    new_folders = [file for file in after if file not in before]
+    for dump in new_folders:
+        engine.run_cmd('sudo rm -rf ' + dump)
 
 
 def verify_techsupport_dump_files(device, files_list):
@@ -117,7 +109,14 @@ def verify_techsupport_dump_files(device, files_list):
         logger.warning("the next files are in the dump folder but not in our check list {files}".format(files=files))
 
 
-def cleanup_techsupport(engine, before, after):
-    new_folders = [file for file in after if file not in before]
-    for dump in new_folders:
-        engine.run_cmd('sudo rm -rf ' + dump)
+def validate_techsupport_folder_name(system, tech_support_folder):
+    """
+    Test flow:
+        1. run nv show system
+        2. get the hosname value
+        3. validate the tar.gz name is /host/dump/nvos_dump_<hostname>_<time_now>.tar.gz
+    """
+    with allure.step('Check that tech-support name is as expected :/host/dump/nvos_dump_<hostname>_<time_now>.tar.gz'):
+        system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
+        hostname = system_output[SystemConsts.HOSTNAME]
+        assert '/host/dump/nvos_dump_' + hostname in tech_support_folder, 'the tech-support should be under host dump and includes hostname'

@@ -23,7 +23,7 @@ class LinuxDhcpCli:
     ipv6_server_src_port = 547
     ipv6_dst_port = 547
 
-    ipv6_base_pkt = 'Ether(dst="{dst_mac}")/IPv6(src="{src_ip}", dst="{dst_ip}")/UDP(sport={s_port}, dport={d_port})/'
+    ipv6_base_pkt = 'Ether(src="{src_mac}", dst="{dst_mac}")/IPv6(src="{src_ip}", dst="{dst_ip}")/UDP(sport={s_port}, dport={d_port})/'
 
     def __init__(self, engine):
         self.engine = engine

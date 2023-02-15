@@ -1,4 +1,5 @@
 import allure
+from functools import partial
 
 command_dict = {"pg": "buffer-threshold-pg",
                 "queue": "buffer-threshold-queue",
@@ -10,13 +11,19 @@ class WjhBufferConfigTemplate:
     This class contain 2 methods: configuration and deletion of WJH buffer congestion and latency thresholds.
     """
     @staticmethod
-    def configuration(topology_obj, thresholds_config_dict):
+    def configuration(topology_obj, thresholds_config_dict, request=None):
         """
         This method applies WJH buffer congestion and latency thresholds configuration
         :param topology_obj: topology object fixture
+        :param request: request object fixture
         :param thresholds_config_dict: configuration dictionary with all WJH buffer congestion and latency thresholds related info
         Example: {'dut': [{'iface': eth0, 'queue_type': 'pg', 'index': 0, 'threshold': 10}]}
         """
+        if request:
+            with allure.step('Add Vxlan configuration cleanup into finalizer'):
+                cleanup = partial(WjhBufferConfigTemplate.cleanup, topology_obj, thresholds_config_dict)
+                request.addfinalizer(cleanup)
+
         with allure.step('Applying WJH buffer congestion and latency thresholds configuration'):
             conf = {}
             for player_alias, configuration in thresholds_config_dict.items():

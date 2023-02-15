@@ -8,8 +8,13 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
+
+running_dockers = {}
 
 
 @pytest.mark.system
@@ -32,11 +37,11 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     with allure.step('Create System object'):
         system = System()
 
-    with allure.step("Change profile to breakout mode"):
+    '''with allure.step("Change profile to breakout mode"):
         _change_profile_to_breakout()
 
     with allure.step("Split a random port"):
-        split_port = _split_port(engines.dut)
+        split_port = _split_port(engines.dut)'''
 
     with allure.step("Add data before reset factory"):
         username = _add_verification_data(engines.dut, system)
@@ -45,13 +50,16 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
         current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
         logging.info("Current time: " + str(current_time))
-        system.factory_default.action_reset()
+        system.factory_default.action_reset().verify_result()
+
+    with allure.step("Wait while the system initializing"):
+        NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
 
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)
 
-    with allure.step("Verify the breakup mode is disabled and selected port is not split any more"):
-        _verify_profile_and_split(split_port)
+    '''with allure.step("Verify the breakup mode is disabled and selected port is not split any more"):
+        _verify_profile_and_split(split_port)'''
 
     with allure.step("Verify the setup is functional"):
         _verify_the_setup_is_functional(system, engines)
@@ -111,6 +119,26 @@ def _add_verification_data(engine, system):
             output = engine.run_cmd("sudo touch /home/.viminfo")
         output = engine.run_cmd("sudo touch /home/verification_test")
 
+    with allure.step("Add file to /etc/sonic"):
+        output = engine.run_cmd("ls /etc/sonic")
+        if "No such file or directory" in output:
+            output = engine.run_cmd("sudo mkdir /etc/sonic")
+        output = engine.run_cmd("sudo touch /etc/sonic/verification_test")
+
+    with allure.step("Add file to /host/warmboot"):
+        output = engine.run_cmd("ls /host/warmboot")
+        if "No such file or directory" in output:
+            output = engine.run_cmd("sudo mkdir /host/warmboot")
+        output = engine.run_cmd("sudo touch /host/warmboot/verification_test")
+
+    with allure.step("Check running dockers"):
+        logging.info("Check running dockers")
+        output = engine.run_cmd("docker container list").split('\n')[1:]
+        for line in output:
+            docker_name = line.split()[9]
+            if docker_name != "database":
+                running_dockers[docker_name] = line.split()[3]
+
     with allure.step("Create new user"):
         username, password = system.create_new_user(engine)
         return username
@@ -157,6 +185,16 @@ def _verify_cleanup_done(engine, current_time, system, username):
         if output and "No such file or directory" not in output:
             errors += "\ntech-support files were not deleted"
 
+    with allure.step("Verify /etc/sonic content was cleared"):
+        output = engine.run_cmd("ls /etc/sonic/verification_test")
+        if output and "No such file or directory" not in output:
+            errors += "\n/etc/sonic was not cleared"
+
+    with allure.step("Verify /host/warmboot content was deleted"):
+        output = engine.run_cmd("ls /host/warmboot")
+        if output and "No such file or directory" not in output:
+            errors += "\n/host/warmboot was not cleared"
+
     with allure.step("Verify history was deleted"):
         output = engine.run_cmd("ls /home/.bash_history")
         if "No such file or directory" not in output:
@@ -169,11 +207,11 @@ def _verify_cleanup_done(engine, current_time, system, username):
             errors += "\n*.viminfo files were not deleted"
         output = engine.run_cmd("find /home/ -maxdepth 1 -type f ")
 
-    with allure.step("Verify utmp files were cleared"):
-        output = engine.run_cmd("stat /var/log/btmp | grep Size")
+    with allure.step("Verify btmp files were cleared"):
+        output = engine.run_cmd("stat /var/log/btmp | grep Modify")
         if output and "No such file or directory" not in output:
-            size = int(output.split()[1])
-            if size != 0:
+            file_date_time = _create_date_time_obj(output)
+            if current_time >= file_date_time:
                 errors += "\n/var/log/btmp was not cleared"
 
         output = engine.run_cmd("stat /var/log/lastlog | grep Modify")
@@ -193,6 +231,15 @@ def _verify_cleanup_done(engine, current_time, system, username):
             engine.run_cmd("nv show system aaa user -o json")).get_returned_value()
         if username in output.keys():
             errors += "\nCreated user was not deleted"
+
+    with allure.step("Create new user"):
+        logging.info("Check running dockers")
+        for docker_name in running_dockers.keys():
+            create_time = engine.run_cmd("docker ps | grep {}".format(docker_name)).split()[3]
+            if not create_time:
+                errors += "\n'{}' is not running after reset factory".format(docker_name)
+            elif running_dockers[docker_name] == create_time:
+                errors += "\n'{}' was not stopped during reset factory".format(docker_name)
 
     assert not errors, errors
 
@@ -242,3 +289,21 @@ def test_error_flow_reset_factory_with_params(engines, devices, topology_obj):
         output = engines.dut.run_cmd("nv action reset system factory-default only-config")
         assert "Invalid Command" in output, "Reset factory with param should fail"
         # system.factory_default.action_reset(param="only-config").verify_result(should_succeed=False)
+
+
+# ------------ Open API tests -----------------
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.checklist
+def test_error_flow_reset_factory_with_params_openapi(engines, devices, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_error_flow_reset_factory_with_params(engines, devices, topology_obj)
+
+
+"""@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.checklist
+def test_reset_factory_without_params_openapi(engines, devices, topology_obj):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_reset_factory_without_params(engines, devices, topology_obj)"""

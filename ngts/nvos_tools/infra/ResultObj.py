@@ -31,8 +31,13 @@ class ResultObj:
                      result='True' if self.result else 'False',
                      should_succeed='True' if should_succeed else 'False',
                      info=self.info))
-        assert (should_succeed and self.result) or (not should_succeed and not self.result), \
-            IssueType.exception_msg[self.issue_type] + self.info
+        self.info = IssueType.exception_msg[self.issue_type] + self.info
+
+        if should_succeed:
+            assert self.result, self.info if self.info else "The operation failed"
+        else:
+            assert not self.result, self.info if self.info else "The operation succeeded while it is expected to fail"
+
         return self.returned_value
 
     def get_returned_value(self, should_succeed=True):

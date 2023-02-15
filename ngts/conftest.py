@@ -90,6 +90,8 @@ def pytest_addoption(parser):
     parser.addoption("--send_mail", action="store", default=False,
                      help="a boolean parameter for script check_and_store_sanitizer_dump.py, "
                           "will send mail with the sanitizer failures")
+    parser.addoption("--skynet", action="store_true", default=False,
+                     help="a boolean parameter for identify skynet tests")
     parser.addoption("--tech_support_duration", action="store", default=None, help="duration of tech support for test")
     parser.addoption(PytestConst.run_config_only_arg, action='store_true', help='If set then only the configuration '
                                                                                 'part defined in the push_build '
@@ -214,6 +216,7 @@ def topology_obj(setup_name, request):
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
     enable_record_cmds(topology)
+    topology.players['dut']['is_nvos'] = topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes
 
     yield topology
 
@@ -346,7 +349,8 @@ def platform_params(show_platform_summary, setup_name):
     """
     platform_data = DottedDict()
     platform_data.platform = show_platform_summary['platform']
-    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4}|mqm\d{4}|mbf.*c)", show_platform_summary['platform'], re.IGNORECASE).group(1)
+    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4}|mqm\d{4}|mbf.*c|900.*a)",
+                                                show_platform_summary['platform'], re.IGNORECASE).group(1)
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name
     platform_data.asic_type = show_platform_summary["asic_type"]

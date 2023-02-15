@@ -2,24 +2,24 @@ SESSION_IDS = [:]
 
 
 def get_SetupNameRebootTypeMap(setup_name) {
-    setup_names = [:]
+
+    reboot_types = []
 
     if (env.fast_reboot_executors.trim()) {
         fast_reboot_executors = env.fast_reboot_executors.split(',')
-        fast_reboot_executors.each{ value ->
-            setup_names[value] = "fast"
+        if (fast_reboot_executors.contains(setup_name)) {
+            reboot_types.add("fast")
         }
     }
 
     if (env.warm_reboot_executors.trim()) {
         warm_reboot_executors = env.warm_reboot_executors.split(',')
-        warm_reboot_executors.each{ value ->
-            setup_names[value] = "warm"
+        if (warm_reboot_executors.contains(setup_name)) {
+            reboot_types.add("warm")
         }
     }
 
-    reboot_type = setup_names.get(setup_name)
-    return reboot_type
+    return reboot_types
 }
 
 
@@ -29,18 +29,21 @@ def getSetupNames(){
 
     if (env.fast_reboot_executors.trim()) {
         fast_reboot_executors = env.fast_reboot_executors.split(',')
-        fast_reboot_executors.each{ value ->
+	    fast_reboot_executors.each{ value ->
             setup_names.add(value)
-        }
+		}
     }
 
     if (env.warm_reboot_executors.trim()) {
         warm_reboot_executors = env.warm_reboot_executors.split(',')
         warm_reboot_executors.each{ value ->
-            setup_names.add(value)
+            if (value in setup_names) {
+                echo "Already exist"
+            } else {
+                 setup_names.add(value)
+            }
         }
     }
-
     return setup_names
 }
 
@@ -75,14 +78,22 @@ def prepareSonicMgmtTarball() {
 
 def runTestForSetup(setup_name){
     // Run tests for specific setup
-    testType = get_SetupNameRebootTypeMap(setup_name)
-
-    // Convert setup name to .setup file name
-    setup_file_name = setup_name.replace("_setup", ".setup")
+    reboot_types = get_SetupNameRebootTypeMap(setup_name)
 
     base_versions_list = env.base_version
     target_version = env.target_version
-    db_file_name = "${testType}_reboot.db"
+
+    if (reboot_types.size() == 2) {
+        exec_block_gen_arg = "--meinfo_execution_block_generator=\\\"[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/fast_reboot.db'}, {'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/warm_reboot.db'}]\\\""
+    } else {
+        reboot_types.each{ value ->
+            db_file_name = "${value}_reboot.db"
+            exec_block_gen_arg = "--meinfo_execution_block_generator=\\\"[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/${db_file_name}'}]\\\""
+        }
+    }
+
+    // Convert setup name to .setup file name
+    setup_file_name = setup_name.replace("_setup", ".setup")
 
     mars_setup_cli_path = "/.autodirect/sw_tools/Internal/MARS/mars_apps/RELEASE/4_2_1/bin/setup_cli.py"
     tarball_arg = "--meinfo_custom_tarball_name jenkins_reboot_tests_runner.db.1.tgz"
@@ -96,7 +107,6 @@ def runTestForSetup(setup_name){
     }
 
     base_ver_arg = "--meinfo_base_version ${target_version}"
-    exec_block_gen_arg = "--meinfo_execution_block_generator=\\\"[{'entry_points': 'SONIC_MGMT', 'tests_dbs_tarball': 'sonic-mgmt/${db_file_name}'}]\\\""
 
     stm_cmd = "${mars_setup_cli_path} --cmd start --setup ${setup_name} --conf ${setup_file_name} ${tarball_arg} ${base_ver_arg} ${exec_block_gen_arg}"
     echo "Running CMD on STM: ${stm_cmd}"

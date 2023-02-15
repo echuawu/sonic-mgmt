@@ -3,19 +3,24 @@ import pytest
 import logging
 import json
 
-from ngts.tools.mars_test_cases_results.Connect_to_MSSQL import ConnectMSSQL
 from ngts.constants.constants import DbConstants, CliType, RebootTestConstants
+from infra.tools.sql.connect_to_mssql import ConnectMSSQL
+from infra.tools.sql.skynet_collector import SkynetGenericCollector
 
 logger = logging.getLogger()
 
 
 @pytest.fixture(autouse=True)
 def collect_tests_data_to_sql(request):
+    skynet_run = False
+    if hasattr(request.config.option, 'skynet'):
+        skynet_run = request.config.getoption("skynet")
+    cpu_ram_usage_collector = SkynetSonicCpuRamUsageCollector if skynet_run else NgtsCpuRamUsageCollector
 
     pytest_node_ids_which_should_be_collected = {
         'tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer': NgtsPushGateRebootLossTimeCollector,
-        'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage': NgtsCpuRamUsageCollector,
-        'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage': NgtsCpuRamUsageCollector,
+        'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage': cpu_ram_usage_collector,
+        'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage': cpu_ram_usage_collector,
         'tests/push_build_tests/system/test_startup_time_degradation.py::TestStartupTime::test_startup_time_degradation': StartupTimeCollector,
         'platform_tests/test_advanced_reboot.py::test_fast_reboot': AdvancedRebootCollector,
         'platform_tests/test_advanced_reboot.py::test_warm_reboot': AdvancedRebootCollector,
@@ -256,9 +261,9 @@ class AdvancedRebootCollector(SonicDataCollector):
 
     def get_ports_info(self):
         config_facts = self.dut_engine.config_facts(host=self.dut_engine.hostname, source="running")['ansible_facts']
-        self.setup_extra_info['total_ports'] = len(config_facts['PORT'])
+        self.setup_extra_info['total_ports'] = len(config_facts.get('PORT', {}))
         active_ports = 0
-        for port, port_data in config_facts['PORT'].items():
+        for port, port_data in config_facts.get('PORT', {}).items():
             if port_data.get('admin_status') == 'up':
                 active_ports += 1
         self.setup_extra_info['active_ports'] = active_ports
@@ -277,6 +282,9 @@ class AdvancedRebootCollector(SonicDataCollector):
         if 'warm' in self.test_name:
             ptf_test_log_path = '/tmp/warm-reboot-report.json'
 
+        default_loss_value = '-1'
+        self.test_data = {'dataplane': default_loss_value, 'controlplane': default_loss_value}
+
         md5sum_log_file = '/tmp/advanced_reboot_sql_collected.log'
         try:
             md5sum = self.ptfhost_engine.shell('md5sum {}'.format(ptf_test_log_path))['stdout']
@@ -288,6 +296,12 @@ class AdvancedRebootCollector(SonicDataCollector):
             ptf_test_report_dict = json.loads(ptf_test_report)
             dataplane_downtime = ptf_test_report_dict['dataplane']['downtime']
             controlplane_downtime = ptf_test_report_dict['controlplane']['downtime']
+
+            # if not able to check dataplane loss or control plane loss - then use '-1' value as default
+            if not ptf_test_report_dict['dataplane']['checked_successfully']:
+                dataplane_downtime = default_loss_value
+            if not controlplane_downtime:
+                controlplane_downtime = default_loss_value
 
             self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime}
 
@@ -336,3 +350,26 @@ class StartupTimeCollector(SonicDataCollector):
 
         except Exception as err:
             logger.error("Couldn't get reboot time data for test: {}. Got err: {}".format(self.test_name, err))
+
+
+class SkynetSonicCpuRamUsageCollector(SkynetGenericCollector):
+    """
+    Class which collects CPU/RAM usage for Skynet CPU/RAM usage test cases
+    """
+    def __init__(self, request):
+        self.request = request
+        setup_name = self.request.getfixturevalue('setup_name')
+        project_name = 'sonic'
+        sonic_version = self.request.getfixturevalue('sonic_version')
+        platform = self.request.getfixturevalue('platform_params').platform
+        test_name = self.request.node.nodeid
+        topology = 'ptf-any'
+        test_rc = 'failed' if self.request.node.rep_call.failed else 'passed'
+        super(SkynetSonicCpuRamUsageCollector, self).__init__(setup_name, topology, sonic_version, project_name,
+                                                              platform, test_name, test_rc)
+
+    def get_test_results(self):
+        test_report_filename = os.path.join('/tmp/', self.request.node.originalname)
+        with open(test_report_filename) as test_report_file_obj:
+            test_report_dict = json.load(test_report_file_obj)
+            self.test_data = test_report_dict
