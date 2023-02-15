@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CASEDEF>
+  <global>
+   <!-- This cases file will run on CI physical setups during CI,and will run only the tests that simx setups cannot run -->
+    <Test>
+      <group> onyx </group>
+      <name> SONiC Push Gate CI for physical setups </name>
+      <info> SONiC PushGate CI coverage test </info>
+      <owner> amalkin </owner>
+    </Test>
+    <Case>
+      <tags> push_gate </tags>
+      <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
+      <tout> 2400 </tout>
+      <tags>ALL</tags>
+    </Case>
+  </global>
+  <case>
+    <name> PushGate Physical</name>
+    <!-- Skipped on SimX due to missing feature/unstable feature -->
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/ --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results -m \"push_gate and simx_uncovered\" --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <name> push_gate_ci_sanitizer_checker </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/check_and_store_sanitizer_dump.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals --test_name=push_gate_ci\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+</CASEDEF>

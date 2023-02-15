@@ -19,16 +19,11 @@ warm_reboot_executors = os.environ.get('warm_reboot_executors')
 warm_reboot_iterations_number = os.environ.get('warm_reboot_iterations_number', 1)
 base_version = os.environ.get('base_version')
 target_version = os.environ.get('target_version')
-
-f_reboot_setups_list = []
-if fast_reboot_executors:
-    f_reboot_setups_list = fast_reboot_executors.split(',')
-w_reboot_setups_list = []
-if warm_reboot_executors:
-    w_reboot_setups_list = warm_reboot_executors.split(',')
 tests_results_file_path = os.path.join(workspace_dir, 'results.json')
 email_report_file_path = os.path.join(workspace_dir, 'email_report.html')
 
+REBOOT_TYPES = ['fast', 'warm']
+FAST_REBOOT_TEST_IDS = [9, 13]  # 9 and 13 - id's for fast-reboot and fast-reboot upgrade tests
 
 DB_FILE_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
 <DBDEF>
@@ -186,50 +181,40 @@ def build_summary_report(results):
                  '<td style="width: 10%;">Tests Status</td>' \
                  '</tr>'
 
-    for setup_name, setup_data in results.items():
-        test_name = setup_data['reboot_type']
-        total_iterations = len(setup_data['data'])
-        base_ver = setup_data['base_ver']
-        target_ver = setup_data['target_ver']
-        dataplane_downtime_list = get_downtime_list(setup_data, plane='dataplane_downtime')
-        controlplane_downtime_list = get_downtime_list(setup_data, plane='controlplane_downtime')
-        average_dataplane_loss = 'Unknown'
-        if dataplane_downtime_list:
-            average_dataplane_loss = sum(dataplane_downtime_list) / len(dataplane_downtime_list)
-        average_controlplane_loss = 'Unknown'
-        if controlplane_downtime_list:
-            average_controlplane_loss = sum(controlplane_downtime_list) / len(controlplane_downtime_list)
+    for setup_name, setup_data_dict in results.items():
+        for reboot_type in REBOOT_TYPES:
+            if setup_data_dict[reboot_type]:
+                total_iterations = len(setup_data_dict[reboot_type])
+                base_ver = ','.join(setup_data_dict['common']['base_ver'])
+                target_ver = setup_data_dict['common']['target_ver']
+                average_dataplane_loss = setup_data_dict['results'][reboot_type]['dataplane_loss']
+                average_controlplane_loss = setup_data_dict['results'][reboot_type]['controlplane_loss']
 
-        test_statuses_list = [i['test_status'] for i in setup_data['data']]
-        passed_tests_num = test_statuses_list.count('passed')
-        failed_tests_num = len(test_statuses_list) - passed_tests_num
-        tests_status = '<span style="font-size:14px; color: green">Passed: {},</span> ' \
-                       '<span style="font-size:14px; color: red">Failed: {}</span>'.format(passed_tests_num,
-                                                                                           failed_tests_num)
-        hwsku = 'Unknown'
-        total_ports_num = 'Unknown'
-        active_ports_num = 'Unknown'
-        if setup_data.get('extra_data'):
-            hwsku = setup_data['extra_data'].get('hwsku', hwsku)
-            total_ports_num = setup_data['extra_data'].get('total_ports', total_ports_num)
-            active_ports_num = setup_data['extra_data'].get('active_ports', active_ports_num)
-        ports = 'Total: {}, Active: {}'.format(total_ports_num, active_ports_num)
+                passed_tests_num = setup_data_dict['results'][reboot_type]['passed']
+                failed_tests_num = setup_data_dict['results'][reboot_type]['failed']
+                tests_status = '<span style="font-size:14px; color: green">Passed: {},</span> ' \
+                               '<span style="font-size:14px; color: red">Failed: {}</span>'.format(passed_tests_num,
+                                                                                                   failed_tests_num)
+                hwsku = setup_data_dict['common']['hwsku']
+                total_ports_num = setup_data_dict['common']['total_ports']
+                active_ports_num = setup_data_dict['common']['active_ports']
+                ports = 'Total: {}, Active: {}'.format(total_ports_num, active_ports_num)
 
-        setup_data = '<tr style="height: 18px;">' \
-                     '<td style="width: 10%; height: 18px;">{}</td>' \
-                     '<td style="width: 15%; height: 18px;">{}</td>' \
-                     '<td style="width: 5%; height: 18px;">{}</td>' \
-                     '<td style="width: 5%; height: 18px;">{}</td>' \
-                     '<td style="width: 5%; height: 18px;">{}</td>' \
-                     '<td style="width: 15%; height: 18px;">{}</td>' \
-                     '<td style="width: 15%; height: 18px;">{}</td>' \
-                     '<td style="width: 5%; height: 18px;">{}</td>' \
-                     '<td style="width: 5%; height: 18px;">{}</td>' \
-                     '<td style="width: 10%; height: 18px;">{}</td>' \
-                     '</tr>'.format(setup_name, hwsku, ports, test_name, total_iterations, base_ver, target_ver,
-                                    average_dataplane_loss, average_controlplane_loss, tests_status)
+                setup_data = '<tr style="height: 18px;">' \
+                             '<td style="width: 10%; height: 18px;">{}</td>' \
+                             '<td style="width: 15%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 15%; height: 18px;">{}</td>' \
+                             '<td style="width: 15%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 10%; height: 18px;">{}</td>' \
+                             '</tr>'.format(setup_name, hwsku, ports, reboot_type, total_iterations, base_ver,
+                                            target_ver, average_dataplane_loss, average_controlplane_loss, tests_status)
 
-        email_body += setup_data
+                email_body += setup_data
 
     email_body += '</tbody>' \
                   '</table>'
@@ -267,30 +252,30 @@ def build_setup_report(setup_name, results):
                  '</tr>'
 
     iteration_number = 1
-    for run in results[setup_name]['data']:
-        test_name = results[setup_name]['reboot_type']
-        base_ver = results[setup_name]['base_ver']
-        target_ver = results[setup_name]['target_ver']
-        dataplane_downtime = run['dataplane_downtime']
-        controlplane_downtime = run['controlplane_downtime']
-        allure_report_url = run['allure']
-        test_status = run['test_status']
-        color = 'green' if test_status == 'passed' else 'red'
+    for reboot_type in REBOOT_TYPES:
+        for test_run in results[setup_name][reboot_type]:
+            base_ver = test_run['base_ver']
+            target_ver = test_run['target_ver']
+            dataplane_downtime = test_run['dataplane'] if int(test_run['dataplane']) != -1 else 'Unknown'
+            controlplane_downtime = test_run['controlplane'] if int(test_run['controlplane']) != -1 else 'Unknown'
+            allure_report_url = test_run['allure_report']
+            test_status = test_run['test_status']
+            color = 'green' if test_status == 'passed' else 'red'
 
-        iteration_data = '<tr style="height: 18px;">' \
-                         '<td style="width: 5%; height: 18px;">{}</td>' \
-                         '<td style="width: 5%; height: 18px;">{}</td>' \
-                         '<td style="width: 15%; height: 18px;">{}</td>' \
-                         '<td style="width: 15%; height: 18px;">{}</td>' \
-                         '<td style="width: 5%; height: 18px; color: {}">{}</td>' \
-                         '<td style="width: 10%; height: 18px;">{}</td>' \
-                         '<td style="width: 10%; height: 18px;">{}</td>' \
-                         '<td style="width: 20%; height: 18px;">{}</td>' \
-                         '</tr>'.format(iteration_number, test_name, base_ver, target_ver, color, test_status,
-                                        dataplane_downtime, controlplane_downtime, allure_report_url)
+            iteration_data = '<tr style="height: 18px;">' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px;">{}</td>' \
+                             '<td style="width: 15%; height: 18px;">{}</td>' \
+                             '<td style="width: 15%; height: 18px;">{}</td>' \
+                             '<td style="width: 5%; height: 18px; color: {}">{}</td>' \
+                             '<td style="width: 10%; height: 18px;">{}</td>' \
+                             '<td style="width: 10%; height: 18px;">{}</td>' \
+                             '<td style="width: 20%; height: 18px;">{}</td>' \
+                             '</tr>'.format(iteration_number, reboot_type, base_ver, target_ver, color, test_status,
+                                            dataplane_downtime, controlplane_downtime, allure_report_url)
 
-        email_body += iteration_data
-        iteration_number += 1
+            email_body += iteration_data
+            iteration_number += 1
 
     email_body += '</tbody>' \
                   '</table>'
@@ -358,19 +343,16 @@ def get_executed_tests_data_during_mars_session(sql_connection_obj, session_id):
     return test_ids_reports_dict
 
 
-def get_image_ver_and_update_test_data_by_test_run_info(sql_connection_obj, session_id, mars_key_id, test_data):
+def update_test_data_by_test_run_info(sql_connection_obj, session_id, mars_key_id, test_data):
     # Get test run time and test run id
-    query_get = "SELECT test_run_dateTime,test_run_id,DUTImageVersion FROM tests_runs WHERE MarsSessionId='{}' AND MarsKeyId='{}'".format(
+    query_get = "SELECT test_run_dateTime,test_run_id,test_id,DUTImageVersion FROM tests_runs WHERE MarsSessionId='{}' AND MarsKeyId='{}'".format(
         session_id, mars_key_id)
-    image_version = None
     try:
         sql_connection_obj.cursor.execute(query_get)
-        date, test_run_id, image_version = sql_connection_obj.cursor.fetchone()
-        test_data.update({'date': date, 'test_run_id': test_run_id})
+        date, test_run_id, test_id, image_version = sql_connection_obj.cursor.fetchone()
+        test_data.update({'exec_date': date, 'test_run_id': test_run_id, 'test_id': test_id, 'base_ver': image_version})
     except Exception as err:
         logger.error('Got exception during getting data from SQL. Error: {}'.format(err))
-
-    return image_version
 
 
 def update_test_data_with_traffic_loss_info(sql_connection_obj, test_data):
@@ -391,64 +373,25 @@ def update_results_with_setup_extra_data(sql_connection_obj, test_run_id, result
     try:
         sql_connection_obj.cursor.execute(query_get)
         extra_data = sql_connection_obj.cursor.fetchone()[0]
-        results_dict[setup_name]['extra_data'] = json.loads(extra_data)
+        results_dict[setup_name]['common'].update(json.loads(extra_data))
     except Exception as err:
         logger.error('Got exception during getting data from SQL. Error: {}'.format(err))
 
 
-def update_sonic_version_info_from_readme_file(setup_name, results_dict):
-    versions_list = base_version.split(',')
-    versions_list.append(target_version)
-    base_ver_list = []
-    target_ver = ''
-
-    for version in versions_list:
-        # Example: /auto/sw_system_release/sonic/202205.53-84fc3ec7a_Internal/Mellanox/sonic-mellanox.bin
-        readme_path = version.split('Mellanox')[0] + 'README'
-        if os.path.exists(readme_path):
-            with open(readme_path) as ver_data_obj:
-                ver_data_lines = ver_data_obj.readlines()
-                for line in ver_data_lines:
-                    if line.startswith('VERSION_NAME:'):
-                        sonic_ver = line.split()[1]  # VERSION_NAME: 202205.53-84fc3ec7a_Internal
-                        if versions_list[-1] == version:
-                            target_ver = sonic_ver
-                        else:
-                            base_ver_list.append(sonic_ver)
-
-    results_dict[setup_name]['base_ver'] = ','.join(base_ver_list)
-    results_dict[setup_name]['target_ver'] = target_ver
-
-
-def update_reboot_type_for_setup(setup_name, results_dict):
+def sort_results_by_execution_date(setup_name, results_dict):
     """
-    Update reboot type in results_dict for specific setup
+    Sort test cases results by execution date(when test cases has been uploaded into DB)
     """
-    reboot_type = 'fast' if setup_name in f_reboot_setups_list else 'warm'
-    results_dict[setup_name]['reboot_type'] = reboot_type
+    for reboot_type in REBOOT_TYPES:
+        tests_data_list = results_dict[setup_name][reboot_type]
+        # Sort tests list by execution date
+        try:
+            tests_data_list_sorted = sorted(tests_data_list, key=lambda d: d.get('exec_date'))
+        except Exception as err:
+            logger.error('Unable to sort test runs by execution order. Got error: {}'.format(err))
+            tests_data_list_sorted = tests_data_list
 
-
-def update_test_case_data_results(setup_name, test_ids_reports_dict, results_dict):
-    """
-    Update results_dict with tests results from test_ids_reports_dict dict
-    """
-    tests_data_list = []
-    for mars_test_key, test_data in test_ids_reports_dict.items():
-        dataplane_dtime = test_data.get('dataplane') if test_data.get('dataplane') is not None else 'Unknown'
-        controlplane_dtime = test_data.get('controlplane') if test_data.get('controlplane') is not None else 'Unknown'
-        data = {'dataplane_downtime': dataplane_dtime, 'controlplane_downtime': controlplane_dtime,
-                'test_status': test_data.get('test_status'), 'allure': test_data.get('allure'),
-                'date': test_data.get('date')}
-        tests_data_list.append(data)
-
-    # Sort tests list by execution date
-    try:
-        tests_data_list_sorted = sorted(tests_data_list, key=lambda d: d.get('date'))
-    except Exception as err:
-        logger.error('Unable to sort test runs by execution order. Got error: {}'.format(err))
-        tests_data_list_sorted = tests_data_list
-
-    results_dict[setup_name]['data'] = tests_data_list_sorted
+        results_dict[setup_name][reboot_type] = tests_data_list_sorted
 
 
 def get_results_for_session(session_id, setup_name):
@@ -457,43 +400,112 @@ def get_results_for_session(session_id, setup_name):
     """
     sql_connection_obj = get_sql_db_connection()
     results_dict = get_tests_results_dict()
-    results_dict[setup_name] = {}
+    results_dict[setup_name] = {
+        'common': {'hwsku': None, 'total_ports': None, 'active_ports': None, 'base_ver': set(), 'target_ver': ''},
+        'fast': [],  # Example see below in 'test_data' variable
+        'warm': [],
+        'unknown': [],
+        'results': {'fast': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0},
+                    'warm': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0}
+                    }
+    }
 
     test_ids_reports_dict = get_executed_tests_data_during_mars_session(sql_connection_obj, session_id)
 
     # Get data/control plane loss for specific test cases
     for mars_key_id in test_ids_reports_dict:
-        test_data = {}
-        image_version = get_image_ver_and_update_test_data_by_test_run_info(sql_connection_obj, session_id,
-                                                                            mars_key_id, test_data)
+        update_results_for_test_case(sql_connection_obj, test_ids_reports_dict, mars_key_id, results_dict)
 
-        update_test_data_with_traffic_loss_info(sql_connection_obj, test_data)
+    sort_results_by_execution_date(setup_name, results_dict)
 
-        # Update HwSKU, total/active ports, image version only one time
-        if not results_dict[setup_name].get('base_ver') or not results_dict[setup_name].get('extra_data'):
-            results_dict[setup_name]['base_ver'] = image_version
-            test_run_id = test_data.get('test_run_id')
-            update_results_with_setup_extra_data(sql_connection_obj, test_run_id, results_dict)
+    update_average_loss(setup_name, results_dict)
 
-        # Update results for test iteration
-        test_ids_reports_dict[mars_key_id].update(test_data)
-
-    results_dict[setup_name]['target_ver'] = ''
-    if target_version:  # If upgrade - get base/target images version from README file
-        update_sonic_version_info_from_readme_file(setup_name, results_dict)
-        if not results_dict[setup_name]['target_ver']:  # If no info about target - use path to SONiC image as version
-            results_dict[setup_name]['target_ver'] = target_version
-
-    # If no info about base image - provide path(s) to SONiC image(s) which used by jenkins job
-    if not results_dict[setup_name].get('base_ver'):
-        results_dict[setup_name]['base_ver'] = base_version
-
-    update_reboot_type_for_setup(setup_name, results_dict)
-
-    update_test_case_data_results(setup_name, test_ids_reports_dict, results_dict)
+    # Convert set() to list() due to JSON limitation(it does not support set() data type)
+    results_dict[setup_name]['common']['base_ver'] = list(results_dict[setup_name]['common']['base_ver'])
 
     with open(tests_results_file_path, 'w') as data_file_obj:
         json.dump(results_dict, data_file_obj, default=str)
+
+
+def update_results_for_test_case(sql_connection_obj, test_ids_reports_dict, mars_key_id, results_dict):
+    """
+    Update results_dict with data for specific test case
+    """
+
+    test_status = test_ids_reports_dict[mars_key_id]['test_status']
+    allure_report = test_ids_reports_dict[mars_key_id]['allure']
+
+    test_data = {'exec_date': None, 'base_ver': None, 'target_ver': '', 'test_status': test_status,
+                 'dataplane': None, 'controlplane': None, 'allure_report': allure_report}
+
+    update_test_data_by_test_run_info(sql_connection_obj, session_id, mars_key_id, test_data)
+
+    update_test_data_with_traffic_loss_info(sql_connection_obj, test_data)
+
+    # Update HwSKU, total/active ports, image version only one time
+    test_run_id = test_data.get('test_run_id')
+    update_results_with_setup_extra_data(sql_connection_obj, test_run_id, results_dict)
+
+    extra_data_base_version = results_dict[setup_name]['common'].get('base_version')
+    if extra_data_base_version:  # then we did upgrade test
+        results_dict[setup_name]['common']['base_ver'].add(extra_data_base_version)
+        test_data['target_ver'] = test_data['base_ver']
+        test_data['base_ver'] = extra_data_base_version
+        if not results_dict[setup_name]['common']['target_ver']:  # update target ver for setup only once
+            results_dict[setup_name]['common']['target_ver'] = test_data['target_ver']
+        results_dict[setup_name]['common'].pop('base_version')
+    else:
+        results_dict[setup_name]['common']['base_ver'].add(test_data['base_ver'])
+
+    test_type = 'warm'
+    if test_data['test_id'] in FAST_REBOOT_TEST_IDS:
+        test_type = 'fast'
+
+    if test_status == 'passed':
+        results_dict[setup_name]['results'][test_type]['passed'] += 1
+    else:
+        results_dict[setup_name]['results'][test_type]['failed'] += 1
+
+    # Update results for test iteration
+    results_dict[setup_name][test_type].append(test_data)
+
+
+def update_average_loss(setup_name, results_dict):
+    """
+    Update results_dict with results for average traffic loss
+    """
+    for reboot_type in REBOOT_TYPES:
+        tests_data_list = results_dict[setup_name][reboot_type]
+
+        dataplane_loss_list = get_loss_list(tests_data_list, traffic_plane='dataplane')
+        controlplane_loss_list = get_loss_list(tests_data_list, traffic_plane='controlplane')
+        dataplane_average_loss = count_average_loss(dataplane_loss_list)
+        controlplane_average_loss = count_average_loss(controlplane_loss_list)
+
+        # Update average loss for setup and specific reboot type
+        results_dict[setup_name]['results'][reboot_type]['dataplane_loss'] = dataplane_average_loss
+        results_dict[setup_name]['results'][reboot_type]['controlplane_loss'] = controlplane_average_loss
+
+
+def get_loss_list(tests_data_list, traffic_plane):
+    """
+    Get list of traffic loss time values
+    """
+    loss_list = []
+    for test_run_data in tests_data_list:
+        if int(test_run_data[traffic_plane]) != -1:
+            loss_list.append(test_run_data[traffic_plane])
+    return loss_list
+
+
+def count_average_loss(loss_list):
+    """
+    Count average traffic loss time
+    """
+    average_loss = 'Unknown'
+    if loss_list:
+        average_loss = sum(loss_list) / len(loss_list)
+    return average_loss
 
 
 def generate_email_report_html():

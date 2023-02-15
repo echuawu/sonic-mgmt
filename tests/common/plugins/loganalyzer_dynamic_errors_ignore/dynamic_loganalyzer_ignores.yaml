@@ -113,6 +113,7 @@
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
+      - qos/test_buffer.py::test_port_admin_down
 
 # Errors which should be ignored in tests which restart dockers
 - Errors_list:
@@ -391,6 +392,19 @@
       - 2615940
 
 - Errors_list:
+    - '.* ERR bgp#bgpmon: \*ERROR\* Failed with rc:1 when execute: \[''vtysh'', ''-c'', ''show bgp summary json''\]'
+    - '.* INFO bgp#supervisord .* INFO exited: bgpd \(terminated by SIGABRT \(core dumped\); not expected\)'
+    - '.* INFO bgp#supervisor-proc-exit-listener: Process ''bgpd'' exited unexpectedly\. Terminating supervisor ''bgp'''
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      Redmine:
+      - 3339955
+      Branch:
+        - 202205
+        - 202211
+
+- Errors_list:
     - '.*ERR kernel:.*mlxsw_minimal .* Eeprom query failed.*'
   Conditions:
     - Affected_test_cases:
@@ -656,6 +670,15 @@
   Conditions:
     - Redmine:
       - 3154876
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\].*Failed to prepare bulk counter for pg occupancy stats.*'
+    - '.*ERR syncd#SDK: \[SAI_QUEUE\.ERR\] mlnx_sai_queue.c\[\d*\]- .*Failed to prepare bulk counter for queue stats.'
+  Conditions:
+    - Redmine:
+      - 3356398
       Platform:
         - simx
 
@@ -988,98 +1011,6 @@
       - 3068928
 
 - Errors_list:
-    - '.*ERR kernel:.* mlx5_core .* mlx5e_get_module_info: cable type not recognized:.*'
-    - '.*ERR kernel: .* mlx5_core .* mlx5_query_module_eeprom:.* Module ID not recognized:.*'
-    - '.*ERR kernel: .* mlx5_core .* mlx5e_get_module_eeprom: mlx5_query_eeprom.*'
-  Conditions:
-    - Redmine:
-      - 3084763
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*ERR kernel:.* mlx5_core .* mlx5_cmd_out_err:.* DESTROY_LAG.* failed, status bad system state.* syndrome.*'
-    - '.*ERR kernel:.* mlx5_core.*mlx5_deactivate_lag.* Failed to deactivate VF LAG; driver restart required.*'
-    - '.*ERR kernel:.* Make sure all VFs are unbound prior to VF LAG activation or deactivation.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3269038
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*ERR systemd-udevd.*: eth\d+: Failed to rename network interface \d+ from.*eth\d+.*to.*Ethernet\d+.*File exists.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3269050
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*ERR hostcfgd: sudo systemctl enable dhcp_relay.service - failed: return code - 1, output:.*'
-    - '.*ERR swss#swssconfig: :- main: Exception caught: parse error - unexpected end of input.*'
-    - '.*ERR syncd#syncd: :- threadFunction: time span WD exceeded \d+ ms for create:SAI_OBJECT_TYPE_SWITCH.*'
-    - '.*ERR syncd#syncd: :- logEventData: op: create, key: SAI_OBJECT_TYPE_SWITCH:oid.*'
-    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: true'
-    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY.*'
-    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY.*'
-    - '.*ERR syncd#syncd: :- logEventData: fv: SAI_SWITCH_ATTR_SRC_MAC_ADDRESS.*'
-    - '.*ERR syncd#syncd: :- setEndTime: event .* took \d+ ms to execute'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3151802
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*INFO syncd#supervisord: syncd ERR rsai_lib_remote_call:\d+ remote_call\(api=\d+ method=\d+\) failed 0x.*'
-    - '.*INFO syncd#supervisord: syncd ERR rsai_proxy_ioctl_invoke:\d+.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3259311
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*ERR syncd#syncd: :- processBulkOidCreate: bulkCreate api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER'
-    - '.*ERR syncd#syncd: :- processBulkOidRemove: bulkRemove api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3179551
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*ERR watchdogutil: Failed to get watchdog module'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3107695
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.* ERR kernel:.*UBIFS error.*cannot initialize compressor zstd, error.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py
-      Redmine:
-      - 3190595
-      Platform:
-      - nvda_bf
-
-- Errors_list:
     - '.* ERR hostcfgd: sonic-kdump-config --num_dumps.*'
     - '.* ERR dhclient\[\d+\]: receive_packet failed on.*'
     - '.* ERR dhclient\[\d+\]: dhclient.c:\d+: Failed to send.*'
@@ -1122,6 +1053,12 @@
   Conditions:
     - Redmine:
       - 3168474
+
+- Errors_list:
+    - '.* ERR .*#rsyslogd: imfile: error reading state file for .*'
+  Conditions:
+    - Redmine:
+      - 3186637
 
 - Errors_list:
     - '.* ERR systemd\[\d\]: \/etc\/systemd\/system\/mst\.service:97: Invalid section header.*'
@@ -1219,6 +1156,17 @@
       Branch:
       - master
       - 202211
+
+- Errors_list:
+    - '.* ERR kernel.* PMBus status register not found'
+    - '.* ERR kernel.* Chip identification failed'
+    - '.* WARNING kernel.* probe of .* failed with error -22'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      Platform:
+      - 4600c
+      Reason: "when 4600c downgrade CPLD these errors are expected "
 
 - Errors_list:
     - '.* ERR pmon#xcvrd: :- checkReplyType: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY'
@@ -1542,6 +1490,8 @@
   Conditions:
     - Affected_test_cases:
       - tests/push_build_tests/general/qos/test_qos_reload.py
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
     - Redmine:
       - 3201740
 
@@ -1557,6 +1507,15 @@
     - Redmine:
       - 3205239
 
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Can''t get object type availability before creating a switch'
+    - '.* ERR syncd#SAI: message repeated \d+ times: \[ \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Can''t get object type availability before creating a switch\]'
+  Conditions:
+    - Redmine:
+        - 3358104
+      Platform:
+        - arm64-nvda_bf-mbf2h536c
+        - arm64-nvda_bf-9009d3b600cvaa
 
 - Errors_list:
     - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
@@ -1638,26 +1597,6 @@
       - 2872994
 
 - Errors_list:
-    - '.*WARNING kernel: .* NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
-      Redmine:
-      - 3230829
-      Platform:
-      - nvda_bf
-
-- Errors_list:
-    - '.*ERR kernel:.*mlxbf2_gpio MLNXBF.*IRQ index \d+ not found.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
-      Redmine:
-      - 3280702
-      Platform:
-      - nvda_bf
-
-- Errors_list:
     - '.*ERR dhclient.*: receive_packet failed on .*: Network is down.*'
     - '.*ERR dhclient.*: send_packet: No such device or address*'
     - '.*ERR dhclient.*: dhclient.c:.*: Failed to send \d+ byte long packet over .* interface.*'
@@ -1734,6 +1673,7 @@
       - tests/nightly/fec/test_fec.py
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch
 
 - Errors_list:
     - '.* ERR healthd: Get unit status .*''LoadState'''
@@ -1746,7 +1686,7 @@
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       Redmine:
-      - 3265054
+      - 3352372
 
 - Errors_list:
     - '.* ERR swss#vxlanmgrd: :- doVxlanTunnelMapCreateTask: Map already present : vtep\d+:map_\d+_Vlan\d+'
@@ -1777,9 +1717,6 @@
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       Redmine:
       - 3263805
-      Branch:
-      - 202205
-      - 202211
 
 - Errors_list:
     - '.* ERR pmon#sensord: Error getting sensor data: emc\d+/#\d+: Can''t read'
@@ -2007,7 +1944,27 @@
     - '.* ERR what-just-happened#wjhd\[\d+\]: :- destroy: Failed to destroy channel layer-1, status 1'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: User channel \d+ is not destroyed, destroy it first.'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh_db_deinit_resource_check failed, err = 1'
-    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status 1'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- deinitialize: Failed to de-initialize WJH library, status \d+.*'
+    - '.* ERR what-just-happened#wjhd\[23\]: \[WJH_LIB.ERROR  \]: WJH libs are not initialized.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- removeBufferConfiguration: Failed to close SDK handler, error: \[\d+\]: \[Invalid Handle\].*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[\d+\]: \[Invalid Handle\].*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- main: exception: :- initialize: Failed to initialize WJH library .*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: :- initialize: Failed to initialize WJH library .*'
+    - '.* ERR syncd#SDK: \[SPAN.ERR\] __span_delete for span_session_id 0 failed, err: Resource is in use.*'
+    - '.* ERR syncd#SDK: \[SPAN.ERR\] SPAN session \d+ still has policer ID \d+ bound, so can.* be destroyed.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: __wjh_resources_pre_init_clean_up failed, err = d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to disable monitor on buffer drop reason group.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh buffer cleanup failed to destroy WJH span configuration, err: \d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Wjh lib dev specific cb span deinit failed, err=\d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to destroy the span session, err: Resource is in use.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: wjh buffer cleanup failed to destroy the ACL configuration, err: \d+.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Wjh lib dev specific cb for acl create failed, err=\d.*'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to unbind ACL group to the analyzer port, err:.*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] ACL : Error at check access for group id\[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] ACL : Failed to get ACL \(or ACL group entry type\), ACL id\[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] Get acl \[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] Trying to get a non-allocated table id \[\d+\].*'
+    - '.* ERR syncd#SDK: \[ACL.ERR\] ACL: ACL group access denied, entry type is not FLEX_ACL_ENTRY_TYPE_USER_E..*'
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
@@ -2022,3 +1979,150 @@
       - arm64-nvda_bf-9009d3b600cvaa
       Redmine:
       - 3346254
+
+# Errors which should be ignored in tests which doing reboot/reload
+- Errors_list:
+    - '.* ERR watchdogutil: Failed to get watchdog module'
+  Conditions:
+    - Affected_test_cases:
+      # Canonical
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/copp/test_copp.py::test_copp_policer
+      - tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_lag_min_links
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/push_build_tests/system/test_startup_time_degradation.py::TestStartupTime::test_startup_time_degradation
+      # 2 tests below temporary added - they doing "config reload -y"
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers
+      # Community
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
+      - copp/test_copp.py::TestCOPP::test_add_new_trap
+      - copp/test_copp.py::TestCOPP::test_remove_trap
+      - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
+      - vxlan/test_vnet_vxlan.py
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
+      - dhcp_relay/test_dhcp_relay.py::test_interface_binding
+      - autorestart/test_container_autorestart.py
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
+      # Ignore reboot related errors for test which checks errors after SONiC image deploy
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      - system_health/test_system_health.py
+      - qos/test_buffer.py::test_port_admin_down
+      Redmine:
+      - 3273006
+
+# Errors which should be ignored in tests which doing warm-reboot
+- Errors_list:
+    - '.* ERR syncd#SDK: \[DBG\.ERR\] Fatal failure not allowed when BOOT_MODE_ISSU_STARTED'
+  Conditions:
+    - Affected_test_cases:
+      # Canonical
+      - tests/nightly/app_extension/test_app_extension_reboot.py::test_app_start_delay_after_reboot
+      - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - tests/nightly/copp/test_copp.py::test_copp_policer
+      - tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
+      - tests/nightly/fec/test_fec.py::TestFec::test_negative_fec
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016
+      - tests/nightly/p4/sampling_example/test_entry_scaling.py::TestEntryScaling::test_scaling_entries
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_different_priority
+      - tests/nightly/p4/sampling_example/test_entry_priority.py::test_entries_with_same_priority
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_enable_disable_p4_sampling
+      - tests/nightly/p4/sampling_example/test_entry_advance.py::TestEntryTraffic::test_p4_sampling_traffic_concussive
+      - tests/nightly/p4/examples_application/test_reboot/test_reboot.py::test_p4_examples_reboot
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/lag/test_lag.py::test_lag_min_links
+      - tests/nightly/lag/test_lag.py::test_lag_members_scale
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      # 2 tests below temporary added - they doing "config reload -y"
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
+      - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers
+      # Community
+      - pc/test_po_update.py::test_po_update_io_no_loss
+      - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_update_next
+      - platform_tests/fwutil/test_fwutil.py::test_fwutil_auto
+      - copp/test_copp.py::TestCOPP::test_add_new_trap
+      - copp/test_copp.py::TestCOPP::test_remove_trap
+      - copp/test_copp.py::TestCOPP::test_trap_config_save_after_reboot
+      - vxlan/test_vnet_vxlan.py
+      - ecmp/inner_hashing/test_wr_inner_hashing.py
+      - dhcp_relay/test_dhcp_relay.py::test_interface_binding
+      - autorestart/test_container_autorestart.py
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
+      # Ignore reboot related errors for test which checks errors after SONiC image deploy
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      - system_health/test_system_health.py
+      - qos/test_buffer.py::test_port_admin_down
+      Redmine:
+      - 3359849
+
+- Errors_list:
+    - '.* ERR docker-wait-any: :- blockable: Bad DB request \[STATE_DB\].*'
+    - '.* ERR docker-wait-any: :- guard: RedisReply catches system_error: command:.* reason: WRONGTYPE Operation against a key holding the wrong kind of value: Input\/output error.*'
+  Conditions:
+    - Affected_test_cases:
+      - drop_packets/test_wjh.py::test_wjh_starts_after_config_reload
+      - tests/nightly/lag/test_lag.py::test_lags_scale
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3359469
+
+- Errors_list:
+    - 'ERR pmon#.*: Failed to read from file .* - OSError\(\d+, ''No such device or address''\)'
+  Conditions:
+    - Affected_test_cases:
+      - platform_tests/test_platform_info.py::test_thermal_control_fan_status
+      - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
+      Redmine:
+      - 3345290
+
+- Errors_list:
+    - '.* ERR systemd\[\d+\]: Failed to start System Logging Service.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3362009
+
+- Errors_list:
+    - '.*ERR kernel:.* mlx5_core .* mlx5e_get_module_info: cable type not recognized:.*'
+    - '.*ERR kernel: .* mlx5_core .* mlx5_query_module_eeprom:.* Module ID not recognized:.*'
+    - '.*ERR kernel: .* mlx5_core .* mlx5e_get_module_eeprom: mlx5_query_eeprom.*'
+  Conditions:
+    - Redmine:
+      - 3084763
+      Platform:
+      - nvda_bf

@@ -5,7 +5,6 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 
@@ -30,8 +29,7 @@ def test_show_platform_software(engines):
                 list_of_sw = output.split("\n", 3)
                 assert 'operational' in list_of_sw[0] and 'applied' in list_of_sw[0], \
                     "Titles cant be found in the output"
-                if not is_redmine_issue_active([3215476]):
-                    assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
+                assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
         with allure.step("Verify json output"):
             logging.info("Verify json output")
@@ -45,8 +43,7 @@ def test_show_platform_software(engines):
                 output = platform.software.show("installed", output_format=OutputFormat.auto)
                 list_of_sw = output.split("\n", 3)
                 assert "Installed software" in list_of_sw[0], "'Installed software' title can't be found in the output"
-                if not is_redmine_issue_active([3215476]):
-                    assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
+                assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
         with allure.step("Verify json output"):
             logging.info("Verify json output")

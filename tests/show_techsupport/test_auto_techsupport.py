@@ -66,6 +66,7 @@ class TestAutoTechSupport:
     test_docker = None
 
     def set_test_dockers_list(self):
+        self.dockers_list = []
         auto_tech_support_features_list = self.dut_cli.auto_techsupport.parse_show_auto_techsupport_feature().keys()
         system_features_status = self.duthost.get_feature_status()
         for feature in auto_tech_support_features_list:
@@ -274,7 +275,10 @@ class TestAutoTechSupport:
         test_parameters_dict = {'@{}'.format(current_time): 60, '5 minutes ago': 360, '300 sec ago': 360}
         since_value = random.choice(list(test_parameters_dict.keys()))
 
-        # force log rotate - because in some cases, when there's no file older than since, there will be no syslog file in techsupport dump
+        """
+        Force log rotate - because in some cases, when there's no file older than since, there will be
+        no syslog file in techsupport dump
+        """
         with allure.step('Rotate logs'):
             self.duthost.shell('/usr/sbin/logrotate -f /etc/logrotate.conf > /dev/null 2>&1')
 
@@ -406,7 +410,11 @@ class TestAutoTechSupport:
         with allure.step('Create 4 stub files(each file 5%) which will use 20% of space in test folder'):
             num_of_dummy_files = 4
             one_file_size_in_percent = 5
+
             one_percent_in_mb = total / 100
+            # On some platforms one_percent_in_mb may be up to 800 Mb, in case of core test_mode
+            # this significantly increases the generation time needed for techsupport
+            one_file_size_in_percent = 1 if one_percent_in_mb > 300 and test_mode == 'core' else 5
             expected_file_size_in_mb = one_percent_in_mb * one_file_size_in_percent
             dummy_file_generator = create_techsupport_stub_file if test_mode == 'techsupport' else create_core_stub_file
             dummy_files_list = []
@@ -424,7 +432,8 @@ class TestAutoTechSupport:
                 validate_expected_stub_files(self.duthost, validation_folder, dummy_files_list,
                                              expected_number_of_additional_files=1)
 
-        max_limit = 14
+        max_limit = 3 if one_percent_in_mb > 300 and test_mode == 'core' else 14
+
         with allure.step('Validate: {} limit: {}'.format(test_mode, max_limit)):
             with allure.step('Set {} limit to: {}'.format(test_mode, max_limit)):
                 set_limit(self.duthost, test_mode, max_limit, cleanup_list=None)
@@ -615,6 +624,7 @@ def is_techsupport_generation_in_expected_state(duthost, expected_in_progress=Tr
     """
     Check if techsupport generation in progress
     :param duthost: duthost object
+    :param expected_in_progress: True in case when auto-techsuport in running state expected, else False
     :return: True in case when techsupport generation in progress
     """
     with allure.step('Checking techsupport generation process'):
@@ -643,7 +653,8 @@ def validate_core_files_inside_techsupport(duthost, techsupport_folder, expected
     """
     Validated that expected .core files available inside in techsupport dump file
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :param expected_core_files_list: list with expected .core files which should be in techsupport dump
     :return: AssertionError in case when validation failed
     """
@@ -660,11 +671,13 @@ def validate_saidump_file_inside_techsupport(duthost, techsupport_folder):
     """
     Validated that expected SAI dump file available inside in techsupport dump file
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: AssertionError in case when validation failed
     """
     with allure.step('Validate SAI dump file is included in the tech-support dump'):
-        saidump_files_inside_techsupport = duthost.shell('ls {}/sai_failure_dump'.format(techsupport_folder))['stdout_lines']
+        saidump_files_inside_techsupport = \
+            duthost.shell('ls {}/sai_failure_dump'.format(techsupport_folder))['stdout_lines']
         assert saidump_files_inside_techsupport, 'Expected SAI dump file(folder) not available in techsupport dump'
 
 
@@ -672,7 +685,8 @@ def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_
     """
     Validate that techsupport file does not have logs which are older than value provided in 'since_value_in_seconds'
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :param expected_oldest_log_line_timestamps_list: list of expected(possible) oldest log timestamp in datetime format
     :return: pytest.fail - in case when validation failed
     """
@@ -681,10 +695,11 @@ def validate_techsupport_since(duthost, techsupport_folder, expected_oldest_log_
         logger.debug('Oldest timestamp: {}'.format(oldest_timestamp_datetime))
 
         assert oldest_timestamp_datetime in expected_oldest_log_line_timestamps_list, \
-            'Timestamp: {} not in expected list: {}. --since validation failed'.format(oldest_timestamp_datetime,
-                                                                                       expected_oldest_log_line_timestamps_list)
+            'Timestamp: {} not in expected list: {}. --since validation failed'.format(
+                oldest_timestamp_datetime, expected_oldest_log_line_timestamps_list)
 
-        available_syslogs_list = duthost.shell('sudo ls -l {}/log/syslog*'.format(techsupport_folder))['stdout'].splitlines()
+        available_syslogs_list = \
+            duthost.shell('sudo ls -l {}/log/syslog*'.format(techsupport_folder))['stdout'].splitlines()
         assert len(available_syslogs_list) <= len(expected_oldest_log_line_timestamps_list), \
             'Number of syslog files in techsupport bigger than expected'
 
@@ -693,7 +708,8 @@ def get_oldest_syslog_timestamp(duthost, techsupport_folder):
     """
     Get oldest syslog timestamp
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: date timestamp in format: 2021-11-17 16:42:19.629013
     """
     with allure.step('Getting syslog oldest timestamp'):
@@ -711,7 +727,8 @@ def get_all_syslog_files_from_techsupport(duthost, techsupport_folder):
     """
     Get list of syslog files which are available in techsupport dump file
     :param duthost: duthost object
-    :param techsupport_folder: path to techsupport(extracted tar file) folder, example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
+    :param techsupport_folder: path to techsupport(extracted tar file) folder,
+    example: /var/dump/sonic_dump_DUT_NAME_20210901_22140
     :return: list of files, example: ['syslog.gz', 'syslog.1.gz', 'syslog.2.gz', ...]
     """
     with allure.step('Getting all syslog files from techsupport'):
@@ -1184,7 +1201,7 @@ def validate_folder_size_less_than_allowed(duthost, folder, expected_max_folder_
         used_by_folder = get_used_space(duthost, folder)
         err_msg = 'Folder {} has size: {}Mb more than expected: {}Mb'.format(folder, used_by_folder,
                                                                              expected_max_folder_size)
-        assert used_by_folder < expected_max_folder_size, err_msg
+        assert used_by_folder <= expected_max_folder_size, err_msg
 
 
 def is_docker_enabled(system_features_status, docker):

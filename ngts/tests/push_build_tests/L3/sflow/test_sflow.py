@@ -14,6 +14,7 @@ COLLECTOR_WARNING_CONTENT = "Only 2 collectors can be configured, please delete 
 
 
 @pytest.mark.build
+@pytest.mark.simx_uncovered
 @pytest.mark.push_gate
 def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac,
                               basic_sflow_configuration_for_function):

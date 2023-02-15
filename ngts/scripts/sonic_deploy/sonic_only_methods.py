@@ -192,7 +192,7 @@ class SonicInstallationSteps:
         if is_dualtor_topo(sonic_topo):
             dut_name = setup_name
         cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
-              "ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
+              "ptf_imagetag={PTF_TAG} -vvvvv".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
         return cmd
 
     @staticmethod

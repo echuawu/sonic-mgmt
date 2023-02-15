@@ -20,14 +20,11 @@ from tests.common.utilities import get_host_visible_vars
 from tests.common.cache import cached
 from tests.common.helpers.constants import DEFAULT_ASIC_ID, DEFAULT_NAMESPACE
 from tests.common.helpers.platform_api.chassis import is_inband_port
+from tests.common.helpers.parallel import parallel_run_threaded
 from tests.common.errors import RunAnsibleModuleFail
 from tests.common import constants
 
 logger = logging.getLogger(__name__)
-
-BF_ASIC_SERVICES = ["bgp", "database", "lldp", "swss", "syncd"]
-PLATFORM_SPECIFIC_ASIC_SERVICES = {'Nvidia-MBF2H536C': BF_ASIC_SERVICES,
-                                   'Nvidia-9009d3b600CVAA': BF_ASIC_SERVICES}
 
 
 class SonicHost(AnsibleHostBase):
@@ -37,6 +34,7 @@ class SonicHost(AnsibleHostBase):
     This type of host contains information about the SONiC device (device info, services, etc.),
     and also provides the ability to run Ansible modules on the SONiC device.
     """
+    DEFAULT_ASIC_SERVICES = ["bgp", "database", "lldp", "swss", "syncd", "teamd"]
 
     def __init__(self, ansible_adhoc, hostname,
                  shell_user=None, shell_passwd=None,
@@ -82,7 +80,6 @@ class SonicHost(AnsibleHostBase):
         self._sonic_release = self._get_sonic_release()
         self.is_multi_asic = True if self.facts["num_asic"] > 1 else False
         self._kernel_version = self._get_kernel_version()
-        self._update_asic_services()
 
     def __str__(self):
         return '<SonicHost {}>'.format(self.hostname)
@@ -183,21 +180,34 @@ class SonicHost(AnsibleHostBase):
         """
         Gather facts about the platform for this SONiC device.
         """
+        facts = self._get_platform_info()
 
-        facts = dict()
-        facts.update(self._get_platform_info())
-        facts["num_asic"] = self._get_asic_count(facts["platform"])
-        facts["router_mac"] = self._get_router_mac()
-        facts["modular_chassis"] = self._get_modular_chassis()
-        facts["mgmt_interface"] = self._get_mgmt_interface()
-        facts["switch_type"] = self._get_switch_type()
-        facts["router_type"] = self._get_router_type()
-        asics_present = self.get_asics_present_from_inventory()
-        facts["asics_present"] = asics_present if len(asics_present) != 0 else list(range(facts["num_asic"]))
+        results = parallel_run_threaded(
+            [
+                lambda: self._get_asic_count(facts["platform"]),
+                self._get_router_mac,
+                self._get_modular_chassis,
+                self._get_mgmt_interface,
+                self._get_switch_type,
+                self._get_router_type,
+                self.get_asics_present_from_inventory,
+                lambda: self._get_platform_asic(facts["platform"])
+            ],
+            timeout=120,
+            thread_count=5
+        )
 
-        platform_asic = self._get_platform_asic(facts["platform"])
-        if platform_asic:
-            facts["platform_asic"] = platform_asic
+        facts["num_asic"] = results[0]
+        facts["router_mac"] = results[1]
+        facts["modular_chassis"] = results[2]
+        facts["mgmt_interface"] = results[3]
+        facts["switch_type"] = results[4]
+        facts["router_type"] = results[5]
+
+        facts["asics_present"] = results[6] if len(results[6]) != 0 else list(range(facts["num_asic"]))
+
+        if results[7]:
+            facts["platform_asic"] = results[7]
 
         logging.debug("Gathered SonicHost facts: %s" % json.dumps(facts))
         return facts
@@ -430,12 +440,6 @@ class SonicHost(AnsibleHostBase):
             logging.info("container {} is not running".format(service))
 
         return len(status["stdout_lines"]) > 1
-
-    def _update_asic_services(self):
-        for hwsku, services_list in PLATFORM_SPECIFIC_ASIC_SERVICES.items():
-            if hwsku == self._facts["hwsku"]:
-                self.DEFAULT_ASIC_SERVICES = services_list
-                break
 
     def critical_services_status(self):
         # Initialize service status
@@ -1074,8 +1078,13 @@ class SonicHost(AnsibleHostBase):
         @param dstip: destination. either ip_address or ip_network
 
         Please beware: if dstip is an ip network, you will receive all ECMP nexthops
+<<<<<<< HEAD
         But if dstip is an ip address, only one nexthop will be returned,
         the one which is going to be used to send a packet to the destination.
+=======
+        But if dstip is an ip address, only one nexthop will be returned, the one which is going to be used to
+        send a packet to the destination.
+>>>>>>> 090bc7a72 (Add loopback action test cases)
 
         Exanples:
 ----------------
@@ -1088,9 +1097,14 @@ raw data
 ----------------
 get_ip_route_info(ipaddress.ip_network(unicode("192.168.8.0/25")))
 returns {'set_src': IPv4Address(u'10.1.0.32'), 'nexthops': [(IPv4Address(u'10.0.0.1'), u'PortChannel0001'),
+<<<<<<< HEAD
                                                             (IPv4Address(u'10.0.0.5'), u'PortChannel0002'),
                                                             (IPv4Address(u'10.0.0.9'), u'PortChannel0003'),
                                                             (IPv4Address(u'10.0.0.13'), u'PortChannel0004')]}
+=======
+(IPv4Address(u'10.0.0.5'), u'PortChannel0002'), (IPv4Address(u'10.0.0.9'), u'PortChannel0003'),
+(IPv4Address(u'10.0.0.13'), u'PortChannel0004')]}
+>>>>>>> 090bc7a72 (Add loopback action test cases)
 
 raw data
 192.168.8.0/25 proto 186 src 10.1.0.32 metric 20
@@ -1114,9 +1128,14 @@ raw data
 ----------------
 get_ip_route_info(ipaddress.ip_network(unicode("20c0:a818::/64")))
 returns {'set_src': IPv6Address(u'fc00:1::32'), 'nexthops': [(IPv6Address(u'fc00::2'), u'PortChannel0001'),
+<<<<<<< HEAD
                                                              (IPv6Address(u'fc00::a'), u'PortChannel0002'),
                                                              (IPv6Address(u'fc00::12'), u'PortChannel0003'),
                                                              (IPv6Address(u'fc00::1a'), u'PortChannel0004')]}
+=======
+(IPv6Address(u'fc00::a'), u'PortChannel0002'), (IPv6Address(u'fc00::12'), u'PortChannel0003'),
+(IPv6Address(u'fc00::1a'), u'PortChannel0004')]}
+>>>>>>> 090bc7a72 (Add loopback action test cases)
 
 raw data
 20c0:a818::/64 via fc00::2 dev PortChannel0001 proto 186 src fc00:1::32 metric 20  pref medium
@@ -1133,9 +1152,14 @@ raw data (starting from Bullseye)
 ----------------
 get_ip_route_info(ipaddress.ip_network(unicode("0.0.0.0/0")))
 returns {'set_src': IPv4Address(u'10.1.0.32'), 'nexthops': [(IPv4Address(u'10.0.0.1'), u'PortChannel0001'),
+<<<<<<< HEAD
                                                             (IPv4Address(u'10.0.0.5'), u'PortChannel0002'),
                                                             (IPv4Address(u'10.0.0.9'), u'PortChannel0003'),
                                                             (IPv4Address(u'10.0.0.13'), u'PortChannel0004')]}
+=======
+(IPv4Address(u'10.0.0.5'), u'PortChannel0002'), (IPv4Address(u'10.0.0.9'), u'PortChannel0003'),
+(IPv4Address(u'10.0.0.13'), u'PortChannel0004')]}
+>>>>>>> 090bc7a72 (Add loopback action test cases)
 
 raw data
 default proto 186 src 10.1.0.32 metric 20
@@ -1152,10 +1176,18 @@ default nhid 296 proto bgp src 10.1.0.32 metric 20
         nexthop via 10.0.0.63 dev PortChannel0004 weight 1
 ----------------
 get_ip_route_info(ipaddress.ip_network(unicode("::/0")))
+<<<<<<< HEAD
 returns {'set_src': IPv6Address(u'fc00:1::32'), 'nexthops': [(IPv6Address(u'fc00::2'), u'PortChannel0001'),
                                                              (IPv6Address(u'fc00::a'), u'PortChannel0002'),
                                                              (IPv6Address(u'fc00::12'), u'PortChannel0003'),
                                                              (IPv6Address(u'fc00::1a'), u'PortChannel0004')]}
+=======
+returns {'set_src': IPv6Address(u'fc00:1::32'),
+'nexthops': [(IPv6Address(u'fc00::2'), u'PortChannel0001'),
+(IPv6Address(u'fc00::a'), u'PortChannel0002'),
+(IPv6Address(u'fc00::12'), u'PortChannel0003'),
+ (IPv6Address(u'fc00::1a'), u'PortChannel0004')]}
+>>>>>>> 090bc7a72 (Add loopback action test cases)
 
 raw data
 default via fc00::2 dev PortChannel0001 proto 186 src fc00:1::32 metric 20  pref medium
@@ -1397,8 +1429,8 @@ Totals               6450                 6449
             sep_char: The character used in separation line. Defaults to '-'.
 
         Returns:
-            Returns a list. Each item is a tuple with two elements. The first element is start position of a column. The
-            second element is the end position of the column.
+            Returns a list. Each item is a tuple with two elements. The first element is start position of a column.
+            The second element is the end position of the column.
         """
         prev = ' ',
         positions = []
@@ -1412,7 +1444,6 @@ Totals               6450                 6449
                     positions.append((left, right))
             prev = char
         return positions
-
 
     def _parse_show(self, output_lines, header_len=1):
 
@@ -1495,7 +1526,11 @@ Totals               6450                 6449
                 "lanes": "4,5,6,7",
                 "fec": "N/A",
                 "asym pfc": "off",
-                "admin": "up",                                                                                                                                                                                                                             "type": "QSFP+ or later",                                                                                                                                                                                                                  "vlan": "PortChannel0002",                                                                                                                                                                                                                 "mtu": "9100",                                                                                                                                                                                                                             "alias": "etp2",
+                "admin": "up",
+                "type": "QSFP+ or later",
+                "vlan": "PortChannel0002",
+                 "mtu": "9100",
+                 "alias": "etp2",
                 "interface": "Ethernet4",
                 "speed": "40G"
               },

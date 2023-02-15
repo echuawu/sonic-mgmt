@@ -73,7 +73,11 @@ def get_oldest_syslog_id(engine):
                 if s.isdigit():
                     list_of_file_ids.append(int(s))
         # Get first element - which is bigger(oldest syslog file index) that other
-        oldest_syslog_id = sorted(list_of_file_ids, reverse=True)[0]
+        if not list_of_file_ids:
+            # There is only one file: /var/log/syslog
+            oldest_syslog_id = 0
+        else:
+            oldest_syslog_id = sorted(list_of_file_ids, reverse=True)[0]
         logger.info(f'Oldest syslog file id is: {oldest_syslog_id}')
 
     return oldest_syslog_id
@@ -89,7 +93,10 @@ def get_new_start_string(engine, oldest_syslog_id, start_string_line):
     example: May 16 09:30:19 r-lionfish-07 INFO start-LogAnalyzer-test_a.2022-05-16-13:49:02
     """
     with allure.step('Get oldest syslog timestamp'):
-        oldest_syslog_file = f'/var/log/syslog.{oldest_syslog_id}'
+        if oldest_syslog_id == 0:
+            oldest_syslog_file = '/var/log/syslog'
+        else:
+            oldest_syslog_file = f'/var/log/syslog.{oldest_syslog_id}'
         file_reader = 'cat'
         if oldest_syslog_id > 1:
             oldest_syslog_file = oldest_syslog_file + '.gz'

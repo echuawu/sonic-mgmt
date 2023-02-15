@@ -29,4 +29,7 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/pretest.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/common/sdk_api.cases </cases>
+    </test>
 </DBDEF>

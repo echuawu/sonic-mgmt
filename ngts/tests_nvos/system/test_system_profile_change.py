@@ -275,6 +275,8 @@ def test_system_profile_changes_stress(engines):
                                                             system_profile_output).verify_result()
 
         with allure.step('Verify default values'):
+            system.profile.action_profile_change(
+                params='adaptive-routing enabled adaptive-routing-groups 2048 breakout-mode disabled')
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
             ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,

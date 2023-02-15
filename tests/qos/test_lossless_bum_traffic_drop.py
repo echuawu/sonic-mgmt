@@ -39,7 +39,7 @@ def test_lossless_bum_traffic_drop(duthost, ptfhost, tbinfo, ptfadapter, mg_fact
         ptf_receive_ports = []
         for interface in mg_facts['minigraph_vlans'][vlan_name]['members']:
             # Only use the physical port vlan members in case po2vlan topo
-            if not 'PortChannel' in interface:
+            if 'PortChannel' not in interface:
                 vlan_members.append(interface)
                 ptf_receive_ports.append(mg_facts['minigraph_ptf_indices'][interface])
         send_port = vlan_members.pop(0)
@@ -61,6 +61,8 @@ def test_lossless_bum_traffic_drop(duthost, ptfhost, tbinfo, ptfadapter, mg_fact
         testutils.send(ptfadapter, ptf_send_port, lossless_pkt, PKT_NUM)
         logger.info('Verify the lossless {} traffic is dropped.'.format(traffic_type))
         testutils.verify_no_packet_any(ptfadapter, lossless_pkt, ptf_receive_ports)
+        # wait for the interfaces counters to update
+        time.sleep(2)
         verify_interfaces_counters(duthost, vlan_members, 'tx_drp', PKT_NUM, '==')
 
     with allure.step('Verify lossy {} traffic.'.format(traffic_type)):

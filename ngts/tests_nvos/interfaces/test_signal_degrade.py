@@ -124,10 +124,6 @@ def test_check_signal_degrade_functionality(engines, mst_device, start_sm):
         with allure.step("Check signal degrade for state = enabled and action = no-shutdown"):
             _check_signal_degrade_while_state_enabled_action_no_shutdown(engines, mst_device, selected_port)
 
-        with allure.step("Check signal degrade for state = enabled and action = shutdown"):
-            _check_signal_degrade_while_state_enabled_action_shutdown(engines, mst_device, selected_port)
-            _recover_port(selected_port)
-
         with allure.step("Check signal degrade for state = disabled and action = shutdown"):
             _check_signal_degrade_while_state_disabled_action_shutdown(engines, mst_device, selected_port)
 

@@ -4,6 +4,8 @@ import logging
 
 from retry.api import retry_call
 from ngts.cli_wrappers.linux.linux_arp_cache_cli import LinuxARPCache
+from ngts.config_templates.vlan_config_template import VlanConfigTemplate
+from ngts.config_templates.ip_config_template import IpConfigTemplate
 
 logger = logging.getLogger()
 
@@ -30,6 +32,39 @@ def env(duthosts, topology_obj, setup_name, platform_params):
         Collector.MAX_CRM_UPDATE_TIME = 60
         Collector.APPLY_CFG_MAX_UPDATE_TIME = 90
     yield Collector
+
+
+@pytest.fixture(scope='module', autouse=True)
+def pre_configure_for_crm(request, engines, topology_obj, interfaces):
+    """
+    Pytest fixture which are doing configuration for crm tests
+    :param engines: request object fixture
+    :param engines: engines object fixture
+    :param topology_obj: topology object fixture
+    :param interfaces: interfaces object fixture
+    """
+    # VLAN config which will be used in test
+    vlan_config_dict = {
+        'dut': [{'vlan_id': 40, 'vlan_members': [{interfaces.dut_ha_1: 'trunk'}, {interfaces.dut_ha_2: 'trunk'}]},
+                {'vlan_id': 69, 'vlan_members': [{interfaces.dut_hb_2: 'trunk'}]},
+                ],
+        'ha': [{'vlan_id': 40, 'vlan_members': [{interfaces.ha_dut_1: None}]},
+               ],
+        'hb': [{'vlan_id': 69, 'vlan_members': [{interfaces.hb_dut_2: None}]},
+               ]
+    }
+
+    # IP config which will be used in test
+    ip_config_dict = {
+        'dut': [{'iface': 'Vlan40', 'ips': [('40.0.0.1', '24')]},
+                {'iface': 'Vlan69', 'ips': [('69.0.0.1', '24')]},
+                ],
+        'ha': [{'iface': "{}.40".format(interfaces.ha_dut_1), 'ips': [('40.0.0.3', '24')]}],
+        'hb': [{'iface': "{}.69".format(interfaces.hb_dut_2), 'ips': [('69.0.0.3', '24')]}]
+    }
+    VlanConfigTemplate.configuration(topology_obj, vlan_config_dict, request)
+    IpConfigTemplate.configuration(topology_obj, ip_config_dict, request)
+    yield
 
 
 @pytest.fixture(scope='module', autouse=True)

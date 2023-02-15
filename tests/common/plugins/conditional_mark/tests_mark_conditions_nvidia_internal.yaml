@@ -79,12 +79,6 @@ tests/nightly/copp/test_copp.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3128004 and 'simx' in platform"
 
-tests/nightly/routing/test_routing.py::TestRouting::test_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3260311 and platform nvda_bf"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3260311 and 'nvda_bf' in platform"
-
 tests/nightly/sflow/test_sflow.py:
   skip:
     reason: "sflow still isn't supported on Simx "
@@ -132,6 +126,30 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
     conditions:
       - "https://redmine.mellanox.com/issues/2939326 and 'simx' in platform"
 
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_reply_message:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_basic_dhcp6_relay:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_message:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_empty_payload:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+
 tests/push_build_tests/general/wjh/test_wjh.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3008967 on SIMX platform"
@@ -164,11 +182,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py:
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3302670"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3357378"
     conditions:
-      - https://redmine.mellanox.com/issues/3302670
+      - https://redmine.mellanox.com/issues/3357378
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   skip:
@@ -208,14 +226,11 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored on some SPC1 platforms by bug 3331715 or simx in platform"
+    reason: "Testcase ignored by bug 3331715 or simx in platform"
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2100' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2410' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2700' in platform"
-      - "https://redmine.mellanox.com/issues/3331715 and '2201' in platform"
+      - https://redmine.mellanox.com/issues/3331715
 
 tests/nightly/fec:
   skip:
@@ -547,9 +562,15 @@ platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
 
 platform_tests/test_cpu_memory_usage.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3084909 and platform nvda_bf"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3360417 and platform BF2"
     conditions:
-      - "https://redmine.mellanox.com/issues/3084909 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3360417 and 'arm64-nvda_bf-mbf2h536c' in platform"
+
+platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3360433 and platform nvda_bf"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3360433 and 'nvda_bf' in platform"
 
 platform_tests/test_memory_exhaustion.py:
   skip:
@@ -1216,7 +1237,7 @@ platform_tests/mellanox/test_reboot_cause.py:
   skip:
     reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia SPC1"
     conditions:
-      - "(release not in ['master', '202205']) or (platform in ['x86_64-mlnx_msn2010-r0', 'x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn2100-r0', 'x86_64-mlnx_msn2410-r0', 'x86_64-nvidia_sn2201-r0'])"
+      - "(release not in ['master', '202211', '202205']) or (platform in ['x86_64-mlnx_msn2010-r0', 'x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn2100-r0', 'x86_64-mlnx_msn2410-r0', 'x86_64-nvidia_sn2201-r0'])"
 
 platform_tests/test_reload_config.py:
   skip:
@@ -1241,5 +1262,47 @@ iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335820"
     conditions:
       - "https://redmine.mellanox.com/issues/3335820"
+
+platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
+    conditions:
+      - https://redmine.mellanox.com/issues/3355826
+
+qos/test_lossless_bum_traffic_drop.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3323332 on 2700"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3323332 and ('sn2700' in platform)"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+platform_tests/api/test_watchdog.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+platform_tests/test_reload_config.py::test_reload_configuration:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+platform_tests/test_reload_config.py::test_reload_configuration_checks:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3273006"
+
+snmp/test_snmp_phy_entity.py::test_turn_off_psu_and_check_psu_info:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
+    conditions:
+      - https://redmine.mellanox.com/issues/3355826
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

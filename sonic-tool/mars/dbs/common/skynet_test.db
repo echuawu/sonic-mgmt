@@ -9,12 +9,28 @@
 			<dimension> VER </dimension>
             <pre> </pre>
 		</DB>
-		<Test>
-			<post> </post>
-		</Test>
-		<Case>
+        <Test>
             <pre> </pre>
-			<post> </post>
+            <post> </post>
+            <on_not_success>
+                <name> Send Failure Report </name>
+                <type> setup_mode </type>
+                <cmd>
+                    <type> reg_exec_cmd </type>
+                    <players_selection>
+                        <ep_targets> SONIC_MGMT </ep_targets>
+                    </players_selection>
+                    <name> Send Failure Report </name>
+                    <tout> 600 </tout>
+                    <params>
+                        <exec> PYTHONPATH=/devts/ /ngts_venv/bin/python /devts/infra/tools/sql/skynet_failure_report.py  --setup_name=[[conf:extra_info.setup_name]] --session_id=[[run_time:session_id]] --project_name SONiC --disable_on_failure --report_recipients nbu-system-sw-sonic-skynet-failure-report@exchange.nvidia.com</exec>
+                    </params>
+                </cmd>
+            </on_not_success>
+        </Test>
+		<Case>
+		    <pre> </pre>
+		    <post> </post>
 		</Case>
 	</global>
 	<test>
