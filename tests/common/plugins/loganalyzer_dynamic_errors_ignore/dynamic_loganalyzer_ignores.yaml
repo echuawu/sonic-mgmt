@@ -66,6 +66,8 @@
     - '.* ERR swss#orchagent:.*removeLag: Failed to remove (ref count \d+|non-empty) LAG PortChannel.*'
     - '.* ERR hostcfgd:.*error returned by select.*'
     - '.* ERR pmon#python3: :- .*Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
+    - '.* ERR pmon#xcvrd: sx_api_host_ifc_trap_id_register_set exited with error, rc 4.*'
+    - '.* ERR pmon#xcvrd: sx_api_host_ifc_close exited with error, rc 3.*'
   Conditions:
     - Affected_test_cases:
       # Canonical
