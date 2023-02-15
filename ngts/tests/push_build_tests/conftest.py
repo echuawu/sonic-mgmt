@@ -23,7 +23,6 @@ import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
 from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_sanitizer_in_topology
 from ngts.helpers.sflow_helper import kill_sflowtool_process, remove_tmp_sample_file
-from ngts.tools.infra import is_test_skipped
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, \
     is_support_rocev2_acl_counter_feature
@@ -97,9 +96,8 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                     get_test_app_ext_info(cli_objects.dut)
 
         if is_evpn_support(base_sonic_branch):
-            if not is_test_skipped(request, 'test_evpn_vxlan_basic'):
-                with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
-                    cli_objects.dut.general.update_config_db_docker_routing_config_mode()
+            with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
+                cli_objects.dut.general.update_config_db_docker_routing_config_mode()
 
         with allure.step('Check that links in UP state'.format()):
             ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
@@ -289,12 +287,12 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if not upgrade_params.is_upgrade_required:
             VxlanConfigTemplate.cleanup(topology_obj, vxlan_config_dict)
         if is_evpn_support(base_sonic_branch):
-            VxlanConfigTemplate.cleanup(topology_obj, evpn_vxlan_config_dict)
-            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
-
             with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
                 cli_objects.dut.general.update_config_db_docker_routing_config_mode(
                     remove_docker_routing_config_mode=True)
+            VxlanConfigTemplate.cleanup(topology_obj, evpn_vxlan_config_dict)
+            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+
         if is_support_rocev2_acl_counter_feature(cli_objects, is_simx, base_sonic_branch):
             remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS"])
         acl_helper.clear_acl_rules(engines.dut, cli_objects.dut)
