@@ -135,9 +135,11 @@ def _add_verification_data(engine, system):
         logging.info("Check running dockers")
         output = engine.run_cmd("docker container list").split('\n')[1:]
         for line in output:
-            docker_name = line.split()[9]
-            if docker_name != "database":
-                running_dockers[docker_name] = line.split()[3]
+            line = line.split()
+            docker_name = line[len(line) - 1]
+            start_time = engine.run_cmd(r"docker inspect -f \{\{'.Created'\}\} " + docker_name)
+            start_time = datetime.strptime(start_time[0].split(".")[0], f'%Y-%m-%dT%H:%M:%S')
+            running_dockers[docker_name] = start_time
 
     with allure.step("Create new user"):
         username, password = system.create_new_user(engine)
@@ -232,14 +234,23 @@ def _verify_cleanup_done(engine, current_time, system, username):
         if username in output.keys():
             errors += "\nCreated user was not deleted"
 
-    with allure.step("Create new user"):
+    with allure.step("Check running dockers"):
         logging.info("Check running dockers")
-        for docker_name in running_dockers.keys():
-            create_time = engine.run_cmd("docker ps | grep {}".format(docker_name)).split()[3]
-            if not create_time:
-                errors += "\n'{}' is not running after reset factory".format(docker_name)
-            elif running_dockers[docker_name] == create_time:
-                errors += "\n'{}' was not stopped during reset factory".format(docker_name)
+        for docker_name, orig_create_time in running_dockers.items():
+            output = engine.run_cmd(r"docker inspect -f \{\{'.Created'\}\} " + docker_name)
+            if "Error" in output:
+                create_time = ""
+            else:
+                create_time = datetime.strptime(create_time[0].split(".")[0], f'%Y-%m-%dT%H:%M:%S')
+
+            if docker_name == "database":
+                if create_time != orig_create_time:
+                    errors += "reset factory should not restart database docker"
+            else:
+                if not create_time:
+                    errors += "\n'{}' is not running after reset factory".format(docker_name)
+                elif orig_create_time == create_time:
+                    errors += "\n'{}' was not stopped during reset factory".format(docker_name)
 
     assert not errors, errors
 

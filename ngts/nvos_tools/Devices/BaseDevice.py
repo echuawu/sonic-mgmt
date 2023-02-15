@@ -288,7 +288,7 @@ class BaseSwitch(BaseDevice, ABC):
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
 
     def _init_psu_list(self):
-        self.psu_list = ["PSU1", "PSU2"]
+        self.psu_list = ["PSU1_FAN", "PSU2_FAN"]
 
     def _init_temperature(self):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
