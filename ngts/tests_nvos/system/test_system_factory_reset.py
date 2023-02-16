@@ -180,7 +180,7 @@ def _add_verification_data(engine, system):
             line = line.split()
             docker_name = line[len(line) - 1]
             start_time = engine.run_cmd(r"docker inspect -f \{\{'.Created'\}\} " + docker_name)
-            start_time = datetime.strptime(start_time[0].split(".")[0], f'%Y-%m-%dT%H:%M:%S')
+            start_time = datetime.strptime(start_time.split(".")[0], f'%Y-%m-%dT%H:%M:%S')
             running_dockers[docker_name] = start_time
 
     with allure.step("Create new user"):
@@ -283,7 +283,7 @@ def _verify_cleanup_done(engine, current_time, system, username):
             if "Error" in output:
                 create_time = ""
             else:
-                create_time = datetime.strptime(create_time[0].split(".")[0], f'%Y-%m-%dT%H:%M:%S')
+                create_time = datetime.strptime(output.split(".")[0], f'%Y-%m-%dT%H:%M:%S')
 
             if docker_name == "database":
                 if create_time != orig_create_time:
