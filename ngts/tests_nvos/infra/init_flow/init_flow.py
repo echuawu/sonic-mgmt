@@ -31,7 +31,19 @@ def test_system_services(engines, devices):
         assert res_obj.result, res_obj.info
 
 
-'''
+@pytest.mark.init_flow
+@pytest.mark.simx
+def test_system_dockers(engines, devices):
+    """
+    Verifying the NVOS system dockers are up
+    Run "docker ps" and validate the expected dockers appears
+    :return: None, raise error in case one or more dockers are down
+    """
+    with allure.step("Validate docker are up"):
+        res_obj = devices.dut.verify_dockers(engines.dut)
+        assert res_obj.result, res_obj.info
+
+
 @pytest.mark.init_flow
 def test_existence_of_tables_in_databases(engines, devices):
     """
@@ -41,7 +53,6 @@ def test_existence_of_tables_in_databases(engines, devices):
     with allure.step("Validate no missing database default tables"):
         res_obj = devices.dut.verify_databases(engines.dut)
         assert res_obj.result, res_obj.info
-'''
 
 
 @pytest.mark.init_flow
