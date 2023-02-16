@@ -26,4 +26,15 @@
     </cmd>
   </case>
 
+  <case>
+    <name> fw install </name>
+    <info> </info>
+    <tout> 1800 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_install_system_firmware.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --release_name=[[conf:extra_info.release_name]] --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
 </CASEDEF>
