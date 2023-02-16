@@ -4,7 +4,7 @@ from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 import time
 
 logger = logging.getLogger()
@@ -23,6 +23,7 @@ class BaseDevice:
         self.fan_list = {}
         self.psu_list = {}
         self.temperature_list = {}
+        self.health_components = []
 
         self._init_available_databases()
         self._init_services()
@@ -32,6 +33,7 @@ class BaseDevice:
         self._init_fan_list()
         self._init_psu_list()
         self._init_temperature()
+        self._init_health_components()
 
     @abstractmethod
     def _init_available_databases(self):
@@ -67,6 +69,10 @@ class BaseDevice:
 
     @abstractmethod
     def _init_temperature(self):
+        pass
+
+    @abstractmethod
+    def _init_health_components(self):
         pass
 
     def verify_databases(self, dut_engine):
@@ -258,7 +264,7 @@ class BaseSwitch(BaseDevice, ABC):
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
-                       SystemConsts.UPTIME, SystemConsts.TIMEZONE],
+                       SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.HEALTH_STATUS],
             'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
             'reboot': [SystemConsts.REBOOT_REASON],
             'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
@@ -294,6 +300,12 @@ class BaseSwitch(BaseDevice, ABC):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
                                  "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
 
+    def _init_health_components(self):
+        self.health_components = self.fan_list + self.psu_list + ["ASIC", "PSU1_FAN", "PSU2_FAN"] + \
+            ["container_checker", "diskCheck", "memory_check", "routeCheck", "vnetRouteCheck", "psu.voltage"] + \
+            ["database:redis", "ib-utils:ibcfgd", "rsyslog", "swss-ibv0:orchagent", "swss-ibv0:portmgrd",
+             "swss-ibv0:portsyncd", "syncd-ibv0:syncd"] + ["root-overlay", "var-log"]
+
 
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitch(BaseSwitch):
@@ -304,6 +316,7 @@ class GorillaSwitch(BaseSwitch):
 
     def __init__(self):
         BaseSwitch.__init__(self)
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format("x86_64-mlnx_mqm9700-r0")
 
     def ib_ports_num(self):
         return self.GORILLA_IB_PORT_NUM
@@ -334,6 +347,8 @@ class JaguarSwitch(BaseSwitch):
 
     def __init__(self):
         BaseSwitch.__init__(self)
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+            "x86_64-mlnx_mqm8700-r0")
 
     def ib_ports_num(self):
         return self.JAGUAR_IB_PORT_NUM

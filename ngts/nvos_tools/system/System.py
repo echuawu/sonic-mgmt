@@ -20,6 +20,7 @@ from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.User import User
+from ngts.nvos_tools.system.Health import Health
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -39,6 +40,7 @@ class System(BaseComponent):
     rotation = None
     syslog = None
     ssh_server = None
+    health = None
 
     def __init__(self, parent_obj=None, username='admin'):
         self._resource_path = '/system'
@@ -59,6 +61,7 @@ class System(BaseComponent):
         self.reboot = Reboot(self)
         self.factory_default = FactoryDefault(self)
         self.profile = Profile(self)
+        self.health = Health(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):

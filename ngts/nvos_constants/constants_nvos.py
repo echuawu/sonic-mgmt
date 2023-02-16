@@ -233,6 +233,8 @@ class SystemConsts:
     CPU_PERCENT_THRESH_MIN = 0.0
     CPU_PERCENT_THRESH_MAX = 35.0
 
+    HEALTH_STATUS = "health-status"
+
 
 class ActionConsts:
     CLEANUP = "cleanup"
@@ -389,3 +391,12 @@ class SyslogSeverityLevels:
                            WARN: WARN,
                            ERROR: ERROR,
                            CRITICAL: CRIT}
+
+
+class HealthConsts:
+    STATUS = "status"
+    STATUS_LED = "status-led"
+    MONITOR_LIST = "monitor-list"
+    HEALTH_FIRST_FILE = "health_history"
+    HEALTH_SECOND_FILE = "health_history.1"
+    HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/mellanox/{}/system_health_monitoring_config.json"
