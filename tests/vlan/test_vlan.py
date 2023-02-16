@@ -211,7 +211,7 @@ def tearDown(duthost, tbinfo):
     logger.info("VLAN test ending ...")
 
     if tbinfo['topo']['name'] not in ('t0-54-po2vlan', 't0-56-po2vlan'):
-        config_reload(duthost)
+        config_reload(duthost, safe_reload=True)
 
 
 def build_icmp_packet(vlan_id, src_mac="00:22:00:00:00:02", dst_mac="ff:ff:ff:ff:ff:ff",
