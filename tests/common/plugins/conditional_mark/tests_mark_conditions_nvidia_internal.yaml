@@ -374,9 +374,9 @@ tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_r
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174864 and branch 202205"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3368221"
     conditions:
-      - "https://redmine.mellanox.com/issues/3174864 and '202205' in release"
+      - "https://redmine.mellanox.com/issues/3368221"
 
 tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
   skip:
