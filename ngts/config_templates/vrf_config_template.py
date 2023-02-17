@@ -4,7 +4,7 @@ from functools import partial
 
 class VrfConfigTemplate:
     """
-    This class contain 2 methods for configuration and deletion of VRF related settings.
+    This class contain 2 methods for configuration and vrf_config_dict deletion of VRF related settings.
     """
     @staticmethod
     def configuration(topology_obj, vrf_config_dict, request=None):
@@ -13,7 +13,8 @@ class VrfConfigTemplate:
         :param topology_obj: topology object fixture
         :param request: request object fixture
         :param vrf_config_dict: configuration dictionary with all VRF related info
-        Example: {'dut': [{'vrf': 'Vrf_custom', 'vrf_interfaces': [dutlb1_2, dutlb2_2, dutlb3_2, dutlb4_2, dutlb5_2,
+        Example: {'dut': [{'vrf': 'Vrf_custom', 'table': '10', 'vrf_interfaces':
+        [dutlb1_2, dutlb2_2, dutlb3_2, dutlb4_2, dutlb5_2,
         dutlb6_2, duthb1]}]}
         """
         if request:
@@ -25,9 +26,14 @@ class VrfConfigTemplate:
                 cli_object = topology_obj.players[player_alias]['cli']
                 for vrf_info in configuration:
                     vrf = vrf_info['vrf']
-                    cli_object.vrf.add_vrf(vrf)
-                    for interface in vrf_info['vrf_interfaces']:
-                        cli_object.vrf.add_interface_to_vrf(interface, vrf)
+                    if vrf_info.get('table'):
+                        table = vrf_info['table']
+                        cli_object.vrf.add_vrf(vrf, table)
+                    else:
+                        cli_object.vrf.add_vrf(vrf)
+                    if vrf_info.get('vrf_interfaces'):
+                        for interface in vrf_info['vrf_interfaces']:
+                            cli_object.vrf.add_interface_to_vrf(interface, vrf)
 
     @staticmethod
     def cleanup(topology_obj, vrf_config_dict):
@@ -43,6 +49,7 @@ class VrfConfigTemplate:
                 cli_object = topology_obj.players[player_alias]['cli']
                 for vrf_info in configuration:
                     vrf = vrf_info['vrf']
-                    for interface in vrf_info['vrf_interfaces']:
-                        cli_object.vrf.del_interface_from_vrf(interface, vrf)
+                    if vrf_info.get('vrf_interfaces'):
+                        for interface in vrf_info['vrf_interfaces']:
+                            cli_object.vrf.del_interface_from_vrf(interface, vrf)
                     cli_object.vrf.del_vrf(vrf)

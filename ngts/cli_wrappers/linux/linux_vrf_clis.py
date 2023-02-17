@@ -6,14 +6,23 @@ class LinuxVrfCli(VrfCliCommon):
     def __init__(self, engine):
         self.engine = engine
 
-    def add_vrf(self, vrf):
+    def add_vrf(self, vrf, table=10):
         """
         This method create VRF
         :param engine: ssh engine object
         :param vrf: vrf name which should be created
+        :param table: the routing table that associated with vrf
         :return: command output
         """
-        raise NotImplementedError
+        create_vrf_and_bind_table = f"sudo ip link add {vrf} type vrf table {table}"
+        create_egress_ip_rule = f"sudo ip rule add oif {vrf} table {table}"
+        create_ingress_ip_rule = f"sudo ip rule add iif {vrf} table {table}"
+        set_vrf_up = f"sudo ip link set up {vrf}"
+
+        self.engine.run_cmd(create_vrf_and_bind_table)
+        self.engine.run_cmd(create_egress_ip_rule)
+        self.engine.run_cmd(create_ingress_ip_rule)
+        self.engine.run_cmd(set_vrf_up)
 
     def del_vrf(self, vrf):
         """
@@ -22,7 +31,7 @@ class LinuxVrfCli(VrfCliCommon):
         :param vrf: vrf name which should be deleted
         :return: command output
         """
-        raise NotImplementedError
+        self.engine.run_cmd(f"sudo ip link del {vrf}")
 
     def add_interface_to_vrf(self, interface, vrf):
         """

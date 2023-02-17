@@ -438,6 +438,12 @@ tests/push_build_tests/general/doroce/test_doroce.py::test_doroce_toggle_ports:
     conditions:
       - https://redmine.mellanox.com/issues/3223886
 
+tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvpnVxlan::test_overlay_ecmp:
+  skip:
+    reason: "Testcase ignored due to need to config mtu at vm and hypervisor both"
+    conditions:
+      - "'simx' in platform"
+
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_mac_move_handling:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3320013"

@@ -4,9 +4,11 @@ import tarfile
 import json
 import os
 import re
+import ipaddress
 
 from retry import retry
 from ngts.constants.constants import VxlanConstants
+from ngts.config_templates.parallel_config_runner import parallel_config_runner
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 
@@ -260,7 +262,7 @@ def vni_to_hex_vni(vni):
 
 
 @retry(Exception, tries=10, delay=2)
-def verify_underlay_ecmp_counter_entry(cli_objects, interface_counter_check_list):
+def verify_ecmp_counter_entry(cli_objects, interface_counter_check_list):
     """
     This method is to verify the vxlan counter
     :param cli_objects: cli_object fixture
@@ -390,3 +392,61 @@ def validate_basic_evpn_type_2_3_route(players, cli_objects, interfaces, vlan_id
     logger.info('Validate CLI type-3 routes on HA')
     ha_type_3_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_multicast()
     cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, dut_loopback_ip, dut_loopback_ip, rd)
+
+
+def sonic_ports_flap(cli_obj, port_list, flap_count=2):
+    for i in range(flap_count):
+        cli_obj.interface.disable_interfaces(port_list)
+        cli_obj.interface.check_link_state(port_list, expected_status='down')
+        cli_obj.interface.enable_interfaces(port_list)
+        cli_obj.interface.check_link_state(port_list)
+
+
+def restart_bgp_session(cli_object):
+    """
+    Restart bgp session
+    """
+    logging.info("Restart BGP session")
+    restart_bgp_cmd = 'clear bgp *'
+    cli_object.frr.run_config_frr_cmd(restart_bgp_cmd)
+
+
+def get_network(ip, mask_len):
+    """
+    Get the network from ip
+    """
+    ip_version = ipaddress.ip_address(ip).version
+    if ip_version == 4:
+        network = ipaddress.IPv4Network(f"{ip}/{mask_len}", strict=False).network_address.compressed
+    else:
+        network = ipaddress.IPv6Network(f"{ip}/{mask_len}", strict=False).network_address.compressed
+    return network
+
+
+@retry(Exception, tries=10, delay=2)
+def validate_ip_vrf_route(cli_obj, route_ip, mask_len, vrf):
+    """
+    This method is used to validate ip/ipv6 vrf route
+    """
+    ip_vrf_route_info = cli_obj.route.show_ip_route(vrf=vrf)
+    ip_network = get_network(route_ip, mask_len)
+    err_msg = 'Expected vrf route: {}/{} \n not found in: \n{}'.format(ip_network, mask_len, ip_vrf_route_info)
+    assert '{}/{}'.format(ip_network, mask_len) in ip_vrf_route_info, err_msg
+
+
+def clean_frr_vrf_config(topology, config_list):
+    """
+    This method is used to change frr/bgp configuration
+    """
+    logger.info(f'Clean FRR - {config_list}')
+    for config_item in config_list:
+        conf = {}
+        for player_alias, config_list in config_item.items():
+            cli_object = topology.players[player_alias]['stub_cli']
+            for config in config_list:
+                cli_object.frr.run_config_frr_cmd(config)
+            cli_object.frr.save_frr_configuration()
+            conf[player_alias] = cli_object.frr.engine.commands_list
+            cli_object.frr.engine.commands_list = []
+
+        parallel_config_runner(topology, conf)

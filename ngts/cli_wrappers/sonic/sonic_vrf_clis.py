@@ -6,10 +6,11 @@ class SonicVrfCli(VrfCliCommon):
     def __init__(self, engine):
         self.engine = engine
 
-    def add_vrf(self, vrf):
+    def add_vrf(self, vrf, table=None):
         """
         This method creates VRF
         :param vrf: vrf name which should be created
+        :param table: table parameter is only used when configuring vrf at Linux
         :return: command output
         """
         return self.engine.run_cmd("sudo config vrf add {}".format(vrf))

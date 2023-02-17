@@ -255,3 +255,11 @@ class LinuxInterfaceCli(InterfaceCliCommon):
         :return: command output
         """
         return self.engine.run_cmd("vconfig add {} {}".format(sub_interface, vlan_id))
+
+    def add_dummy_interface(self, name, vrf):
+        """
+        This method is to add dummy interface
+        """
+        self.add_interface(name, 'dummy')
+        self.add_port_to_bond(name, vrf)
+        self.enable_interface(name)

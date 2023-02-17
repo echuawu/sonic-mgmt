@@ -1,6 +1,7 @@
 import json
 
 from retry import retry
+from ngts.helpers.vxlan_helper import get_network
 from ngts.cli_wrappers.interfaces.interface_frr_clis import FrrCliInterface
 
 
@@ -190,8 +191,25 @@ class FrrCliCommon(FrrCliInterface):
             assert expected_type_3_route not in type_3_info, err_msg
 
     @staticmethod
-    def validate_type_5_route():
-        pass
+    def validate_type_5_route(type_5_info, route_ip, mask_len, peer_ip, peer_rd, learned=True):
+        """
+        Validate type-5 route in FRR output
+        :param type_5_info: dictionary with cmd "show bgp l2vpn evpn route type prefix" output
+        :param route_ip: IP address which we expect in type-5 route, such as 20.0.0.0
+        :param mask_len: IP mask length
+        :param peer_ip: BGP peer IP address which we expect in type-5 route
+        :param peer_rd: BGP peer RD
+        :param learned: A flag to show the route is supposed to be learned or not
+        """
+        route_type = 5
+        eth_tag = 0
+        ip_network = get_network(route_ip, mask_len)
+        expected_type_5_route = f'[{route_type}]:[{eth_tag}]:[{mask_len}]:[{ip_network}]'
+        err_msg = 'Expected Type-5 route: {} \n not found in: \n{}'.format(expected_type_5_route, type_5_info)
+        if learned:
+            assert expected_type_5_route in type_5_info['{}:{}'.format(peer_ip, peer_rd)], err_msg
+        else:
+            assert expected_type_5_route not in type_5_info, err_msg
 
     @retry(Exception, tries=20, delay=2)
     def validate_bgp_neighbor_established(cls, neighbor, establish=True):

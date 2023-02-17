@@ -27,7 +27,8 @@ class LinuxVxlanCli(VxlanCliCommon):
         self.engine.run_cmd('brctl addbr br_{}'.format(vni))
         self.engine.run_cmd('brctl addif br_{} {}'.format(vni, vtep_name))
         self.engine.run_cmd('brctl stp br_{} off'.format(vni))
-
+        if vxlan_info.get('vrf'):
+            self.cli_obj.interface.add_port_to_bond('br_{}'.format(vni), vxlan_info['vrf'])
         self.cli_obj.interface.enable_interface(vtep_name)
         self.cli_obj.interface.enable_interface('br_{}'.format(vni))
 

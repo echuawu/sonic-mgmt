@@ -11,6 +11,7 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
+from ngts.config_templates.vrf_config_template import VrfConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
@@ -24,7 +25,7 @@ import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
 from ngts.helpers.sonic_branch_helper import update_branch_in_topology, update_sanitizer_in_topology
 from ngts.helpers.sflow_helper import kill_sflowtool_process, remove_tmp_sample_file
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.helpers.vxlan_helper import clean_frr_vrf_config
 from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, \
     is_support_rocev2_acl_counter_feature
 from ngts.helpers.sonic_branch_helper import get_sonic_branch
@@ -124,6 +125,29 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                 ]
     }
 
+    # vrf related VLAN config in evpn vxlan test
+    vrf_vlan_config_dict = {
+        'dut': [{'vlan_id': 20, 'vlan_members': [{'PortChannel0002': 'trunk'}]}, {'vlan_id': 200, 'vlan_members': []}],
+        'hb': [{'vlan_id': 20, 'vlan_members': [{'bond0': None}]}]
+    }
+
+    # vrf config
+    vrf_config_dict = {
+        'dut': [{'vrf': 'Vrf1', 'vrf_interfaces': ['Vlan20', "Vlan200"]}],
+        'ha': [{'vrf': 'Vrf1', 'table': '10'}]
+    }
+
+    # vrf related IP config in evpn vxlan test
+    vrf_ip_config_dict = {
+        'dut': [{'iface': 'Vlan20', 'ips': [('20.0.0.1', '24')]}],
+        'hb': [{'iface': 'bond0.20', 'ips': [('20.0.0.3', '24')]}]
+    }
+
+    # vrf related static route in evpn vxlan test
+    vrf_static_route_config_dict = {
+        'hb': [{'dst': '200.0.0.0', 'dst_mask': 24, 'via': ['20.0.0.1']}]
+    }
+
     # LAG/LACP config which will be used in test
     lag_lacp_config_dict = {
         'dut': [{'type': 'lacp', 'name': 'PortChannel0001', 'members': [interfaces.dut_ha_1]},
@@ -192,10 +216,16 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
     evpn_vxlan_config_dict = {
         'dut': [{'evpn_nvo': 'my-nvo', 'vtep_name': 'vtep101032', 'vtep_src_ip': '10.1.0.32',
-                 'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101}]
+                 'vrf_vni_map': [{'vrf': 'Vrf1', 'vni': 500200}],
+                 'tunnels': [{'vni': 76543, 'vlan': 69}, {'vni': 500100, 'vlan': 100}, {'vni': 500101, 'vlan': 101},
+                             {'vni': 50020, 'vlan': 20}, {'vni': 500200, 'vlan': 200}]
                  }
                 ],
-        'ha': [{'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
+        'ha': [{'vtep_name': 'vtep_50020', 'vtep_src_ip': '30.0.0.2', 'vni': 50020, 'vrf': 'Vrf1',
+                'vtep_ips': [('20.0.0.2', '24'), ('20::2', '64')]},
+               {'vtep_name': 'vtep_500200', 'vtep_src_ip': '30.0.0.2', 'vni': 500200, 'vrf': 'Vrf1',
+                'vtep_ips': [('200.0.0.2', '24'), ('200::2', '64')]},
+               {'vtep_name': 'vtep_500100', 'vtep_src_ip': '30.0.0.2', 'vni': 500100,
                 'vtep_ips': [('100.0.0.2', '24'), ('100::2', '64')]},
                {'vtep_name': 'vtep_500101', 'vtep_src_ip': '30.0.0.2', 'vni': 500101,
                 'vtep_ips': [('101.0.0.2', '24'), ('101::2', '64')]}],
@@ -204,13 +234,30 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     }
 
     frr_config_dict = {
-        'dut': {'configuration': {'config_name': 'dut_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
-                'cleanup': ['configure terminal', 'no router bgp', 'exit', 'exit']},
-        'ha': {'configuration': {'config_name': 'ha_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
-               'cleanup': ['configure terminal', 'no router bgp', 'exit', 'exit']},
-        'hb': {'configuration': {'config_name': 'hb_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER},
-               'cleanup': ['configure terminal', 'no router bgp', 'exit', 'exit']}
+        'dut': {'configuration': {'config_name': 'dut_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER}},
+        'ha': {'configuration': {'config_name': 'ha_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER}},
+        'hb': {'configuration': {'config_name': 'hb_frr_conf.conf', 'path_to_config_file': FRR_CONFIG_FOLDER}}
     }
+
+    clean_frr_dut = {
+        'dut': [
+            ['configure terminal', 'vrf Vrf1', 'no vni 500200', 'end'],
+            ['configure terminal', 'no router bgp 65000 vrf Vrf1', 'end'],
+            ['configure terminal', 'no router bgp', 'end']
+        ]
+    }
+
+    clean_frr_ha = {
+        'ha': clean_frr_dut['dut']
+    }
+
+    clean_frr_hb = {
+        'hb': [
+            ['configure terminal', 'no router bgp', 'end']
+        ]
+    }
+
+    clean_frr_base_config_list = [clean_frr_dut, clean_frr_ha, clean_frr_hb]
 
     # Update CLI classes based on current SONiC branch
     update_branch_in_topology(topology_obj)
@@ -232,9 +279,13 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
 
         if is_evpn_support(base_sonic_branch):
+            VlanConfigTemplate.configuration(topology_obj, vrf_vlan_config_dict)
+            VrfConfigTemplate.configuration(topology_obj, vrf_config_dict)
+            IpConfigTemplate.configuration(topology_obj, vrf_ip_config_dict)
             VxlanConfigTemplate.configuration(topology_obj, evpn_vxlan_config_dict)
+            RouteConfigTemplate.configuration(topology_obj, vrf_static_route_config_dict)
             # in case there is useless bgp configuration exist
-            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+            clean_frr_vrf_config(topology_obj, clean_frr_base_config_list)
             FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
 
         with allure.step('Doing debug logs print'):
@@ -292,8 +343,13 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             logger.info('Check that all ports in UP state')
             ports_list = topology_obj.players_all_ports['dut']
             cli_objects.dut.interface.check_link_state(ports_list)
+
+            clean_frr_vrf_config(topology_obj, clean_frr_base_config_list)
+            IpConfigTemplate.cleanup(topology_obj, vrf_ip_config_dict)
+            VrfConfigTemplate.cleanup(topology_obj, vrf_config_dict)
+            RouteConfigTemplate.cleanup(topology_obj, vrf_static_route_config_dict)
             VxlanConfigTemplate.cleanup(topology_obj, evpn_vxlan_config_dict)
-            FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
+            VlanConfigTemplate.cleanup(topology_obj, vrf_vlan_config_dict)
 
         if is_support_rocev2_acl_counter_feature(cli_objects, is_simx, base_sonic_branch):
             remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS"])

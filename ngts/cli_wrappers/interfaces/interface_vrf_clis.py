@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class VrfCliInterface(ABC):
     @staticmethod
     @abstractmethod
-    def add_vrf(engine, vrf):
+    def add_vrf(engine, vrf, table):
         """
         This method is abstractmethod and should be implemented in child classes
         """

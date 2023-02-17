@@ -1002,9 +1002,16 @@ class VxlanConstants:
     PACKET_NUM_0 = 0
     STATIC_MAC_OPERATION_SET = 'SET'
     STATIC_MAC_OPERATION_DEL = 'DEL'
+    MTU_1500 = '1500'
+    MTU_9100 = '9100'
+    MTU_1000 = '1000'
+    JUMBO_PACKET_LEN = 9000
+    NORMAL_PACKET_LEN = 1000
 
     DUT_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.1'
     VM_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.2'
+    BR_500100_IP = '100.0.0.2'
+    BR_500200_IP = '200.0.0.2'
     IP_GENERATE_SEED = 201
 
     VETH_NAME_1 = 'tap_3333_1'
@@ -1023,22 +1030,31 @@ class VxlanConstants:
     UNKNOWN_DST_IP = '101.0.0.100'
 
     BGP_SESSION_ID = 65000
+    PREFIX_LENGTH = 24
+    RD_20 = '20'
     RD_100 = '100'
     RD_101 = '101'
+    RD_200 = '200'
     RD_3333 = '3333'
     VLAN_3 = 3
+    VLAN_10 = 10
+    VLAN_20 = 20
     VLAN_100 = 100
     VLAN_101 = 101
     VLAN_200 = 200
     VNI_12345 = 12345
     VNI_54321 = 54321
+    VNI_50020 = 50020
     VNI_500100 = 500100
     VNI_500101 = 500101
+    VNI_500200 = 500200
     VNI_3333 = 3333
     VNI_3333_IFACE = 'br_{}'.format(VNI_3333)
     HA_VXLAN_54321_IFACE = 'vtep_{}'.format(VNI_54321)
+    VNI_50020_IFACE = 'br_{}'.format(VNI_50020)
     VNI_500100_IFACE = 'br_{}'.format(VNI_500100)
     VNI_500101_IFACE = 'br_{}'.format(VNI_500101)
+    VNI_500200_IFACE = 'br_{}'.format(VNI_500200)
 
     EVPN_NVO = 'my-nvo'
     VTEP_NAME_DUT = 'vtep101032'
@@ -1046,19 +1062,31 @@ class VxlanConstants:
     SIMPLE_PACKET = 'Ether(src="{}",dst="{}")/IP(src="{}",dst="{}")/UDP()'
     SIMPLE_DOT1Q_PACKET = 'Ether(src="{}",dst="{}")/Dot1Q(vlan={})/IP(src="{}",dst="{}")/UDP()'
     ECMP_SIMPLE_PACKET = 'Ether(src="{}",dst="{}")/IP(src={},dst="{}")/UDP()'
+    ECMP_SIMPLE_PACKET_V6 = 'Ether(src="{}",dst="{}")/IPv6(src={},dst="{}")/UDP()'
+    ECMP_VARIABLE_LENGTH_PACKET = 'Ether(src="{}",dst="{}")/IP(src={},dst="{}")/UDP()/Raw(RandString(size={}))'
+    ECMP_VARIABLE_LENGTH_PACKET_V6 = \
+        'Ether(src="{}",dst="{}")/IPv6(src={},dst="{}")/UDP()/Raw(RandString(size={}))'
     SIMPLE_PACKET_FILTER = 'udp and dst host {}'
     # filter VXLAN packet with vni and encapsulated src IP
     TCPDUMP_VXLAN_SRC_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[76:4]={}'
     # filter VXLAN packet with vni and encapsulated dst IP
     TCPDUMP_VXLAN_DST_IP_FILTER = 'port 4789 and ether[46:4]={} and ether[80:4]={}'
+    TCPDUMP_VXLAN_DST_IPV6_FILTER = 'port 4789 and ether[46:4]={} and ether[88:4]={}'
     HEX_UNKNOWN_SRC_IP = '0x01000003'
+    HEX_5_5_5_1 = '0x05050501'
+    HEX_20_0_0_3 = '0x14000003'  # hex value for 20.0.0.3
     HEX_100_0_0_2 = '0x64000002'  # hex value for 100.0.0.2
     HEX_100_0_0_3 = '0x64000003'  # hex value for 100.0.0.3
-    HEX_101_0_0_2 = '0x65000002'  # hex value for 101.0.0.3
+    HEX_101_0_0_2 = '0x65000002'  # hex value for 101.0.0.2
     HEX_101_0_0_3 = '0x65000003'  # hex value for 101.0.0.3
+    HEX_200_0_0_2 = '0xc8000002'  # hex value for 200.0.0.2
     HEX_255_255_255_255 = '0xffffffff'  # hex value for 255.255.255.255
+    HEX_5000_2 = '0x50000000'  # hex value for 5000::2, scapy only support 4 byte size data matching
     HEX_500100 = '0x7a18400'
     HEX_500101 = '0x7a18500'
+    HEX_500200 = '0x7a1e800'
+    IP_HEX_MAP = {BR_500100_IP: HEX_100_0_0_2, BR_500200_IP: HEX_200_0_0_2}
+    VNI_HEX_MAP = {VNI_500100: HEX_500100, VNI_500200: HEX_500200}
     STATIC_MAC_ADDR = '00-00-00-11-22-33'
     SOURCE_MAC_ADDR_1 = '00:11:22:33:44:55'
     UNKNOWN_UNICAST_MAC = '00:00:00:00:00:aa'
@@ -1066,6 +1094,7 @@ class VxlanConstants:
     BROADCAST_MAC = 'ff:ff:ff:ff:ff:ff'
     BROADCAST_IP = '255.255.255.255'
     ECMP_TRAFFIC_SRC_IP_LIST = ['3.3.3.3', '3.3.3.4', '3.3.3.5', '3.3.3.6']
+    ECMP_TRAFFIC_SRC_IPV6_LIST = ['2000::3', '2000::4', '2000::5', '2000::6']
 
 
 class SanitizerConst:

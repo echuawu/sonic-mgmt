@@ -80,7 +80,7 @@ class LinuxCli:
     @property
     def vrf(self):
         if self._vrf is None:
-            self._vrf = LinuxVrfCli()
+            self._vrf = LinuxVrfCli(engine=self.engine)
         return self._vrf
 
     @property

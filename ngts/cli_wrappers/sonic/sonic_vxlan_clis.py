@@ -26,6 +26,11 @@ class SonicVxlanCli(VxlanCliCommon):
             vlan = tunnel['vlan']
             vni = tunnel['vni']
             self.add_vtep_mapping_to_vlan_vni(vtep_name, vlan, vni)
+        if vxlan_info.get('vrf_vni_map'):
+            for vrf_vni_map in vxlan_info['vrf_vni_map']:
+                vrf = vrf_vni_map['vrf']
+                vni = vrf_vni_map['vni']
+                self.add_vrf_vni_map(vrf, vni)
 
     def delete_vxlan(self, vxlan_info):
         """
@@ -35,6 +40,10 @@ class SonicVxlanCli(VxlanCliCommon):
         :return: command output
         """
         vtep_name = vxlan_info['vtep_name']
+        if vxlan_info.get('vrf_vni_map'):
+            for vrf_vni_map in vxlan_info['vrf_vni_map']:
+                vrf = vrf_vni_map['vrf']
+                self.del_vrf_vni_map(vrf)
         for tunnel in vxlan_info['tunnels']:
             vlan = tunnel['vlan']
             vni = tunnel['vni']
@@ -87,6 +96,23 @@ class SonicVxlanCli(VxlanCliCommon):
         """
         return self.engine.run_cmd('sudo config vxlan map add {} {} {}'.format(vtep_name, vlan, vni))
 
+    def add_vrf_vni_map(self, vrf, vni):
+        """
+        Method which adding mapping for vrf and vni on SONiC dut
+        :param vrf: vrf name
+        :param vni: vni value
+        :return: command output
+        """
+        return self.engine.run_cmd('sudo config vrf add_vrf_vni_map {} {}'.format(vrf, vni))
+
+    def del_vrf_vni_map(self, vrf):
+        """
+        Method which deletes mapping for vrf and vni on SONiC dut
+        :param vrf: vrf name
+        :return: command output
+        """
+        return self.engine.run_cmd('sudo config vrf del_vrf_vni_map {}'.format(vrf))
+
     def add_vtep_mapping_range_to_vlan_vni(self, vtep_name, vlan_start, vlan_end, vni_start):
         """
         Method which adding mapping range for VTEP to VLAN/VNI on SONIC dut
@@ -96,7 +122,8 @@ class SonicVxlanCli(VxlanCliCommon):
         :param vni_start: vni range start vni
         :return: command output
         """
-        return self.engine.run_cmd('sudo config vxlan map_range add {} {} {} {}'.format(vtep_name, vlan_start, vlan_end, vni_start))
+        return self.engine.run_cmd('sudo config vxlan map_range add {} {} {} {}'.format(vtep_name, vlan_start,
+                                                                                        vlan_end, vni_start))
 
     def del_vtep_mapping_to_vlan_vni(self, vtep_name, vlan, vni):
         """
@@ -117,7 +144,8 @@ class SonicVxlanCli(VxlanCliCommon):
         :param vni_start: vni range start vni
         :return: command output
         """
-        return self.engine.run_cmd('sudo config vxlan map_range del {} {} {} {}'.format(vtep_name, vlan_start, vlan_end, vni_start))
+        return self.engine.run_cmd('sudo config vxlan map_range del {} {} {} {}'.format(vtep_name, vlan_start,
+                                                                                        vlan_end, vni_start))
 
     def get_vxlan_tunnels_info(self):
         """
@@ -214,7 +242,8 @@ class SonicVxlanCli(VxlanCliCommon):
         +---------+-------------------+--------------+--------+---------+
         Total count : 3
 
-        :param vlan_mac_vtep_vni_check_list: list with VLAN, MAC, VTEP IP, VNI maps. Example: [("100", "2e:9e:14:94:98:77", "40.0.0.3", "500100")]
+        :param vlan_mac_vtep_vni_check_list: list with VLAN, MAC, VTEP IP, VNI maps.
+            Example: [("100", "2e:9e:14:94:98:77", "40.0.0.3", "500100")]
         :param type: mac type, now there is only one value "dynamic"
         :param learned: a flag to determine whether or not the mac entry is supposed to be learned
         :return: assertion error in case of mac does not exist with specific parameters
@@ -227,10 +256,12 @@ class SonicVxlanCli(VxlanCliCommon):
             vni = vlan_mac_vtep_vni[3]
             if learned:
                 with allure.step(f"Checking MAC {mac} learned from VTEP {vtep_ip} with VLAN {vlan} and VNI {vni}"):
-                    assert re.search(fr"Vlan{vlan}\s+\|\s+{mac}\s+\|\s+{vtep_ip}\s+\|\s+{vni}\s+\|\s+{type}\s+\|", remotemac_output)
+                    assert re.search(fr"Vlan{vlan}\s+\|\s+{mac}\s+\|\s+{vtep_ip}\s+\|\s+{vni}\s+\|\s+{type}\s+\|",
+                                     remotemac_output)
             else:
                 with allure.step(f"Checking MAC {mac} not learned from VTEP {vtep_ip} with VLAN {vlan} and VNI {vni}"):
-                    assert not re.search(fr"Vlan{vlan}\s+\|\s+{mac}\s+\|\s+{vtep_ip}\s+\|\s+{vni}\s+\|\s+{type}\s+\|", remotemac_output)
+                    assert not re.search(fr"Vlan{vlan}\s+\|\s+{mac}\s+\|\s+{vtep_ip}\s+\|\s+{vni}\s+\|\s+{type}\s+\|",
+                                         remotemac_output)
 
     def show_vxlan_remotevni(self, vtep_ip='all'):
         """
@@ -255,8 +286,10 @@ class SonicVxlanCli(VxlanCliCommon):
         +---------+--------------+--------+
         Total count : 3
 
-        :param vlan_vtep_vni_check_list: list with vlan, remote vtep ip and vni. Example: [("100", "40.0.0.3", "500100")]
-        :param all: flag to determine whether to use option 'all' or 'vtep_ip' in the command 'show vxlan remotevni all|vtep_ip'
+        :param vlan_vtep_vni_check_list: list with vlan, remote vtep ip and vni.
+            Example: [("100", "40.0.0.3", "500100")]
+        :param all: flag to determine whether to use option 'all' or 'vtep_ip' in the command
+            'show vxlan remotevni all|vtep_ip'
         :param learned: flag to determine whether or not the vni entry is supposed to be learned
         :return: assertion error in case of no match
         """

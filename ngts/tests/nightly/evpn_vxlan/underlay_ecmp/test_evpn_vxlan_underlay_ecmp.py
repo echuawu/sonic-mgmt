@@ -7,7 +7,7 @@ from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
-from ngts.helpers.vxlan_helper import send_and_validate_traffic, verify_underlay_ecmp_counter_entry, \
+from ngts.helpers.vxlan_helper import send_and_validate_traffic, verify_ecmp_counter_entry, \
     validate_basic_evpn_type_2_3_route
 from ngts.constants.constants import VxlanConstants
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
@@ -185,7 +185,7 @@ class TestEvpnVxlanUnderlayEcmp:
                                       receiver_count=VxlanConstants.PACKET_NUM_400)
 
         with allure.step('Validate vxlan tx counters'):
-            verify_underlay_ecmp_counter_entry(cli_objects, self.ecmp_interface_counter_check_list)
+            verify_ecmp_counter_entry(cli_objects, self.ecmp_interface_counter_check_list)
 
     def test_underlay_ecmp(self, cli_objects, topology_obj, interfaces):
         """
