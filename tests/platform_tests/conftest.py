@@ -362,8 +362,8 @@ def verify_required_events(duthost, event_counters, timing_data, verification_er
             expected_count = event_counters.get(pattern)
             if (observed_start_count != expected_count and pattern != 'PORT_READY') or\
                     (observed_start_count > expected_count and pattern == 'PORT_READY'):
-                verification_errors.append("FAIL: Event {} was found {} times, when expected exactly {} times".\
-                    format(pattern, observed_start_count, expected_count))
+                verification_errors.append("FAIL: Event {} was found {} times, when expected exactly {} times".
+                                           format(pattern, observed_start_count, expected_count))
             if key == "time_span" and observed_start_count != observed_end_count:
                 verification_errors.append("FAIL: Event {} counters did not match. ".format(pattern) +\
                     "Started {} times, and ended {} times".format(observed_start_count, observed_end_count))
