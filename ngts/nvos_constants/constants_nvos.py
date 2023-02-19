@@ -73,6 +73,8 @@ class NvosConst:
 
     DEFAULT_PASS = 'YourPaSsWoRd'
 
+    REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
+
 
 class ApiType:
     NVUE = "NVUE"
