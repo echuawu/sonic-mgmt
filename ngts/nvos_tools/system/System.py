@@ -9,6 +9,7 @@ from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
+from ngts.nvos_tools.system.Ntp import Ntp
 from ngts.nvos_tools.system.Ssh_server import SshServer
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
@@ -42,6 +43,7 @@ class System(BaseComponent):
     files = None
     rotation = None
     syslog = None
+    ntp = None
     ssh_server = None
     health = None
 
@@ -56,6 +58,7 @@ class System(BaseComponent):
         self.security = Security(self)
         self.ssh_server = SshServer(self)
         self.syslog = Syslog(self)
+        self.ntp = Ntp(self)
         self.techsupport = TechSupport(self)
         self.image = Image(self)
         self.firmware = Firmware(self)

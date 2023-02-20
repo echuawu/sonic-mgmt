@@ -245,6 +245,25 @@ class ValidationTool:
             return ResultObj(not info, info)
 
     @staticmethod
+    def compare_nested_dictionary_content(output_dictionary, sub_dictionary):
+        with allure.step("Verify the sub nested dictionary can be found in the output"):
+            info = ""
+            output_dictionary_keys = output_dictionary.keys()
+            for key, value in sub_dictionary.items():
+                if key not in output_dictionary_keys:
+                    info += key + " can't be found in output dictionary\n"
+                else:
+                    if isinstance(output_dictionary[key], dict) and isinstance(sub_dictionary[key], dict):
+                        res = ValidationTool.compare_nested_dictionary_content(output_dictionary[key],
+                                                                               sub_dictionary[key])
+                        if not res.result:
+                            return res
+                    elif value != output_dictionary[key]:
+                        info += "the value of {} is not equal in both dictionaries\n".format(key)
+
+            return ResultObj(not info, info)
+
+    @staticmethod
     def verify_sub_strings_in_str_output(str_output, req_fields):
         if any(field not in str_output for field in req_fields):
             return ResultObj(False, "Not all required fields were found")
@@ -253,7 +272,6 @@ class ValidationTool:
     @staticmethod
     def verify_all_files_in_compressed_folder(engine, zipped_folder_name, files_list, zipped_folder_path="", path=""):
         """
-
         :param engine:
         :param zipped_folder_name:
         :param files_list:

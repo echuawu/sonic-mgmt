@@ -1,5 +1,6 @@
 import os
 from ngts.constants.constants import InfraConst
+from enum import Enum
 
 
 class DatabaseConst:
@@ -52,7 +53,6 @@ class DatabaseConst:
 
 
 class NvosConst:
-
     PORT_STATUS_UP = 'up'
     PORT_STATUS_DOWN = 'down'
 
@@ -357,6 +357,210 @@ class ImageConsts:
     PARTITION2_IMG = 'partition2'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                        InfraConst.HTTP_SERVER.replace("http://", ""))
+
+
+class NtpConsts:
+    class Authentication(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    class Dhcp(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    class State(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    class Trusted(Enum):
+        YES = 'yes'
+        NO = 'no'
+
+    class AssociationType(Enum):
+        SERVER = 'server'
+        PEER = 'peer'
+        POOL = 'pool'
+
+    class Status(Enum):
+        SYNCHRONISED = 'synchronised'
+        UNSYNCHRONISED = 'unsynchronised'
+
+    class Vrf(Enum):
+        DEFAULT = 'default'
+        MGMT = 'mgmt'
+
+    class Version(Enum):
+        VERSION_3 = '3'
+        VERSION_4 = '4'
+
+    class AggressivePolling(Enum):
+        ON = 'on'
+        OFF = 'off'
+
+    class KeyType(Enum):
+        MD5 = 'md5'
+        SHA1 = 'sha1'
+
+    class Listen(Enum):
+        ETH0 = 'eth0'
+
+    AUTHENTICATION = 'authentication'
+    DHCP = 'dhcp'
+    LISTEN = 'listen'
+    OFFSET = 'offset'
+    REFERENCE = 'reference'
+    SERVER = 'server'
+    STATE = 'state'
+    DHCP = 'dhcp'
+    STATUS = 'status'
+    VRF = 'vrf'
+    KEY = 'key'
+    VALUE = 'value'
+    TYPE = 'type'
+    RESOLVE_AS = 'resolve-as'
+    ASSOCIATION_TYPE = 'association-type'
+    AGGRESSIVE_POLLING = 'aggressive-polling'
+    VERSION = 'version'
+    TRUSTED = 'trusted'
+    SERVER_ID = 'server-id'
+    KEY_1 = '6'
+    KEY_2 = '09876'
+    KEY_VALUE = 'v1234'
+    KEY_VALUE = 'v1234'
+    KEY1_VALUE = 'blahblah'
+    KEY2_VALUE = 'lbsdu234nj'
+    SERVER1_IPV4 = '10.7.77.134'
+    SERVER2_IPV4 = '10.7.77.135'
+    SERVER2_HOSTNAME = 'l-coreslave'
+    SERVER3_IPV4 = '10.7.77.136'
+    AUTH_SERVER_HOSTNAME = 'mtl-vdi-745.wap.labs.mlnx'
+    AUTH_SERVER_IPV4 = '10.228.130.8'
+    DUMMY_SERVER1 = 'server_1'
+    DUMMY_SERVER2 = 'server_2'
+    DUMMY_SERVER3 = 'server_3'
+    DUMMY_SERVER4 = 'server_4'
+    DUMMY_SERVER5 = 'server_5'
+    DUMMY_SERVER6 = 'server_6'
+    DUMMY_SERVER7 = 'server_7'
+    DUMMY_SERVER8 = 'server_8'
+    SERVER_FAILED = 'DNS resolution failed'
+    MULTIPLE_SERVERS_NUMBER = 11
+    CONFIG_TIME_DIFF_THRESHOLD = 1.0  # [sec]
+    SHOW_TIME_DIFF_THRESHOLD = 0.5  # [sec]
+    SYNCHRONIZATION_MAX_TIME = 100  # [sec]
+    SYNCHRONIZATION_TIME_AFTER_REBOOT = 60  # [sec]
+    NUMBER_OF_ITERATION = 5
+    OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
+    NTP_MAX_DIFF_TIME = 180  # [sec]
+
+    INVALID_STATE = 'enablde'
+    INVALID_AUTHENTICATION = 'disablde'
+    INVALID_HIGHER_KEY = '65536'
+    INVALID_LOWER_KEY = '0'
+    INVALID_KEY_TYPE = '0'
+    INVALID_KEY_TRUSTED = 'noo'
+    INVALID_SERVER = '1234.1234'
+    INVALID_SERVER_ASSOCIATION_TYPE = 'ssserver'
+    INVALID_SERVER_STATE = 'ddddisable'
+    INVALID_SERVER_HIGHER_KEY = '100000'
+    INVALID_SERVER_LOWER_KEY = '-565'
+    INVALID_SERVER_TRUSTED = 'ssserver'
+    INVALID_SERVER_VERSION = '5'
+    INVALID_VRF = 'masdfasdf'
+
+    LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'enabled', " \
+                        "'server_role': 'disabled', 'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
+    LOG_MSG_SERVER_CONFIG = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
+                            "'resolve_as': '10.7.77.134', 'state': 'enabled', 'trusted': 'no', 'version': '4'}}"
+    LOG_MSG_SERVER_CONFIG_UPDATE = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
+                                   "'key': '6', 'resolve_as': '10.7.77.134', 'state': 'disabled', " \
+                                   "'trusted': 'yes', 'version': '3'}}"
+    LOG_MSG_SERVER_CONFIG_KEY = "NtpCfg: Set keys: {'6': {'trusted': 'yes', 'type': 'SHA1'}}"
+#   LOG_MSG_SERVER_CONFIG_VRF = "..."  # Currently not supported
+
+    NTP_DEFAULT_DICT = {
+        AUTHENTICATION: Authentication.DISABLED.value,
+        DHCP: Dhcp.ENABLED.value,
+        LISTEN: Listen.ETH0.value,
+        SERVER: {},
+        STATE: State.ENABLED.value,
+        STATUS: Status.UNSYNCHRONISED.value,
+        VRF: Vrf.DEFAULT.value
+    }
+    NTP_STATUS_DEFAULT_DICT = {}
+    SERVER_DEFAULT_DICT = {}
+    SERVER_DEFAULT_VALUES_DICT = {
+        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        ASSOCIATION_TYPE: AssociationType.SERVER.value,
+        RESOLVE_AS: SERVER_FAILED,
+        STATE: State.ENABLED.value,
+        TRUSTED: Trusted.NO.value,
+        VERSION: Version.VERSION_4.value
+    }
+    SERVER1_DEFAULT_VALUES_DICT = {
+        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        ASSOCIATION_TYPE: AssociationType.SERVER.value,
+        RESOLVE_AS: SERVER1_IPV4,
+        STATE: State.ENABLED.value,
+        TRUSTED: Trusted.NO.value,
+        VERSION: Version.VERSION_4.value
+    }
+    SERVER2_DEFAULT_VALUES_DICT = {
+        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        ASSOCIATION_TYPE: AssociationType.SERVER.value,
+        RESOLVE_AS: SERVER2_IPV4,
+        STATE: State.ENABLED.value,
+        TRUSTED: Trusted.NO.value,
+        VERSION: Version.VERSION_4.value
+    }
+    MULTIPLE_SERVERS_DEFAULT_DICT = {
+        SERVER1_IPV4: {},
+        SERVER2_HOSTNAME: {},
+        DUMMY_SERVER1: {},
+        DUMMY_SERVER2: {},
+        DUMMY_SERVER3: {},
+        DUMMY_SERVER4: {},
+        DUMMY_SERVER5: {},
+        DUMMY_SERVER6: {},
+        DUMMY_SERVER7: {},
+        DUMMY_SERVER8: {},
+    }
+    MULTIPLE_SERVERS_CONFIG_DICT = {
+        SERVER1_IPV4: SERVER1_DEFAULT_VALUES_DICT,
+        SERVER2_HOSTNAME: SERVER2_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER1: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER2: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER3: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER4: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER5: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER6: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER7: SERVER_DEFAULT_VALUES_DICT,
+        DUMMY_SERVER8: SERVER_DEFAULT_VALUES_DICT,
+    }
+    SERVER_NONE_DEFAULT_VALUES_DICT = {
+        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        ASSOCIATION_TYPE: AssociationType.SERVER.value,
+        KEY: KEY_1,
+        RESOLVE_AS: SERVER1_IPV4,
+        STATE: State.DISABLED.value,
+        TRUSTED: Trusted.YES.value,
+        VERSION: Version.VERSION_3.value
+    }
+    SERVER_DISABLED_DICT = {
+        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        ASSOCIATION_TYPE: AssociationType.SERVER.value,
+        KEY: KEY_1,
+        RESOLVE_AS: SERVER1_IPV4,
+        STATE: State.DISABLED.value,
+        TRUSTED: Trusted.YES.value,
+        VERSION: Version.VERSION_3.value
+    }
+    KEY_DEFAULT_DICT = {}
+    KEY_CONFIGURED_DICT = {
+        TRUSTED: Trusted.NO.value,
+        TYPE: KeyType.MD5.value,
+        VALUE: '*'
+    }
 
 
 class SyslogConsts:

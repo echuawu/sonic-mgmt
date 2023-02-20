@@ -116,3 +116,19 @@ class GeneralCliCommon(GeneralCliInterface):
 
     def gcovr(self, paths='', flags=''):
         return self.engine.run_cmd(f'gcovr {flags} {paths}', validate=True)
+
+    def get_time(self):
+        output = self.engine.run_cmd('date +"%T"', validate=True)
+        return output
+
+    def get_date(self):
+        output = self.engine.run_cmd('date +"%d-%m-%y"', validate=True)
+        return output
+
+    def get_utc_time(self):
+        output = self.engine.run_cmd('date +%s', validate=True)
+        return output
+
+    def set_time(self, time_str):
+        output = self.engine.run_cmd(f'sudo date -s "{time_str}"', validate=True)
+        return output
