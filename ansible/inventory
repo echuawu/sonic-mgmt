@@ -707,28 +707,28 @@ r-r740-09-bf2-sonic-01-appliance ansible_host=10.215.5.19 sonic_version=v2 sonic
 r-r740-09-bf2-sonic-01-ptf-any ansible_host=10.215.5.19 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:90" pdu_host=pdu-
 
 # MTR Lab devices info
-arc-build-server ansible_host=arc-build-server ansible_user=root ansible_ssh_pass=3tango
-arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-anaconda-86 ansible_host=r-anaconda-86 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-arc-switch1007 ansible_host=arc-switch1007 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-leopard-59 ansible_host=r-leopard-59 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-arc-switch1035 ansible_host=arc-switch1035 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-arc-switch1039 ansible_host=arc-switch1039 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-c-panther-02 ansible_host=c-panther-02 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-arc-switchmtbc02 ansible_host=arc-switchmtbc02 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-mtbc-sonic-02-2700 ansible_host=mtbc-sonic-02-2700 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-panther-03 ansible_host=r-panther-03 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigris-17 ansible_host=r-tigris-17 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigris-27 ansible_host=r-tigris-27 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigris-23 ansible_host=r-tigris-23 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigris-28 ansible_host=r-tigris-28 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigon-19 ansible_host=r-tigon-19 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigon-22 ansible_host=r-tigon-22 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-liger-05 ansible_host=r-liger-05 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-leopard-20 ansible_host=r-leopard-20 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-mtbc-3700c-02 ansible_host=mtbc-3700c-02 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-r-tigon-14 ansible_host=r-tigon-14 ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
-mts-sonic-fanout ansible_host=mts-sonic-fanout ansible_ssh_user=admin ansible_ssh_pass=admin os=onyx
+arc-build-server ansible_host=arc-build-server ansible_user="{{ lookup('env','BUILD_SERVER_USER') }}" ansible_ssh_pass="{{ lookup('env','BUILD_SERVER_PASSWORD') }}"
+arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-anaconda-86 ansible_host=r-anaconda-86 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+arc-switch1007 ansible_host=arc-switch1007 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-leopard-59 ansible_host=r-leopard-59 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+arc-switch1035 ansible_host=arc-switch1035 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+arc-switch1039 ansible_host=arc-switch1039 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+c-panther-02 ansible_host=c-panther-02 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+arc-switchmtbc02 ansible_host=arc-switchmtbc02 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+mtbc-sonic-02-2700 ansible_host=mtbc-sonic-02-2700 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-panther-03 ansible_host=r-panther-03 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigris-17 ansible_host=r-tigris-17 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigris-27 ansible_host=r-tigris-27 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigris-23 ansible_host=r-tigris-23 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigris-28 ansible_host=r-tigris-28 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigon-19 ansible_host=r-tigon-19 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigon-22 ansible_host=r-tigon-22 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-liger-05 ansible_host=r-liger-05 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-leopard-20 ansible_host=r-leopard-20 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+mtbc-3700c-02 ansible_host=mtbc-3700c-02 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-tigon-14 ansible_host=r-tigon-14 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+mts-sonic-fanout ansible_host=mts-sonic-fanout ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 
 switch1  ansible_host=10.0.0.100  sonic_version=v2  sonic_hwsku=Force10-S6000 pdu_host=pdu-1
 switch2  ansible_host=10.0.0.101  sonic_version=v2  sonic_hwsku=ACS-MSN2700 pdu_host=pdu-1
@@ -1591,131 +1591,131 @@ podset_number=200
 
 [ptf]
 # MTR arc-switch1038 PTF host
-ptf-1038 ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.84.41 ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root  # Workaround for ansible inventory parsing issue
+ptf-1038 ansible_host=10.213.84.41 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.84.41 ansible_host=10.213.84.41 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"  # Workaround for ansible inventory parsing issue
 
 # MTR arc-switch1025 PTF host
-ptf-1025 ansible_host=10.213.84.213 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.84.213 ansible_host=10.213.84.213 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-1025 ansible_host=10.213.84.213 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.84.213 ansible_host=10.213.84.213 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR arc-switch1004 PTF host
-ptf-1004 ansible_host=10.213.80.153 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.80.153 ansible_host=10.213.80.153 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-1004 ansible_host=10.213.80.153 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.80.153 ansible_host=10.213.80.153 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-leopard-58 PTF host
-ptf-r-leopard-58 ansible_host=10.213.103.5 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.103.5 ansible_host=10.213.103.5 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-leopard-58 ansible_host=10.213.103.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.103.5 ansible_host=10.213.103.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigris-04 PTF host
-ptf-r-tigris-04 ansible_host=10.213.104.5 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.104.5 ansible_host=10.213.104.5 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigris-04 ansible_host=10.213.104.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.104.5 ansible_host=10.213.104.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigris-13 PTF host
-ptf-r-tigris-13 ansible_host=10.215.0.61 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.0.61 ansible_host=10.215.0.61 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigris-13 ansible_host=10.215.0.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.0.61 ansible_host=10.215.0.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigris-25 PTF host
-ptf-r-tigris-25 ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.84.41 ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigris-25 ansible_host=10.213.84.41 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.84.41 ansible_host=10.213.84.41 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-leopard-01 PTF host
-ptf-r-leopard-01 ansible_host=10.215.22.61 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.22.61 ansible_host=10.215.22.61 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-leopard-01 ansible_host=10.215.22.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.22.61 ansible_host=10.215.22.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTS mts-sonic-dut-t1 PTF host
-mts-ptf ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
-10.9.78.237 ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
+mts-ptf ansible_host=10.9.78.237 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.9.78.237 ansible_host=10.9.78.237 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-anaconda-81 PTF host
-ptf-r-anaconda-81 ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.86.93 ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-anaconda-81 ansible_host=10.213.86.93 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.86.93 ansible_host=10.213.86.93 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigon-04 PTF host
-ptf-r-tigon-04 ansible_host=10.213.84.61 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.84.61 ansible_host=10.213.84.61 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigon-04 ansible_host=10.213.84.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.84.61 ansible_host=10.213.84.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigon-11 PTF host
-ptf-r-tigon-11 ansible_host=10.213.14.62 ansible_ssh_user=root ansible_ssh_pass=root
-10.213.14.62 ansible_host=10.213.14.62 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigon-11 ansible_host=10.213.14.62 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.213.14.62 ansible_host=10.213.14.62 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigon-20 PTF host
-ptf-r-tigon-20 ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.18.183 ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigon-20 ansible_host=10.215.18.183 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.18.183 ansible_host=10.215.18.183 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigon-21 PTF host
-ptf-r-tigon-21 ansible_host=10.215.20.122 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.20.122 ansible_host=10.215.20.122 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigon-21 ansible_host=10.215.20.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.20.122 ansible_host=10.215.20.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigris-26 PTF host
-ptf-r-tigris-26 ansible_host=10.215.20.61 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.20.61 ansible_host=10.215.20.61 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-tigris-26 ansible_host=10.215.20.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.20.61 ansible_host=10.215.20.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-lionfish-07, r-tigris-06 and other canonical DUTs PTF host
-ptf-dummy ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
-1.1.1.1 ansible_host=1.1.1.1 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-dummy ansible_host=1.1.1.1 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+1.1.1.1 ansible_host=1.1.1.1 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR dev setup PTF host
-ptf-arc-host61-005 ansible_host=arc-host61-005 ansible_ssh_user=root ansible_ssh_pass=3tango
+ptf-arc-host61-005 ansible_host=arc-host61-005 ansible_ssh_user="{{ lookup('env','DEV_PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','DEV_PTF_PASSWORD') }}"
 
 # MTBC mtbc-sonic-01-2410 PTF host
-ptf-mtbc02 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
-10.75.206.220 ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-mtbc02 ansible_host=10.75.206.220 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.75.206.220 ansible_host=10.75.206.220 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTBC c-panther-01 PTF host
-ptf-c-panther-01 ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
-10.75.207.41 ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-c-panther-01 ansible_host=10.75.207.41 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.75.207.41 ansible_host=10.75.207.41 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTBC mtbc-sonic-03-2700 PTF host
-ptf-mtbc03 ansible_host=10.75.207.38 ansible_ssh_user=root ansible_ssh_pass=root
-10.75.207.38 ansible_host=10.75.207.38 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-mtbc03 ansible_host=10.75.207.38 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.75.207.38 ansible_host=10.75.207.38 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTBC mtbc-3700c-01 PTF host
-ptf-mtbc04 ansible_host=10.75.205.201 ansible_ssh_user=root ansible_ssh_pass=root
-10.75.205.201 ansible_host=10.75.205.201 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-mtbc04 ansible_host=10.75.205.201 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.75.205.201 ansible_host=10.75.205.201 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR Virtual testbed PTF host
-ptf-233-010 ansible_host=10.212.233.9 ansible_ssh_user=root ansible_ssh_pass=root
-10.212.233.9 ansible_host=10.212.233.9 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-233-010 ansible_host=10.212.233.9 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.212.233.9 ansible_host=10.212.233.9 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR Virtual testbed PTF host
-ptf-232-010 ansible_host=10.212.232.9 ansible_ssh_user=root ansible_ssh_pass=root
-10.212.232.9 ansible_host=10.212.232.9 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-1 ansible_host=10.0.0.200 ansible_ssh_user=root ansible_ssh_pass=password
+ptf-232-010 ansible_host=10.212.232.9 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.212.232.9 ansible_host=10.212.232.9 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+ptf-1 ansible_host=10.0.0.200 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass=password
 
 # MTBC Virtual testbed PTF host
-ptf-vms6-3 ansible_host=10.75.206.214 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-vms6-3 ansible_host=10.75.206.214 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-07-bf2-sonic-01 PTF host
-ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.20.183 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.20.183 ansible_host=10.215.20.183 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-05-bf2-sonic-01 PTF host
-ptf-bf2-740-05-01 ansible_host=10.215.11.45 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.11.45 ansible_host=10.215.11.45 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf2-740-05-01 ansible_host=10.215.11.45 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.11.45 ansible_host=10.215.11.45 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-05-bf2-sonic-02 PTF host
-ptf-bf2-740-05-02 ansible_host=10.215.11.47 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.11.47 ansible_host=10.215.11.47 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf2-740-05-02 ansible_host=10.215.11.47 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.11.47 ansible_host=10.215.11.47 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-03-bf2-sonic-01 PTF host
-ptf-bf2-740-03-01 ansible_host=10.215.19.25 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.19.25 ansible_host=10.215.19.25 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf2-740-03-01 ansible_host=10.215.19.25 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.19.25 ansible_host=10.215.19.25 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-08-bf3-sonic-01 PTF host
-ptf-bf3-740-08-01 ansible_host=10.215.22.122 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.22.122 ansible_host=10.215.22.122 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf3-740-08-01 ansible_host=10.215.22.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.22.122 ansible_host=10.215.22.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-08-bf2-sonic-01 PTF host
-ptf-bf2-740-08-01 ansible_host=10.215.22.126 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.22.126 ansible_host=10.215.22.126 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf2-740-08-01 ansible_host=10.215.22.126 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.22.126 ansible_host=10.215.22.126 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-09-bf3-sonic-01 PTF host
-ptf-bf3-740-09-01 ansible_host=10.215.5.3 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.5.3 ansible_host=10.215.5.3 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf3-740-09-01 ansible_host=10.215.5.3 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.5.3 ansible_host=10.215.5.3 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-r740-09-bf2-sonic-01 PTF host
-ptf-bf2-740-09-01 ansible_host=10.215.5.7 ansible_ssh_user=root ansible_ssh_pass=root
-10.215.5.7 ansible_host=10.215.5.7 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf2-740-09-01 ansible_host=10.215.5.7 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.5.7 ansible_host=10.215.5.7 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 [pdu]
 pdu-10-75-68-211 ansible_host=10.75.68.211 protocol=snmp

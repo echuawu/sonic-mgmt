@@ -1,4 +1,5 @@
 import copy
+import os
 
 
 class PytestConst:
@@ -101,11 +102,14 @@ class DbConstants:
                              CliType.MLNX_OS: METADATA_PATH_NVOS,
                              CliType.SKYNET: METADATA_PATH}
     CREDENTIALS = {CliType.SONIC: {'server': 'YOKNVSQLDB.nvidia.com', 'database': 'sonic_mars',
-                                   'username': 'sonic_db_user', 'password': 'Pa$$word01'},
-                   CliType.NVUE: {'server': 'YOKNVSQLDB.nvidia.com', 'database': "NVOS", 'username': 'NVOS_ADMIN',
-                                  'password': "Nvos1234$$"},
+                                   'username': os.getenv("SONIC_SERVER_USER"),
+                                   'password': os.getenv("SONIC_SERVER_PASSWORD")},
+                   CliType.NVUE: {'server': 'YOKNVSQLDB.nvidia.com', 'database': "NVOS",
+                                  'username': os.getenv("NVUE_SERVER_USER"),
+                                  'password': os.getenv("NVUE_SERVER_PASSWORD")},
                    CliType.SKYNET: {'server': 'YOKNVSQLDB.nvidia.com', 'database': 'skynet',
-                                    'username': 'Skynet_admin', 'password': 'Skynet_admin$$!!'}}
+                                    'username': os.getenv("SKYNET_SERVER_USER"),
+                                    'password': os.getenv("SKYNET_SERVER_PASSWORD")}}
 
 
 class InfraConst:
@@ -955,8 +959,8 @@ class NvosCliTypes:
 class BluefieldConstants:
     BASE_SLINK_BF_IMAGE = '/auto/sw_system_release/sonic/sonic_dpu_config/images/{}/Image'
     BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
-    BMC_USER = 'root'
-    BMC_PASS = '3tango11'
+    BMC_USER = os.getenv("BMC_USER")
+    BMC_PASS = os.getenv("BMC_PASSWORD")
     BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-9009d3b600CVAA']
 
 

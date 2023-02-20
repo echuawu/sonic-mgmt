@@ -1,3 +1,4 @@
+import os
 from ngts.constants.constants import InfraConst
 
 
@@ -66,12 +67,12 @@ class NvosConst:
     IMAGES_PATH_ON_SWITCH = "/tmp/temp_nvos.bin"
     FM_PATH_ON_SWITCH = "/tmp/temp_fw.bin"
 
-    ROOT_USER = 'root'
-    ROOT_PASSWORD = '3tango'
+    ROOT_USER = os.getenv("VM_USER")
+    ROOT_PASSWORD = os.getenv("VM_PASSWORD")
 
     SONIC_MGMT = 'sonic_mgmt'
 
-    DEFAULT_PASS = 'YourPaSsWoRd'
+    DEFAULT_PASS = os.getenv("NVU_SWITCH_PASSWORD")
 
     REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
 

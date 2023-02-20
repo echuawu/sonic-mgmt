@@ -106,6 +106,10 @@ def pytest_addoption(parser):
                           'Example of content: {"p4-sampling":"harbor.mellanox.com/sonic-p4/p4-sampling:0.2.0",
                                       "what-just-happened":"harbor.mellanox.com/sonic-wjh/docker-wjh:1.0.1"} ''')
     parser.addoption("--nvos_api_type", action="store", default='nvue', help="nvue/openapi")
+    parser.addoption("--current_topo", dest="current_topo",
+                     help="Current topology for example: t0, t1, t1-lag, ptf32, ...")
+    parser.addoption("--expected_topo", dest="expected_topo",
+                     help="Expected topology, for example: t0, t1, t1-lag, ptf32, ...")
 
 
 def pytest_runtest_call(item):
@@ -429,3 +433,11 @@ def nvos_api_type(request):
     :return: nvos_api_type argument value
     """
     return request.config.getoption('--nvos_api_type')
+
+
+@pytest.fixture(scope='session')
+def engines(topology_obj):
+    engines_data = DottedDict()
+    for player in topology_obj.players:
+        engines_data[player] = topology_obj.players[player]['engine']
+    return engines_data

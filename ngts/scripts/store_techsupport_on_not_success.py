@@ -4,7 +4,7 @@ import time
 import logging
 import pytest
 
-from infra.tools.general_constants.constants import DefaultCred
+from infra.tools.general_constants.constants import DefaultTestServerCred
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.nvos_tools.system.System import System
 logger = logging.getLogger()
@@ -37,8 +37,8 @@ def dump_simx_data(topology_obj, dumps_folder, name_prefix=None):
     src_file_path = '/var/log/libvirt/qemu/d-switch-001-sw.log'
     dst_file_path = dumps_folder + '/{}_{}_simx_vm.log'.format(name_prefix, dut_name)
     hyper_engine = topology_obj.players['hypervisor']['engine']
-    hyper_engine.username = DefaultCred.DEFAULT_USERNAME
-    hyper_engine.password = DefaultCred.DEFAULT_PASS
+    hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
+    hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
     hyper_engine.run_cmd('docker cp {}:{} {}'.format(dut_name, src_file_path, dst_file_path))
 
     logger.info('SIMX VM log file location: {}'.format(dst_file_path))

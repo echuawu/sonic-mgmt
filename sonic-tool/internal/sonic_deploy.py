@@ -2,7 +2,7 @@ import os
 import argparse
 
 SUCCESS = 0
-sw_password = 'YourPaSsWoRd'
+sw_password = os.getenv("SONIC_SWITCH_PASSWORD")
 
 
 class colors:

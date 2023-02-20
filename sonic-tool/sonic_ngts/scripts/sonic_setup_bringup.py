@@ -17,6 +17,9 @@ logger = logging.getLogger("sonic_setup_bringup")
 
 STM_IP = "10.209.104.53"
 
+stm_user = os.getenv("STM_USER")
+stm_password = os.getenv("STM_PASSWORD")
+
 
 def set_logger(log_level):
     logging.basicConfig(level=log_level,
@@ -66,7 +69,7 @@ def import_setup_to_noga(topology_dir_name, setup_name, setup_group):
     """
     script_cmd = f"/mswg/projects/swvt/Noga/import_mars_topology.sh -f {topology_dir_name}/topology.xml " \
                  f"-n {setup_name} -g Sagi -s {setup_group} -S MTR"
-    cmd = f"sshpass -p 3tango ssh -o 'StrictHostKeyChecking no' -t root@{STM_IP} '{script_cmd}'"
+    cmd = f"sshpass -p {stm_password} ssh -o 'StrictHostKeyChecking no' -t {stm_user}@{STM_IP} '{script_cmd}'"
     logger.info(f"CMD: {cmd}")
     try:
         subprocess.check_output(cmd, shell=True)
@@ -80,7 +83,7 @@ def scp_file_to_stm(file_path):
     :param file_path: path to file to copy
     :return: None
     """
-    cmd = 'sshpass -p "3tango" scp {} root@{}:/tmp'.format(file_path, STM_IP)
+    cmd = f'sshpass -p "{stm_password}" scp {file_path} {stm_user}@{stm_user}:/tmp'
     logger.info("Copy to STM. CMD: %s" % cmd)
     os.system(cmd)
 
@@ -98,7 +101,7 @@ def import_aliases_to_noga(noga_json_file_path):
 
     # Update Noga according to JSON topology
     remote_cmd = "python2.7 /tmp/import_aliases_to_noga.py --json {}".format(noga_json_file_path)
-    cmd = "sshpass -p {} ssh -o 'StrictHostKeyChecking no' -t {}@{} '{}'".format("3tango", "root", STM_IP, remote_cmd)
+    cmd = f"sshpass -p {stm_password} ssh -o 'StrictHostKeyChecking no' -t {stm_user}@{STM_IP} '{remote_cmd}'"
     logger.info("CMD: %s" % cmd)
     try:
         subprocess.check_output(cmd, shell=True)
