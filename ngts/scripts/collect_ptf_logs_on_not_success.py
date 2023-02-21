@@ -21,7 +21,7 @@ def test_collect_ptf_logs(topology_obj, dumps_folder, is_simx, is_air):
             with allure.step('Generate ptf log tar file {}'.format(ptf_log_file)):
                 hyper_engine.run_cmd('docker exec {} tar -czvf /tmp/{} /tmp/'.format(ptf_docker_name, ptf_log_file))
                 hyper_engine.run_cmd('docker cp {}:/tmp/{} /tmp'.format(ptf_docker_name, ptf_log_file))
-                hyper_engine.run_cmd('docker rm {}:/tmp/{}'.format(ptf_docker_name, ptf_log_file))
+                hyper_engine.run_cmd('docker exec {} rm /tmp/{}'.format(ptf_docker_name, ptf_log_file))
             with allure.step('Copy the ptf log tar file to log folder {}'.format(dumps_folder)):
                 hyper_engine.run_cmd('cp /tmp/{} {}'.format(ptf_log_file, dest_file))
                 os.chmod(dest_file, 0o777)
