@@ -1,10 +1,10 @@
 import logging
 import allure
-from netmiko import ConnectHandler
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusConstans
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.tests_nvos.general.security.test_aaa_radius.conftest import clear_all_radius_configurations, restore_original_engine_credentials
+from ngts.nvos_constants.constants_nvos import SystemConsts
 
 
 def configure_radius_server(radius_server_info):
@@ -67,14 +67,14 @@ def enable_radius_feature(dut_engine):
         dut_engine.run_cmd("sudo ln -s  /bin/bash /usr/bin/sonic-launch-shell")
 
 
-def connect_to_switch_and_execute_show_version(engines, username, password):
+def connect_to_switch_and_valiate_role(engines, username, password, role):
     '''
     @summary:
         in this helper function, we will connect to switch using username, password & port
-        and execute simple command such as 'nv show system version'
+        and validate user role configurationl
     '''
-    with allure.step("Using username: {}".format(username)):
-        logging.info("Using username: {}".format(username))
+    with allure.step("Using username: {}, role: {}".format(username, role)):
+        logging.info("Using username: {}, role: {}".format(username, role))
         engines.dut.update_credentials(username=username, password=password)
 
     system = System(None)
@@ -82,6 +82,15 @@ def connect_to_switch_and_execute_show_version(engines, username, password):
     with allure.step("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD)):
         logging.info("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD))
         system.version.show()
+
+    with allure.step("Validating role permission are as expected"):
+        logging.info("Validating role permission are as expected")
+        if role == SystemConsts.DEFAULT_USER_ADMIN:
+            logging.info("User has admin permission and can set configurations")
+            system.message.set("").verify_result(should_succeed=True)
+        else:
+            logging.info("User has monitor permission and cannot set configurations")
+            system.message.set("").verify_result(should_succeed=False)
 
 
 def test_radius_basic_configurations(engines, clear_all_radius_configurations):
@@ -92,6 +101,7 @@ def test_radius_basic_configurations(engines, clear_all_radius_configurations):
         Default configurations are:
             1. default auth port
             2. default auth type
+        additionally, we will test user role for the radius users
     '''
     with allure.step("Configuring and enabling radius server"):
         logging.info("Configuring and enabling radius server")
@@ -103,7 +113,7 @@ def test_radius_basic_configurations(engines, clear_all_radius_configurations):
         logging.info("Validating access to switch with username configured on the radius server")
         try:
             for user_info in radius_server_info['users']:
-                connect_to_switch_and_execute_show_version(engines, user_info['username'], user_info['password'])
+                connect_to_switch_and_valiate_role(engines, user_info['username'], user_info['password'], user_info['role'])
         except Exception as err:
             logging.info("Got an exception while connection to switch and executing show command")
             raise err

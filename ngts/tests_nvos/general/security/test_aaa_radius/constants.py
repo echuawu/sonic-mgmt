@@ -31,7 +31,7 @@ class RadiusConstans:
             ]
         },
 
-        '10.237.116.91': {
+        'docker_radius_server': {
             'hostname': '10.237.116.91',  # TODO: change to volt once it is in
             'password': 'testing123',  # TODO: change to volt once it is in
             'auth-port': '1812',
