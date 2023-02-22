@@ -7,7 +7,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -27,7 +27,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
             1. Change profile to breakout mode
             2. Split a random port
             3. Run reset factory without params
-            4. After system is up again, verify the cleanup done successfully
+            4. After system is up again, verify the cleanup done successfully and health status is OK
             5. Verify the breakup mode is disabled and selected port is not split any more
             6. Verify the setup is functional:
                 6.1.	Start openSM
@@ -36,6 +36,10 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     """
     with allure.step('Create System object'):
         system = System()
+
+    with allure.step('Validate health status is OK'):
+        system.validate_health_status(HealthConsts.OK)
+        last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX)[-1]
 
     '''with allure.step("Change profile to breakout mode"):
         _change_profile_to_breakout()
@@ -54,6 +58,23 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
     with allure.step("Wait while the system initializing"):
         NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
+
+    with allure.step("Validate health status and report"):
+        start_time = time.time()
+        system.health.wait_until_health_status_change_after_reboot(HealthConsts.OK)
+        end_time = time.time()
+        duration = end_time - start_time
+
+        with allure.step("Took {} seconds until health status changed to OK after reset factory".format(duration)):
+            logger.info("Took {} seconds until health status changed to OK after reset factory".format(duration))
+
+        with allure.step("Validate new health file"):
+            logger.info("Validate new health file")
+            health_history_output = system.health.history.show()
+            assert len(system.health.history.search_line(last_status_line,
+                                                         health_history_output)) == 0, "Health file has not changed after reset factory"
+            assert len(system.health.history.search_line(HealthConsts.SUMMARY_REGEX,
+                                                         health_history_output)) > 0, "Didn't print new summary line after reset factory"
 
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)

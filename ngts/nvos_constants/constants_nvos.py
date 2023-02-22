@@ -394,9 +394,14 @@ class SyslogSeverityLevels:
 
 
 class HealthConsts:
+    OK = "OK"
+    NOT_OK = "Not OK"
+    IGNORED = "Ignored"
     STATUS = "status"
     STATUS_LED = "status-led"
     MONITOR_LIST = "monitor-list"
     HEALTH_FIRST_FILE = "health_history"
     HEALTH_SECOND_FILE = "health_history.1"
-    HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/mellanox/{}/system_health_monitoring_config.json"
+    HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/{}/system_health_monitoring_config.json"
+    ISSUES = "issues"
+    SUMMARY_REGEX = ".*summary:.*{}".format(OK)

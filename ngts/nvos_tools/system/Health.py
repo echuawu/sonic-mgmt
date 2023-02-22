@@ -1,5 +1,7 @@
 import allure
 import logging
+import re
+from retry import retry
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
@@ -21,6 +23,11 @@ class Health(BaseComponent):
         self.parent_obj = parent_obj
         self.history = History(self)
 
+    @retry(Exception, tries=10, delay=30)       # BUG 3355421 - after reboot it takes almost 5 min until the status change to OK
+    def wait_until_health_status_change_after_reboot(self, expected_status):
+        output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
+        assert output[HealthConsts.STATUS] == expected_status
+
 
 class History(Health):
     def __init__(self, parent_obj):
@@ -36,3 +43,32 @@ class History(Health):
 
     def show_health_report_file(self, file=HealthConsts.HEALTH_FIRST_FILE, exit_cmd='q'):
         return self.show(param="files {}".format(file), exit_cmd=exit_cmd)
+
+    def upload_history_files(self, file_name, upload_path, expected_str=""):
+        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
+                                                            expected_str, TestToolkit.engines.dut, 'upload',
+                                                            "health history", file_name,
+                                                            upload_path).get_returned_value()
+
+    def delete_history_file(self, file, expected_str=""):
+        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
+                                                            expected_str, TestToolkit.engines.dut, 'delete',
+                                                            "health history", file).get_returned_value()
+
+    def delete_history_files(self, files_to_delete=[], expected_str=''):
+        with allure.step("Delete files"):
+            logging.info("Delete files: {}".format(files_to_delete))
+            for file in files_to_delete:
+                self.delete_history_file(file, expected_str)
+
+    def search_line(self, line_to_search, file_output=None):
+        if not file_output:
+            file_output = self.show()
+        return re.findall(line_to_search, file_output)
+
+    def get_last_status_from_health_file(self, file_output=None):
+        last_status = self.search_line(HealthConsts.SUMMARY_REGEX, file_output)
+        assert len(last_status) > 0, "Didn't find summary line in the health history file"
+        last_status = last_status[-1]
+        logger.info("last status line is: \n {}".format(last_status))
+        return HealthConsts.NOT_OK if "Not OK" in last_status else HealthConsts.OK
