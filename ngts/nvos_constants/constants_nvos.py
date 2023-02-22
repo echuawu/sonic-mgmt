@@ -374,7 +374,6 @@ class SyslogConsts:
     MULTIPLE_SERVERS_NUMBER = 10
     CONFIG_TIME_DIFF_THRESHOLD = 1.0      # [sec]
     SHOW_TIME_DIFF_THRESHOLD = 1.0        # [sec]
-    CPU_UTILIZATION_DIFF_THRESHOLD = 5.0  # [percent]
 
 
 class SyslogSeverityLevels:
