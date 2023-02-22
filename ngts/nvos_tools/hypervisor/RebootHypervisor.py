@@ -4,7 +4,8 @@ import sys
 import getopt
 import os
 import time
-from ngts.nvos_constants.constants_nvos import NvosConst
+
+REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
 
 
 def main(argv):
@@ -36,7 +37,7 @@ def main(argv):
 
     for ip_add in ip_list:
         print("--- Rebooting '{}'".format(ip_add))
-        cmd = NvosConst.REBOOT_CMD_TO_RUN.format(ip=ip_add, username=user_name, password=password)
+        cmd = REBOOT_CMD_TO_RUN.format(ip=ip_add, username=user_name, password=password)
         print("cmd: {}".format(cmd))
         os.system(cmd)
         print("Sleep for 3 min")
