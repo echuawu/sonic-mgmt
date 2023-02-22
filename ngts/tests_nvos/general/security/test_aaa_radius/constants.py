@@ -13,6 +13,10 @@ class RadiusConstans:
     RADIUS_PRIORITY = 'priority'
     RADIUS_DEFAULT_PRIORITY = 1
     RADIUS_DEFAULT_TIMEOUT = 3
+    RADIUS_MAX_PRIORITY = 8
+    RADIUS_MID_PRIORITY = 4
+    RADIUS_MIN_PRIORITY = 1
+    RADIUS_SERVER_USERS = 'users'
 
     RADIUS_SERVERS_DICTIONARY = {
         'physical_radius_server': {
@@ -24,8 +28,23 @@ class RadiusConstans:
             'is_docker': False,
             'users': [
                 {
+                    'username': 'admin',  # TODO: change to volt once it is in
+                    'password': 'adminadmin',  # TODO: change to volt once it is in
+                    'role': 'monitor'
+                },
+                {
                     'username': 'dror',  # TODO: change to volt once it is in
                     'password': 'dror',  # TODO: change to volt once it is in
+                    'role': 'monitor'
+                },
+                {
+                    'username': 'test',  # TODO: change to volt once it is in
+                    'password': 'testing',  # TODO: change to volt once it is in
+                    'role': 'monitor'
+                },
+                {
+                    'username': 'raduser',  # TODO: change to volt once it is in
+                    'password': 'radpass',  # TODO: change to volt once it is in
                     'role': 'monitor'
                 }
             ]
@@ -42,6 +61,11 @@ class RadiusConstans:
                 {
                     'username': 'azmy',  # TODO: change to volt once it is in
                     'password': 'azmy',  # TODO: change to volt once it is in
+                    'role': 'monitor'
+                },
+                {
+                    'username': 'admin',  # TODO: change to volt once it is in
+                    'password': 'admin',  # TODO: change to volt once it is in
                     'role': 'monitor'
                 }
             ]

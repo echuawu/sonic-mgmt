@@ -1,5 +1,6 @@
 import logging
 import allure
+import random
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusConstans
 from ngts.nvos_tools.infra.Tools import Tools
@@ -67,11 +68,11 @@ def enable_radius_feature(dut_engine):
         dut_engine.run_cmd("sudo ln -s  /bin/bash /usr/bin/sonic-launch-shell")
 
 
-def connect_to_switch_and_valiate_role(engines, username, password, role):
+def connect_to_switch_and_validate_role(engines, username, password, role):
     '''
     @summary:
         in this helper function, we will connect to switch using username, password & port
-        and validate user role configurationl
+        and validate user role configurations
     '''
     with allure.step("Using username: {}, role: {}".format(username, role)):
         logging.info("Using username: {}, role: {}".format(username, role))
@@ -83,14 +84,31 @@ def connect_to_switch_and_valiate_role(engines, username, password, role):
         logging.info("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD))
         system.version.show()
 
-    with allure.step("Validating role permission are as expected"):
-        logging.info("Validating role permission are as expected")
+    with allure.step("Validating role permissions are as expected"):
+        logging.info("Validating role permissions are as expected")
         if role == SystemConsts.DEFAULT_USER_ADMIN:
-            logging.info("User has admin permission and can set configurations")
+            logging.info("User has admin permissions and can set configurations")
             system.message.set("").verify_result(should_succeed=True)
         else:
-            logging.info("User has monitor permission and cannot set configurations")
+            logging.info("User has monitor permissions and cannot set configurations")
             system.message.set("").verify_result(should_succeed=False)
+
+
+def validate_all_radius_user_authorization_and_role(engines, users):
+    """
+    @summary:
+        in this function we want to iterate on all users given and validate that access to switch
+        and role as expected.
+        We will restore the engine to default credentials afterwards
+    """
+    try:
+        for user_info in users:
+            connect_to_switch_and_validate_role(engines, user_info['username'], user_info['password'], user_info['role'])
+    except Exception as err:
+        logging.info("Got an exception while connection to switch and validating role")
+        raise err
+    finally:
+        restore_original_engine_credentials(engines)
 
 
 def test_radius_basic_configurations(engines, clear_all_radius_configurations):
@@ -111,11 +129,74 @@ def test_radius_basic_configurations(engines, clear_all_radius_configurations):
 
     with allure.step("Validating access to switch with username configured on the radius server"):
         logging.info("Validating access to switch with username configured on the radius server")
-        try:
-            for user_info in radius_server_info['users']:
-                connect_to_switch_and_valiate_role(engines, user_info['username'], user_info['password'], user_info['role'])
-        except Exception as err:
-            logging.info("Got an exception while connection to switch and executing show command")
-            raise err
-        finally:
-            restore_original_engine_credentials(engines)
+        validate_all_radius_user_authorization_and_role(engines, radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
+
+
+def randomize_radius_server():
+    '''
+    @summary:
+        in this function we randomize radius server dictionary and return it.
+        e.g. of return value:
+        {
+            "hostname" : <value>
+            "auth-port" : <value>,
+            "auth-type" : <value>,
+            "password"  : <value>
+        }
+    '''
+    randomized_radius_server_info = {
+        "hostname": f"1.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
+        "auth-port": f"{random.randint(0, 255)}",
+        "auth-type": "pap",
+        "password": f"{random.randint(0, 255)}",
+    }
+
+    return randomized_radius_server_info
+
+
+def test_radius_priority_and_fail_through_functionality(engines,
+                                                        clear_all_radius_configurations):
+    '''
+    @summary: in this test case we want to validate the priority functionality.
+    Priority in radius server means the following: if the current radius server is down,
+    connect to the second one in line.
+    and fail through means to connect to the next radius server in line if the credentials are not matched
+    at the current server. (fail through will go to next server)
+    In order to test this functionality:
+        1. configure unreal radius server (invalid ip), set as highest priority
+        3. configure real radius server at second priority
+        4. configure real radius server at third priority
+    Note:
+        1. To be able to test radius fail through we need to connect using credentials that doesn't exist on the
+        first real radius server.
+        2. We also test local credentials (DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD)
+
+    '''
+    real_radius_servers_order = []
+    enable_radius_feature(engines.dut)
+
+    with allure.step("Configuring unreal radius server"):
+        logging.info("Configuring unreal radius server")
+        invalid_radius_server_info = randomize_radius_server()
+        invalid_radius_server_info[RadiusConstans.RADIUS_PRIORITY] = RadiusConstans.RADIUS_MAX_PRIORITY
+        logging.info("Unreal radius server info: {}".format(invalid_radius_server_info))
+        configure_radius_server(invalid_radius_server_info)
+
+    with allure.step("Configuring real radius server with lower priorities"):
+        logging.info("Configuring real radius server with lower priorities")
+        priority = RadiusConstans.RADIUS_MAX_PRIORITY - 1
+        for radius_key, radius_server_info in RadiusConstans.RADIUS_SERVERS_DICTIONARY.items():
+            radius_server_info[RadiusConstans.RADIUS_PRIORITY] = priority
+            configure_radius_server(radius_server_info)
+            real_radius_servers_order.append(radius_key)
+            priority -= 1
+
+    with allure.step("Testing Priority by connecting to switch using first real radius server credentials"):
+        logging.info("Testing Priority by connecting to switch using first real radius server credentials")
+        validate_all_radius_user_authorization_and_role(engines,
+                                                        RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[0]][RadiusConstans.RADIUS_SERVER_USERS])
+
+    with allure.step("Testing Priority by connecting to switch using second real radius server credentials"):
+        logging.info("Testing Priority by connecting to switch using second real radius server credentials")
+        validate_all_radius_user_authorization_and_role(engines,
+                                                        RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[1]][RadiusConstans.RADIUS_SERVER_USERS])
