@@ -8,6 +8,7 @@ import re
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.Simulator import HWSimulator
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 
 logger = logging.getLogger()
@@ -88,12 +89,12 @@ def test_show_system_health(devices):
 
     with allure.step("Validate \"nv show system health -w brief\" cmd"):
         logger.info("Validate \"nv show system health -w brief\" cmd")
-        brief_health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show(" -w brief")).get_returned_value()
+        brief_health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show_brief()).get_returned_value()
         ValidationTool.compare_dictionaries(health_output, brief_health_output).verify_result()
 
     with allure.step("Validate \"nv show system health -w detail\" cmd"):
         logger.info("Validate \"nv show system health -w detail\" cmd")
-        detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show(" -w detail")).get_returned_value()
+        detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show_detail()).get_returned_value()
         ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED, HealthConsts.MONITOR_LIST],
                                                           detail_health_output).verify_result()
         verify_expected_health_status(detail_health_output, HealthConsts.STATUS, OK)
@@ -295,7 +296,7 @@ def simulate_health_issue_with_config_file_and_validate(system, engine, device):
         health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
         verify_expected_health_status(health_output, HealthConsts.STATUS, NOT_OK)
         detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
-            system.health.show(" -w detail")).get_returned_value()
+            system.health.show_detail()).get_returned_value()
         verify_expected_health_status(detail_health_output, HealthConsts.STATUS, NOT_OK)
         for device, issue in new_devices_dict.items():
             assert device in health_output[HealthConsts.ISSUES].keys()
@@ -340,7 +341,7 @@ def sort_monitor_list(monitor_list=None):
     :return:
     """
     if not monitor_list:
-        monitor_list = OutputParsingTool.parse_json_str_to_dictionary(System().health.show("-w detailed")).get_returned_value()[HealthConsts.MONITOR_LIST]
+        monitor_list = OutputParsingTool.parse_json_str_to_dictionary(System().health.show_detail()).get_returned_value()[HealthConsts.MONITOR_LIST]
     status_options = [OK, NOT_OK, IGNORED]
     monitor_dict = {status_key: [] for status_key in status_options}
     for key, value in monitor_list.items():
