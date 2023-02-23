@@ -6,6 +6,8 @@ from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusCon
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.tests_nvos.general.security.test_aaa_radius.conftest import clear_all_radius_configurations, restore_original_engine_credentials
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
+from netmiko.ssh_exception import NetmikoAuthenticationException
 
 
 def configure_radius_server(radius_server_info):
@@ -68,7 +70,7 @@ def enable_radius_feature(dut_engine):
         dut_engine.run_cmd("sudo ln -s  /bin/bash /usr/bin/sonic-launch-shell")
 
 
-def connect_to_switch_and_validate_role(engines, username, password, role):
+def connect_to_switch_and_validate_role(engines, username, password, role=SystemConsts.ROLE_VIEWER):
     '''
     @summary:
         in this helper function, we will connect to switch using username, password & port
@@ -200,3 +202,74 @@ def test_radius_priority_and_fail_through_functionality(engines,
         logging.info("Testing Priority by connecting to switch using second real radius server credentials")
         validate_all_radius_user_authorization_and_role(engines,
                                                         RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[1]][RadiusConstans.RADIUS_SERVER_USERS])
+
+
+def validate_failed_authentication_with_new_credentials(engines, username, password):
+    '''
+    @summary: in this helper function we want to validate authentication failure while using
+    username and password credentials
+    '''
+    with allure.step("Validating failed authentication with new credentials, username: {}".format(username)):
+        logging.info("Validating failed authentication with new credentials, username: {}".format(username))
+        try:
+            connect_to_switch_and_validate_role(engines, username, password)
+            raise Exception("Was able to connect to switch with radius server credentials when we expected failure")
+        except NetmikoAuthenticationException as err:
+            if RadiusConstans.AUTHENTICATION_FAILURE_MESSAGE not in str(err):
+                raise Exception("Was able to connect to switch with radius server credentials when we expected failure")
+        finally:
+            restore_original_engine_credentials(engines)
+
+
+def test_radius_configurations_error_flow(engines, clear_all_radius_configurations):
+    '''
+    @summary: in this test case we want to check the error flow of radius configurations,
+        we want to check that with mismatched values *configured* between radius server to the switch we are not able to connect to
+        switch.
+    e.g. for radius configurations:
+        {
+            "auth-port" : <value>,
+            "password"  : <value>
+        }
+        each one of the above values can be configured with invalid values
+    Test flow:
+        1. configure valid radius server
+        2. connect to device using radius server users
+        3. set mismatching values for each parameter above and validate no authentication happens
+    Note:
+        we don't want to check invalid IP address (hostname) becuase we cover this error flow
+        in the test case test_radius_priority_and_fail_through_functionality where we configure
+        invalid (unreal) ip address of radius server.
+    '''
+    enable_radius_feature(engines.dut)
+
+    with allure.step("Configuring valid ip address"):
+        logging.info("Configuring valid ip address")
+        radius_server_info = RadiusConstans.RADIUS_SERVERS_DICTIONARY['physical_radius_server']
+        configure_radius_server(radius_server_info)
+
+    with allure.step("Connecting to switch and validate roles"):
+        logging.info("Connecting to switch and validate roles")
+        validate_all_radius_user_authorization_and_role(engines, radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
+
+    system = System()
+    with allure.step("Configuring invalid auth-port and validating applied configurations"):
+        invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
+                                                                   [int(radius_server_info[RadiusConstans.RADIUS_AUTH_PORT])]).get_returned_value()
+        logging.info("Configuring invalid auth-port: {}".format(invalid_port))
+        system.aaa.radius.set_hostname_auth_port(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
+                                                 invalid_port, True, True)
+        radius_server_user = radius_server_info[RadiusConstans.RADIUS_SERVER_USERS][0]
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=radius_server_user[RadiusConstans.RADIUS_SERVER_USERNAME],
+                                                            password=radius_server_user[RadiusConstans.RADIUS_SERVER_USER_PASSWORD])
+
+    with allure.step("Configuring invalid password and validating applied configurations"):
+        random_string = Tools.RandomizationTool.get_random_string(10)
+        logging.info("Configuring invalid password: {}".format(random_string))
+        system.aaa.radius.set_hostname_password(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
+                                                random_string, True, True)
+        radius_server_user = radius_server_info[RadiusConstans.RADIUS_SERVER_USERS][0]
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=radius_server_user[RadiusConstans.RADIUS_SERVER_USERNAME],
+                                                            password=radius_server_user[RadiusConstans.RADIUS_SERVER_USER_PASSWORD])
