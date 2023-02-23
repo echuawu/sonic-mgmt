@@ -131,3 +131,16 @@ class OpenApiSystemCli(OpenApiBaseCli):
             }
         return OpenApiCommandHelper.execute_action(ActionType.REBOOT, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_change(engine, resource_path, params_dict=None):
+        logging.info("Running action: 'change' on dut using OpenApi, resource: {rsrc}".format(rsrc=resource_path))
+
+        params = \
+            {
+                "state": "start",
+                "parameters": params_dict
+            }
+
+        return OpenApiCommandHelper.execute_action(ActionType.CHANGE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)

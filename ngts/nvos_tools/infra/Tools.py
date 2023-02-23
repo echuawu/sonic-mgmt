@@ -8,7 +8,6 @@ from .IpTool import IpTool
 from .ConfigTool import ConfigTool
 from .SonicMgmtContainer import SonicMgmtContainer
 from .HostMethods import HostMethods
-from .ClockTestTools import ClockTestTools
 
 
 class Tools:
@@ -22,4 +21,3 @@ class Tools:
     ConfigTool = ConfigTool()
     SonicMgmtContainer = SonicMgmtContainer()
     HostMethods = HostMethods()
-    ClockTestTools = ClockTestTools()

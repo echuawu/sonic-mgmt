@@ -116,6 +116,7 @@ class ActionType:
     RENAME = '@rename'
     UPLOAD = '@upload'
     RESET = '@reset'
+    CHANGE = '@change'
 
 
 class SystemConsts:
@@ -134,10 +135,12 @@ class SystemConsts:
     SECURITY = 'security'
     DATE_TIME = 'date-time'
 
-    MIN_SYSTEM_DATE = "1980-01-01"  # todo: verify this
-    MAX_SYSTEM_DATE = "2050-12-31"  # todo: verify this
-    MIN_SYSTEM_DATETIME = "1980-01-01 00:00:00"     # todo: verify this
-    MAX_SYSTEM_DATETIME = "2050-12-31 23:59:59"     # todo: verify this
+    MIN_SYSTEM_YEAR = '1970'
+    MAX_SYSTEM_YEAR = '2231'
+    MIN_SYSTEM_DATE = MIN_SYSTEM_YEAR + "-01-01"
+    MAX_SYSTEM_DATE = MAX_SYSTEM_YEAR + "-12-31"
+    MIN_SYSTEM_DATETIME = MIN_SYSTEM_DATE + " 00:00:00"
+    MAX_SYSTEM_DATETIME = MAX_SYSTEM_DATE + " 23:59:59"
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'

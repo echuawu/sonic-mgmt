@@ -412,7 +412,7 @@ class OutputParsingTool:
         return ResultObj(True, "", result)
 
     @staticmethod
-    def parse_timedatectl_cmd_output_to_dic(output):
+    def parse_linux_cmd_output_to_dic(output):
         """
         ****** THE FOLLOWING OUTPUT STR:
                    Local time: Mon 2023-01-16 18:53:18 IST

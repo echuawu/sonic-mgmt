@@ -149,3 +149,11 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv show system health history {param}".format(param=param)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd_after_cmd([cmd, exit_cmd])
+
+    @staticmethod
+    def action_change(engine, resource_path, op_params=""):
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action change {path} {params}".format(path=path, params=op_params)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
