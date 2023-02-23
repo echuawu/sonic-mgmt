@@ -136,7 +136,8 @@ class TestAutoNegNegative(TestAutoNegBase):
         """
         logger.info("Verify the command return error if given invalid interface name")
         types_supported_on_dut = []
-        for supported_types_dict in self.interfaces_types_dict.values():
+        interfaces_types_dict = random.choice(list(self.interfaces_types_port_dict.values()))
+        for supported_types_dict in interfaces_types_dict.values():
             types_supported_on_dut += supported_types_dict.keys()
         output = self.cli_objects.dut.interface.config_interface_type(INVALID_INTERFACE_NAME,
                                                                       random.choice(types_supported_on_dut))
@@ -162,7 +163,7 @@ class TestAutoNegNegative(TestAutoNegBase):
             verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
         lb_mutual_types = get_matched_types(self.ports_lanes_dict[lb[0]], lb_mutual_speeds,
-                                            types_dict=self.interfaces_types_dict)
+                                            types_dict=self.interfaces_types_port_dict[lb[0]])
         conf = self.get_mismatch_type_conf(split_mode, lb, list(lb_mutual_types))
         with allure.step("verify auto-negotiation fails in case of mismatch advertised types"):
             logger.info("verify auto-negotiation fails in case of mismatch advertised types")
@@ -203,13 +204,13 @@ class TestAutoNegNegative(TestAutoNegBase):
                                      conf, cleanup_list, mode='disabled')
         self.auto_neg_checker(tested_lb_dict, conf, cleanup_list)
 
-    def check_if_interface_support_max_cr_type(self, conf_min_speed, max_type):
+    def check_if_interface_support_max_cr_type(self, port, conf_min_speed, max_type):
         """
         This method is used to check whether interface support specific cr type
         :param conf_min_speed: speed to be tested
         :param max_type: max advertise type, such 'CR4'
         """
-        for _, values_dict in self.interfaces_types_dict.items():
+        for _, values_dict in self.interfaces_types_port_dict[port].items():
             if values_dict.get(max_type) and conf_min_speed in values_dict.get(max_type):
                 pytest.skip("This test is not supported")
 
@@ -226,14 +227,14 @@ class TestAutoNegNegative(TestAutoNegBase):
         conf = self.generate_default_conf(tested_lb_dict)
         conf_min_speed = conf[lb[0]][AutonegCommandConstants.SPEED]
         min_speed_matched_type = get_matched_types(self.ports_lanes_dict[lb[0]], [conf_min_speed],
-                                                   types_dict=self.interfaces_types_dict).pop()
+                                                   types_dict=self.interfaces_types_port_dict[lb[0]]).pop()
         lb_mutual_speeds = get_lb_mutual_speed(lb, split_mode, self.split_mode_supported_speeds)
         lb_mutual_types = get_matched_types(self.ports_lanes_dict[lb[0]], lb_mutual_speeds,
-                                            types_dict=self.interfaces_types_dict)
+                                            types_dict=self.interfaces_types_port_dict[lb[0]])
         max_type = max(lb_mutual_types, key=get_interface_cable_width)
         if min_speed_matched_type == max_type:
             pytest.skip("This test is not supported")
-        self.check_if_interface_support_max_cr_type(conf_min_speed, max_type)
+        self.check_if_interface_support_max_cr_type(lb[0], conf_min_speed, max_type)
         conf[lb[0]][AutonegCommandConstants.ADV_SPEED] = \
             convert_speeds_to_mb_format([conf[lb[0]][AutonegCommandConstants.SPEED]])
         conf[lb[0]][AutonegCommandConstants.ADV_TYPES] = max_type

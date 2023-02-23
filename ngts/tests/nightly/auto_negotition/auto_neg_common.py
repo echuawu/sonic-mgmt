@@ -36,7 +36,7 @@ class TestAutoNegBase:
     @pytest.fixture(autouse=True)
     def setup(self, topology_obj, engines, cli_objects,
               interfaces, physical_interfaces_types_dict, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
-              split_mode_supported_speeds, interfaces_types_dict, platform_params):
+              split_mode_supported_speeds, interfaces_types_port_dict, platform_params):
         self.topology_obj = topology_obj
         self.engines = engines
         self.interfaces = interfaces
@@ -45,7 +45,7 @@ class TestAutoNegBase:
         self.tested_dut_host_lb_dict = tested_dut_host_lb_dict
         self.ports_lanes_dict = ports_lanes_dict
         self.split_mode_supported_speeds = split_mode_supported_speeds
-        self.interfaces_types_dict = interfaces_types_dict
+        self.interfaces_types_port_dict = interfaces_types_port_dict
         self.physical_interfaces_types_dict = physical_interfaces_types_dict
         self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic()
         self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf()
@@ -93,13 +93,13 @@ class TestAutoNegBase:
                         if mutual_speed_in_subset not in adv_speeds:
                             adv_speeds.add(mutual_speed_in_subset)
                         adv_types = get_matched_types(self.ports_lanes_dict[port], adv_speeds,
-                                                      self.interfaces_types_dict)
+                                                      self.interfaces_types_port_dict[lb[0]])
                         all_adv_speeds.append(adv_speeds)
                         all_adv_types.append(adv_types)
                         speed = mutual_speed_in_subset
                         adv_speeds = convert_speeds_to_mb_format(adv_speeds)
                         interface_type = get_matched_types(self.ports_lanes_dict[port], [speed],
-                                                           self.interfaces_types_dict).pop()
+                                                           self.interfaces_types_port_dict[lb[0]]).pop()
                         cable_type = interface_type
                         width = get_interface_cable_width(interface_type)
                         conf[port] = self.build_custom_conf(speed, adv_speeds, cable_type, adv_types, width)
@@ -111,17 +111,17 @@ class TestAutoNegBase:
             logger.debug("Generated subset configuration is: {}".format(conf))
             return conf
 
-    def get_all_supported_types(self):
+    def get_all_supported_types(self, port):
         """
         This function is used to get all the interface types supported on the dut
         :return: a list of all the interface types supported, i.e, ['CR','CR2','CR4']
         """
         all_types = []
-        for supported_type_dict in self.interfaces_types_dict.values():
+        for supported_type_dict in self.interfaces_types_port_dict[port].values():
             all_types += list(supported_type_dict.keys())
         return all_types
 
-    def get_expected_adv_types(self, adv_types):
+    def get_expected_adv_types(self, adv_types, port):
         """
         when an interface is configured to advertise all the interface types supported on the dut,
         on the show commands instead of the actual configuration, i.e.
@@ -131,7 +131,7 @@ class TestAutoNegBase:
         :return: 'all' if adv_types in case adv_types is all the interface types supported on the dut,
         otherwise, return adv_types
         """
-        all_types = self.get_all_supported_types()
+        all_types = self.get_all_supported_types(port)
         if set(all_types) == set(adv_types):
             return "all"
         return self.get_types_in_string_format(adv_types)
@@ -139,7 +139,7 @@ class TestAutoNegBase:
     def get_custom_expected_conf_res(self, port, all_adv_speeds):
         expected_speed = max(set.intersection(*all_adv_speeds), key=speed_string_to_int_in_mb)
         matched_types = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
-                                          types_dict=self.interfaces_types_dict)
+                                          types_dict=self.interfaces_types_port_dict[port])
         expected_type = max(matched_types, key=get_interface_cable_width)
         expected_width = get_interface_cable_width(expected_type, expected_speed)
         return expected_speed, expected_type, expected_width
@@ -158,12 +158,12 @@ class TestAutoNegBase:
         :return: none
         """
         matched_types = get_matched_types(self.ports_lanes_dict[port], [expected_speed],
-                                          types_dict=self.interfaces_types_dict)
+                                          types_dict=self.interfaces_types_port_dict[port])
         port_conf_adv_types = set(conf[port][AutonegCommandConstants.ADV_TYPES].split(','))
         matched_types.remove(expected_type)
         if matched_types:
             port_conf_adv_types = port_conf_adv_types.difference(matched_types)
-        conf[port][AutonegCommandConstants.ADV_TYPES] = self.get_expected_adv_types(port_conf_adv_types)
+        conf[port][AutonegCommandConstants.ADV_TYPES] = self.get_expected_adv_types(port_conf_adv_types, port)
 
     def build_custom_conf(self, speed, adv_speeds, cable_type, adv_types, width):
         port_custom_conf = {
@@ -187,19 +187,19 @@ class TestAutoNegBase:
     def get_default_expected_conf_res(self, lb, lb_mutual_speeds):
         expected_speed = max(lb_mutual_speeds, key=speed_string_to_int_in_mb)
         matched_types = get_matched_types(self.ports_lanes_dict[lb[0]], [expected_speed],
-                                          types_dict=self.interfaces_types_dict)
+                                          types_dict=self.interfaces_types_port_dict[lb[0]])
         expected_interface_type = max(matched_types, key=get_interface_cable_width)
         expected_width = get_interface_cable_width(expected_interface_type, expected_speed)
         return expected_speed, expected_interface_type, expected_width
 
-    def build_default_conf(self, min_speed, min_type, width, expected_speed, expected_type, expected_width):
+    def build_default_conf(self, port, min_speed, min_type, width, expected_speed, expected_type, expected_width):
         port_default_conf = {
             AutonegCommandConstants.AUTONEG_MODE: 'disabled',
             AutonegCommandConstants.SPEED: min_speed,
             AutonegCommandConstants.ADV_SPEED: 'all',
             AutonegCommandConstants.TYPE: min_type,
             AutonegCommandConstants.WIDTH: width,
-            AutonegCommandConstants.ADV_TYPES: self.get_types_in_string_format(self.get_all_supported_types()),
+            AutonegCommandConstants.ADV_TYPES: self.get_types_in_string_format(self.get_all_supported_types(port)),
             AutonegCommandConstants.OPER: "up",
             AutonegCommandConstants.ADMIN: "up",
             'expected_speed': expected_speed,
@@ -339,7 +339,7 @@ class TestAutoNegBase:
 
     def set_speed_type_cleanup(self, port, engine, cli_object, base_interfaces_speeds, cleanup_list):
         base_speed = base_interfaces_speeds[port]
-        matched_types = get_matched_types(self.ports_lanes_dict[port], [base_speed], self.interfaces_types_dict)
+        matched_types = get_matched_types(self.ports_lanes_dict[port], [base_speed], self.interfaces_types_port_dict[port])
         base_type = max(matched_types, key=get_interface_cable_width)
         physical_interface_type = self.physical_interfaces_types_dict.get(port)
         cleanup_list.append((self.configure_interface_type,
@@ -597,13 +597,13 @@ class TestAutoNegBase:
                         random_non_max_speed = random.choice(lb_mutual_speeds)
                         lb_mutual_speeds.append(max_speed)
                     matched_types = get_matched_types(self.ports_lanes_dict[lb[0]], [random_non_max_speed],
-                                                      types_dict=self.interfaces_types_dict)
+                                                      types_dict=self.interfaces_types_port_dict[lb[0]])
                     min_type = min(matched_types, key=get_interface_cable_width)
                     width = get_interface_cable_width(min_type)
                     expected_speed, expected_type, expected_width = self.get_default_expected_conf_res(lb,
                                                                                                        lb_mutual_speeds)
                     for port in lb:
-                        conf[port] = self.build_default_conf(random_non_max_speed, min_type, width,
+                        conf[port] = self.build_default_conf(lb[0], random_non_max_speed, min_type, width,
                                                              expected_speed, expected_type, expected_width)
             logger.debug("Generated default configuration is: {}".format(conf))
             return conf

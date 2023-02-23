@@ -2,8 +2,9 @@ import logging
 import pytest
 import os
 import re
+import json
 
-from ngts.constants.constants import InterfacesTypeConstants
+from ngts.constants.constants import InterfacesTypeConstants, SonicConst
 from ngts.tests.conftest import get_dut_loopbacks
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 
@@ -26,7 +27,7 @@ def auto_neg_configuration(topology_obj, setup_name, engines, cli_objects, platf
 
 
 @pytest.fixture(scope='session')
-def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_speeds):
+def tested_lb_dict(topology_obj, split_mode_supported_speeds):
     """
     :param topology_obj: topology object fixture
     :return: a dictionary of loopback list for each split mode on the dut
@@ -38,6 +39,7 @@ def tested_lb_dict(topology_obj, interfaces_types_dict, split_mode_supported_spe
                       }
     update_split_2_if_possible(topology_obj, tested_lb_dict)
     update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
+    update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
 
     split_mode = 1
     dut_lbs = get_dut_loopbacks(topology_obj)
@@ -89,8 +91,24 @@ def update_split_2_if_possible(topology_obj, tested_lb_dict):
         tested_lb_dict.update({2: [split_2_lb]})
 
 
+def update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict):
+    """
+    :param topology_obj: topology object fixture
+    :param split_mode_supported_speeds: a dictionary with available speed options for each split mode on all setup ports
+    :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
+    :return: Update loopback with split 8 configuration only in cases were there are mutaul speeds available,
+    for example, parsing of platform.json file for panther will not return speeds option for port with split 8,
+    because this breakout mode is not supported on panther
+    """
+    if topology_obj.ports.get('dut-lb-splt8-p1-1') and topology_obj.ports.get('dut-lb-splt8-p2-1'):
+        split_8_lb = (topology_obj.ports['dut-lb-splt8-p1-1'], topology_obj.ports['dut-lb-splt8-p2-1'])
+        mutual_speeds = get_lb_mutual_speed(split_8_lb, 8, split_mode_supported_speeds)
+        if mutual_speeds:
+            tested_lb_dict.update({8: [split_8_lb]})
+
+
 @pytest.fixture(scope='session')
-def tested_dut_host_lb_dict(topology_obj, interfaces, interfaces_types_dict, split_mode_supported_speeds):
+def tested_dut_host_lb_dict(topology_obj, interfaces, split_mode_supported_speeds):
     """
     :param topology_obj: topology object fixture
     :return: a dictionary of loopback of dut - host ports connectivity
@@ -117,6 +135,52 @@ def interfaces_types_dict(platform_params, chip_type):
         supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC3[platform.upper()]
     else:
         raise AssertionError("Chip type {} is unrecognized".format(chip_type))
+    return supported_speed
+
+
+@pytest.fixture(scope='session')
+def interfaces_types_port_dict(engines, cli_objects, ports_aliases_dict, interfaces):
+    """
+    get the supported interface type with the sdk api
+    example of the return value of the get_supported_intf_type.py:
+    {'1': {'CR': ['1G', '10G', '25G', '50G'], 'CR2': ['50G', '100G'], 'CR4': ['40G', '100G', '200G']},
+     '2': {'CR': ['1G', '10G', '25G', '50G'], 'CR2': ['50G', '100G'], 'CR4': ['40G', '100G', '200G']},
+     '3': {'CR': ['1G', '10G', '25G', '50G'], 'CR2': ['50G', '100G'], 'CR4': ['40G', '100G', '200G']},
+     '4': {'CR': ['1G', '10G', '25G', '50G'], 'CR2': ['50G', '100G']},
+     '5': {'CR': ['1G', '10G', '25G', '50G'], 'CR2': ['50G', '100G']},
+     '6': {'CR': ['1G', '10G', '25G', '50G']},
+     '7': {'CR': ['1G', '10G', '25G', '50G']},
+     '8': {'CR': ['1G', '10G', '25G', '50G'], 'CR2': ['50G', '100G'], 'CR4': ['40G', '100G', '200G']},
+     ...
+     }
+    """
+    base_dir = os.path.dirname(os.path.realpath(__file__))
+    get_port_cap_file_name = "get_port_supported_intf_type.py"
+    get_port_cap_file = os.path.join(base_dir, f"{get_port_cap_file_name}")
+    engines.dut.copy_file(source_file=get_port_cap_file,
+                          file_system='/tmp',
+                          dest_file=get_port_cap_file_name,
+                          overwrite_file=True,)
+    cmd_copy_file_to_syncd = f"docker cp /tmp/{get_port_cap_file_name} syncd:/"
+    engines.dut.run_cmd(cmd_copy_file_to_syncd)
+
+    port_cap = engines.dut.run_cmd(f'docker exec syncd bash -c "python3 /{get_port_cap_file_name}"')
+    port_cap = json.loads(port_cap.replace("\'", "\""))
+
+    supported_speed = {}
+
+    for intf, alias in ports_aliases_dict.items():
+        regex_pattern = r"etp(\d+)\w*"
+        label_port = re.match(regex_pattern, alias).group(1)
+        supported_intf_type = port_cap[label_port]
+        supported_speed[intf] = {}
+        for intf_type, speeds in supported_intf_type.items():
+            if not intf_type[2:]:
+                lane_num = 1
+            else:
+                lane_num = int(intf_type[2:])
+            supported_speed[intf][lane_num] = {intf_type: speeds}
+    supported_speed[interfaces.ha_dut_1] = supported_speed[interfaces.dut_ha_1]
     return supported_speed
 
 
@@ -167,12 +231,13 @@ def get_matched_types(lane_number, speed_list, types_dict):
     :return: a set of types that match speeds in the list, i.e, {'CR', 'CR4'}
     """
     matched_types = set()
-    lane_option = list(filter(lambda lane_option: lane_option <= lane_number, [1, 2, 4]))
+    lane_option = list(filter(lambda lane_option: lane_option <= lane_number, [1, 2, 4, 8]))
     for speed in speed_list:
         for lane in lane_option:
-            for interface_type, supported_speeds in types_dict[lane].items():
-                if speed in supported_speeds:
-                    matched_types.add(interface_type)
+            if lane in types_dict:
+                for interface_type, supported_speeds in types_dict[lane].items():
+                    if speed in supported_speeds:
+                        matched_types.add(interface_type)
     return matched_types
 
 

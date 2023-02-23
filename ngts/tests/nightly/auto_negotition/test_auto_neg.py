@@ -136,7 +136,7 @@ class TestAutoNeg(TestAutoNegBase):
                               key=lambda speed_as_str: int(speed_as_str))
         expected_speed = "{}G".format(int(int(peer_port_speed) / 1000))
         matched_types = get_matched_types(self.ports_lanes_dict[dut_peer_port], [expected_speed],
-                                          types_dict=self.interfaces_types_dict)
+                                          types_dict=self.interfaces_types_port_dict[dut_peer_port])
         expected_interface_type = max(matched_types, key=get_interface_cable_width)
 
         width = get_interface_cable_width(expected_interface_type)

@@ -27,12 +27,8 @@ def tested_lb_all_dict(topology_obj, engines, interfaces):
         1: []
     }
     if 'simx' not in engines.dut.run_cmd("hostname"):
-        tested_lb_dict.update({2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1']),
-                                   (topology_obj.ports['dut-lb-splt2-p1-2'], topology_obj.ports['dut-lb-splt2-p2-2'])],
-                               4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1']),
-                                   (topology_obj.ports['dut-lb-splt4-p1-2'], topology_obj.ports['dut-lb-splt4-p2-2']),
-                                   (topology_obj.ports['dut-lb-splt4-p1-3'], topology_obj.ports['dut-lb-splt4-p2-3']),
-                                   (topology_obj.ports['dut-lb-splt4-p1-4'], topology_obj.ports['dut-lb-splt4-p2-4'])]
+        tested_lb_dict.update({2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])],
+                               4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])]
                                })
     for lb in get_dut_loopbacks(topology_obj):
         tested_lb_dict[1].append(lb)
@@ -60,14 +56,14 @@ class TestAutoNegScale(TestAutoNegBase):
         ports = self.topology_obj.players_all_ports['dut']
         dut_conf = dict()
         for port in ports:
-            dut_conf[port] = conf[port]
-
+            if port in conf:
+                dut_conf[port] = conf[port]
+        ports = dut_conf.keys()
         logger.info("Set auto negotiation mode to disabled on ports before test starts")
         self.configure_port_auto_neg(self.cli_objects.dut, ports,
                                      dut_conf, cleanup_list, mode='disabled')
         logger.info("Get ports default speed settings")
-        base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(self.engines.dut,
-                                                                                     interfaces_list=ports)
+        base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(ports)
         logger.info("configure the smallest speed/type and configure all advertised speeds/types on all interfaces")
         self.configure_ports(self.engines.dut, self.cli_objects.dut, dut_conf, base_interfaces_speeds, cleanup_list)
         logger.info("Check auto negotiation was configured correctly")
