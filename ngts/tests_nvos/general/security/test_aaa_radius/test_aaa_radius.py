@@ -302,3 +302,22 @@ def test_radius_set_show_unset(engines, clear_all_radius_configurations):
         output = system.aaa.radius.show_hostname()
         for hostname in configured_radius_servers_hostname:
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)
+
+
+def test_radius_all_supported_auth_types(engines, clear_all_radius_configurations):
+    '''
+    @summary: in this test case we want to validate all supported auth types:
+    [pap, chap, mschapv2].
+    '''
+    enable_radius_feature(engines.dut)
+
+    for auth_type in RadiusConstans.AUTH_TYPES:
+        with allure.step("Configuring auth-type: {}".format(auth_type)):
+            logging.info("Configuring auth-type: {}".format(auth_type))
+            radius_server_info = RadiusConstans.RADIUS_SERVERS_DICTIONARY['physical_radius_server']
+            radius_server_info[RadiusConstans.RADIUS_AUTH_TYPE] = auth_type
+            configure_radius_server(radius_server_info)
+        with allure.step("Validating access to switch with username configured on the radius server"):
+            logging.info("Validating access to switch with username configured on the radius server")
+            validate_all_radius_user_authorization_and_role(engines,
+                                                            radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
