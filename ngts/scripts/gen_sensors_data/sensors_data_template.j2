@@ -1,0 +1,25 @@
+  {{platform}}:
+    alarms:
+      fan:
+      {% for fan in sensors_dict.alarms_fan_list %}
+      {{fan}}{% endfor %}
+      power:
+      {% for power in sensors_dict.alarms_power_list %}
+      {{power}}{% endfor %}
+
+      temp:
+      {% for temp in sensors_dict.alarms_temp_list %}
+      {{temp}}{% endfor %}
+
+    compares:
+      power: [ ]
+      temp:
+      {% for compare_temp in sensors_dict.compares_temp_list %}
+      {{compare_temp}}{% endfor %}
+
+    non_zero:
+      fan: [ ]
+      power: [ ]
+      temp: [ ]
+    psu_skips: { }
+    sensor_skip_per_version: { }
