@@ -273,3 +273,32 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=radius_server_user[RadiusConstans.RADIUS_SERVER_USERNAME],
                                                             password=radius_server_user[RadiusConstans.RADIUS_SERVER_USER_PASSWORD])
+
+
+def test_radius_set_show_unset(engines, clear_all_radius_configurations):
+    """
+    @summary: in this test case we want to validate radius commands:
+        1. set
+        2. show
+        3. unset
+    """
+    configured_radius_servers_hostname = []
+
+    with allure.step("Configuring Radius Server"):
+        logging.info("Configuring Radius Server")
+        for radius_key, radius_server_info in RadiusConstans.RADIUS_SERVERS_DICTIONARY.items():
+            configure_radius_server(radius_server_info)
+            configured_radius_servers_hostname.append(radius_server_info[RadiusConstans.RADIUS_HOSTNAME])
+
+    system = System()
+    with allure.step("Validate Unset command"):
+        logging.info("Validate Unset command")
+        for hostname in configured_radius_servers_hostname:
+            system.aaa.radius.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
+        system.aaa.radius.unset().verify_result(should_succeed=True)
+
+    with allure.step("Validating the show command output"):
+        logging.info("Validating the show command output")
+        output = system.aaa.radius.show_hostname()
+        for hostname in configured_radius_servers_hostname:
+            assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)

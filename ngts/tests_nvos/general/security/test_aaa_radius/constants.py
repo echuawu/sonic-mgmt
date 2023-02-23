@@ -28,6 +28,7 @@ class RadiusConstans:
             'auth-port': '1812',
             'auth-type': 'pap',
             'timeout': '5',
+            'priority': 2,
             'users': [
                 # the following users were chosen carefully for testing radius feature
                 # please don't change them
@@ -50,6 +51,7 @@ class RadiusConstans:
             'auth-port': '1812',
             'auth-type': 'mschapv2',
             'timeout': '5',
+            'priority': 1,
             'users': [
                 # the following users were chosen carefully for testing radius feature
                 # please don't change them

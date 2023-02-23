@@ -25,7 +25,7 @@ class Radius(BaseComponent):
     def set_hostname_priority(self, hostname, priority, apply=False, ask_for_confirmation=False):
         return self.set("hostname {} priority".format(hostname), priority, apply, ask_for_confirmation)
 
-    def show_hostname(self, hostname):
+    def show_hostname(self, hostname=''):
         return self.show("hostname {}".format(hostname))
 
     def unset_hostname(self, hostname, apply=False, ask_for_confirmation=False):
