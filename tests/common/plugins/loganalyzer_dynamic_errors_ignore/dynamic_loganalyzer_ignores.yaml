@@ -1766,14 +1766,6 @@
       - 3283464
 
 - Errors_list:
-    - ".*ERR lldp#lldpmgrd\\[\\d+\\]: Command failed 'lldpcli configure ports Ethernet\\d+ lldp portidsubtype local etp\\d+ .*unknown command from argument .*`configure`.*command was failed \\d+ times, disabling retry"
-  Conditions:
-    - Affected_test_cases:
-      - tests/qos/test_qos_sai.py
-      Redmine:
-      - 3322141
-
-- Errors_list:
     - '.*ERR syncd#SDK: \[SAI_DEBUG_COUNTER\.ERR\] mlnx_sai_debug_counter\.c\[\d+\]- mlnx_debug_counter_db_idx_to_data: Debug counter at index \d+ is removed or not created yet.*'
     - '.*ERR syncd#SDK: :- collectSwitchDebugCounters: Failed to get stats of port.*'
     - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Switch Debug Counter.*'
