@@ -25,7 +25,11 @@ class TestDPBOnAllPorts:
         self.interfaces = interfaces
         self.dut_engine = engines.dut
         self.cli_object = cli_objects.dut
-        self.ports_breakout_modes = ports_breakout_modes
+        self.ports_breakout_modes = ports_breakout_modes.copy()
+        # TODO: Currently SONiC doesn't support 8x breakout in DPB, remove this when 8x breakout is supported
+        for mode in self.ports_breakout_modes:
+            if '8x' in mode:
+                self.ports_breakout_modes.remove(mode)
         self.dut_ports_interconnects = dut_ports_interconnects
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.dut_ports_default_speeds_configuration = dut_ports_default_speeds_configuration
@@ -43,8 +47,8 @@ class TestDPBOnAllPorts:
             with allure.step(f'Configure breakout mode: {max_breakout_mode} on all splittable ports'):
                 logger.info(f'Configure breakout mode: {max_breakout_mode} on all splittable ports')
                 self.validate_split_all_splittable_ports(max_breakout_mode, ports_list, cleanup_list)
-            with allure.step(f'Cleanup breakout configuration from all ports'):
-                logger.info(f'Cleanup breakout configuration from all ports')
+            with allure.step('Cleanup breakout configuration from all ports'):
+                logger.info('Cleanup breakout configuration from all ports')
                 cleanup(cleanup_list)
             with allure.step(f'Verify interfaces {ports_list} are in up state after breakout is removed'):
                 logger.info(f'Verify interfaces {ports_list} are in up state after breakout is removed')
@@ -101,14 +105,7 @@ class TestDPBOnAllPorts:
         :param breakout_modes: list of breakout modes  ['4x50G[40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]']
         :return: the max breakout mode supported on dut from list of breakout modes
         """
-        breakout_mode_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+G"
-        breakout_modes_filtered = list(filter(lambda breakout_mode:
-                                              re.search(breakout_mode_pattern,
-                                                        breakout_mode), breakout_modes))
-        breakout_mode_pattern_capture_breakout_number = r"(\d)x\d+G\[[\d*G,]*\]|(\d)x\d+G"
-        max_breakout_mode = max(breakout_modes_filtered, key=lambda breakout_mode:
-                                int(re.search(breakout_mode_pattern_capture_breakout_number,
-                                              breakout_mode).group(1)))
+        max_breakout_mode = max(breakout_modes, key=lambda breakout_mode: int(breakout_mode.split('x')[0]))
         return max_breakout_mode
 
     def validate_split_all_splittable_ports(self, breakout_mode, splitable_ports_list, cleanup_list):

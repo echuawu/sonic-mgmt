@@ -3,7 +3,6 @@ from ngts.constants.constants import ConfigDbJsonConst
 from ngts.helpers.interface_helpers import get_alias_number, get_speed_in_G_format
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.cli_util.cli_constants import SonicConstant
-from ngts.constants.constants import SonicConst
 
 
 def get_breakout_mode_supported_speed_list(breakout_mode):
@@ -174,12 +173,11 @@ def parse_platform_json(platform_json_obj, config_db_json):
                        'default_breakout_mode': '1x200G[100G,50G,40G,25G,10G,1G]'}, .....}
     """
     ports_breakout_info = {}
-    breakout_options = SonicConst.BREAKOUT_MODES_REGEX
     for port_name, port_dict in platform_json_obj["interfaces"].items():
         parsed_port_dict = dict()
         parsed_port_dict[SonicConstant.INDEX] = port_dict[SonicConstant.INDEX].split(",")
         parsed_port_dict[SonicConstant.LANES] = port_dict[SonicConstant.LANES].split(",")
-        breakout_modes = re.findall(breakout_options, ",".join(port_dict[SonicConstant.BREAKOUT_MODES].keys()))
+        breakout_modes = list(port_dict[SonicConstant.BREAKOUT_MODES].keys())
         parsed_port_dict[SonicConstant.BREAKOUT_MODES] = breakout_modes
         parsed_port_dict['breakout_port_by_modes'] = get_breakout_port_by_modes(breakout_modes,
                                                                                 parsed_port_dict
@@ -232,19 +230,21 @@ def get_breakout_mode(engine_dut, cli_object, port_list):
 def get_speed_option_by_breakout_modes(breakout_modes):
     """
     :param breakout_modes: a list of breakout modes supported by a port, i.e,
-    ['1x200G[100G,50G,40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]', '4x50G[40G,25G,10G,1G]']
+    ['1x200G[100G,50G,40G,25G,10G,1G]', '2x100G[50G,40G,25G,10G,1G]', '4x50G[40G,25G,10G,1G]',  '4x25G(4)[10G,1G]']
     :return: a dictionary with speed configuration available for each breakout modes,
     i.e,
     {'1x200G[100G,50G,40G,25G,10G,1G]': [100G,50G,40G,25G,10G,1G],
     '2x100G[50G,40G,25G,10G,1G]': [50G,40G,25G,10G,1G],
-    '4x50G[40G,25G,10G,1G]': [40G,25G,10G,1G]}
+    '4x50G[40G,25G,10G,1G]': [40G,25G,10G,1G],
+    '4x25G(4)[10G,1G]': [25G, 10G, 1G]}
     """
     breakout_port_by_modes = {}
     for breakout_mode in breakout_modes:
-        breakout_pattern = r"\dx\d+G\[[\d*G,]*\]|\dx\d+\[[\d*G,]*\]"
+        breakout_pattern = r"\dx\d+G(?:\(\d\))?[[\d*G,]*\]|\dx\d+\[[\d*G,]*\]"
         if re.search(breakout_pattern, breakout_mode):
             breakout_num, speed_conf = breakout_mode.split("x")
             speed, _ = speed_conf.split('[')
+            speed = re.sub(r"\(\d\)", "", speed)
             speeds_list_pattern = r"\[(.*)\]"
             speeds_list_str = re.search(speeds_list_pattern, speed_conf).group(1)
             speeds_list = speeds_list_str.split(sep=',')

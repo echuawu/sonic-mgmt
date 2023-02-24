@@ -49,23 +49,11 @@ tests/nightly/dynamic_port_breakout:
       - "https://redmine.mellanox.com/issues/2980513 and '4410' in platform"
       - "'3800' in platform"
 
-tests/nightly/dynamic_port_breakout/test_dpb_speeds.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2960190"
-    conditions:
-      - https://redmine.mellanox.com/issues/2960190
-
-tests/nightly/dynamic_port_breakout/test_dpb_negative.py::TestDPBNegative::test_ports_breakout_after_wrong_removal:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2960190"
-    conditions:
-      - https://redmine.mellanox.com/issues/2960190
-
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2960190"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3379037"
     conditions:
-      - https://redmine.mellanox.com/issues/2960190
+      - https://redmine.mellanox.com/issues/3379037
 
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
   skip:

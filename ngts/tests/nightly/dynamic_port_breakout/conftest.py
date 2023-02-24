@@ -4,7 +4,6 @@ import pytest
 import random
 import re
 from retry.api import retry_call
-from ngts.constants.constants import SonicConst
 from ngts.helpers.dependencies_helpers import DependenciesBase
 from ngts.tests.conftest import get_dut_loopbacks
 from ngts.helpers.breakout_helpers import get_dut_breakout_modes
@@ -22,12 +21,13 @@ from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 logger = logging.getLogger()
 
 all_breakout_options = {"1x100G[40G]", "2x50G", "4x25G[10G]", "1x400G", "2x200G", "4x100G", "8x50G",
-                        "1x200G[100G,50G,40G,25G,10G,1G]",
+                        "1x200G[100G,50G,40G,25G,10G,1G]", "1x800G[400G,200G,100G,50G,40G,25G,10G]",
                         "2x100G[50G,40G,25G,10G,1G]", "4x50G[40G,25G,10G,1G]", "1x25G[10G]",
                         "1x100G[50G,40G,25G,10G]", "2x50G[40G,25G,10G]", "4x25G[10G]", "1x25G[10G,1G]",
                         "1x100G[50G,40G,25G,10G,1G]", "2x50G[40G,25G,10G,1G]", "4x25G[10G,1G]",
-                        "1x400G[200G,100G,50G,40G,25G,10G,1G]",
-                        "2x200G[100G,50G,40G,25G,10G,1G]", "4x100G[50G,40G,25G,10G,1G]"}
+                        "1x400G[200G,100G,50G,40G,25G,10G,1G]", "2x400G[200G,100G,50G,40G,25G,10G]",
+                        "2x200G[100G,50G,40G,25G,10G,1G]", "4x200G[100G,50G,40G,25G,10G]",
+                        "4x100G[50G,40G,25G,10G,1G]", "8x100G[50G,25G,10G]"}
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -104,6 +104,9 @@ def get_random_lb_breakout_conf(topology_obj, ports_breakout_modes):
     breakout_modes_supported_lb, unbreakout_modes_supported_lb = \
         divide_breakout_modes_to_breakout_and_unbreakout_modes(topology_obj, ports_breakout_modes)
     for breakout_mode, supported_lb_list in breakout_modes_supported_lb.items():
+        # TODO: Currently SONiC doesn't support 8x breakout in DPB, remove this when 8x breakout is supported
+        if '8x' in breakout_mode:
+            continue
         unused_loopbacks = list(set(supported_lb_list).difference(set(conf.values())))
         if unused_loopbacks:
             lb = random.choice(unused_loopbacks)
@@ -153,8 +156,8 @@ def is_breakout_mode(breakout_mode):
     breakout_mode: "1x50G(2)+2x25G(2)" -> return True
     breakout_mode: "1x100G[40G]" -> return False
     """
-    breakout_pattern = SonicConst.BREAKOUT_MODE_WITH_DIFF_LANE_SUPPORTED_SPEEDS_REGEX
-    return re.search(breakout_pattern, breakout_mode) or not breakout_mode.startswith('1')
+    breakout_pattern = "[248]x"
+    return bool(re.search(breakout_pattern, breakout_mode))
 
 
 def parsed_dut_loopbacks_by_breakout_modes(topology_obj, ports_breakout_modes):

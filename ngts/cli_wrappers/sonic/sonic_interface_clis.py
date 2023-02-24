@@ -336,7 +336,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         logger.info('Configuring breakout mode: {} on port: {}, force mode: {}'.format(breakout_mode, port, force))
         force = "" if force is False else "-f"
         try:
-            cmd = f'sudo config interface breakout {port} {breakout_mode} -y {force}'
+            cmd = f'sudo config interface breakout {port} "{breakout_mode}" -y {force}'
             pattern = r"\s+".join([r"Do", r"you", r"wish", r"to", r"Continue\?", r"\[y\/N\]:"])
             output = self.engine.run_cmd_set([cmd, 'y'], tries_after_run_cmd=75, patterns_list=[pattern])
             self.verify_dpb_cmd(output, expect_error)
@@ -364,11 +364,11 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 r"\s+".join([r"No", r"action", r"will", r"be", r"taken", r"as",
                              r"current", r"and", r"desired", r"Breakout",
                              r"Mode", r"are", r"same"])
-            with allure.step(f"Verify breakout command output"):
+            with allure.step("Verify breakout command output"):
                 if not re.search(f"{expected_msg_breakout_success}|{expected_msg_breakout_mode_same}",
                                  output, re.IGNORECASE):
                     logger.error(f"Breakout command didn't return expected message: {expected_msg_breakout_success}")
-                    raise AssertionError(f"Verification of Breakout command failed")
+                    raise AssertionError("Verification of Breakout command failed")
 
     @staticmethod
     def parse_added_breakout_ports(breakout_cmd_output):
@@ -563,7 +563,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
         output = self.configure_interface_fec(interface, fec_option=invalid_fec_option)
         if re.search(r"Setting fec is not supported", output):
             return []
-        fec_options_list_string = re.search(r"fec\s+{}\s+is\s+not\s+in\s+(\[.*\])".format(invalid_fec_option), output).group(1)
+        fec_options_list_string = re.search(
+            r"fec\s+{}\s+is\s+not\s+in\s+(\[.*\])".format(invalid_fec_option), output).group(1)
         fec_options_list = ast.literal_eval(fec_options_list_string)
         return fec_options_list
 
