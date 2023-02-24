@@ -103,7 +103,7 @@ def check_leackout_compensation_support(asic, hwsku):
 def dynamically_compensate_leakout(thrift_client, asic_type, counter_checker, check_port, check_field, base, ptf_test, compensate_port, compensate_pkt, max_retry):
     prev = base
     time.sleep(1.5)
-    curr, _ = counter_checker(thrift_client, check_port)
+    curr, _ = counter_checker(thrift_client, asic_type, check_port)
     leakout_num = curr[check_field] - prev[check_field]
     retry = 0
     num = 0
@@ -600,6 +600,7 @@ class DscpToPgMapping(sai_base_test.ThriftInterfaceDataPlane):
         src_port_ip = self.test_params['src_port_ip']
         src_port_mac = self.dataplane.get_mac(0, src_port_id)
         dscp_to_pg_map = self.test_params.get('dscp_to_pg_map', None)
+        pkt_dst_mac = router_mac if router_mac != '' else dst_port_mac
 
         print("dst_port_id: %d, src_port_id: %d" %
               (dst_port_id, src_port_id), file=sys.stderr)
@@ -631,6 +632,9 @@ class DscpToPgMapping(sai_base_test.ThriftInterfaceDataPlane):
                     pg_dscp_map[int(pg)] = [int(dscp)]
 
         print(pg_dscp_map, file=sys.stderr)
+        dst_port_id = get_rx_port(
+            self, 0, src_port_id, pkt_dst_mac, dst_port_ip, src_port_ip)
+        print("actual dst_port_id: %d" % (dst_port_id), file=sys.stderr)
 
         try:
             for pg, dscps in list(pg_dscp_map.items()):
@@ -641,8 +645,8 @@ class DscpToPgMapping(sai_base_test.ThriftInterfaceDataPlane):
                 for dscp in dscps:
                     tos = (dscp << 2)
                     tos |= 1
-                    pkt = simple_tcp_packet(pktlen=64,
-                                            eth_dst=router_mac if router_mac != '' else dst_port_mac,
+                    pkt = simple_ip_packet(pktlen=64,
+                                            eth_dst=pkt_dst_mac,
                                             eth_src=src_port_mac,
                                             ip_src=src_port_ip,
                                             ip_dst=dst_port_ip,
@@ -1399,13 +1403,15 @@ class PtfFillBuffer(PfcStormTestWithSharedHeadroom):
 
         # get a snapshot of counter values at recv and transmit ports
         # queue_counters value is not of our interest here
-        recv_counters_base, queue_counters = sai_thrift_read_port_counters(self.client, self.asic_type, port_list[self.src_port_id])
+        recv_counters_base, queue_counters = sai_thrift_read_port_counters(
+            self.client, self.asic_type, port_list[self.src_port_id])
 
         logging.info("Disabling xmit ports: {}".format(self.dst_port_id))
         self.sai_thrift_port_tx_disable(
             self.client, self.asic_type, [self.dst_port_id])
 
-        xmit_counters_base, queue_counters = sai_thrift_read_port_counters(self.client, self.asic_type, port_list[self.dst_port_id])
+        xmit_counters_base, queue_counters = sai_thrift_read_port_counters(
+            self.client, self.asic_type, port_list[self.dst_port_id])
         num_pkts = (pkts_num_trig_pfc + pkts_num_private_headrooom) // self.cell_occupancy
         logging.info("Send {} pkts to egress out of {}".format(num_pkts, self.dst_port_id))
         # send packets to dst port 1, to cross into shared headrooom
@@ -1415,8 +1421,10 @@ class PtfFillBuffer(PfcStormTestWithSharedHeadroom):
         time.sleep(8)
         # get a snapshot of counter values at recv and transmit ports
         # queue counters value is not of our interest here
-        recv_counters, queue_counters = sai_thrift_read_port_counters(self.client, self.asic_type, port_list[self.src_port_id])
-        xmit_counters, queue_counters = sai_thrift_read_port_counters(self.client, self.asic_type, port_list[self.dst_port_id])
+        recv_counters, queue_counters = sai_thrift_read_port_counters(
+            self.client, self.asic_type, port_list[self.src_port_id])
+        xmit_counters, queue_counters = sai_thrift_read_port_counters(
+            self.client, self.asic_type, port_list[self.dst_port_id])
 
         logging.debug("Recv Counters: {}, Base: {}".format(recv_counters, recv_counters_base))
         logging.debug("Xmit Counters: {}, Base: {}".format(xmit_counters, xmit_counters_base))
