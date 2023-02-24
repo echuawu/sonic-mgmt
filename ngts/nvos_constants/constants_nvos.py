@@ -127,6 +127,7 @@ class SystemConsts:
     UPTIME = 'uptime'
     TIMEZONE = 'timezone'
     VERSION = 'version'
+    SECURITY = 'security'
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'
