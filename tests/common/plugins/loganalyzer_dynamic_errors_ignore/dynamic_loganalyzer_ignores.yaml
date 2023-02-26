@@ -1916,6 +1916,7 @@
       Redmine:
         - 3272016
 
+# Errors which should be ignored in test_containers_autorestart. The detaiils in RM 3315995
 - Errors_list:
     - '.* ERR what-just-happened#wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set trap ID \(\d+\) to trap group \(\d+\) with trap action \(\d+\), error: Communication Error'
@@ -1965,8 +1966,6 @@
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
-      Redmine:
-        - 3315995
 
 - Errors_list:
     - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''
