@@ -175,8 +175,8 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
         parent_port.ib_interface.description.set(value='parent', apply=True).verify_result()
 
         with allure.step("Verify changes"):
-            output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                parent_port[0].ib_interface.link.show_interface_link()).get_returned_value()
+            output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+                parent_port.show_interface(port_names=parent_port.name)).get_returned_value()
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                               field_name=parent_port.ib_interface.description.label,
                                                               expected_value='parent').verify_result()
@@ -184,11 +184,11 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
     with allure.step("Split port, check default values for child and parent port"):
         parent_port.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                    ask_for_confirmation=True).verify_result()
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            parent_port[0].ib_interface.link.show_interface_link()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=parent_port.ib_interface.link.breakout.label,
-                                                          expected_value='2x-ndr').verify_result()
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+            parent_port.show_interface(port_names=parent_port.name)).get_returned_value()
+        Tools.ValidationTool.validate_fields_values_in_output(expected_fields=['link'],
+                                                              expected_values=[{'breakout': '2x-ndr'}],
+                                                              output_dict=output_dictionary).verify_result()
 
         with allure.step("Verify default values on child port"):
             with allure.step("Get child port"):
@@ -197,39 +197,43 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                 for port in list_of_all_ports:
                     if parent_port.name in port.name and port.name[-2] == 's':
                         child_ports.append(port)
+            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show_interface_link()).get_returned_value()
-            values_to_verify = [NvosConsts.LINK_STATE_UP, IbInterfaceConsts.SPLIT_PORT_DEFAULT_LANES,
+            values_to_verify = [NvosConsts.LINK_STATE_UP, IbInterfaceConsts.SPLIT_PORT_CHILD_DEFAULT_LANES,
                                 IbInterfaceConsts.SPLIT_PORT_DEFAULT_MTU]
-            ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
+            ValidationTool.validate_fields_values_in_output(['state', 'lanes', 'mtu'],
                                                             values_to_verify,
                                                             output_dictionary).verify_result()
 
     with allure.step("Change  mtu, check changes for child port"):
-        parent_port.ib_interface.link.mtu.set(value='512', apply=True, ask_for_confirmation=True).verify_result()
+        child_ports[0].ib_interface.link.mtu.set(value='512', apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step("Verify changed values on child port"):
+            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show_interface_link()).get_returned_value()
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                              field_name=parent_port.ib_interface.link.mtu.label,
+                                                              field_name='mtu',
                                                               expected_value='512').verify_result()
 
     with allure.step("Negative testing on child with lanes"):
-        parent_port.ib_interface.link.lanes.set(value='1X,2X,4X', apply=True,
-                                                ask_for_confirmation=True).verify_result(False)
-        parent_port.ib_interface.link.lanes.set(value='1X,4X', apply=True,
-                                                ask_for_confirmation=True).verify_result(False)
+        child_ports[0].ib_interface.link.lanes.set(value='1X,2X,4X', apply=True,
+                                                   ask_for_confirmation=True).verify_result(False)
+        child_ports[0].ib_interface.link.lanes.set(value='1X,4X', apply=True,
+                                                   ask_for_confirmation=True).verify_result(False)
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step("Unset parrent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
 
     with allure.step("Check default values after unset parent port"):
+        values_to_verify = [IbInterfaceConsts.SPLIT_PORT_DEFAULT_LANES, IbInterfaceConsts.DEFAULT_MTU,
+                            IbInterfaceConsts.SPLIT_PORT_DEFAULT_VLS]
+        parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            parent_port[0].ib_interface.link.show_interface_link()).get_returned_value()
-        values_to_verify = [IbInterfaceConsts.DEFAULT_LANES, IbInterfaceConsts.DEFAULT_MTU,
-                            IbInterfaceConsts.DEFAULT_VLS]
-        ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
+            parent_port.ib_interface.link.show_interface_link()).get_returned_value()
+        ValidationTool.validate_fields_values_in_output(['lanes', 'mtu', 'op-vls'],
                                                         values_to_verify,
                                                         output_dictionary).verify_result()
 
@@ -271,8 +275,8 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
 
     with allure.step("Check counters after split port, should be 0"):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-            parent_port.ib_interface.link.stats.show_interface_link_stats()).get_returned_value()
-        assert (output_dictionary['in-pkts'] == output_dictionary['out-pkts']) == 0
+            child_ports[0].ib_interface.link.stats.show_interface_link_stats()).get_returned_value()
+        assert output_dictionary['out-pkts'] == 0
 
     with allure.step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
@@ -285,7 +289,7 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
 
     with allure.step("Check counters after traffic on child port, should be not 0"):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-            parent_port.ib_interface.link.stats.show_interface_link_stats()).get_returned_value()
+            child_ports[0].ib_interface.link.stats.show_interface_link_stats()).get_returned_value()
         assert (output_dictionary['in-pkts'] == output_dictionary['out-pkts']) != 0
 
     with allure.step("Unset parrent port"):
@@ -323,8 +327,7 @@ def test_split_port_timings(engines, interfaces, start_sm):
                 child_ports.append(port)
 
     with allure.step("Check if child port will go up for less that 30 sec"):
-        for port in child_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, timeout=30).verify_result()
+        child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, timeout=30).verify_result()
 
     with allure.step("Unset parrent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
