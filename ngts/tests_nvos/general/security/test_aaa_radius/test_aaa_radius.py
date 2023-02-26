@@ -8,6 +8,8 @@ from ngts.tests_nvos.general.security.test_aaa_radius.conftest import clear_all_
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 from netmiko.ssh_exception import NetmikoAuthenticationException
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 
 
 def configure_radius_server(radius_server_info):
@@ -339,3 +341,43 @@ def test_radius_root_user_authentication(engines, clear_all_radius_configuration
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=radius_server_info['special_user'][0][RadiusConstans.RADIUS_SERVER_USERNAME],
                                                             password=radius_server_info['special_user'][0][RadiusConstans.RADIUS_SERVER_USER_PASSWORD])
+
+
+def create_serial_engine_and_login(topology_obj, username, password):
+    '''
+    @suammary: in this helper function we want to create a serial engine and connect to switch
+    using the credentials passed to the function.
+    '''
+    att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
+    # add connection options to pass connection problems
+    extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
+    extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
+    extended_rcon_command = ' '.join(extended_rcon_command)
+    try:
+        serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
+                                            username=username,
+                                            password=password,
+                                            rcon_command=extended_rcon_command,
+                                            timeout=30)
+        serial_engine.create_serial_engine(login_to_switch=True)
+    finally:
+        serial_engine.__del__()
+
+
+def test_radius_serial_connection_authentication(engines, clear_all_radius_configurations, topology_obj):
+    '''
+    @summary: in this test case we want to validate successful authentication through radius
+    when using serial connection
+    '''
+    enable_radius_feature(engines.dut)
+
+    with allure.step("Configuring valid ip address"):
+        logging.info("Configuring valid ip address")
+        radius_server_info = RadiusConstans.RADIUS_SERVERS_DICTIONARY['physical_radius_server']
+        configure_radius_server(radius_server_info)
+
+    with allure.step("Initializing serial connection and validating radius authentication"):
+        logging.info("Initializing serial connection and validating radius authentication")
+        user_info = radius_server_info[RadiusConstans.RADIUS_SERVER_USERS][0]
+        create_serial_engine_and_login(topology_obj, user_info[RadiusConstans.RADIUS_SERVER_USERNAME],
+                                       user_info[RadiusConstans.RADIUS_SERVER_USER_PASSWORD])
