@@ -307,7 +307,7 @@ def test_radius_set_show_unset(engines, clear_all_radius_configurations):
 def test_radius_all_supported_auth_types(engines, clear_all_radius_configurations):
     '''
     @summary: in this test case we want to validate all supported auth types:
-    [pap, chap, mschapv2].
+    [pap, chap, mschapv2]
     '''
     enable_radius_feature(engines.dut)
 
@@ -321,3 +321,21 @@ def test_radius_all_supported_auth_types(engines, clear_all_radius_configuration
             logging.info("Validating access to switch with username configured on the radius server")
             validate_all_radius_user_authorization_and_role(engines,
                                                             radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
+
+
+def test_radius_root_user_authentication(engines, clear_all_radius_configurations):
+    '''
+    @summary: in this test case we want to validate that root user is authenticated locally alone.
+    '''
+    enable_radius_feature(engines.dut)
+
+    with allure.step("Configuring valid ip address containing root user configured"):
+        logging.info("Configuring valid ip address containing root user configured")
+        radius_server_info = RadiusConstans.RADIUS_SERVERS_DICTIONARY['physical_radius_server']
+        configure_radius_server(radius_server_info)
+
+    with allure.step("Validating that root user is not to able to be accessed through radius credentials"):
+        logging.info("Validating that root user is not to able to be accessed through radius credentials")
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=radius_server_info['special_user'][0][RadiusConstans.RADIUS_SERVER_USERNAME],
+                                                            password=radius_server_info['special_user'][0][RadiusConstans.RADIUS_SERVER_USER_PASSWORD])

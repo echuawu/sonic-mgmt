@@ -19,7 +19,7 @@ class RadiusConstans:
     RADIUS_SERVER_USERS = 'users'
     RADIUS_SERVER_USERNAME = 'username'
     RADIUS_SERVER_USER_PASSWORD = 'password'
-    AUTHENTICATION_FAILURE_MESSAGE = 'Authentication\\s+failure:\\s+unable\\s+to\\s+connect\\s+linux'
+    AUTHENTICATION_FAILURE_MESSAGE = 'Authentication failure: unable to connect linux'
     AUTH_TYPES = ['chap', 'pap', 'mschapv2']
 
     RADIUS_SERVERS_DICTIONARY = {
@@ -42,6 +42,12 @@ class RadiusConstans:
                     'username': 'test',  # TODO: change to volt once it is in
                     'password': 'testing',  # TODO: change to volt once it is in
                     'role': 'monitor'
+                }
+            ],
+            'special_user': [
+                {
+                    'username': 'root',
+                    'password': 'root'
                 }
             ]
         },
