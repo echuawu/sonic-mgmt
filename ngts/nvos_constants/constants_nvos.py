@@ -404,4 +404,7 @@ class HealthConsts:
     HEALTH_SECOND_FILE = "health_history.1"
     HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/{}/system_health_monitoring_config.json"
     ISSUES = "issues"
-    SUMMARY_REGEX = ".*summary:.*{}".format(OK)
+    SUMMARY_REGEX = "INFO \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : summary:.*{}".format(OK)
+    ADD_STATUS_TO_SUMMARY_REGEX = " \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : summary:.*{}"
+    HEALTH_ISSUE_REGEX = "ERROR \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : {component}: is {issue}"
+    HEALTH_FIX_REGEX = "INFO \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : Cleared: {component}: is {issue}"

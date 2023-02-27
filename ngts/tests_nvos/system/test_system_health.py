@@ -4,11 +4,13 @@ from retry import retry
 import allure
 import pytest
 import random
-import re
+import math
+
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.Simulator import HWSimulator
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 
 logger = logging.getLogger()
@@ -18,7 +20,8 @@ OK = HealthConsts.OK
 NOT_OK = HealthConsts.NOT_OK
 IGNORED = HealthConsts.IGNORED
 CHECKER_FILE = "/tmp/my_checker.py"
-LINE_TO_REPLACE = "\"user_defined_checkers\": \\[{}\\]"
+USER_DEFINED_CHECKERS_LINE = "\"user_defined_checkers\": \\[{}\\]"
+DEVICES_TO_IGNORE_LINE = "\"devices_to_ignore\": \\[{}\\]"
 
 
 @pytest.mark.system
@@ -152,6 +155,107 @@ def test_system_health_files_with_rotation(engines, devices):
     """
 
     system_health_files_test(engines, devices, check_rotation=True)
+
+
+@pytest.mark.system
+@pytest.mark.health
+def test_ignore_health_issue(engines, devices):
+    """
+    Validate we can ignore all health issue and status will change to OK
+    steps:
+        1. Simulate PSU and FAN health issue
+        2. Validate health status and report
+        3. Ignore PSU issue and Validate
+        4. Ignore FAN issue too and Validate health state change to OK
+        5. Remove the ignore from FAN issue and Validate health state change to Not OK
+        6. Remove the ignore from PSU issue too and Validate
+        7. Fix PSU and FAN health issue
+    """
+    system = System()
+    ignore_health_issue(None, engines.dut, devices.dut)
+    system.validate_health_status(OK)
+
+    try:
+        with allure.step("Simulate PSU and FAN health issue"):
+            logger.info("Simulate PSU and FAN health issue")
+            psu_id, fan_id = simulate_fan_and_psu_health_issue(engines, devices)
+            psu_display_name = "PSU{}".format(psu_id)
+            psu_config_name = "PSU {}".format(psu_id)
+            psu_fan_display_name = "PSU{}_FAN".format(psu_id)
+            psu_fan_config_name = "psu{}_fan1".format(psu_id)
+            fan_display_name = get_fan_display_name(fan_id, devices.dut)
+            fan_config_name = "fan{}".format(fan_id)
+
+        with allure.step("Validate health status and report"):
+            logger.info("Validate health status and report")
+            system.wait_until_health_status_change_to(NOT_OK)
+            verify_devices_health_status({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+
+        with allure.step("Ignore PSU issue and Validate"):
+            logger.info("Ignore PSU issue and Validate")
+            ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
+            system.wait_until_health_status_change_to(NOT_OK)
+            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK})
+
+        with allure.step("Ignore FAN issue too and Validate health state change to OK"):
+            logger.info("Ignore FAN issue too and Validate health state change to OK")
+            ignore_health_issue([psu_config_name, psu_fan_config_name, fan_config_name], engines.dut, devices.dut)
+            system.wait_until_health_status_change_to(OK)
+            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: IGNORED})
+
+        with allure.step("Remove the ignore from FAN issue and Validate health state change to Not OK"):
+            logger.info("Remove the ignore from FAN issue and Validate health state change to Not OK")
+            ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
+            system.wait_until_health_status_change_to(NOT_OK)
+            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK})
+
+        with allure.step("Remove the ignore from PSU issue too and Validate"):
+            logger.info("Remove the ignore from PSU issue too and Validate")
+            ignore_health_issue(None, engines.dut, devices.dut)
+            system.wait_until_health_status_change_to(NOT_OK)
+            verify_devices_health_status({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+
+    finally:
+
+        with allure.step("Fix PSU and FAN health issue"):
+            logger.info("Fix PSU and FAN health issue")
+            ignore_health_issue(None, engines.dut, devices.dut)
+            HWSimulator.simulate_fix_fan_fault(engines.dut, fan_id)
+            HWSimulator.simulate_fix_psu_fault(engines.dut, psu_id)
+            system.wait_until_health_status_change_to(OK)
+
+
+def verify_devices_health_status(device_status_dict):
+    """
+    verify device status in the healthe detail output
+    :param device_status_dict: dictionary with devices and their status, example: {PSU1: OK , PSU2: Not OK, FAN1/1: Ignored}
+    """
+    monitor_dict = sort_monitor_list()
+    for device_name, status in device_status_dict.items():
+        assert device_name in monitor_dict[status]
+
+
+def simulate_fan_and_psu_health_issue(engines, devices):
+    logger.info("choose randomly PSU and FAN")
+    psu_id = random.randrange(1, len(devices.dut.psu_list) + 1)
+    fan_id = random.randrange(1, len(devices.dut.fan_list) + 1)
+    logger.info("Chosen PSU : {}\n Chosen fan : {}  - {}".format(psu_id, fan_id, get_fan_display_name(fan_id, devices.dut)))
+    HWSimulator.simulate_fan_fault(engines.dut, fan_id)
+    HWSimulator.simulate_psu_fault(engines.dut, psu_id)
+    return psu_id, fan_id
+
+
+def get_fan_display_name(fan_id, device):
+    section = 1 if fan_id % 2 == 1 else 2
+    num = math.floor(fan_id / 2) + fan_id % 2
+    return "FAN{}/{}".format(num, section)
+
+
+def ignore_health_issue(components_list_to_ignore, engine, device):
+    components_as_string = ", ".join(["\"{}\"".format(comp) for comp in components_list_to_ignore]) if components_list_to_ignore else ""
+    engine.run_cmd("sudo sed -i 's/{}/{}/' {}".format(DEVICES_TO_IGNORE_LINE.format(".*"),
+                                                      DEVICES_TO_IGNORE_LINE.format(components_as_string),
+                                                      device.health_monitor_config_file_path))
 
 
 def system_health_files_test(engines, devices, check_rotation=False):
@@ -307,7 +411,7 @@ def simulate_health_issue_with_config_file_and_validate(system, engine, device):
 
 
 def remove_user_config_file(engine, device):
-    engine.run_cmd("sudo sed -i 's/{}/{}/' {}".format(LINE_TO_REPLACE.format(".*"), LINE_TO_REPLACE.format(""), device.health_monitor_config_file_path))
+    engine.run_cmd("sudo sed -i 's/{}/{}/' {}".format(USER_DEFINED_CHECKERS_LINE.format(".*"), USER_DEFINED_CHECKERS_LINE.format(""), device.health_monitor_config_file_path))
 
 
 def cause_health_file_rotation_and_validate(engine, system):

@@ -77,4 +77,4 @@ class History(Health):
         assert len(last_status) > 0, "Didn't find summary line in the health history file"
         last_status = last_status[-1]
         logger.info("last status line is: \n {}".format(last_status))
-        return HealthConsts.NOT_OK if "Not OK" in last_status else HealthConsts.OK
+        return HealthConsts.NOT_OK if HealthConsts.NOT_OK in last_status else HealthConsts.OK
