@@ -1851,7 +1851,7 @@
     - '.* ERR decode-syseeprom: Nowhere to read syseeprom from! No symlink found.*'
   Conditions:
     - Redmine:
-        - 3238754
+        - 3365507
       Platform:
         - 2700
         - 2410
@@ -1866,6 +1866,7 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports
       Redmine:
         - 3333468
       Platform:
