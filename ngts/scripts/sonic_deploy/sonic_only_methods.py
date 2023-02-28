@@ -20,7 +20,8 @@ logger = logging.getLogger()
 class SonicInstallationSteps:
 
     @staticmethod
-    def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
+    def pre_installation_steps(
+            sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
         """
         Pre-installation steps for SONIC
         :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
@@ -138,7 +139,8 @@ class SonicInstallationSteps:
     def get_ptf_docker_tag(image_path):
         """
         Get PTF docker tag from SONiC image path
-        :param image_path: example: /auto/sw_system_release/sonic/master.234-27a6641fb_Internal/Mellanox/sonic-mellanox.bin
+        :param image_path:
+            example: /auto/sw_system_release/sonic/master.234-27a6641fb_Internal/Mellanox/sonic-mellanox.bin
         :return: ptf docker tag, example: '42007'
         """
         ptf_tag = 'latest'
@@ -150,8 +152,8 @@ class SonicInstallationSteps:
             logger.info('SONiC branch is: {}'.format(branch))
             ptf_tag = MarsConstants.BRANCH_PTF_MAPPING.get(branch, 'latest')
         except Exception as err:
-            logger.error('Can not get SONiC branch and PTF tag from path: {}, using "latest". Error: {}'.format(image_path,
-                                                                                                                err))
+            logger.error('Can not get SONiC branch and PTF tag from path: {}, using "latest". Error: {}'.format(
+                image_path, err))
 
         return ptf_tag
 
@@ -237,7 +239,8 @@ class SonicInstallationSteps:
         if app_extension_dict_path:
             app_extension_path_str = '--app_extension_dict_path={}'.format(app_extension_dict_path)
         cmd = "{ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
-              " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results " \
+              " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir " \
+              "--alluredir=/tmp/allure-results " \
               " --disable_loganalyzer {app_extension_path_str} " \
               " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extesions.py". \
             format(ngts_pytest=MarsConstants.NGTS_PATH_PYTEST, sonic_mgmt_dir=MarsConstants.SONIC_MGMT_DIR,
@@ -313,8 +316,6 @@ class SonicInstallationSteps:
                 add_host_for_y_cable_simulator(dut, setup_info)
 
         for dut in setup_info['duts']:
-            if is_dualtor_topo(sonic_topo):
-                add_host_for_y_cable_simulator(dut, setup_info)
             SonicInstallationSteps.reboot_validation_sonic(dut_name=dut['dut_name'], sonic_topo=sonic_topo,
                                                            reboot=reboot, ansible_path=ansible_path)
 
@@ -495,7 +496,8 @@ class SonicInstallationSteps:
             version = output.split()[2]
             version = version.split('mlnx.')[-1]
             assert version >= lowest_valid_version, \
-                'Current hw-management version {} is lower than the required version {}.'.format(version, lowest_valid_version)
+                'Current hw-management version {} is lower than the required version {}.'.format(
+                    version, lowest_valid_version)
 
     @staticmethod
     def verify_sonic_branch_supported(setup_info, image_path):
