@@ -504,7 +504,7 @@ def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, d
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.simx_uncovered
+@pytest.mark.physical_coverage
 @pytest.mark.push_gate
 @pytest.mark.parametrize("drop_reason", drop_reason_dict.keys())
 @allure.title('WJH Buffer test case')

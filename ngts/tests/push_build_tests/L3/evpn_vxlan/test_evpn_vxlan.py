@@ -187,7 +187,7 @@ class TestEvpnVxlan:
                                           VxlanConstants.HEX_100_0_0_3), receiver_count=VxlanConstants.PACKET_NUM_0)
 
     @pytest.mark.build
-    @pytest.mark.simx_uncovered
+    @pytest.mark.physical_coverage
     @pytest.mark.push_gate
     def test_evpn_vxlan_basic(self, cli_objects, interfaces):
         """
