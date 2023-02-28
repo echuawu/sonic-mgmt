@@ -71,6 +71,8 @@ class NvosConst:
 
     DEFAULT_PASS = 'YourPaSsWoRd'
 
+    DATE_TIME_REGEX = "\\d\\d\\/\\d\\d\\/\\d\\d \\d\\d:\\d\\d:\\d\\d"
+
 
 class ApiType:
     NVUE = "NVUE"
@@ -404,7 +406,7 @@ class HealthConsts:
     HEALTH_SECOND_FILE = "health_history.1"
     HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/{}/system_health_monitoring_config.json"
     ISSUES = "issues"
-    SUMMARY_REGEX = "INFO \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : summary:.*{}".format(OK)
-    ADD_STATUS_TO_SUMMARY_REGEX = " \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : summary:.*{}"
-    HEALTH_ISSUE_REGEX = "ERROR \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : {component}: is {issue}"
-    HEALTH_FIX_REGEX = "INFO \\d\\d/\\d\\d/\\d\\d \\d\\d:\\d\\d:\\d\\d : Cleared: {component}: is {issue}"
+    SUMMARY_REGEX = "INFO {} : summary:.*{}".format(NvosConst.DATE_TIME_REGEX, OK)
+    ADD_STATUS_TO_SUMMARY_REGEX = NvosConst.DATE_TIME_REGEX + " : summary:.*{}"
+    HEALTH_ISSUE_REGEX = "ERROR " + NvosConst.DATE_TIME_REGEX + " : {component}: (?:is )?{issue}"
+    HEALTH_FIX_REGEX = "INFO " + NvosConst.DATE_TIME_REGEX + " : Cleared: {component}: (?:is )?{issue}"
