@@ -29,6 +29,7 @@ class LinuxGeneralCli(GeneralCliCommon):
             pattern = r"\s+".join([r"INFO\[MISC\]:", r"Linux", r"up"])
             logger.info(f'Install sonic BFB image: {image_path},  on Server: {self.engine.ip},  RSHIM: {rshim_num}')
             output = self.engine.run_cmd_set([cmd], tries_after_run_cmd=75, patterns_list=[pattern])
+            assert 'Installation finished' in output, f'Installation failed, please check bfb-install output:\n{output}'
             return output
         except Exception as e:
             logger.error(f"Command: {cmd} failed with error {e} when was expected to pass")
