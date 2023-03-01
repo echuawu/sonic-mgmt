@@ -66,7 +66,7 @@ def pytest_addoption(parser):
 def common_setup_teardown(rand_selected_dut, request, tbinfo, vmhost):
     # Skip dualtor test cases on unsupported platform
     supported_platforms = \
-        ['broadcom_td3_hwskus', 'broadcom_th2_hwskus', 'cisco_hwskus', 'mellanox_spc1_hwskus', 'mellanox_spc3_hwskus']
+        ['broadcom_td3_hwskus', 'broadcom_th2_hwskus', 'cisco_hwskus', 'mellanox_dualtor_hwskus']
     hostvars = get_host_visible_vars(rand_selected_dut.host.options['inventory'], rand_selected_dut.hostname)
     hwsku = rand_selected_dut.facts['hwsku']
     skip = True
