@@ -8,7 +8,7 @@ def get_sonic_lastrc_version(target_branch) {
         if (lastrc.contains("_Public")) {
             version_path = version_path  + "/public"
         }
-        def lastrc_version = lastrc.replace("${version_path}", "").replace("/Mellanox/sonic-mellanox.bin", "").replace("/", "")
+        def lastrc_version = lastrc.replace("${version_path}", "").replace("/dev/","/").replace("/Mellanox/sonic-mellanox.bin", "").replace("/", "")
         print "CI will use branch:${target_branch} lastrc version: ${lastrc_version} for running BAT"
         return lastrc_version
     } catch (Throwable lastrc_ex) {
