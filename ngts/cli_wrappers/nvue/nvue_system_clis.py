@@ -145,3 +145,9 @@ class NvueSystemCli(NvueBaseCli):
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.reload(cmd)
+
+    @staticmethod
+    def show_health_report(engine, param='', exit_cmd=''):
+        cmd = "nv show system health history {param}".format(param=param)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd_after_cmd([cmd, exit_cmd])

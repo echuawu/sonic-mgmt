@@ -53,3 +53,17 @@ class TechSupport(BaseComponent):
         techsupport_folder = techsupport_res.returned_value.split('\n')
         file_name = "".join([name for name in techsupport_folder if '.tar.gz' in name])
         return file_name.replace('Generated tech-support ', '').replace(' ', '')
+
+    @staticmethod
+    def get_techsupport_log_files_names(engine, techsupport):
+        """
+        :param engine: engine
+        :param techsupport: the techsupport .tar.gz name
+        :return: list of the dump files in the tech-support
+        """
+        with allure.step('Get all tech-support dump files'):
+            engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
+            folder_name = techsupport.replace('.tar.gz', "")
+            output = engine.run_cmd('ls ' + folder_name + '/log')
+            engine.run_cmd('sudo rm -rf ' + folder_name)
+            return output.split()
