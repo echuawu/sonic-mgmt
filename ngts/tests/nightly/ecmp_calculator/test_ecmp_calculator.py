@@ -163,6 +163,7 @@ class TestInterfaceDefaultVrf(TestEcmpCalcBase):
 
     @pytest.mark.push_gate
     @pytest.mark.build
+    @pytest.mark.physical_coverage
     @allure.title('Test ECMP Calculator default vrf')
     def test_ecmp_calculator_interface_default_vrf(self, pre_configure_for_interface_default_vrf):
         """
