@@ -1,5 +1,6 @@
 import logging
 import allure
+import time
 from retry import retry
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
@@ -210,5 +211,18 @@ class FactoryDefault(BaseComponent):
             logging.info("Execute factory reset {}".format(param))
             if not engine:
                 engine = TestToolkit.engines.dut
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_reset,
-                                                   engine, "factory-default", param)
+            start_time = time.time()
+            res_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_reset,
+                                                      engine, "factory-default", param)
+            end_time = time.time()
+            duration = end_time - start_time
+
+            with allure.step("Reset factory takes: {} seconds".format(duration)):
+                logger.info("Reset factory takes: {} seconds".format(duration))
+
+            NvueGeneralCli.wait_for_nvos_to_become_functional(engine)
+            end_time = time.time()
+            duration = end_time - start_time
+            with allure.step("Reset factory till system is functional takes: {} seconds".format(duration)):
+                logger.info("Reset factory till system is functional takes: {} seconds".format(duration))
+            return res_obj

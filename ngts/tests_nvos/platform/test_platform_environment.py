@@ -34,7 +34,7 @@ def test_show_platform_environment_fan(engines, devices):
         platform = Platform()
 
     with allure.step("Execute show platform environment fan and make sure all the components exist"):
-        output = _verify_output(platform, "fan", devices.dut.psu_list + devices.dut.fan_list)
+        output = _verify_output(platform, "fan", devices.dut.psu_fan_list + devices.dut.fan_list)
 
     with allure.step("Check that all required properties for each fan"):
         logging.info("Check that all required properties for each fan")

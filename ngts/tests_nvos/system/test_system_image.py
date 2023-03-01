@@ -52,9 +52,9 @@ def test_show_system_image():
             logging.info("All expected fields were found")
 
         with allure.step("Validate the values exist"):
-            assert output_dictionary[ImageConsts.CURRENT_IMG] is not None, "'{}' image can't be found the the output".format(ImageConsts.CURRENT_IMG)
-            assert output_dictionary[ImageConsts.PARTITION1_IMG] is not None, "'{}' image can't be found the the output".format(ImageConsts.PARTITION1_IMG)
-            assert output_dictionary[ImageConsts.NEXT_IMG] is not None, "'{}' image can't be found the the output".format(ImageConsts.NEXT_IMG)
+            assert output_dictionary[ImageConsts.CURRENT_IMG] not in [None, "N/A"], "'{}' image can't be found the the output".format(ImageConsts.CURRENT_IMG)
+            assert output_dictionary[ImageConsts.PARTITION1_IMG] not in [None, "N/A"], "'{}' image can't be found the the output".format(ImageConsts.PARTITION1_IMG)
+            assert output_dictionary[ImageConsts.NEXT_IMG] not in [None, "N/A"], "'{}' image can't be found the the output".format(ImageConsts.NEXT_IMG)
 
     with allure.step("Run show command to view system image files"):
         logging.info("Run show command to view system image files ")

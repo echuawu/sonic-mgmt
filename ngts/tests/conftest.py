@@ -48,14 +48,6 @@ def get_dut_device_info(cli_objects):
 
 
 @pytest.fixture(scope='session')
-def engines(topology_obj):
-    engines_data = DottedDict()
-    for player in topology_obj.players:
-        engines_data[player] = topology_obj.players[player]['engine']
-    return engines_data
-
-
-@pytest.fixture(scope='session')
 def interfaces(topology_obj):
     interfaces_data = DottedDict()
     interfaces_data.ha_dut_1 = topology_obj.ports.get('ha-dut-1')

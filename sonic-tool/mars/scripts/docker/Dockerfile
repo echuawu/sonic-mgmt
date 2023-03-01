@@ -27,7 +27,7 @@ RUN sed -i 's/bfdd=no/bfdd=yes/g' /etc/frr/daemons
 # Configure remote connection details
 RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
-RUN echo "root:3tango" | chpasswd
+RUN echo "${VM_USER}:${VM_PASSWORD}" | chpasswd
 RUN echo "root   ALL=(ALL)       ALL" >> /etc/sudoers
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 

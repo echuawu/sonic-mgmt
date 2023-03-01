@@ -36,6 +36,12 @@ def test_show_ib_device(engines, devices):
 
         ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
             output, devices.dut.DEVICE_LIST).verify_result()
+        assert len(devices.dut.DEVICE_LIST) == len(output), "Unexpected amount of ib devices.\n" \
+                                                            "Expect {} devices:{} \n" \
+                                                            "but got {} devices: {}".format(
+            len(devices.dut.DEVICE_LIST),
+            devices.dut.DEVICE_LIST,
+            len(output), output.keys())
 
         for device in output:
             with allure.step('Run nv show ib device <device-id> command and verify that each field has a value'):

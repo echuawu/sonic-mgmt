@@ -2,8 +2,8 @@
 
 SWITCH=$1
 
-SONIC_LOGIN="admin@${SWITCH}"
-SONIC_PASS="YourPaSsWoRd"
+SONIC_LOGIN="${SONIC_SWITCH_USER}@${SWITCH}"
+SONIC_PASS="${SONIC_SWITCH_PASSWORD}"
 SSH_PARAMS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 SONIC_SSH_CMD="sshpass -p ${SONIC_PASS} ssh ${SSH_PARAMS} ${SONIC_LOGIN}"
 

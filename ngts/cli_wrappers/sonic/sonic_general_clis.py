@@ -498,8 +498,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.update_simx_platform_type(platform_params)
         else:
             SonicOnieCli(self.engine.ip, self.engine.ssh_port, fw_pkg_path, platform_params).update_onie()
+            self.confirm_in_onie_install_mode(topology_obj)
 
         self.install_image_onie(self.engine.ip, self.engine.ssh_port, image_path, platform_params, topology_obj)
+
+    def confirm_in_onie_install_mode(self, topology_obj):
+        in_onie = self.prepare_for_installation(topology_obj)
+        if not in_onie:
+            onie_reboot_script_path = self.prepare_onie_reboot_script_on_dut()
+            self.reboot_by_onie_reboot_script(onie_reboot_script_path, 'install')
 
     def update_simx_platform_type(self, platform_params):
         """

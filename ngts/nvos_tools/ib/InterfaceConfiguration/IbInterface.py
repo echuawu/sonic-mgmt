@@ -4,6 +4,7 @@ from .Pluggable import Pluggable
 from .Link import Link
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from .nvos_consts import InternalNvosConsts
+from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from .SignalDegrade import SignalDegrade
 import time
@@ -73,6 +74,20 @@ class IbInterface:
                     result_obj.result = False
 
             return result_obj
+
+    def show_interface(self, dut_engine=None, output_format=OutputFormat.json):
+        """
+        Executes show interface
+        :param dut_engine: ssh engine
+        :param output_format: OutputFormat
+        :return: str output
+        """
+        with allure.step('Execute show interface for {port_name}'.format(port_name=self.port_obj.name)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+
+            return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
+                                                   dut_engine, self.port_obj.name, output_format).get_returned_value()
 
     def action_clear_counter_for_all_interfaces(self, engine=None):
         with allure.step("Clear counters for all interfaces"):

@@ -84,10 +84,10 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         return
 
     json_obj = []
-    report_url = config.cache.get(ALLURE_REPORT_URL, None)
+    report_url = config.cache.get(ALLURE_REPORT_URL, '')
     session_id = config.cache.get(SESSION_ID, None)
-    setup_name = config.cache.get(SETUP_NAME, None)
-    mars_key_id = config.cache.get(MARS_KEY_ID, None)
+    setup_name = config.cache.get(SETUP_NAME, '')
+    mars_key_id = config.cache.get(MARS_KEY_ID, '')
     skynet = config.cache.get(SKYNET, None)
     cli_type = SKYNET if skynet else config.cache.get('CLI_TYPE', CliType.SONIC)
     if valid_tests_data(report_url, session_id, mars_key_id):

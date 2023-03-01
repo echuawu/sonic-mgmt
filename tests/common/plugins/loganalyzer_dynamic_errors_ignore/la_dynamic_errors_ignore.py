@@ -7,7 +7,6 @@ import subprocess
 
 from abc import ABCMeta, abstractmethod
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
-from infra.tools.token_handler.token_handler import get_cred
 
 
 logger = logging.getLogger()
@@ -351,9 +350,8 @@ class GitHubDynamicErrorsIgnore(LaDynamicErrorsIgnore):
         super(GitHubDynamicErrorsIgnore, self).__init__(conditions_dict, pytest_item_obj)
         self.validation_name = DynamicLaConsts.GITHUB
         self.name = 'GitHub'
-        self.credentials = get_cred(self.name)
-        self.github_username = self.credentials.get('user')
-        self.api_token = self.credentials.get('api_token')
+        self.github_username = os.getenv("GITHUB_USER")
+        self.api_token = os.getenv("GITHUB_API_TOKEN")
         self.auth = (self.github_username, self.api_token)
 
     @staticmethod

@@ -88,8 +88,14 @@ def get_config_db_json_from_hostname(hostname, logs):
     else:
         tmp_config_db = '/tmp/config_db.json'
         logs.append('{} Copy config_db.json file from {}'.format(time.ctime(), hostname))
-        scp_cmd = "sshpass -p 'YourPaSsWoRd' scp -o 'StrictHostKeyChecking no'" \
-                  " -r admin@{}:/etc/sonic/config_db.json {}".format(hostname, tmp_config_db)
+        sw_user = os.getenv("SONIC_SWITCH_USER")
+        sw_password = os.getenv("SONIC_SWITCH_PASSWORD")
+        scp_cmd = "sshpass -p '{sw_password}' scp -o 'StrictHostKeyChecking no'" \
+                  " -r {sw_user}@{hostname}:" \
+                  "/etc/sonic/config_db.json {tmp_config_db}".format(sw_password=sw_password,
+                                                                     sw_user=sw_user,
+                                                                     hostname=hostname,
+                                                                     tmp_config_db=tmp_config_db)
         os.system(scp_cmd)
 
     logs.append('Read config_db.json file')

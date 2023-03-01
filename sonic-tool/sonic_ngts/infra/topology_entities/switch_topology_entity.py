@@ -165,11 +165,15 @@ class SwitchTopologyEntity(TopologyEntityInterface):
         based on the "show lldp table" output,
         e.g [(Ethernet0,r-tigris-06,etp2),(Ethernet248,r-sonic-08,0c:42:a1:a9:72:f7),..]
         """
-        lldp_table_output= self.engine.run_cmd(SonicConsts.SHOW_LLDP_TABLE)
-        total_results_rows = 2
-        lldp_table_output_str = "".join(lldp_table_output.splitlines()[:-total_results_rows])
-        regex_pattern = "(Ethernet\d+)\s*(\w*-\w*-\w*-*\w*\d*-*\d*)\s*([\d*\w*:]*\d*\w*)"
-        output_list = re.findall(regex_pattern, lldp_table_output_str)
+        lldp_table_output = self.engine.run_cmd(SonicConsts.SHOW_LLDP_TABLE)
+        output_list = []
+        for line in lldp_table_output.splitlines():
+            if line.startswith('Ethernet'):
+                lldp_line_data = line.split()
+                local_port, remote_device, remote_port = lldp_line_data[0:3]
+                port_data = (local_port, remote_device, remote_port)
+                output_list.append(port_data)
+
         return output_list
 
     def update_port_info(self, port_name):

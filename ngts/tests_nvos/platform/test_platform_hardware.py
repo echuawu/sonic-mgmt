@@ -7,13 +7,14 @@ from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.Devices.BaseDevice import MarlinSwitch
 
 logger = logging.getLogger()
 
 
 @pytest.mark.platform
-@pytest.mark.nvos_ci
-def test_show_platform_hardware(engines):
+# TODO need to add pytest.mark.nvos_ci
+def test_show_platform_hardware(devices):
     """
     Show platform hardware test
     """
@@ -21,10 +22,16 @@ def test_show_platform_hardware(engines):
         platform = Platform()
 
     with allure.step("Check show hardware output"):
-        output = _verify_output(platform, "", PlatformConsts.HW_COMP)
+        expected_fields = PlatformConsts.HW_COMP
+        if isinstance(devices.dut, MarlinSwitch):
+            expected_fields.remove("manufacturer")
+            expected_fields.remove("hw-revision")
+        output = _verify_output(platform, "", expected_fields)
 
     with allure.step("Check hardware fields values"):
-        assert output[PlatformConsts.HW_ASIC_COUNT] >= 1, PlatformConsts.HW_ASIC_COUNT + " must be >= 1"
+        assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1,\
+            "Unexpected value in {}\n Expect to have {}, but got {}"\
+            .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.DEVICE_LIST) - 1, output[PlatformConsts.HW_ASIC_COUNT])
         assert "mqm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
         mac = output[PlatformConsts.HW_MAC].split(":")
         assert len(mac) == 6, "Invalid mac format"
@@ -62,7 +69,11 @@ def _verify_output(platform, comp_name, req_fields):
     with allure.step("Verify text output"):
         logging.info("Verify text output")
         output = platform.hardware.show(comp_name, output_format=OutputFormat.auto)
-        assert not any(comp not in output for comp in req_fields), "Not all required components were found"
+        missing_fields = []
+        for field in req_fields:
+            if field not in output:
+                missing_fields.append(field)
+        assert missing_fields == [], "Missing fields: {}".format(missing_fields)
 
     with allure.step("Verify json output"):
         logging.info("Verify json output")
@@ -85,6 +96,6 @@ def test_show_platform_hardware_component_openapi(engines, devices):
 @pytest.mark.openapi
 @pytest.mark.platform
 @pytest.mark.nvos_ci
-def test_show_platform_hardware_openapi(engines):
+def test_show_platform_hardware_openapi(devices):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_hardware(engines)
+    test_show_platform_hardware(devices)

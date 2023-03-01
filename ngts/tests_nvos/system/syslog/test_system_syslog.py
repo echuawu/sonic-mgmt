@@ -71,15 +71,13 @@ def test_rsyslog_multiple_servers_configuration(engines):
     Test flow:
     1. configuring 1 single server and measuring its time.
     2. Measure "nv show system syslog" command time with 1 server configured.
-    3. Check system resources utilization with 1 server.
-    4. configuring 11 servers and measuring its time.
-    5. Measure "nv show system syslog" command time with 11 server configured.
-    6. Verify all configured servers displayed in show command
-    7. Check system resources utilization with 11 servers.
-    8. Compare between server configuration times.
-    9. Compare between "nv show system syslog" command times.
-    10. Compare between system resources utilization percentages.
-    11. Cleanup
+    3. configuring 11 servers and measuring its time.
+    4. Measure "nv show system syslog" command time with 11 servers configured.
+    5. Verify all configured servers displayed in show command
+    6. Validate system resources CPU utilization with 11 servers configured.
+    7. Compare between server configuration times.
+    8. Compare between "nv show system syslog" command times.
+    9. Cleanup
     """
     system = System()
     server_name = 'server_0'
@@ -98,11 +96,6 @@ def test_rsyslog_multiple_servers_configuration(engines):
             system.syslog.servers.show()
             end_time = time.time()
             show_single_duration = end_time - start_time
-
-        with allure.step("Check system resources utilization"):
-            logging.info("Check system resources utilization")
-            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("cpu")).get_returned_value()
-            single_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
 
         with allure.step("Configure 10 remote syslog servers"):
             logging.info("Configure 10 remote syslog servers")
@@ -130,10 +123,13 @@ def test_rsyslog_multiple_servers_configuration(engines):
             assert server_len == (SyslogConsts.MULTIPLE_SERVERS_NUMBER + 1), \
                 "Number of servers configured is different than expected"
 
-        with allure.step("Check system resources utilization"):
-            logging.info("Check system resources utilization")
+        with allure.step("Validate system resources CPU utilization with 11 servers configured"):
+            logging.info("Validate system resources CPU utilization with 11 servers configured")
             output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("cpu")).get_returned_value()
-            multiple_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
+            cpu_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
+            assert cpu_utilization < SystemConsts.CPU_PERCENT_THRESH_MAX, \
+                "CPU utilization: {actual}% is higher than the maximum limit of: {expected}%" \
+                "".format(actual=cpu_utilization, expected=SystemConsts.CPU_PERCENT_THRESH_MAX)
 
         with allure.step("Verify configuration diff time"):
             logging.info("Verify configuration diff time")
@@ -148,13 +144,6 @@ def test_rsyslog_multiple_servers_configuration(engines):
             assert show_duration_diff < SyslogConsts.SHOW_TIME_DIFF_THRESHOLD, \
                 "Show diff time: {actual} is higher than expected time: {expected}" \
                 "".format(actual=show_duration_diff, expected=SyslogConsts.SHOW_TIME_DIFF_THRESHOLD)
-
-        with allure.step("Verify system resources utilization diff percentages"):
-            logging.info("Verify system resources utilization diff percentages")
-            utilization_diff = multiple_utilization - single_utilization
-            assert utilization_diff < SyslogConsts.CPU_UTILIZATION_DIFF_THRESHOLD, \
-                "CPU utilization diff time: {actual} is higher than expected time: {expected}" \
-                "".format(actual=utilization_diff, expected=SyslogConsts.CPU_UTILIZATION_DIFF_THRESHOLD)
 
     finally:
         with allure.step("Cleanup syslog configurations"):

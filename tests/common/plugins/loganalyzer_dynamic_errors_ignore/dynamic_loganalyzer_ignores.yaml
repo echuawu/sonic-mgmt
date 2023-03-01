@@ -66,6 +66,8 @@
     - '.* ERR swss#orchagent:.*removeLag: Failed to remove (ref count \d+|non-empty) LAG PortChannel.*'
     - '.* ERR hostcfgd:.*error returned by select.*'
     - '.* ERR pmon#python3: :- .*Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
+    - '.* ERR pmon#xcvrd: sx_api_host_ifc_trap_id_register_set exited with error, rc 4.*'
+    - '.* ERR pmon#xcvrd: sx_api_host_ifc_close exited with error, rc 3.*'
   Conditions:
     - Affected_test_cases:
       # Canonical
@@ -1764,14 +1766,6 @@
       - 3283464
 
 - Errors_list:
-    - ".*ERR lldp#lldpmgrd\\[\\d+\\]: Command failed 'lldpcli configure ports Ethernet\\d+ lldp portidsubtype local etp\\d+ .*unknown command from argument .*`configure`.*command was failed \\d+ times, disabling retry"
-  Conditions:
-    - Affected_test_cases:
-      - tests/qos/test_qos_sai.py
-      Redmine:
-      - 3322141
-
-- Errors_list:
     - '.*ERR syncd#SDK: \[SAI_DEBUG_COUNTER\.ERR\] mlnx_sai_debug_counter\.c\[\d+\]- mlnx_debug_counter_db_idx_to_data: Debug counter at index \d+ is removed or not created yet.*'
     - '.*ERR syncd#SDK: :- collectSwitchDebugCounters: Failed to get stats of port.*'
     - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Switch Debug Counter.*'
@@ -1916,9 +1910,13 @@
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
+      - show_techsupport/test_auto_techsupport.py
+      - show_techsupport/test_techsupport_no_secret.py
+      - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
       Redmine:
         - 3272016
 
+# Errors which should be ignored in test_containers_autorestart. The detaiils in RM 3315995
 - Errors_list:
     - '.* ERR what-just-happened#wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: Failed to set trap ID \(\d+\) to trap group \(\d+\) with trap action \(\d+\), error: Communication Error'
@@ -1968,8 +1966,6 @@
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
-      Redmine:
-        - 3315995
 
 - Errors_list:
     - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''

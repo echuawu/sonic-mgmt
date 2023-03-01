@@ -63,6 +63,7 @@ class TestVLAN:
 
     @pytest.mark.build
     @pytest.mark.push_gate
+    @pytest.mark.physical_coverage
     @allure.title('Test VLAN access mode')
     def test_vlan_access_mode(self):
         """

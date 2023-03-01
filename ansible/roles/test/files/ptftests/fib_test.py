@@ -284,14 +284,12 @@ class FibTest(BaseTest):
 
             os.system('apt update')
             os.system('apt install -y sshpass')
-            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_failed))
 
             if ipv4:
                 res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
             else:
                 res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
 
-            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_passed))
 
         if self.pkt_action == self.ACTION_DROP:
             return res

@@ -1,3 +1,4 @@
+import os
 from ngts.constants.constants import InfraConst
 
 
@@ -59,17 +60,21 @@ class NvosConst:
     SERVICE_STATUS_ACTIVE = 'active'
 
     DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
+    DOCKER_PER_ASIC_LIST = ['syncd-ibv0', 'swss-ibv0', 'database']
+    SYM_MGR_SERVICES = ['configmgrd.service', 'countermgrd.service', 'portsyncmgrd.service']
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
     IMAGES_PATH_ON_SWITCH = "/tmp/temp_nvos.bin"
     FM_PATH_ON_SWITCH = "/tmp/temp_fw.bin"
 
-    ROOT_USER = 'root'
-    ROOT_PASSWORD = '3tango'
+    ROOT_USER = os.getenv("VM_USER")
+    ROOT_PASSWORD = os.getenv("VM_PASSWORD")
 
     SONIC_MGMT = 'sonic_mgmt'
 
-    DEFAULT_PASS = 'YourPaSsWoRd'
+    DEFAULT_PASS = os.getenv("NVU_SWITCH_PASSWORD")
+
+    REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
 
     DATE_TIME_REGEX = "\\w{3}\\s{1,2}\\d{1,2} \\d\\d:\\d\\d:\\d\\d(?:.\\d+)?"
 
@@ -125,6 +130,7 @@ class SystemConsts:
     UPTIME = 'uptime'
     TIMEZONE = 'timezone'
     VERSION = 'version'
+    SECURITY = 'security'
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'
@@ -374,7 +380,6 @@ class SyslogConsts:
     MULTIPLE_SERVERS_NUMBER = 10
     CONFIG_TIME_DIFF_THRESHOLD = 1.0      # [sec]
     SHOW_TIME_DIFF_THRESHOLD = 1.0        # [sec]
-    CPU_UTILIZATION_DIFF_THRESHOLD = 5.0  # [percent]
 
 
 class SyslogSeverityLevels:

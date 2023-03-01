@@ -9,6 +9,12 @@ scripts/test_verify_fanout_version.py::test_verify_fanout_version:
     conditions:
       - "https://redmine.mellanox.com/issues/3202907 and 'arc-switch1004' in testbed"
 
+tests/simx/test_simx_custom_base_mac.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3344406"
+    conditions:
+      - https://redmine.mellanox.com/issues/3344406
+
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"
@@ -128,27 +134,33 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_reply_message:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_basic_dhcp6_relay:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_message:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_empty_payload:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 on simx platform for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and 'simx' in platform and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
 
 tests/push_build_tests/general/wjh/test_wjh.py:
   skip:
@@ -374,9 +386,9 @@ tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_r
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174864 and branch 202205"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3368221"
     conditions:
-      - "https://redmine.mellanox.com/issues/3174864 and '202205' in release"
+      - "https://redmine.mellanox.com/issues/3368221"
 
 tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
   skip:
@@ -1193,9 +1205,9 @@ platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
 
 qos/test_qos_sai_dual_tor.py:
   skip:
-    reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64"
+    reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64 and Mellanox-SN2700-D48C8"
     conditions:
-      - "hwsku not in ['Mellanox-SN4600C-C64']"
+      - "hwsku not in ['Mellanox-SN4600C-C64', 'Mellanox-SN2700-D48C8']"
 
 platform_tests/api/test_sfp.py::test_get_transceiver_info:
   skip:
@@ -1304,5 +1316,17 @@ snmp/test_snmp_phy_entity.py::test_turn_off_psu_and_check_psu_info:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
     conditions:
       - https://redmine.mellanox.com/issues/3355826
+
+ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_drop:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3373836"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3373836"
+
+ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_tolerant:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3373836"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3373836"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

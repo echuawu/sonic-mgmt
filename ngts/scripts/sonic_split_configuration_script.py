@@ -58,10 +58,10 @@ def init_parser():
     parser.add_argument('--setup_name', dest='setup_name', default=None, help='SONiC switch ip, e.g. 10.210.25.102')
 
     parser.add_argument('-p', '--password', dest='switch_password',
-                        help='SONiC switch password, e.g. YourPaSsWoRd', default="YourPaSsWoRd")
+                        help='SONiC switch password', default=os.getenv("SONIC_SWITCH_PASSWORD"))
 
     parser.add_argument('-u', '--username', dest='switch_username',
-                        help='SONiC switch username, e.g. admin', default="admin")
+                        help='SONiC switch username', default=os.getenv("SONIC_SWITCH_USER"))
 
     parser.add_argument('--hostname', dest='switch_hostname',
                         help='SONiC switch hostname, e.g. r-leopard-32', default="")

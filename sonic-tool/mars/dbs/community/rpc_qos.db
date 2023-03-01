@@ -4,12 +4,12 @@
         <!-- parameters passed to setup steps commands-->
         <default_params_type> basic_setup_step_params </default_params_type>
         <DB>
-            <info> RPC_QOS_COPP </info>
+            <info> RPC_QOS </info>
             <owner> SONiC </owner>
             <group> SONiC </group>
 
             <!-- OPTIONAL TAGS -->
-            <tags> RPC_QOS_COPP </tags>
+            <tags> RPC_QOS </tags>
             <ignore>
                 <condition>
                     <key> run_rpc_image </key>
@@ -20,27 +20,8 @@
 
             <!-- pre db commands - executed once before DB run -->
             <pre>
-            </pre>
-            <pre>
-                <type> reg_exec_func </type>
-                <name> deploy ptf32 topo </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
-                <tout> 3000 </tout>
-                <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/rpc_check_and_set_topology.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]]  --dut-name [[conf:extra_info.dut_name]] --current_topo [[conf:extra_info.topology]] --expected_topo ptf32 --workspace-path /root/mars/workspace  </cmd_params>
-                </params>
-            </pre>
+            </pre>>
             <post>
-                <type> reg_exec_func </type>
-                <name> restore original topo </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <tout> 3000 </tout>
-                <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/rpc_check_and_set_topology.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]]  --dut-name [[conf:extra_info.dut_name]] --current_topo ptf32 --expected_topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace  </cmd_params>
-                </params>
             </post>
         </DB>
         <Test>

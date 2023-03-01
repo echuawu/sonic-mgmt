@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CASEDEF>
+    <global>
+        <Test>
+            <info> QOS Dual Tor Test </info>
+            <name> qos_sai_dualtor </name>
+            <owner> </owner>
+            <pre>
+                <type> reg_exec_func </type>
+                <name> work around: Disable counterpoll </name>
+                <mars_cmd_func> run_on_stm </mars_cmd_func>
+                <ignore_pre_fail> True </ignore_pre_fail>
+                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
+                <tout> 300 </tout>
+                <params>
+                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/change_counterpoll_status.py </cmd>
+                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --setup-name [[conf:extra_info.setup_name]]  --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --counterpoll-action disable </cmd_params>
+                </params>
+            </pre>
+			<post>
+                <type> reg_exec_func </type>
+                <name> work around: Disable counterpoll  </name>
+                <mars_cmd_func> run_on_stm </mars_cmd_func>
+                <tout> 300 </tout>
+                <params>
+                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/change_counterpoll_status.py </cmd>
+                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --counterpoll-action enable </cmd_params>
+                </params>
+            </post>
+        </Test>
+        <Case>
+            <tags> QOS dualtor </tags>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
+            <tout> 5000 </tout>
+        </Case>
+    </global>
+
+    <case>
+        <info> pre_tests install saithrift in ptf </info>
+        <name> pre_tests install saithrift in ptf </name>
+        <tout> 300 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -v --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"  --py_saithrift_url=\"http://fit69.mtl.labs.mlnx/auto/sw_regression/system/SONIC/MARS/conf/saithrift/python-saithrift_0.9.4_amd64.deb\" -k \"test_update_saithrift_ptf\"\'" --test-scripts test_pretest.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> QOS Dual tor Case </info>
+        <name> qos dual tor </name>
+        <tout> 3600 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo ptf32 --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -k=\"testQosSaiPfcXoffLimit or testQosSaiPfcXonLimit or testQosSaiHeadroomPoolSize or testQosSaiSeparatedDscpToPgMapping or testQosSaiSeparatedDscpQueueMapping\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --qos_swap_syncd=False --qos_dual_tor=True\'" --test-scripts qos/test_qos_sai_dual_tor.py::TestQosSaiDualTor </static_args>
+             </params>
+        </cmd>
+    </case>
+
+</CASEDEF>

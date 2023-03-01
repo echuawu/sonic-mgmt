@@ -1,35 +1,35 @@
+# NOTE: Env variables credentials can be taken from Vault
 switches:
 
     - ip: 10.210.24.55
       alias: dut
-      username: admin
-      password: YourPaSsWoRd
-
+      username: "${SONIC_SWITCH_USER}"
+      password: "${SONIC_SWITCH_PASSWORD}"
 hosts:
 
     - ip: 10.215.14.63
       alias: ha
-      username: root
-      password: 3tango
+      username: "${VM_USER}"
+      password: "${VM_PASSWORD}"
 
     - ip: 10.215.14.64
       alias: hb
-      username: root
-      password: 3tango
+      username: "${VM_USER}"
+      password: "${VM_PASSWORD}"
 
 other_entities:
 
     - ip: 10.215.14.60
-      username: root
-      password: 3tango
+      username: "${TEST_SERVER_USER}"
+      password: "${TEST_SERVER_PASSWORD}"
       alias: hypervisor
       mac: 44:a8:42:1b:a8:e8
       hostname: r-sonic-10
       entity_id: hypervisor
 
     - ip: 10.215.14.68
-      username: root
-      password: 12345 # NOTE: password is 12345
+      username: "${SONIC_MGMT_USER}"
+      password: "${SONIC_MGMT_PASSWORD}"
       alias: sonic-mgmt
       mac: 00:50:56:28:0e:44
       hostname: r-sonic-10-mgmt02

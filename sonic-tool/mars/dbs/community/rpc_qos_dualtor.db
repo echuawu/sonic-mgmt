@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DBDEF>
+    <global>
+        <!-- parameters passed to setup steps commands-->
+        <default_params_type> basic_setup_step_params </default_params_type>
+        <DB>
+            <info> RPC_QOS_DUALTOR </info>
+            <owner> SONiC </owner>
+            <group> SONiC </group>
+
+            <!-- OPTIONAL TAGS -->
+            <tags> RPC_QOS_DUALTOR </tags>
+            <ignore>
+                <condition>
+                    <key> run_rpc_image </key>
+                    <op> == </op>
+                    <value>  no </value>
+                </condition>
+            </ignore>
+
+            <!-- pre db commands - executed once before DB run -->
+            <pre>
+                <name> deploy ptf32 topo </name>
+                <type> reg_exec_cmd </type>
+                <tout> 3000 </tout>
+                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
+                <players_selection>
+                    <ep_targets> SONIC_MGMT </ep_targets>
+                </players_selection>
+                <params>
+                    <exec> PYTHONPATH=/devts/  /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/test_rpc_check_and_set_topology.py --setup_name=[[conf:extra_info.setup_name]] --current_topo=[[conf:extra_info.topology]] --expected_topo=ptf32  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini  --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer </exec>
+                </params>
+            </pre>
+            <post>
+                <name> restore original topo </name>
+                <type> reg_exec_cmd </type>
+                <tout> 3000 </tout>
+                <players_selection>
+                    <ep_targets> SONIC_MGMT </ep_targets>
+                </players_selection>
+                <params>
+                    <exec> PYTHONPATH=/devts/  /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/test_rpc_check_and_set_topology.py --setup_name=[[conf:extra_info.setup_name]] --current_topo=ptf32 --expected_topo=[[conf:extra_info.topology]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini  --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer </exec>
+                </params>
+            </post>
+        </DB>
+        <Test>
+            <pre></pre>
+            <post></post>
+        </Test>
+        <Case>
+            <on_not_success>
+                <name> Generate sysdump on not success </name>
+                <type> setup_mode </type>
+                <cmd>
+                    <type> reg_exec_cmd </type>
+                    <players_selection>
+                        <ep_targets> SONIC_MGMT </ep_targets>
+                    </players_selection>
+                    <name> run_on_stm </name>
+                    <tout> 600 </tout>
+                    <params>
+                        <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py  --setup_name=[[conf:extra_info.setup_name]] --tech_support_duration=7200  --session_id=[[run_time:session_id]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini     --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+                    </params>
+                </cmd>
+            </on_not_success>
+            <!-- OPTIONAL TAGS -->
+            <!--<tags> TAG NAME</tags>-->
+            <pre></pre>
+            <ignore>
+                <condition>
+                    <key> run_rpc_image </key>
+                    <op> == </op>
+                    <value>  no </value>
+                </condition>
+            </ignore>
+            <post></post>
+        </Case>
+    </global>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/qos_dualtor.cases </cases>
+    </test>
+
+</DBDEF>

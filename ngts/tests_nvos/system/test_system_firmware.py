@@ -2,6 +2,7 @@ import logging
 import pytest
 import allure
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -13,7 +14,7 @@ logger = logging.getLogger()
 @pytest.mark.checklist
 @pytest.mark.nvos_ci
 @pytest.mark.system
-def test_show_system_firmware(engines):
+def test_show_system_firmware(devices):
     """
     Show system firmware test
 
@@ -25,18 +26,42 @@ def test_show_system_firmware(engines):
     5. Run show system firmware asic <id>
     6. Compare the output results to the results of show system firmware
     """
-    with allure.step("Create System object"):
-        system = System()
+    validate_show_firmware(devices, is_fae_cmd=False)
 
-    with allure.step("Run show command to view system firmware"):
-        logging.info("Run show command to view system firmware")
-        show_output = system.firmware.show()
+
+@pytest.mark.checklist
+@pytest.mark.system
+def test_show_fae_firmware(devices):
+    """
+    Show system firmware test
+
+    Test flow:
+    1. Run show fae firmware
+    2. Make sure that all required fields exist
+    3. Run show fae firmware asic
+    4. Compare the output results to the results of show system firmware
+    """
+    validate_show_firmware(devices, is_fae_cmd=True)
+
+
+def validate_show_firmware(devices, is_fae_cmd=False):
+    system_or_fae_str = "fae" if is_fae_cmd else "system"
+    system_or_fae_obj = Fae() if is_fae_cmd else System()
+    with allure.step("Run show command to view {} firmware".format(system_or_fae_str)):
+        logging.info("Run show command to view {} firmware".format(system_or_fae_str))
+        show_output = system_or_fae_obj.firmware.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
 
         with allure.step("Validate all expected fields in show output"):
             ValidationTool.verify_field_exist_in_json_output(output_dictionary,
                                                              ["asic", "auto-update", "default"]).verify_result()
             assert output_dictionary["asic"], "'asic' field is empty in show system firmware output"
+
+            with allure.step("Validate asic amount"):
+                expected_asic_amount = len(devices.dut.DEVICE_LIST) - 1 if is_fae_cmd else 1
+                assert len(output_dictionary["asic"]) == expected_asic_amount, \
+                    "Unexpected num of ASIC\n Expected : {}\n but got {}".format(
+                    expected_asic_amount, len(output_dictionary["asic"]))
 
             with allure.step("Validate asic fields"):
                 for asic_name, asic_prop in output_dictionary["asic"].items():
@@ -46,9 +71,9 @@ def test_show_system_firmware(engines):
 
         asic_list = output_dictionary["asic"]
 
-    with allure.step("Run show system firmware asic"):
-        logging.info("Run show system firmware asic")
-        show_output = system.firmware.asic.show()
+    with allure.step("Run show {} firmware asic".format(system_or_fae_str)):
+        logging.info("Run show {} firmware asic".format(system_or_fae_str))
+        show_output = system_or_fae_obj.firmware.asic.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
 
         with allure.step("Validate asic fields"):
@@ -58,20 +83,21 @@ def test_show_system_firmware(engines):
         with allure.step("Compare asic names in outputs"):
             compare_asic_names(asic_list, output_dictionary)
 
-        with allure.step("Compare current output to the output from 'show system firmware"):
+        with allure.step("Compare current output to the output from 'show {} firmware".format(system_or_fae_str)):
             for asic_name, asic_prop in output_dictionary.items():
                 compare_asic_fields(asic_list[asic_name], asic_prop)
 
-    with allure.step("Run show system firmware asic <asic_id>"):
-        random_asic = RandomizationTool.select_random_value(list(asic_list.keys())).get_returned_value()
-        show_output = system.firmware.asic.show(random_asic)
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
+    if not is_fae_cmd:
+        with allure.step("Run show system firmware asic <asic_id>"):
+            random_asic = RandomizationTool.select_random_value(list(asic_list.keys())).get_returned_value()
+            show_output = system_or_fae_obj.firmware.asic.show(random_asic)
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
 
-        with allure.step("Validate asic fields"):
-            verify_asic_fields(output_dictionary)
+            with allure.step("Validate asic fields"):
+                verify_asic_fields(output_dictionary)
 
-        with allure.step("Compare asic fields"):
-            compare_asic_fields(asic_list[random_asic], output_dictionary)
+            with allure.step("Compare asic fields"):
+                compare_asic_fields(asic_list[random_asic], output_dictionary)
 
 
 @pytest.mark.checklist

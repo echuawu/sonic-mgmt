@@ -77,8 +77,11 @@ def get_apps_info_from_build_params(wjh_ver, lcm_ver):
                                                                          app_ver=wjh_ver)
                 lcm_ver = get_application_version_info_from_build_params(build_params, app_param_name='LCM_VERSION',
                                                                          app_ver=lcm_ver)
-    if wjh_ver.lower().strip() == "none":
-        wjh_ver = None
+
+    if wjh_ver:
+        if wjh_ver.lower().strip() == "none":
+            wjh_ver = None
+
     print('WJH versions is: {}'.format(wjh_ver))
     print('LCM versions is: {}'.format(lcm_ver))
 

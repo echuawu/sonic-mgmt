@@ -24,11 +24,14 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     Validate reset factory without params cleanup done as expected
 
         Test flow:
-            1. Change profile to breakout mode
-            2. Split a random port
-            3. Run reset factory without params
-            4. After system is up again, verify the cleanup done successfully and health status is OK
-            5. Verify the breakup mode is disabled and selected port is not split any more
+            1. set description to ib ports:
+                - set, apply and save configuration
+                - set and apply
+                - set
+            2. Validate ports description
+            3. Add data
+            4. Run reset factory without params
+            5. After system is up again, verify the cleanup done successfully
             6. Verify the setup is functional:
                 6.1.	Start openSM
                 6.2.	Run several show commands
@@ -41,11 +44,37 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         system.validate_health_status(HealthConsts.OK)
         last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
 
+    with allure.step('Set description to ib ports'):
+        logger.info("Set description to ib ports")
+        description = "test_reset_factory_without_params"
+        ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=None,
+                                                            num_of_ports_to_select=3).get_returned_value()
+        apply_and_save_port = ports[0]
+        just_apply_port = ports[1]
+        not_apply_port = ports[2]
+
     '''with allure.step("Change profile to breakout mode"):
         _change_profile_to_breakout()
 
     with allure.step("Split a random port"):
         split_port = _split_port(engines.dut)'''
+
+    with allure.step('Set and apply description to ib port, save config after it'):
+        logger.info("Set and apply description to ib port, save config after it")
+        apply_and_save_port.ib_interface.description.set(value=description, apply=True).verify_result()
+        TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
+        NvueGeneralCli.save_config(engines.dut)
+    with allure.step('Set and apply description to ib port'):
+        logger.info("Set and apply description to ib port")
+        just_apply_port.ib_interface.description.set(value=description, apply=True).verify_result()
+    with allure.step('Set description to ib port'):
+        logger.info("Set description to ib port")
+        not_apply_port.ib_interface.description.set(value=description, apply=False).verify_result()
+    with allure.step('Validate ports description'):
+        logger.info("Validate ports description")
+        _validate_port_description(engines.dut, apply_and_save_port, description)
+        _validate_port_description(engines.dut, just_apply_port, description)
+        _validate_port_description(engines.dut, not_apply_port, "")
 
     with allure.step("Add data before reset factory"):
         username = _add_verification_data(engines.dut, system)
@@ -76,6 +105,11 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
             assert len(system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK,
                                                          health_history_output)) > 0, "Didn't print new summary line after reset factory"
 
+    with allure.step("Verify description has been deleted"):
+        _validate_port_description(engines.dut, apply_and_save_port, "")
+        _validate_port_description(engines.dut, just_apply_port, "")
+        _validate_port_description(engines.dut, not_apply_port, "")
+
     with allure.step("Verify the cleanup done successfully"):
         _verify_cleanup_done(engines.dut, current_time, system, username)
 
@@ -84,6 +118,14 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
     with allure.step("Verify the setup is functional"):
         _verify_the_setup_is_functional(system, engines)
+
+
+def _validate_port_description(engine, port, expected_description):
+    output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
+        port.show_interface(engine, port.name)).get_returned_value()
+    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                      field_name=port.ib_interface.description.label,
+                                                      expected_value=expected_description).verify_result()
 
 
 def _change_profile_to_breakout():
@@ -156,9 +198,11 @@ def _add_verification_data(engine, system):
         logging.info("Check running dockers")
         output = engine.run_cmd("docker container list").split('\n')[1:]
         for line in output:
-            docker_name = line.split()[9]
-            if docker_name != "database":
-                running_dockers[docker_name] = line.split()[3]
+            line = line.split()
+            docker_name = line[len(line) - 1]
+            start_time = engine.run_cmd(r"docker inspect -f \{\{'.Created'\}\} " + docker_name)
+            start_time = datetime.strptime(start_time.split(".")[0], f'%Y-%m-%dT%H:%M:%S')
+            running_dockers[docker_name] = start_time
 
     with allure.step("Create new user"):
         username, password = system.create_new_user(engine)
@@ -253,14 +297,23 @@ def _verify_cleanup_done(engine, current_time, system, username):
         if username in output.keys():
             errors += "\nCreated user was not deleted"
 
-    with allure.step("Create new user"):
+    with allure.step("Check running dockers"):
         logging.info("Check running dockers")
-        for docker_name in running_dockers.keys():
-            create_time = engine.run_cmd("docker ps | grep {}".format(docker_name)).split()[3]
-            if not create_time:
-                errors += "\n'{}' is not running after reset factory".format(docker_name)
-            elif running_dockers[docker_name] == create_time:
-                errors += "\n'{}' was not stopped during reset factory".format(docker_name)
+        for docker_name, orig_create_time in running_dockers.items():
+            output = engine.run_cmd(r"docker inspect -f \{\{'.Created'\}\} " + docker_name)
+            if "Error" in output:
+                create_time = ""
+            else:
+                create_time = datetime.strptime(output.split(".")[0], f'%Y-%m-%dT%H:%M:%S')
+
+            if docker_name == "database":
+                if create_time != orig_create_time:
+                    errors += "reset factory should not restart database docker"
+            else:
+                if not create_time:
+                    errors += "\n'{}' is not running after reset factory".format(docker_name)
+                elif orig_create_time == create_time:
+                    errors += "\n'{}' was not stopped during reset factory".format(docker_name)
 
     assert not errors, errors
 

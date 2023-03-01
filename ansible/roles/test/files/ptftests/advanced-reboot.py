@@ -166,6 +166,8 @@ class ReloadTest(BaseTest):
         if not self.test_params['inboot_oper'] or self.test_params['inboot_oper'] == 'None':
             self.test_params['inboot_oper'] = None
 
+        self.dataplane_loss_checked_successfully = False
+
         # initialize sad oper
         if self.test_params['preboot_oper']:
             self.sad_oper = self.test_params['preboot_oper']
@@ -1627,6 +1629,7 @@ class ReloadTest(BaseTest):
         self.fails['dut'].add("Sniffer failed to capture any traffic")
         self.assertTrue(packets, "Sniffer failed to capture any traffic")
         self.fails['dut'].clear()
+        prev_payload = None
         if packets:
             prev_payload, prev_time = 0, 0
             sent_payload = 0
@@ -1715,8 +1718,20 @@ class ReloadTest(BaseTest):
             self.fails["dut"].add("Data traffic loss not found but reboot test type is '%s' which "
                                   "must have data traffic loss" % self.reboot_type)
 
+        if len(self.packets_list) > sent_counter:
+            self.dataplane_loss_checked_successfully = False
+            self.fails["dut"].add("Not all sent packets counted by receiver process. "
+                                  "Could be issue with sniffer performance")
+
         total_validation_packets = received_t1_to_vlan + received_vlan_to_t1 + missed_t1_to_vlan + missed_vlan_to_t1
-        if total_validation_packets != sent_counter:
+        # In some cases DUT may flood original packet to all members of VLAN, we do check that we do not flood too much
+        allowed_number_of_flooded_original_packets = 150
+        if (sent_counter - total_validation_packets) > allowed_number_of_flooded_original_packets:
+            self.dataplane_loss_checked_successfully = False
+            self.fails["dut"].add("Unexpected count of sent packets available in pcap file. "
+                                  "Could be issue with DUT flooding for original packets which was sent to DUT")
+
+        if prev_payload != (self.packets_to_send - 1):
             # Specific case when packet loss started but final lost packet not detected
             self.dataplane_loss_checked_successfully = False
             message = "Unable to calculate the dataplane traffic loss time. The traffic did not restore after " \

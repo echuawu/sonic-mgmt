@@ -290,6 +290,9 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
                 cli_objects.dut.general.update_config_db_docker_routing_config_mode(
                     remove_docker_routing_config_mode=True)
+            logger.info('Check that all ports in UP state')
+            ports_list = topology_obj.players_all_ports['dut']
+            cli_objects.dut.interface.check_link_state(ports_list)
             VxlanConfigTemplate.cleanup(topology_obj, evpn_vxlan_config_dict)
             FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
 

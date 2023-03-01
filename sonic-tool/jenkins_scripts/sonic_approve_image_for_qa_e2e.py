@@ -27,7 +27,8 @@ except ImportError:
     urllib_imported = True
 
 # Gen env variables
-build_id = os.environ['BUILD_ID']
+build_id = os.environ.get('BUILD_ID')
+is_dpu_image = os.environ.get('IS_DPU_IMAGE')
 
 wjh_ver = os.environ.get('WJH_VER')
 doroce_ver = os.environ.get('DOROCE_VER')
@@ -217,8 +218,8 @@ def build_known_issues_email_body(issues_list):
     return build_extended_email_body(title, issues_list)
 
 
-def create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image, included_prs, not_included_prs,
-                 fixed_issues, known_issues):
+def create_email(wjh_ver=None, wjh_included_in_image=None, doroce_ver=None, doroce_included_in_image=None,
+                 included_prs=None, not_included_prs=None, fixed_issues=None, known_issues=None):
     email_body = ''
 
     email_header = '<p style="font-size:14px">Hi All,</p>' \
@@ -226,7 +227,8 @@ def create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_
 
     email_body += email_header
 
-    email_body += build_email_info_about_apps(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image)
+    if wjh_ver or doroce_ver:
+        email_body += build_email_info_about_apps(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image)
 
     if included_prs:
         email_body += build_included_prs_email_body(included_prs.splitlines())
@@ -245,10 +247,12 @@ def create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_
 
 
 if __name__ == "__main__":
-    wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image = get_apps_info_from_build_params(wjh_ver,
-                                                                                                     wjh_included_in_image,
-                                                                                                     doroce_ver,
-                                                                                                     doroce_included_in_image)
+
+    if not is_dpu_image:
+        wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image = get_apps_info_from_build_params(wjh_ver,
+                                                                                                         wjh_included_in_image,
+                                                                                                         doroce_ver,
+                                                                                                         doroce_included_in_image)
 
     create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image,
                  included_prs, not_included_prs, fixed_issues, known_issues)

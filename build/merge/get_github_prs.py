@@ -2,7 +2,7 @@ import requests
 import argparse
 import datetime
 import logging
-from infra.tools.token_handler.token_handler import get_cred
+import os
 BASE_URL = "https://api.github.com"
 BASE_PR_SEARCH_URL = "https://api.github.com/search/issues?q=type:pr + repo:Azure/sonic-mgmt"
 TEAM_MEMBERS = ['nhe-NV', 'ppikh', "JibinBao", "roysr-nv", "AntonHryshchuk", "ihorchekh", "slutati1536"]
@@ -82,8 +82,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     default_last_merge_date = (datetime.datetime.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d")
     last_merge_date = args.last_merge_date if args.last_merge_date else default_last_merge_date
-    cred = get_cred("GitHub")
-    github_api = GitHubApi(cred.get('user'), cred.get('api_token'))
+    github_api = GitHubApi(os.getenv("GITHUB_USER"), os.getenv("GITHUB_API_TOKEN"))
     print("\n-----------------------------PR opened by our team ---------------------------------------")
     github_api.get_pr_open_from_nvidia_verification_team()
     print(f"\n----------------------------PR closed since {last_merge_date} ---------------------------")

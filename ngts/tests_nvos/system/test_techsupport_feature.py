@@ -4,6 +4,7 @@ from ngts.nvos_constants.constants_nvos import SystemConsts
 import allure
 import logging
 import pytest
+import time
 
 logger = logging.getLogger()
 
@@ -54,6 +55,7 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
 def test_techsupport_expected_files(engines, devices):
     """
     Run nv show system tech-support files command and verify the required fields are exist
+    and measure how long it takes
     command: nv show system tech-support files
 
     Test flow:
@@ -68,7 +70,12 @@ def test_techsupport_expected_files(engines, devices):
     """
     with allure.step('Run nv action generate system tech-support and validate dump files'):
         system = System(None)
+        start_time = time.time()
         tech_support_folder = system.techsupport.action_generate()
+        end_time = time.time()
+        duration = end_time - start_time
+        with allure.step("Tech-support generation takes: {} seconds".format(duration)):
+            logger.info("Tech-support generation takes: {} seconds".format(duration))
         techsupport_files_list = get_techsupport_dump_files_names(engines.dut, tech_support_folder)
     with allure.step('validate dump files'):
         verify_techsupport_dump_files(devices.dut, techsupport_files_list)

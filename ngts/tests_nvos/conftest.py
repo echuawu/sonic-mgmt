@@ -243,6 +243,9 @@ def configure_same_time_zone(engines):
     and device under test
     '''
     # TODO: add ntp enable when ntp is implemented
-    logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-    engines.dut.run_cmd('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
-    os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+    try:
+        logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+        engines.dut.run_cmd('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+        os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+    except BaseException:
+        logging.warning("Failed to configure timezone")

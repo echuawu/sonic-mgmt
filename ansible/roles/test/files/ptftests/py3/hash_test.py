@@ -193,14 +193,12 @@ class HashTest(BaseTest):
 
             os.system('apt update')
             os.system('apt install -y sshpass')
-            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_failed))
 
             if ip_network(six.text_type(dst_ip)).version == 4:
                 (matched_port, received) = self.check_ipv4_route(hash_key, src_port, dst_port_lists)
             else:
                 (matched_port, received) = self.check_ipv6_route(hash_key, src_port, dst_port_lists)
 
-            os.system('sshpass -p "3tango" ssh -o StrictHostKeyChecking=no petro_dbg_user@10.209.102.225 "touch /tmp/{}"'.format(filename_passed))
 
         assert received
 
