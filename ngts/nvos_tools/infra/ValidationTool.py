@@ -175,14 +175,27 @@ class ValidationTool:
             return result_obj
 
     @staticmethod
-    def compare_dictionaries(first_dictionary, second_dictionary):
+    def compare_dictionaries(first_dictionary, second_dictionary, ignore_double_quotes_in_values=False):
         """
         Compares two dictionaries
+        @param first_dictionary: the first dictionary
+        @param second_dictionary: the second dictionary
+        @param ignore_double_quotes_in_values: if True - ignore double quotes in value comparison
+            e.g: if True, { "key" = val } and { "key": "val" } are the same.
         """
         if set(first_dictionary.keys()) == set(second_dictionary.keys()):
             for key in first_dictionary.keys():
                 if first_dictionary[key] != second_dictionary[key]:
-                    return ResultObj(False, "'{}' are not equal for both dictionaries".format(key))
+                    if ignore_double_quotes_in_values:
+                        v1, v2 = str(first_dictionary[key]), str(second_dictionary[key])
+                        v1 = v1[1:-1] if v1.startswith('\"') and v1.endswith('\"') else v1
+                        v2 = v2[1:-1] if v2.startswith('\"') and v2.endswith('\"') else v2
+                        if v1 != v2:
+                            return ResultObj(False, "'{}' are not equal for both dictionaries.\nvalue1: {}\tvalue2: {}"
+                                             .format(key, first_dictionary[key], second_dictionary[key]))
+                    else:
+                        return ResultObj(False, "'{}' are not equal for both dictionaries.\nvalue1: {}\tvalue2: {}"
+                                         .format(key, first_dictionary[key], second_dictionary[key]))
             return ResultObj(True, "The dictionaries are equal")
         return ResultObj(False, "The dictionaries are not equal")
 

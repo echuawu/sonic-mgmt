@@ -2,14 +2,16 @@ import allure
 import logging
 import pytest
 
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import *
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
+from ngts.tests_nvos.general.security.password_hardening.PwhTools import PwhTools
 
-''' ----------------------------------------------------------- '''
+''' --------------------------- OLD TESTS ----------------------------------- '''
 
 
 def output_verification(output_dictionary, exp_key, exp_val):
@@ -121,12 +123,13 @@ def test_show_system_security(engines):
                                                                           expected_fields).verify_result()
 
 
-''' ----------------------------------------------------------- '''
+''' ---------------------------------------------------------------------- '''
 
 
+@pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_show_system_security_password_hardening(engines):
+def test_show_system_security_password_hardening(engines, system):
     """
     Check pwh configuration appears correctly in show output,
     and verify initial pwh configuration contains default values to all pwh settings.
@@ -136,7 +139,6 @@ def test_show_system_security_password_hardening(engines):
         2. verify all info exist in output
         3. verify all values are set to default initially
     """
-    system = System()
 
     with allure.step("Run 'nv show system security password-hardening'"):
         logging.info("Run 'nv show system security password-hardening'")
@@ -152,3 +154,111 @@ def test_show_system_security_password_hardening(engines):
         ValidationTool.validate_fields_values_in_output(expected_fields=PwhConsts.FIELDS,
                                                         expected_values=PwhConsts.DEFAULTS.values(),
                                                         output_dict=output).verify_result()
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_enable_disable_password_hardening(engines, system, testing_users):
+    """
+    Check pwh configuration values (in show) when feature is enabled/disabled.
+    Also, check pwh functionality when feature is enabled/disabled.
+    * functionality: pwh rules are enforced on new pws when feature is enabled,
+        and not enforced when feature is disabled.
+
+    Steps:
+    1. Disable feature
+    2. Verify pwh configuration in show
+    3. Set weak pw which violates all pwh conf rules
+    4. Verify pw changed (no rule enforcing on new pws)
+    5. Enable feature
+    6. Verify pwh configuration in show matches to original pwh conf
+    7. Set weak pw which violates (some) pwh conf rules
+    8. Verify pw didn't change (rules enforced)
+    9. Set strong pw
+    10. Verify pw changed
+    """
+    pwh = system.security.password_hardening
+    usrname = PwhConsts.ADMIN_TEST_USR
+    orig_pw = testing_users[usrname][PwhConsts.PW]
+    user_obj = testing_users[usrname][PwhConsts.USER_OBJ]
+    pw_history = [orig_pw]
+
+    with allure.step("Take original pwh configuration"):
+        logging.info("Take original pwh configuration")
+        orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
+
+    with allure.step("Disable feature"):
+        logging.info("Disable feature")
+        pwh.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True).verify_result()
+
+    with allure.step("Verify pwh configuration in show"):
+        logging.info("Verify pwh configuration in show")
+        cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
+        ValidationTool.compare_dictionaries(cur_pwh_conf, PwhConsts.DISABLED_CONF, True).verify_result()
+
+    with allure.step("Generate weak pw which violates orig pwh conf rules"):
+        logging.info("Generate weak pw which violates orig pwh conf rules")
+        weak_pw = PwhTools.generate_weak_pw(orig_pwh_conf, usrname, orig_pw)
+
+    with allure.step('Set weak pw "{}" and apply'.format(weak_pw)):
+        logging.info('Set weak pw "{}" and apply'.format(weak_pw))
+        PwhTools.set_pw_and_apply(user_obj, weak_pw).verify_result()
+
+    with allure.step("Verify pw changed (no rule enforcing on new pws)"):
+        logging.info("Verify pw changed (no rule enforcing on new pws)")
+        PwhTools.verify_login(engines.dut, usrname, orig_pw, login_should_succeed=False)
+        PwhTools.verify_login(engines.dut, usrname, weak_pw)
+        pw_history.append(weak_pw)  # save successful new pws in this list for 'history record' for the test
+
+    with allure.step("Enable feature"):
+        logging.info("Enable feature")
+        pwh.set(PwhConsts.STATE, PwhConsts.ENABLED, apply=True).verify_result()
+
+    with allure.step("Verify pwh configuration in show matches to original pwh conf"):
+        logging.info("Verify pwh configuration in show matches to original pwh conf")
+        cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
+        ValidationTool.compare_dictionaries(cur_pwh_conf, orig_pwh_conf, True).verify_result()
+
+    with allure.step("Set weak pw which violates (some) pwh conf rules"):
+        logging.info("Set weak pw which violates (some) pwh conf rules")
+        weak_pw2 = PwhTools.generate_weak_pw(cur_pwh_conf, usrname, weak_pw)
+        PwhTools.set_pw_and_apply(user_obj, weak_pw2).verify_result(should_succeed=False)
+
+    with allure.step("Verify pw didn't change (rules enforced)"):
+        logging.info("Verify pw didn't change (rules enforced)")
+        PwhTools.verify_login(engines.dut, usrname, weak_pw2, login_should_succeed=False)
+        PwhTools.verify_login(engines.dut, usrname, weak_pw)
+
+    with allure.step("Set strong pw"):
+        logging.info("Set strong pw")
+        strong_pw = PwhTools.generate_strong_pw(cur_pwh_conf, usrname, pw_history)
+        PwhTools.set_pw_and_apply(user_obj, strong_pw).verify_result()
+
+    with allure.step("Verify pw changed"):
+        logging.info("Verify pw changed")
+        PwhTools.verify_login(engines.dut, usrname, weak_pw, login_should_succeed=False)
+        PwhTools.verify_login(engines.dut, usrname, strong_pw)
+
+
+def t_test(engines, system):
+    with allure.step("ALON: START"):
+        logging.info("ALON: START")
+
+    with allure.step("ALON: SHOW USERS"):
+        logging.info("ALON: SHOW USERS")
+        # monitor_usr = System(username="monitor").aaa.user
+        # # logging.info(monitor_usr.show())
+        # # logging.info(system.aaa.user.show())
+        # logging.info("ALON: {}".format(system.aaa.show('user alonn')))
+        # logging.info('ALON: {}'.format(engines.dut.update_credentials('alonn', 'lalala', 1, 1)))
+
+        res = system.security.password_hardening.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True)
+        res2 = system.security.password_hardening.unset(apply=True)
+        res3 = system.aaa.user.set('password', 'Yourpassword1!', apply=True)
+        res4 = system.aaa.user.unset(apply=True)
+        conf_show_output = system.security.password_hardening.show()
+        dict = OutputParsingTool.parse_json_str_to_dictionary(conf_show_output).get_returned_value()
+
+    with allure.step("ALON: END"):
+        logging.info("ALON: END")
