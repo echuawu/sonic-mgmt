@@ -29,7 +29,7 @@ class Health(BaseComponent):
     def show_brief(self):
         return self.show(" -w brief")
 
-    @retry(Exception, tries=10, delay=30)       # BUG 3355421 - after reboot it takes almost 5 min until the status change to OK
+    @retry(Exception, tries=12, delay=30)       # BUG 3355421 - after reboot it takes almost 5 min until the status change to OK
     def wait_until_health_status_change_after_reboot(self, expected_status):
         output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
         assert output[HealthConsts.STATUS] == expected_status
@@ -73,8 +73,13 @@ class History(Health):
         return re.findall(line_to_search, file_output)
 
     def get_last_status_from_health_file(self, file_output=None):
-        last_status = self.search_line(HealthConsts.SUMMARY_REGEX, file_output)
+        last_status = self.search_line(HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + HealthConsts.OK, file_output)
         assert len(last_status) > 0, "Didn't find summary line in the health history file"
         last_status = last_status[-1]
         logger.info("last status line is: \n {}".format(last_status))
         return HealthConsts.NOT_OK if HealthConsts.NOT_OK in last_status else HealthConsts.OK
+
+    @retry(Exception, tries=20, delay=30)
+    def wait_until_health_history_file_rotation(self):
+        line = self.search_line("health_history file deleted, creating new file")
+        assert len(line) > 0

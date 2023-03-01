@@ -302,7 +302,7 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_health_components(self):
         self.health_components = self.fan_list + self.psu_list + ["ASIC", "PSU1_FAN", "PSU2_FAN"] + \
-            ["container_checker", "diskCheck", "memory_check", "routeCheck", "vnetRouteCheck", "psu.voltage"] + \
+            ["container_checker", "diskCheck", "memory_check"] + \
             ["database:redis", "ib-utils:ibcfgd", "rsyslog", "swss-ibv0:orchagent", "swss-ibv0:portmgrd",
              "swss-ibv0:portsyncd", "syncd-ibv0:syncd"] + ["root-overlay", "var-log"]
 

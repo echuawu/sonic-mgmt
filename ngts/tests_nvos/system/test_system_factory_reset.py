@@ -39,7 +39,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
     with allure.step('Validate health status is OK'):
         system.validate_health_status(HealthConsts.OK)
-        last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX)[-1]
+        last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
 
     '''with allure.step("Change profile to breakout mode"):
         _change_profile_to_breakout()
@@ -73,7 +73,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
             health_history_output = system.health.history.show()
             assert len(system.health.history.search_line(last_status_line,
                                                          health_history_output)) == 0, "Health file has not changed after reset factory"
-            assert len(system.health.history.search_line(HealthConsts.SUMMARY_REGEX,
+            assert len(system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK,
                                                          health_history_output)) > 0, "Didn't print new summary line after reset factory"
 
     with allure.step("Verify the cleanup done successfully"):

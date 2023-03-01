@@ -12,7 +12,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.Simulator import HWSimulator
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, NvosConst
 
 logger = logging.getLogger()
 
@@ -38,7 +38,7 @@ def test_reboot_test():
 
     system = System()
     system.validate_health_status(OK)
-    last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX)[-1]
+    last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
 
     with allure.step('Reboot the system'):
         system.reboot.action_reboot()
@@ -58,7 +58,7 @@ def test_reboot_test():
 
     with allure.step("Validate health history file indicates reboot occurred and print the status again"):
         logger.info("Validate health history file indicates reboot occurred and print the status again")
-        assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX, health_history_output)[-1] != last_status_line, "Didn't print new summary line after the reboot"
+        assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[-1] != last_status_line, "Didn't print new summary line after the reboot"
         assert "Monitoring service reboot, clearing issues history." in health_history_output
 
 
@@ -243,6 +243,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
     """
 
     system = System()
+    system.log.rotate_logs()
     date_time = datetime.now()
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
@@ -284,6 +285,7 @@ def test_simulate_health_problem_with_user_config_file(devices, engines):
     """
 
     system = System()
+    system.log.rotate_logs()
     date_time = datetime.now()
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
@@ -300,6 +302,53 @@ def test_simulate_health_problem_with_user_config_file(devices, engines):
             logger.info("Fix the health issue - remove user config file")
             remove_user_config_file(engines.dut, devices.dut)
             validate_health_fix_or_issue(system, health_issue_dict, date_time, True)
+
+
+@pytest.mark.system
+@pytest.mark.health
+def test_simulate_health_problem_with_docker_stop(devices, engines):
+    """
+    Validate health monitoring.
+    Health status should change to "Not OK" when we simulate a problem and return to "OK" if status fixed or ignored.
+        Test flow:
+            1. Simulate health problem with user config file
+            2. validate health status changed to "Not OK"
+            3. validate new devices appear in the detailed cmd
+            5. validate status has changed in the log
+            6. fix the health issue
+            7. validate health status changed to "Not OK"
+            8. validate new devices removed from the detailed cmd
+    """
+
+    system = System()
+    system.log.rotate_logs()
+    date_time = datetime.now()
+    system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
+    time.sleep(1)
+    system.validate_health_status(OK)
+    docker_to_stop = "ib-utils"
+
+    try:
+        output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
+        assert docker_to_stop in output, "Failed to stop docker"
+        health_issue_dict = {docker_to_stop: "Container 'ib-utils' is not running"}
+        validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
+
+    finally:
+        date_time = datetime.now()
+        time.sleep(1)
+        with allure.step("Fix the health issue "):
+            logger.info("Fix the health issue ")
+            output = engines.dut.run_cmd("docker start {}".format(docker_to_stop))
+            assert docker_to_stop in output, "Failed to start docker"
+            validate_docker_is_up(engines.dut, docker_to_stop)
+            time.sleep(10)
+            validate_health_fix_or_issue(system, health_issue_dict, date_time, True)
+
+
+@retry(Exception, tries=5, delay=2)
+def validate_docker_is_up(engine, docker):
+    assert docker in engine.run_cmd("docker ps")
 
 
 def verify_devices_health_status(device_status_dict):
@@ -368,17 +417,17 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
             assert system.health.history.get_last_status_from_health_file(
                 health_history_output) == status, "Last status in the health report file is not {}, as we expect".format(status)
             assert len(TestToolkit.search_line_after_a_specific_date_time(
-                HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX.format(status), health_history_output,
+                HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + status, health_history_output,
                 search_since_datetime)) > 0
             for component, issue in health_issue_dict.items():
                 assert len(TestToolkit.search_line_after_a_specific_date_time(
-                    regex.format(component=component, issue=issue), health_history_output, search_since_datetime)) > 0
+                    regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issue), health_history_output, search_since_datetime)) > 0
 
         with allure.step("Validate health status change appears in system log"):
             logger.info("Validate health status change appears in system log")
-            log_output = system.log.show_log(exit_cmd='q')
+            log_output = system.log.show_log(exit_cmd='q', expected_str="Health DB change cache")
             assert len(TestToolkit.search_line_after_a_specific_date_time(
-                'Health DB change cache.* new data.*\'summary\': \'{}\''.format(status), log_output, search_since_datetime)) > 0
+                NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output, search_since_datetime)) > 0
 
 
 def system_health_files_test(engines, devices, check_rotation=False):
@@ -434,7 +483,7 @@ def validate_delete_health_files(system, health_files=[HealthConsts.HEALTH_FIRST
     """
     delete health files and validate new health file was crated with health summary status
     """
-    last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX)[-1]
+    last_status_line = system.health.history.search_line(HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + OK)[-1]
     system.health.history.delete_history_files(health_files)
     time.sleep(5)
     with allure.step("Validate new file was created"):
@@ -538,11 +587,15 @@ def remove_user_config_file(engine, device):
 
 
 def cause_health_file_rotation_and_validate(engine, system):
-    last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX)[-1]
+    last_status_line = system.health.history.search_line(HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + OK)[-1]
     with allure.step("create text file in size of 10 MB and replace it with the health file"):
         logger.info("create text file in size of 10 MB and replace it with the health file")
         engine.run_cmd("dd if=/dev/urandom bs=1M count=10 | base64 > file.txt")
         engine.run_cmd("sudo cp file.txt /var/log/health_history")
+
+    with allure.step("Wait until file rotation"):
+        logger.info("Wait until file rotation")
+        system.health.history.wait_until_health_history_file_rotation()
 
     with allure.step("Validate we have 2 health files"):
         logger.info("Validate we have 2 health files")
@@ -589,7 +642,7 @@ def verify_expected_health_status(health_output_dict, health_status_field, expec
         "Unexpected health status. \n Expected: {}, but got :{}".format(expected_status, health_output_dict[health_status_field])
 
 
-@retry(Exception, tries=10, delay=30)
+@retry(Exception, tries=12, delay=30)
 def wait_until_expected_health_files_amount(num_of_expected_files, actual_health_files=None):
     validate_health_files_amount(num_of_expected_files, actual_health_files)
 
