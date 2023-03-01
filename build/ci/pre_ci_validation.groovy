@@ -37,8 +37,13 @@ def set_sonic_bin(topic_map, project) {
         env.VERSION_DIRECTORY = env.VERSION_DIRECTORY + "/public"
     }
 
-    def sonic_bin_path = "${env.VERSION_DIRECTORY}/${sonic_version_name}/Mellanox/sonic-mellanox.bin"
-    env.README_PATH = "${env.VERSION_DIRECTORY}/${sonic_version_name}"
+    def sonic_bin_path = "${env.VERSION_DIRECTORY}/${sonic_version_name}/dev/Mellanox/sonic-mellanox.bin"
+    env.README_PATH = "${env.VERSION_DIRECTORY}/${sonic_version_name}/dev"
+    if (! new File(sonic_bin_path).exists()) {
+        print "SONiC bin file not found: ${sonic_bin_path}\nWill try the old conventsion (without 'dev' folder)"
+        sonic_bin_path = "${env.VERSION_DIRECTORY}/${sonic_version_name}/Mellanox/sonic-mellanox.bin"
+        env.README_PATH = "${env.VERSION_DIRECTORY}/${sonic_version_name}"
+    }
     if (! new File(sonic_bin_path).exists()) {
         error "ERROR:SONiC bin file not found: ${sonic_bin_path}"
     }

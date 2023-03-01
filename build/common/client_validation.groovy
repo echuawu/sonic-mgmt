@@ -97,7 +97,10 @@ def mgmt_merge_flow() {
                 if (IMAGE_VERSION.contains("Public")) {
                     bin_path += "/public/"
                 }
-                bin_path += IMAGE_VERSION + "/Mellanox/sonic-mellanox.bin"
+                bin_path += IMAGE_VERSION + "/dev/Mellanox/sonic-mellanox.bin"
+                if (! new File(bin_path).exists()) {
+                    bin_path = bin_path.replace("/dev/","/")
+                }
                 if (! new File(bin_path).exists()) {
                     erros_map["IMAGE_VERSION"] = set_error_if_empty(erros_map["IMAGE_VERSION"], setError("Path: ${bin_path} does not exist!"))
                 }
