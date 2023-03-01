@@ -98,3 +98,13 @@ def testing_users(engines, system):
                 logging.info('verify usr doesnt exist now and cannot login with pw')
                 PwhTools.verify_user(system, usrname, usr_should_exist=False)
                 PwhTools.verify_login(engines.dut, usrname, usr_dict[PwhConsts.PW], login_should_succeed=False)
+
+
+@pytest.fixture(scope='function')
+def admin_test_user_obj(testing_users):
+    return testing_users[PwhConsts.ADMIN_TEST_USR][PwhConsts.USER_OBJ]
+
+
+@pytest.fixture(scope='function')
+def monitor_test_user_obj(testing_users):
+    return testing_users[PwhConsts.MONITOR_TEST_USR][PwhConsts.USER_OBJ]

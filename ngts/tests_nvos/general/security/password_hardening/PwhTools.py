@@ -1,6 +1,9 @@
 import random
 import allure
+
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
 import logging
 from netmiko.ssh_exception import NetmikoAuthenticationException
@@ -240,3 +243,21 @@ class PwhTools:
         @return: ResultObj returned from set()
         """
         return user_obj.set(PwhConsts.PW, '"' + pw + '"', apply=True)
+
+    @staticmethod
+    def verify_pwh_setting_value_in_show(pwh_obj, setting, expected_value):
+        """
+        Verify that a given password hardening setting is set to the given value
+        in the current password hardening configuration
+        @param pwh_obj: Password_hardening object
+        @param setting: given pwh setting to check
+        @param expected_value: given value to check
+        """
+        with allure.step('Get current password hardening configuration'):
+            logging.info('Get current password hardening configuration')
+            cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+            logging.info('Current (orig) password hardening configuration:\n{}'.format(cur_pwh_conf))
+
+        with allure.step('Verify that current "{}" is set to "{} in show output'.format(setting, expected_value)):
+            logging.info('Verify that current "{}" is set to "{} in show output'.format(setting, expected_value))
+            ValidationTool.compare_values(cur_pwh_conf[setting], expected_value).verify_result()

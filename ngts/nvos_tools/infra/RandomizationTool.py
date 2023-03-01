@@ -118,7 +118,8 @@ class RandomizationTool:
     @staticmethod
     def select_random_value(list_of_values, forbidden_values=None):
         """
-        Select a random value from provided list of values
+        Select a random value from provided list of values.
+        * user can also specify which values shouldn't be chosen (using 'forbidden_values' parameter).
         :param list_of_values: list of values to select from
         :param forbidden_values: forbidden values that should not be selected
         :return: A random value from the list
@@ -131,13 +132,17 @@ class RandomizationTool:
     @staticmethod
     def select_random_values(list_of_values, forbidden_values=None, number_of_values_to_select=1):
         """
-        Select random values from provided list of values
+        Select random values from provided list of values.
+        * user can also specify which values shouldn't be chosen (using 'forbidden_values' parameter).
         :param list_of_values: list of values to select from
         :param forbidden_values: list of forbidden values that should not be selected
         :param number_of_values_to_select: number of values to select
         :return: list of random selected values
         """
         with allure.step('Select random values from provided list of values'):
+            list_of_values = list_of_values.copy()
+            forbidden_values = None if forbidden_values is None else forbidden_values.copy()
+
             result_obj = ResultObj(False, "")
             list_of_values_to_select_from = list_of_values
 
@@ -149,10 +154,12 @@ class RandomizationTool:
                 result_obj.info = "number of values to select is invalid"
                 return result_obj
 
+            removed_values = []
             if forbidden_values:
                 for value in forbidden_values:
                     if value in list_of_values_to_select_from:
                         list_of_values_to_select_from.remove(value)
+                        removed_values.append(value)
 
             if len(list_of_values_to_select_from) == number_of_values_to_select:
                 result_obj.returned_value = list_of_values_to_select_from

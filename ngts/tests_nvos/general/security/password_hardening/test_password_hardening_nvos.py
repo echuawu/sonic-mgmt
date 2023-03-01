@@ -241,6 +241,64 @@ def test_enable_disable_password_hardening(engines, system, testing_users):
         PwhTools.verify_login(engines.dut, usrname, strong_pw)
 
 
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_set_unset_password_hardening(engines, system):
+    """
+    Verify set/unset to each pwh setting, with valid inputs.
+    The verification is done in show only (without functionality check - tested later)
+
+    Steps:
+        1. Set pwh setting with valid value
+        2. Verify new setting in show
+        3. Unset pwh setting
+        4. Verify setting is set to default value in show
+        * do the above to each pwh setting
+    """
+    pwh_obj = system.security.password_hardening
+
+    with allure.step('Get current password hardening configuration'):
+        logging.info('Get current password hardening configuration')
+        orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+        logging.info('Current (orig) password hardening configuration:\n{}'.format(orig_pwh_conf))
+
+    for setting in PwhConsts.FIELDS:
+        with allure.step('Select random valid value for setting "{}" (except value "{}")'
+                         .format(setting, orig_pwh_conf[setting])):
+            logging.info('Select random valid value for setting "{}" (except value "{}")'
+                         .format(setting, orig_pwh_conf[setting]))
+            value = RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[setting],
+                                                          [orig_pwh_conf[setting]]).get_returned_value()
+            logging.info('Selected value for setting "{}" - "{}")'.format(setting, value))
+
+            assert value in PwhConsts.VALID_VALUES[setting], \
+                'Error: Something went wrong with randomizing new value for setting "{}".\n' \
+                'Problem: value "{}" is not in valid values.'.format(setting, value)
+
+            assert value != orig_pwh_conf[setting], \
+                'Error: Something went wrong with randomizing new value for setting "{}".\n' \
+                'Problem: selected value "{}" == orig value "{}"'.format(setting, value, orig_pwh_conf[setting])
+
+        with allure.step('Set password hardening setting "{}" to "{}"'.format(setting, value)):
+            logging.info('Set password hardening setting "{}" to "{}"'.format(setting, value))
+            pwh_obj.set(setting, value, apply=True).verify_result()
+
+        with allure.step('Verify new setting ("{}" = "{}") in show output'.format(setting, value)):
+            logging.info('Verify new setting ("{}" = "{}") in show output'.format(setting, value))
+            PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, value)
+
+        with allure.step('Unset password hardening setting "{}"'.format(setting)):
+            logging.info('Unset password hardening setting "{}"'.format(setting))
+            pwh_obj.unset(setting, apply=True).verify_result()
+
+        with allure.step('Verify setting "{}" is set to default ("{}") in show output'
+                         .format(setting, PwhConsts.DEFAULTS[setting])):
+            logging.info('Verify setting "{}" is set to default ("{}") in show output'
+                         .format(setting, PwhConsts.DEFAULTS[setting]))
+            PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, PwhConsts.DEFAULTS[setting])
+
+
 def t_test(engines, system):
     with allure.step("ALON: START"):
         logging.info("ALON: START")

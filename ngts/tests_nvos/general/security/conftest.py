@@ -34,7 +34,7 @@ def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):
 
 
 def ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
-                                                          username=DefaultConnectionValues.ADMIN,
+                                                          username=DefaultConnectionValues.DEFAULT_USER,
                                                           password=DefaultConnectionValues.DEFAULT_PASSWORD,
                                                           port=22):
     '''
