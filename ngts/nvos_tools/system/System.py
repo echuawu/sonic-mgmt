@@ -1,6 +1,7 @@
 import logging
 import allure
 import time
+from retry import retry
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -21,10 +22,12 @@ from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.User import User
+from ngts.nvos_tools.system.Health import Health
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 logger = logging.getLogger()
 
@@ -40,6 +43,7 @@ class System(BaseComponent):
     rotation = None
     syslog = None
     ssh_server = None
+    health = None
 
     def __init__(self, parent_obj=None, username='admin'):
         self._resource_path = '/system'
@@ -60,6 +64,7 @@ class System(BaseComponent):
         self.reboot = Reboot(self)
         self.factory_default = FactoryDefault(self)
         self.profile = Profile(self)
+        self.health = Health(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
@@ -126,6 +131,18 @@ class System(BaseComponent):
 
     def get_expected_fields(self, device):
         return device.constants.system['system']
+
+    def validate_health_status(self, expected_status):
+        with allure.step("Validate health status with \"nv show system\" cmd"):
+            logger.info("Validate health status with \"nv show system\" cmd")
+            system_output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
+            assert expected_status == system_output[SystemConsts.HEALTH_STATUS], \
+                "Unexpected health status. \n Expected: {}, but got :{}".format(expected_status,
+                                                                                system_output[SystemConsts.HEALTH_STATUS])
+
+    @retry(Exception, tries=3, delay=2)
+    def wait_until_health_status_change_to(self, expected_status):
+        self.validate_health_status(expected_status)
 
 
 class Message(BaseComponent):

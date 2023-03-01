@@ -76,6 +76,8 @@ class NvosConst:
 
     REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
 
+    DATE_TIME_REGEX = "\\w{3}\\s{1,2}\\d{1,2} \\d\\d:\\d\\d:\\d\\d(?:.\\d+)?"
+
 
 class ApiType:
     NVUE = "NVUE"
@@ -239,6 +241,8 @@ class SystemConsts:
     CPU_PERCENT_THRESH_MIN = 0.0
     CPU_PERCENT_THRESH_MAX = 35.0
 
+    HEALTH_STATUS = "health-status"
+
 
 class ActionConsts:
     CLEANUP = "cleanup"
@@ -394,3 +398,22 @@ class SyslogSeverityLevels:
                            WARN: WARN,
                            ERROR: ERROR,
                            CRITICAL: CRIT}
+
+
+class HealthConsts:
+    OK = "OK"
+    NOT_OK = "Not OK"
+    IGNORED = "Ignored"
+    STATUS = "status"
+    STATUS_LED = "status-led"
+    MONITOR_LIST = "monitor-list"
+    HEALTH_FIRST_FILE = "health_history"
+    HEALTH_SECOND_FILE = "health_history.1"
+    HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/{}/system_health_monitoring_config.json"
+    ISSUES = "issues"
+    SUMMARY_REGEX_OK = "INFO {} : Summary: {}".format(NvosConst.DATE_TIME_REGEX, OK)
+    SUMMARY_REGEX_NOT_OK = "ERROR {} : Summary: {}".format(NvosConst.DATE_TIME_REGEX, NOT_OK)
+    ADD_STATUS_TO_SUMMARY_REGEX = NvosConst.DATE_TIME_REGEX + " : Summary:.*"
+    HEALTH_ISSUE_REGEX = "ERROR {time_regex} : {component}: (?:is )?{issue}"
+    HEALTH_FIX_REGEX = "INFO {time_regex} : Cleared: {component}: (?:is )?{issue}"
+    SYSTEM_LOG_HEALTH_REGEX = '.* Health DB change cache.* new data.*\'summary\': \'{}\''
