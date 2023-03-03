@@ -390,7 +390,8 @@ class DecapPacketTest(BaseTest):
                     exp_ttl,
                     str(expected_ports)))
 
-        matched, received = verify_packet_any_port(self, masked_exp_pkt, expected_ports)
+        validation_timeout = 10  # 10 sec positive validation timeout, it may increase test stability
+        matched, received = verify_packet_any_port(self, masked_exp_pkt, expected_ports, timeout=validation_timeout)
         logging.info('Received expected packet on interface {}'.format(str(expected_ports[matched])))
         return matched, received
 
