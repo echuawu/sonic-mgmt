@@ -10,11 +10,6 @@ platform_tests/api:
 #######################################
 #####      api/test_chassis.py    #####
 #######################################
-platform_tests/api/test_chassis.py::TestChassisApi::test_components:
-  skip:
-    reason: "Unsupported platform API"
-    conditions:
-      - "asic_type in ['mellanox']"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_fan_drawers:
   skip:
@@ -142,6 +137,10 @@ platform_tests/api/test_chassis_fans.py::TestChassisFans::test_get_fans_target_s
     conditions:
       - "hwsku in ['Celestica-DX010-C32']"
       - https://github.com/sonic-net/sonic-mgmt/issues/6512
+  skip:
+    reason: "Unsupported platform API"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 #######################################
 #####    api/test_component.py    #####
@@ -311,6 +310,12 @@ platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_set_fans_spe
       - "hwsku in ['Celestica-DX010-C32']"
       - https://github.com/sonic-net/sonic-mgmt/issues/6512
 
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_target_speed:
+  skip:
+    reason: "Unsupported platform API"
+    conditions:
+      - "asic_type in ['mellanox']"
+
 #######################################
 ##### api/test_module.py #####
 #######################################
@@ -332,12 +337,6 @@ platform_tests/api/test_module.py::TestModuleApi::test_reboot:
 #######################################
 #####        api/test_psu.py      #####
 #######################################
-platform_tests/api/test_psu.py::TestPsuApi::test_fans:
-  skip:
-    reason: "Unsupported platform API"
-    conditions:
-      - "asic_type in ['mellanox']"
-
 platform_tests/api/test_psu.py::TestPsuApi::test_get_model:
   skip:
     reason: "Unsupported platform API"
@@ -381,7 +380,11 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
     conditions:
       - "platform in ['armhf-nokia_ixs7215_52x-r0']"
 
-
+platform_tests/api/test_psu.py::TestPsuApi::test_master_led:
+  skip:
+    reason: "Unsupported platform API"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 #######################################
 #####    api/test_psu_fans.py     #####
