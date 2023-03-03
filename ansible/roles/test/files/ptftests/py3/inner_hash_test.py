@@ -28,6 +28,7 @@ class InnerHashTest(BaseTest):
     #---------------------------------------------------------------------
     DEFAULT_BALANCING_RANGE = 0.25
     BALANCING_TEST_TIMES = 625
+    VALIDATION_TIMEOUT = 10
 
     _required_params = [
         'fib_info',
@@ -257,9 +258,9 @@ class InnerHashTest(BaseTest):
                     nvgre_tni=nvgre_tni,
                     nvgre_flowid=0)
 
-        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} "
-                     "inner_sport {} inner_dport {} inner_ipproto {}".format(src_port, outer_ip_src, outer_ip_dst,
-                                                                             ip_src, ip_dst, sport, dport, ip_proto))
+        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} inner_sport {} inner_dport {} inner_ipproto {}"\
+                .format(src_port, outer_ip_src, outer_ip_dst, ip_src, ip_dst, sport, dport, ip_proto))
+        send_packet(self, src_port, nvgre_pkt)
 
         masked_exp_pkt = Mask(nvgre_pkt)
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "dst")
@@ -267,7 +268,8 @@ class InnerHashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "chksum")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "ttl")
 
-        return self.verify_packet_with_retry(nvgre_pkt, src_port, masked_exp_pkt, self.exp_port_list)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+
 
     def simple_nvgrev6_packet(self, pktlen=300,
                         eth_dst='00:01:02:03:04:05',
@@ -346,16 +348,17 @@ class InnerHashTest(BaseTest):
                     nvgre_tni=nvgre_tni,
                     nvgre_flowid=0)
 
-        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} "
-                     "inner_sport {} inner_dport {} inner_ipproto {}".format(src_port, outer_ip_src, outer_ip_dst,
-                                                                             ip_src, ip_dst, sport, dport, ip_proto))
+        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} inner_sport {} inner_dport {} inner_ipproto {}"\
+                .format(src_port, outer_ip_src, outer_ip_dst, ip_src, ip_dst, sport, dport, ip_proto))
+        send_packet(self, src_port, nvgre_pkt)
 
         masked_exp_pkt = Mask(nvgre_pkt)
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "dst")
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IPv6, "hlim")
 
-        return self.verify_packet_with_retry(nvgre_pkt, src_port, masked_exp_pkt, self.exp_port_list)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+
 
     def check_ip_route_vxlan(self, hash_key, src_port, ip_dst, ip_src, dport, sport, ip_proto):
         '''
@@ -412,9 +415,9 @@ class InnerHashTest(BaseTest):
                     with_udp_chksum=False,
                     inner_frame=pkt)
 
-        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} "
-                     "inner_sport {} inner_dport {} inner_ipproto {}".format(src_port, outer_ip_src, outer_ip_dst,
-                                                                             ip_src, ip_dst, sport, dport, ip_proto))
+        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} inner_sport {} inner_dport {} inner_ipproto {}"\
+                .format(src_port, outer_ip_src, outer_ip_dst, ip_src, ip_dst, sport, dport, ip_proto))
+        send_packet(self, src_port, vxlan_pkt)
 
         masked_exp_pkt = Mask(vxlan_pkt)
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "dst")
@@ -422,7 +425,8 @@ class InnerHashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "chksum")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "ttl")
 
-        return self.verify_packet_with_retry(vxlan_pkt, src_port, masked_exp_pkt, self.exp_port_list)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+
 
     def check_ipv6_route_vxlan(self, hash_key, src_port, ip_dst, ip_src, dport, sport, ip_proto):
         '''
@@ -453,35 +457,17 @@ class InnerHashTest(BaseTest):
                     with_udp_chksum=False,
                     inner_frame=pkt)
 
-        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} "
-                     "inner_sport {} inner_dport {} inner_ipproto {}".format(src_port, outer_ip_src, outer_ip_dst,
-                                                                             ip_src, ip_dst, sport, dport, ip_proto))
+        logging.info("Sending packet from port {} outer_ip_src {} outer_ip_dst {} inner_src_ip {} inner_dst_ip {} inner_sport {} inner_dport {} inner_ipproto {}"\
+                .format(src_port, outer_ip_src, outer_ip_dst, ip_src, ip_dst, sport, dport, ip_proto))
+        send_packet(self, src_port, vxlan_pkt)
 
         masked_exp_pkt = Mask(vxlan_pkt)
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "dst")
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IPv6, "hlim")
 
-        return self.verify_packet_with_retry(vxlan_pkt, src_port, masked_exp_pkt, self.exp_port_list)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
 
-    def verify_packet_with_retry(self, pkt, src_port, masked_exp_pkt, exp_port_list):
-        '''
-        @summary: Send and validate packet with retry
-        @param pkt: pkt which we send
-        @param src_port: src port from which we send packet
-        @param masked_exp_pkt: masked expected packet
-        @param exp_port_list: expected ports list
-        @return: Returns the index of the port on which the packet is received and the packet.
-        '''
-        try:
-            send_packet(self, src_port, pkt)
-            matched_index, received = verify_packet_any_port(self, masked_exp_pkt, exp_port_list)
-        except BaseException as err:
-            logging.warning('Unable to verify that packet received, trying one more time. Got error: {}'.format(err))
-            send_packet(self, src_port, pkt)
-            matched_index, received = verify_packet_any_port(self, masked_exp_pkt, exp_port_list)
-
-        return matched_index, received
 
     def check_within_expected_range(self, actual, expected):
         '''
@@ -492,6 +478,7 @@ class InnerHashTest(BaseTest):
         '''
         percentage = (actual - expected) / float(expected)
         return (percentage, abs(percentage) <= self.balancing_range)
+
 
     def check_balancing(self, dest_port_list, port_hit_cnt, hash_key):
         '''
