@@ -88,4 +88,9 @@ class PwhConsts:
     ROLE = 'role'
     MONITOR = 'monitor'
     ADMIN = 'admin'
+
+    # expected error messages   # todo: alonnn - verify this
     ERR_ITEM_NOT_EXIST = 'The requested item does not exist.'
+    ERR_INVALID_SET_CMD = 'Invalid Command: set system security password-hardening'
+    ERR_INCOMPLETE_SET_CMD = 'Incomplete Command: set system security password-hardening'
+    ERR_INVALID_SET_ENABLE_DISABLED = "is not one of ['enabled', 'disabled']"

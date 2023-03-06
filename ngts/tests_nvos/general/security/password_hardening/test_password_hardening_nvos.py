@@ -1,3 +1,6 @@
+import random
+import string
+
 import allure
 import logging
 import pytest
@@ -254,7 +257,7 @@ def test_set_unset_password_hardening(engines, system):
         2. Verify new setting in show
         3. Unset pwh setting
         4. Verify setting is set to default value in show
-        * do the above to each pwh setting
+        * do the above to each pwh setting separately
     """
     pwh_obj = system.security.password_hardening
 
@@ -297,6 +300,55 @@ def test_set_unset_password_hardening(engines, system):
             logging.info('Verify setting "{}" is set to default ("{}") in show output'
                          .format(setting, PwhConsts.DEFAULTS[setting]))
             PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, PwhConsts.DEFAULTS[setting])
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_set_invalid_input_password_hardening(engines, system):
+    """
+    Verify that running set command with invalid input values cause error and doesn't change pwh configuration.
+
+    Steps:
+        1. Set pwh setting with invalid value
+        2. Verify error
+        3. Verify setting is still set to original value
+        * do the above to each pwh setting separately
+    """
+    pwh_obj = system.security.password_hardening
+
+    with allure.step('Get current password hardening configuration'):
+        logging.info('Get current password hardening configuration')
+        orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+        logging.info('Current (orig) password hardening configuration:\n{}'.format(orig_pwh_conf))
+
+    for setting in PwhConsts.FIELDS:
+        with allure.step('Select invalid values for setting "{}"'.format(setting)):
+            logging.info('Select invalid values for setting "{}"'.format(setting))
+
+            # invalid values: 1.empty value; 2.just a random string; 3.another value which is not in valid values list
+            invalid_values_to_test = PwhTools.generate_invalid_field_inputs(setting)
+
+            for invalid_value in invalid_values_to_test:
+                logging.info('Invalid value for setting "{}" - "{}")'.format(setting, invalid_value))
+
+                with allure.step('Try to set password hardening setting "{}" to "{}"'.format(setting, invalid_value)):
+                    logging.info('Try to set password hardening setting "{}" to "{}"'.format(setting, invalid_value))
+                    res_obj = pwh_obj.set(setting, invalid_value, apply=True)
+
+                with allure.step('Verify error'):
+                    logging.info('Verify error')
+                    expected_err = PwhConsts.ERR_INCOMPLETE_SET_CMD if invalid_value == '' \
+                        else PwhConsts.ERR_INVALID_SET_ENABLE_DISABLED \
+                        if PwhConsts.VALID_VALUES[setting] == [PwhConsts.ENABLED, PwhConsts.DISABLED] \
+                        else PwhConsts.ERR_INVALID_SET_CMD
+                    PwhTools.verify_error(res_obj=res_obj, error_should_contain=expected_err)
+
+                with allure.step('Verify setting "{}" is still "{}" in show output'
+                                 .format(setting, orig_pwh_conf[setting])):
+                    logging.info('Verify setting "{}" is still "{}" in show output'
+                                 .format(setting, orig_pwh_conf[setting]))
+                    PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, orig_pwh_conf[setting])
 
 
 def t_test(engines, system):

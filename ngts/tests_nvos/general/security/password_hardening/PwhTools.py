@@ -1,4 +1,6 @@
 import random
+import string
+
 import allure
 
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -261,3 +263,74 @@ class PwhTools:
         with allure.step('Verify that current "{}" is set to "{} in show output'.format(setting, expected_value)):
             logging.info('Verify that current "{}" is set to "{} in show output'.format(setting, expected_value))
             ValidationTool.compare_values(cur_pwh_conf[setting], expected_value).verify_result()
+
+    @staticmethod
+    def verify_error(res_obj, error_should_contain=''):
+        """
+        Verify (through ResultObj) that a switch operation failed, and the error message contains a given string
+        @param res_obj: the given result object of the switch operation run
+        @param error_should_contain: the given string that should be contained in the error message
+        """
+        with allure.step('Verify that switch operation failed'):
+            logging.info('Verify that switch operation failed')
+            res_obj.verify_result(should_succeed=False)
+
+        with allure.step('Switch operation failed as expected'):
+            logging.info('Switch operation failed as expected')
+
+        with allure.step('Verify that op error message "{}" contains the given string "{}"'
+                         .format(res_obj.info, error_should_contain)):
+            logging.info('Verify that op error message "{}" contains the given string "{}"'
+                         .format(res_obj.info, error_should_contain))
+            err_msg = 'Error: switch operation failed, but error message is not as expected.\n' \
+                      '\tActual operation error message: "{}"\n' \
+                      '\tExpected (missing) substring: "{}"'.format(res_obj.info, error_should_contain)
+            ValidationTool.verify_substring_in_output(output=res_obj.info, substring=error_should_contain,
+                                                      err_message_in_case_of_failure=err_msg, should_be_found=True)
+
+        with allure.step('Switch operation failed with expected error message'):
+            logging.info('Switch operation failed with expected error message')
+
+    @staticmethod
+    def generate_invalid_field_inputs(field):
+        """
+        Generate 3 invalid inputs of a given password hardening field:
+            1. empty value
+            2. just a random string
+            3. another value which is not valid (mainly for field with number values).
+        @param field: given field (str)
+        @return: list of invalid inputs (strings) for the given field
+        """
+        with allure.step('Generating invalid input values for setting "{}"'.format(field)):
+            logging.info('Generating invalid input values for setting "{}"'.format(field))
+            # invalid values: 1.empty value; 2.just a random string; 3.another value which is not in valid values list
+            invalid_values_to_test = ['']  # empty value
+
+            another_value = RandomizationTool.get_random_string(random.randint(1, 10),
+                                                                string.ascii_letters + string.digits)
+            while another_value in PwhConsts.VALID_VALUES[field]:
+                another_value = RandomizationTool.get_random_string(random.randint(1, 10),
+                                                                    string.ascii_letters + string.digits)
+            invalid_values_to_test.append(another_value)
+
+            # random value outside the valid set of values
+            if PwhConsts.VALID_VALUES[field] == [PwhConsts.ENABLED, PwhConsts.DISABLED]:
+                another_value = RandomizationTool.get_random_string(random.randint(1, 10),
+                                                                    string.ascii_letters + string.digits)
+                while another_value in PwhConsts.VALID_VALUES[field]:
+                    another_value = RandomizationTool.get_random_string(random.randint(1, 10),
+                                                                        string.ascii_letters + string.digits)
+            else:
+                invalid_vals = list(range(-999, PwhConsts.MIN[field])) + list(range(PwhConsts.MAX[field] + 1, 999))
+                another_value = random.choice(invalid_vals)
+            invalid_values_to_test.append(another_value)
+
+        with allure.step('Verify that generated values are indeed invalid'):
+            logging.info('Verify that generated values are indeed invalid')
+            for val in invalid_values_to_test:
+                assert val not in PwhConsts.VALID_VALUES[field], \
+                    'Error: Something went wrong with randomizing invalid value for field "{}".\n' \
+                    'Problem: value "{}" is in valid values, although it should not.'.format(field, val)
+
+        logging.info('Generated invalid values successfully')
+        return invalid_values_to_test
