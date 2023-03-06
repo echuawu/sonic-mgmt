@@ -61,7 +61,7 @@ def dpb_configuration(topology_obj, setup_name, engines, cli_objects, platform_p
     with allure.step("Remove qos and dynamic buffer configuration before DPB tests"):
         cli_objects.dut.qos.clear_qos()
         cli_objects.dut.general.save_configuration()
-        cli_objects.dut.general.reload_flow(topology_obj=topology_obj)
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
     yield
 
@@ -271,8 +271,8 @@ def verify_ifaces_speed_and_status(cli_object, dut_engine, breakout_ports_conf):
                    fargs=[interfaces_list],
                    tries=6, delay=10, logger=logger)
     verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf)
-    # verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_conf)
-    # TODO: enable verification back when bug 2937511 is resolved
+    full_interfaces_list = cli_object.interface.parse_interfaces_status().keys()
+    verify_ifaces_transceiver_presence(cli_object, full_interfaces_list)
 
 
 def verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf):
@@ -289,7 +289,7 @@ def verify_ifaces_speed(dut_engine, cli_object, breakout_ports_conf):
         compare_actual_and_expected_speeds(breakout_ports_conf, actual_speed_conf)
 
 
-def verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_conf):
+def verify_ifaces_transceiver_presence(cli_object, interfaces_list):
     """
     :param dut_engine: ssh engine of dut
     :param cli_object: cli object of dut
@@ -298,15 +298,11 @@ def verify_ifaces_transceiver_presence(dut_engine, cli_object, breakout_ports_co
     'Ethernet217': '25G',...}
     :return: Exception raised in case of not all breakout ports has transceiver present
     """
-    interfaces_list = list(breakout_ports_conf.keys())
     with allure.step('Verify interfaces transceiver presence'):
-        logger.info('Verify interfaces transceiver presence')
         for iface in interfaces_list:
             with allure.step(f'Verify interface {iface} transceiver presence'):
-                logger.info(f'Verify interface {iface} transceiver presence')
-                actual_transceiver_presence = cli_object.interface.get_interfaces_transceiver_presence(iface)
-                retry_call(verify_show_cmd, fargs=[actual_transceiver_presence, [(fr"{iface}\s+present", True)]],
-                           tries=3, delay=10, logger=logger)
+                transceiver_presence = cli_object.interface.parse_interfaces_transceiver_presence(iface)
+                assert transceiver_presence[iface]['Presence'] == 'Present'
 
 
 def compare_actual_and_expected_speeds(expected_speeds_dict, actual_speeds_dict):
