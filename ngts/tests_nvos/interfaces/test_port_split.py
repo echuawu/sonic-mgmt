@@ -226,6 +226,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
 
     with allure.step("Unset parrent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
+        parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
     with allure.step("Check default values after unset parent port"):
         values_to_verify = [IbInterfaceConsts.SPLIT_PORT_DEFAULT_LANES, IbInterfaceConsts.DEFAULT_MTU,
@@ -377,11 +378,21 @@ def test_split_all_ports(engines, interfaces, start_sm):
         for port_up in ports_down_state:
             port_up.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                    ask_for_confirmation=True).verify_result()
+            output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+                parent_port.show_interface(port_names=parent_port.name)).get_returned_value()
+            Tools.ValidationTool.validate_fields_values_in_output(expected_fields=['link'],
+                                                                  expected_values=[{'breakout': '2x-ndr'}],
+                                                                  output_dict=output_dictionary).verify_result()
 
     with allure.step("Split physical ports"):
         for port_down in ports_up_state:
             port_down.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                      ask_for_confirmation=True).verify_result()
+            output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+                parent_port.show_interface(port_names=parent_port.name)).get_returned_value()
+            Tools.ValidationTool.validate_fields_values_in_output(expected_fields=['link'],
+                                                                  expected_values=[{'breakout': '2x-ndr'}],
+                                                                  output_dict=output_dictionary).verify_result()
 
     with allure.step("Check if we can do show for splited interface"):
         Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
