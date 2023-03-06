@@ -60,4 +60,10 @@ tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled
     conditions:
       - https://redmine.mellanox.com/issues/3319326
 
+tests_nvos/interfaces/test_port_split.py::test_split_all_ports:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3389560"
+    conditions:
+      - https://redmine.mellanox.com/issues/3389560
+
 ########################## NVOS IGNORE END ##########################

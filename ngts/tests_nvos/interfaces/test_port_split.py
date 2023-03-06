@@ -379,7 +379,7 @@ def test_split_all_ports(engines, interfaces, start_sm):
             port_up.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                    ask_for_confirmation=True).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                parent_port.show_interface(port_names=parent_port.name)).get_returned_value()
+                port_up.show_interface(port_names=port_up.name)).get_returned_value()
             Tools.ValidationTool.validate_fields_values_in_output(expected_fields=['link'],
                                                                   expected_values=[{'breakout': '2x-ndr'}],
                                                                   output_dict=output_dictionary).verify_result()
@@ -389,7 +389,7 @@ def test_split_all_ports(engines, interfaces, start_sm):
             port_down.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                      ask_for_confirmation=True).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                parent_port.show_interface(port_names=parent_port.name)).get_returned_value()
+                port_down.show_interface(port_names=port_down.name)).get_returned_value()
             Tools.ValidationTool.validate_fields_values_in_output(expected_fields=['link'],
                                                                   expected_values=[{'breakout': '2x-ndr'}],
                                                                   output_dict=output_dictionary).verify_result()
