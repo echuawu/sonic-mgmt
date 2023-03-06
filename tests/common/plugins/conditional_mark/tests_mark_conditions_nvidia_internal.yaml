@@ -1329,4 +1329,46 @@ ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_to
     conditions:
       - "https://redmine.mellanox.com/issues/3373836"
 
+dualtor_io/test_tor_failure.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3355826"
+
+dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3284421"
+
+dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3284421"
+
+dualtor_io/test_normal_op.py::test_lower_tor_config_reload_upstream:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3284421"
+
+dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3284421"
+
+dualtor_io/test_tor_failure.py::test_active_tor_reboot_upstream:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3284421"
+
+dualtor_io/test_tor_failure.py::test_active_tor_reboot_downstream_standby:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3284421"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
