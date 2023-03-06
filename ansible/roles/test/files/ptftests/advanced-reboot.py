@@ -1497,8 +1497,6 @@ class ReloadTest(BaseTest):
             # 2. and sender can signal sniffer to end after all packets are sent.
             time.sleep(1)
             self.kill_sniffer = True
-            time.sleep(1)  # required for prevent error in line below: raise Scapy_Exception(\"Filter parse error\")
-            self.apply_filter_all_ports('')
 
     def sniff_in_background(self, wait = None):
         """
@@ -1574,16 +1572,16 @@ class ReloadTest(BaseTest):
         """
         Merge all pcaps from each interface into single pcap file
         """
-        tmp_file_name = self.merge_pcaps(pcap_path, self.tcpdump_data_ifaces)
-        self.convert_pcapng_to_pcap(pcap_path, tmp_file_name)
+        pcapng_full_capture = self.merge_pcaps(pcap_path, self.tcpdump_data_ifaces)
+        self.convert_pcapng_to_pcap(pcap_path, pcapng_full_capture)
         self.log('Pcap files merged into single pcap file: {}'.format(pcap_path))
 
     def merge_pcaps(self, pcap_path, data_ifaces):
         """
         Merge all pcaps into one, format: pcapng
         """
-        tmp_file_name = '{}_tmp'.format(pcap_path)
-        cmd = ['mergecap', '-w', tmp_file_name]
+        pcapng_full_capture = '{}.pcapng'.format(pcap_path)
+        cmd = ['mergecap', '-w', pcapng_full_capture]
         ifaces_pcap_files_list = []
         for iface in data_ifaces:
             pcap_file_path = '{}_{}'.format(pcap_path, iface)
@@ -1599,18 +1597,18 @@ class ReloadTest(BaseTest):
         for pcap_file in ifaces_pcap_files_list:
             subprocess.call(['rm', '-f', pcap_file])
 
-        return tmp_file_name
+        return pcapng_full_capture
 
-    def convert_pcapng_to_pcap(self, pcap_path, tmp_file_name):
+    def convert_pcapng_to_pcap(self, pcap_path, pcapng_full_capture):
         """
         Convert pcapng file into pcap. We can't just merge all in pcap,
         mergecap can merge multiple files only into pcapng format
         """
-        cmd = ['mergecap', '-F', 'pcap', '-w', pcap_path, tmp_file_name]
+        cmd = ['mergecap', '-F', 'pcap', '-w', pcap_path, pcapng_full_capture]
         self.log('Converting pcapng file into pcap file')
         subprocess.call(cmd)
         self.log('Pcapng file converted into pcap file')
-        subprocess.call(['rm', '-f', tmp_file_name])  # Remove tmp pcapng file
+        subprocess.call(['rm', '-f', pcapng_full_capture])  # Remove tmp pcapng file
 
     def send_and_sniff(self):
         """
