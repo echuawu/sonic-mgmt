@@ -2123,3 +2123,11 @@
       - 3084763
       Platform:
       - nvda_bf
+
+- Errors_list:
+    - '.* ERR pmon#sonic-db-cli: :- guard: RedisReply catches system_error: command:.* reason: WRONGTYPE Operation against a key holding the wrong kind of value: Input\/output error.*'
+  Conditions:
+    - Redmine:
+        - 3388311
+      Branch:
+        - 202211
