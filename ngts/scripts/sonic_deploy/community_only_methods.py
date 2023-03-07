@@ -83,8 +83,7 @@ def deploy_minigpraph(ansible_path, dut_name, sonic_topo, recover_by_reboot, top
         return execute_script(cmd, ansible_path)
 
 
-def config_y_cable_simulator(ansible_path, setup_info, sonic_topo):
-    setup_name = setup_info['setup_name']
+def config_y_cable_simulator(ansible_path, setup_name, sonic_topo):
     with allure.step('Config y-cable simulator for dualtor topology'):
         cmd = "./testbed-cli.sh -k ceos config-y-cable {SETUP}-{TOPO} lab vault".format(SETUP=setup_name, TOPO=sonic_topo)
         logger.info("Configuring y-cable simulator")

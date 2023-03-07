@@ -300,7 +300,7 @@ class SonicInstallationSteps:
                     SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                     ansible_path=ansible_path)
             if is_dualtor_topo(sonic_topo):
-                config_y_cable_simulator(ansible_path=ansible_path, setup_info=setup_info, sonic_topo=sonic_topo)
+                config_y_cable_simulator(ansible_path=ansible_path, setup_name=setup_name, sonic_topo=sonic_topo)
 
         for dut in setup_info['duts']:
             SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj, dut_name=dut['dut_name'],

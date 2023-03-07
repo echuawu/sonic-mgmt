@@ -3,6 +3,8 @@ import allure
 import logging
 
 from retry.api import retry_call
+from ngts.scripts.sonic_deploy.test_deploy_and_upgrade import get_info_from_topology
+from ngts.scripts.sonic_deploy.community_only_methods import config_y_cable_simulator, add_host_for_y_cable_simulator
 
 
 logger = logging.getLogger()
@@ -10,7 +12,7 @@ logger = logging.getLogger()
 
 @allure.title('Deploy sonic image')
 def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_version, deploy_type, apply_base_config,
-                            reboot_after_install, is_shutdown_bgp, fw_pkg_path):
+                            reboot_after_install, is_shutdown_bgp, fw_pkg_path, workspace_path):
     """
     This script will deploy sonic image on the dut.
     :param topology_obj: topology object fixture
@@ -24,27 +26,31 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
     :param fw_pkg_path: fw_pkg_path fixture
     :return: raise assertion error in case of script failure
     """
-    dut_engine = topology_obj.players['dut']['engine']
-    cli_obj = topology_obj.players['dut']['cli']
-    try:
-        # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutodwn bgp
-        if is_shutdown_bgp:
-            dut_engine.run_cmd('sudo config bgp shutdown all', validate=True)
-            logger.info("Wait all bgp sessions are down")
-            retry_call(check_bgp_is_shutdown,
-                       fargs=[dut_engine],
-                       tries=6,
-                       delay=10,
-                       logger=logger)
-        cli_obj.general.deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
-                                     setup_name=setup_name, platform_params=platform_params,
-                                     deploy_type=deploy_type, reboot_after_install=reboot_after_install,
-                                     fw_pkg_path=fw_pkg_path, configure_dns=True)
-    except Exception as err:
-        raise AssertionError(err)
-    finally:
-        if is_shutdown_bgp:
-            dut_engine.run_cmd('sudo config bgp startup all', validate=True)
+    setup_info = get_info_from_topology(topology_obj, workspace_path)
+    for dut in setup_info['duts']:
+        try:
+            # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutodwn bgp
+            if is_shutdown_bgp:
+                dut['engine'].run_cmd('sudo config bgp shutdown all', validate=True)
+                logger.info("Wait all bgp sessions are down")
+                retry_call(check_bgp_is_shutdown,
+                           fargs=[dut['engine']],
+                           tries=6,
+                           delay=10,
+                           logger=logger)
+            dut['cli_obj'].deploy_image(topology_obj, base_version, apply_base_config=apply_base_config,
+                                        setup_name=setup_name, platform_params=platform_params,
+                                        deploy_type=deploy_type, reboot_after_install=reboot_after_install,
+                                        fw_pkg_path=fw_pkg_path, configure_dns=True)
+            if 'dual-tor' in setup_name:
+                config_y_cable_simulator(
+                    ansible_path=setup_info['ansible_path'], setup_name=setup_name, sonic_topo='dualtor')
+                add_host_for_y_cable_simulator(dut, setup_info)
+        except Exception as err:
+            raise AssertionError(err)
+        finally:
+            if is_shutdown_bgp:
+                dut['engine'].run_cmd('sudo config bgp startup all', validate=True)
 
 
 def check_bgp_is_shutdown(dut_engine):
