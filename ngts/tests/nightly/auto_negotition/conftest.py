@@ -139,7 +139,8 @@ def interfaces_types_dict(platform_params, chip_type):
 
 
 @pytest.fixture(scope='session')
-def interfaces_types_port_dict(engines, cli_objects, ports_aliases_dict, interfaces):
+def interfaces_types_port_dict(engines, cli_objects, platform_params, chip_type, ports_aliases_dict, interfaces,
+                               interfaces_types_dict):
     """
     get the supported interface type with the sdk api
     example of the return value of the get_supported_intf_type.py:
@@ -154,32 +155,40 @@ def interfaces_types_port_dict(engines, cli_objects, ports_aliases_dict, interfa
      ...
      }
     """
-    base_dir = os.path.dirname(os.path.realpath(__file__))
-    get_port_cap_file_name = "get_port_supported_intf_type.py"
-    get_port_cap_file = os.path.join(base_dir, f"{get_port_cap_file_name}")
-    engines.dut.copy_file(source_file=get_port_cap_file,
-                          file_system='/tmp',
-                          dest_file=get_port_cap_file_name,
-                          overwrite_file=True,)
-    cmd_copy_file_to_syncd = f"docker cp /tmp/{get_port_cap_file_name} syncd:/"
-    engines.dut.run_cmd(cmd_copy_file_to_syncd)
-
-    port_cap = engines.dut.run_cmd(f'docker exec syncd bash -c "python3 /{get_port_cap_file_name}"')
-    port_cap = json.loads(port_cap.replace("\'", "\""))
-
     supported_speed = {}
+    # For SPC1, the sdk dose not support to get port rate cap .
+    if chip_type == "SPC":
+        port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(
+            platform_params.filtered_platform.upper())
+        if not port_supported_speed:
+            port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC['default']
+        for intf, alias in ports_aliases_dict.items():
+            supported_speed[intf] = port_supported_speed
+    else:
+        base_dir = os.path.dirname(os.path.realpath(__file__))
+        get_port_cap_file_name = "get_port_supported_intf_type.py"
+        get_port_cap_file = os.path.join(base_dir, f"{get_port_cap_file_name}")
+        engines.dut.copy_file(source_file=get_port_cap_file,
+                              file_system='/tmp',
+                              dest_file=get_port_cap_file_name,
+                              overwrite_file=True,)
+        cmd_copy_file_to_syncd = f"docker cp /tmp/{get_port_cap_file_name} syncd:/"
+        engines.dut.run_cmd(cmd_copy_file_to_syncd)
 
-    for intf, alias in ports_aliases_dict.items():
-        regex_pattern = r"etp(\d+)\w*"
-        label_port = re.match(regex_pattern, alias).group(1)
-        supported_intf_type = port_cap[label_port]
-        supported_speed[intf] = {}
-        for intf_type, speeds in supported_intf_type.items():
-            if not intf_type[2:]:
-                lane_num = 1
-            else:
-                lane_num = int(intf_type[2:])
-            supported_speed[intf][lane_num] = {intf_type: speeds}
+        port_cap = engines.dut.run_cmd(f'docker exec syncd bash -c "python3 /{get_port_cap_file_name}"')
+        port_cap = json.loads(port_cap.replace("\'", "\""))
+
+        for intf, alias in ports_aliases_dict.items():
+            regex_pattern = r"etp(\d+)\w*"
+            label_port = re.match(regex_pattern, alias).group(1)
+            supported_intf_type = port_cap[label_port]
+            supported_speed[intf] = {}
+            for intf_type, speeds in supported_intf_type.items():
+                if not intf_type[2:]:
+                    lane_num = 1
+                else:
+                    lane_num = int(intf_type[2:])
+                supported_speed[intf][lane_num] = {intf_type: speeds}
     supported_speed[interfaces.ha_dut_1] = supported_speed[interfaces.dut_ha_1]
     return supported_speed
 
