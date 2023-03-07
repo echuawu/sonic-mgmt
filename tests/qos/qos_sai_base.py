@@ -19,7 +19,7 @@ from tests.common.utilities import check_qos_db_fv_reference_with_table
 from tests.common.fixtures.duthost_utils import dut_qos_maps, separated_dscp_to_tc_map_on_uplink  # noqa F401
 from tests.common.utilities import wait_until
 from tests.ptf_runner import ptf_runner
-from tests.common.system_utils import docker
+from tests.common.system_utils import docker  # noqa F401
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,8 @@ class QosBase:
     """
     Common APIs
     """
-    SUPPORTED_T0_TOPOS = ["t0", "t0-64", "t0-116", "t0-35", "dualtor-56", "dualtor-120", "dualtor", "t0-80", "t0-backend"]
+    SUPPORTED_T0_TOPOS = ["t0", "t0-56-po2vlan", "t0-64", "t0-116", "t0-35", "dualtor-56", "dualtor-120", "dualtor",
+                          "t0-80", "t0-backend"]
     SUPPORTED_T1_TOPOS = ["t1-lag", "t1-64-lag", "t1-56-lag", "t1-backend"]
     SUPPORTED_PTF_TOPOS = ['ptf32', 'ptf64']
     SUPPORTED_ASIC_LIST = ["gb", "td2", "th", "th2", "spc1", "spc2", "spc3", "td3", "th3", "j2c+", "jr2"]
@@ -83,7 +84,8 @@ class QosBase:
                         if 'mac' in vlan and vlan['mac']:
                             dut_test_params["basicParams"]["def_vlan_mac"] = vlan['mac']
                             break
-            pytest_assert(dut_test_params["basicParams"]["def_vlan_mac"] is not None, "Dual-TOR miss default VLAN MAC address")
+            pytest_assert(dut_test_params["basicParams"]["def_vlan_mac"] is not None,
+                          "Dual-TOR miss default VLAN MAC address")
 
         yield dut_test_params
 
@@ -363,7 +365,7 @@ class QosSaiBase(QosBase):
 
         return {"schedProfile": schedProfile, "schedWeight": schedWeight}
 
-    def __assignTestPortIps(self, mgFacts):
+    def __assignTestPortIps(self, mgFacts, topo):
         """
             Assign IPs to test ports of DUT host
 
@@ -376,8 +378,18 @@ class QosSaiBase(QosBase):
         dutPortIps = {}
         if len(mgFacts["minigraph_vlans"]) > 0:
             # TODO: handle the case when there are multiple vlans
-            testVlan = next(iter(mgFacts["minigraph_vlans"]))
+            vlans = iter(mgFacts["minigraph_vlans"])
+            testVlan = next(vlans)
             testVlanMembers = mgFacts["minigraph_vlans"][testVlan]["members"]
+            # To support t0-56-po2vlan topo, choose the Vlan with physical ports and remove the lag in Vlan members
+            if topo == 't0-56-po2vlan':
+                if len(testVlanMembers) == 1:
+                    testVlan = next(vlans)
+                    testVlanMembers = mgFacts["minigraph_vlans"][testVlan]["members"]
+                for member in testVlanMembers:
+                    if 'PortChannel' in member:
+                        testVlanMembers.remove(member)
+                        break
 
             testVlanIp = None
             for vlan in mgFacts["minigraph_vlan_interfaces"]:
@@ -567,7 +579,7 @@ class QosSaiBase(QosBase):
                             uplinkPortIps.append(portConfig["peer_addr"])
                             uplinkPortNames.append(intf)
 
-            testPortIps = self.__assignTestPortIps(mgFacts)
+            testPortIps = self.__assignTestPortIps(mgFacts, topo)
 
         elif topo in self.SUPPORTED_T1_TOPOS:
             use_separated_upkink_dscp_tc_map = separated_dscp_to_tc_map_on_uplink(duthost, dut_qos_maps)
@@ -611,7 +623,7 @@ class QosSaiBase(QosBase):
                     if "." in iface:
                         iface, vlan_id = iface.split(".")
                     portIndex = mgFacts["minigraph_ptf_indices"][iface]
-                    portIpMap = {'peer_addr': addr["peer_ipv4"], 'port': iface }
+                    portIpMap = {'peer_addr': addr["peer_ipv4"], 'port': iface}
                     if vlan_id is not None:
                         portIpMap['vlan_id'] = vlan_id
                     dutPortIps.update({portIndex: portIpMap})
@@ -620,7 +632,7 @@ class QosSaiBase(QosBase):
                         iter(mgFacts["minigraph_portchannels"][iface]["members"])
                     )
                     portIndex = mgFacts["minigraph_ptf_indices"][portName]
-                    portIpMap = {'peer_addr': addr["peer_ipv4"], 'port': portName }
+                    portIpMap = {'peer_addr': addr["peer_ipv4"], 'port': portName}
                     dutPortIps.update({portIndex: portIpMap})
 
             testPortIds = sorted(dutPortIps.keys())
@@ -754,7 +766,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class')
     def stopServices(
             self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index,
-            swapSyncd, enable_container_autorestart, disable_container_autorestart, get_mux_status,
+            swapSyncd, enable_container_autorestart, disable_container_autorestart, get_mux_status,  # noqa: F811
             tbinfo, upper_tor_host, lower_tor_host, toggle_all_simulator_ports): # noqa F811
         """
             Stop services (lldp-syncs, lldpd, bgpd) on DUT host prior to test start
@@ -774,7 +786,7 @@ class QosSaiBase(QosBase):
 
         dut_asic = duthost.asic_instance(enum_frontend_asic_index)
 
-        def updateDockerService(host, docker="", action="", service=""):
+        def updateDockerService(host, docker="", action="", service=""):  # noqa: F811
             """
                 Helper function to update docker services
 
@@ -926,7 +938,7 @@ class QosSaiBase(QosBase):
         vlanInterface = {}
         try:
             vlanInterface = json.loads(duthost.shell('sonic-cfggen -d --var-json "VLAN_INTERFACE"')['stdout'])
-        except:
+        except Exception:
             logger.info('Failed to read vlan interface config')
         if not vlanInterface:
             return
@@ -937,9 +949,12 @@ class QosSaiBase(QosBase):
     def dutBufferConfig(self, duthost):
         bufferConfig = {}
         try:
-            bufferConfig['BUFFER_POOL'] = json.loads(duthost.shell('sonic-cfggen -d --var-json "BUFFER_POOL"')['stdout'])
-            bufferConfig['BUFFER_PROFILE'] = json.loads(duthost.shell('sonic-cfggen -d --var-json "BUFFER_PROFILE"')['stdout'])
-            bufferConfig['BUFFER_QUEUE'] = json.loads(duthost.shell('sonic-cfggen -d --var-json "BUFFER_QUEUE"')['stdout'])
+            bufferConfig['BUFFER_POOL'] = json.loads(duthost.shell(
+                'sonic-cfggen -d --var-json "BUFFER_POOL"')['stdout'])
+            bufferConfig['BUFFER_PROFILE'] = json.loads(duthost.shell(
+                'sonic-cfggen -d --var-json "BUFFER_PROFILE"')['stdout'])
+            bufferConfig['BUFFER_QUEUE'] = json.loads(duthost.shell(
+                'sonic-cfggen -d --var-json "BUFFER_QUEUE"')['stdout'])
             bufferConfig['BUFFER_PG'] = json.loads(duthost.shell('sonic-cfggen -d --var-json "BUFFER_PG"')['stdout'])
         except Exception as err:
             logger.info(err)
