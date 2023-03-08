@@ -168,7 +168,7 @@ def get_t1_ptf_pc_ports(dut, tbinfo):
     pc_ports = {}
     for pc in config_facts['PORTCHANNEL'].keys():
         pc_ports[pc] = []
-        for intf in config_facts["PORTCHANNEL"][pc]["members"]:
+        for intf in config_facts["PORTCHANNEL_MEMBER"][pc].keys():
             ptf_port_index = mg_facts["minigraph_ptf_indices"][intf]
             intf_name = "eth{}".format(ptf_port_index)
             pc_ports[pc].append(intf_name)
@@ -207,10 +207,10 @@ def get_t1_active_ptf_ports(dut, tbinfo):
 
     up_portchannels = dut.get_up_ip_ports()
     ptf_portchannel_intfs = {}
-    for k, v in config_facts['PORTCHANNEL'].items():
+    for k, v in config_facts['PORTCHANNEL_MEMBER'].items():
         if k in up_portchannels:
             ptf_portchannel_intfs[k] = []
-            for member in v['members']:
+            for member in v.keys():
                 ptf_portchannel_intfs[k].append(mg_facts['minigraph_ptf_indices'][member])
 
     return ptf_portchannel_intfs
@@ -236,10 +236,10 @@ def get_t1_bgp_up_ptf_ports(dut, tbinfo):
                     break
 
     ptf_portchannel_intfs = {}
-    for k, v in config_facts['PORTCHANNEL'].items():
+    for k, v in config_facts['PORTCHANNEL_MEMBER'].items():
         if k in portchannels:
             ptf_portchannel_intfs[k] = []
-            for member in v['members']:
+            for member in v.keys():
                 ptf_portchannel_intfs[k].append(mg_facts['minigraph_ptf_indices'][member])
 
     return ptf_portchannel_intfs
