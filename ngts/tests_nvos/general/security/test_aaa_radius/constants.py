@@ -36,10 +36,10 @@ class RadiusConstans:
                 {
                     'username': 'admin',  # TODO: change to volt once it is in
                     'password': 'adminadmin',  # TODO: change to volt once it is in
-                    'role': 'monitor'
+                    'role': 'admin'
                 },
                 {
-                    'username': 'test',  # TODO: change to volt once it is in
+                    'username': 'testing',  # TODO: change to volt once it is in
                     'password': 'testing',  # TODO: change to volt once it is in
                     'role': 'monitor'
                 }
@@ -53,10 +53,10 @@ class RadiusConstans:
         },
 
         'docker_radius_server': {
-            'hostname': '10.237.116.91',  # TODO: change to volt once it is in
+            'hostname': '10.237.0.86',  # TODO: change to volt once it is in
             'password': 'testing123',  # TODO: change to volt once it is in
             'auth-port': '1812',
-            'auth-type': 'mschapv2',
+            'auth-type': 'pap',
             'timeout': '5',
             'priority': 1,
             'users': [
@@ -65,11 +65,11 @@ class RadiusConstans:
                 {
                     'username': 'azmy',  # TODO: change to volt once it is in
                     'password': 'azmy',  # TODO: change to volt once it is in
-                    'role': 'monitor'
+                    'role': 'admin'
                 },
                 {
-                    'username': 'admin',  # TODO: change to volt once it is in
-                    'password': 'admin',  # TODO: change to volt once it is in
+                    'username': 'admin1',  # TODO: change to volt once it is in
+                    'password': 'admin1',  # TODO: change to volt once it is in
                     'role': 'monitor'
                 }
             ]

@@ -1,4 +1,6 @@
 import logging
+import time
+
 import allure
 import random
 from ngts.nvos_tools.system.System import System
@@ -67,9 +69,10 @@ def enable_radius_feature(dut_engine):
     '''
     with allure.step("Enabling Radius by setting radius auth. method as first auth. method"):
         logging.info("Enabling Radius by setting radius auth. method as first auth. method")
-        dut_engine.run_cmd("sudo config aaa authentication failthrough enable")
-        dut_engine.run_cmd("sudo config aaa authentication login radius local")
-        dut_engine.run_cmd("sudo ln -s  /bin/bash /usr/bin/sonic-launch-shell")
+        dut_engine.run_cmd("nv set system aaa authentication order radius,local")
+        dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
+        dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
+        dut_engine.run_cmd("nv config apply -y")
 
 
 def connect_to_switch_and_validate_role(engines, username, password, role=SystemConsts.ROLE_VIEWER):
@@ -92,10 +95,11 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
         logging.info("Validating role permissions are as expected")
         if role == SystemConsts.DEFAULT_USER_ADMIN:
             logging.info("User has admin permissions and can set configurations")
-            system.message.set("").verify_result(should_succeed=True)
+            system.message.set("RADIUS", engines.dut, field_name='pre-login').verify_result(should_succeed=True)
+            system.message.unset(engines.dut, field_name='pre-login').verify_result(should_succeed=True)
         else:
             logging.info("User has monitor permissions and cannot set configurations")
-            system.message.set("").verify_result(should_succeed=False)
+            system.message.set("RADIUS", engines.dut, field_name='pre-login').verify_result(should_succeed=False)
 
 
 def validate_all_radius_user_authorization_and_role(engines, users):
@@ -261,6 +265,11 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
         logging.info("Configuring invalid auth-port: {}".format(invalid_port))
         system.aaa.radius.set_hostname_auth_port(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
                                                  invalid_port, True, True)
+        apply_configuration_sleep = 10
+        with allure.step("Sleeping {} secs to apply configurations".format(apply_configuration_sleep)):
+            logging.info("Sleeping {} secs to apply configurations".format(apply_configuration_sleep))
+            time.sleep(apply_configuration_sleep)
+
         radius_server_user = radius_server_info[RadiusConstans.RADIUS_SERVER_USERS][0]
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=radius_server_user[RadiusConstans.RADIUS_SERVER_USERNAME],
@@ -271,6 +280,10 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
         logging.info("Configuring invalid password: {}".format(random_string))
         system.aaa.radius.set_hostname_password(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
                                                 random_string, True, True)
+        with allure.step("Sleeping {} secs to apply configurations".format(apply_configuration_sleep)):
+            logging.info("Sleeping {} secs to apply configurations".format(apply_configuration_sleep))
+            time.sleep(apply_configuration_sleep)
+
         radius_server_user = radius_server_info[RadiusConstans.RADIUS_SERVER_USERS][0]
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=radius_server_user[RadiusConstans.RADIUS_SERVER_USERNAME],
