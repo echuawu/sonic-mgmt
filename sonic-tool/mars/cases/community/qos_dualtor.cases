@@ -6,25 +6,27 @@
             <name> qos_sai_dualtor </name>
             <owner> </owner>
             <pre>
-                <type> reg_exec_func </type>
+                <type> reg_exec_cmd </type>
                 <name> work around: Disable counterpoll </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <ignore_pre_fail> True </ignore_pre_fail>
-                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
                 <tout> 300 </tout>
+                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
+                <ignore_pre_fail> True </ignore_pre_fail>
+                <players_selection>
+                    <ep_targets> SONIC_MGMT </ep_targets>
+                </players_selection>
                 <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/change_counterpoll_status.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --setup-name [[conf:extra_info.setup_name]]  --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --counterpoll-action disable </cmd_params>
+                    <exec> PYTHONPATH=/devts/  /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/test_change_counterpoll_status.py  --setup_name=[[conf:extra_info.setup_name]] --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini  --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer -k test_change_counterpoll_status[disable] </exec>
                 </params>
             </pre>
-			<post>
-                <type> reg_exec_func </type>
-                <name> work around: Disable counterpoll  </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
+            <post>
+                <type> reg_exec_cmd </type>
+                <name> work around: Enable counterpoll </name>
                 <tout> 300 </tout>
+                <players_selection>
+                    <ep_targets> SONIC_MGMT </ep_targets>
+                </players_selection>
                 <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/change_counterpoll_status.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --counterpoll-action enable </cmd_params>
+                    <exec> PYTHONPATH=/devts/  /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/test_change_counterpoll_status.py  --setup_name=[[conf:extra_info.setup_name]] --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini  --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer -k test_change_counterpoll_status[enable] </exec>
                 </params>
             </post>
         </Test>
