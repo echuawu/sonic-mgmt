@@ -745,11 +745,11 @@ def test_rsyslog_bad_params():
             system.syslog.set_trap("", expected_str=INCOMPLETE_COMMAND)
             system.syslog.set_trap(rand_str, expected_str=ERROR)
 
-        # TODO change when bug 3317235 will be fixed
-        # with allure.step("Configure and validate format"):
-            # logging.info("Configure and validate format")
+        # TODO change when bug 3390504 will be fixed
+        with allure.step("Configure and validate format"):
+            logging.info("Configure and validate format")
             # system.syslog.format.set("",expected_str=INCOMPLETE_COMMAND)
-            # system.syslog.format.set(rand_str, expected_str=ERROR)
+            system.syslog.format.set(rand_str, expected_str=INVALID_COMMAND)
 
     with allure.step("Specific syslog server commands"):
         logging.info("Specific syslog server commands")
@@ -777,13 +777,13 @@ def test_rsyslog_bad_params():
 
         with allure.step("Configure and validate filter"):
             logging.info("Configure and validate filter")
-            # system.syslog.servers.servers_dict[server_name].set_filter("", "", expected_str=INCOMPLETE_COMMAND)  # bug #3325876
+            # system.syslog.servers.servers_dict[server_name].set_filter("", "", expected_str=INCOMPLETE_COMMAND)  # bug #3390504
             system.syslog.servers.servers_dict[server_name].set_filter(rand_str, rand_str, expected_str=INVALID_COMMAND)
 
         with allure.step("Configure and validate filter include"):
             logging.info("Configure and validate filter include")
             system.syslog.servers.servers_dict[server_name].set_filter(SyslogConsts.INCLUDE, "", expected_str=INCOMPLETE_COMMAND)
-            # system.syslog.servers.servers_dict[server_name].filter.unset_include_filter("", expected_str=INVALID_COMMAND) # bug #3325876
+            # system.syslog.servers.servers_dict[server_name].filter.unset_include_filter("", expected_str=INVALID_COMMAND) # bug #3390504
 
         with allure.step("Configure and validate filter exclude"):
             logging.info("Configure and validate filter exclude")
