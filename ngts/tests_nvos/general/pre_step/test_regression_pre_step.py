@@ -4,6 +4,7 @@ import subprocess
 import shlex
 import os
 import time
+import pytest
 from retry import retry
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 
@@ -12,6 +13,7 @@ logger = logging.getLogger()
 REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {server_name}-ilo -U root -P 3tango11 chassis power cycle"
 
 
+@pytest.mark.no_cli_coverage_run
 def test_regression_pre_step(engines, topology_obj):
     """
     Check that dut is reachable.

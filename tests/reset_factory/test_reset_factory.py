@@ -1,7 +1,6 @@
 import logging
 import pytest
 import paramiko
-import time
 from retry import retry
 from datetime import datetime
 from tests.common.helpers.assertions import pytest_assert
@@ -278,8 +277,8 @@ def check_running_dockers_after_reset_factory(duthost, only_config):
                     new_err = "\nreset factory should not restart database docker"
             else:
                 if only_config and org_start_time < create_time:
-                    new_err = "\n'{}' was stopped during reset factory, while it should not for only-config flag".format(
-                        docker_name)
+                    new_err = "\n'{}' was stopped during reset factory - it should" \
+                              " not for only-config flag".format(docker_name)
                 elif not only_config and org_start_time == create_time:
                     new_err = "\n'{}' was not stopped during reset factory".format(docker_name)
         except Exception:

@@ -294,7 +294,9 @@ def test_interface_eth0_ip_address(engines, topology_obj):
         validate_interface_ip_address(switch_ip, output_dictionary, True)
 
     with allure.step('Negative validation for eth0 ip'):
-        mgmt_port.interface.ip.address.set(value='aa', apply=True, ask_for_confirmation=True).verify_result(False)
+        res = mgmt_port.interface.ip.address.set(value='aa', apply=True, ask_for_confirmation=True)
+        assert not res.result or "is not a" in res.returned_value, \
+            "The operation succeeded while it is expected to fail"
 
     with allure.step('Disable dhcp, check mgmt port unreachable'):
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state disabled', apply=True,

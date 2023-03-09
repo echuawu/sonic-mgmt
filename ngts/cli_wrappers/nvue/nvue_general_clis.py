@@ -245,7 +245,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 b. if the ONIE grun menu appears just do nothing (the install entry will be marked and after 5 secs it
                 will enter the install mode)
         '''
-        logger.info("Initializng serial connection to device")
+        logger.info("Initializing serial connection to device")
         serial_engine = self.enter_serial_connection_context(topology_obj)
         logger.info('Executing remote reboot')
         self.remote_reboot(topology_obj)
@@ -253,11 +253,17 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         output, respond = serial_engine.run_cmd('', ['ONIE\\s+', '\\*ONIE: Install OS'], timeout=240,
                                                 send_without_enter=True)
         if respond == 0:
-            logger.info("System is NVOS grub menu, entering ONIE grub menu")
+            logger.info("System in NVOS grub menu, entering ONIE grub menu")
             for i in range(2):
                 logger.info("Sending one arrow down")
                 serial_engine.run_cmd("\x1b[B", expected_value='.*', send_without_enter=True)
-            logger.info("Pressing Enter to enter ONIE menu")
+
+            if "MLNX_" in topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', ''):
+                serial_engine.run_cmd('\r', 'Due to security constraints, this option will uninstall your current OS',
+                                      timeout=60, send_without_enter=True)
+                serial_engine.run_cmd('YES', '\\*ONIE: Install OS', timeout=420)
+
+        logger.info("Pressing Enter to enter ONIE menu")
         serial_engine.run_cmd('\r', 'Please press Enter to activate this console', timeout=240)
 
     def prepare_for_installation(self, topology_obj):
@@ -269,7 +275,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             self.enter_onie_install_mode(topology_obj)
             switch_in_onie = True
         except Exception as err:
-            logger.info("Got an expection: {}".format(str(err)))
+            logger.info("Got an exception: {}".format(str(err)))
             switch_in_onie = False
         finally:
             return switch_in_onie

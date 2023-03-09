@@ -22,7 +22,7 @@ class NvosInstallationSteps:
         Check if MLNXOS installed on this setup. If so, use boot_to_onie script located in a static directory
         /.autodirect/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py to enter onie before installing NVOS
         """
-        if setup_info['duts'][0]['switch_type'] == "MLNX_SWITCH":
+        '''if setup_info['duts'][0]['switch_type'] == "MLNX_SWITCH":
             cmd = "python /.autodirect/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py {}".format(
                 setup_info['duts'][0]['dut_ip'])
             logger.info("Executing script: {}".format(cmd))
@@ -31,7 +31,8 @@ class NvosInstallationSteps:
             logger.info(p.stdout)
             if p.returncode != 0:
                 raise AssertionError('boot_to_onie failed: {}\n with RC: {}'.format(p.stdout, p.returncode))
-            return p.returncode
+            return p.returncode'''
+        pass
 
     @staticmethod
     def post_installation_steps(topology_obj, workspace_path):

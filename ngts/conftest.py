@@ -229,6 +229,13 @@ def topology_obj(setup_name, request):
         player_attributes['engine'].disconnect()
 
 
+def update_topology_for_mlnxos_setups(topology):
+    if 'sl_serial' in topology.players.keys():
+        topology.players['dut_serial'] = topology.players.pop('sl_serial')
+    if 'vm_player' in topology.players.keys():
+        topology.players['server'] = topology.players.pop('vm_player')
+
+
 @pytest.fixture(scope='session')
 def cli_objects(topology_obj):
     cli_obj_data = DottedDict()
@@ -249,16 +256,21 @@ def export_cli_type_to_cache(topology, request):
 
 def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
+    nvos_setup = False
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 update_nvos_topology(topology, player_info)
+                nvos_setup = True
             else:
                 player_info['cli'] = SonicCli(topology)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})
+
+    if nvos_setup:
+        update_topology_for_mlnxos_setups(topology)  # for NVOS setups only
 
 
 def update_nvos_topology(topology, player_info):

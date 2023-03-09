@@ -85,7 +85,8 @@ def test_invalid_username(engines):
     system = System(None, '')
     invalid_username = User.generate_username(is_valid=False)
     output = system.aaa.user.set(invalid_username, '').returned_value
-    assert "'{invalid_username}' is not a 'user-name'".format(invalid_username=invalid_username) in output, 'succeeded to set invalid username - not as expected'
+    assert "'{invalid_username}' is not a 'user-name'".format(invalid_username=invalid_username) in output, \
+        'succeeded to set invalid username - not as expected'
 
 
 @pytest.mark.system

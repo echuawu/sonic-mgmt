@@ -38,7 +38,8 @@ def enable_record_cmds(topology_obj):
     :param topology_obj: topology_obj fixture
     """
     for _, player_info in topology_obj.players.items():
-        player_info['cli'].engine.record_cmd = True
+        if 'cli' in player_info.keys():
+            player_info['cli'].engine.record_cmd = True
 
 
 def add_fixture_name(topology_obj, fixture_name, fixture_scope):
