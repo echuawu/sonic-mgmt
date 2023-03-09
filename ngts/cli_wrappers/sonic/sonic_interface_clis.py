@@ -521,7 +521,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         regex_expressions = AutonegCommandConstants.REGEX_PARSE_EXPRESSION_FOR_MLXLINK
         parsed_info = {}
         for key, regex_expression_tuple in regex_expressions.items():
-            regex_exp, expected_val, parsed_val, default_val = regex_expression_tuple
+            regex_exp, expected_val, parsed_val, default_val, additional_val = regex_expression_tuple
             actual_val = re.search(regex_exp, port_mlxlink_status)
             if actual_val:
                 actual_val = actual_val.group(1)
@@ -531,7 +531,10 @@ class SonicInterfaceCli(InterfaceCliCommon):
             if key == AutonegCommandConstants.FEC:
                 parsed_info[key] = self.parse_fec_mode(actual_val)
             elif expected_val is not None and re.search(expected_val, actual_val):
-                parsed_info[key] = parsed_val
+                if additional_val is not None and re.search(additional_val, actual_val, re.IGNORECASE):
+                    parsed_info[key] = additional_val
+                else:
+                    parsed_info[key] = parsed_val
             elif default_val is not None:
                 parsed_info[key] = default_val
         return parsed_info

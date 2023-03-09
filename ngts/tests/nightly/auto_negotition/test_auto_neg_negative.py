@@ -199,6 +199,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         for port in lb:
             self.cli_objects.dut.interface.config_advertised_speeds(port, "all")
             self.cli_objects.dut.interface.config_advertised_interface_types(port, "all")
+            conf[port]['expected_autoneg'] = "Force"
         logger.info("verify auto-negotiation fails in case of mismatch advertised types and speeds")
         self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
                                      conf, cleanup_list, mode='disabled')
@@ -224,7 +225,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         :param tested_lb_dict: the tested lb dict, i.e, {1: [lb]}
         :return: a dictionary with auto neg configuration for the ports
         """
-        conf = self.generate_default_conf(tested_lb_dict)
+        conf = self.generate_default_conf(tested_lb_dict, use_min_speed=True)
         conf_min_speed = conf[lb[0]][AutonegCommandConstants.SPEED]
         min_speed_matched_type = get_matched_types(self.ports_lanes_dict[lb[0]], [conf_min_speed],
                                                    types_dict=self.interfaces_types_port_dict[lb[0]]).pop()
@@ -242,4 +243,6 @@ class TestAutoNegNegative(TestAutoNegBase):
             conf[port]['expected_speed'] = conf[port][AutonegCommandConstants.SPEED]
             conf[port]['expected_type'] = conf[port][AutonegCommandConstants.TYPE]
             conf[port]['expected_width'] = conf[port][AutonegCommandConstants.WIDTH]
+        conf[lb[0]]['expected_autoneg_when_both_enabled'] = 'Force'
+        conf[lb[1]]['expected_autoneg_when_both_enabled'] = 'enabled'
         return conf

@@ -3,7 +3,7 @@ import allure
 import random
 import pytest
 from retry.api import retry_call
-
+from copy import deepcopy
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.auto_negotition.conftest import get_all_advertised_speeds_sorted_string, get_interface_cable_width, \
@@ -221,6 +221,13 @@ class TestAutoNegBase:
             conf[port][AutonegCommandConstants.WIDTH] = conf[port]['expected_width']
             conf[port][AutonegCommandConstants.OPER] = "up"
             conf[port][AutonegCommandConstants.ADMIN] = "up"
+            if conf[port].get('expected_autoneg'):
+                conf[port]['expected_autoneg'] = conf[port]['expected_autoneg_when_both_enabled']
+
+    @staticmethod
+    def update_port_autoneg_expected_mode(conf):
+        if conf.get('expected_autoneg'):
+            conf[AutonegCommandConstants.AUTONEG_MODE] = conf['expected_autoneg']
 
     @staticmethod
     def get_loopback_first_second_ports_lists(tested_lb_dict):
@@ -272,7 +279,10 @@ class TestAutoNegBase:
         port_number = get_alias_number(ports_aliases_dict[port])
         logger.info("Verify Auto negotiation status based on mlxlink command")
         mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(pci_conf, port_number)
-        self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf, port_num=port_number)
+        port_conf_dict_copy = deepcopy(port_conf_dict)
+        self.update_port_autoneg_expected_mode(port_conf_dict_copy)
+        self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict_copy,
+                                                         actual_conf=mlxlink_actual_conf, port_num=port_number)
 
     def is_msn4410_with_speed_50g_type_cr(self, key, actual_conf, expected_conf):
         """

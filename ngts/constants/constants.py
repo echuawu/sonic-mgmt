@@ -197,12 +197,13 @@ class AutonegCommandConstants:
     FEC = "FEC"
     WIDTH = "Width"
     REGEX_PARSE_EXPRESSION_FOR_MLXLINK = {
-        ADMIN: (r"State\s*:\s*(\w*)", "Active", "up", "down"),
-        OPER: (r"Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down"),
-        SPEED: (r"Speed\s*:\s*(?:BaseT|BaseTx)?(\d*M|\d*G)", None, None, None),
-        WIDTH: (r"Width\s*:\s*(\d+)x", None, None, None),
-        FEC: (r"FEC\s*:\s*(.*)", "No FEC", "none", None),
-        AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*)", "ON", "enabled", "disabled")
+        ADMIN: (r"State\s*:\s*(\w*)", "Active", "up", "down", None),
+        OPER: (r"Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down", None),
+        SPEED: (r"Speed\s*:\s*(?:BaseT|BaseTx)?(\d*M|\d*G)", None, None, None, None),
+        WIDTH: (r"Width\s*:\s*(\d+)x", None, None, None, None),
+        FEC: (r"FEC\s*:\s*(.*)", "No FEC", "none", None, None),
+        AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*\s*-*\s*\d*G_*\d*X*|ON)",
+                       r"FORCE\s+-\s+\d+G_*\d*X*|ON", "enabled", "disabled", "Force")
     }
 
 
