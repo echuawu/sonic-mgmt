@@ -98,7 +98,7 @@ def test_rpc_check_and_set_topology(topology_obj, engines, cli_objects, current_
 
     with allure.step("Add topology {}".format(expected_topo)):
         cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault " \
-              "-e ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=current_topo, PTF_TAG=ptf_tag)
+              "-e ptf_imagetag={PTF_TAG}".format(SWITCH=dut_name, TOPO=expected_topo, PTF_TAG=ptf_tag)
         run_testbed_cli_script(cmd, ansible_path)
 
     with allure.step("Deploy minigraph"):
