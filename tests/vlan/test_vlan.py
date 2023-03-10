@@ -51,27 +51,28 @@ def vlan_intfs_dict(tbinfo, utils_vlan_intfs_dict_orig):
 
 
 @pytest.fixture(scope="module")
-def work_vlan_ports_list(rand_selected_dut, tbinfo, cfg_facts, ports_list, utils_vlan_ports_list, vlan_intfs_dict, pc_num=PORTCHANNELS_TEST_NUM):
+def work_vlan_ports_list(rand_selected_dut, tbinfo, cfg_facts, ports_list, utils_vlan_ports_list, vlan_intfs_dict,
+                         pc_num=PORTCHANNELS_TEST_NUM):
     if tbinfo['topo']['name'] in ('t0-54-po2vlan', 't0-56-po2vlan'):
         return utils_vlan_ports_list
 
     mg_facts = rand_selected_dut.get_extended_minigraph_facts(tbinfo)
     work_vlan_ports_list = []
-    config_ports = {k: v for k,v in cfg_facts['PORT'].items() if v.get('admin_status', 'down') == 'up'}
-    config_portchannels = cfg_facts.get('PORTCHANNEL', {})
+    config_ports = {k: v for k, v in cfg_facts['PORT'].items() if v.get('admin_status', 'down') == 'up'}
+    config_portchannels = cfg_facts.get('PORTCHANNEL_MEMBER', {})
     config_port_indices = {k: v for k, v in mg_facts['minigraph_ptf_indices'].items() if k in config_ports}
 
     # For t0 topo, will add port to new VLAN, use 'orig' field to identify new VLAN.
-    vlan_id_list = [k for k, v in vlan_intfs_dict.items() if v['orig'] == False]
+    vlan_id_list = [k for k, v in vlan_intfs_dict.items() if v['orig'] is False]
     pvid_cycle = itertools.cycle(vlan_id_list)
     # when running on t0 we can use the portchannel members
     if config_portchannels:
         portchannel_cnt = 0
         for po in config_portchannels:
             vlan_port = {
-                'dev' : po,
-                'port_index' : [config_port_indices[member] for member in config_portchannels[po]['members']],
-                'permit_vlanid' : []
+                'dev': po,
+                'port_index': [config_port_indices[member] for member in config_portchannels[po].keys()],
+                'permit_vlanid': []
             }
             # Add 2 portchannels for test
             if portchannel_cnt < pc_num:
@@ -84,9 +85,9 @@ def work_vlan_ports_list(rand_selected_dut, tbinfo, cfg_facts, ports_list, utils
 
     for i, port in enumerate(ports_list):
         vlan_port = {
-            'dev' : port,
-            'port_index' : [config_port_indices[port]],
-            'permit_vlanid' : []
+            'dev': port,
+            'port_index': [config_port_indices[port]],
+            'permit_vlanid': []
         }
         # Add 4 ports for test
         if i < 4:
@@ -96,6 +97,7 @@ def work_vlan_ports_list(rand_selected_dut, tbinfo, cfg_facts, ports_list, utils
             work_vlan_ports_list.append(vlan_port)
 
     return work_vlan_ports_list
+
 
 @pytest.fixture(scope="module")
 def acl_rule_cleanup(duthost, tbinfo):
