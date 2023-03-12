@@ -37,9 +37,6 @@
             </on_not_success>
 		</Case>
 	</global>
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_commit_push_gate_build.cases </cases>
-	</test>
 
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/general/nvos_general_config_commands.cases </cases>
