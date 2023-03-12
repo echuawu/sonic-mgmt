@@ -5,6 +5,7 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.system.Role import Role
 from ngts.nvos_tools.system.Radius import Radius
+from ngts.nvos_tools.system.Ldap import Ldap
 from ngts.nvos_constants.constants_nvos import ApiType
 
 
@@ -14,6 +15,7 @@ class Aaa(BaseComponent):
         self.user = User(self, username)
         self.role = Role(self)
         self.radius = Radius(self)
+        self.ldap = Ldap(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/aaa'
         self.parent_obj = parent_obj
