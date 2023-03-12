@@ -20,7 +20,7 @@ class RadiusConstans:
     RADIUS_SERVER_USERNAME = 'username'
     RADIUS_SERVER_USER_PASSWORD = 'password'
     AUTHENTICATION_FAILURE_MESSAGE = 'Authentication failure: unable to connect linux'
-    AUTH_TYPES = ['chap', 'pap', 'mschapv2']
+    AUTH_TYPES = ['chap', 'pap']
 
     RADIUS_SERVERS_DICTIONARY = {
         'physical_radius_server': {
