@@ -684,7 +684,6 @@ def test_log_components(engines):
 
 @pytest.mark.system
 @pytest.mark.log
-@pytest.mark.simx
 def test_upload_log_files(engines, topology_obj):
     """
     Check uploading log files to shared location and validate
@@ -704,7 +703,6 @@ def test_upload_log_files(engines, topology_obj):
 
 @pytest.mark.system
 @pytest.mark.log
-@pytest.mark.simx
 def test_upload_debug_log_files(engines, topology_obj):
     """
     Check uploading log files to shared location and validate
