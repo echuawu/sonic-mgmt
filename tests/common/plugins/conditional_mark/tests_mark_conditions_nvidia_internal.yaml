@@ -584,12 +584,6 @@ show_techsupport/test_auto_techsupport.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3147554 and 'nvda_bf' in platform"
 
-show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_sai_sdk_dump:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3322157"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3322157"
-
 process_monitoring/test_critical_process_monitoring.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3249005 and platform nvda_bf"
