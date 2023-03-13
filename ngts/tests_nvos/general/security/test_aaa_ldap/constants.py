@@ -16,15 +16,18 @@ class LDAPConsts:
     LDAP_STATE_ENABLED = 'enabled'
     LDAP_STATE_DISABLED = 'disabled'
     USERS = 'users'
+    NESTED_USERS = "nested-users"
+    USERNAME = 'username'
+    PASSWORD = 'password'
 
     PHYSICAL_LDAP_SERVER = {
         "hostname": "10.7.34.20",
-        "base-dn": "dc=domain,dc=local",
-        "bind-dn": "cn=ldap_admin,dc=domain,dc=local",
-        "bind-password": "",
-        "login-attribute": "cn",
+        "base-dn": "dc=itzgeek,dc=local",
+        "bind-dn": "uid=monitoruser,ou=People,dc=itzgeek,dc=local",
+        "bind-password": "YXNk",
+        "login-attribute": "uid",
         "group-attribute": "member",
-        "scope": "subtree",
+        # "scope": "subtree", not supported now
         "port": "389",
         "timeout-bind": "5",
         "timeout": "5",
@@ -32,9 +35,26 @@ class LDAPConsts:
         "priority": 1,
         "users": [
             {
-                'username': 'azmy',  # TODO: change to volt once it is in
-                'password': 'azmy',  # TODO: change to volt once it is in
-                'role': 'admin'
+                'username': 'monitoruser',  # TODO: change to volt once it is in
+                'password': 'YXNk',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'adminuser',  # TODO: change to volt once it is in
+                'password': 'YXNk',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            }
+        ],
+        "nested-users": [
+            {
+                'username': 'nestedMonitorUser',  # TODO: change to volt once it is in
+                'password': 'YXNk',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'nestedAdminUser',  # TODO: change to volt once it is in
+                'password': 'YXNk',  # TODO: change to volt once it is in
+                'role': 'monitor'
             }
         ]
     }
@@ -42,3 +62,6 @@ class LDAPConsts:
     LDAP_SERVERS_LIST = [
         PHYSICAL_LDAP_SERVER
     ]
+
+    LDAP_LOW_TIMOEUT = 1
+    LDAP_HIGH_TIMEOUT = 60

@@ -5,7 +5,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
 from ngts.tests_nvos.general.security.test_aaa_radius.test_aaa_radius import \
-    validate_users_authorization_and_role
+    validate_users_authorization_and_role, validate_failed_authentication_with_new_credentials
 from ngts.tests_nvos.general.security.test_aaa_ldap.conftest import remove_ldap_configurations
 
 
@@ -149,3 +149,36 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
         logging.info("Validating second ldap server credentials")
         second_ldap_server_users = LDAPConsts.LDAP_SERVERS_LIST[0][LDAPConsts.USERS]
         validate_users_authorization_and_role(engines=engines, users=second_ldap_server_users)
+
+
+def test_ldap_timeout_functionality(engines, remove_ldap_configurations):
+    '''
+    @summary: in this test case we want to validate timeout functionality:
+    there are two cases of timeout: bind-in timeout and search timeout functionalites
+    '''
+    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER.copy()
+
+    with allure.step("Configuring LDAP server with low bind-in timeout value: {}".format(LDAPConsts.LDAP_LOW_TIMOEUT)):
+        logging.info("Configuring LDAP server with low bind-in timeout value: {}".format(LDAPConsts.LDAP_LOW_TIMOEUT))
+        ldap_server_info[LDAPConsts.TIMEOUT_BIND] = LDAPConsts.LDAP_LOW_TIMOEUT
+        configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+
+    with allure.step("Validating failed connection to ldap server credentials"):
+        logging.info("Validating failed connection to ldap server credentials")
+        ldap_server_users = LDAPConsts.LDAP_SERVERS_LIST[0][LDAPConsts.NESTED_USERS]
+        validate_failed_authentication_with_new_credentials(engines=engines,
+                                                            username=ldap_server_users[0][LDAPConsts.USERNAME],
+                                                            password=ldap_server_users[0][LDAPConsts.PASSWORD])
+
+    with allure.step("Configuring LDAP server with high bind-in timeout value: {}, and low search timeout value: {}".format(LDAPConsts.LDAP_HIGH_TIMEOUT, LDAPConsts.LDAP_LOW_TIMOEUT)):
+        logging.info("Configuring LDAP server with high bind-in timeout value: {}, and low search timeout value: {}".format(LDAPConsts.LDAP_HIGH_TIMEOUT, LDAPConsts.LDAP_LOW_TIMOEUT))
+        ldap_server_info[LDAPConsts.TIMEOUT_BIND] = LDAPConsts.LDAP_HIGH_TIMEOUT
+        ldap_server_info[LDAPConsts.TIMEOUT] = LDAPConsts.LDAP_LOW_TIMOEUT
+        configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+
+    with allure.step("Validating failed connection to ldap server credentials"):
+        logging.info("Validating failed connection to ldap server credentials")
+        ldap_server_users = LDAPConsts.LDAP_SERVERS_LIST[0][LDAPConsts.NESTED_USERS]
+        validate_failed_authentication_with_new_credentials(engines=engines,
+                                                            username=ldap_server_users[0][LDAPConsts.USERNAME],
+                                                            password=ldap_server_users[0][LDAPConsts.PASSWORD])
