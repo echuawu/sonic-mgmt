@@ -9,7 +9,7 @@ class LDAPConsts:
     BIND_PASSWORD = 'bind-password'
     TIMEOUT_BIND = 'timeout-bind'
     TIMEOUT = 'timeout'
-    PORT = 'port'
+    PORT = 'auth-port'
     VERSION = 'version'
     LOGIN_ATTR = 'login-attribute'
     GROUP_ATTR = 'group-attribute'
@@ -28,7 +28,7 @@ class LDAPConsts:
         "login-attribute": "uid",
         "group-attribute": "member",
         # "scope": "subtree", not supported now
-        "port": "389",
+        "auth-port": "389",
         "timeout-bind": "5",
         "timeout": "5",
         "version": 3,
