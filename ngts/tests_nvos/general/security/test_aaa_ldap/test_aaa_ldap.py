@@ -1,12 +1,14 @@
 import logging
 import allure
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
 from ngts.tests_nvos.general.security.test_aaa_radius.test_aaa_radius import \
     validate_users_authorization_and_role, validate_failed_authentication_with_new_credentials
 from ngts.tests_nvos.general.security.test_aaa_ldap.conftest import remove_ldap_configurations
+from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 
 
 def configure_ldap(ldap_server_info):
@@ -182,3 +184,27 @@ def test_ldap_timeout_functionality(engines, remove_ldap_configurations):
         validate_failed_authentication_with_new_credentials(engines=engines,
                                                             username=ldap_server_users[0][LDAPConsts.USERNAME],
                                                             password=ldap_server_users[0][LDAPConsts.PASSWORD])
+
+
+def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations):
+    '''
+    @summary: in this test case we want to validate invalid port ldap error flows of ,
+    we want to configure invalid port value and then see that we are not able to connect
+    to switch
+    '''
+    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+
+    with allure.step("Validating that we can access the switch with matching configurations"):
+        logging.info("Validating that we can access the switch with matching configurations")
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+
+    system = System(None)
+    invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
+                                                               [int(ldap_server_info[LDAPConsts.PORT])]).get_returned_value()
+    with allure.step("Setting invlaid auth-port: {}".format(invalid_port)):
+        logging.info("Setting invlaid auth-port: {}".format(invalid_port))
+        system.aaa.ldap.set_port(port=invalid_port, apply=True)
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
+                                                            password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
