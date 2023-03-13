@@ -41,6 +41,10 @@ def pytest_addoption(parser):
                      action="store", default=None, help="restore image after error flow")
     parser.addoption("--traffic_available",
                      action="store", default='True', help="True to run traffic tests")
+    parser.addoption("--tst_all_pwh_confs",
+                     action="store", default='False', help="True to test functionality of all password hardening "
+                                                           "configurations; False otherwise (only several random "
+                                                           "configurations will be picked to testing)")
 
 
 @pytest.fixture(scope='session')
@@ -77,6 +81,18 @@ def traffic_available(request):
     :return: True/False
     """
     return bool(request.config.getoption('--traffic_available'))
+
+
+@pytest.fixture
+def tst_all_pwh_confs(request):
+    """
+    True to test functionality of all password hardening configurations;
+        False otherwise (only several randome configurations will be picked to testing)
+    :param request: pytest builtin
+    :return: True/False
+    """
+    param_val = request.config.getoption('--tst_all_pwh_confs')
+    return True if param_val == 'True' else False
 
 
 @pytest.fixture

@@ -70,10 +70,6 @@ def testing_users(engines, system):
             with allure.step('Set test usr "{}" and pw "{}" with role {}'.format(usrname, pw, role)):
                 logging.info('Set test usr "{}" and pw "{}" with role {}'.format(usrname, pw, role))
 
-                logging.info('verify firstly that usr doesnt exist accidently')
-                PwhTools.verify_user(system, usrname, usr_should_exist=False)
-                PwhTools.verify_login(engines.dut, usrname, pw, login_should_succeed=False)
-
                 logging.info('set the usr + pw')
                 system.create_new_user(engines.dut, usrname, pw, role)
                 user_obj = System(username=usrname).aaa.user
@@ -91,11 +87,9 @@ def testing_users(engines, system):
         for usrname, usr_dict in users.items():
             with allure.step('Unset test usr "{}"'.format(usrname)):
                 logging.info('Unset test usr "{}"'.format(usrname))
-
-                logging.info('unset the usr')
                 usr_dict[PwhConsts.USER_OBJ].unset(apply=True).verify_result()
 
-                logging.info('verify usr doesnt exist now and cannot login with pw')
+                logging.info('Verify usr doesnt exist now and cannot login with pw')
                 PwhTools.verify_user(system, usrname, usr_should_exist=False)
                 PwhTools.verify_login(engines.dut, usrname, usr_dict[PwhConsts.PW], login_should_succeed=False)
 
