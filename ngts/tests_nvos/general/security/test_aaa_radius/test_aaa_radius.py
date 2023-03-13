@@ -95,14 +95,14 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
         logging.info("Validating role permissions are as expected")
         if role == SystemConsts.DEFAULT_USER_ADMIN:
             logging.info("User has admin permissions and can set configurations")
-            system.message.set("RADIUS", engines.dut, field_name='pre-login').verify_result(should_succeed=True)
+            system.message.set("NVOS TESTS", engines.dut, field_name='pre-login').verify_result(should_succeed=True)
             system.message.unset(engines.dut, field_name='pre-login').verify_result(should_succeed=True)
         else:
             logging.info("User has monitor permissions and cannot set configurations")
-            system.message.set("RADIUS", engines.dut, field_name='pre-login').verify_result(should_succeed=False)
+            system.message.set("NVOS TESTS", engines.dut, field_name='pre-login').verify_result(should_succeed=False)
 
 
-def validate_all_radius_user_authorization_and_role(engines, users):
+def validate_users_authorization_and_role(engines, users):
     """
     @summary:
         in this function we want to iterate on all users given and validate that access to switch
@@ -137,7 +137,7 @@ def test_radius_basic_configurations(engines, clear_all_radius_configurations):
 
     with allure.step("Validating access to switch with username configured on the radius server"):
         logging.info("Validating access to switch with username configured on the radius server")
-        validate_all_radius_user_authorization_and_role(engines, radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
+        validate_users_authorization_and_role(engines, radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
 
 
 def randomize_radius_server():
@@ -201,13 +201,13 @@ def test_radius_priority_and_fail_through_functionality(engines,
 
     with allure.step("Testing Priority by connecting to switch using first real radius server credentials"):
         logging.info("Testing Priority by connecting to switch using first real radius server credentials")
-        validate_all_radius_user_authorization_and_role(engines,
-                                                        RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[0]][RadiusConstans.RADIUS_SERVER_USERS])
+        validate_users_authorization_and_role(engines,
+                                              RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[0]][RadiusConstans.RADIUS_SERVER_USERS])
 
     with allure.step("Testing Priority by connecting to switch using second real radius server credentials"):
         logging.info("Testing Priority by connecting to switch using second real radius server credentials")
-        validate_all_radius_user_authorization_and_role(engines,
-                                                        RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[1]][RadiusConstans.RADIUS_SERVER_USERS])
+        validate_users_authorization_and_role(engines,
+                                              RadiusConstans.RADIUS_SERVERS_DICTIONARY[real_radius_servers_order[1]][RadiusConstans.RADIUS_SERVER_USERS])
 
 
 def validate_failed_authentication_with_new_credentials(engines, username, password):
@@ -256,7 +256,7 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
 
     with allure.step("Connecting to switch and validate roles"):
         logging.info("Connecting to switch and validate roles")
-        validate_all_radius_user_authorization_and_role(engines, radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
+        validate_users_authorization_and_role(engines, radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
 
     system = System()
     with allure.step("Configuring invalid auth-port and validating applied configurations"):
@@ -334,8 +334,8 @@ def test_radius_all_supported_auth_types(engines, clear_all_radius_configuration
             configure_radius_server(radius_server_info)
         with allure.step("Validating access to switch with username configured on the radius server"):
             logging.info("Validating access to switch with username configured on the radius server")
-            validate_all_radius_user_authorization_and_role(engines,
-                                                            radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
+            validate_users_authorization_and_role(engines,
+                                                  radius_server_info[RadiusConstans.RADIUS_SERVER_USERS])
 
 
 def test_radius_root_user_authentication(engines, clear_all_radius_configurations):

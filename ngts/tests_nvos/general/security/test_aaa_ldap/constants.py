@@ -38,3 +38,7 @@ class LDAPConsts:
             }
         ]
     }
+
+    LDAP_SERVERS_LIST = [
+        PHYSICAL_LDAP_SERVER
+    ]
