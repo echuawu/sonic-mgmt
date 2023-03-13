@@ -1917,6 +1917,20 @@
       Redmine:
         - 3272016
 
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_initialize_dev_mac_address: Failed, Need valid mac addresses for device, mac: /tmp/sai.profile'
+    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: mlnx_initialize_dev_mac_address failed in connect  0xffffffff'
+    - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_create_switch: Failed to create the switch'
+    - '.* ERR syncd#SAI: :- exit_with_sai_failure: saisdkdump exited with SAI rc: 0xffffffff, msg: Failed to create a switch .'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_techsupport_no_secret.py
+    - Platform:
+      - arm64-nvda_bf-mbf2h536c
+      - arm64-nvda_bf-9009d3b600cvaa
+      Redmine:
+      - 3398655
+
 # Errors which should be ignored in test_containers_autorestart. The detaiils in RM 3315995
 - Errors_list:
     - '.* ERR what-just-happened#wjhd: :- removeBufferConfiguration: Fail to deinit SDK telemetry, error: \[4\]: \[Communication Error\]'
