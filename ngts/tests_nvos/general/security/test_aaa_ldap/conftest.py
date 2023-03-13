@@ -4,6 +4,17 @@ import pytest
 from ngts.nvos_tools.system.System import System
 
 
+def disable_ldap_feature(dut_engine):
+    '''
+    @summary: in this test case we want to remove ldap configuration as a remote aaa method
+    '''
+    logging.info("re-adjusting auth. method back to local only")
+    dut_engine.run_cmd('nv set system aaa authentication order local')
+    dut_engine.run_cmd("nv set system aaa authentication fallback disabled")
+    dut_engine.run_cmd("nv set system aaa authentication fallback disabled")
+    dut_engine.run_cmd("nv config apply -y")
+
+
 @pytest.fixture(scope='function')
 def remove_ldap_configurations(engines):
     '''
@@ -11,11 +22,7 @@ def remove_ldap_configurations(engines):
     '''
     yield
 
-    logging.info("re-adjusting auth. method back to local only")
-    engines.dut.run_cmd('nv set system aaa authentication order local')
-    engines.dut.run_cmd("nv set system aaa authentication fallback disabled")
-    engines.dut.run_cmd("nv set system aaa authentication fallback disabled")
-    engines.dut.run_cmd("nv config apply -y")
+    disable_ldap_feature(engines.dut)
     with allure.step("Removing ldap configurations"):
         logging.info("Removing ldap configurations")
         system = System()
