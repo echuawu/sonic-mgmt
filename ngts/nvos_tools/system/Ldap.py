@@ -17,13 +17,13 @@ class Ldap(BaseComponent):
         return self.set("hostname {} priority ".format(hostname), priority, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_bind_dn(self, user, apply=False, ask_for_confirmation=False):
-        return self.set("bin-dn ", user, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set("bind-dn ", user, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_bind_password(self, password, apply=False, ask_for_confirmation=False):
-        return self.set("bind-password ", password, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set("password ", password, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_port(self, port, apply=False, ask_for_confirmation=False):
-        return self.set("port ", port, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set("auth-port ", port, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_base_dn(self, base, apply=False, ask_for_confirmation=False):
         return self.set("base-dn ", base, apply=apply, ask_for_confirmation=ask_for_confirmation)
