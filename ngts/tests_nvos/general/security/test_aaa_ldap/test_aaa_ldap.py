@@ -231,3 +231,25 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
+
+def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations):
+    '''
+    @summary: in this test case we want to validate invalid bind dn ldap error flows,
+    we want to configure invalid bind dn value and then see that we are not able to connect
+    to switch
+    '''
+    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+
+    with allure.step("Validating that we can access the switch with matching configurations"):
+        logging.info("Validating that we can access the switch with matching configurations")
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+
+    system = System(None)
+    random_string = Tools.RandomizationTool.get_random_string(20)
+    with allure.step("Configuring invalid bind-dn: {}".format(random_string)):
+        logging.info("Configuring invalid bind-dn: {}".format(random_string))
+        system.aaa.ldap.set_bind_dn(user=random_string, apply=True)
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
+                                                            password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
