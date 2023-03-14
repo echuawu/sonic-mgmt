@@ -4,6 +4,7 @@ import pytest
 import logging
 import allure
 import sys
+import re
 
 
 BRANCH_PTF_MAPPING = {'master': 'latest',
@@ -35,42 +36,97 @@ def expected_topo(request):
 
 
 def get_sonic_hwsku(duthost):
-    return duthost.run_cmd('redis-cli -n 4 hget "DEVICE_METADATA|localhost" hwsku').strip()
+    return duthost.run_cmd('redis-cli -n 4 hget "DEVICE_METADATA|localhost" hwsku').strip().replace('"', '')
 
 
-def update_device_neighbor_metadata(sonic_dut, dut_cli_object, topo):
+def get_dev_neighbor(duthost):
+    reg_neighbor = r'.*"(?P<neighbor>.*)".*'
+    neighbors_res = duthost.run_cmd("redis-cli -n 4 keys DEVICE_NEIGHBOR*").strip("\n").split("\n")
+    neighbor_list = []
+
+    for neighbor in neighbors_res:
+        res = re.search(reg_neighbor, neighbor)
+        if res:
+            neighbor_list.append(res.groupdict()["neighbor"])
+
+    logger.info(f"neighbors is :{neighbor_list}")
+    return neighbor_list
+
+
+def get_neighbor_name(duthost, neighbor):
+    reg_neighbor = r'.*"(?P<neighbor_name>.*)".*'
+    neighbor_name_res = duthost.run_cmd('redis-cli -n 4 hget \"{}\" name'.format(neighbor)).strip("\n")
+    res = re.search(reg_neighbor, neighbor_name_res)
+    neighbor_name = ''
+    if res:
+        neighbor_name = res.groupdict()["neighbor_name"]
+
+    logger.info(f"neighbors name is :{neighbor_name}")
+    return neighbor_name
+
+
+def mock_t1_topo_on_ptf32(duthost):
     """
     Hack the DEVICE_NEIGHBOR_METADATA table for the ptf32 topo on "Mellanox-SN4600C-C64" to simulate the
-    dual tor qos scenario
-    :param sonic_dut: dut host engine
-    :param dut_cli_object: dut cli object
-    :param topo: topology value, expect ptf32 topo
-    :param hwsku: dut hwsku
+    dual tor t1 topo
+    :param duthost: dut host engine
     """
-    sonic_dut.disconnect()
-    hwsku = get_sonic_hwsku(sonic_dut)
-    if topo != "ptf32" or hwsku != "Mellanox-SN4600C-C64":
-        return
-    neighbors = sonic_dut.run_cmd("redis-cli -n 4 keys DEVICE_NEIGHBOR*").strip("\n").split("\n")
+    logger.info("mock t1 topo on ptf32")
+    neighbors = get_dev_neighbor(duthost)
     vm_hwsku = "Arista-VM"
     lo_addr = None
+
     add_neighbor_metadata_cmd_pattern = 'redis-cli -n 4 hset "DEVICE_NEIGHBOR_METADATA|{}" hwsku {} lo_addr {} mgmt_addr {}  type {}'
+
     mgmt_addr_patern = "10.75.207.{}"
     for index, neighbor in enumerate(neighbors):
-        neighbor_name = sonic_dut.run_cmd('redis-cli -n 4 hget \"{}\" name'.format(neighbor)).strip("\n")
+        neighbor_name = get_neighbor_name(duthost, neighbor)
         mgmt_addr = mgmt_addr_patern.format(10 + index)
         if neighbor_name.endswith("T0"):
             router_type = "ToRRouter"
         else:
             router_type = "SpineRouter"
         add_neighbor_metadata_cmd = add_neighbor_metadata_cmd_pattern.format(neighbor_name, vm_hwsku, lo_addr, mgmt_addr, router_type)
-        sonic_dut.run_cmd(add_neighbor_metadata_cmd)
+        duthost.run_cmd(add_neighbor_metadata_cmd)
+    enable_qos_config_and_reload_config(duthost)
+
+
+def mock_t0_topo_on_ptf32(duthost):
+    """
+    Hack the DEVICE_NEIGHBOR_METADATA table for the ptf32 topo on "Mellanox-SN2700-D48C8" to simulate the
+    dual tor t0 topo
+    :param duthost: dut host engine
+    """
+    logger.info("mock t0 topo on ptf32")
+    neighbors = get_dev_neighbor(duthost)
+    for index, neighbor in enumerate(neighbors):
+        neighbor_name = get_neighbor_name(duthost, neighbor)
+        mgmt_addr = "10.75.207.{}".format(index + 1)
+        if neighbor_name.endswith("T0"):
+            new_neighbor_name = neighbor_name.replace("T0", "T1")
+            router_type = "LeafRouter"
+            add_neighbor_metadata_cmd = 'redis-cli -n 4 hset "DEVICE_NEIGHBOR_METADATA|{}" ' \
+                                        'hwsku Arista-VM lo_addr None mgmt_addr {} type {}'.format(new_neighbor_name, mgmt_addr, router_type)
+            logger.info("Add DEVICE_NEIGHBOR_METADATA with cmd:{}".format(add_neighbor_metadata_cmd))
+            duthost.run_cmd(add_neighbor_metadata_cmd)
+            update_neighbor_name_cmd = 'redis-cli -n 4 hset "{}" name {}'.format(neighbor, new_neighbor_name)
+        elif neighbor_name.endswith("T2"):
+            update_neighbor_name_cmd = 'redis-cli -n 4 hset "{}" name Servers{} port eth0'.format(neighbor, index)
+        logger.info("Update DEVICE_NEIGHBOR name with cmd:{}".format(update_neighbor_name_cmd))
+        duthost.run_cmd(update_neighbor_name_cmd)
+    logger.info("Set type to ToRRouter and subtype to DualToR in DEVICE_METADATA|localhost")
+    duthost.run_cmd('redis-cli -n 4 hset "DEVICE_METADATA|localhost" type ToRRouter subtype DualToR')
+
+    enable_qos_config_and_reload_config(duthost)
+
+
+def enable_qos_config_and_reload_config(duthost):
     enable_qos_remap_table = 'redis-cli -n 4 hset "SYSTEM_DEFAULTS|tunnel_qos_remap" status enabled'
-    sonic_dut.run_cmd(enable_qos_remap_table)
-    sonic_dut.run_cmd("sudo config qos reload --no-dynamic-buffer")
-    dut_cli_object.general.save_configuration()
-    dut_cli_object.general.reload_configuration()
-    sonic_dut.run_cmd("sleep 180")
+    duthost.run_cmd(enable_qos_remap_table)
+    duthost.run_cmd("sudo config qos reload --no-dynamic-buffer")
+    duthost.run_cmd("sudo config save -y")
+    duthost.run_cmd("sudo config reload -y -f")
+    duthost.run_cmd("sleep 180")
 
 
 def run_testbed_cli_script(cmd, ansible_path):
@@ -110,4 +166,9 @@ def test_rpc_check_and_set_topology(topology_obj, engines, cli_objects, current_
               "-e topo={TOPO} -b -vvv ".format(SWITCH=dut_name, TOPO=expected_topo)
         run_testbed_cli_script(cmd, ansible_path)
 
-    update_device_neighbor_metadata(engines.dut, cli_objects.dut, expected_topo)
+    engines.dut.disconnect()
+    hwsku = get_sonic_hwsku(engines.dut)
+    if expected_topo == "ptf32" and hwsku in ["Mellanox-SN4600C-C64"]:
+        mock_t1_topo_on_ptf32(engines.dut)
+    elif expected_topo == "ptf32" and hwsku in ["Mellanox-SN2700-D48C8"]:
+        mock_t0_topo_on_ptf32(engines.dut)
