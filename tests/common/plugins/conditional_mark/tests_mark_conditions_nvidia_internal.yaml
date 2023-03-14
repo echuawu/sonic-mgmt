@@ -1348,4 +1348,57 @@ dualtor_io/test_tor_failure.py::test_active_tor_reboot_downstream_standby:
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
+dualtor_io/test_link_failure.py::test_active_link_down_downstream_active:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3389842"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3389842"
+
+dualtor_io/test_link_failure.py::test_active_link_down_downstream_standby:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3389842"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3389842"
+
+dualtor_io/test_link_failure.py::test_active_tor_downlink_down_downstream_active:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3389842"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3389842"
+
+dualtor/test_tor_ecn.py::test_dscp_to_queue_during_decap_on_active[2]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3400587"
+
+dualtor/test_tor_ecn.py::test_dscp_to_queue_during_decap_on_active[6]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3400587"
+
+dualtor/test_tor_ecn.py::test_dscp_to_queue_during_encap_on_standby[2]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3400587"
+
+dualtor/test_tor_ecn.py::test_dscp_to_queue_during_encap_on_standby[6]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3400587"
+
+dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby[2]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3400587"
+
+dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby[6]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3400587"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
