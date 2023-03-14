@@ -633,8 +633,10 @@ ecmp/test_fgnhg.py:
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2739322 and platform msn3/msn4"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2739322 and ('msn3' in platform or 'msn4' in platform)"
+      - "https://redmine.mellanox.com/issues/3401097 and 'msn2' in platform"
 
 everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_everflow_dscp_with_policer:
   skip:
