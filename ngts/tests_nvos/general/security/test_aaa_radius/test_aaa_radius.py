@@ -1,8 +1,8 @@
 import logging
 import time
-
 import allure
 import random
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusConstans
 from ngts.nvos_tools.infra.Tools import Tools
@@ -217,14 +217,7 @@ def validate_failed_authentication_with_new_credentials(engines, username, passw
     '''
     with allure.step("Validating failed authentication with new credentials, username: {}".format(username)):
         logging.info("Validating failed authentication with new credentials, username: {}".format(username))
-        try:
-            connect_to_switch_and_validate_role(engines, username, password)
-            raise Exception("Was able to connect to switch with radius server credentials when we expected failure")
-        except NetmikoAuthenticationException as err:
-            if RadiusConstans.AUTHENTICATION_FAILURE_MESSAGE not in str(err):
-                raise Exception("Was able to connect to switch with radius server credentials when we expected failure")
-        finally:
-            restore_original_engine_credentials(engines)
+        ConnectionTool.create_ssh_conn(engines.dut.ip, username=username, password=password).verify_result(should_succeed=False)
 
 
 def test_radius_configurations_error_flow(engines, clear_all_radius_configurations):

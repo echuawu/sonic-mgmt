@@ -8,7 +8,7 @@ class LDAPConsts:
     BIND_DN = 'bind-dn'
     BIND_PASSWORD = 'bind-password'
     TIMEOUT_BIND = 'timeout-bind'
-    TIMEOUT = 'timeout'
+    TIMEOUT = 'timeout-search'
     PORT = 'auth-port'
     VERSION = 'version'
     LOGIN_ATTR = 'login-attribute'
@@ -23,44 +23,84 @@ class LDAPConsts:
     PHYSICAL_LDAP_SERVER = {
         "hostname": "10.7.34.20",
         "base-dn": "dc=itzgeek,dc=local",
-        "bind-dn": "uid=monitoruser,ou=People,dc=itzgeek,dc=local",
-        "bind-password": "YXNk",
-        "login-attribute": "uid",
+        "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
+        "password": "secret",
+        "login-attribute": "cn",
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
         "timeout-bind": "5",
-        "timeout": "5",
-        "version": 3,
-        "priority": 1,
+        "timeout-search": "5",
+        "version": '3',
+        "priority": '1',
         "users": [
             {
                 'username': 'monitoruser',  # TODO: change to volt once it is in
-                'password': 'YXNk',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
                 'role': 'monitor'
             },
             {
                 'username': 'adminuser',  # TODO: change to volt once it is in
-                'password': 'YXNk',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
                 'role': 'monitor'
             }
         ],
         "nested-users": [
             {
                 'username': 'nestedMonitorUser',  # TODO: change to volt once it is in
-                'password': 'YXNk',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
                 'role': 'monitor'
             },
             {
                 'username': 'nestedAdminUser',  # TODO: change to volt once it is in
-                'password': 'YXNk',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            }
+        ]
+    }
+
+    DOCKER_LDAP_SERVER = {
+        "hostname": "10.237.0.86",
+        "base-dn": "dc=itzgeek,dc=local",
+        "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
+        "bind-password": "secret",
+        "login-attribute": "cn",
+        "group-attribute": "member",
+        # "scope": "subtree", not supported now
+        "auth-port": "389",
+        "timeout-bind": "5",
+        "timeout": "5",
+        "version": '3',
+        "priority": '1',
+        "users": [
+            {
+                'username': 'monitoruser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'adminuser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'admin'
+            }
+        ],
+        "nested-users": [
+            {
+                'username': 'nestedMonitorUser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'nestedAdminUser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
                 'role': 'monitor'
             }
         ]
     }
 
     LDAP_SERVERS_LIST = [
-        PHYSICAL_LDAP_SERVER
+        PHYSICAL_LDAP_SERVER,
+        DOCKER_LDAP_SERVER
     ]
 
     LDAP_LOW_TIMOEUT = 1
