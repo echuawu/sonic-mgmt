@@ -264,18 +264,29 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 serial_engine.run_cmd('YES', '\\*ONIE: Install OS', timeout=420)
 
         logger.info("Pressing Enter to enter ONIE menu")
-        serial_engine.run_cmd('\r', 'Please press Enter to activate this console', timeout=240)
+        self.wait_for_onie_prompt(serial_engine)
 
     def prepare_for_installation(self, topology_obj):
         '''
-        @summary: in this function we will enter onie install mode using remote reboot
+        @summary: in this function we will enter onie install mode using remolte reboot
         '''
         switch_in_onie = False
         try:
-            self.enter_onie_install_mode(topology_obj)
+            self.enter_onie(topology_obj)
             switch_in_onie = True
         except Exception as err:
             logger.info("Got an exception: {}".format(str(err)))
             switch_in_onie = False
         finally:
             return switch_in_onie
+
+    @retry(Exception, tries=4, delay=5)
+    def wait_for_onie_prompt(self, serial_engine):
+        serial_engine.run_cmd('\r', ['Please press Enter to activate this console', 'ONIE:/\\s+'], timeout=60)
+
+    @retry(Exception, tries=3, delay=5)
+    def enter_onie(self, topology_obj):
+        self.enter_onie_install_mode(topology_obj)
+
+    def confirm_in_onie_install_mode(self, topology_obj):
+        pass
