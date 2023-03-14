@@ -261,6 +261,21 @@ class SystemConsts:
     HEALTH_STATUS = "health-status"
 
 
+class DocumentsConsts:
+    TYPE_EULA = 'EULA'
+    TYPE_USER_MANUAL = 'User manual'
+    TYPE_OPEN_SOURCE_LICENSES = 'Open source licenses'
+    TYPE_RELEASE_NOTES = 'Release notes'
+    PATH_EULA = "/usr/share/nginx/html/system_documents/eula/NVOS_EULA.pdf"
+    PATH_USER_MANUAL = "/usr/share/nginx/html/system_documents/user_manual/NVOS_User_Manual.pdf"
+    PATH_OPEN_SOURCE_LICENSES = "/usr/share/nginx/html/system_documents/open_source_licenses/Open_Source_Licenses.txt"
+    PATH_RELEASE_NOTES = "/usr/share/nginx/html/system_documents/release_notes/NVOS_Release_Notes.pdf"
+    FILE_NAME_EULA = "NVOS_EULA.pdf"
+    FILE_NAME_USER_MANUAL = "NVOS_User_Manual.pdf"
+    FILE_NAME_OPEN_SOURCE_LICENSES = "Open_Source_Licenses.txt"
+    FILE_NAME_RELEASE_NOTES = "NVOS_Release_Notes.pdf"
+
+
 class ActionConsts:
     CLEANUP = "cleanup"
     INSTALL = "install"

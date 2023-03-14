@@ -56,6 +56,7 @@ class System(BaseComponent):
     def __init__(self, parent_obj=None, username='admin'):
         self._resource_path = '/system'
         self.parent_obj = parent_obj
+        self.documentation = Documentation(self)
         self.aaa = Aaa(self, username)
         self.log = Log(self)
         self.debug_log = DebugLog(self)
@@ -199,6 +200,20 @@ class Version(BaseComponent):
 
     def get_expected_fields(self, device):
         return device.constants.system['version']
+
+
+class Documentation(BaseComponent):
+    def __init__(self, parent_obj):
+        BaseComponent.__init__(self)
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/documentation'
+        self.parent_obj = parent_obj
+
+    def action_upload(self, upload_path, file_name):
+        with allure.step("Upload {file} to '{path}".format(file=file_name, path=upload_path)):
+            logging.info("Upload {file} to '{path}".format(file=file_name, path=upload_path))
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload, TestToolkit.engines.dut,
+                                                   self.get_resource_path(), 'files ' + file_name, upload_path)
 
 
 class FactoryDefault(BaseComponent):
