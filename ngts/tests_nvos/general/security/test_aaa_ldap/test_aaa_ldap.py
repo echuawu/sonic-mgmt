@@ -1,4 +1,5 @@
 import logging
+from random import random
 import allure
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
@@ -34,26 +35,26 @@ def configure_ldap(ldap_server_info):
 
     with allure.step("Configuring ldap server"):
         logging.info("Configuring ldap server")
-        system.aaa.ldap.set_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME], apply=True)
         if ldap_server_info.get(LDAPConsts.PRIORITY):
             system.aaa.ldap.set_hostname_priority(hostname=ldap_server_info[LDAPConsts.HOSTNAME],
-                                                  priority=ldap_server_info[LDAPConsts.PRIORITY], apply=True)
+                                                  priority=ldap_server_info[LDAPConsts.PRIORITY])
         if ldap_server_info.get(LDAPConsts.SCOPE):
-            system.aaa.ldap.set_scope(scope=ldap_server_info[LDAPConsts.SCOPE], apply=True)
+            system.aaa.ldap.set_scope(scope=ldap_server_info[LDAPConsts.SCOPE])
         if ldap_server_info.get(LDAPConsts.BASE_DN):
-            system.aaa.ldap.set_base_dn(base=ldap_server_info[LDAPConsts.BASE_DN], apply=True)
+            system.aaa.ldap.set_base_dn(base=ldap_server_info[LDAPConsts.BASE_DN])
         if ldap_server_info.get(LDAPConsts.BIND_DN):
-            system.aaa.ldap.set_bind_dn(user=ldap_server_info[LDAPConsts.BIND_DN], apply=True)
+            system.aaa.ldap.set_bind_dn(user=ldap_server_info[LDAPConsts.BIND_DN])
         if ldap_server_info.get(LDAPConsts.BIND_PASSWORD):
-            system.aaa.ldap.set_bind_password(password=ldap_server_info[LDAPConsts.BIND_PASSWORD], apply=True)
+            system.aaa.ldap.set_bind_password(password=ldap_server_info[LDAPConsts.BIND_PASSWORD])
         if ldap_server_info.get(LDAPConsts.PORT):
-            system.aaa.ldap.set_port(port=ldap_server_info[LDAPConsts.PORT], apply=True)
+            system.aaa.ldap.set_port(port=ldap_server_info[LDAPConsts.PORT])
         if ldap_server_info.get(LDAPConsts.TIMEOUT):
-            system.aaa.ldap.set_timeout_search(timeout=ldap_server_info[LDAPConsts.TIMEOUT], apply=True)
+            system.aaa.ldap.set_timeout_search(timeout=ldap_server_info[LDAPConsts.TIMEOUT])
         if ldap_server_info.get(LDAPConsts.TIMEOUT_BIND):
-            system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LDAPConsts.TIMEOUT_BIND], apply=True)
+            system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LDAPConsts.TIMEOUT_BIND])
         if ldap_server_info.get(LDAPConsts.VERSION):
-            system.aaa.ldap.set_version(version=ldap_server_info[LDAPConsts.VERSION], apply=True)
+            system.aaa.ldap.set_version(version=ldap_server_info[LDAPConsts.VERSION])
+        system.aaa.ldap.set_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME], apply=True)
 
 
 def validate_ldap_configurations(ldap_server_info):
@@ -81,8 +82,16 @@ def validate_ldap_configurations(ldap_server_info):
         logging.info("Validating the configuration of ldap to be the same as {}".format(ldap_server_info))
         output = system.aaa.ldap.show_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME])
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
-        expected_field = []  # TODO: add when the image is ready
-        expected_values = []  # TODO: add when the image is ready
+        expected_field = [LDAPConsts.PORT, LDAPConsts.BASE_DN, LDAPConsts.BIND_DN,
+                          LDAPConsts.LOGIN_ATTR, LDAPConsts.BIND_PASSWORD,
+                          LDAPConsts.TIMEOUT_BIND, LDAPConsts.TIMEOUT,
+                          LDAPConsts.VERSION, LDAPConsts.PRIORITY]
+        expected_values = [ldap_server_info[LDAPConsts.PORT], ldap_server_info[LDAPConsts.BASE_DN],
+                           ldap_server_info[LDAPConsts.BIND_DN], ldap_server_info[LDAPConsts.LOGIN_ATTR],
+                           ldap_server_info[LDAPConsts.BIND_PASSWORD],
+                           ldap_server_info[LDAPConsts.TIMEOUT_BIND], ldap_server_info[LDAPConsts.TIMEOUT],
+                           ldap_server_info[LDAPConsts.VERSION],
+                           ldap_server_info[LDAPConsts.PRIORITY]]
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
                                                         expected_values=expected_values,
                                                         output_dict=output).verify_result()
@@ -133,6 +142,21 @@ def test_ldap_basic_configurations(engines, remove_ldap_configurations):
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
 
 
+def randomize_ldap_server():
+    '''
+    @summary:
+        in this function we randomize radius server dictionary and return it.
+        e.g. of return value:
+        {
+            "hostname" : <value>
+        }
+    '''
+    randomized_radius_server_info = {
+        "hostname": f"1.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
+    }
+    return randomized_radius_server_info
+
+
 def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations):
     ''''
     @summary: in this test case we want to validate the functionality of the priority
@@ -140,7 +164,13 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
     found only in the first server and connect through credentials in the second server only
     and we are testing the local credentials
     '''
-    configure_ldap_and_validate(engines, ldap_server_list=LDAPConsts.LDAP_SERVERS_LIST)
+    with allure.step("Create invalid ldap server"):
+        logging.info("Create invalid ldap server")
+        randomized_ldap_server_dict = randomize_ldap_server()
+        randomized_ldap_server_dict[LDAPConsts.PRIORITY] = str(LDAPConsts.MAX_PRIORITY - 1)
+
+    ldap_server_list = LDAPConsts.LDAP_SERVERS_LIST.copy() + randomized_ldap_server_dict
+    configure_ldap_and_validate(engines, ldap_server_list=ldap_server_list)
 
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
@@ -232,6 +262,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
 
+
 def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations):
     '''
     @summary: in this test case we want to validate invalid bind dn ldap error flows,
@@ -253,3 +284,85 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations):
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
+
+
+def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations):
+    '''
+    @summary: in this test case we want to validate invalid base dn ldap error flows,
+    we want to configure invalid bind dn value and then see that we are not able to connect
+    to switch
+    '''
+    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+
+    with allure.step("Validating that we can access the switch with matching configurations"):
+        logging.info("Validating that we can access the switch with matching configurations")
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+
+    system = System(None)
+    random_string = Tools.RandomizationTool.get_random_string(20)
+    with allure.step("Configuring invalid base-dn: {}".format(random_string)):
+        logging.info("Configuring invalid base-dn: {}".format(random_string))
+        system.aaa.ldap.set_base_dn(base=random_string, apply=True)
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
+                                                            password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
+
+
+def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations):
+    '''
+    @summary: in this test case we want to check that with non existing credentials we are not able to
+    connect to swtich
+    '''
+    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+
+    with allure.step("Validating that we can access the switch with matching configurations"):
+        logging.info("Validating that we can access the switch with matching configurations")
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+
+    random_user = Tools.RandomizationTool.get_random_string(20)
+    random_password = Tools.RandomizationTool.get_random_string(20)
+    with allure.step("Connecting with non-existing credentials: ({},{})".format(random_user, random_password)):
+        logging.info("Connecting with non-existing credentials: ({},{})".format(random_user, random_password))
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=random_user,
+                                                            password=random_password)
+
+
+def test_ldap_set_show_unset(engines, remove_ldap_configurations):
+    """
+    @summary: in this test case we want to validate ldap commands:
+        1. set
+        2. show
+        3. unset
+    """
+    configured_ldap_servers_hostname = []
+
+    with allure.step("Configuring LDAP Server"):
+        logging.info("Configuring LDAP Server")
+        for ldap_server_info in LDAPConsts.LDAP_SERVERS_LIST:
+            configure_ldap(ldap_server_info)
+            configured_ldap_servers_hostname.append(ldap_server_info[LDAPConsts.HOSTNAME])
+
+    system = System()
+    with allure.step("Validate Unset specific ldap hostname command"):
+        logging.info("Validate Unset specific ldap hostname command")
+        for hostname in configured_ldap_servers_hostname:
+            system.aaa.ldap.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
+            output = system.aaa.ldap.show_hostname(hostname=hostname)
+            assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)
+
+    configured_ldap_servers_hostname = []
+    with allure.step("Configuring LDAP Servers again to test unset ldap"):
+        logging.info("Configuring LDAP Servers again to test unset ldap")
+        for ldap_server_info in LDAPConsts.LDAP_SERVERS_LIST:
+            configure_ldap(ldap_server_info)
+            configured_ldap_servers_hostname.append(ldap_server_info[LDAPConsts.HOSTNAME])
+
+    system.aaa.ldap.unset().verify_result(should_succeed=True)
+    with allure.step("Validating the show command output"):
+        logging.info("Validating the show command output")
+        output = system.aaa.ldap.show_hostname()
+        for hostname in configured_ldap_servers_hostname:
+            assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)
