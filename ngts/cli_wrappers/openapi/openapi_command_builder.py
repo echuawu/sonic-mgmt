@@ -95,7 +95,7 @@ class OpenApiRequest:
                 if result.result:
                     result.info = "Configuration applied successfully"
             except Exception:
-                result.info = "Error: Failed to apply configuration"
+                result = ResultObj(False, "Error: Failed to apply configuration")
             finally:
                 OpenApiRequest.changeset = None
                 OpenApiRequest.payload = {}
