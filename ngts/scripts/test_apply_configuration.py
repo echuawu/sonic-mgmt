@@ -38,6 +38,8 @@ def test_apply_basic_conf(topology_obj, setup_name, platform_params, is_simx):
             cli_object.general.verify_dockers_are_up(SonicConst.DOCKERS_LIST)
         with allure.step("Verify expected ports exist on DUT"):
             check_ports_exist(topology_obj, cli_object)
+        with allure.step('Apply DNS servers configuration into /etc/resolv.conf'):
+            cli_object.ip.apply_dns_servers_into_resolv_conf(is_air_setup=platform_params.setup_name.startswith('air'))
     except Exception as err:
         raise AssertionError(err)
 
