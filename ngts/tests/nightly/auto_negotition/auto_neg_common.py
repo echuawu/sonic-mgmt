@@ -221,13 +221,13 @@ class TestAutoNegBase:
             conf[port][AutonegCommandConstants.WIDTH] = conf[port]['expected_width']
             conf[port][AutonegCommandConstants.OPER] = "up"
             conf[port][AutonegCommandConstants.ADMIN] = "up"
-            if conf[port].get('expected_autoneg'):
-                conf[port]['expected_autoneg'] = conf[port]['expected_autoneg_when_both_enabled']
+            if conf[port].get('expected_mlxlink_autoneg') and conf[port].get('expected_autoneg_when_both_enabled'):
+                conf[port]['expected_mlxlink_autoneg'] = conf[port]['expected_autoneg_when_both_enabled']
 
     @staticmethod
     def update_port_autoneg_expected_mode(conf):
-        if conf.get('expected_autoneg'):
-            conf[AutonegCommandConstants.AUTONEG_MODE] = conf['expected_autoneg']
+        if conf.get('expected_mlxlink_autoneg'):
+            conf[AutonegCommandConstants.AUTONEG_MODE] = conf['expected_mlxlink_autoneg']
 
     @staticmethod
     def get_loopback_first_second_ports_lists(tested_lb_dict):
@@ -489,7 +489,10 @@ class TestAutoNegBase:
             self.configure_ports(self.engines.dut, self.cli_objects.dut,
                                  conf, base_interfaces_speeds, cleanup_list, set_cleanup=set_cleanup)
             logger.info("Enable auto negotiation mode on the first port of the loopbacks")
-            self.configure_port_auto_neg(self.cli_objects.dut, lb_ports_1_list, conf, cleanup_list)
+            self.configure_port_auto_neg(self.cli_objects.dut, lb_ports_1_list, conf, cleanup_list,
+                                         set_expected_mlxlink_autoneg=False)
+            for port in lb_ports_2_list:
+                conf[port]['expected_mlxlink_autoneg'] = "Force"
             logger.info("Check configuration on ports did not modify while auto neg is enabled on one loopback port")
             self.verify_auto_neg_configuration(conf, check_adv_parm=False)
             logger.info("Enable auto negotiation mode on the second port of the loopbacks")
@@ -553,7 +556,8 @@ class TestAutoNegBase:
         cli_object.interface.config_advertised_interface_types(port, interface_type_list)
 
     @staticmethod
-    def configure_port_auto_neg(cli_object, ports_list, conf, cleanup_list, mode='enabled'):
+    def configure_port_auto_neg(cli_object, ports_list, conf, cleanup_list, mode='enabled',
+                                set_expected_mlxlink_autoneg=True):
         """
         configure the auto neg mode on the port.
         :param cli_object: cli object of engine
@@ -567,6 +571,8 @@ class TestAutoNegBase:
             for port in ports_list:
                 cli_object.interface.config_auto_negotiation_mode(port, mode)
                 conf[port][AutonegCommandConstants.AUTONEG_MODE] = mode
+                if set_expected_mlxlink_autoneg:
+                    conf[port]['expected_mlxlink_autoneg'] = mode
                 if mode == 'enabled':
                     cleanup_list.append((cli_object.interface.config_auto_negotiation_mode,
                                          (port, 'disabled')))

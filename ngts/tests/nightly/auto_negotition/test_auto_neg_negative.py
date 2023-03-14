@@ -199,10 +199,11 @@ class TestAutoNegNegative(TestAutoNegBase):
         for port in lb:
             self.cli_objects.dut.interface.config_advertised_speeds(port, "all")
             self.cli_objects.dut.interface.config_advertised_interface_types(port, "all")
-            conf[port]['expected_autoneg'] = "Force"
+            conf[port]['expected_mlxlink_autoneg'] = "Force"
         logger.info("verify auto-negotiation fails in case of mismatch advertised types and speeds")
         self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
-                                     conf, cleanup_list, mode='disabled')
+                                     conf, cleanup_list, mode='disabled',
+                                     set_expected_mlxlink_autoneg=False)
         self.auto_neg_checker(tested_lb_dict, conf, cleanup_list)
 
     def check_if_interface_support_max_cr_type(self, port, conf_min_speed, max_type):

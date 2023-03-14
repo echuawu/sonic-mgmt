@@ -43,7 +43,8 @@ class TestAutoNeg(TestAutoNegBase):
 
             logger.info("Set auto negotiation mode to disabled on ports before test starts")
             self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
-                                         conf, cleanup_list, mode='disabled')
+                                         conf, cleanup_list, mode='disabled',
+                                         set_expected_mlxlink_autoneg=False)
 
             logger.info("Enable auto-negotiation with default settings and"
                         " validate speed/type configuration is as expected.")
@@ -72,6 +73,8 @@ class TestAutoNeg(TestAutoNegBase):
             logger.info("Disable auto negotiation and validate the configuration return to previous setting.")
             self.configure_port_auto_neg(self.cli_objects.dut, conf.keys(),
                                          conf, cleanup_list, mode='disabled')
+            for port in conf.keys():
+                conf_backup[port]['expected_mlxlink_autoneg'] = "Force"
             self.verify_auto_neg_configuration(conf_backup)
 
     def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable):
