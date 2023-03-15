@@ -289,7 +289,7 @@ class PlatformDynamicErrorsIgnore(LaDynamicErrorsIgnore):
         if not platform_type:
             logger.debug('Getting platform from DUT')
             try:
-                show_platform_summary_raw_output = run_cmd_on_dut(self.pytest_item_obj, 'show platform summary')
+                show_platform_summary_raw_output = run_cmd_on_dut(self.pytest_item_obj, 'show platform summary').decode()
                 platform_type = self.get_platform_from_platform_summary(show_platform_summary_raw_output)
                 self.pytest_item_obj.session.config.cache.set(DynamicLaConsts.CUSTOM_TEST_SKIP_PLATFORM_TYPE,
                                                               platform_type)
