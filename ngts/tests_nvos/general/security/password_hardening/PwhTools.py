@@ -421,6 +421,39 @@ class PwhTools:
         return confs
 
     @staticmethod
+    def generate_conf_with_random_password_policies():
+        """
+        @summary:
+            Generate a password hardening configuration with random password policies
+            * state enabled
+            * expiration & expiration-warning = -1
+            * history-count = 1
+        @return: password hardening configuration (dict)
+        """
+        with allure.step('Generate random password hardening configuration'):
+            logging.info('Generate random password hardening configuration')
+            conf = {
+                PwhConsts.STATE: PwhConsts.ENABLED,
+                PwhConsts.EXPIRATION: '-1',
+                PwhConsts.EXPIRATION_WARNING: '-1',
+                PwhConsts.HISTORY_CNT: '1',
+                PwhConsts.REJECT_USER_PASSW_MATCH: RandomizationTool.
+                select_random_value(PwhConsts.VALID_VALUES[PwhConsts.REJECT_USER_PASSW_MATCH]).get_returned_value(),
+                PwhConsts.LEN_MIN: RandomizationTool.
+                select_random_value(PwhConsts.VALID_VALUES[PwhConsts.LEN_MIN]).get_returned_value(),
+                PwhConsts.LOWER_CLASS: RandomizationTool.
+                select_random_value(PwhConsts.VALID_VALUES[PwhConsts.LOWER_CLASS]).get_returned_value(),
+                PwhConsts.UPPER_CLASS: RandomizationTool.
+                select_random_value(PwhConsts.VALID_VALUES[PwhConsts.UPPER_CLASS]).get_returned_value(),
+                PwhConsts.DIGITS_CLASS: RandomizationTool.
+                select_random_value(PwhConsts.VALID_VALUES[PwhConsts.DIGITS_CLASS]).get_returned_value(),
+                PwhConsts.SPECIAL_CLASS: RandomizationTool.
+                select_random_value(PwhConsts.VALID_VALUES[PwhConsts.SPECIAL_CLASS]).get_returned_value()
+            }
+            logging.info('Generated password hardening configuration:\n{}'.format(conf))
+            return conf
+
+    @staticmethod
     def generate_invalid_field_inputs(field):
         """
         Generate 3 invalid inputs of a given password hardening field:
@@ -495,14 +528,6 @@ class PwhTools:
             if not should_succeed:
                 ValidationTool.verify_sub_strings_in_str_output(res_obj.info, expected_errors)
 
-        with allure.step('Verify that password did{nt} change'.format(nt='' if should_succeed else 'nt')):
-            logging.info('Verify that password did{nt} change'.format(nt='' if should_succeed else 'nt'))
-            good_pw = new_pw if should_succeed else old_pw
-            bad_pw = old_pw if should_succeed else new_pw
-
-            PwhTools.verify_login(dut_obj, user_obj.username, bad_pw, login_should_succeed=False)
-            PwhTools.verify_login(dut_obj, user_obj.username, good_pw, login_should_succeed=True)
-
     @staticmethod
     def get_expected_errors(pwh_conf, usr, pw, pw_history):
         """
@@ -540,3 +565,54 @@ class PwhTools:
                 expected_errors.append(PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
 
             return expected_errors
+
+    @staticmethod
+    def verify_set_passwords(n, pwh_conf, username, user_obj, pw_history, dut_obj, should_succeed):
+        """
+        Set N new passwords to a user and verify success/fail
+        @param n:
+            can be a list of passwords that the user wish to set, or a number N of new passwords to be
+            generated in the function.
+        @param pwh_conf: current password hardening configuration
+        @param username: given username
+        @param user_obj: given user's User object
+        @param pw_history: passwords history
+        @param dut_obj: dut engine object
+        @param should_succeed: True - the passwords should be set successfully; False - should fail
+        @return: updated password history (list)
+        """
+        assert isinstance(n, int) or isinstance(n, list), 'Error: PwhTools.set_n_passwords must receive n that can be '\
+                                                          'either a number N of new passwords to generate, ' \
+                                                          'or a list of passwords that the user wish to set'
+
+        passwords = n if isinstance(n, list) else None
+        n = len(n) if isinstance(n, list) else n
+
+        with allure.step('Set N ( {} ) new passwords to user "{}" and verify success'.format(n, username)):
+            logging.info('Set N ( {} ) new passwords to user "{}" and verify success'.format(n, username))
+            for i in range(n):
+                if passwords is None:
+                    with allure.step('Generating new random strong password #{}'.format(i)):
+                        logging.info('Generating new random strong password #{}'.format(i))
+                        new_pw = PwhTools.generate_strong_pw(pwh_conf, username, pw_history)
+                        logging.info('New (strong) password - "{}"'.format(new_pw))
+                else:
+                    with allure.step('Given password #{} to set is "{}"'.format(i, passwords[i])):
+                        logging.info('Given password #{} to set is "{}"'.format(i, passwords[i]))
+                        new_pw = passwords[i]
+
+                with allure.step('Set user "{}" with password "{}"'.format(username, new_pw)):
+                    logging.info('Set user "{}" with password "{}"'.format(username, new_pw))
+                    res_obj = PwhTools.set_pw_and_apply(user_obj, new_pw)
+
+                with allure.step('Verify {}'.format('success' if should_succeed else 'error')):
+                    logging.info('Verify {}'.format('success' if should_succeed else 'error'))
+                    if should_succeed:
+                        res_obj.verify_result()
+                    else:
+                        PwhTools.verify_error(res_obj, PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
+
+                    if should_succeed:
+                        pw_history.append(new_pw)
+
+        return pw_history

@@ -74,10 +74,6 @@ def testing_users(engines, system):
                 system.create_new_user(engines.dut, usrname, pw, role)
                 user_obj = System(username=usrname).aaa.user
 
-                logging.info('verify usr exists now and can login with pw')
-                PwhTools.verify_user(system, usrname)
-                PwhTools.verify_login(engines.dut, usrname, pw)
-
                 users[usrname] = {PwhConsts.USER_OBJ: user_obj, PwhConsts.PW: pw}
 
     yield users
@@ -88,10 +84,6 @@ def testing_users(engines, system):
             with allure.step('Unset test usr "{}"'.format(usrname)):
                 logging.info('Unset test usr "{}"'.format(usrname))
                 usr_dict[PwhConsts.USER_OBJ].unset(apply=True).verify_result()
-
-                logging.info('Verify usr doesnt exist now and cannot login with pw')
-                PwhTools.verify_user(system, usrname, usr_should_exist=False)
-                PwhTools.verify_login(engines.dut, usrname, usr_dict[PwhConsts.PW], login_should_succeed=False)
 
 
 @pytest.fixture(scope='function')

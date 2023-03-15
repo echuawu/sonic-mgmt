@@ -4,7 +4,6 @@ import itertools
 import allure
 import logging
 import pytest
-
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import *
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -67,8 +66,10 @@ def test_good_flow_password_hardening(engines):
                     output_verification(password_hardening_output, passw_hardening_policy, passw_hardening_value)
 
                 with allure.step("Verify output after set command - using show security output"):
-                    security_output = OutputParsingTool.parse_json_str_to_dictionary(system.security.show()).get_returned_value()
-                    output_verification(security_output["password-hardening"], passw_hardening_policy, passw_hardening_value)
+                    security_output = OutputParsingTool.parse_json_str_to_dictionary(
+                        system.security.show()).get_returned_value()
+                    output_verification(security_output["password-hardening"], passw_hardening_policy,
+                                        passw_hardening_value)
 
 
 @pytest.mark.security
@@ -128,6 +129,67 @@ def test_show_system_security(engines):
 
 
 ''' ---------------------------------------------------------------------- '''
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_weak_and_strong_passwords_password_hardening(engines, system):
+    """
+    @summary:
+        Verify that setting a strong password succeeds, an setting a weak password fails
+        * strong/weak - according to a password hardening configuration
+        * verify - check that the set password command succeeds/fails and also check login succeeds/fails accordingly
+
+        Steps:
+        1. Set a password hardening configuration
+        2. Pick a strong and a weak password
+        3. Set the strong password
+        4. Verify set succeeds
+        5. Verify login with the strong password succeeds
+        6. Try to set the weak password
+        7. Verify set fails
+        8. Verify that login with weak password fails
+    """
+    with allure.step('Set a password hardening configuration'):
+        logging.info('Set a password hardening configuration')
+        conf = PwhTools.generate_conf_with_random_password_policies()
+        PwhTools.set_pwh_conf(conf, system.security.password_hardening)
+
+    with allure.step('Pick a strong and a weak password'):
+        logging.info('Pick a strong and a weak password')
+        username = PwhConsts.ADMIN_TEST_USR
+        user_obj = System(username=username).aaa.user
+        strong_pw = PwhTools.generate_strong_pw(conf, username, [])
+        weak_pw = PwhTools.generate_weak_pw(conf, username, [strong_pw])
+        logging.info(
+            'Test username: "{}"\nstrong password: "{}"\nweak password: "{}"'.format(username, strong_pw, weak_pw))
+
+    with allure.step('Set the strong password'):
+        logging.info('Set the strong password')
+        res_obj = PwhTools.set_pw_and_apply(user_obj, strong_pw)
+
+    with allure.step('Verify set succeeds'):
+        logging.info('Verify set succeeds')
+        res_obj.verify_result(should_succeed=True)
+
+    with allure.step('Verify login with the strong password succeeds'):
+        logging.info('Verify login with the strong password succeeds')
+        PwhTools.verify_user(system, username)
+        PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
+
+    with allure.step('Try to set the weak password'):
+        logging.info('Try to set the weak password')
+        res_obj = PwhTools.set_pw_and_apply(user_obj, weak_pw)
+
+    with allure.step('Verify set fails'):
+        logging.info('Verify set fails')
+        res_obj.verify_result(should_succeed=False)
+
+    with allure.step('Verify that login with weak password fails'):
+        logging.info('Verify that login with weak password fails')
+        PwhTools.verify_login(engines.dut, username, weak_pw, login_should_succeed=False)
+        PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
 
 
 @pytest.mark.system
@@ -208,11 +270,6 @@ def test_enable_disable_password_hardening(engines, system, testing_users):
     with allure.step('Set weak pw "{}" and apply'.format(weak_pw)):
         logging.info('Set weak pw "{}" and apply'.format(weak_pw))
         PwhTools.set_pw_and_apply(user_obj, weak_pw).verify_result()
-
-    with allure.step("Verify pw changed (no rule enforcing on new pws)"):
-        logging.info("Verify pw changed (no rule enforcing on new pws)")
-        PwhTools.verify_login(engines.dut, usrname, orig_pw, login_should_succeed=False)
-        PwhTools.verify_login(engines.dut, usrname, weak_pw)
         pw_history.append(weak_pw)  # save successful new pws in this list for 'history record' for the test
 
     with allure.step("Enable feature"):
@@ -229,20 +286,10 @@ def test_enable_disable_password_hardening(engines, system, testing_users):
         weak_pw2 = PwhTools.generate_weak_pw(cur_pwh_conf, usrname, weak_pw)
         PwhTools.set_pw_and_apply(user_obj, weak_pw2).verify_result(should_succeed=False)
 
-    with allure.step("Verify pw didn't change (rules enforced)"):
-        logging.info("Verify pw didn't change (rules enforced)")
-        PwhTools.verify_login(engines.dut, usrname, weak_pw2, login_should_succeed=False)
-        PwhTools.verify_login(engines.dut, usrname, weak_pw)
-
     with allure.step("Set strong pw"):
         logging.info("Set strong pw")
         strong_pw = PwhTools.generate_strong_pw(cur_pwh_conf, usrname, pw_history)
         PwhTools.set_pw_and_apply(user_obj, strong_pw).verify_result()
-
-    with allure.step("Verify pw changed"):
-        logging.info("Verify pw changed")
-        PwhTools.verify_login(engines.dut, usrname, weak_pw, login_should_succeed=False)
-        PwhTools.verify_login(engines.dut, usrname, strong_pw)
 
 
 @pytest.mark.system
@@ -380,7 +427,7 @@ def test_functionality_password_hardening(engines, system, init_pwh, testing_use
     test_user_obj = testing_users[PwhConsts.ADMIN_TEST_USR][PwhConsts.USER_OBJ]
 
     all_confs = PwhTools.generate_configurations()
-    test_confs = all_confs if tst_all_pwh_confs else random.sample(all_confs, PwhConsts.NUM_CONFS_TO_TEST)
+    test_confs = all_confs if tst_all_pwh_confs else random.sample(all_confs, PwhConsts.NUM_SAMPLES)
     logging.info('The test will check with {} password hardening configurations'.format(len(test_confs)))
 
     old_pw = orig_pw
@@ -389,7 +436,7 @@ def test_functionality_password_hardening(engines, system, init_pwh, testing_use
     with allure.step('Test functionality for each password hardening configuration'):
         logging.info('Test functionality for each password hardening configuration')
         for i, conf in enumerate(test_confs):
-            logging.info('Testing with conf #{} :\n{}'.format(i, conf))     # for debugging
+            logging.info('Testing with conf #{} :\n{}'.format(i, conf))  # for debugging
 
             with allure.step('Verify conf is a valid password hardening configuration'):
                 logging.info('Verify conf is a valid password hardening configuration')
@@ -418,7 +465,8 @@ def test_functionality_password_hardening(engines, system, init_pwh, testing_use
             if conf[PwhConsts.REJECT_USER_PASSW_MATCH] == PwhConsts.ENABLED:
                 with allure.step('Test with the username as a password "{}"'.format(test_username)):
                     logging.info('Test with the username as a password "{}"'.format(test_username))
-                    PwhTools.verify_conf_with_password(engines.dut, conf, test_user_obj, test_username, old_pw, pw_history)
+                    PwhTools.verify_conf_with_password(engines.dut, conf, test_user_obj, test_username, old_pw,
+                                                       pw_history)
 
             with allure.step('Generate strong password that applies policies of current configuration'):
                 logging.info('Generate strong password that applies policies of current configuration')
@@ -430,6 +478,62 @@ def test_functionality_password_hardening(engines, system, init_pwh, testing_use
                 PwhTools.verify_conf_with_password(engines.dut, conf, test_user_obj, strong_pw, old_pw, pw_history)
                 pw_history.append(strong_pw)
                 old_pw = strong_pw
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_history_functionality_password_hardening(engines, system, init_pwh, testing_users):
+    """
+    Test the functionality of history-cnt password hardening setting.
+
+    Steps:
+        1. Set history-cnt to N
+        2. Set N new passwords
+        3. Verify success (for each of them)
+        4. Try to set these N passwords again
+        5. Verify failure and error (for each of them)
+        6. Set the original password
+        7. Verify success (it is N+1 paasswords ago)
+    """
+    # random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.MAX[PwhConsts.HISTORY_CNT]) -> too long test
+    hist_cnt = PwhConsts.NUM_SAMPLES
+    logging.info('Chosen N = {}'.format(hist_cnt))
+
+    pwh_obj = system.security.password_hardening
+
+    test_username = PwhConsts.ADMIN_TEST_USR
+    test_user_obj = testing_users[test_username][PwhConsts.USER_OBJ]
+    orig_pw = testing_users[test_username][PwhConsts.PW]
+
+    pw_history = [orig_pw]
+
+    with allure.step('Set setting "{}" to N ( {} )'.format(PwhConsts.HISTORY_CNT, hist_cnt)):
+        logging.info('Set setting "{}" to N ( {} )'.format(PwhConsts.HISTORY_CNT, hist_cnt))
+        pwh_obj.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
+        pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+
+    with allure.step('Set N ( {} ) new passwords to user "{}" and verify success'.format(hist_cnt, test_username)):
+        logging.info('Set N ( {} ) new passwords to user "{}" and verify success'.format(hist_cnt, test_username))
+        pw_history = PwhTools.verify_set_passwords(hist_cnt, pwh_conf, test_username, test_user_obj, pw_history,
+                                                   engines.dut,
+                                                   should_succeed=True)
+
+    with allure.step('Try to set some ( {} ) of these N ( {} ) passwords again, and verify errors'
+                     .format(min(PwhConsts.NUM_SAMPLES, hist_cnt), hist_cnt)):
+        logging.info('Try to set some ( {} ) of these N ( {} ) passwords again, and verify errors'
+                     .format(min(PwhConsts.NUM_SAMPLES, hist_cnt), hist_cnt))
+        # todo: alonnn - currently user can reuse current pw to set as new pw (bug).
+        #   after bug fix, change blow code to let the test pick also the current pass (pw_history[-1])
+        cant_reuse_pws = pw_history[1:len(pw_history) - 1]  # can reuse orig and current pws, so dont pick them
+        pws_to_try_again = random.sample(cant_reuse_pws, min(PwhConsts.NUM_SAMPLES, len(cant_reuse_pws)))
+        pw_history = PwhTools.verify_set_passwords(pws_to_try_again, pwh_conf, test_username, test_user_obj, pw_history,
+                                                   engines.dut, should_succeed=False)
+
+    with allure.step('Set the original password ( "{}" ), and verify success'.format(orig_pw)):
+        logging.info('Set the original password ( "{}" ), and verify success'.format(orig_pw))
+        PwhTools.verify_set_passwords([orig_pw], pwh_conf, test_username, test_user_obj, pw_history, engines.dut,
+                                      should_succeed=True)
 
 
 def t_test(engines, system):

@@ -111,4 +111,4 @@ class PwhConsts:
     SPECIAL_CHARS = ")"  # "~!@#%^*()-_+=|[{}]:',<.>/"   # was also with "`$&;?"     # todo: alonnn - verify defaults
 
     # configurable parameter to the test
-    NUM_CONFS_TO_TEST = 6
+    NUM_SAMPLES = 6
