@@ -4,6 +4,7 @@ from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from netmiko.ssh_exception import NetmikoAuthenticationException
 
 logger = logging.getLogger()
 
@@ -19,13 +20,17 @@ class ConnectionTool:
         :return:
         """
         with allure.step('create ssh connection with the username {username}'.format(username=username)):
-            result_obj = ResultObj(False, "")
+            result_obj = ResultObj(False, "Couldn't connect")
 
-            ssh_conn = LinuxSshEngine(ip=ip, username=username, password=password)
+            try:
+                ssh_conn = LinuxSshEngine(ip=ip, username=username, password=password)
 
-            if ConnectionTool.is_connected(ssh_conn).verify_result():
-                result_obj.returned_value = ssh_conn
-                result_obj.result = True
+                if ConnectionTool.is_connected(ssh_conn).verify_result():
+                    result_obj.returned_value = ssh_conn
+                    result_obj.result = True
+                    result_obj.info = 'Created ssh connection successfully'
+            except NetmikoAuthenticationException:
+                return result_obj
 
             return result_obj
 
