@@ -492,7 +492,9 @@ class MarlinSwitch(MultiAsicSwitch):
 
     def _init_available_databases(self):
         MultiAsicSwitch._init_available_databases(self)
-        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"LANES": 0,
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2,
+                                                                            "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
+                                                                            "LANES": 0,
                                                                             "VIDCOUNTER": 0,
                                                                             "RIDTOVID": 0,
                                                                             "HIDDEN": 0,
@@ -504,7 +506,7 @@ class MarlinSwitch(MultiAsicSwitch):
                  "ALIAS_PORT_MAP": self.ib_ports_num() / 2,
                  "IB_PORT_TABLE:Port": 2},
             DatabaseConst.ASIC_DB_ID:
-                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,    # TODO why 1 ?! check on gorilla
+                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,
                  "LANES": 1,
                  "VIDCOUNTER": 1,
                  "RIDTOVID": 1,
