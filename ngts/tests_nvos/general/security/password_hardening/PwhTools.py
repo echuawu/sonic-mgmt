@@ -1,8 +1,8 @@
 import random
 import string
-
 import allure
 
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -51,7 +51,7 @@ class PwhTools:
 
             if pwh_conf[PwhConsts.SPECIAL_CLASS] == PwhConsts.ENABLED:
                 logging.info('{} is enabled. adding a random special char'.format(PwhConsts.SPECIAL_CLASS))
-                pw += random.choice(PwhConsts.SPECIAL_CLASS_CHARS)
+                pw += random.choice(PwhConsts.SPECIAL_CHARS)
 
             k = int(pwh_conf[PwhConsts.HISTORY_CNT])  # k = history-cnt
             n = len(pw_history)
@@ -115,7 +115,7 @@ class PwhTools:
                     logging.info('{} is enabled. can finish'.format(PwhConsts.DIGITS_CLASS))
                 elif pwh_conf[PwhConsts.SPECIAL_CLASS] == PwhConsts.ENABLED:
                     logging.info('{} is enabled. can finish'.format(PwhConsts.SPECIAL_CLASS))
-                    pw += random.choice(PwhConsts.SPECIAL_CLASS_CHARS)
+                    pw += random.choice(PwhConsts.SPECIAL_CHARS)
                 elif pwh_conf[PwhConsts.REJECT_USER_PASSW_MATCH] == PwhConsts.ENABLED:
                     logging.info('{} is enabled. set pw to be usrname: {}'.format(PwhConsts.REJECT_USER_PASSW_MATCH, usrname))
                     pw = usrname
@@ -192,49 +192,32 @@ class PwhTools:
             logging.info('Verify that login with user "{}" and pw "{}" {}'
                          .format(usrname, pw, 'succeeds' if login_should_succeed else 'does not succeed'))
 
-        with allure.step('Backup orig username "{}" and password "{}"'
-                         .format(dut_engine_obj.username, dut_engine_obj.password)):
-            logging.info('Backup orig username "{}" and password "{}"'
-                         .format(dut_engine_obj.username, dut_engine_obj.password))
-            orig_usrname, orig_pw = dut_engine_obj.username, dut_engine_obj.password
-
-        with allure.step('Update credentials to username "{}" and password {}'.format(usrname, pw)):
-            logging.info('Update credentials to username "{}" and password {}'.format(usrname, pw))
-            cond = PwhTools.bool_update_credentials(dut_engine_obj, usrname, pw, 1, 0)
+        with allure.step('Check ssh connection with username "{}" and password "{}"'.format(usrname, pw)):
+            logging.info('Check ssh connection with username "{}" and password "{}"'.format(usrname, pw))
+            cond = PwhTools.check_ssh_connection(dut_engine_obj, usrname, pw)
 
         with allure.step('Assert cond ( {} ) == login_should_succeed ( {} )\nAssert result: {}'
                          .format(cond, login_should_succeed, cond == login_should_succeed)):
             logging.info('Assert cond ( {} ) == login_should_succeed ( {} )\nAssert result: {}'
                          .format(cond, login_should_succeed, cond == login_should_succeed))
             assert cond == login_should_succeed, 'Error: PwhTools.verify_login() asserts that login with user "{}" ' \
-                                                 'and pw "{}" should{} succeed, but it did{}'\
+                                                 'and pw "{}" should{} succeed, but it did{}' \
                 .format(usrname, pw, '' if login_should_succeed else ' not', '.' if cond else ' not.')
 
-        # restore orig usrname and pw
-        with allure.step('Restore credentials - Update credentials back to username "{}" and password "{}"'
-                         .format(orig_usrname, orig_pw)):
-            logging.info('Restore credentials - Update credentials back to username "{}" and password "{}"'
-                         .format(orig_usrname, orig_pw))
-            assert PwhTools.bool_update_credentials(dut_engine_obj, orig_usrname, orig_pw), \
-                'Unexpected Error in PwhTools.verify_login()'
-
     @staticmethod
-    def bool_update_credentials(dut_engine_obj, usr, pw, tries=3, delay=2):
+    def check_ssh_connection(dut_engine_obj, usr, pw):
         """
         Encapsulate ProxySshEngine.update_credentials() method to return True in success and False in failure
         @param dut_engine_obj: dut engine object
         @param usr: username
         @param pw: password
-        @param tries: number of tries
-        @param delay: delay time
         @return: True - if update_credentials succeeds; False - otherwise
         """
-        try:
-            dut_engine_obj.update_credentials(usr, pw, tries, delay)
-            return True
-        except Exception as err:
-            # except NetmikoAuthenticationException as err:
-            return False
+        res_obj = ConnectionTool.create_ssh_conn(dut_engine_obj.ip, usr, pw)
+        connection_success = res_obj.result
+        if connection_success:
+            res_obj.returned_value.disconnect()
+        return connection_success
 
     @staticmethod
     def set_pw_and_apply(user_obj, pw):

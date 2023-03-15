@@ -77,8 +77,6 @@ class PwhConsts:
         SPECIAL_CLASS: DISABLED
     }
 
-    SPECIAL_CLASS_CHARS = "`~!@#$%^&*()-_+=|[{}];:',<.>/"   # was also with "?"     # todo: alonnn - verify defaults
-
     # consts for tests
     ADMIN_TEST_USR = "test_admin"
     MONITOR_TEST_USR = "test_monitor"
@@ -94,3 +92,20 @@ class PwhConsts:
     ERR_INVALID_SET_CMD = 'Invalid Command: set system security password-hardening'
     ERR_INCOMPLETE_SET_CMD = 'Incomplete Command: set system security password-hardening'
     ERR_INVALID_SET_ENABLE_DISABLED = "is not one of ['enabled', 'disabled']"
+    ERR_PW_SHOULD_CONTAIN = 'Password should contain at least '
+
+    WEAK_PW_ERRORS = {  # todo: alonnn - verify defaults
+        HISTORY_CNT: 'Password should be different than',
+        REJECT_USER_PASSW_MATCH: 'Password should be different than username',
+        LEN_MIN: ERR_PW_SHOULD_CONTAIN,
+        LOWER_CLASS: ERR_PW_SHOULD_CONTAIN + 'one lowercase character',
+        UPPER_CLASS: ERR_PW_SHOULD_CONTAIN + 'one uppercase character',
+        DIGITS_CLASS: ERR_PW_SHOULD_CONTAIN + 'one digit',
+        SPECIAL_CLASS: ERR_PW_SHOULD_CONTAIN + 'one special character'
+    }
+
+    # chars of each class
+    LOWER_CHARS = 'abcdefghijklmnopqrstuvwxyz'
+    UPPER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    DIGITS_CHARS = '1234567890'
+    SPECIAL_CHARS = ")"  # "~!@#%^*()-_+=|[{}]:',<.>/"   # was also with "`$&;?"     # todo: alonnn - verify defaults
