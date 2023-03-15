@@ -2145,3 +2145,52 @@
         - 3388311
       Branch:
         - 202211
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_QUEUE_ATTR_INDEX: \d+'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_QUEUE_ATTR_TYPE: SAI_QUEUE_TYPE_ALL'
+    - '.* ERR syncd#SDK: :- logEventData: op: get, key: SAI_OBJECT_TYPE_QUEUE:oid:0x.*'
+    - '.* ERR syncd#SDK: :- setEndTime: event ''get:SAI_OBJECT_TYPE_QUEUE:oid:.*'' took \d+ ms to execute'
+    - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Priority Group Counter 0x.*: -1'
+    - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\]- mlnx_sai_get_ingress_priority_group_stats_ext: Failed to get port pg counters - TIMEOUT.'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] port_buff_cntr_get failed, for chip type CHIP_TYPE_SWITCH_SPECTRUM\d, err = TIMEOUT'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Failed to retrieve counters values for prio \(\d\)'
+    - '.* ERR syncd#SDK: \[PORT.ERR\] Can''t send GET-PPCNT EMAD for port \[0x.*\], err \(TIMEOUT\)'
+    - '.* ERR syncd#SDK: \[REG_BULK.ERR\] __reg_bulk_post_completion_cb Error got in completion data sxd_status \[12\]-\[TIMEOUT\].'
+    - '.* ERR syncd#SDK: \[REG_BULK.ERR\] sx_reg_layer_sxd_reg_call - Error at access reg call reg_id 0x.*, error: TIMEOUT'
+    - '.* ERR syncd#SDK: \[EMAD.ERR\] emad-send failed on register 0x.*, iteration \d+, status=\d+'
+    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_switch_generate_dump: Error generating extended sdk dump, sx status: Internal Error'
+    - '.* ERR syncd#SDK: \[EMAD_TRANSACTION.ERR\] ACCESS_REG TIMEOUT: timeout_usec=\d+, tid=0x.*, reg=0x.*, state=\d+, dev_id=\d, access_cmd=\d+'
+    - '.* ERR kernel: \[.*\] sx_core \d+:\d+:\d+.\d+: command 0x\d+ \(SX_CMD_ACCESS_REG\) timeout for cmd-ifc completion event on device \d+'
+    - '.* ERR kernel: \[.*\] sx_core: CMD-IFC timeout for device:\[\d+\] sending SDK health event \(if enabled\).'
+    - '.* ERR kernel: \[.*\] sx_core: failed to disconnect trap group \d+'
+    - '.* ERR kernel: \[.*\] __monitor_file_read\(\): disconnect rdq \d from TG failed. err: -\d+'
+    - '.* ERR kernel: \[.*\] sx_core: ioctl_read failed err:-\d+, buf_cnt:1, buff_list:.*, buff_list_cnt:.*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: QUEUE_COUNTER_ID_LIST: SAI_QUEUE_STAT_SHARED_WATERMARK_BYTES'
+    - '.* ERR syncd#SDK: :- logEventData: op: SET, key: QUEUE_WATERMARK_STAT_COUNTER:oid:0x.*'
+    - '.* ERR syncd#SDK: :- threadFunction: time span WD exceeded \d+ ms for SET:QUEUE_WATERMARK_STAT_COUNTER:oid:0x.*'
+  Conditions:
+    - Redmine:
+      - 3373851
+      Branch:
+        - 202211
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] sxd_ioctl \(CTRL_CMD_ACCESS_REG - MGIR\) error: \[Connection timed out\]'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed to retrieve tiles information during FW dump generation'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] Cr space dump failed#\d+'
+    - '.* ERR syncd#SDK: \[SX_API_DBG.ERR\] FW dump failed, err: Internal Error'
+  Conditions:
+    - Redmine:
+      - 3404143
+      Branch:
+        - 202211
+
+- Errors_list:
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: sx_lib_host_ifc_recv_list failed, error: Driver''s Return Status is Non-Zero.'
+    - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: __wjh_non_l1_cyclic_channel_read failed, err: 1'
+  Conditions:
+    - Redmine:
+      - 3404138
+      Branch:
+        - 202211
