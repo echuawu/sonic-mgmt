@@ -10,7 +10,7 @@
     <Case>
       <tags> system firmware </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 2400 </tout>
+      <tout> 3000 </tout>
       <tags>ALL</tags>
     </Case>
   </global>
@@ -22,6 +22,17 @@
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_system_firmware.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> Install System Firmware </name>
+    <info> </info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_install_system_firmware.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>

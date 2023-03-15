@@ -19,9 +19,8 @@ class Firmware(BaseComponent):
         self._resource_path = '/firmware'
         self.parent_obj = parent_obj
 
-    def action_install(self, fw_file_path):
+    def action_install_fw(self, fw_file_path):
         with allure.step("Install system firmware: '{path}'".format(path=fw_file_path)):
             logging.info("Install system firmware: '{path}'".format(path=fw_file_path))
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_firmware_install,
-                                                   TestToolkit.engines.dut, ActionConsts.INSTALL,
-                                                   "firmware asic", fw_file_path).get_returned_value()
+                                                   TestToolkit.engines.dut, fw_file_path).get_returned_value()

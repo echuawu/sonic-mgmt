@@ -28,10 +28,3 @@ class Asic(BaseComponent):
 
     def set(self, op_param_name="", op_param_value=""):
         raise Exception("set is not implemented for /asic/{asic_component}")
-
-    def action_install(self, fw_file_path):
-        with allure.step("Install system firmware asic: '{path}'".format(path=fw_file_path)):
-            logger.info("Install system firmware asic: '{path}'".format(path=fw_file_path))
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_firmware_install,
-                                                   TestToolkit.engines.dut,
-                                                   self.get_resource_path().replace("/", " "), fw_file_path).get_returned_value()
