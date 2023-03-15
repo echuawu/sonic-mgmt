@@ -22,7 +22,7 @@ def get_nvos_lastrc_version(target_branch) {
     try {
         def version_path = env.NVOS_VERSION_DIRECTORY
         def lastrc = NGCITools().ciTools.run_sh_return_output("readlink ${version_path}/lastrc_${target_branch}")
-        def lastrc_version = lastrc.replace("${version_path}", "").replace("/amd64/", "").replace("/", "")
+        def lastrc_version = lastrc.replace("${version_path}", "").replace("/dev/","/").replace("/amd64/", "").replace("/", "")
         print "CI will use branch:${target_branch} lastrc version: ${lastrc_version} for running BAT"
         return lastrc_version
     } catch (Throwable lastrc_ex) {
