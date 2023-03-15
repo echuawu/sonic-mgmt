@@ -1055,7 +1055,7 @@ def get_partition_usage_info(duthost, partition='/'):
     """
     with allure.step('Getting HDD partition {} usage'.format(partition)):
         output = duthost.shell('sudo df {}'.format(partition))['stdout_lines']
-        kb = 1024
+        kb = 1000  # We use 1000 to have the same value as in shutil.disk_usage() method which used in SONiC code
         _, total, used, avail, used_percent, _ = output[-1].split()
         total_mb = int(total) / kb
         used_mb = int(used) / kb
