@@ -66,8 +66,8 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, action_component_str, params[action_type])
 
     @staticmethod
-    def action_firmware_install(engine, action_str, action_component_str, op_param=""):
-        logging.info("Running action: 'firmware install' on dut using OpenApi".format(action_type=action_str))
+    def action_firmware_install(engine, op_param=""):
+        logging.info("Running action: 'firmware install' on dut using OpenApi")
 
         params = \
             {
@@ -82,7 +82,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
             }
 
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
-                                                   OpenApiReqType.PATCH, engine.ip, action_component_str,
+                                                   OpenApiReqType.PATCH, engine.ip, "/system/firmware/asic",
                                                    params)
 
     @staticmethod

@@ -5,8 +5,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_constants.constants_nvos import NvosConst
-from ngts.constants.constants import InfraConst
+from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
@@ -42,16 +41,19 @@ def test_install_system_firmware(engines):
         logging.info("Original actual firmware - " + actual_firmware)
         installed_firmware = output_dictionary[first_asic_name]["installed-firmware"]
         logging.info("Original actual installed firmware - " + installed_firmware)
-        original_fw_path = get_original_fw_path(engines, actual_firmware)
         validate_all_asics_have_same_info()
 
     try:
         with allure.step("Install system firmware file - " + fw_file):
             with allure.step("Copy firmware file to switch"):
-                cmd = "scp {}@{}:{} /tmp/".format(NvosConst.ROOT_USER, InfraConst.HTTP_SERVER.replace("http://", ""), fw_file)
-                engines.dut.run_cmd_after_cmd([cmd, NvosConst.ROOT_PASSWORD])
+                player_engine = engines['sonic_mgmt']
+                player_engine.upload_file_using_scp(dest_username=SystemConsts.DEFAULT_USER_ADMIN,
+                                                    dest_password=engines.dut.password,
+                                                    dest_folder="/tmp/",
+                                                    dest_ip=engines.dut.ip,
+                                                    local_file_path=fw_file)
 
-            system.firmware.asic.action_install("/tmp/{}".format(new_fw_to_install))
+            system.firmware.action_install_fw("/tmp/{}".format(new_fw_to_install))
             system.firmware.set("default", "user", apply=True)
 
         with allure.step("Verify installed file can be found in show output"):
@@ -68,7 +70,7 @@ def test_install_system_firmware(engines):
             validate_all_asics_have_same_info()
 
     finally:
-        with allure.step("Install original system firmware file - " + original_fw_path):
+        with allure.step("Install original system firmware file"):
             system.firmware.set("default", "image", apply=True)
             NvueGeneralCli.save_config(engines.dut)
 
