@@ -41,13 +41,15 @@ def set_sonic_bin(topic_map, project) {
     env.README_PATH = "${env.VERSION_DIRECTORY}/${sonic_version_name}/dev"
     if (! new File(sonic_bin_path).exists()) {
         print "SONiC bin file not found: ${sonic_bin_path}\nWill try the old conventsion (without 'dev' folder)"
-        sonic_bin_path = "${env.VERSION_DIRECTORY}/${sonic_version_name}/Mellanox/sonic-mellanox.bin"
+        sonic_bin_path = sonic_bin_path.replace("/dev/","/")
         env.README_PATH = "${env.VERSION_DIRECTORY}/${sonic_version_name}"
+        if (! new File(sonic_bin_path).exists()) {
+            error "ERROR:SONiC bin file not found: ${sonic_bin_path}"
+        }
     }
-    if (! new File(sonic_bin_path).exists()) {
-        error "ERROR:SONiC bin file not found: ${sonic_bin_path}"
-    }
+
     env.SONIC_BIN = sonic_bin_path
+    print "SONIC_BIN = ${env.SONIC_BIN}"
 }
 
 def set_nvos_bin(topic_map, project){
@@ -76,11 +78,18 @@ def set_nvos_bin(topic_map, project){
         nvos_version_name =  mgmt_tools.get_nvos_lastrc_version(nvos_branch)
         print "NVOS image version is defined by lastrc link for branch: ${nvos_branch}"
     }
-    def nvos_bin_path = "${env.NVOS_VERSION_DIRECTORY}/${nvos_version_name}/amd64/nvos-amd64-${nvos_version_name}.bin"
+
+    def nvos_bin_path = "${env.NVOS_VERSION_DIRECTORY}/${nvos_version_name}/amd64/dev/nvos-amd64-${nvos_version_name}.bin"
     if (! new File(nvos_bin_path).exists()) {
-        error "ERROR: NVOS bin file not found: ${nvos_bin_path}"
+        print "NVOS bin file not found: ${nvos_bin_path}\nWill try the old conventsion (without 'dev' folder)"
+        nvos_bin_path = nvos_bin_path.replace("/dev/","/")
+        if (! new File(nvos_bin_path).exists()) {
+            error "ERROR: NVOS bin file not found: ${nvos_bin_path}"
+        }
     }
+
     env.NVOS_BIN = nvos_bin_path
+    print "NVOS_BIN = ${env.NVOS_BIN}"
 }
 
 def run_step(name) {
