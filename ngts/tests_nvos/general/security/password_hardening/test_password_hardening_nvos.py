@@ -523,7 +523,9 @@ def test_history_functionality_password_hardening(engines, system, init_pwh, tes
                      .format(min(PwhConsts.NUM_SAMPLES, hist_cnt), hist_cnt)):
         logging.info('Try to set some ( {} ) of these N ( {} ) passwords again, and verify errors'
                      .format(min(PwhConsts.NUM_SAMPLES, hist_cnt), hist_cnt))
-        cant_reuse_pws = pw_history[1:len(pw_history) - 1]  # can reuse orig and current pws, so do not pick them
+        # todo: currently user can reuse current pw to set as new pw (bug).
+        #   after bug fix, change blow code to let the test pick also the current pass (pw_history[-1])
+        cant_reuse_pws = pw_history[1:len(pw_history) - 1]  # can reuse orig and current pws, so don't pick them
         pws_to_try_again = random.sample(cant_reuse_pws, min(PwhConsts.NUM_SAMPLES, len(cant_reuse_pws)))
         pw_history = PwhTools.verify_set_passwords(pws_to_try_again, pwh_conf, test_username, test_user_obj, pw_history,
                                                    engines.dut, should_succeed=False)
@@ -534,19 +536,57 @@ def test_history_functionality_password_hardening(engines, system, init_pwh, tes
                                       should_succeed=True)
 
 
-def t_test(engines, system):
-    with allure.step("ALON: START"):
-        logging.info("ALON: START")
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_expiration_functionality_password_hardening(engines, system, init_time, testing_users):
+    """
+    Test the functionality of password expiration setting.
 
-    with allure.step("ALON: SHOW USERS"):
-        logging.info("ALON: SHOW USERS")
+    Steps:
+        1. Set user1 with password pw1 ('old' password)
+        2. Set expiration to N (should apply to old and new passwords)
+        3. Set user2 with password pw2 ('new' password)
+        4. Let N days to pass
+            in each of these days, login with both users (expect success)
+        5. After the N days pass (on day #N+1), login with both users
+            expect password expiration prompt
+    """
+    pwh_obj = system.security.password_hardening
+    user1 = PwhConsts.ADMIN_TEST_USR
+    pw1 = testing_users[user1][PwhConsts.PW]
+    user1_obj = testing_users[user1][PwhConsts.USER_OBJ]
+    user2 = PwhConsts.MONITOR_TEST_USR
+    pw2 = testing_users[user2][PwhConsts.PW]
+    user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
 
-        res = system.security.password_hardening.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True)
-        res2 = system.security.password_hardening.unset(apply=True)
-        res3 = system.aaa.user.set('password', 'Your_password1!', apply=True)
-        res4 = system.aaa.user.unset(apply=True)
-        conf_show_output = system.security.password_hardening.show()
-        dict = OutputParsingTool.parse_json_str_to_dictionary(conf_show_output).get_returned_value()
+    num_of_days = random.randint(0, PwhConsts.NUM_SAMPLES)  # can randomize between min_expiration to max_expiration but the test will be too long
 
-    with allure.step("ALON: END"):
-        logging.info("ALON: END")
+    with allure.step('Set expiration setting to {}'.format(num_of_days)):
+        logging.info('Set expiration setting to {}'.format(num_of_days))
+        pwh_obj.set(PwhConsts.EXPIRATION_WARNING, -1, apply=True).verify_result()
+        pwh_obj.set(PwhConsts.EXPIRATION, num_of_days, apply=True).verify_result()
+
+    with allure.step('Set user2 with new password'):
+        logging.info('Set user2 with new password')
+        pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+        logging.info('Current password hardening configuration:\n{}'.format(pwh_conf))
+        pw2 = PwhTools.generate_strong_pw(pwh_conf, user2, [pw2])
+        logging.info('Setting new password for user2 ("{}") : "{}"'.format(user2, pw2))
+        PwhTools.set_pw_and_apply(user2_obj, pw2)
+
+    with allure.step('Let {} days pass, and on each day, login (with both users) and expect success'.format(num_of_days)):
+        logging.info('Let {} days pass, and on each day, login (with both users) and expect success'.format(num_of_days))
+        for i in range(num_of_days + 1):
+            with allure.step('On day #{} {}- verify login success'.format(i, '(original day) ' if i == 0 else '')):
+                logging.info('On day #{} {}- verify login success'.format(i, '(original day) ' if i == 0 else ''))
+                PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
+                PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
+            with allure.step('Move to day #{} - Set 1 day ahead'.format(i + 1)):
+                logging.info('Move to day #{} - Set 1 day ahead'.format(i + 1))
+                PwhTools.move_k_days(num_of_days=1, system=system)
+
+    with allure.step('On day #{} (N+1) - passwords expired. Try log in and expect expiration prompt'.format(num_of_days + 1)):
+        logging.info('On day #{} (N+1) - passwords expired. Try log in and expect expiration prompt'.format(num_of_days + 1))
+        PwhTools.verify_password_expired(engines.dut.ip, user1, pw1)
+        PwhTools.verify_password_expired(engines.dut.ip, user2, pw2)

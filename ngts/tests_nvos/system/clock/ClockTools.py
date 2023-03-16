@@ -472,3 +472,33 @@ class ClockTools:
             logging.info('Result date-time: {}'.format(res))
 
             return res
+
+    @staticmethod
+    def add_hours_to_datetime(datetime_str, num_hours_to_add):
+        """
+        Given a datetime string, generate a new datetime string, which is + a given number of hours
+        @param datetime_str: the given datetime (str)
+        @param num_hours_to_add: number of hours (int)
+        @return: new datetime string
+        """
+        with allure.step('Adding {} hours to the given datetime "{}"'.format(num_hours_to_add, datetime_str)):
+            logging.info('Adding {} hours to the given datetime "{}"'.format(num_hours_to_add, datetime_str))
+            dt_obj = datetime.fromisoformat(datetime_str)
+            dt_obj = dt_obj + timedelta(hours=num_hours_to_add)
+            res = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
+            logging.info('Result new datetime: "{}"'.format(res))
+            return res
+
+    @staticmethod
+    def dates_diff_in_days(date1, date2):
+        """
+        Given two datetime strings, calculate the diff between them (dt1 - dt2) in days
+        @param date1: first datetime string
+        @param date2: second datetime string
+        @return: diff in days (int)
+        """
+        with allure.step('Calculate diff in days between "{}" and "{}"'.format(date1, date2)):
+            logging.info('Calculate diff in days between "{}" and "{}"'.format(date1, date2))
+            date1_obj = datetime.fromisoformat(date1)
+            date2_obj = datetime.fromisoformat(date2)
+            return (date1_obj - date2_obj).days

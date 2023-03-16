@@ -1,15 +1,19 @@
+import datetime
 import itertools
 import random
 import string
 import allure
-
+import logging
+import pexpect
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
-import logging
 from netmiko.ssh_exception import NetmikoAuthenticationException
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 
 class PwhTools:
@@ -616,3 +620,85 @@ class PwhTools:
                         pw_history.append(new_pw)
 
         return pw_history
+
+    @staticmethod
+    def move_k_days(num_of_days, system):
+        """
+        Change current date by a given amount of days
+        @param num_of_days: the given amount of days for the change
+        @param dut_obj: dut engine object
+        """
+        with allure.step('Moving current date by {} days from now'.format(num_of_days)):
+            logging.info('Moving current date by {} days from now'.format(num_of_days))
+            if num_of_days == 0:
+                return
+
+            cur_dt = ClockTools.get_datetime_from_show_system_output(system.show())
+            cur_dt_obj = datetime.datetime.fromisoformat(cur_dt)
+            new_dt = (cur_dt_obj + datetime.timedelta(days=num_of_days)).strftime("%Y-%m-%d %H:%M:%S")
+            system.datetime.action_change(params=new_dt).verify_result()
+            logging.info('New datetime result: "{}"'.format(new_dt))
+
+    @staticmethod
+    def verify_password_expired(ip, username, password):
+        '''
+        @summary: Verify that user's password is expired with ssh connection to the given ip
+            * NOTE: Make sure that the given user exists in the given ip,
+            * and that te given password is actually the current password of the user.
+            * otherwise, an exception will be thrown, for a timeout after the password entering.
+        @param ip: the ip to ssh
+        @param username: the username
+        @param password: user's password (verify it's expired)
+        '''
+        try:
+            with allure.step('Verify that password "{}" has expired for user "{}" - ip: "{}"'.format(password, username, ip)):
+                logging.info('Verify that password "{}" has expired for user "{}" - ip: "{}"'.format(password, username, ip))
+                # compose the ssh command
+                engine = LinuxSshEngine(ip=ip, username=username, password=password)
+                _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
+                _ssh_command += ['-p', str(engine.ssh_port)]
+                _ssh_command += ['-l', engine.username, engine.ip]
+
+                logging.info('Running ssh command with user "{}" to ip "{}"'.format(username, ip))
+                child = pexpect.spawn(' '.join(_ssh_command))
+                child.delaybeforesend = DefaultConnectionValues.PEXPECT_DELAYBEFORESEND
+
+                logging.info('Expect shell to prompt "password" (tell the user to enter password)')
+                # in pexpect if we login in the second time we will get or the prompt or the EOF
+                respond_index = child.expect(['password', '~', pexpect.EOF])
+                if respond_index != 0:
+                    logging.info('Error in Verify password expired - recieved wrong respond index.\n'
+                                 'Expected respond index: 0\n'
+                                 'Actual respond index: {}\n'
+                                 'Prompt caught:\n{}'.format(respond_index, child.match.group(0)))
+                    assert False, 'Error: in verify password expired - received respond_index {}'.format(respond_index)
+
+                logging.info('Entering password "{}"'.format(password))
+                # enter current password of the switch
+                child.sendline(engine.password + '\r')
+
+                logging.info('Expect shell to prompt "You must change your password now and login again" \
+                    (the case of password expired)')
+                # the third option is when the system is in ONIE
+                respond_index = child.expect(['~', 'You must change your password now and login again', 'admin@.*password'])
+                # in case we get the default prompt then no need to change it
+                if respond_index != 1:
+                    logging.info('Error in Verify password expired - recieved wrong respond index.\n'
+                                 'Expected respond index: 1\n'
+                                 'Actual respond index: {}\n'
+                                 'Prompt caught:\n{}'.format(respond_index, child.match.group(0)))
+                    assert False, 'Error: in verify password expired - received respond_index {}'.format(respond_index)
+
+                logging.info('Take the entire prompt message before "Current password"')
+                prompted_msg = child.before.decode('utf-8')
+                logging.info('PROMPTED MESSAGE:\n{}'.format(prompted_msg))
+
+                logging.info('Verify that the prompted message is correct for the situation of expired password')
+                ValidationTool.verify_sub_strings_in_str_output(prompted_msg,
+                                                                ['change your password', 'password expired', 'Your password has expired']).verify_result()
+
+                logging.info('Verify password expired - SUCCESS')
+        finally:
+            logging.info('Closing ssh process')
+            child.close()
+            engine.disconnect()

@@ -112,3 +112,6 @@ class PwhConsts:
 
     # configurable parameter to the test
     NUM_SAMPLES = 6
+
+    # regex
+    REGEX_TIME = r"\d{2}:\d{2}:\d{2}"
