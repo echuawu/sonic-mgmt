@@ -1,6 +1,6 @@
 {
   "author": "NBU-system-sw-dev-ops-support@nvidia.com",
-  "notify": "BUILD_USER_ID,NBU-sw-ci-sonic@nvidia.com",
+  "notify": "BUILD_USER_ID,NBU-sw-ci-sonic@nvidia.com,bcc:NBU-system-sw-dev-ops-support@exchange.nvidia.com",
   "timeout": "1",
   "durability_mode": "MAX_SURVIVABILITY",
   "properties": [
