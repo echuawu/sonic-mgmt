@@ -7,7 +7,6 @@ from infra.tools.validations.traffic_validations.scapy.scapy_runner import Scapy
 from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from retry.api import retry_call
 from ngts.config_templates.route_config_template import RouteConfigTemplate
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 """
 
@@ -85,17 +84,18 @@ def test_basic_static_route(is_simx, cli_objects, interfaces, players):
                             expected_output_list=[(r'\*\s3000::2,\svia\sPortChannel0001', True)])
 
         dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(interfaces.dut_ha_1)
+        hadut2_mac = cli_objects.ha.mac.get_mac_address_for_interface(interfaces.ha_dut_2)
         sender_interface = '{}.40'.format(interfaces.ha_dut_2)
         receiver_interface_ha = 'bond0'
         receiver_interface_hb = 'bond0.69'
-        pkt_ipv4 = 'Ether(dst="{}")/IP(dst="{}", src="1.2.3.4")/TCP()'
-        pkt_ipv6 = 'Ether(dst="{}")/IPv6(dst="{}", src="1234::5678")/TCP()'
+        pkt_ipv4 = 'Ether(dst="{}", src="{}")/IP(dst="{}", src="1.2.3.4")/TCP()'
+        pkt_ipv6 = 'Ether(dst="{}", src="{}")/IPv6(dst="{}", src="1234::5678")/TCP()'
         validation_tries_num = 3 if is_simx else 1
 
         with allure.step('Functional check IPv4 static route via Interface'):
             logger.info('Functional checking IPv4 static route via Interface')
             dst_ip = '20.0.0.1'
-            pkt = pkt_ipv4.format(dut_mac, dst_ip)
+            pkt = pkt_ipv4.format(dut_mac, hadut2_mac, dst_ip)
             # Filter below will catch ARP packet with DST IP 20.0.0.1(Who has 20.0.0.1 ....)
             tcpdump_filter = 'arp[24:4]==0x14000001'
             validation_1 = {'sender': 'ha',
@@ -113,7 +113,7 @@ def test_basic_static_route(is_simx, cli_objects, interfaces, players):
         with allure.step('Functional check IPv4 /32 static route'):
             logger.info('Functional checking IPv4 /32 static route')
             dst_ip = '20.0.0.10'
-            pkt = pkt_ipv4.format(dut_mac, dst_ip)
+            pkt = pkt_ipv4.format(dut_mac, hadut2_mac, dst_ip)
             tcpdump_filter = 'host 20.0.0.10'
             validation_2 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
@@ -132,7 +132,7 @@ def test_basic_static_route(is_simx, cli_objects, interfaces, players):
         with allure.step('Functional check IPv4 /24 static route'):
             logger.info('Functional checking IPv4 /24 static route')
             dst_ip = '20.0.0.100'
-            pkt = pkt_ipv4.format(dut_mac, dst_ip)
+            pkt = pkt_ipv4.format(dut_mac, hadut2_mac, dst_ip)
             tcpdump_filter = 'host 20.0.0.100'
             validation_3 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
@@ -145,29 +145,28 @@ def test_basic_static_route(is_simx, cli_objects, interfaces, players):
             ipv4_24_route = ScapyChecker(players, validation_3)
             retry_call(ipv4_24_route.run_validation, fargs=[], tries=validation_tries_num, delay=5, logger=logger)
 
-        if not is_redmine_issue_active([3327067]):
-            with allure.step('Functional check IPv6 static route via Interface'):
-                logger.info('Functional checking IPv6 static route via Interface')
-                dst_ip = '2000::1'
-                pkt = pkt_ipv6.format(dut_mac, dst_ip)
-                # Filter below fill catch Neighbour Solicitation message TODO: need to make it more precise
-                tcpdump_filter = 'icmp6 && ip6[40]==135'
-                validation_4 = {'sender': 'ha',
-                                'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
-                                'receivers':
-                                    [
-                                        {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
-                                                                            'filter': tcpdump_filter, 'count': 1}}
-                                ]
-                                }
-                ipv6_iface_route = ScapyChecker(players, validation_4)
-                retry_call(ipv6_iface_route.run_validation, fargs=[], tries=validation_tries_num, delay=5,
-                           logger=logger)
+        with allure.step('Functional check IPv6 static route via Interface'):
+            logger.info('Functional checking IPv6 static route via Interface')
+            dst_ip = '2000::1'
+            pkt = pkt_ipv6.format(dut_mac, hadut2_mac, dst_ip)
+            # Filter below fill catch Neighbour Solicitation message TODO: need to make it more precise
+            tcpdump_filter = 'icmp6 && ip6[40]==135'
+            validation_4 = {'sender': 'ha',
+                            'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
+                            'receivers':
+                                [
+                                    {'receiver': 'hb', 'receive_args': {'interface': receiver_interface_hb,
+                                                                        'filter': tcpdump_filter, 'count': 1}}
+                            ]
+                            }
+            ipv6_iface_route = ScapyChecker(players, validation_4)
+            retry_call(ipv6_iface_route.run_validation, fargs=[], tries=validation_tries_num, delay=5,
+                       logger=logger)
 
         with allure.step('Functional check IPv6 /128 static route'):
             logger.info('Functional checking IPv6 /128 static route')
             dst_ip = '2000::10'
-            pkt = pkt_ipv6.format(dut_mac, dst_ip)
+            pkt = pkt_ipv6.format(dut_mac, hadut2_mac, dst_ip)
             tcpdump_filter = 'host 2000::10'
             validation_5 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
@@ -185,7 +184,7 @@ def test_basic_static_route(is_simx, cli_objects, interfaces, players):
         with allure.step('Functional check IPv6 /64 static route'):
             logger.info('Functional checking IPv6 /64 static route')
             dst_ip = '2000::100'
-            pkt = pkt_ipv6.format(dut_mac, dst_ip)
+            pkt = pkt_ipv6.format(dut_mac, hadut2_mac, dst_ip)
             tcpdump_filter = 'host 2000::100'
             validation_6 = {'sender': 'ha',
                             'send_args': {'interface': sender_interface, 'packets': pkt, 'count': 3},
