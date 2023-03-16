@@ -14,6 +14,7 @@ import pytest
 from ngts.nvos_constants.constants_nvos import NvosConst, ImageConsts
 from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.system.Files import File
 
 
 logger = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ def delete_fetched_image(non_secure_image_name):
 
     logger.info("Deleting fetched image")
     system = System()
-    system.image.files.action_delete(non_secure_image_name, "Action succeeded")
+    File(system.image.files, non_secure_image_name).action_delete("Action succeeded")
 
 
 @pytest.mark.secure_boot
@@ -88,4 +89,4 @@ def test_non_secure_boot_upgrade_failure(non_secure_image_path, keep_same_versio
 
     with allure.step("Attempting installing non secure image"):
         logger.info("Attempting installing non secure image")
-        system.image.files.action_file_install(non_secure_image_name, "Failed to verify image signature")
+        File(system.image.files, non_secure_image_name).action_file_install("Failed to verify image signature")

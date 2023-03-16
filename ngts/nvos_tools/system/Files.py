@@ -11,28 +11,23 @@ logger = logging.getLogger()
 
 
 class Files(BaseComponent):
-    file_name = ''
-
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/files/{file_name}'
+        self._resource_path = '/files'
         self.parent_obj = parent_obj
 
     def get_resource_path(self):
-        self_path = self._resource_path.format(file_name=self.file_name).rstrip("/")
-        return "{parent_path}{self_path}".format(
-            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self_path)
-
-    def get_parent_type(self):
+        result = "{parent_path}{self_path}".format(
+            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
         if TestToolkit.tested_api == ApiType.NVUE:
-            return self.parent_obj.get_resource_path().split("/").pop()
-        return self.get_resource_path()
+            result = result.replace("/", " ")
+        return result
 
     def set(self, op_param_name="", op_param_value=""):
-        raise Exception("set is not implemented for /files/{file_name}")
+        raise Exception("set is not implemented for /files")
 
     def unset(self, op_param=""):
-        raise Exception("unset is not implemented for /files/{file_name}")
+        raise Exception("unset is not implemented for /files")
 
     def show_log_files(self, log_type='', param='', exit_cmd=''):
         with allure.step('Execute show for log file'):
@@ -40,53 +35,10 @@ class Files(BaseComponent):
                                                    TestToolkit.engines.dut, log_type,
                                                    param, exit_cmd).get_returned_value()
 
-    def action_upload(self, file_name, upload_path, expected_str=""):
-        self.file_name = file_name
-        parent_type = self.get_parent_type()
-        with allure.step("Upload {type} file {file} to '{path}'".format(type=parent_type, file=file_name,
-                                                                        path=upload_path)):
-            logging.info("Upload {type} file {file} to '{path}'".format(type=parent_type, file=file_name,
-                                                                        path=upload_path))
-            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
-                                                                expected_str, TestToolkit.engines.dut, 'upload',
-                                                                parent_type, file_name, upload_path).get_returned_value()
-
-    def action_delete(self, file, expected_str=""):
-        self.file_name = file
-        parent_type = self.get_parent_type()
-        with allure.step("Delete {parent_type} file {file}".format(parent_type=parent_type, file=file)):
-            logging.info("Delete {parent_type} file {file}".format(parent_type=parent_type, file=file))
-            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
-                                                                expected_str, TestToolkit.engines.dut, 'delete',
-                                                                parent_type, file).get_returned_value()
-
-    def action_rename(self, original_name, new_name, expected_str=""):
-        self.file_name = original_name
-        parent_type = self.get_parent_type()
-        with allure.step("Rename {parent_type} file {original_name}, new name: {new_name}"
-                         .format(parent_type=parent_type, original_name=original_name, new_name=new_name)):
-            logging.info("Rename {parent_type} file {original_name}, new name: {new_name}".
-                         format(parent_type=parent_type, original_name=original_name, new_name=new_name))
-            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
-                                                                expected_str, TestToolkit.engines.dut, 'rename',
-                                                                parent_type, original_name, new_name).get_returned_value()
-
-    def action_file_install(self, file, expected_str=""):
-        self.file_name = file
-        parent_type = self.get_parent_type()
-        with allure.step("Install {parent_type} file '{file}'".format(parent_type=parent_type, file=file)):
-            logging.info("Trying to install {parent_type} '{file}'".format(parent_type=parent_type, file=file))
-            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
-                                                                expected_str, TestToolkit.engines.dut, 'install',
-                                                                parent_type, file).get_returned_value()
-
     def get_files(self):
         with allure.step("Get system files"):
             logging.info("Get system files")
-            save_file_name = self.file_name
-            self.file_name = ""
             files = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
-            self.file_name = save_file_name
             return files
 
     def verify_show_files_output(self, expected_files=[], unexpected_files=[]):
@@ -102,9 +54,57 @@ class Files(BaseComponent):
         with allure.step("Delete files"):
             logging.info("Delete files: {}".format(files_to_delete))
             for file in files_to_delete:
-                self.action_delete(file, expected_str)
+                File(self, file).action_delete(expected_str)
 
-    def rename_and_verify(self, original_name, new_name):
-        self.action_rename(original_name, new_name)
-        self.file_name = new_name
-        self.verify_show_files_output(expected_files=[new_name], unexpected_files=[original_name])
+
+class File(Files):
+    def __init__(self, parent_obj, file_name):
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self.file_name = file_name
+        self._resource_path = '/{file_name}'.format(file_name=file_name)
+        self.parent_obj = parent_obj
+
+    def action_upload(self, upload_path, expected_str=""):
+        resource_path = self.get_resource_path()
+        with allure.step("Upload {type} file {file} to '{path}'".format(type=resource_path, file=self.file_name,
+                                                                        path=upload_path)):
+            logging.info("Upload {type} file {file} to '{path}'".format(type=resource_path, file=self.file_name,
+                                                                        path=upload_path))
+            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
+                                                                expected_str, TestToolkit.engines.dut, 'upload',
+                                                                resource_path, upload_path).get_returned_value()
+
+    def action_delete(self, expected_str=""):
+        resource_path = self.get_resource_path()
+        with allure.step("Delete {resource_path} file {file}".format(resource_path=resource_path, file=self.file_name)):
+            logging.info("Delete {resource_path} file {file}".format(resource_path=resource_path, file=self.file_name))
+            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
+                                                                expected_str, TestToolkit.engines.dut, 'delete',
+                                                                resource_path).get_returned_value()
+
+    def action_rename(self, new_name, expected_str=""):
+        resource_path = self.get_resource_path()
+        with allure.step("Rename {resource_path} file {original_name}, new name: {new_name}"
+                         .format(resource_path=resource_path, original_name=self.file_name, new_name=new_name)):
+            logging.info("Rename {resource_path} file {original_name}, new name: {new_name}".
+                         format(resource_path=resource_path, original_name=self.file_name, new_name=new_name))
+            result = SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
+                                                                  expected_str, TestToolkit.engines.dut, 'rename',
+                                                                  resource_path, new_name).get_returned_value()
+            if result:
+                self.file_name = new_name
+                self._resource_path = '/{file_name}'.format(file_name=self.file_name)
+            return result
+
+    def action_file_install(self, expected_str=""):
+        resource_path = self.get_resource_path()
+        with allure.step("Install {resource_path} file '{file}'".format(resource_path=resource_path, file=self.file_name)):
+            logging.info("Trying to install {resource_path} '{file}'".format(resource_path=resource_path, file=self.file_name))
+            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
+                                                                expected_str, TestToolkit.engines.dut, 'install',
+                                                                resource_path).get_returned_value()
+
+    def rename_and_verify(self, new_name):
+        original_name = self.file_name
+        self.action_rename(new_name)
+        self.parent_obj.verify_show_files_output(expected_files=[new_name], unexpected_files=[original_name])

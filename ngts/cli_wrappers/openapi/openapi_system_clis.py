@@ -37,7 +37,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, action_component_str, params[action_type])
 
     @staticmethod
-    def action_files(engine, action_str, action_component_str, file, op_param=""):
+    def action_files(engine, action_str, resource_path, op_param=""):
         logging.info("Running file action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
         action_type = '@' + action_str
         params = \
@@ -63,7 +63,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                     }
             }
         return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
-                                                   engine.ip, action_component_str, params[action_type])
+                                                   engine.ip, resource_path, params[action_type])
 
     @staticmethod
     def action_firmware_install(engine, op_param=""):

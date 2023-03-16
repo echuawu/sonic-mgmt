@@ -10,7 +10,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.system.Files import Files
+from ngts.nvos_tools.system.Files import Files, File
 
 logger = logging.getLogger()
 
@@ -51,15 +51,16 @@ class History(Health):
         return self.show(param="files {}".format(file), exit_cmd=exit_cmd)
 
     def upload_history_files(self, file_name, upload_path, expected_str=""):
+        resource = File(self.files, file_name).get_resource_path()
         return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
                                                             expected_str, TestToolkit.engines.dut, 'upload',
-                                                            "health history", file_name,
-                                                            upload_path).get_returned_value()
+                                                            resource, upload_path).get_returned_value()
 
     def delete_history_file(self, file, expected_str=""):
+        resource = File(self.files, file).get_resource_path()
         return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
                                                             expected_str, TestToolkit.engines.dut, 'delete',
-                                                            "health history", file).get_returned_value()
+                                                            resource).get_returned_value()
 
     def delete_history_files(self, files_to_delete=[], expected_str=''):
         with allure.step("Delete files"):

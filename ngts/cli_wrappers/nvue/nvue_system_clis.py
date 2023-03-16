@@ -35,9 +35,9 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_files(engine, action_str, action_component_str, file='', op_param=""):
-        cmd = "nv action {action_type} system {action_component} files {file} {param}" \
-            .format(action_type=action_str, action_component=action_component_str, file=file, param=op_param)
+    def action_files(engine, action_str, resource_path, op_param=""):
+        cmd = "nv action {action_type} {resource_path} {param}" \
+            .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)

@@ -2,6 +2,7 @@ import logging
 import pytest
 import allure
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.system.Files import File
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -238,10 +239,9 @@ def test_rotate_debug_log_files(engines):
 
         for log_file in log_files_dict.keys():
             with allure.step("Delete {} file".format(log_file)):
-                system.debug_log.files.action_delete(file=log_file)
+                File(system.debug_log.files, log_file).action_delete()
 
                 with allure.step("Verify {} was deleted".format(log_file)):
-                    system.debug_log.files.file_name = ""
                     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.debug_log.files.show()) \
                         .get_returned_value()
                     assert log_file not in output_dictionary.keys(), log_file + " was not actually deleted"
@@ -732,7 +732,7 @@ def _upload_log_files(topology_obj, system_log_obj):
         log_files_dict = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         log_file = list(log_files_dict.keys())[-1]
         upload_path = 'scp://{}:{}@{}/root/{}'.format(player.username, player.password, player.ip, log_file)
-        system_log_obj.files.action_upload(file_name=log_file, upload_path=upload_path)
+        File(system_log_obj.files, log_file).action_upload(upload_path=upload_path)
 
     with allure.step("Check if file uploaded and delete it from player"):
         logging.info("Check if file uploaded and delete it from player")
@@ -790,11 +790,10 @@ def test_delete_log_files(engines):
         for log_file in logs_names_to_delete:
 
             with allure.step("Delete {} file".format(log_file)):
-                system.log.files.action_delete(file=log_file)
+                File(system.log.files, log_file).action_delete()
                 left_files.remove(log_file)
 
                 with allure.step("Verify only {} was deleted".format(log_file)):
-                    system.log.files.file_name = ""
                     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.log.files.show())\
                         .get_returned_value()
 
@@ -808,7 +807,7 @@ def test_delete_log_files(engines):
 
         with allure.step("Verify syslog file was deleted and a new one was created"):
             logging.info("Verify syslog file was deleted and a new one was created")
-            system.log.files.action_delete(file=syslog_file_name)
+            File(system.log.files, syslog_file_name).action_delete()
             output = engines.dut.run_cmd("stat /var/log/{} | grep Size".format(syslog_file_name))
             assert output, "Can't find syslog file"
             curr_syslog_size = output.split()[1]

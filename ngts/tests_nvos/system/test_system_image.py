@@ -4,6 +4,7 @@ import os
 import allure
 import string
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.system.Files import File
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -84,14 +85,15 @@ def test_system_image_rename(release_name):
     original_images, _, original_image_partition, partition_id_for_new_image, images_to_install = \
         get_image_data_and_fetch_random_image_files(release_name, system)
     fetched_image = images_to_install[0]
+    fetched_image_file = File(system.image.files, fetched_image)
 
     with allure.step("Rename image and verify"):
         new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits)
-        system.image.files.rename_and_verify(fetched_image, new_name)
+        fetched_image_file.rename_and_verify(new_name)
 
     with allure.step("Install original image name, should fail"):
         logging.info("Install original image name: {}, should fail".format(fetched_image))
-        system.image.files.action_file_install(fetched_image, "Action failed")
+        File(system.image.files, fetched_image).action_file_install("Action failed")
 
     with allure.step("Delete original image name, should fail"):
         logging.info("Delete original image name, should fail")
@@ -100,7 +102,7 @@ def test_system_image_rename(release_name):
     try:
         with allure.step("Install new image name"):
             logging.info("Install new image name: {}".format(new_name))
-            system.image.files.action_file_install(new_name)
+            fetched_image_file.action_file_install()
 
         with allure.step("Verify installed image"):
             logging.info("Verify installed image, we should see the origin name and not the new name,"
@@ -131,6 +133,7 @@ def test_system_image_upload(engines, release_name):
     image_name = image_names[0]
     upload_protocols = ['scp', 'sftp']
     player = engines['sonic_mgmt']
+    image_file = File(system.image.files, image_name)
 
     with allure.step("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols)):
         logging.info("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols))
@@ -139,7 +142,7 @@ def test_system_image_upload(engines, release_name):
             with allure.step("Upload image to player with {} protocol".format(protocol)):
                 logging.info("Upload image to player with {} protocol".format(protocol))
                 upload_path = '{}://{}:{}@{}/tmp/{}'.format(protocol, player.username, player.password, player.ip, image_name)
-                system.image.files.action_upload(image_name, upload_path)
+                image_file.action_upload(upload_path)
 
             with allure.step("Validate file was uploaded to player and delete it"):
                 logging.info("Validate file was uploaded to player and delete it")
@@ -206,11 +209,13 @@ def test_system_image_bad_flow(engines, release_name):
     """
     system = System()
     original_images, original_image, original_image_partition, partition_id_for_new_image = get_image_data(system)
-    file_rand_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
+    rand_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
+    file_rand_name = File(system.image.files, rand_name)
 
     with allure.step("Get an available image file"):
         image_name, image_path = get_images_to_fetch(release_name, original_image)[0]
         images_name = []
+        image_file = File(system.image.files, image_name)
 
     with allure.step("Fetch bad flows"):
         logging.info("Fetch bad flows")
@@ -222,23 +227,23 @@ def test_system_image_bad_flow(engines, release_name):
         with allure.step("Fetch the same image again"):
             system.image.action_fetch(scp_path + image_path)
         with allure.step("Fetch an image that does not exist"):
-            system.image.action_fetch(scp_path + image_path + file_rand_name, "Action failed")
+            system.image.action_fetch(scp_path + image_path + rand_name, "Action failed")
 
     with allure.step("Delete bad flows"):
         logging.info("Delete bad flows")
         with allure.step("Delete file that does not exist"):
-            system.image.files.delete_system_files([file_rand_name], "File not found")
+            system.image.files.delete_system_files([rand_name], "File not found")
 
     with allure.step("Install bad flows"):
         logging.info("Install bad flows")
         with allure.step("Install image file that does not exist"):
-            system.image.files.action_file_install(file_rand_name, "Image does not exist")
+            file_rand_name.action_file_install("Image does not exist")
         with allure.step("Install the same image twice"):
             try:
                 with allure.step("First installation"):
-                    system.image.files.action_file_install(image_name)
+                    image_file.action_file_install()
                 with allure.step("Second installation"):
-                    system.image.files.action_file_install(image_name)
+                    image_file.action_file_install()
             finally:
                 with allure.step("uninstall"):
                     system.image.action_uninstall(params='force')
@@ -256,22 +261,22 @@ def test_system_image_bad_flow(engines, release_name):
     with allure.step("Rename bad flows"):
         logging.info("Rename bad flows")
         with allure.step("Rename image file that does not exist"):
-            system.image.files.action_rename(file_rand_name, file_rand_name, "File not found")
+            file_rand_name.action_rename(rand_name, "File not found")
 
     with allure.step("Upload bad flows"):
         logging.info("Upload bad flows")
         player = engines['sonic_mgmt']
         upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
         with allure.step("Upload image file that does not exist"):
-            system.image.files.action_upload(file_rand_name, upload_path, "File not found")
+            file_rand_name.action_upload(upload_path, "File not found")
         with allure.step("Upload the same image twice"):
             with allure.step("First upload"):
-                system.image.files.action_upload(image_name, upload_path)
+                image_file.action_upload(upload_path)
                 with allure.step("Validate file was uploaded"):
                     logging.info("Validate file was uploaded")
                     assert player.run_cmd(cmd='ls /tmp/ | grep {}'.format(image_name)), "Did not find the file with ls cmd"
             with allure.step("Second upload"):
-                system.image.files.action_upload(image_name, upload_path)
+                image_file.action_upload(upload_path)
                 with allure.step("Delete the file from the player"):
                     player.run_cmd(cmd='rm -f /tmp/{}'.format(image_name))
 
@@ -416,7 +421,7 @@ def normalize_image_name(image_name):
 def install_image_and_verify(image_name, partition_id, original_images, system):
     with allure.step("Installing image {}".format(image_name)):
         logging.info("Installing image '{}'".format(image_name))
-        system.image.files.action_file_install(image_name)
+        File(system.image.files, image_name).action_file_install()
     with allure.step("Verify installed image"):
         expected_show_images_output = original_images.copy()
         expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(image_name)
