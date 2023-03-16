@@ -149,7 +149,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    @retry(Exception, tries=20, delay=10)
+    @retry(Exception, tries=48, delay=10)
     def wait_for_nvos_to_become_functional(engine):
         """
         Waiting for NVOS to complete the init and become functional after the installation
