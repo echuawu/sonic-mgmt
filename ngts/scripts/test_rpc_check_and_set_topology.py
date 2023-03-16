@@ -142,7 +142,7 @@ def test_rpc_check_and_set_topology(topology_obj, engines, cli_objects, current_
     ansible_path = "/root/mars/workspace/sonic-mgmt/ansible"
     dut_name = cli_objects.dut.chassis.get_hostname()
     if current_topo == expected_topo:
-        sys.exit()
+        pytest.skip(f"current topo is expected topo:{expected_topo}")
 
     sonic_branch = topology_obj.players['dut']['branch']
     logger.info('SONiC branch is: {}'.format(sonic_branch))
