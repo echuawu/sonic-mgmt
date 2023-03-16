@@ -366,7 +366,7 @@ class TestSfpApi(PlatformApiTestBase):
                         if info_dict["type_abbrv_name"] == "QSFP-DD":
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS + \
                                                            self.EXPECTED_XCVR_NEW_QSFP_DD_INFO_KEYS + \
-                                                           ["active_apsel_hostlane{}".format(i) for i in range(1, info_dict['host_lane_count'] + 1)]
+                                                           ["active_apsel_hostlane{}".format(n) for n in range(1, info_dict['host_lane_count'] + 1)]
                         else:
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS
                     missing_keys = set(UPDATED_EXPECTED_XCVR_INFO_KEYS) - set(actual_keys)
