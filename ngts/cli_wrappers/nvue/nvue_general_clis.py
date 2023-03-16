@@ -6,6 +6,9 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
 from ngts.constants.constants import InfraConst
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
+
 
 logger = logging.getLogger()
 
