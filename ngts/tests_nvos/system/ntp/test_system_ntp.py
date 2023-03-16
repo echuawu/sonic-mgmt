@@ -505,7 +505,7 @@ def test_configure_ntp_multiple_servers():
             ntp_dict[NtpConsts.SERVER] = ntp_brief_dict[NtpConsts.SERVER] = NtpConsts.MULTIPLE_SERVERS_DEFAULT_DICT
             ntp_dict[NtpConsts.DHCP] = ntp_brief_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
             ntp_dict[NtpConsts.STATUS] = ntp_brief_dict[NtpConsts.STATUS] = NtpConsts.Status.SYNCHRONISED.value
-            ntp_dict[NtpConsts.REFERENCE] = ntp_brief_dict[NtpConsts.REFERENCE] = NtpConsts.SERVER1_IPV4
+            ntp_dict[NtpConsts.REFERENCE] = ntp_brief_dict[NtpConsts.REFERENCE] = ntp_show[NtpConsts.REFERENCE]
             ntp_dict[NtpConsts.OFFSET] = ntp_show[NtpConsts.OFFSET]  # Offset is not validated
             ntp_brief_dict[NtpConsts.OFFSET] = ntp_show_brief[NtpConsts.OFFSET]  # Offset is not validated
             ntp_status_dict[NtpConsts.REFERENCE] = ntp_show[NtpConsts.REFERENCE]  # NtpConsts.SERVER1_IPV4
