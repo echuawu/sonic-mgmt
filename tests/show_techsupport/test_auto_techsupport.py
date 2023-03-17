@@ -32,6 +32,7 @@ DEFAULT_MAX_TECHSUPPORT_LIMIT = 10
 DEFAULT_MAX_CORE_LIMIT = 5
 DEFAULT_SINCE = '2 days ago'
 
+KB_SIZE = 1000  # We use 1000 to have the same value as in shutil.disk_usage() method which used in SONiC code
 CMD_GET_AUTO_TECH_SUPPORT_HISTORY_REDIS_KEYS = 'sudo redis-cli --raw -n 6  KEYS AUTO_TECHSUPPORT*'
 TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates')
 SAI_CALL_TEMPLATE_FILE_PATH = os.path.join(TEMPLATES_DIR, 'sai_call_fail_config.j2')
@@ -1055,11 +1056,10 @@ def get_partition_usage_info(duthost, partition='/'):
     """
     with allure.step('Getting HDD partition {} usage'.format(partition)):
         output = duthost.shell('sudo df {}'.format(partition))['stdout_lines']
-        kb = 1000  # We use 1000 to have the same value as in shutil.disk_usage() method which used in SONiC code
         _, total, used, avail, used_percent, _ = output[-1].split()
-        total_mb = int(total) / kb
-        used_mb = int(used) / kb
-        avail_mb = int(avail) / kb
+        total_mb = int(total) / KB_SIZE
+        used_mb = int(used) / KB_SIZE
+        avail_mb = int(avail) / KB_SIZE
         used_percent = int(used_percent.strip('%'))
 
     return total_mb, used_mb, avail_mb, used_percent
@@ -1077,8 +1077,7 @@ def get_used_space(duthost, path_to_file_folder):
         directory_usage_line = -1
         memory_usage_line = 0
         used_by_folder = du_output[directory_usage_line].split()[memory_usage_line]
-        kb = 1024
-        used_by_folder_mb = int(used_by_folder) / kb
+        used_by_folder_mb = int(used_by_folder) / KB_SIZE
 
     return used_by_folder_mb
 
