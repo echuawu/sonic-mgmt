@@ -470,9 +470,7 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
     with allure.step('Check hostname received by dhcp'):
         system.unset(engines.dut, SystemConsts.HOSTNAME)
-        system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
-                                                          dhcp_hostname).verify_result()
+        wait_for_hostname_changed(system, dhcp_hostname)
 
 
 def validate_interface_ip_address(address, output_dictionary, validate_in=True):
@@ -497,3 +495,11 @@ def wait_for_mtu_changed(port_obj, mtu_to_verify):
             port_obj.interface.link.show()).get_returned_value()
         current_mtu = output_dictionary[port_obj.interface.link.mtu.label]
         assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".format(current_mtu, mtu_to_verify)
+
+
+@retry(Exception, tries=4, delay=2)
+def wait_for_hostname_changed(system, dhcp_hostname):
+    with allure.step("Waiting for system hostname changed to {}".format(dhcp_hostname)):
+        system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
+        Tools.ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
+                                                          dhcp_hostname).verify_result()
