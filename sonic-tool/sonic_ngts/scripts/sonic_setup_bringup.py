@@ -83,7 +83,7 @@ def scp_file_to_stm(file_path):
     :param file_path: path to file to copy
     :return: None
     """
-    cmd = f'sshpass -p "{stm_password}" scp {file_path} {stm_user}@{stm_user}:/tmp'
+    cmd = f'sshpass -p "{stm_password}" scp {file_path} {stm_user}@{STM_IP}:/tmp'
     logger.info("Copy to STM. CMD: %s" % cmd)
     os.system(cmd)
 
