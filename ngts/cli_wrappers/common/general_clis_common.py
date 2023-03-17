@@ -32,6 +32,13 @@ class GeneralCliCommon(GeneralCliInterface):
         output = self.engine.run_cmd(f'sudo systemctl restart {service}', validate=True)
         return output
 
+    def systemctl_is_service_active(self, service):
+        service_status = False
+        output = self.engine.run_cmd(f'sudo systemctl is-active {service}', validate=True)
+        if output == 'active':
+            service_status = True
+        return service_status
+
     def get_container_status(self, app_name):
         """
         Get specified container's status:

@@ -401,6 +401,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['Parent_device_NIC_name']
         hyper_engine = topology_obj.players['hyper']['engine']
 
+        with allure.step('Check RSHIM service running(restart if required'):
+            if not LinuxGeneralCli(hyper_engine).systemctl_is_service_active(service='rshim'):
+                LinuxGeneralCli(hyper_engine).systemctl_restart(service='rshim')
+
         with allure.step('Installing image by "bfb-install" on server'):
             LinuxGeneralCli(hyper_engine).install_bfb_image(image_path=image_path, rshim_num=rshim)
 
