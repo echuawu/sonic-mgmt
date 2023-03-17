@@ -697,7 +697,7 @@ def test_upload_log_files(engines, topology_obj):
     """
     with allure.step("Create System object"):
         system = System(None)
-
+        system.log.rotate_logs()
     _upload_log_files(topology_obj, system.log)
 
 
