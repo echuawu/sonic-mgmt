@@ -19,6 +19,7 @@ from tests.vxlan.vnet_utils import render_template_to_host
 import time
 
 SUCCESS_CODE = 0
+SHOW_L1_AGGREGATE = "show what-just-happened poll layer-1 --aggregate"
 VTEP2_IP = "8.8.8.8"
 VNI_BASE = 336
 logger = logging.getLogger(__name__)
@@ -502,14 +503,17 @@ def test_l1_raw_drop(duthost):
             pytest.fail("Could not start up {} port.\nAborting.".format(port))
 
 
-def verify_l1_agg_drop_exists(table, port, state):
+def verify_l1_agg_drop_exists(duthost, cmd, port, state, retry=1):
     entry_exists = False
-    for entry in table:
-        if (entry['State'] == state and
-            entry['Port'] == port and
-            entry['State Change'] > 0):
+    for _ in range(retry):
+        table = get_agg_tables_output(duthost, command=cmd)[0]
+        for entry in table:
+            if (entry['State'] == state and
+                entry['Port'] == port and
+                entry['State Change'] > 0):
                 entry_exists = True
                 break
+            time.sleep(1)
     if not entry_exists:
         pytest.fail("Could not find L1 drop on WJH aggregated table.")
     return entry
@@ -524,8 +528,7 @@ def test_l1_agg_port_up(duthost, fanouthosts):
     try:
         if not wait_until(120, 5, 0, check_if_port_is_active, duthost, port):
             pytest.fail("Could not start up {} port.\nAborting.".format(port))
-        table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
-        entry = verify_l1_agg_drop_exists(table, port, 'Up')
+        entry = verify_l1_agg_drop_exists(duthost, SHOW_L1_AGGREGATE, port, 'Up')
         if entry['Down Reason - Recommended Action'] != 'N/A':
             pytest.fail("Could not find L1 drop on WJH aggregated table.")
     finally:
@@ -538,8 +541,7 @@ def test_l1_agg_port_down(duthost):
 
     duthost.command("config interface shutdown {}".format(port))
     try:
-        table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
-        entry = verify_l1_agg_drop_exists(table, port, 'Down')
+        entry = verify_l1_agg_drop_exists(duthost, SHOW_L1_AGGREGATE, port, 'Down', 5)
         if (entry['Down Reason - Recommended Action'] != 'Port admin down - Validate port configuration' and
             entry['Down Reason - Recommended Action'] != 'N/A'):
             pytest.fail("Could not find L1 drop on WJH aggregated table.")
@@ -557,8 +559,7 @@ def test_l1_agg_fanout_port_down(duthost, fanouthosts):
     fanout.shutdown(fanout_port)
     wait(15, 'Wait for fanout port to shutdown')
     try:
-        table = get_agg_tables_output(duthost, command="show what-just-happened poll layer-1 --aggregate")[0]
-        entry = verify_l1_agg_drop_exists(table, port, 'Down')
+        entry = verify_l1_agg_drop_exists(duthost, SHOW_L1_AGGREGATE, port, 'Down')
         if (entry['Down Reason - Recommended Action'] != 'Other reason -' and
             entry['Down Reason - Recommended Action'] != 'Autoneg - No partner detected' and
             entry['Down Reason - Recommended Action'] != 'Autoneg - No partner detected during force mode' and

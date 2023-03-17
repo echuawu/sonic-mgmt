@@ -661,11 +661,6 @@ drop_packets/test_wjh.py::test_wjh_starts_after_config_reload:
     conditions:
       - "https://redmine.mellanox.com/issues/3195120 and '202205' in release"
 
-drop_packets/test_wjh.py::test_l1_agg_port_down:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3217918"
-    conditions:
-      - https://redmine.mellanox.com/issues/3217918
 
 drop_packets/test_wjh.py::test_fid_miss:
   skip:
