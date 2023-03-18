@@ -10,6 +10,7 @@ from ngts.tests_nvos.general.security.test_aaa_radius.test_aaa_radius import \
     validate_users_authorization_and_role, validate_failed_authentication_with_new_credentials
 from ngts.tests_nvos.general.security.test_aaa_ldap.conftest import remove_ldap_configurations
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
+from ngts.tests_nvos.infra.init_flow.init_flow import test_system_dockers, test_system_services
 
 
 def configure_ldap(ldap_server_info):
@@ -112,7 +113,17 @@ def enable_ldap_feature(dut_engine):
         dut_engine.run_cmd("nv config apply -y")
 
 
-def configure_ldap_and_validate(engines, ldap_server_list):
+def validate_services_and_dockers_availability(engines, devices):
+    '''
+    @summary: validate all services and dockers are up configuring ldap
+    '''
+    with allure.step("validating all services and dockers are up"):
+        logging.info("validating all services and dockers are up")
+        test_system_dockers(engines, devices)
+        test_system_services(engines, devices)
+
+
+def configure_ldap_and_validate(engines, ldap_server_list, devices):
     '''
     @summary: in this function we will configure ldap servers in he ldap server list
     and validate the ldap configurations per server
@@ -128,14 +139,16 @@ def configure_ldap_and_validate(engines, ldap_server_list):
             logging.info("Validating ldap server configurations")
             validate_ldap_configurations(ldap_server_info)
 
+    validate_services_and_dockers_availability(engines, devices)
 
-def test_ldap_basic_configurations(engines, remove_ldap_configurations):
+
+def test_ldap_basic_configurations(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate default ldap configurations.
     We will configure the default configurations and connect to device.
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating ldap credentials"):
         logging.info("Validating ldap credentials")
@@ -157,7 +170,7 @@ def randomize_ldap_server():
     return randomized_radius_server_info
 
 
-def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations):
+def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices=devices):
     ''''
     @summary: in this test case we want to validate the functionality of the priority
     and fallback, we will configure 2 ldap servers and then connect through the credentials
@@ -170,7 +183,7 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
         randomized_ldap_server_dict[LDAPConsts.PRIORITY] = str(LDAPConsts.MAX_PRIORITY - 1)
 
     ldap_server_list = LDAPConsts.LDAP_SERVERS_LIST.copy() + randomized_ldap_server_dict
-    configure_ldap_and_validate(engines, ldap_server_list=ldap_server_list)
+    configure_ldap_and_validate(engines, ldap_server_list=ldap_server_list, devices=devices)
 
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
@@ -183,7 +196,7 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
         validate_users_authorization_and_role(engines=engines, users=second_ldap_server_users)
 
 
-def test_ldap_timeout_functionality(engines, remove_ldap_configurations):
+def test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate timeout functionality:
     there are two cases of timeout: bind-in timeout and search timeout functionalites
@@ -193,7 +206,7 @@ def test_ldap_timeout_functionality(engines, remove_ldap_configurations):
     with allure.step("Configuring LDAP server with low bind-in timeout value: {}".format(LDAPConsts.LDAP_LOW_TIMOEUT)):
         logging.info("Configuring LDAP server with low bind-in timeout value: {}".format(LDAPConsts.LDAP_LOW_TIMOEUT))
         ldap_server_info[LDAPConsts.TIMEOUT_BIND] = LDAPConsts.LDAP_LOW_TIMOEUT
-        configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+        configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating failed connection to ldap server credentials"):
         logging.info("Validating failed connection to ldap server credentials")
@@ -206,7 +219,7 @@ def test_ldap_timeout_functionality(engines, remove_ldap_configurations):
         logging.info("Configuring LDAP server with high bind-in timeout value: {}, and low search timeout value: {}".format(LDAPConsts.LDAP_HIGH_TIMEOUT, LDAPConsts.LDAP_LOW_TIMOEUT))
         ldap_server_info[LDAPConsts.TIMEOUT_BIND] = LDAPConsts.LDAP_HIGH_TIMEOUT
         ldap_server_info[LDAPConsts.TIMEOUT] = LDAPConsts.LDAP_LOW_TIMOEUT
-        configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+        configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating failed connection to ldap server credentials"):
         logging.info("Validating failed connection to ldap server credentials")
@@ -216,14 +229,14 @@ def test_ldap_timeout_functionality(engines, remove_ldap_configurations):
                                                             password=ldap_server_users[0][LDAPConsts.PASSWORD])
 
 
-def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations):
+def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate invalid port ldap error flows of ,
     we want to configure invalid port value and then see that we are not able to connect
     to switch
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
@@ -240,14 +253,14 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations):
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
 
 
-def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configurations):
+def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate invalid bind in password ldap error flows,
     we want to configure invalid bind in password value and then see that we are not able to connect
     to switch
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
@@ -263,14 +276,14 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
 
 
-def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations):
+def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate invalid bind dn ldap error flows,
     we want to configure invalid bind dn value and then see that we are not able to connect
     to switch
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
@@ -286,14 +299,14 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations):
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
 
 
-def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations):
+def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate invalid base dn ldap error flows,
     we want to configure invalid bind dn value and then see that we are not able to connect
     to switch
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
@@ -309,13 +322,13 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations):
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
 
 
-def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations):
+def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to check that with non existing credentials we are not able to
     connect to swtich
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info])
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
