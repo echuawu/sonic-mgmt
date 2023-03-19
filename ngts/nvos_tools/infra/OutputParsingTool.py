@@ -414,7 +414,7 @@ class OutputParsingTool:
     @staticmethod
     def parse_linux_cmd_output_to_dic(output):
         """
-        ****** THE FOLLOWING OUTPUT STR:
+        ****** THE FOLLOWING OUTPUT STR (example from running 'timedatectl' command):
                    Local time: Mon 2023-01-16 18:53:18 IST
                Universal time: Mon 2023-01-16 16:53:18 UTC
                      RTC time: Mon 2023-01-16 16:53:18

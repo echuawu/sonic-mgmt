@@ -2,6 +2,7 @@ import datetime
 import itertools
 import random
 import string
+import time
 import allure
 import logging
 import pexpect
@@ -14,6 +15,8 @@ from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhCon
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 
 class PwhTools:
@@ -626,7 +629,7 @@ class PwhTools:
         """
         Change current date by a given amount of days
         @param num_of_days: the given amount of days for the change
-        @param dut_obj: dut engine object
+        @param system: System object
         """
         with allure.step('Moving current date by {} days from now'.format(num_of_days)):
             logging.info('Moving current date by {} days from now'.format(num_of_days))
@@ -640,8 +643,8 @@ class PwhTools:
             logging.info('New datetime result: "{}"'.format(new_dt))
 
     @staticmethod
-    def verify_password_expired(ip, username, password):
-        '''
+    def verify_expiration(ip, username, password, expiration_type=PwhConsts.EXPIRATION):
+        """
         @summary: Verify that user's password is expired with ssh connection to the given ip
             * NOTE: Make sure that the given user exists in the given ip,
             * and that te given password is actually the current password of the user.
@@ -649,56 +652,82 @@ class PwhTools:
         @param ip: the ip to ssh
         @param username: the username
         @param password: user's password (verify it's expired)
-        '''
-        try:
-            with allure.step('Verify that password "{}" has expired for user "{}" - ip: "{}"'.format(password, username, ip)):
-                logging.info('Verify that password "{}" has expired for user "{}" - ip: "{}"'.format(password, username, ip))
-                # compose the ssh command
-                engine = LinuxSshEngine(ip=ip, username=username, password=password)
-                _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
-                _ssh_command += ['-p', str(engine.ssh_port)]
-                _ssh_command += ['-l', engine.username, engine.ip]
+        @param expiration_type: 'expiration' to verify that password has expired ;
+            'expiration-warning' to verify that only received expiration-warning.
+        """
+        with allure.step('Verify expiration - verifying expiration_type param: {}'.format(expiration_type)):
+            logging.info('Verify expiration - verifying expiration_type param: {}'.format(expiration_type))
+            assert expiration_type in [PwhConsts.EXPIRATION, PwhConsts.EXPIRATION_WARNING], \
+                'Error in verify_expiration.\n' \
+                'Expected expiration_type param: "{}" or "{}".\n' \
+                'Actual expiration_type received: {}' \
+                .format(PwhConsts.EXPIRATION, PwhConsts.EXPIRATION_WARNING, expiration_type)
 
+        with allure.step('Verify {} for ip: "{}" , user: "{}" , pw: "{}"'.format(expiration_type, ip, username, password)):
+            logging.info('Verify {} for ip: "{}" , user: "{}" , pw: "{}"'.format(expiration_type, ip, username, password))
+            expected_msg = PwhConsts.MSG_PW_EXPIRED if expiration_type == PwhConsts.EXPIRATION \
+                else PwhConsts.MSG_EXPIRATION_WARNING
+
+        expected_patterns = []
+        try:
+            with allure.step('Composing the ssh command to pexpect process'):
+                logging.info('Composing the ssh command to pexpect process')
+                _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
+                _ssh_command += ['-p', str(PwhConsts.SSH_PORT)]
+                _ssh_command += ['-l', username, ip]
+
+            with allure.step('Running ssh command with user "{}" to ip "{}"'.format(username, ip)):
                 logging.info('Running ssh command with user "{}" to ip "{}"'.format(username, ip))
                 child = pexpect.spawn(' '.join(_ssh_command))
                 child.delaybeforesend = DefaultConnectionValues.PEXPECT_DELAYBEFORESEND
 
+            with allure.step('Expect shell to prompt "password" (tell the user to enter password)'):
                 logging.info('Expect shell to prompt "password" (tell the user to enter password)')
-                # in pexpect if we login in the second time we will get or the prompt or the EOF
-                respond_index = child.expect(['password', '~', pexpect.EOF])
-                if respond_index != 0:
-                    logging.info('Error in Verify password expired - recieved wrong respond index.\n'
-                                 'Expected respond index: 0\n'
-                                 'Actual respond index: {}\n'
-                                 'Prompt caught:\n{}'.format(respond_index, child.match.group(0)))
-                    assert False, 'Error: in verify password expired - received respond_index {}'.format(respond_index)
+                expected_patterns = [PwhConsts.PW]
+                respond_index = child.expect(expected_patterns, timeout=PwhConsts.EXPECT_TIMEOUT)
+                output_received = child.before.decode() + child.match.group(0).decode()
+                logging.info('Match success.\n'
+                             'Matched pattern index: {}\n'
+                             'Output received:\n{}'.format(respond_index, output_received))
 
+            with allure.step('Entering password "{}"'.format(password)):
                 logging.info('Entering password "{}"'.format(password))
-                # enter current password of the switch
-                child.sendline(engine.password + '\r')
+                child.sendline(password + '\r')  # enter current password of the switch
 
-                logging.info('Expect shell to prompt "You must change your password now and login again" \
-                    (the case of password expired)')
-                # the third option is when the system is in ONIE
-                respond_index = child.expect(['~', 'You must change your password now and login again', 'admin@.*password'])
-                # in case we get the default prompt then no need to change it
-                if respond_index != 1:
-                    logging.info('Error in Verify password expired - recieved wrong respond index.\n'
-                                 'Expected respond index: 1\n'
-                                 'Actual respond index: {}\n'
-                                 'Prompt caught:\n{}'.format(respond_index, child.match.group(0)))
-                    assert False, 'Error: in verify password expired - received respond_index {}'.format(respond_index)
+            expected_patterns = PwhConsts.PROMPT_PW_EXPIRED if expiration_type == PwhConsts.EXPIRATION \
+                else PwhConsts.PROMPT_EXPIRATION_WARNING
+            with allure.step('Expect shell to prompt {}'.format(expected_patterns)):
+                logging.info('Expect shell to prompt {}'.format(expected_patterns))
+                respond_index = child.expect(expected_patterns, timeout=PwhConsts.EXPECT_TIMEOUT)
+                output_received = child.before.decode() + child.match.group(0).decode()
+                logging.info('Match success.\n'
+                             'Matched pattern index: {}\n'
+                             'Output received:\n{}'.format(respond_index, output_received))
 
-                logging.info('Take the entire prompt message before "Current password"')
-                prompted_msg = child.before.decode('utf-8')
-                logging.info('PROMPTED MESSAGE:\n{}'.format(prompted_msg))
+            with allure.step('Verify prompted message'):
+                logging.info('Verify prompted message')
+                final_output = output_received
 
-                logging.info('Verify that the prompted message is correct for the situation of expired password')
-                ValidationTool.verify_sub_strings_in_str_output(prompted_msg,
-                                                                ['change your password', 'password expired', 'Your password has expired']).verify_result()
+                if expiration_type == PwhConsts.EXPIRATION:
+                    logging.info('Verify that the prompted message is correct for the situation of expired password')
+                    ValidationTool.verify_sub_strings_in_str_output(final_output, ['change your password',
+                                                                                   'password expired', 'Your password has expired']).verify_result()
+                else:
+                    logging.info('Verify that the prompted message is correct for the situation of expiration-warning')
+                    ValidationTool.verify_sub_strings_in_str_output(final_output, [PwhConsts.MSG_EXPIRATION_WARNING]) \
+                        .verify_result()
 
-                logging.info('Verify password expired - SUCCESS')
+                logging.info('Verify password expiration SUCCESS')
+        except pexpect.exceptions.TIMEOUT:
+            err_msg = 'Error: Child process output was not as expected.\n' \
+                      'Expectation timeout: {}\n' \
+                      'Expected pattern in output: {}\n' \
+                      'Actual output: {}'.format(PwhConsts.EXPECT_TIMEOUT, expected_patterns, child.before.decode())
+            logging.info(err_msg)
+            assert False, err_msg
         finally:
-            logging.info('Closing ssh process')
-            child.close()
-            engine.disconnect()
+            with allure.step('Closing ssh process'):
+                logging.info('Closing ssh process')
+                if child.isalive():
+                    child.terminate()
+                child.close()

@@ -539,7 +539,7 @@ def test_history_functionality_password_hardening(engines, system, init_pwh, tes
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_expiration_functionality_password_hardening(engines, system, init_time, testing_users):
+def test_expiration_functionality_password_hardening(engines, system, init_time, testing_users, init_pwh):
     """
     Test the functionality of password expiration setting.
 
@@ -560,12 +560,12 @@ def test_expiration_functionality_password_hardening(engines, system, init_time,
     pw2 = testing_users[user2][PwhConsts.PW]
     user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
 
-    num_of_days = random.randint(0, PwhConsts.NUM_SAMPLES)  # can randomize between min_expiration to max_expiration but the test will be too long
+    exp = random.randint(0, PwhConsts.NUM_SAMPLES)  # can randomize between min_expiration to max_expiration but the test will be too long
 
-    with allure.step('Set expiration setting to {}'.format(num_of_days)):
-        logging.info('Set expiration setting to {}'.format(num_of_days))
+    with allure.step('Set expiration setting to {}'.format(exp)):
+        logging.info('Set expiration setting to {}'.format(exp))
         pwh_obj.set(PwhConsts.EXPIRATION_WARNING, -1, apply=True).verify_result()
-        pwh_obj.set(PwhConsts.EXPIRATION, num_of_days, apply=True).verify_result()
+        pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
 
     with allure.step('Set user2 with new password'):
         logging.info('Set user2 with new password')
@@ -575,18 +575,82 @@ def test_expiration_functionality_password_hardening(engines, system, init_time,
         logging.info('Setting new password for user2 ("{}") : "{}"'.format(user2, pw2))
         PwhTools.set_pw_and_apply(user2_obj, pw2)
 
-    with allure.step('Let {} days pass, and on each day, login (with both users) and expect success'.format(num_of_days)):
-        logging.info('Let {} days pass, and on each day, login (with both users) and expect success'.format(num_of_days))
-        for i in range(num_of_days + 1):
-            with allure.step('On day #{} {}- verify login success'.format(i, '(original day) ' if i == 0 else '')):
-                logging.info('On day #{} {}- verify login success'.format(i, '(original day) ' if i == 0 else ''))
-                PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
-                PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
-            with allure.step('Move to day #{} - Set 1 day ahead'.format(i + 1)):
-                logging.info('Move to day #{} - Set 1 day ahead'.format(i + 1))
-                PwhTools.move_k_days(num_of_days=1, system=system)
+    with allure.step('Let {} days pass, and on each day, login (with both users) and expect success'.format(exp)):
+        logging.info('Let {} days pass, and on each day, login (with both users) and expect success'.format(exp))
+        for day_num in range(exp + 2):
+            if day_num == exp + 1:
+                with allure.step('Day #{} - verify expired'.format(day_num)):
+                    logging.info('Day #{} - verify expired'.format(day_num))
+                    PwhTools.verify_expiration(engines.dut.ip, user1, pw1)
+                    PwhTools.verify_expiration(engines.dut.ip, user2, pw2)
+            else:
+                with allure.step('Day #{} - verify login success'.format(day_num, '(original day) ' if day_num == 0 else '')):
+                    logging.info('Day #{} - verify login success'.format(day_num, '(original day) ' if day_num == 0 else ''))
+                    PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
+                    PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
+            if day_num != exp + 1:
+                with allure.step('Move 1 day ahead'):
+                    logging.info('Move 1 day ahead')
+                    PwhTools.move_k_days(num_of_days=1, system=system)
 
-    with allure.step('On day #{} (N+1) - passwords expired. Try log in and expect expiration prompt'.format(num_of_days + 1)):
-        logging.info('On day #{} (N+1) - passwords expired. Try log in and expect expiration prompt'.format(num_of_days + 1))
-        PwhTools.verify_password_expired(engines.dut.ip, user1, pw1)
-        PwhTools.verify_password_expired(engines.dut.ip, user2, pw2)
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_expiration_warning_functionality_password_hardening(engines, system, init_time, testing_users, init_pwh):
+    """
+    Test the functionality of password expiration-warning setting.
+
+    Steps:
+        1. Set user1 with password pw1 ('old' password)
+        2. Set expiration to N, and expiration-warning to M < N (should apply to old and new passwords)
+        3. Set user2 with password pw2 ('new' password)
+        4. Let K (=N-M) days to pass
+            in each of these days, login with both users (expect success)
+        5. After the K days pass (on day #K+1), login with both users
+            expect password expiration warning
+    """
+    pwh_obj = system.security.password_hardening
+    user1 = PwhConsts.ADMIN_TEST_USR
+    pw1 = testing_users[user1][PwhConsts.PW]
+    user1_obj = testing_users[user1][PwhConsts.USER_OBJ]
+    user2 = PwhConsts.MONITOR_TEST_USR
+    pw2 = testing_users[user2][PwhConsts.PW]
+    user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
+
+    exp = random.randint(1, PwhConsts.NUM_SAMPLES)  # can randomize between min_expiration to max_expiration but the test will be too long
+    exp_warn = random.randint(0, exp - 1)
+
+    with allure.step('Set expiration-warning setting to {}'.format(exp_warn)):
+        logging.info('Set expiration-warning setting to {}'.format(exp_warn))
+        pwh_obj.set(PwhConsts.EXPIRATION_WARNING, exp_warn, apply=True).verify_result()
+
+    with allure.step('Set expiration setting to {}'.format(exp)):
+        logging.info('Set expiration setting to {}'.format(exp))
+        pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
+
+    with allure.step('Set user2 with new password'):
+        logging.info('Set user2 with new password')
+        pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+        logging.info('Current password hardening configuration:\n{}'.format(pwh_conf))
+        pw2 = PwhTools.generate_strong_pw(pwh_conf, user2, [pw2])
+        logging.info('Setting new password for user2 ("{}") : "{}"'.format(user2, pw2))
+        PwhTools.set_pw_and_apply(user2_obj, pw2)
+
+    with allure.step('Let {} days to pass'.format(exp)):
+        logging.info('Let {} days to pass'.format(exp))
+        warning_day = exp - exp_warn + 1
+        for day_num in range(warning_day + 1):
+            if day_num < warning_day:
+                with allure.step('Day #{} - Expect nothing (regular login)'.format(day_num)):
+                    logging.info('Day #{} - Expect nothing (regular login)'.format(day_num))
+                    PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
+                    PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
+                with allure.step('Step 1 day ahead'):
+                    logging.info('Step 1 day ahead')
+                    PwhTools.move_k_days(num_of_days=1, system=system)
+            else:   # warning_day
+                with allure.step('Day #{} - Expect warning'.format(day_num)):
+                    logging.info('Day #{} - Expect warning'.format(day_num))
+                    PwhTools.verify_expiration(engines.dut.ip, user1, pw1, expiration_type=PwhConsts.EXPIRATION_WARNING)
+                    PwhTools.verify_expiration(engines.dut.ip, user2, pw2, expiration_type=PwhConsts.EXPIRATION_WARNING)

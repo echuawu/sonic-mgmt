@@ -21,8 +21,8 @@ class PwhConsts:
 
     # pwh field minimal values
     MIN = {
-        EXPIRATION: 1,
-        EXPIRATION_WARNING: 1,
+        EXPIRATION: -1,
+        EXPIRATION_WARNING: -1,
         HISTORY_CNT: 1,
         LEN_MIN: 6
     }
@@ -108,10 +108,22 @@ class PwhConsts:
     LOWER_CHARS = 'abcdefghijklmnopqrstuvwxyz'
     UPPER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     DIGITS_CHARS = '1234567890'
-    SPECIAL_CHARS = ")"  # "~!@#%^*()-_+=|[{}]:',<.>/"   # was also with "`$&;?"
+    SPECIAL_CHARS = "~@%^*-_=+[{}]:',/"
 
     # configurable parameter to the test
     NUM_SAMPLES = 6
+    EXPECT_TIMEOUT = 3
+    SSH_PORT = 22
 
     # regex
     REGEX_TIME = r"\d{2}:\d{2}:\d{2}"
+
+    # expiration prompted warnings
+    PROMPT_PW_EXPIRED = ['Current password', 'You must change your password now and login again']
+    PROMPT_EXPIRATION_WARNING = ['Warning: your password will expire in']  # ['$']
+    MSG_PW_EXPIRED = 'You must change your password now and login again'
+    MSG_EXPIRATION_WARNING = 'Warning: your password will expire in'
+
+    # 'chage' keys
+    CHAGE_EXPIRATION = 'Maximum number of days between password change'
+    CHAGE_EXPIRATION_WARNING = 'Number of days of warning before password expires'
