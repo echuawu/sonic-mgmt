@@ -115,18 +115,6 @@ def enable_ldap_feature(dut_engine):
         dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
         dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
         dut_engine.run_cmd("nv config apply -y")
-        # WA
-        logging.info("Creating a home directory as for all users a WA for bug")
-        users = []
-        for server_info in LDAPConsts.LDAP_SERVERS_LIST:
-            for user in server_info[LDAPConsts.USERS]:
-                if user[LDAPConsts.USERNAME] not in users:
-                    dut_engine.run_cmd("sudo mkdir /home/{}".format(user[LDAPConsts.USERNAME]))
-                    dut_engine.run_cmd(
-                        "sudo chown {username}:{role} /home/{username}".format(username=user[LDAPConsts.USERNAME],
-                                                                               role=user[
-                                                                                   'role']))  # sudo chown adminuser:admin /home/adminuser
-                    users.append(user[LDAPConsts.USERNAME])
 
 
 def validate_services_and_dockers_availability(engines, devices):
@@ -168,7 +156,7 @@ def test_ldap_basic_configurations(engines, remove_ldap_configurations, devices)
 
     with allure.step("Validating ldap credentials"):
         logging.info("Validating ldap credentials")
-        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
+        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS], is_ldap=True)
 
 
 def randomize_ldap_server():
@@ -205,7 +193,7 @@ def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configu
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
         first_ldap_server_users = LDAPConsts.PHYSICAL_LDAP_SERVER[LDAPConsts.USERS]
-        validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users)
+        validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users, is_ldap=True)
 
 
 def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
@@ -252,7 +240,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
 
     system = System(None)
     invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
@@ -276,7 +264,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -299,7 +287,7 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -322,7 +310,7 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -344,7 +332,7 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
 
     random_user = Tools.RandomizationTool.get_random_string(20)
     random_password = Tools.RandomizationTool.get_random_string(20)
