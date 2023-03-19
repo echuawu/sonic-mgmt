@@ -52,7 +52,7 @@ def ping_device(ip_add):
         return False
 
 
-@retry(Exception, tries=5, delay=3)
+@retry(Exception, tries=5, delay=10)
 def _ping_device(ip_add):
     with allure.step(f"Ping device ip {ip_add}"):
         cmd = f"ping -c 3 {ip_add}"
@@ -102,6 +102,6 @@ def reboot_server(server_name):
         cmd = REBOOT_CMD_TO_RUN.format(server_name=server_name)
         logging.info(f"cmd: {cmd}")
         os.system(cmd)
-        logging.info("Sleep for 2 min")
-        time.sleep(120)
+        logging.info("Sleep for 5 min")
+        time.sleep(300)
         logging.info(f"Reboot completed for '{server_name}'")
