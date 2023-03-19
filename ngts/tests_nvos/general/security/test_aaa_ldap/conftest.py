@@ -2,6 +2,7 @@ import logging
 import allure
 import pytest
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
 
 
 def disable_ldap_feature(dut_engine):
@@ -13,6 +14,14 @@ def disable_ldap_feature(dut_engine):
     dut_engine.run_cmd("nv set system aaa authentication fallback disabled")
     dut_engine.run_cmd("nv set system aaa authentication fallback disabled")
     dut_engine.run_cmd("nv config apply -y")
+    # WA
+    logging.info("Removing all home directorires as for all users")
+    users = []
+    for server_info in LDAPConsts.LDAP_SERVERS_LIST:
+        for user in server_info[LDAPConsts.USERS]:
+            if user[LDAPConsts.USERNAME] not in users:
+                dut_engine.run_cmd("sudo rmdir /home/{}".format(user[LDAPConsts.USERNAME]))
+                users.append(user[LDAPConsts.USERNAME])
 
 
 @pytest.fixture(scope='function')
