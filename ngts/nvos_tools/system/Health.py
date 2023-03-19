@@ -23,12 +23,6 @@ class Health(BaseComponent):
         self.parent_obj = parent_obj
         self.history = History(self)
 
-    def show_detail(self):
-        return self.show(" -w detail")
-
-    def show_brief(self):
-        return self.show(" -w brief")
-
     @retry(Exception, tries=12, delay=30)       # BUG 3355421 - after reboot it takes almost 5 min until the status change to OK
     def wait_until_health_status_change_after_reboot(self, expected_status):
         output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()

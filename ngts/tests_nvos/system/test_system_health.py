@@ -8,6 +8,7 @@ import math
 from datetime import datetime
 
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.Simulator import HWSimulator
@@ -70,11 +71,10 @@ def test_show_system_health(devices):
         Test flow:
             1. validate nv show system cmd
             2. validate nv show system health cmd
-            3. validate nv show system health -w brief cmd
-            5. validate nv show system health -w detail cmd
-            6. validate nv show system health history cmd
-            7. validate nv show system health history files cmd
-            8. validate nv show system health history files <file> cmd
+            3. validate nv show fae health cmd
+            4. validate nv show system health history cmd
+            5. validate nv show system health history files cmd
+            6. validate nv show system health history files <file> cmd
     """
 
     system = System()
@@ -91,14 +91,9 @@ def test_show_system_health(devices):
         ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED], health_output.keys()).verify_result()
         verify_expected_health_status(health_output, HealthConsts.STATUS, OK)
 
-    with allure.step("Validate \"nv show system health -w brief\" cmd"):
-        logger.info("Validate \"nv show system health -w brief\" cmd")
-        brief_health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show_brief()).get_returned_value()
-        ValidationTool.compare_dictionaries(health_output, brief_health_output).verify_result()
-
-    with allure.step("Validate \"nv show system health -w detail\" cmd"):
-        logger.info("Validate \"nv show system health -w detail\" cmd")
-        detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show_detail()).get_returned_value()
+    with allure.step("Validate \"nv show fae health\" cmd"):
+        logger.info("Validate \"nv show fae health\" cmd")
+        detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()
         ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED, HealthConsts.MONITOR_LIST],
                                                           detail_health_output).verify_result()
         verify_expected_health_status(detail_health_output, HealthConsts.STATUS, OK)
@@ -401,7 +396,7 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
         with allure.step("Validate detailed health report"):
             logger.info("Validate detailed health report")
             detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
-                system.health.show_detail()).get_returned_value()
+                Fae().health.show()).get_returned_value()
             verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
             monitor_dict = sort_monitor_list(detail_health_output[HealthConsts.MONITOR_LIST])
             for component, issue in health_issue_dict.items():
@@ -572,7 +567,7 @@ def simulate_health_issue_with_config_file_and_validate(system, engine, device):
         health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
         verify_expected_health_status(health_output, HealthConsts.STATUS, NOT_OK)
         detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
-            system.health.show_detail()).get_returned_value()
+            Fae().health.show()).get_returned_value()
         verify_expected_health_status(detail_health_output, HealthConsts.STATUS, NOT_OK)
         for device, issue in new_devices_dict.items():
             assert device in health_output[HealthConsts.ISSUES].keys()
@@ -614,14 +609,14 @@ def cause_health_file_rotation_and_validate(engine, system):
 
 def sort_monitor_list(monitor_list=None):
     """
-    get the monitor list from the "nv show system health -w detailed command,
+    get the monitor list from the "nv show fae health command,
     return a dictionary with all the optional status as keys: [OK, Not OK , Ignored]
     if the status of a device is not one of [OK, Not OK , Ignored], we will consider it as NOT OK.
     :param monitor_list:
     :return:
     """
     if not monitor_list:
-        monitor_list = OutputParsingTool.parse_json_str_to_dictionary(System().health.show_detail()).get_returned_value()[HealthConsts.MONITOR_LIST]
+        monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[HealthConsts.MONITOR_LIST]
     status_options = [OK, NOT_OK, IGNORED]
     monitor_dict = {status_key: [] for status_key in status_options}
     for key, value in monitor_list.items():
