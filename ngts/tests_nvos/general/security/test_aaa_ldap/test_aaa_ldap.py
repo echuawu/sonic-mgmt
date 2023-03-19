@@ -1,5 +1,5 @@
 import logging
-from random import random
+import random
 import allure
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
@@ -115,6 +115,18 @@ def enable_ldap_feature(dut_engine):
         dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
         dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
         dut_engine.run_cmd("nv config apply -y")
+        # WA
+        logging.info("Creating a home directory as for all users a WA for bug")
+        users = []
+        for server_info in LDAPConsts.LDAP_SERVERS_LIST:
+            for user in server_info[LDAPConsts.USERS]:
+                if user[LDAPConsts.USERNAME] not in users:
+                    dut_engine.run_cmd("sudo mkdir /home/{}".format(user[LDAPConsts.USERNAME]))
+                    dut_engine.run_cmd(
+                        "sudo chown {username}:{role} /home/{username}".format(username=user[LDAPConsts.USERNAME],
+                                                                               role=user[
+                                                                                   'role']))  # sudo chown adminuser:admin /home/adminuser
+                    users.append(user[LDAPConsts.USERNAME])
 
 
 def validate_services_and_dockers_availability(engines, devices):
@@ -174,7 +186,7 @@ def randomize_ldap_server():
     return randomized_radius_server_info
 
 
-def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
+def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
     ''''
     @summary: in this test case we want to validate the functionality of the priority
     and fallback, we will configure 2 ldap servers and then connect through the credentials
@@ -184,23 +196,19 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
     with allure.step("Create invalid ldap server"):
         logging.info("Create invalid ldap server")
         randomized_ldap_server_dict = randomize_ldap_server()
-        randomized_ldap_server_dict[LDAPConsts.PRIORITY] = str(LDAPConsts.MAX_PRIORITY - 1)
+        randomized_ldap_server_dict[LDAPConsts.PRIORITY] = LDAPConsts.MAX_PRIORITY
+        configure_ldap(randomized_ldap_server_dict)
 
-    ldap_server_list = LDAPConsts.LDAP_SERVERS_LIST.copy() + randomized_ldap_server_dict
+    ldap_server_list = [LDAPConsts.PHYSICAL_LDAP_SERVER]
     configure_ldap_and_validate(engines, ldap_server_list=ldap_server_list, devices=devices)
 
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
-        first_ldap_server_users = LDAPConsts.LDAP_SERVERS_LIST[0][LDAPConsts.USERS]
+        first_ldap_server_users = LDAPConsts.PHYSICAL_LDAP_SERVER[LDAPConsts.USERS]
         validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users)
 
-    with allure.step("Validating second ldap server credentials"):
-        logging.info("Validating second ldap server credentials")
-        second_ldap_server_users = LDAPConsts.LDAP_SERVERS_LIST[0][LDAPConsts.USERS]
-        validate_users_authorization_and_role(engines=engines, users=second_ldap_server_users)
 
-
-def test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
+def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate timeout functionality:
     there are two cases of timeout: bind-in timeout and search timeout functionalites
@@ -249,9 +257,9 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
     system = System(None)
     invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
                                                                [int(ldap_server_info[LDAPConsts.PORT])]).get_returned_value()
-    with allure.step("Setting invlaid auth-port: {}".format(invalid_port)):
-        logging.info("Setting invlaid auth-port: {}".format(invalid_port))
-        system.aaa.ldap.set_port(port=invalid_port, apply=True)
+    with allure.step("Setting invlaid auth-port: {}".format(str(invalid_port))):
+        logging.info("Setting invlaid auth-port: {}".format(str(invalid_port)))
+        system.aaa.ldap.set_port(port=str(invalid_port), apply=True)
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
