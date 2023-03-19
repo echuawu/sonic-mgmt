@@ -55,7 +55,7 @@ def configure_ldap(ldap_server_info):
             system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LDAPConsts.TIMEOUT_BIND])
         if ldap_server_info.get(LDAPConsts.VERSION):
             system.aaa.ldap.set_version(version=ldap_server_info[LDAPConsts.VERSION])
-        system.aaa.ldap.set_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME], apply=True)
+        system.aaa.ldap.set_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME], apply=True).verify_result()
 
 
 def validate_ldap_configurations(ldap_server_info):
@@ -81,18 +81,22 @@ def validate_ldap_configurations(ldap_server_info):
 
     with allure.step("Validating the configuration of ldap to be the same as {}".format(ldap_server_info)):
         logging.info("Validating the configuration of ldap to be the same as {}".format(ldap_server_info))
-        output = system.aaa.ldap.show_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME])
+        output = system.aaa.ldap.show()
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
         expected_field = [LDAPConsts.PORT, LDAPConsts.BASE_DN, LDAPConsts.BIND_DN,
-                          LDAPConsts.LOGIN_ATTR, LDAPConsts.BIND_PASSWORD,
-                          LDAPConsts.TIMEOUT_BIND, LDAPConsts.TIMEOUT,
-                          LDAPConsts.VERSION, LDAPConsts.PRIORITY]
+                          LDAPConsts.LOGIN_ATTR,
+                          LDAPConsts.TIMEOUT_BIND, LDAPConsts.TIMEOUT]
         expected_values = [ldap_server_info[LDAPConsts.PORT], ldap_server_info[LDAPConsts.BASE_DN],
                            ldap_server_info[LDAPConsts.BIND_DN], ldap_server_info[LDAPConsts.LOGIN_ATTR],
-                           ldap_server_info[LDAPConsts.BIND_PASSWORD],
                            ldap_server_info[LDAPConsts.TIMEOUT_BIND], ldap_server_info[LDAPConsts.TIMEOUT],
-                           ldap_server_info[LDAPConsts.VERSION],
-                           ldap_server_info[LDAPConsts.PRIORITY]]
+                           ldap_server_info[LDAPConsts.VERSION]]
+        ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
+                                                        expected_values=expected_values,
+                                                        output_dict=output).verify_result()
+        output = system.aaa.ldap.show_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME])
+        output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
+        expected_field = [LDAPConsts.PRIORITY]
+        expected_values = [ldap_server_info[LDAPConsts.PRIORITY]]
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
                                                         expected_values=expected_values,
                                                         output_dict=output).verify_result()
@@ -147,7 +151,7 @@ def test_ldap_basic_configurations(engines, remove_ldap_configurations, devices)
     @summary: in this test case we want to validate default ldap configurations.
     We will configure the default configurations and connect to device.
     '''
-    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
+    ldap_server_info = LDAPConsts.DOCKER_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating ldap credentials"):
@@ -170,7 +174,7 @@ def randomize_ldap_server():
     return randomized_radius_server_info
 
 
-def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices=devices):
+def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
     ''''
     @summary: in this test case we want to validate the functionality of the priority
     and fallback, we will configure 2 ldap servers and then connect through the credentials
