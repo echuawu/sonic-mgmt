@@ -25,6 +25,7 @@ class BaseDevice:
         self.fan_list = {}
         self.psu_list = {}
         self.psu_fan_list = {}
+        self.fan_led_list = {}
         self.temperature_list = {}
         self.health_components = []
 
@@ -323,6 +324,7 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_fan_list(self):
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
+        self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6']
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
@@ -364,6 +366,7 @@ class GorillaSwitch(BaseSwitch):
         BaseSwitch._init_fan_list(self)
         self.fan_list.append("FAN7/1")
         self.fan_list.append("FAN7/2")
+        self.fan_led_list.append('FAN7')
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
