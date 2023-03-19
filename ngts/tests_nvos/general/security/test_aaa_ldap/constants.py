@@ -6,7 +6,7 @@ class LDAPConsts:
     SCOPE = 'scope'
     BASE_DN = 'base-dn'
     BIND_DN = 'bind-dn'
-    BIND_PASSWORD = 'bind-password'
+    BIND_PASSWORD = 'password'
     TIMEOUT_BIND = 'timeout-bind'
     TIMEOUT = 'timeout-search'
     PORT = 'auth-port'
@@ -40,9 +40,9 @@ class LDAPConsts:
                 'role': 'monitor'
             },
             {
-                'username': 'adminuser',  # TODO: change to volt once it is in
-                'password': 'asd',  # TODO: change to volt once it is in
-                'role': 'monitor'
+                'username': 'azmy',  # TODO: change to volt once it is in
+                'password': 'azmy',  # TODO: change to volt once it is in
+                'role': 'admin'
             }
         ],
         "nested-users": [
@@ -63,13 +63,13 @@ class LDAPConsts:
         "hostname": "10.237.0.86",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
-        "bind-password": "secret",
+        "password": "secret",
         "login-attribute": "cn",
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
         "timeout-bind": "5",
-        "timeout": "5",
+        "timeout-search": "5",
         "version": '3',
         "priority": '1',
         "users": [
