@@ -280,6 +280,9 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
     with allure.step("Setting invlaid auth-port: {}".format(str(invalid_port))):
         logging.info("Setting invlaid auth-port: {}".format(str(invalid_port)))
         system.aaa.ldap.set_port(port=str(invalid_port), apply=True)
+        with allure.step("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
+            logging.info("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS))
+            time.sleep(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
@@ -303,6 +306,9 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
     with allure.step("Configuring invalid password: {}".format(random_string)):
         logging.info("Configuring invalid password: {}".format(random_string))
         system.aaa.ldap.set_bind_password(password=random_string, apply=True)
+        with allure.step("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
+            logging.info("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS))
+            time.sleep(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
@@ -326,6 +332,9 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
     with allure.step("Configuring invalid bind-dn: {}".format(random_string)):
         logging.info("Configuring invalid bind-dn: {}".format(random_string))
         system.aaa.ldap.set_bind_dn(user=random_string, apply=True)
+        with allure.step("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
+            logging.info("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS))
+            time.sleep(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
@@ -349,6 +358,9 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
     with allure.step("Configuring invalid base-dn: {}".format(random_string)):
         logging.info("Configuring invalid base-dn: {}".format(random_string))
         system.aaa.ldap.set_base_dn(base=random_string, apply=True)
+        with allure.step("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
+            logging.info("Waiting {} secs to apply configurations".format(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS))
+            time.sleep(LDAPConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
         validate_failed_authentication_with_new_credentials(engines,
                                                             username=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.USERNAME],
                                                             password=ldap_server_info[LDAPConsts.USERS][0][LDAPConsts.PASSWORD])
