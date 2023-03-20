@@ -75,13 +75,7 @@ def enable_radius_feature(dut_engine):
         dut_engine.run_cmd("nv config apply -y")
 
 
-def create_home_directory_for_user(dut_engine, username, role):
-    logging.info("Creating a home directory as for all users a WA for bug")
-    dut_engine.run_cmd("sudo mkdir /home/{}".format(username))
-    dut_engine.run_cmd("sudo chown {username}:{role} /home/{username}".format(username=username, role=role))
-
-
-def connect_to_switch_and_validate_role(engines, username, password, role=SystemConsts.ROLE_VIEWER, is_ldap=False):
+def connect_to_switch_and_validate_role(engines, username, password, role=SystemConsts.ROLE_VIEWER):
     '''
     @summary:
         in this helper function, we will connect to switch using username, password & port
@@ -90,10 +84,6 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
     with allure.step("Using username: {}, role: {}".format(username, role)):
         logging.info("Using username: {}, role: {}".format(username, role))
         engines.dut.update_credentials(username=username, password=password)
-        if is_ldap:
-            restore_original_engine_credentials(engines)
-            create_home_directory_for_user(engines.dut, username, role)
-            engines.dut.update_credentials(username=username, password=password)
 
     system = System(None)
     SHOW_SYSTEM_VERSION_CMD = 'nv show system version'
@@ -112,7 +102,7 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
             system.message.set("NVOS TESTS", engines.dut, field_name='pre-login').verify_result(should_succeed=False)
 
 
-def validate_users_authorization_and_role(engines, users, is_ldap=False):
+def validate_users_authorization_and_role(engines, users):
     """
     @summary:
         in this function we want to iterate on all users given and validate that access to switch
@@ -121,7 +111,7 @@ def validate_users_authorization_and_role(engines, users, is_ldap=False):
     """
     try:
         for user_info in users:
-            connect_to_switch_and_validate_role(engines, user_info['username'], user_info['password'], user_info['role'], is_ldap=is_ldap)
+            connect_to_switch_and_validate_role(engines, user_info['username'], user_info['password'], user_info['role'])
     except Exception as err:
         logging.info("Got an exception while connection to switch and validating role")
         raise err

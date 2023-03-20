@@ -156,7 +156,7 @@ def test_ldap_basic_configurations(engines, remove_ldap_configurations, devices)
 
     with allure.step("Validating ldap credentials"):
         logging.info("Validating ldap credentials")
-        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS], is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
 
 
 def randomize_ldap_server():
@@ -193,7 +193,7 @@ def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configu
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
         first_ldap_server_users = LDAPConsts.PHYSICAL_LDAP_SERVER[LDAPConsts.USERS]
-        validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users, is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users)
 
 
 def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
@@ -240,7 +240,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     system = System(None)
     invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
@@ -264,7 +264,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -287,7 +287,7 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -310,7 +310,7 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -332,7 +332,7 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
 
     with allure.step("Validating that we can access the switch with matching configurations"):
         logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]], is_ldap=True)
+        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     random_user = Tools.RandomizationTool.get_random_string(20)
     random_password = Tools.RandomizationTool.get_random_string(20)
