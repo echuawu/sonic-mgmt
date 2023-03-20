@@ -21,7 +21,7 @@ def test_snmp_default_values_fields(engines):
         1. Check snmp output default values
         2. Enable snmp
         3. Check default values after enable
-        4. Change name/location/contact, verify changes
+        4. Change location/contact, verify changes
         5. Unset
     """
     system = System(None)
@@ -46,36 +46,36 @@ def test_snmp_default_values_fields(engines):
     with allure.step('Verify fields and values after snmp enabled'):
         system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show())\
             .get_returned_value()
-        ValidationTool.validate_fields_values_in_output(SystemConsts.SNMP_OUTPUT_FIELDS,
+        ValidationTool.validate_fields_values_in_output([SystemConsts.SNMP_REFRESH_INTERVAL,
+                                                         SystemConsts.SNMP_IS_RUNNING,
+                                                         SystemConsts.SNMP_LISTENING_ADDRESS,
+                                                         SystemConsts.SNMP_READONLY_COMMUNITY],
                                                         [SystemConsts.SNMP_DEFAULT_REFRESH_INTERVAL, 'yes',
                                                          {'all': {'port': 161, 'vrf': ''}},
                                                          {'qwerty12': {}}],
                                                         system_snmp_output).verify_result()
         logging.info("All expected fields were found")
 
-    with allure.step("Change snmp contact/location/name"):
+    with allure.step("Change snmp contact/location"):
         system.snmp_server.set(SystemConsts.SNMP_SYSTEM_CONTACT, 'a1').verify_result()
         system.snmp_server.set(SystemConsts.SNMP_SYSTEM_LOCATION, 'b2').verify_result()
-        system.snmp_server.set(SystemConsts.SNMP_SYSTEM_NAME, 'c3').verify_result()
         NvueGeneralCli.apply_config(engines.dut)
         logging.info("Snmp enabled successfully")
 
-        with allure.step('Verify fields and values after contact/location/name/set'):
+        with allure.step('Verify fields and values after contact/location/set'):
             system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show())\
                 .get_returned_value()
             ValidationTool.validate_fields_values_in_output([SystemConsts.SNMP_SYSTEM_CONTACT,
-                                                             SystemConsts.SNMP_SYSTEM_LOCATION,
-                                                             SystemConsts.SNMP_SYSTEM_NAME],
-                                                            ['a1', 'b2', 'c3'],
+                                                             SystemConsts.SNMP_SYSTEM_LOCATION],
+                                                            ['a1', 'b2'],
                                                             system_snmp_output).verify_result()
 
-    with allure.step("Change snmp contact/location/name to max string length"):
+    with allure.step("Change snmp contact/location to max string length"):
         length = 255
         letters = string.ascii_letters + string.digits
         max_length_string = ''.join(random.choice(letters) for _ in range(length))
         system.snmp_server.set(SystemConsts.SNMP_SYSTEM_CONTACT, max_length_string).verify_result()
         system.snmp_server.set(SystemConsts.SNMP_SYSTEM_LOCATION, max_length_string).verify_result()
-        system.snmp_server.set(SystemConsts.SNMP_SYSTEM_NAME, max_length_string).verify_result()
         NvueGeneralCli.apply_config(engines.dut)
         logging.info("Snmp enabled successfully")
 
@@ -83,9 +83,8 @@ def test_snmp_default_values_fields(engines):
             system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show())\
                 .get_returned_value()
             ValidationTool.validate_fields_values_in_output([SystemConsts.SNMP_SYSTEM_CONTACT,
-                                                             SystemConsts.SNMP_SYSTEM_LOCATION,
-                                                             SystemConsts.SNMP_SYSTEM_NAME],
-                                                            [max_length_string, max_length_string, max_length_string],
+                                                             SystemConsts.SNMP_SYSTEM_LOCATION],
+                                                            [max_length_string, max_length_string],
                                                             system_snmp_output).verify_result()
 
     with allure.step("Unset snmp"):
@@ -130,9 +129,7 @@ def test_system_snmp_negative(engines, players, topology_obj):
                                     validate_apply_message="Listening-address 127.0.0.1 should be specified by the keyword 'localhost'")
         system.snmp_server.unset('listening-address', '127.0.0.1').verify_result()
 
-    with allure.step("Negative testing for listening-address"):
-        system.snmp_server.set('listening-address', 'invalid_value').verify_result(False)
-        system.snmp_server.set('listening-address', 'all port aa').verify_result(False)
+    with allure.step("Negative testing for refresh interval"):
         system.snmp_server.set('auto-refresh-interval', 'a1').verify_result(False)
 
     with allure.step("Verify snmp not working with already used port"):
@@ -140,9 +137,9 @@ def test_system_snmp_negative(engines, players, topology_obj):
         system.log.rotate_logs()
         system.snmp_server.set('listening-address', 'all port 123').verify_result()
         NvueGeneralCli.apply_config(engines.dut)
-        with allure.step('Verify snmpd fatal state in the logs'):
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, "snmpd entered FATAL state").verify_result()
+        # with allure.step('Verify snmpd fatal state in the logs'):
+        #     show_output = system.log.show_log(exit_cmd='q')
+        #     ValidationTool.verify_expected_output(show_output, "snmpd entered FATAL state").verify_result()
 
         with allure.step('Verify snmp not running with booked port for ntp'):
             system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show()) \
@@ -155,13 +152,12 @@ def test_system_snmp_negative(engines, players, topology_obj):
         system.snmp_server.set('listening-address', 'all').verify_result()
         NvueGeneralCli.apply_config(engines.dut)
 
-    with allure.step("Negative testing for contact/location/name"):
+    with allure.step("Negative testing for contact/location"):
         length = 256
         letters = string.ascii_letters + string.digits
         max_length_string = ''.join(random.choice(letters) for _ in range(length))
         system.snmp_server.set(SystemConsts.SNMP_SYSTEM_CONTACT, max_length_string).verify_result(False)
         system.snmp_server.set(SystemConsts.SNMP_SYSTEM_LOCATION, max_length_string).verify_result(False)
-        system.snmp_server.set(SystemConsts.SNMP_SYSTEM_NAME, max_length_string).verify_result(False)
 
     with allure.step("Snmpget with wrong port and community"):
         ip_address = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][

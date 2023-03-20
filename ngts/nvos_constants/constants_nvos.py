@@ -163,7 +163,6 @@ class SystemConsts:
     SNMP_LISTENING_ADDRESS = 'listening-address'
     SNMP_READONLY_COMMUNITY = 'readonly-community'
     SNMP_STATE = 'state'
-    SNMP_SYSTEM_NAME = 'system-name'
     SNMP_SYSTEM_CONTACT = 'system-contact'
     SNMP_SYSTEM_LOCATION = 'system-location'
     SNMP_OUTPUT_FIELDS = [SNMP_IS_RUNNING, SNMP_LISTENING_ADDRESS, SNMP_READONLY_COMMUNITY, SNMP_STATE]
