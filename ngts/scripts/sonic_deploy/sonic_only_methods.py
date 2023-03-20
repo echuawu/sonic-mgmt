@@ -61,7 +61,7 @@ class SonicInstallationSteps:
         Start background threads for community setup
         """
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
-        run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=1800, exec_path=ansible_path)
+        run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
         if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo):
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
