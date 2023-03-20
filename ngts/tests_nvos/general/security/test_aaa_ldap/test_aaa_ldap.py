@@ -115,8 +115,6 @@ def enable_ldap_feature(dut_engine):
     with allure.step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
         logging.info("Enabling LDAP by setting LDAP auth. method as first auth. method")
         dut_engine.run_cmd("nv set system aaa authentication order ldap,local")
-        dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
-        dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
         dut_engine.run_cmd("nv config apply -y")
         NVUED_SLEEP_FOR_RESTART = 4
         with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
