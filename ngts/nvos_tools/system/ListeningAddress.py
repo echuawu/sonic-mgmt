@@ -12,7 +12,7 @@ class ListeningAddress(BaseComponent):
 
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/listening_address/{listening_address_id}'
+        self._resource_path = '/listening-address/{listening_address_id}'
         self.parent_obj = parent_obj
 
     def get_resource_path(self):

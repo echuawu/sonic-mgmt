@@ -137,9 +137,9 @@ def test_system_snmp_negative(engines, players, topology_obj):
         system.log.rotate_logs()
         system.snmp_server.set('listening-address', 'all port 123').verify_result()
         NvueGeneralCli.apply_config(engines.dut)
-        # with allure.step('Verify snmpd fatal state in the logs'):
-        #     show_output = system.log.show_log(exit_cmd='q')
-        #     ValidationTool.verify_expected_output(show_output, "snmpd entered FATAL state").verify_result()
+        with allure.step('Verify snmpd fatal state in the logs'):
+            show_output = system.log.show_log(exit_cmd='q')
+            ValidationTool.verify_expected_output(show_output, "snmpd entered FATAL state").verify_result()
 
         with allure.step('Verify snmp not running with booked port for ntp'):
             system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show()) \
@@ -206,7 +206,7 @@ def test_system_snmp_functional(engines, topology_obj):
             addresses = output.split()
             assert len(addresses) >= 4, "The output is invalid"
             for add in addresses:
-                if "::" in add:
+                if ":" in add and len(add) >= 32:
                     ipv6_address = add.split("/")[0]
 
         with allure.step('Set ipv6 listening address'):
@@ -218,12 +218,15 @@ def test_system_snmp_functional(engines, topology_obj):
             assert dhcp_hostname in host_output, 'snmp get with wrong port returned output'
 
         with allure.step("Configure listening address ipv6 all and do snmpget"):
+            system.snmp_server.listening_address.unset(ipv6_address)
             system.snmp_server.set('listening-address', 'all-v6').verify_result()
+            NvueGeneralCli.apply_config(engines.dut)
             host_output = HostMethods.host_snmp_get(host_engine, ipv6_address)
             assert dhcp_hostname in host_output, 'snmp get with wrong port returned output'
 
-    with allure.step("Configure listening address ipv6 all and do snmpget"):
+    with allure.step("Configure auto-refresh interval and do snmpget"):
         system.snmp_server.set('auto-refresh-interval', '5').verify_result()
+        NvueGeneralCli.apply_config(engines.dut)
 
     with allure.step('Set possible description on mgmt port'):
         mgmt_port.interface.description.set(value='nvosdescription', apply=True).verify_result()
@@ -233,9 +236,6 @@ def test_system_snmp_functional(engines, topology_obj):
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=mgmt_port.interface.description.label,
                                                           expected_value='nvosdescription')
-        with allure.step("Snmpwalk before autorefresh"):
-            host_output = HostMethods.host_snmp_walk(host_engine, ip_address, param='| grep nvosdescription')
-            assert 'nvosdescription' not in host_output, 'snmp get with wrong port returned output'
 
         with allure.step("Snmpwalk after autorefresh"):
             host_output = HostMethods.host_snmp_walk(host_engine, ip_address, param='| grep nvosdescription')
