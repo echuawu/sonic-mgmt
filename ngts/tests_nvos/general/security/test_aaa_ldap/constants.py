@@ -60,7 +60,7 @@ class LDAPConsts:
     }
 
     DOCKER_LDAP_SERVER = {
-        "hostname": "10.237.0.86",
+        "hostname": "fdfd:fdfd:10:237:250:56ff:fe1b:56",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
