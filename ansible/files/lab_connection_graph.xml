@@ -3530,8 +3530,8 @@
       <PowerControlLinkInfo EndDevice="r-panther-19" EndPort="PSU1" StartDevice="pdu-10-208-2-33" StartPort="2.8"/>
       <PowerControlLinkInfo EndDevice="r-panther-19" EndPort="PSU2" StartDevice="pdu-10-208-2-33" StartPort="2.9"/>
 
-      <PowerControlLinkInfo EndDevice="r-moose-01" EndPort="PSU1" StartDevice="pdu-10-208-2-47" StartPort="1.14"/>
-      <PowerControlLinkInfo EndDevice="r-moose-01" EndPort="PSU2" StartDevice="pdu-10-208-2-47" StartPort="1.18"/>
+      <PowerControlLinkInfo EndDevice="r-moose-01" EndPort="PSU1" StartDevice="pdu-10-208-2-47" StartPort="14"/>
+      <PowerControlLinkInfo EndDevice="r-moose-01" EndPort="PSU2" StartDevice="pdu-10-208-2-47" StartPort="18"/>
 
       <PowerControlLinkInfo EndDevice="c-anaconda-02" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="5"/>
       <PowerControlLinkInfo EndDevice="c-anaconda-02" EndPort="PSU2" StartDevice="pdu-10-75-68-211" StartPort="10"/>

@@ -163,6 +163,7 @@ class Parse_Lab_Graph():
                 hostname = dev.attrib['Hostname']
                 if hostname is not None:
                     deviceinfo[hostname] = {}
+                    deviceinfo[hostname]["Hostname"] = hostname
                     hwsku = dev.attrib['HwSku']
                     devtype = dev.attrib['Type']
                     card_type = "Linecard"
@@ -195,6 +196,7 @@ class Parse_Lab_Graph():
             for l3info in devicel3s:
                 hostname = l3info.attrib['Hostname']
                 if hostname is not None:
+                    deviceinfo[hostname]["Hostname"] = hostname
                     management_ip = l3info.find('ManagementIPInterface').attrib['Prefix']
                     deviceinfo[hostname]['ManagementIp'] = management_ip
                     mgmtip = ipaddress.IPNetwork(management_ip)
@@ -219,6 +221,7 @@ class Parse_Lab_Graph():
                     hostname = dev.attrib['Hostname']
                     if hostname is not None:
                         deviceinfo[hostname] = {}
+                        deviceinfo[hostname]["Hostname"] = hostname
                         hwsku = dev.attrib['HwSku']
                         devtype = dev.attrib['Type']
                         protocol = dev.attrib['Protocol']
@@ -272,6 +275,7 @@ class Parse_Lab_Graph():
                     hostname = dev.attrib['Hostname']
                     if hostname is not None:
                         deviceinfo[hostname] = {}
+                        deviceinfo[hostname]["Hostname"] = hostname
                         hwsku = dev.attrib['HwSku']
                         devtype = dev.attrib['Type']
                         protocol = dev.attrib['Protocol']
