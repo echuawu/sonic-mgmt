@@ -86,6 +86,33 @@ class LDAPConsts:
         ]
     }
 
+    DOCKER_LDAP_SERVER_DNS = {
+        "hostname": "fit-l-vrt-60-086",
+        "base-dn": "dc=itzgeek,dc=local",
+        "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
+        "password": "secret",
+        "login-attribute": "cn",
+        "group-attribute": "member",
+        # "scope": "subtree", not supported now
+        "auth-port": "389",
+        "timeout-bind": "5",
+        "timeout-search": "5",
+        "version": '3',
+        "priority": '2',
+        "users": [
+            {
+                'username': 'monitoruser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'azmy',  # TODO: change to volt once it is in
+                'password': 'azmy',  # TODO: change to volt once it is in
+                'role': 'admin'
+            }
+        ]
+    }
+
     LDAP_SERVERS_LIST = [
         PHYSICAL_LDAP_SERVER,
         DOCKER_LDAP_SERVER

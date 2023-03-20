@@ -53,7 +53,7 @@ class RadiusConstans:
         },
 
         'docker_radius_server': {
-            'hostname': '10.237.0.86',  # TODO: change to volt once it is in
+            'hostname': 'fit-l-vrt-60-086',  # TODO: change to volt once it is in
             'password': 'testing123',  # TODO: change to volt once it is in
             'auth-port': '1812',
             'auth-type': 'pap',

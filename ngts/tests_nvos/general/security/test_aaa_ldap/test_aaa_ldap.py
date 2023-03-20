@@ -148,12 +148,38 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices):
     validate_services_and_dockers_availability(engines, devices)
 
 
-def test_ldap_basic_configurations(engines, remove_ldap_configurations, devices):
+def test_ldap_basic_configurations_ipv4(engines, remove_ldap_configurations, devices):
+    '''
+    @summary: in this test case we want to validate default ldap configurations.
+    We will configure the default configurations and connect to device.
+    '''
+    ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
+
+    with allure.step("Validating ldap credentials"):
+        logging.info("Validating ldap credentials")
+        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
+
+
+def test_ldap_basic_configurations_ipv6(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate default ldap configurations.
     We will configure the default configurations and connect to device.
     '''
     ldap_server_info = LDAPConsts.DOCKER_LDAP_SERVER
+    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
+
+    with allure.step("Validating ldap credentials"):
+        logging.info("Validating ldap credentials")
+        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
+
+
+def test_ldap_basic_configurations_hostname(engines, remove_ldap_configurations, devices):
+    '''
+    @summary: in this test case we want to validate default ldap configurations.
+    We will configure the default configurations and connect to device.
+    '''
+    ldap_server_info = LDAPConsts.DOCKER_LDAP_SERVER_DNS
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating ldap credentials"):
