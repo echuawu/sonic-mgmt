@@ -357,8 +357,7 @@ class GorillaSwitch(BaseSwitch):
         BaseSwitch._init_ib_speeds(self)
         self.invalid_ib_speeds.update({'qdr': '40G'})
         self.supported_ib_speeds.pop('qdr')
-        # ndr is not supported in current setups
-        # self.supported_ib_speeds.update({'ndr': '400G'})
+        self.supported_ib_speeds.update({'ndr': '400G'})
 
     def _init_fan_list(self):
         BaseSwitch._init_fan_list(self)
