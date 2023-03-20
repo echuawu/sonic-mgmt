@@ -417,7 +417,7 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
             configure_ldap(ldap_server_info)
             configured_ldap_servers_hostname.append(ldap_server_info[LDAPConsts.HOSTNAME])
 
-    system.aaa.ldap.unset().verify_result(should_succeed=True)
+    system.aaa.ldap.unset(apply=True).verify_result(should_succeed=True)
     with allure.step("Validating the show command output"):
         logging.info("Validating the show command output")
         output = system.aaa.ldap.show_hostname()
