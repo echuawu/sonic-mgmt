@@ -912,12 +912,13 @@ def create_syslog_output_dictionary(format=SyslogConsts.STANDARD, format_dict={}
     return dictionary
 
 
-def create_remote_server_dictionary(server_name, port=SyslogConsts.DEFAULT_PORT, protocol='udp', vrf='default'):
+def create_remote_server_dictionary(server_name, port=SyslogConsts.DEFAULT_PORT, protocol='udp', vrf='default', trap=SyslogSeverityLevels.NOTICE):
     dictionary = {
         server_name: {
             SyslogConsts.PORT: str(port),
             SyslogConsts.PROTOCOL: protocol,
-            SyslogConsts.VRF: vrf
+            SyslogConsts.VRF: vrf,
+            SyslogConsts.TRAP: trap
         }
     }
     return dictionary
