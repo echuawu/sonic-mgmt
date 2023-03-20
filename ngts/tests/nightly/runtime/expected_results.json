@@ -14,7 +14,8 @@
         "show_pl_pcieinfo": "1.793",
         "show_pl_ssdhealth": "1.8",
         "show_pl_syseeprom": "1.268",
-        "show_pl_temperature": "1.128"
+        "show_pl_temperature": "1.128",
+        "show_sys_health_summary": "2"
     },
     "MSN2100": {
         "show_ifaces_status": "1.734",
@@ -31,7 +32,8 @@
         "show_pl_pcieinfo": "1.712",
         "show_pl_ssdhealth": "1.82",
         "show_pl_syseeprom": "1.257",
-        "show_pl_temperature": "1.11"
+        "show_pl_temperature": "1.11",
+        "show_sys_health_summary": "2"
     },
     "SN2201": {
         "show_ifaces_status": "1.41",
@@ -48,7 +50,8 @@
         "show_pl_pcieinfo": "1.483",
         "show_pl_ssdhealth": "1.103",
         "show_pl_syseeprom": "1.127",
-        "show_pl_temperature": "0.915"
+        "show_pl_temperature": "0.915",
+        "show_sys_health_summary": "2"
     },
     "MSN2410": {
         "show_ifaces_status": "1.565",
@@ -65,7 +68,8 @@
         "show_pl_pcieinfo": "1.881",
         "show_pl_ssdhealth": "1.966",
         "show_pl_syseeprom": "1.214",
-        "show_pl_temperature": "1.109"
+        "show_pl_temperature": "1.109",
+        "show_sys_health_summary": "2"
     },
     "SN2700": {
         "show_ifaces_status": "1.477",
@@ -82,7 +86,8 @@
         "show_pl_pcieinfo": "1.796",
         "show_pl_ssdhealth": "1.678",
         "show_pl_syseeprom": "1.343",
-        "show_pl_temperature": "1.121"
+        "show_pl_temperature": "1.121",
+        "show_sys_health_summary": "2"
     },
     "MSN3420": {
         "show_ifaces_status": "0.931",
@@ -99,7 +104,8 @@
         "show_pl_pcieinfo": "0.984",
         "show_pl_ssdhealth": "1.038",
         "show_pl_syseeprom": "0.653",
-        "show_pl_temperature": "0.58"
+        "show_pl_temperature": "0.58",
+        "show_sys_health_summary": "2"
     },
     "MSN3700": {
         "show_ifaces_status": "0.807",
@@ -116,7 +122,8 @@
         "show_pl_pcieinfo": "1.077",
         "show_pl_ssdhealth": "1.112",
         "show_pl_syseeprom": "0.674",
-        "show_pl_temperature": "0.594"
+        "show_pl_temperature": "0.594",
+        "show_sys_health_summary": "2"
     },
     "MSN3700C": {
         "show_ifaces_status": "0.967",
@@ -133,7 +140,8 @@
         "show_pl_pcieinfo": "0.941",
         "show_pl_ssdhealth": "0.903",
         "show_pl_syseeprom": "0.692",
-        "show_pl_temperature": "0.553"
+        "show_pl_temperature": "0.553",
+        "show_sys_health_summary": "2"
     },
     "MSN3800": {
         "show_ifaces_status": "0.871",
@@ -150,7 +158,8 @@
         "show_pl_pcieinfo": "0.94",
         "show_pl_ssdhealth": "1.022",
         "show_pl_syseeprom": "0.617",
-        "show_pl_temperature": "0.589"
+        "show_pl_temperature": "0.589",
+        "show_sys_health_summary": "2"
     },
     "MSN4410": {
         "show_ifaces_status": "0.792",
@@ -167,7 +176,8 @@
         "show_pl_pcieinfo": "0.888",
         "show_pl_ssdhealth": "0.971",
         "show_pl_syseeprom": "0.605",
-        "show_pl_temperature": "0.519"
+        "show_pl_temperature": "0.519",
+        "show_sys_health_summary": "2"
     },
     "MSN4600": {
         "show_ifaces_status": "0.881",
@@ -184,7 +194,8 @@
         "show_pl_pcieinfo": "0.922",
         "show_pl_ssdhealth": "1.018",
         "show_pl_syseeprom": "0.623",
-        "show_pl_temperature": "0.558"
+        "show_pl_temperature": "0.558",
+        "show_sys_health_summary": "2"
     },
     "MSN4600C": {
         "show_ifaces_status": "0.869",
@@ -201,7 +212,8 @@
         "show_pl_pcieinfo": "0.901",
         "show_pl_ssdhealth": "1.027",
         "show_pl_syseeprom": "0.608",
-        "show_pl_temperature": "0.558"
+        "show_pl_temperature": "0.558",
+        "show_sys_health_summary": "2"
     },
     "MSN4700": {
         "show_ifaces_status": "0.772",
@@ -218,7 +230,8 @@
         "show_pl_pcieinfo": "0.859",
         "show_pl_ssdhealth": "0.992",
         "show_pl_syseeprom": "0.592",
-        "show_pl_temperature": "0.532"
+        "show_pl_temperature": "0.532",
+        "show_sys_health_summary": "2"
     },
     "SN5600": {
         "show_ifaces_status": "0.772",
@@ -235,6 +248,7 @@
         "show_pl_pcieinfo": "0.859",
         "show_pl_ssdhealth": "0.992",
         "show_pl_syseeprom": "0.592",
-        "show_pl_temperature": "0.532"
+        "show_pl_temperature": "0.532",
+        "show_sys_health_summary": "2"
     }
 }

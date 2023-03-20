@@ -30,7 +30,8 @@ TESTED_CMD_METHODS = {'add_del_vlan': {'add_vlan': 'vlan add 1234',
                                         'show_pl_pcieinfo': 'platform pcieinfo',
                                         'show_pl_ssdhealth': 'platform ssdhealth',
                                         'show_pl_syseeprom': 'platform syseeprom',
-                                        'show_pl_temperature': 'platform temperature'}}
+                                        'show_pl_temperature': 'platform temperature'},
+                      'show_system_health': {'show_sys_health_summary': 'system-health summary'}}
 TESTED_METHODS = list(TESTED_CMD_METHODS.keys())
 METHOD_ATTEMPTS = 5
 ALLOWED_DEVIATION = 0.5
