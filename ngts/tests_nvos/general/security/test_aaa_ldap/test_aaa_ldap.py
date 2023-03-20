@@ -1,6 +1,7 @@
 import logging
 import random
 import allure
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -115,6 +116,7 @@ def enable_ldap_feature(dut_engine):
         dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
         dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
         dut_engine.run_cmd("nv config apply -y")
+        NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
 
 
 def validate_services_and_dockers_availability(engines, devices):
