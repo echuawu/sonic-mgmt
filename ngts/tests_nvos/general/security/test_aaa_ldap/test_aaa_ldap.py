@@ -1,5 +1,7 @@
 import logging
 import random
+import time
+
 import allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -116,6 +118,10 @@ def enable_ldap_feature(dut_engine):
         dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
         dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
         dut_engine.run_cmd("nv config apply -y")
+        NVUED_SLEEP_FOR_RESTART = 4
+        with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
+            logging.info("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART))
+            time.sleep(NVUED_SLEEP_FOR_RESTART)
         NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
 
 
