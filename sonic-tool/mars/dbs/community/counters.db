@@ -60,4 +60,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/portstat.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/route_flow_counters.cases </cases>
+    </test>
+
 </DBDEF>
