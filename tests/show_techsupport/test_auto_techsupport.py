@@ -1280,7 +1280,7 @@ def get_port_vlan(minigraph_facts, port):
     :return: string with Vlan ID, or None
     """
     test_port_vlan = None
-    for vlan in minigraph_facts['minigraph_vlans']:
+    for vlan in minigraph_facts.get('minigraph_vlans', []):
         if port in minigraph_facts['minigraph_vlans'][vlan]['members']:
             test_port_vlan = vlan.split('Vlan')[1]  # Get string '1000' from 'Vlan1000
             break
@@ -1296,7 +1296,7 @@ def get_port_ips(minigraph_facts, port):
     :return: list, example: [(ip, mask), (ip, mask)]
     """
     iface_ips_data = []
-    for iface_data in minigraph_facts['minigraph_interfaces']:
+    for iface_data in minigraph_facts.get('minigraph_interfaces', []):
         if iface_data['attachto'] == port:
             ip_addr = iface_data['addr']
             ip_mask = iface_data['prefixlen']
