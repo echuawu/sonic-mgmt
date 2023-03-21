@@ -2194,3 +2194,14 @@
       - 3404138
       Branch:
         - 202211
+
+- Errors_list:
+    - '.* ERR what-just-happened#wjhd: :- sendRecv: Failed to receive Layer-1 Route Netlink reply message'
+    - '.* ERR what-just-happened#wjhd: :- pull: Layer-1 Route Netlink socket communication error'
+  Conditions:
+    - Redmine:
+      - 3410449
+      Branch:
+        - 202211
+      Platform:
+        - simx
