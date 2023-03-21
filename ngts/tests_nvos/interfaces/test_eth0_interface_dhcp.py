@@ -379,19 +379,19 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name='has-lease',
-                                                          expected_value='yes')
+                                                          expected_value='yes').verify_result()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name='is-running',
-                                                          expected_value='yes')
+                                                          expected_value='yes').verify_result()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name='set-hostname',
-                                                          expected_value='enabled')
+                                                          expected_value='enabled').verify_result()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name='state',
-                                                          expected_value='enabled')
+                                                          expected_value='enabled').verify_result()
 
         assert dhcp_hostname == system_output['hostname']
 
@@ -404,13 +404,11 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name='state',
-                                                          expected_value='disabled')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary, field_name='state',
+                                                          expected_value='disabled').verify_result()
 
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name='is-running',
-                                                          expected_value='no')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary, field_name='is-running',
+                                                          expected_value='no').verify_result()
 
     with allure.step('Disable dhcp set-hostname, check port down and not reachable'):
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='set-hostname disabled', apply=True,
@@ -426,17 +424,14 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         dhcp6_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client6.show(dut_engine=serial_engine)).get_returned_value()
 
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
-                                                          field_name='set-hostname',
-                                                          expected_value='disabled')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='set-hostname',
+                                                          expected_value='disabled').verify_result()
 
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp6_output,
-                                                          field_name='set-hostname',
-                                                          expected_value='disabled')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp6_output, field_name='set-hostname',
+                                                          expected_value='disabled').verify_result()
 
     with allure.step('Set hostname and enable dhcp, check hostname not changed, check port up'):
         system.set(value='nvos', engine=serial_engine, field_name=SystemConsts.HOSTNAME)
-        time.sleep(1)
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state enabled', apply=True,
@@ -447,27 +442,23 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
-                                                          field_name='state',
-                                                          expected_value='enabled')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='state',
+                                                          expected_value='enabled').verify_result()
 
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         Tools.ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME, 'nvos').verify_result()
 
     with allure.step('Unset dhcp, , check port up'):
-        mgmt_port.interface.ip.dhcp_client.unset(dut_engine=serial_engine, apply=True, ask_for_confirmation=True) \
-            .verify_result()
+        mgmt_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
-                                                          field_name='state',
-                                                          expected_value='enabled')
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
-                                                          field_name='set-hostname',
-                                                          expected_value='enabled')
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='state',
+                                                          expected_value='enabled').verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='set-hostname',
+                                                          expected_value='enabled').verify_result()
 
     with allure.step('Check hostname received by dhcp'):
         system.unset(engines.dut, SystemConsts.HOSTNAME)
