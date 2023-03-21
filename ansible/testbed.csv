@@ -190,8 +190,8 @@ r-r740-07-bf2-sonic-01-ptf-any,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-07-01
 r-r740-05-bf2-sonic-01-appliance,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-05-01,10.215.11.45/16,,server_56,VM2101,r-r740-05-bf2-sonic-01,Mellanox MTR testbed
 r-r740-05-bf2-sonic-01-ptf-any,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-05-01,10.215.11.45/16,,server_56,VM2101,r-r740-05-bf2-sonic-01,Mellanox MTR testbed
 
-r-r740-05-bf2-sonic-02-appliance,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf2-740-05-02,10.215.11.47/16,,server_56,VM2103,r-r740-05-bf2-sonic-02,Mellanox MTR testbed
-r-r740-05-bf2-sonic-02-ptf-any,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf2-740-05-02,10.215.11.47/16,,server_56,VM2103,r-r740-05-bf2-sonic-02,Mellanox MTR testbed
+r-r740-05-bf3-sonic-01-appliance,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf3-740-05-01,10.215.11.47/16,,server_56,VM2103,r-r740-05-bf3-sonic-01,Mellanox MTR testbed
+r-r740-05-bf3-sonic-01-ptf-any,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf3-740-05-01,10.215.11.47/16,,server_56,VM2103,r-r740-05-bf3-sonic-01,Mellanox MTR testbed
 
 r-r740-03-bf2-sonic-01-appliance,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-03-01,10.215.19.25/16,,server_57,VM2201,r-r740-03-bf2-sonic-01,Mellanox MTR testbed
 r-r740-03-bf2-sonic-01-ptf-any,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-03-01,10.215.19.25/16,,server_57,VM2201,r-r740-03-bf2-sonic-01,Mellanox MTR testbed

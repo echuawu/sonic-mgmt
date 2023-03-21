@@ -101,7 +101,7 @@ gorilla-154      ansible_host=10.7.144.154 ansible_hostv6="" sonic_version=v2 hw
 nvidia-arm-orion      ansible_host=10.210.24.241 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-r740-07-bf2-sonic-01         ansible_host=10.215.20.238 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2001
 r-r740-05-bf2-sonic-01         ansible_host=10.215.11.59 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2101
-r-r740-05-bf2-sonic-02         ansible_host=10.215.11.58 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2103
+r-r740-05-bf3-sonic-01         ansible_host=10.215.11.55 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2103
 r-r740-03-bf2-sonic-01      ansible_host=10.215.19.39 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2201
 r-r740-08-bf3-sonic-01      ansible_host=10.215.22.177 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2301
 r-r740-08-bf2-sonic-01      ansible_host=10.215.22.179 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2303
@@ -173,7 +173,7 @@ ptf_vms6-1  ansible_host=10.250.0.100 ansible_ssh_user=root ansible_ssh_pass=roo
 ptf-vms6-3  ansible_host=10.75.206.214 ansible_ssh_pass=root ansible_ssh_pass=root
 ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-bf2-740-05-01 ansible_host=10.215.11.45 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-bf2-740-05-02 ansible_host=10.215.11.47 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf3-740-05-01 ansible_host=10.215.11.47 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-bf2-740-03-01 ansible_host=10.215.19.25 ansible_ssh_user=root ansible_ssh_pass=root
 
 [lab:children]
