@@ -357,6 +357,17 @@ def is_sanitizer_image(topology_obj):
     return pytest.is_sanitizer
 
 
+@pytest.fixture(scope="session", autouse=True)
+def mars_key_id(request):
+    return request.config.getoption("--mars_key_id")
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_mars_run(mars_key_id):
+    pytest.is_mars_run = True if mars_key_id else False
+    return pytest.is_mars_run
+
+
 @pytest.fixture(scope='session')
 def platform_params(show_platform_summary, setup_name):
     """
