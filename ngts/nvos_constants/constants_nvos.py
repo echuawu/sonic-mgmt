@@ -131,6 +131,7 @@ class SystemConsts:
     TIMEZONE = 'timezone'
     VERSION = 'version'
     SECURITY = 'security'
+    DATE_TIME = 'date-time'
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'

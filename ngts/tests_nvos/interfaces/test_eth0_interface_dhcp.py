@@ -204,7 +204,8 @@ def test_interface_eth0_mtu(engines, topology_obj):
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
     with allure.step('Negative validation with not supported for eth mtu 9218'):
-        mgmt_port.interface.link.mtu.set(value='9218', apply=True, ask_for_confirmation=True).verify_result(False)
+        output = mgmt_port.interface.link.mtu.set(value='9218', apply=False).get_returned_value()
+        assert "Valid range is " in output or 'Invalid Command' in output, "Set of invalid mtu should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
