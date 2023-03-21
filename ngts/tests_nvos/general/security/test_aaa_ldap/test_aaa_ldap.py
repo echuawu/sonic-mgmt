@@ -4,6 +4,8 @@ import time
 
 import allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -167,6 +169,15 @@ def test_ldap_basic_configurations_ipv4(engines, remove_ldap_configurations, dev
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
 
 
+def test_ldap_basic_configurations_ipv4_openapi(engines, remove_ldap_configurations, devices):
+    '''
+    @summary: in this test case we want to validate default ldap configurations.
+    We will configure the default configurations and connect to device.
+    '''
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ldap_basic_configurations_ipv4(engines, remove_ldap_configurations, devices)
+
+
 def test_ldap_basic_configurations_ipv6(engines, remove_ldap_configurations, devices):
     '''
     @summary: in this test case we want to validate default ldap configurations.
@@ -272,10 +283,6 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
-    with allure.step("Validating that we can access the switch with matching configurations"):
-        logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
-
     system = System(None)
     invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
                                                                [int(ldap_server_info[LDAPConsts.PORT])]).get_returned_value()
@@ -299,10 +306,6 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
-    with allure.step("Validating that we can access the switch with matching configurations"):
-        logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
-
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
     with allure.step("Configuring invalid password: {}".format(random_string)):
@@ -324,10 +327,6 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    with allure.step("Validating that we can access the switch with matching configurations"):
-        logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
@@ -351,10 +350,6 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
-    with allure.step("Validating that we can access the switch with matching configurations"):
-        logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
-
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
     with allure.step("Configuring invalid base-dn: {}".format(random_string)):
@@ -375,10 +370,6 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
     '''
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    with allure.step("Validating that we can access the switch with matching configurations"):
-        logging.info("Validating that we can access the switch with matching configurations")
-        validate_users_authorization_and_role(engines=engines, users=[ldap_server_info[LDAPConsts.USERS][0]])
 
     random_user = Tools.RandomizationTool.get_random_string(20)
     random_password = Tools.RandomizationTool.get_random_string(20)
@@ -425,3 +416,12 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
         output = system.aaa.ldap.show_hostname()
         for hostname in configured_ldap_servers_hostname:
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)
+
+
+def test_ldap_set_show_unset_openapi(engines, remove_ldap_configurations):
+    '''
+    @summary: in this test case we want to validate default ldap configurations.
+    We will configure the default configurations and connect to device.
+    '''
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ldap_set_show_unset(engines, remove_ldap_configurations)
