@@ -206,6 +206,9 @@ def test_rsyslog_configurations():
             severity_level = SyslogSeverityLevels.ERROR
             system.syslog.set_trap(severity_level, apply=True)
             expected_syslog_dictionary.update({SyslogConsts.TRAP: severity_level})
+            expected_server_dictionary[server_a].update({SyslogConsts.TRAP: severity_level})
+            expected_server_dictionary[server_b].update({SyslogConsts.TRAP: severity_level})
+            expected_syslog_dictionary.update({SyslogConsts.SERVER: expected_server_dictionary})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             system.syslog.servers.servers_dict[server_a].verify_show_server_output(expected_server_dictionary[server_a])
 
@@ -229,7 +232,7 @@ def test_rsyslog_configurations():
         with allure.step("Configure remote syslog server and validate unset syslog"):
             logging.info("Configure remote syslog server and validate unset syslog")
             system.syslog.servers.set_server(server_a, apply=True)
-            expected_server_dictionary = create_remote_server_dictionary(server_a)
+            expected_server_dictionary = create_remote_server_dictionary(server_a, trap=severity_level)
             expected_syslog_dictionary.update({SyslogConsts.SERVER: expected_server_dictionary})
             system.syslog.verify_show_syslog_output(expected_syslog_dictionary)
             system.syslog.servers.verify_show_servers_list([server_a])
