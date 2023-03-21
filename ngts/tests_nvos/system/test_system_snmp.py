@@ -136,10 +136,9 @@ def test_system_snmp_negative(engines, players, topology_obj):
         logging.info("Rotate logs")
         system.log.rotate_logs()
         system.snmp_server.set('listening-address', 'all port 123').verify_result()
-        NvueGeneralCli.apply_config(engines.dut)
+        NvueGeneralCli.apply_config(engines.dut, validate_apply_message="'snmpd' is not running")
         with allure.step('Verify snmpd fatal state in the logs'):
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, "snmpd entered FATAL state").verify_result()
+            show_output = system.log.show_log(exit_cmd='q', expected_str="Container 'snmp' is not running")
 
         with allure.step('Verify snmp not running with booked port for ntp'):
             system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show()) \
