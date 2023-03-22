@@ -394,7 +394,7 @@ class ImageConsts:
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                       'fit25')
+                                       'fit70')
 
 
 class NtpConsts:
