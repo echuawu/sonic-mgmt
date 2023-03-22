@@ -98,7 +98,7 @@ class LDAPConsts:
         "timeout-bind": "1",
         "timeout-search": "1",
         "version": '3',
-        "priority": '2',
+        "priority": '3',
         "users": [
             {
                 'username': 'monitoruser',  # TODO: change to volt once it is in

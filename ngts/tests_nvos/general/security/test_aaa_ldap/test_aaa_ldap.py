@@ -219,7 +219,7 @@ def randomize_ldap_server():
     return randomized_radius_server_info
 
 
-def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
+def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
     ''''
     @summary: in this test case we want to validate the functionality of the priority
     and fallback, we will configure 2 ldap servers and then connect through the credentials
@@ -232,13 +232,24 @@ def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configu
         randomized_ldap_server_dict[LDAPConsts.PRIORITY] = LDAPConsts.MAX_PRIORITY
         configure_ldap(randomized_ldap_server_dict)
 
-    ldap_server_list = [LDAPConsts.PHYSICAL_LDAP_SERVER]
+    first_real_ldap_server = LDAPConsts.PHYSICAL_LDAP_SERVER.copy()
+    first_real_ldap_server[LDAPConsts.PRIORITY] = '2'
+    second_real_ldap_server = LDAPConsts.DOCKER_LDAP_SERVER_DNS.copy()
+    second_real_ldap_server[LDAPConsts.PRIORITY] = '1'
+    ldap_server_list = [first_real_ldap_server, second_real_ldap_server]
     configure_ldap_and_validate(engines, ldap_server_list=ldap_server_list, devices=devices)
 
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
-        first_ldap_server_users = LDAPConsts.PHYSICAL_LDAP_SERVER[LDAPConsts.USERS]
+        first_ldap_server_users = first_real_ldap_server[LDAPConsts.USERS]
         validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users)
+
+    with allure.step("Validating failed connection to switch with second ldap server credentials"):
+        logging.info("Validating failed connection to switch with second ldap server credentials")
+        second_ldap_server_user = second_real_ldap_server[LDAPConsts.USERS][1]
+        validate_failed_authentication_with_new_credentials(engines,
+                                                            username=second_ldap_server_user[LDAPConsts.USERNAME],
+                                                            password=second_ldap_server_user[LDAPConsts.PASSWORD])
 
 
 def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
