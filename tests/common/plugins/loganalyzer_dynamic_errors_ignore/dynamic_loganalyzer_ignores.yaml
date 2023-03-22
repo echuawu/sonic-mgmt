@@ -1771,7 +1771,7 @@
     - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Switch Debug Counter.*'
   Conditions:
     - Affected_test_cases:
-      - tests/drop_packets/test_configurable_drop_counters.py
+      - drop_packets/test_configurable_drop_counters.py
       Redmine:
       - 3310078
 
