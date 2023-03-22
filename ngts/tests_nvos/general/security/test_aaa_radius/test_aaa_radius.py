@@ -36,7 +36,7 @@ def configure_radius_server(radius_server_info):
 
     with allure.step("configuring the following radius server on the switch:\n{}".format(radius_server_info)):
         logging.info("configuring the following radius server on the switch:\n{}".format(radius_server_info))
-        system.aaa.radius.set(RadiusConstans.RADIUS_HOSTNAME, radius_server_info[RadiusConstans.RADIUS_HOSTNAME])
+        system.aaa.radius.set(RadiusConstans.RADIUS_HOSTNAME, radius_server_info[RadiusConstans.RADIUS_HOSTNAME], apply=True, ask_for_confirmation=True)
         system.aaa.radius.set_hostname_password(radius_server_info[RadiusConstans.RADIUS_HOSTNAME], radius_server_info[RadiusConstans.RADIUS_PASSWORD])
         system.aaa.radius.set_hostname_auth_port(radius_server_info[RadiusConstans.RADIUS_HOSTNAME], radius_server_info[RadiusConstans.RADIUS_AUTH_PORT])
         system.aaa.radius.set_hostname_auth_type(radius_server_info[RadiusConstans.RADIUS_HOSTNAME], radius_server_info[RadiusConstans.RADIUS_AUTH_TYPE])
