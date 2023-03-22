@@ -1,0 +1,308 @@
+##
+## Running database "initial"
+## Generated at 2023/03/22 18:33:49 +0000
+## Hostname: r-anaconda-86
+## Product release: 3.10.3004
+##
+
+##
+## Running-config temporary prefix mode setting
+##
+no cli default prefix-modes enable
+
+##
+## License keys
+##
+   license install LK2-EFM_SX-5HGL-0KAL-68QK-0CAQ-60VK-ECHG-88A6-FHKH-NKE5-J
+
+##
+## Chassis configuration
+##
+no fae trap-group TRAP_GROUP_LLDP policer bind
+no fae trap-group TRAP_GROUP_OF_CONTROLLER policer bind
+
+##
+## Interface Ethernet configuration
+##
+   interface ethernet 1/1-1/25 mac-learning disabled
+   interface ethernet 1/1-1/4 speed 100G force
+   interface ethernet 1/5 speed auto force
+   interface ethernet 1/6-1/9 speed 100G force
+   interface ethernet 1/10 speed auto force
+   interface ethernet 1/11-1/14 speed 100G force
+   interface ethernet 1/15 speed auto force
+   interface ethernet 1/16-1/19 speed 100G force
+   interface ethernet 1/20 speed auto force
+   interface ethernet 1/21-1/24 speed 100G force
+   interface ethernet 1/25 speed auto force
+   interface ethernet 1/1-1/4 switchport mode dot1q-tunnel
+   interface ethernet 1/5 switchport mode trunk
+   interface ethernet 1/6-1/9 switchport mode dot1q-tunnel
+   interface ethernet 1/10 switchport mode trunk
+   interface ethernet 1/11-1/14 switchport mode dot1q-tunnel
+   interface ethernet 1/15 switchport mode trunk
+   interface ethernet 1/16-1/19 switchport mode dot1q-tunnel
+   interface ethernet 1/20 switchport mode trunk
+   interface ethernet 1/21-1/24 switchport mode dot1q-tunnel
+   interface ethernet 1/25 switchport mode trunk
+
+##
+## VLAN configuration
+##
+   vlan 101-104
+   vlan 106-109
+   vlan 111-114
+   vlan 116-119
+   vlan 121-124
+   interface ethernet 1/5 switchport trunk allowed-vlan none
+   interface ethernet 1/10 switchport trunk allowed-vlan none
+   interface ethernet 1/15 switchport trunk allowed-vlan none
+   interface ethernet 1/20 switchport trunk allowed-vlan none
+   interface ethernet 1/25 switchport trunk allowed-vlan none
+   interface ethernet 1/1 switchport access vlan 101
+   interface ethernet 1/2 switchport access vlan 102
+   interface ethernet 1/3 switchport access vlan 103
+   interface ethernet 1/4 switchport access vlan 104
+   interface ethernet 1/6 switchport access vlan 106
+   interface ethernet 1/7 switchport access vlan 107
+   interface ethernet 1/8 switchport access vlan 108
+   interface ethernet 1/9 switchport access vlan 109
+   interface ethernet 1/11 switchport access vlan 111
+   interface ethernet 1/12 switchport access vlan 112
+   interface ethernet 1/13 switchport access vlan 113
+   interface ethernet 1/14 switchport access vlan 114
+   interface ethernet 1/16 switchport access vlan 116
+   interface ethernet 1/17 switchport access vlan 117
+   interface ethernet 1/18 switchport access vlan 118
+   interface ethernet 1/19 switchport access vlan 119
+   interface ethernet 1/21 switchport access vlan 121
+   interface ethernet 1/22 switchport access vlan 122
+   interface ethernet 1/23 switchport access vlan 123
+   interface ethernet 1/24 switchport access vlan 124
+   interface ethernet 1/5 switchport trunk allowed-vlan add 101-104
+   interface ethernet 1/5 switchport trunk allowed-vlan remove 1
+   interface ethernet 1/10 switchport trunk allowed-vlan add 106-109
+   interface ethernet 1/10 switchport trunk allowed-vlan remove 1
+   interface ethernet 1/15 switchport trunk allowed-vlan add 111-114
+   interface ethernet 1/15 switchport trunk allowed-vlan remove 1
+   interface ethernet 1/20 switchport trunk allowed-vlan add 116-119
+   interface ethernet 1/20 switchport trunk allowed-vlan remove 1
+   interface ethernet 1/25 switchport trunk allowed-vlan add 121-124
+   interface ethernet 1/25 switchport trunk allowed-vlan remove 1
+
+##
+## STP configuration
+##
+no spanning-tree
+
+##
+## L3 configuration
+##
+   vrf definition mgmt
+   ip routing vrf default
+
+##
+## LLDP configuration
+##
+no lldp
+
+##
+## OPENFLOW configuration
+##
+   protocol openflow
+   interface ethernet 1/1-1/25 openflow mode hybrid
+   openflow add-flows 1 table=0,priority=100,dl_type=0x88CC,in_port=20560,dl_vlan=101,actions=strip_vlan,output:20496
+   openflow add-flows 2 table=0,priority=100,dl_type=0x88CC,in_port=20560,dl_vlan=102,actions=strip_vlan,output:20512
+   openflow add-flows 3 table=0,priority=101,dl_type=0x88CC,in_port=20496,actions=push_vlan:0x8100,set_field:4197->vlan_vid,output:20560
+   openflow add-flows 4 table=0,priority=101,dl_type=0x88CC,in_port=20512,actions=push_vlan:0x8100,set_field:4198->vlan_vid,output:20560
+   openflow add-flows 5 table=0,priority=100,dl_type=0x8809,in_port=20560,dl_vlan=101,actions=strip_vlan,output:20496
+   openflow add-flows 6 table=0,priority=100,dl_type=0x8809,in_port=20560,dl_vlan=102,actions=strip_vlan,output:20512
+   openflow add-flows 7 table=0,priority=101,dl_type=0x8809,in_port=20496,actions=push_vlan:0x8100,set_field:4197->vlan_vid,output:20560
+   openflow add-flows 8 table=0,priority=101,dl_type=0x8809,in_port=20512,actions=push_vlan:0x8100,set_field:4198->vlan_vid,output:20560
+   openflow add-flows 9 table=0,priority=100,dl_type=0x0806,in_port=20560,dl_vlan=101,actions=output:20496
+   openflow add-flows 10 table=0,priority=100,dl_type=0x0806,in_port=20560,dl_vlan=102,actions=output:20512
+   openflow add-flows 11 table=0,priority=101,dl_type=0x0806,in_port=20496,actions=output:20560
+   openflow add-flows 12 table=0,priority=101,dl_type=0x0806,in_port=20512,actions=output:20560
+   openflow add-flows 13 table=0,priority=101,dl_type=0x1234,in_port=20496,actions=output:20560
+   openflow add-flows 14 table=0,priority=101,dl_type=0x1234,in_port=20512,actions=output:20560
+   openflow add-flows 15 table=0,priority=100,dl_type=0x88CC,in_port=20560,dl_vlan=103,actions=strip_vlan,output:20528
+   openflow add-flows 16 table=0,priority=100,dl_type=0x88CC,in_port=20560,dl_vlan=104,actions=strip_vlan,output:20544
+   openflow add-flows 17 table=0,priority=101,dl_type=0x88CC,in_port=20528,actions=push_vlan:0x8100,set_field:4199->vlan_vid,output:20560
+   openflow add-flows 18 table=0,priority=101,dl_type=0x88CC,in_port=20544,actions=push_vlan:0x8100,set_field:4200->vlan_vid,output:20560
+   openflow add-flows 19 table=0,priority=100,dl_type=0x8809,in_port=20560,dl_vlan=103,actions=strip_vlan,output:20528
+   openflow add-flows 20 table=0,priority=100,dl_type=0x8809,in_port=20560,dl_vlan=104,actions=strip_vlan,output:20544
+   openflow add-flows 21 table=0,priority=101,dl_type=0x8809,in_port=20528,actions=push_vlan:0x8100,set_field:4199->vlan_vid,output:20560
+   openflow add-flows 22 table=0,priority=101,dl_type=0x8809,in_port=20544,actions=push_vlan:0x8100,set_field:4200->vlan_vid,output:20560
+   openflow add-flows 23 table=0,priority=100,dl_type=0x0806,in_port=20560,dl_vlan=103,actions=output:20528
+   openflow add-flows 24 table=0,priority=100,dl_type=0x0806,in_port=20560,dl_vlan=104,actions=output:20544
+   openflow add-flows 25 table=0,priority=101,dl_type=0x0806,in_port=20528,actions=output:20560
+   openflow add-flows 26 table=0,priority=101,dl_type=0x0806,in_port=20544,actions=output:20560
+   openflow add-flows 27 table=0,priority=101,dl_type=0x1234,in_port=20528,actions=output:20560
+   openflow add-flows 28 table=0,priority=101,dl_type=0x1234,in_port=20544,actions=output:20560
+   openflow add-flows 29 table=0,priority=100,dl_type=0x88CC,in_port=20640,dl_vlan=106,actions=strip_vlan,output:20576
+   openflow add-flows 30 table=0,priority=100,dl_type=0x88CC,in_port=20640,dl_vlan=107,actions=strip_vlan,output:20592
+   openflow add-flows 31 table=0,priority=101,dl_type=0x88CC,in_port=20576,actions=push_vlan:0x8100,set_field:4201->vlan_vid,output:20640
+   openflow add-flows 32 table=0,priority=101,dl_type=0x88CC,in_port=20592,actions=push_vlan:0x8100,set_field:4202->vlan_vid,output:20640
+   openflow add-flows 33 table=0,priority=100,dl_type=0x8809,in_port=20640,dl_vlan=106,actions=strip_vlan,output:20576
+   openflow add-flows 34 table=0,priority=100,dl_type=0x8809,in_port=20640,dl_vlan=107,actions=strip_vlan,output:20592
+   openflow add-flows 35 table=0,priority=101,dl_type=0x8809,in_port=20576,actions=push_vlan:0x8100,set_field:4201->vlan_vid,output:20640
+   openflow add-flows 36 table=0,priority=101,dl_type=0x8809,in_port=20592,actions=push_vlan:0x8100,set_field:4202->vlan_vid,output:20640
+   openflow add-flows 37 table=0,priority=100,dl_type=0x0806,in_port=20640,dl_vlan=106,actions=output:20576
+   openflow add-flows 38 table=0,priority=100,dl_type=0x0806,in_port=20640,dl_vlan=107,actions=output:20592
+   openflow add-flows 39 table=0,priority=101,dl_type=0x0806,in_port=20576,actions=output:20640
+   openflow add-flows 40 table=0,priority=101,dl_type=0x0806,in_port=20592,actions=output:20640
+   openflow add-flows 41 table=0,priority=101,dl_type=0x1234,in_port=20576,actions=output:20640
+   openflow add-flows 42 table=0,priority=101,dl_type=0x1234,in_port=20592,actions=output:20640
+   openflow add-flows 43 table=0,priority=100,dl_type=0x88CC,in_port=20640,dl_vlan=108,actions=strip_vlan,output:20608
+   openflow add-flows 44 table=0,priority=100,dl_type=0x88CC,in_port=20640,dl_vlan=109,actions=strip_vlan,output:20624
+   openflow add-flows 45 table=0,priority=101,dl_type=0x88CC,in_port=20608,actions=push_vlan:0x8100,set_field:4203->vlan_vid,output:20640
+   openflow add-flows 46 table=0,priority=101,dl_type=0x88CC,in_port=20624,actions=push_vlan:0x8100,set_field:4204->vlan_vid,output:20640
+   openflow add-flows 47 table=0,priority=100,dl_type=0x8809,in_port=20640,dl_vlan=108,actions=strip_vlan,output:20608
+   openflow add-flows 48 table=0,priority=100,dl_type=0x8809,in_port=20640,dl_vlan=109,actions=strip_vlan,output:20624
+   openflow add-flows 49 table=0,priority=101,dl_type=0x8809,in_port=20608,actions=push_vlan:0x8100,set_field:4203->vlan_vid,output:20640
+   openflow add-flows 50 table=0,priority=101,dl_type=0x8809,in_port=20624,actions=push_vlan:0x8100,set_field:4204->vlan_vid,output:20640
+   openflow add-flows 51 table=0,priority=100,dl_type=0x0806,in_port=20640,dl_vlan=108,actions=output:20608
+   openflow add-flows 52 table=0,priority=100,dl_type=0x0806,in_port=20640,dl_vlan=109,actions=output:20624
+   openflow add-flows 53 table=0,priority=101,dl_type=0x0806,in_port=20608,actions=output:20640
+   openflow add-flows 54 table=0,priority=101,dl_type=0x0806,in_port=20624,actions=output:20640
+   openflow add-flows 55 table=0,priority=101,dl_type=0x1234,in_port=20608,actions=output:20640
+   openflow add-flows 56 table=0,priority=101,dl_type=0x1234,in_port=20624,actions=output:20640
+   openflow add-flows 57 table=0,priority=100,dl_type=0x88CC,in_port=20720,dl_vlan=111,actions=strip_vlan,output:20656
+   openflow add-flows 58 table=0,priority=100,dl_type=0x88CC,in_port=20720,dl_vlan=112,actions=strip_vlan,output:20672
+   openflow add-flows 59 table=0,priority=101,dl_type=0x88CC,in_port=20656,actions=push_vlan:0x8100,set_field:4207->vlan_vid,output:20720
+   openflow add-flows 60 table=0,priority=101,dl_type=0x88CC,in_port=20672,actions=push_vlan:0x8100,set_field:4208->vlan_vid,output:20720
+   openflow add-flows 61 table=0,priority=100,dl_type=0x8809,in_port=20720,dl_vlan=111,actions=strip_vlan,output:20656
+   openflow add-flows 62 table=0,priority=100,dl_type=0x8809,in_port=20720,dl_vlan=112,actions=strip_vlan,output:20672
+   openflow add-flows 63 table=0,priority=101,dl_type=0x8809,in_port=20656,actions=push_vlan:0x8100,set_field:4207->vlan_vid,output:20720
+   openflow add-flows 64 table=0,priority=101,dl_type=0x8809,in_port=20672,actions=push_vlan:0x8100,set_field:4208->vlan_vid,output:20720
+   openflow add-flows 65 table=0,priority=100,dl_type=0x0806,in_port=20720,dl_vlan=111,actions=output:20656
+   openflow add-flows 66 table=0,priority=100,dl_type=0x0806,in_port=20720,dl_vlan=112,actions=output:20672
+   openflow add-flows 67 table=0,priority=101,dl_type=0x0806,in_port=20656,actions=output:20720
+   openflow add-flows 68 table=0,priority=101,dl_type=0x0806,in_port=20672,actions=output:20720
+   openflow add-flows 69 table=0,priority=101,dl_type=0x1234,in_port=20656,actions=output:20720
+   openflow add-flows 70 table=0,priority=101,dl_type=0x1234,in_port=20672,actions=output:20720
+   openflow add-flows 71 table=0,priority=100,dl_type=0x88CC,in_port=20720,dl_vlan=113,actions=strip_vlan,output:20688
+   openflow add-flows 72 table=0,priority=100,dl_type=0x88CC,in_port=20720,dl_vlan=114,actions=strip_vlan,output:20704
+   openflow add-flows 73 table=0,priority=101,dl_type=0x88CC,in_port=20688,actions=push_vlan:0x8100,set_field:4209->vlan_vid,output:20720
+   openflow add-flows 74 table=0,priority=101,dl_type=0x88CC,in_port=20704,actions=push_vlan:0x8100,set_field:4210->vlan_vid,output:20720
+   openflow add-flows 75 table=0,priority=100,dl_type=0x8809,in_port=20720,dl_vlan=113,actions=strip_vlan,output:20688
+   openflow add-flows 76 table=0,priority=100,dl_type=0x8809,in_port=20720,dl_vlan=114,actions=strip_vlan,output:20704
+   openflow add-flows 77 table=0,priority=101,dl_type=0x8809,in_port=20688,actions=push_vlan:0x8100,set_field:4209->vlan_vid,output:20720
+   openflow add-flows 78 table=0,priority=101,dl_type=0x8809,in_port=20704,actions=push_vlan:0x8100,set_field:4210->vlan_vid,output:20720
+   openflow add-flows 79 table=0,priority=100,dl_type=0x0806,in_port=20720,dl_vlan=113,actions=output:20688
+   openflow add-flows 80 table=0,priority=100,dl_type=0x0806,in_port=20720,dl_vlan=114,actions=output:20704
+   openflow add-flows 81 table=0,priority=101,dl_type=0x0806,in_port=20688,actions=output:20720
+   openflow add-flows 82 table=0,priority=101,dl_type=0x0806,in_port=20704,actions=output:20720
+   openflow add-flows 83 table=0,priority=101,dl_type=0x1234,in_port=20688,actions=output:20720
+   openflow add-flows 84 table=0,priority=101,dl_type=0x1234,in_port=20704,actions=output:20720
+   openflow add-flows 85 table=0,priority=100,dl_type=0x88CC,in_port=20800,dl_vlan=116,actions=strip_vlan,output:20736
+   openflow add-flows 86 table=0,priority=100,dl_type=0x88CC,in_port=20800,dl_vlan=117,actions=strip_vlan,output:20752
+   openflow add-flows 87 table=0,priority=101,dl_type=0x88CC,in_port=20736,actions=push_vlan:0x8100,set_field:4212->vlan_vid,output:20800
+   openflow add-flows 88 table=0,priority=101,dl_type=0x88CC,in_port=20752,actions=push_vlan:0x8100,set_field:4213->vlan_vid,output:20800
+   openflow add-flows 89 table=0,priority=100,dl_type=0x8809,in_port=20800,dl_vlan=116,actions=strip_vlan,output:20736
+   openflow add-flows 90 table=0,priority=100,dl_type=0x8809,in_port=20800,dl_vlan=117,actions=strip_vlan,output:20752
+   openflow add-flows 91 table=0,priority=101,dl_type=0x8809,in_port=20736,actions=push_vlan:0x8100,set_field:4212->vlan_vid,output:20800
+   openflow add-flows 92 table=0,priority=101,dl_type=0x8809,in_port=20752,actions=push_vlan:0x8100,set_field:4213->vlan_vid,output:20800
+   openflow add-flows 93 table=0,priority=100,dl_type=0x0806,in_port=20800,dl_vlan=116,actions=output:20736
+   openflow add-flows 94 table=0,priority=100,dl_type=0x0806,in_port=20800,dl_vlan=117,actions=output:20752
+   openflow add-flows 95 table=0,priority=101,dl_type=0x0806,in_port=20736,actions=output:20800
+   openflow add-flows 96 table=0,priority=101,dl_type=0x0806,in_port=20752,actions=output:20800
+   openflow add-flows 97 table=0,priority=101,dl_type=0x1234,in_port=20736,actions=output:20800
+   openflow add-flows 98 table=0,priority=101,dl_type=0x1234,in_port=20752,actions=output:20800
+   openflow add-flows 99 table=0,priority=100,dl_type=0x88CC,in_port=20800,dl_vlan=118,actions=strip_vlan,output:20768
+   openflow add-flows 100 table=0,priority=100,dl_type=0x88CC,in_port=20800,dl_vlan=119,actions=strip_vlan,output:20784
+   openflow add-flows 101 table=0,priority=101,dl_type=0x88CC,in_port=20768,actions=push_vlan:0x8100,set_field:4214->vlan_vid,output:20800
+   openflow add-flows 102 table=0,priority=101,dl_type=0x88CC,in_port=20784,actions=push_vlan:0x8100,set_field:4215->vlan_vid,output:20800
+   openflow add-flows 103 table=0,priority=100,dl_type=0x8809,in_port=20800,dl_vlan=118,actions=strip_vlan,output:20768
+   openflow add-flows 104 table=0,priority=100,dl_type=0x8809,in_port=20800,dl_vlan=119,actions=strip_vlan,output:20784
+   openflow add-flows 105 table=0,priority=101,dl_type=0x8809,in_port=20768,actions=push_vlan:0x8100,set_field:4214->vlan_vid,output:20800
+   openflow add-flows 106 table=0,priority=101,dl_type=0x8809,in_port=20784,actions=push_vlan:0x8100,set_field:4215->vlan_vid,output:20800
+   openflow add-flows 107 table=0,priority=100,dl_type=0x0806,in_port=20800,dl_vlan=118,actions=output:20768
+   openflow add-flows 108 table=0,priority=100,dl_type=0x0806,in_port=20800,dl_vlan=119,actions=output:20784
+   openflow add-flows 109 table=0,priority=101,dl_type=0x0806,in_port=20768,actions=output:20800
+   openflow add-flows 110 table=0,priority=101,dl_type=0x0806,in_port=20784,actions=output:20800
+   openflow add-flows 111 table=0,priority=101,dl_type=0x1234,in_port=20768,actions=output:20800
+   openflow add-flows 112 table=0,priority=101,dl_type=0x1234,in_port=20784,actions=output:20800
+   openflow add-flows 113 table=0,priority=100,dl_type=0x88CC,in_port=20880,dl_vlan=121,actions=strip_vlan,output:20816
+   openflow add-flows 114 table=0,priority=100,dl_type=0x88CC,in_port=20880,dl_vlan=122,actions=strip_vlan,output:20832
+   openflow add-flows 115 table=0,priority=101,dl_type=0x88CC,in_port=20816,actions=push_vlan:0x8100,set_field:4217->vlan_vid,output:20880
+   openflow add-flows 116 table=0,priority=101,dl_type=0x88CC,in_port=20832,actions=push_vlan:0x8100,set_field:4218->vlan_vid,output:20880
+   openflow add-flows 117 table=0,priority=100,dl_type=0x8809,in_port=20880,dl_vlan=121,actions=strip_vlan,output:20816
+   openflow add-flows 118 table=0,priority=100,dl_type=0x8809,in_port=20880,dl_vlan=122,actions=strip_vlan,output:20832
+   openflow add-flows 119 table=0,priority=101,dl_type=0x8809,in_port=20816,actions=push_vlan:0x8100,set_field:4217->vlan_vid,output:20880
+   openflow add-flows 120 table=0,priority=101,dl_type=0x8809,in_port=20832,actions=push_vlan:0x8100,set_field:4218->vlan_vid,output:20880
+   openflow add-flows 121 table=0,priority=100,dl_type=0x0806,in_port=20880,dl_vlan=121,actions=output:20816
+   openflow add-flows 122 table=0,priority=100,dl_type=0x0806,in_port=20880,dl_vlan=122,actions=output:20832
+   openflow add-flows 123 table=0,priority=101,dl_type=0x0806,in_port=20816,actions=output:20880
+   openflow add-flows 124 table=0,priority=101,dl_type=0x0806,in_port=20832,actions=output:20880
+   openflow add-flows 125 table=0,priority=101,dl_type=0x1234,in_port=20816,actions=output:20880
+   openflow add-flows 126 table=0,priority=101,dl_type=0x1234,in_port=20832,actions=output:20880
+   openflow add-flows 127 table=0,priority=100,dl_type=0x88CC,in_port=20880,dl_vlan=123,actions=strip_vlan,output:20848
+   openflow add-flows 128 table=0,priority=100,dl_type=0x88CC,in_port=20880,dl_vlan=124,actions=strip_vlan,output:20864
+   openflow add-flows 129 table=0,priority=101,dl_type=0x88CC,in_port=20848,actions=push_vlan:0x8100,set_field:4219->vlan_vid,output:20880
+   openflow add-flows 130 table=0,priority=101,dl_type=0x88CC,in_port=20864,actions=push_vlan:0x8100,set_field:4220->vlan_vid,output:20880
+   openflow add-flows 131 table=0,priority=100,dl_type=0x8809,in_port=20880,dl_vlan=123,actions=strip_vlan,output:20848
+   openflow add-flows 132 table=0,priority=100,dl_type=0x8809,in_port=20880,dl_vlan=124,actions=strip_vlan,output:20864
+   openflow add-flows 133 table=0,priority=101,dl_type=0x8809,in_port=20848,actions=push_vlan:0x8100,set_field:4219->vlan_vid,output:20880
+   openflow add-flows 134 table=0,priority=101,dl_type=0x8809,in_port=20864,actions=push_vlan:0x8100,set_field:4220->vlan_vid,output:20880
+   openflow add-flows 135 table=0,priority=100,dl_type=0x0806,in_port=20880,dl_vlan=123,actions=output:20848
+   openflow add-flows 136 table=0,priority=100,dl_type=0x0806,in_port=20880,dl_vlan=124,actions=output:20864
+   openflow add-flows 137 table=0,priority=101,dl_type=0x0806,in_port=20848,actions=output:20880
+   openflow add-flows 138 table=0,priority=101,dl_type=0x0806,in_port=20864,actions=output:20880
+   openflow add-flows 139 table=0,priority=101,dl_type=0x1234,in_port=20848,actions=output:20880
+   openflow add-flows 140 table=0,priority=101,dl_type=0x1234,in_port=20864,actions=output:20880
+   openflow add-flows 141 table=0,priority=1,actions=normal
+
+##
+## Dockers configuration
+##
+   docker vrf mgmt
+   docker no shutdown
+   docker label storm
+   docker start pfc_storm latest storm init privileged network sdk label storm
+
+##
+## Local user account configuration
+##
+   username admin password 7 $6$Yd/fbikS$BoZ.8hLKR.TwonfGHUAFGZZIQGUlgoNjr7m7IiAt3t0hL5UOFIc0PKUpUkkeLxqVT35J/bB3TyM6hJ6R8ojbu/
+   username monitor password 7 $6$qFKK4SFo$advg0Qj62TRL7sPJGQPbG2/zsFRKXERmFSfxH1ZNRBupATSCI.ZqydJcpbdoh1G97XrdI4kPq0/kpVhEH25wI.
+
+##
+## AAA remote server configuration
+##
+# ldap bind-password ********
+   ldap vrf mgmt enable
+   radius-server vrf mgmt enable
+# radius-server key ********
+   tacacs-server vrf mgmt enable
+# tacacs-server key ********
+
+##
+## Password restriction configuration
+##
+no password hardening enable
+
+##
+## SNMP configuration
+##
+   snmp-server vrf mgmt enable
+
+##
+## Network management configuration
+##
+# web proxy auth basic password ********
+no cli default paging enable
+   ntp vrf mgmt enable
+   web vrf mgmt enable
+
+##
+## X.509 certificates configuration
+##
+#
+# Certificate name system-self-signed, ID 837e6c1a05e8441d0f47f3e71cd6fd4e4f4f0cb2
+# (public-cert config omitted since private-key config is hidden)
+
+##
+## Persistent prefix mode setting
+##
+cli default prefix-modes enable
