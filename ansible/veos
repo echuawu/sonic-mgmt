@@ -785,6 +785,8 @@ VM2104 ansible_host=10.215.11.44
 [vms_57]
 VM2201 ansible_host=10.215.19.21
 VM2202 ansible_host=10.215.19.22
+VM2203 ansible_host=10.215.19.23
+VM2204 ansible_host=10.215.19.24
 
 [vms_58]
 VM2301 ansible_host=10.215.22.123

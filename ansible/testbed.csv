@@ -196,6 +196,9 @@ r-r740-05-bf3-sonic-01-ptf-any,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf3-740-05
 r-r740-03-bf2-sonic-01-appliance,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-03-01,10.215.19.25/16,,server_57,VM2201,r-r740-03-bf2-sonic-01,Mellanox MTR testbed
 r-r740-03-bf2-sonic-01-ptf-any,vm-t1,appliance,docker-ptf-mlnx,ptf-bf2-740-03-01,10.215.19.25/16,,server_57,VM2201,r-r740-03-bf2-sonic-01,Mellanox MTR testbed
 
+r-r740-03-bf3-sonic-01-appliance,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf3-740-03-01,10.215.19.27/16,,server_57,VM2203,r-r740-03-bf3-sonic-01,Mellanox MTR testbed
+r-r740-03-bf3-sonic-01-ptf-any,vm-t1-02,appliance,docker-ptf-mlnx,ptf-bf3-740-03-01,10.215.19.27/16,,server_57,VM2203,r-r740-03-bf3-sonic-01,Mellanox MTR testbed
+
 r-r740-08-bf3-sonic-01-appliance,vm-t1,appliance,docker-ptf-mlnx,ptf-bf3-740-08-01,10.215.22.122/16,,server_58,VM2301,r-r740-08-bf3-sonic-01,Mellanox MTR testbed
 r-r740-08-bf3-sonic-01-ptf-any,vm-t1,appliance,docker-ptf-mlnx,ptf-bf3-740-08-01,10.215.22.122/16,,server_58,VM2301,r-r740-08-bf3-sonic-01,Mellanox MTR testbed
 
@@ -313,8 +316,6 @@ r-alligator-04-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,serve
 r-buffalo-04-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-buffalo-04,Mellanox MTR testbed
 c-anaconda-01-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,c-anaconda-01,Mellanox MTBC testbed
 c-anaconda-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,c-anaconda-02,Mellanox MTBC testbed
-
-r-r740-03-bf2-sonic-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-r740-03-bf2-sonic-02,Mellanox MTR testbed
 
 # NVOS
 jaguar-119-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,jaguar-119,Mellanox MTR testbed

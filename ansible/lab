@@ -2,7 +2,6 @@
 c-anaconda-01      ansible_host=10.75.67.50 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3700C" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 c-anaconda-02      ansible_host=10.75.67.51 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3700C" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-buffalo-04      ansible_host=10.210.24.133 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4800" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-r740-03-bf2-sonic-02      ansible_host=10.215.19.39 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-alligator-04      ansible_host=10.210.24.172 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-SN2201" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-tigon-17      ansible_host=10.210.24.160 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4600C" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-ocelot-07      ansible_host=10.210.24.11 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4410" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
@@ -103,6 +102,7 @@ r-r740-07-bf2-sonic-01         ansible_host=10.215.20.238 ansible_hostv6="fe80::
 r-r740-05-bf2-sonic-01         ansible_host=10.215.11.59 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2101
 r-r740-05-bf3-sonic-01         ansible_host=10.215.11.55 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2103
 r-r740-03-bf2-sonic-01      ansible_host=10.215.19.39 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2201
+r-r740-03-bf3-sonic-01      ansible_host=10.215.19.35 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2203
 r-r740-08-bf3-sonic-01      ansible_host=10.215.22.177 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2301
 r-r740-08-bf2-sonic-01      ansible_host=10.215.22.179 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2303
 r-r740-09-bf3-sonic-01      ansible_host=10.215.5.17 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2401
@@ -175,6 +175,7 @@ ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user=root ansible_ssh_p
 ptf-bf2-740-05-01 ansible_host=10.215.11.45 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-bf3-740-05-01 ansible_host=10.215.11.47 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-bf2-740-03-01 ansible_host=10.215.19.25 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-bf3-740-03-01 ansible_host=10.215.19.27 ansible_ssh_user=root ansible_ssh_pass=root
 
 [lab:children]
 sonic

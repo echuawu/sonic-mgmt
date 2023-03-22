@@ -25,9 +25,15 @@
       <Device Hostname="r-tigon-21" HwSku="Mellanox-SN4600C-C64" Type="DevSonic"/>
       <Device Hostname="r-tigon-22" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-tigris-26" HwSku="Mellanox-SN3800-D112C8" Type="DevSonic"/>
-      <Device Hostname="r-r740-07-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="r-r740-03-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="r-r740-03-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA" Type="DevSonic"/>
       <Device Hostname="r-r740-05-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-r740-05-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA" Type="DevSonic"/>
+      <Device Hostname="r-r740-07-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="r-r740-08-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="r-r740-08-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA" Type="DevSonic"/>
+      <Device Hostname="r-r740-09-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
+      <Device Hostname="r-r740-09-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA" Type="DevSonic"/>
       <Device Hostname="r-tigris-27" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1005" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-59" HwSku="MLNX-OS" Type="FanoutLeaf"/>
@@ -147,12 +153,6 @@
       <Device Hostname="r-tigon-17" HwSku="ACS-MSN4600C" Type="DevSonic"/>
       <Device Hostname="r-alligator-04" HwSku="ACS-SN2201" Type="DevSonic" />
       <Device Hostname="r-buffalo-04" HwSku="ACS-MSN4800" Type="DevSonic"/>
-      <Device Hostname="r-r740-03-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
-      <Device Hostname="r-r740-03-bf2-sonic-02" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
-      <Device Hostname="r-r740-08-bf3-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
-      <Device Hostname="r-r740-08-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
-      <Device Hostname="r-r740-09-bf3-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
-      <Device Hostname="r-r740-09-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="c-anaconda-01" HwSku="ACS-MSN3700C" Type="DevSonic" />
       <Device Hostname="c-anaconda-02" HwSku="ACS-MSN3700C" Type="DevSonic" />
       <Device Hostname="jaguar-119" HwSku="ACS-MQM8700" Type="DevSonic"/>
@@ -1577,6 +1577,8 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/9" StartDevice="r-r740-05-bf3-sonic-01" StartPort="Ethernet4"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/11" StartDevice="r-r740-03-bf2-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/12" StartDevice="r-r740-03-bf2-sonic-01" StartPort="Ethernet4"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/13" StartDevice="r-r740-03-bf3-sonic-01" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/14" StartDevice="r-r740-03-bf3-sonic-01" StartPort="Ethernet4"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/16" StartDevice="r-r740-08-bf3-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/17" StartDevice="r-r740-08-bf3-sonic-01" StartPort="Ethernet4"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/18" StartDevice="r-r740-08-bf2-sonic-01" StartPort="Ethernet0"/>
@@ -3094,7 +3096,9 @@
       <InterfaceVlan mode="Trunk"  portname="ethernet 1/10"   vlanids="106-109"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/11"   vlanids="111"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/12"   vlanids="112"/>
-      <InterfaceVlan mode="Trunk"  portname="ethernet 1/15"   vlanids="111-112"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/13"   vlanids="113"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/14"   vlanids="114"/>
+      <InterfaceVlan mode="Trunk"  portname="ethernet 1/15"   vlanids="111-114"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/16"   vlanids="116"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/17"   vlanids="117"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/18"   vlanids="118"/>
