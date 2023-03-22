@@ -59,8 +59,7 @@ def test_reboot_test():
 
     with allure.step("Validate health history file indicates reboot occurred and print the status again"):
         logger.info("Validate health history file indicates reboot occurred and print the status again")
-        assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[-1] != last_status_line, "Didn't print new summary line after the reboot"
-        assert "Monitoring service reboot, clearing issues history." in health_history_output
+        validate_new_summary_line_in_history_file_after_boot(system, last_status_line)
 
 
 @pytest.mark.system
@@ -346,6 +345,14 @@ def validate_docker_is_up(engine, docker):
     assert docker in engine.run_cmd("docker ps")
 
 
+@retry(Exception, tries=12, delay=30)
+def validate_new_summary_line_in_history_file_after_boot(system, last_summary_line):
+    health_history_output = system.health.history.show()
+    assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[
+        -1] != last_summary_line, "Didn't print new summary line after boot"
+    assert "Monitoring service reboot, clearing issues history." in health_history_output
+
+
 def verify_devices_health_status(device_status_dict):
     """
     verify device status in the healthe detail output
@@ -413,7 +420,8 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                 health_history_output) == status, "Last status in the health report file is not {}, as we expect".format(status)
             assert len(TestToolkit.search_line_after_a_specific_date_time(
                 HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + status, health_history_output,
-                search_since_datetime)) > 0
+                search_since_datetime)) > 0, "Didnt find health status in history file since time : {},\n" \
+                                             "history:\n {}".format(search_since_datetime, health_history_output)
             for component, issue in health_issue_dict.items():
                 assert len(TestToolkit.search_line_after_a_specific_date_time(
                     regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issue), health_history_output, search_since_datetime)) > 0
@@ -422,7 +430,9 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
             logger.info("Validate health status change appears in system log")
             log_output = system.log.show_log(exit_cmd='q', expected_str="Health DB change cache")
             assert len(TestToolkit.search_line_after_a_specific_date_time(
-                NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output, search_since_datetime)) > 0
+                NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output,
+                search_since_datetime)) > 0, "Didn't find health status line in the system log since specific time :{}\n" \
+                                             "System Log:\n {}".format(search_since_datetime, log_output)
 
 
 def system_health_files_test(engines, devices, check_rotation=False):
