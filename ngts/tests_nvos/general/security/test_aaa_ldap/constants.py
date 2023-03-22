@@ -29,8 +29,8 @@ class LDAPConsts:
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
-        "timeout-bind": "5",
-        "timeout-search": "5",
+        "timeout-bind": "1",
+        "timeout-search": "1",
         "version": '3',
         "priority": '1',
         "users": [
@@ -68,8 +68,8 @@ class LDAPConsts:
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
-        "timeout-bind": "4",
-        "timeout-search": "4",
+        "timeout-bind": "1",
+        "timeout-search": "1",
         "version": '3',
         "priority": '2',
         "users": [
@@ -95,8 +95,8 @@ class LDAPConsts:
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
-        "timeout-bind": "6",
-        "timeout-search": "6",
+        "timeout-bind": "1",
+        "timeout-search": "1",
         "version": '3',
         "priority": '2',
         "users": [
