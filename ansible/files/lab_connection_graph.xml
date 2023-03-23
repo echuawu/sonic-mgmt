@@ -3214,7 +3214,7 @@
       <DevicePowerControlInfo Hostname="pdu-10-208-0-158" HwSku="Sentry" ManagementIp="10.208.0.158" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-182" HwSku="Sentry" ManagementIp="10.208.0.182" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-186" HwSku="Sentry" ManagementIp="10.208.0.186" Protocol="snmp" Type="CDU"/>
-      <DevicePowerControlInfo Hostname="pdu-10-208-0-210" HwSku="Apc" ManagementIp="10.208.0.210" Protocol="snmp" Type="Pdu"/>
+      <DevicePowerControlInfo Hostname="pdu-10-208-0-210" HwSku="ApcRPDU" ManagementIp="10.208.0.210" Protocol="snmp" Type="Pdu"/>
 
       <DevicePowerControlInfo Hostname="pdu-10-208-2-15" HwSku="Apc" ManagementIp="10.208.2.15" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-2-33" HwSku="Emerson" ManagementIp="10.208.2.33" Protocol="snmp" Type="Pdu"/>
@@ -3222,7 +3222,7 @@
       <DevicePowerControlInfo Hostname="pdu-10-208-2-17" HwSku="Emerson" ManagementIp="10.208.2.17" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-2-47" HwSku="Vertiv" ManagementIp="10.208.2.47" Protocol="snmp" Type="Pdu"/>
 
-      <DevicePowerControlInfo Hostname="pdu-10-75-68-211" HwSku="Apc" ManagementIp="10.75.68.211" Protocol="snmp" Type="Pdu"/>
+      <DevicePowerControlInfo Hostname="pdu-10-75-68-211" HwSku="ApcRPDU" ManagementIp="10.75.68.211" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-75-68-210" HwSku="Sentry" ManagementIp="10.75.68.210" Protocol="snmp" Type="CDU"/>
 
     </DevicesPowerControlInfo>
@@ -3354,18 +3354,18 @@
       <PowerControlLinkInfo EndDevice="r-leopard-58" EndPort="PSU2" StartDevice="pdu-10-208-0-186" StartPort="1.18"/>
 
 
-      <PowerControlLinkInfo EndDevice="r-panther-16" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1.1"/>
-      <PowerControlLinkInfo EndDevice="r-panther-16" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="1.18"/>
-      <PowerControlLinkInfo EndDevice="r-panther-17" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1.2"/>
-      <PowerControlLinkInfo EndDevice="r-panther-17" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="1.19"/>
-      <PowerControlLinkInfo EndDevice="r-anaconda-71" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1.3"/>
-      <PowerControlLinkInfo EndDevice="r-anaconda-71" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="1.23"/>
-      <PowerControlLinkInfo EndDevice="r-anaconda-70" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1.5"/>
-      <PowerControlLinkInfo EndDevice="r-anaconda-70" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="1.15"/>
-      <PowerControlLinkInfo EndDevice="r-leopard-42" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1.11"/>
-      <PowerControlLinkInfo EndDevice="r-leopard-42" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="1.14"/>
-      <PowerControlLinkInfo EndDevice="r-leopard-43" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1.12"/>
-      <PowerControlLinkInfo EndDevice="r-leopard-43" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="1.13"/>
+      <PowerControlLinkInfo EndDevice="r-panther-16" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="1"/>
+      <PowerControlLinkInfo EndDevice="r-panther-16" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="18"/>
+      <PowerControlLinkInfo EndDevice="r-panther-17" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="2"/>
+      <PowerControlLinkInfo EndDevice="r-panther-17" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="19"/>
+      <PowerControlLinkInfo EndDevice="r-anaconda-71" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="3"/>
+      <PowerControlLinkInfo EndDevice="r-anaconda-71" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="23"/>
+      <PowerControlLinkInfo EndDevice="r-anaconda-70" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="5"/>
+      <PowerControlLinkInfo EndDevice="r-anaconda-70" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="15"/>
+      <PowerControlLinkInfo EndDevice="r-leopard-42" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="11"/>
+      <PowerControlLinkInfo EndDevice="r-leopard-42" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="14"/>
+      <PowerControlLinkInfo EndDevice="r-leopard-43" EndPort="PSU1" StartDevice="pdu-10-208-0-210" StartPort="12"/>
+      <PowerControlLinkInfo EndDevice="r-leopard-43" EndPort="PSU2" StartDevice="pdu-10-208-0-210" StartPort="13"/>
 
       <PowerControlLinkInfo EndDevice="r-tigon-21" EndPort="PSU1" StartDevice="pdu-10-208-2-11" StartPort="1.1"/>
 
@@ -3388,13 +3388,13 @@
       <PowerControlLinkInfo EndDevice="r-moose-01" EndPort="PSU1" StartDevice="pdu-10-208-2-47" StartPort="1.14"/>
       <PowerControlLinkInfo EndDevice="r-moose-01" EndPort="PSU2" StartDevice="pdu-10-208-2-47" StartPort="1.18"/>
 
-      <PowerControlLinkInfo EndDevice="c-anaconda-02" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="1.5"/>
-      <PowerControlLinkInfo EndDevice="c-anaconda-02" EndPort="PSU2" StartDevice="pdu-10-75-68-211" StartPort="1.10"/>
-      <PowerControlLinkInfo EndDevice="c-anaconda-01" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="1.11"/>
+      <PowerControlLinkInfo EndDevice="c-anaconda-02" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="5"/>
+      <PowerControlLinkInfo EndDevice="c-anaconda-02" EndPort="PSU2" StartDevice="pdu-10-75-68-211" StartPort="10"/>
+      <PowerControlLinkInfo EndDevice="c-anaconda-01" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="11"/>
 
-      <PowerControlLinkInfo EndDevice="c-panther-01" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="1.22"/>
+      <PowerControlLinkInfo EndDevice="c-panther-01" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="22"/>
 
-      <PowerControlLinkInfo EndDevice="c-panther-02" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="1.21"/>
+      <PowerControlLinkInfo EndDevice="c-panther-02" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="21"/>
       <PowerControlLinkInfo EndDevice="c-panther-02" EndPort="PSU2" StartDevice="pdu-10-75-68-210" StartPort="1.5"/>
 
     </PowerControlLinksInfo>
