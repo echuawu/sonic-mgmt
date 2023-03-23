@@ -9,7 +9,7 @@ import os
 import json
 import pytest
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts
-from tests.common.mellanox_data import SPC3_HWSKUS
+from tests.common.mellanox_data import SPC3_HWSKUS, SPC4_HWSKUS
 from check_hw_mgmt_service import check_hw_management_service
 
 pytestmark = [
@@ -25,7 +25,7 @@ def test_check_sfp_using_ethtool(duthosts, rand_one_dut_hostname, conn_graph_fac
     ports_config = json.loads(duthost.command("sudo sonic-cfggen -d --var-json PORT")["stdout"])
 
     logging.info("Use the ethtool to check SFP information")
-    if duthost.facts["hwsku"] in SPC3_HWSKUS:
+    if duthost.facts["hwsku"] in SPC3_HWSKUS + SPC4_HWSKUS:
         lanes_divider = 8
     else:
         lanes_divider = 4

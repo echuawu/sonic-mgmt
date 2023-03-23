@@ -1407,4 +1407,10 @@ dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby[6]:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
     conditions:
       - "https://redmine.mellanox.com/issues/3400587"
+
+qos/test_buffer.py::test_port_auto_neg:
+  skip:
+    reason: "Testcase ignored due to not support change speed on moose"
+    conditions:
+      - "'x86_64-nvidia_sn5600-r0' in platform"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

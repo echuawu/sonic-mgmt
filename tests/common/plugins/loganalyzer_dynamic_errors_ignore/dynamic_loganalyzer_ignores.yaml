@@ -2205,3 +2205,22 @@
         - 202211
       Platform:
         - simx
+
+- Errors_list:
+    - '.* ERR kernel: .* No PCI link reporting capability.*'
+    - '.* ERR kernel: .* DMAR: DRHD: handling fault status reg .*'
+    - '.* ERR kernel: .* DMAR: \[DMA Read\] Request device .* PASID .* PTE Read access is not set.*'
+    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW CR timeout on log_address:.*\[Crspace timeout is due to internal FW process\].*'
+    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW health event device.* FW cause:\[1,FW CR SPACE TIMEOUT EVENT\] severity:\[3,FW NORMAL SEVERITY\] register.*'
+  Conditions:
+    - Redmine:
+        - 3395468
+
+- Errors_list:
+    - '.* ERR kernel: .* Fails to access .* register MCIA .* err.*'
+    - '.* ERR kernel: .* Fails to read module eeprom, status.*'
+    - '.* ERR kernel: .* Fails to access .* module eeprom, status: .*'
+    - '.* ERR kernel: .* Fails to get module type, err.*'
+  Conditions:
+    - Redmine:
+        - 3395470
