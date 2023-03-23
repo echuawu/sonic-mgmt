@@ -9,7 +9,7 @@ from tests.common.helpers.assertions import pytest_assert
 from collections import OrderedDict
 from tests.common.platform.device_utils import fanout_switch_port_lookup
 from tests.common.platform.processes_utils import wait_critical_processes
-from tests.common.utilities import wait, wait_until
+from tests.common.utilities import run_until, wait, wait_until
 from tests.vxlan.test_vxlan_decap import prepare_ptf, generate_vxlan_config_files
 import json
 from jinja2 import Template
@@ -502,21 +502,17 @@ def test_l1_raw_drop(duthost):
             pytest.fail("Could not start up {} port.\nAborting.".format(port))
 
 
-def verify_l1_agg_drop_exists(duthost, cmd, port, state, retry=1):
+def verify_l1_agg_drop_exists(duthost, cmd, port, state):
     entry_exists = False
-    for _ in range(retry):
-        table = get_agg_tables_output(duthost, command=cmd)[0]
-        for entry in table:
-            if (entry['State'] == state and
-                entry['Port'] == port and
-                entry['State Change'] > 0):
-                entry_exists = True
-                break
-            time.sleep(1)
-    if not entry_exists:
-        pytest.fail("Could not find L1 drop on WJH aggregated table.")
-    return entry
+    table = get_agg_tables_output(duthost, command=cmd)[0]
+    for entry in table:
+        if (entry['State'] == state and
+            entry['Port'] == port and
+            entry['State Change'] > 0):
+            entry_exists = True
+            break
 
+    return entry if entry_exists else entry_exists
 
 def test_l1_agg_port_up(duthost, fanouthosts):
     check_if_l1_enabled('aggregate')
@@ -540,7 +536,7 @@ def test_l1_agg_port_down(duthost):
 
     duthost.command("config interface shutdown {}".format(port))
     try:
-        entry = verify_l1_agg_drop_exists(duthost, SHOW_L1_AGGREGATE, port, 'Down', 5)
+        entry = run_until(1, 5, ('Port', port), verify_l1_agg_drop_exists, duthost, SHOW_L1_AGGREGATE, port, "Down")
         if (entry['Down Reason - Recommended Action'] != 'Port admin down - Validate port configuration' and
             entry['Down Reason - Recommended Action'] != 'N/A'):
             pytest.fail("Could not find L1 drop on WJH aggregated table.")
