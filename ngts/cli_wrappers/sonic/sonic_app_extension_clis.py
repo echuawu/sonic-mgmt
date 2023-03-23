@@ -165,3 +165,10 @@ class SonicAppExtensionCli:
         apps_dict = self.parse_app_package_list_dict()
         app_dict = apps_dict[app_name]
         return app_dict['Version']
+
+    def remove_selected_app_extension(self, app_name):
+        logger.info(f'Uninstalling app extension {app_name}')
+        self.disable_app(app_name)
+        self.uninstall_app(app_name)
+        self.remove_repository(app_name)
+        logger.info(f'{app_name} uninstalled successfully')
