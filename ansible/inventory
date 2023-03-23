@@ -671,6 +671,11 @@ r-r740-07-bf2-sonic-01 ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=N
 r-r740-07-bf2-sonic-01-appliance ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
 r-r740-07-bf2-sonic-01-ptf-any ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
 
+# MTR bluefield testbed r-r740-07-bf3-sonic-01 topologies
+r-r740-07-bf3-sonic-01 ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
+r-r740-07-bf3-sonic-01-appliance ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
+r-r740-07-bf3-sonic-01-ptf-any ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
+
 # MTR testbed r-r740-05-bf2-sonic-01 topologies
 r-r740-05-bf2-sonic-01 ansible_host=10.215.11.59 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:7B:C0:AC" pdu_host=pdu-
 r-r740-05-bf2-sonic-01-appliance ansible_host=10.215.11.59 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:7B:C0:AC" pdu_host=pdu-
@@ -973,6 +978,11 @@ dev-r-vrt-233-010-ptf-any
 r-r740-07-bf2-sonic-01
 r-r740-07-bf2-sonic-01-appliance
 r-r740-07-bf2-sonic-01-ptf-any
+
+# MTR r-r740-07-bf3-sonic-01 topologies
+r-r740-07-bf3-sonic-01
+r-r740-07-bf3-sonic-01-appliance
+r-r740-07-bf3-sonic-01-ptf-any
 
 # MTR r-r740-05-bf2-sonic-01 topologies
 r-r740-05-bf2-sonic-01
@@ -1461,6 +1471,11 @@ r-r740-07-bf2-sonic-01
 r-r740-07-bf2-sonic-01-appliance
 r-r740-07-bf2-sonic-01-ptf-any
 
+# MTR r-r740-07-bf3-sonic-01 topologies
+r-r740-07-bf3-sonic-01
+r-r740-07-bf3-sonic-01-appliance
+r-r740-07-bf3-sonic-01-ptf-any
+
 # MTR r-r740-05-bf2-sonic-01 topologies
 r-r740-05-bf2-sonic-01
 r-r740-05-bf2-sonic-01-appliance
@@ -1702,11 +1717,15 @@ ptf-vms6-3 ansible_host=10.75.206.214 ansible_ssh_user="{{ lookup('env','PTF_USE
 ptf-bf2-740-07-01 ansible_host=10.215.20.183 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.20.183 ansible_host=10.215.20.183 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
+# MTR r-r740-07-bf3-sonic-01 PTF host
+ptf-bf3-740-07-01 ansible_host=10.215.20.187 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.20.187 ansible_host=10.215.20.187 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+
 # MTR r-r740-05-bf2-sonic-01 PTF host
 ptf-bf2-740-05-01 ansible_host=10.215.11.45 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.11.45 ansible_host=10.215.11.45 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
-# MTR r-r740-05-bf2-sonic-02 PTF host
+# MTR r-r740-05-bf3-sonic-01 PTF host
 ptf-bf3-740-05-01 ansible_host=10.215.11.47 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.11.47 ansible_host=10.215.11.47 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
