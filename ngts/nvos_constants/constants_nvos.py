@@ -493,6 +493,9 @@ class NtpConsts:
 
     INVALID_STATE = 'enablde'
     INVALID_AUTHENTICATION = 'disablde'
+    INVALID_LISTEN = 'ettth0'
+    INVALID_DHCP = 'eenabled'
+    INVALID_VRF = 'masdfasdf'
     INVALID_HIGHER_KEY = '65536'
     INVALID_LOWER_KEY = '0'
     INVALID_KEY_TYPE = '0'
@@ -504,9 +507,8 @@ class NtpConsts:
     INVALID_SERVER_LOWER_KEY = '-565'
     INVALID_SERVER_TRUSTED = 'ssserver'
     INVALID_SERVER_VERSION = '5'
-    INVALID_VRF = 'masdfasdf'
 
-    LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'enabled', " \
+    LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'disabled', " \
                         "'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
     LOG_MSG_SERVER_CONFIG = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
                             "'resolve_as': '10.7.77.134', 'state': 'enabled', 'trusted': 'no', 'version': '4'}}"
@@ -576,7 +578,7 @@ class NtpConsts:
         DUMMY_SERVER8: SERVER_DEFAULT_VALUES_DICT,
     }
     SERVER_NONE_DEFAULT_VALUES_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        AGGRESSIVE_POLLING: AggressivePolling.ON.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         KEY: KEY_1,
         RESOLVE_AS: SERVER1_IPV4,

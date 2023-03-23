@@ -15,7 +15,6 @@ class Ntp(BaseComponent):
         self.parent_obj = parent_obj
         self.servers = NtpBaseResources(self, resource='server')
         self.keys = NtpBaseResources(self, resource='key')
-        self.vrfs = NtpBaseResources(self, resource='vrf')
 
 
 class NtpBaseResources(BaseComponent):
