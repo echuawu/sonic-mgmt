@@ -22,8 +22,9 @@ target_version = os.environ.get('target_version')
 tests_results_file_path = os.path.join(workspace_dir, 'results.json')
 email_report_file_path = os.path.join(workspace_dir, 'email_report.html')
 
-REBOOT_TYPES = ['fast', 'warm']
+REBOOT_TYPES = ['fast', 'warm', 'unknown']
 FAST_REBOOT_TEST_IDS = [9, 13]  # 9 and 13 - id's for fast-reboot and fast-reboot upgrade tests
+UNKNOWN = 'unknown'
 
 DB_FILE_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
 <DBDEF>
@@ -228,7 +229,7 @@ def get_downtime_list(setup_data, plane='dataplane_downtime'):
     """
     downtime_list = []
     for test_data in setup_data['data']:
-        if test_data[plane] != 'Unknown':
+        if test_data[plane] != UNKNOWN:
             downtime_list.append(test_data[plane])
 
     return downtime_list
@@ -256,8 +257,11 @@ def build_setup_report(setup_name, results):
         for test_run in results[setup_name][reboot_type]:
             base_ver = test_run['base_ver']
             target_ver = test_run['target_ver']
-            dataplane_downtime = test_run['dataplane'] if int(test_run['dataplane']) != -1 else 'Unknown'
-            controlplane_downtime = test_run['controlplane'] if int(test_run['controlplane']) != -1 else 'Unknown'
+            dataplane_downtime = UNKNOWN
+            controlplane_downtime = UNKNOWN
+            if reboot_type != UNKNOWN:
+                dataplane_downtime = test_run['dataplane'] if int(test_run['dataplane']) != -1 else UNKNOWN
+                controlplane_downtime = test_run['controlplane'] if int(test_run['controlplane']) != -1 else UNKNOWN
             allure_report_url = test_run['allure_report']
             test_status = test_run['test_status']
             color = 'green' if test_status == 'passed' else 'red'
@@ -383,6 +387,8 @@ def sort_results_by_execution_date(setup_name, results_dict):
     Sort test cases results by execution date(when test cases has been uploaded into DB)
     """
     for reboot_type in REBOOT_TYPES:
+        if reboot_type == UNKNOWN:
+            continue
         tests_data_list = results_dict[setup_name][reboot_type]
         # Sort tests list by execution date
         try:
@@ -406,7 +412,8 @@ def get_results_for_session(session_id, setup_name):
         'warm': [],
         'unknown': [],
         'results': {'fast': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0},
-                    'warm': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0}
+                    'warm': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0},
+                    'unknown': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0}
                     }
     }
 
@@ -435,7 +442,7 @@ def update_results_for_test_case(sql_connection_obj, test_ids_reports_dict, mars
     test_status = test_ids_reports_dict[mars_key_id]['test_status']
     allure_report = test_ids_reports_dict[mars_key_id]['allure']
 
-    test_data = {'exec_date': None, 'base_ver': None, 'target_ver': '', 'test_status': test_status,
+    test_data = {'exec_date': None, 'base_ver': UNKNOWN, 'target_ver': '', 'test_status': test_status,
                  'dataplane': None, 'controlplane': None, 'allure_report': allure_report}
 
     update_test_data_by_test_run_info(sql_connection_obj, session_id, mars_key_id, test_data)
@@ -458,8 +465,11 @@ def update_results_for_test_case(sql_connection_obj, test_ids_reports_dict, mars
         results_dict[setup_name]['common']['base_ver'].add(test_data['base_ver'])
 
     test_type = 'warm'
-    if test_data['test_id'] in FAST_REBOOT_TEST_IDS:
-        test_type = 'fast'
+    if test_data.get('test_id'):
+        if test_data['test_id'] in FAST_REBOOT_TEST_IDS:
+            test_type = 'fast'
+    else:
+        test_type = UNKNOWN
 
     if test_status == 'passed':
         results_dict[setup_name]['results'][test_type]['passed'] += 1
@@ -476,11 +486,13 @@ def update_average_loss(setup_name, results_dict):
     """
     for reboot_type in REBOOT_TYPES:
         tests_data_list = results_dict[setup_name][reboot_type]
-
-        dataplane_loss_list = get_loss_list(tests_data_list, traffic_plane='dataplane')
-        controlplane_loss_list = get_loss_list(tests_data_list, traffic_plane='controlplane')
-        dataplane_average_loss = count_average_loss(dataplane_loss_list)
-        controlplane_average_loss = count_average_loss(controlplane_loss_list)
+        dataplane_average_loss = UNKNOWN
+        controlplane_average_loss = UNKNOWN
+        if reboot_type != UNKNOWN:
+            dataplane_loss_list = get_loss_list(tests_data_list, traffic_plane='dataplane')
+            controlplane_loss_list = get_loss_list(tests_data_list, traffic_plane='controlplane')
+            dataplane_average_loss = count_average_loss(dataplane_loss_list)
+            controlplane_average_loss = count_average_loss(controlplane_loss_list)
 
         # Update average loss for setup and specific reboot type
         results_dict[setup_name]['results'][reboot_type]['dataplane_loss'] = dataplane_average_loss
@@ -502,7 +514,7 @@ def count_average_loss(loss_list):
     """
     Count average traffic loss time
     """
-    average_loss = 'Unknown'
+    average_loss = UNKNOWN
     if loss_list:
         average_loss = sum(loss_list) / len(loss_list)
     return average_loss

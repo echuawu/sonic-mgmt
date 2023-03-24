@@ -48,17 +48,6 @@ def getSetupNames(){
 }
 
 
-def preparePythonEnv() {
-    sh 'ls -l /etc/yum.repos.d/mssql-release.repo || curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/mssql-release.repo'
-    sh 'cat /etc/yum.repos.d/mssql-release.repo'
-    sh 'ACCEPT_EULA=Y yum install -y msodbcsql17 mssql-tools || true'
-    sh 'yum install -y unixODBC-devel'
-    sh 'virtualenv python_venv'
-    sh 'python_venv/bin/pip install pyodbc==4.0.31'
-    sh 'ls -l python_venv/bin'
-}
-
-
 def cloneRepoAndCheckoutBranch() {
     // Clone sonic-mgmt repo and checkout into branch
     sh "rm -rf ./*"
@@ -113,7 +102,7 @@ def runTestForSetup(setup_name){
 
 
     // Redirect STDERR to STDOUT to have them together in the same stream
-    local_cmd = "sshpass -p 3tango ssh root@mtr-stm-078 -o StrictHostKeyChecking=no \" ${stm_cmd} \" 2>&1"
+    local_cmd = "sshpass -p ${env.STM_PASSWORD} ssh ${env.STM_USER}@mtr-stm-095 -o StrictHostKeyChecking=no \" ${stm_cmd} \" 2>&1"
     echo "Running CMD locally: ${local_cmd}"
 
     result = sh (script: local_cmd, returnStdout: true)
@@ -134,7 +123,7 @@ def collectTestResults() {
 
     SESSION_IDS.each{setup_name, session_id ->
         echo "Collecting results from setup: ${setup_name} session id: ${session_id}"
-        sh "python_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --session_id ${session_id} --setup_name ${setup_name}"
+        sh "/ngts_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --session_id ${session_id} --setup_name ${setup_name}"
 
     }
 
@@ -142,14 +131,27 @@ def collectTestResults() {
 
 
 pipeline {
-    agent any
+
+    agent {
+        docker { image 'harbor.mellanox.com/sonic/docker-ngts:1.2.198'
+                 args '--entrypoint="" -v /.autodirect/sw_regression/system/SONIC/MARS/tarballs:/.autodirect/sw_regression/system/SONIC/MARS/tarballs/'
+            }
+        }
+
+    // TODO: Ask devops to provide env vars into docker container
+    environment {
+        SONIC_SERVER_USER     = 'sonic_db_user'
+        SONIC_SERVER_PASSWORD = 'Pa$$word01'
+        STM_USER              = 'root'
+        STM_PASSWORD          = '3tango'
+    }
+
     stages {
         stage('Preparation') {
             steps {
                 cloneRepoAndCheckoutBranch()
-                preparePythonEnv()
                 // Prepare .cases and .db files
-                sh "python_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --do_preparation"
+                sh "/ngts_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --do_preparation"
                 prepareSonicMgmtTarball()
             }
         }
@@ -175,7 +177,7 @@ pipeline {
     }
  post {
         always {
-            sh "python_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --generate_report_email"
+            sh "/ngts_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --generate_report_email"
             emailext body: '${FILE,path="email_report.html"}',
                     to: "nbu-system-sw-sonic-ver@exchange.nvidia.com",
                     subject: '$PROJECT_NAME #$BUILD_NUMBER results'
