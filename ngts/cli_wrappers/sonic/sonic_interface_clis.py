@@ -282,9 +282,10 @@ class SonicInterfaceCli(InterfaceCliCommon):
         if ifaces is None:
             ifaces = ['Ethernet0']
         with allure.step('Check that link in UP state'):
+            # TODO: Added WA for RM#3413776 by increasing the tries to 16, change it back to 8 after the issue is closed
             retry_call(self.check_ports_status,
                        fargs=[ifaces, expected_status],
-                       tries=8,
+                       tries=16,
                        delay=10,
                        logger=logger)
 

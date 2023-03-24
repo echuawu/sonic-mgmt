@@ -258,6 +258,7 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
     conditions_logical_operator: or
     conditions:
       - "'3800' in platform or 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3413751 and 'sn5' in platform"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_congestion]:
   skip:
@@ -386,9 +387,11 @@ tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
 
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 or RM issue: https://redmine.mellanox.com/issues/3413764 and failed on only r-moose-01"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
+      - "https://redmine.mellanox.com/issues/3413764 and 'sn5' in platform"
 
 tests/nightly/lag/test_lag.py::test_lag_min_links:
   skip:
@@ -1408,9 +1411,29 @@ dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby[6]:
     conditions:
       - "https://redmine.mellanox.com/issues/3400587"
 
-qos/test_buffer.py::test_port_auto_neg:
+platform_tests/daemon/test_pcied.py::test_pmon_pcied_running_status:
   skip:
-    reason: "Testcase ignored due to not support change speed on moose"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413691"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3413691 and 'sn5' in platform"
+
+qos.test_buffer#test_change_speed_cable[10000-1500-15m]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413764"
     conditions:
       - "'x86_64-nvidia_sn5600-r0' in platform"
+      - "https://redmine.mellanox.com/issues/3413764 and 'sn5' in platform"
+
+qos.test_buffer#test_change_speed_cable[10000-1500-40m]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413764"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3413764 and 'sn5' in platform"
+
+platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413737"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3413737 and 'sn5' in platform"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
