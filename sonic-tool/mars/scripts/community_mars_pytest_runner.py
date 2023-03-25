@@ -161,6 +161,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         # If the test case contains a topology mark, add --topology parameter to the pytest raw option
         # This is to support topology variations
         sonic_mgmt_path = os.path.abspath(__file__).split('/')[0:-4]
+        python3_file_path = '/'.join(sonic_mgmt_path + ["tests/python3_test_files.txt",])
         test_script_path = self.test_scripts.split('::')[0]
         sonic_mgmt_path.extend(['tests', test_script_path])
         test_script_fullpath = '/'.join(sonic_mgmt_path)
@@ -177,7 +178,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
             self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
 
         pytest_bin_name = "py.test"
-        if self.is_python3_test:
+        if self.is_python3_test or self.is_python3_script(test_script_path, python3_file_path):
             pytest_bin_name = "/var/AzDevOps/env-python3/bin/py.test"
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
@@ -276,6 +277,14 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
         self.Players[0].wait()
         self.Logger.info('Finished upload allure data to server')
+
+    def is_python3_script(self, script_name, python3_script_file):
+        with open(python3_script_file) as file:
+            file_contents = [line.replace("\n", "") for line in file.readlines()]
+            if script_name in file_contents:
+                return True
+
+        return False
 
 
 if __name__ == "__main__":

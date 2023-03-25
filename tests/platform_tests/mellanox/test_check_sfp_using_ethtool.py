@@ -10,7 +10,7 @@ import json
 import pytest
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts
 from tests.common.mellanox_data import SPC3_HWSKUS, SPC4_HWSKUS
-from check_hw_mgmt_service import check_hw_management_service
+from .check_hw_mgmt_service import check_hw_management_service
 
 pytestmark = [
     pytest.mark.asic('mellanox'),
@@ -32,7 +32,7 @@ def test_check_sfp_using_ethtool(duthosts, rand_one_dut_hostname, conn_graph_fac
     for intf in conn_graph_facts["device_conn"][duthost.hostname]:
         if intf not in xcvr_skip_list[duthost.hostname]:
             intf_lanes = ports_config[intf]["lanes"]
-            sfp_id = int(intf_lanes.split(",")[0])/lanes_divider + 1
+            sfp_id = int(intf_lanes.split(",")[0])//lanes_divider + 1
 
             ethtool_sfp_output = duthost.command("sudo ethtool -m sfp%s" % str(sfp_id))
             assert ethtool_sfp_output["rc"] == 0, "Failed to read eeprom of sfp%s using ethtool" % str(sfp_id)

@@ -2,7 +2,7 @@ import logging
 import random
 import re
 import time
-
+import os
 import pytest
 import yaml
 
@@ -17,7 +17,7 @@ import sys
 if sys.version_info.major == 3:
     STRING_TYPE = str
 else:
-    STRING_TYPE = basestring
+    STRING_TYPE = str
 # END Remove this after we transition to Python 3
 ###################################################
 
@@ -107,7 +107,7 @@ class TestPsuFans(PlatformApiTestBase):
 
                 if self.expect(name is not None, "Unable to retrieve psu {} fan {} name".format(j, i)):
                     self.expect(isinstance(name, STRING_TYPE), "psu {} fan {} name appears incorrect".format(j, i))
-		    self.expect(duthost._facts.get("platform") is not None, "Unable to retrieve platform name")
+                    self.expect(duthost._facts.get("platform") is not None, "Unable to retrieve platform name")
                     #
                     # Check whether platform.json file exists for this specific platform. If yes compare names.
                     # If not, skip comparison.

@@ -36,7 +36,7 @@ from tests.common.dualtor.dual_tor_utils import dualtor_ports, is_tunnel_qos_rem
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.helpers.pfc_storm import PFCStorm
 from tests.pfcwd.files.pfcwd_helper import set_pfc_timers, start_wd_on_ports
-from qos_sai_base import QosSaiBase
+from .qos_sai_base import QosSaiBase
 from tests.common.cisco_data import get_markings_dut, setup_markings_dut
 
 logger = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ class TestQosSai(QosSaiBase):
             portIdNames = []
             portNumbers = []
             portIds = []
-            for idName in qosParams.keys():
+            for idName in list(qosParams.keys()):
                 if re.match('(?:src|dst)_port\S+ids?', idName):
                     portIdNames.append(idName)
                     ids = qosParams[idName]
@@ -222,16 +222,16 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
-        if "pkts_num_margin" in qosConfig[xoffProfile].keys():
+        if "pkts_num_margin" in list(qosConfig[xoffProfile].keys()):
             testParams["pkts_num_margin"] = qosConfig[xoffProfile]["pkts_num_margin"]
 
-        if "packet_size" in qosConfig[xoffProfile].keys():
+        if "packet_size" in list(qosConfig[xoffProfile].keys()):
             testParams["packet_size"] = qosConfig[xoffProfile]["packet_size"]
 
-        if 'cell_size' in qosConfig[xoffProfile].keys():
+        if 'cell_size' in list(qosConfig[xoffProfile].keys()):
             testParams["cell_size"] = qosConfig[xoffProfile]["cell_size"]
 
         self.runPtfTest(
@@ -276,7 +276,7 @@ class TestQosSai(QosSaiBase):
             pytest.skip("Shared Headroom has to be enabled for this test")
 
         portSpeedCableLength = dutQosConfig["portSpeedCableLength"]
-        if xonProfile in dutQosConfig["param"][portSpeedCableLength].keys():
+        if xonProfile in list(dutQosConfig["param"][portSpeedCableLength].keys()):
             qosConfig = dutQosConfig["param"][portSpeedCableLength]
         else:
             if dutTestParams['hwsku'] in self.BREAKOUT_SKUS and 'backend' not in dutTestParams['topo']:
@@ -305,9 +305,9 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "packet_size" in qosConfig[xonProfile].keys():
+        if "packet_size" in list(qosConfig[xonProfile].keys()):
             testParams["packet_size"] = qosConfig[xonProfile]["packet_size"]
-        if 'cell_size' in qosConfig[xonProfile].keys():
+        if 'cell_size' in list(qosConfig[xonProfile].keys()):
             testParams["cell_size"] = qosConfig[xonProfile]["cell_size"]
 
         # Params required for generating a PFC Storm
@@ -437,7 +437,7 @@ class TestQosSai(QosSaiBase):
             pytest.skip("Additional DSCPs are not supported on non-dual ToR ports")
 
         portSpeedCableLength = dutQosConfig["portSpeedCableLength"]
-        if xonProfile in dutQosConfig["param"][portSpeedCableLength].keys():
+        if xonProfile in list(dutQosConfig["param"][portSpeedCableLength].keys()):
             qosConfig = dutQosConfig["param"][portSpeedCableLength]
         else:
             if dutTestParams['hwsku'] in self.BREAKOUT_SKUS and 'backend' not in dutTestParams['topo']:
@@ -483,19 +483,19 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
-        if "pkts_num_hysteresis" in qosConfig[xonProfile].keys():
+        if "pkts_num_hysteresis" in list(qosConfig[xonProfile].keys()):
             testParams["pkts_num_hysteresis"] = qosConfig[xonProfile]["pkts_num_hysteresis"]
 
-        if "pkts_num_margin" in qosConfig[xonProfile].keys():
+        if "pkts_num_margin" in list(qosConfig[xonProfile].keys()):
             testParams["pkts_num_margin"] = qosConfig[xonProfile]["pkts_num_margin"]
 
-        if "packet_size" in qosConfig[xonProfile].keys():
+        if "packet_size" in list(qosConfig[xonProfile].keys()):
             testParams["packet_size"] = qosConfig[xonProfile]["packet_size"]
 
-        if 'cell_size' in qosConfig[xonProfile].keys():
+        if 'cell_size' in list(qosConfig[xonProfile].keys()):
             testParams["cell_size"] = qosConfig[xonProfile]["cell_size"]
 
         self.runPtfTest(
@@ -556,10 +556,10 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_margin" in qosConfig[LosslessVoqProfile].keys():
+        if "pkts_num_margin" in list(qosConfig[LosslessVoqProfile].keys()):
             testParams["pkts_num_margin"] = qosConfig[LosslessVoqProfile]["pkts_num_margin"]
 
-        if "packet_size" in qosConfig[LosslessVoqProfile].keys():
+        if "packet_size" in list(qosConfig[LosslessVoqProfile].keys()):
             testParams["packet_size"] = qosConfig[LosslessVoqProfile]["packet_size"]
 
         self.runPtfTest(
@@ -592,7 +592,7 @@ class TestQosSai(QosSaiBase):
         qosConfig = dutQosConfig["param"][portSpeedCableLength]
         testPortIps = dutConfig["testPortIps"]
 
-        if not 'hdrm_pool_size' in qosConfig.keys():
+        if not 'hdrm_pool_size' in list(qosConfig.keys()):
             pytest.skip("Headroom pool size is not enabled on this DUT")
 
         if not dutConfig['dualTor']:
@@ -642,7 +642,7 @@ class TestQosSai(QosSaiBase):
         if dynamic_threshold:
             testParams["dynamic_threshold"] = dynamic_threshold
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
         self.runPtfTest(
@@ -673,12 +673,12 @@ class TestQosSai(QosSaiBase):
         qosConfig = dutQosConfig["param"][portSpeedCableLength]
         testPortIps = dutConfig["testPortIps"]
 
-        if not sharedResSizeKey in qosConfig.keys():
+        if not sharedResSizeKey in list(qosConfig.keys()):
             pytest.skip("Shared reservation size parametrization '%s' is not enabled" % sharedResSizeKey)
 
         self.updateTestPortIdIp(dutConfig, qosConfig[sharedResSizeKey])
 
-        port_idx_to_id = testPortIps.keys()
+        port_idx_to_id = list(testPortIps.keys())
         # Translate requested port indices to available port IDs
         src_port_ids = [port_idx_to_id[idx] for idx in qosConfig[sharedResSizeKey]["src_port_i"]]
         dst_port_ids = [port_idx_to_id[idx] for idx in qosConfig[sharedResSizeKey]["dst_port_i"]]
@@ -753,7 +753,7 @@ class TestQosSai(QosSaiBase):
         portSpeedCableLength = dutQosConfig["portSpeedCableLength"]
         qosConfig = dutQosConfig["param"][portSpeedCableLength]
         testPortIps = dutConfig["testPortIps"]
-        if not 'hdrm_pool_size' in qosConfig.keys():
+        if not 'hdrm_pool_size' in list(qosConfig.keys()):
             pytest.skip("Headroom pool size is not enabled on this DUT")
 
         testParams = dict()
@@ -792,7 +792,7 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
         self.runPtfTest(
@@ -869,7 +869,7 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "packet_size" in qosConfig[bufPool].keys():
+        if "packet_size" in list(qosConfig[bufPool].keys()):
             testParams["packet_size"] = qosConfig[bufPool]["packet_size"]
 
         self.runPtfTest(
@@ -899,7 +899,7 @@ class TestQosSai(QosSaiBase):
                 RunAnsibleModuleFail if ptf test fails
         """
         portSpeedCableLength = dutQosConfig["portSpeedCableLength"]
-        if "lossy_queue_1" in dutQosConfig["param"][portSpeedCableLength].keys():
+        if "lossy_queue_1" in list(dutQosConfig["param"][portSpeedCableLength].keys()):
             qosConfig = dutQosConfig["param"][portSpeedCableLength]
         else:
             qosConfig = dutQosConfig["param"]
@@ -931,14 +931,14 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
-        if "packet_size" in qosConfig["lossy_queue_1"].keys():
+        if "packet_size" in list(qosConfig["lossy_queue_1"].keys()):
             testParams["packet_size"] = qosConfig["lossy_queue_1"]["packet_size"]
             testParams["cell_size"] = qosConfig["lossy_queue_1"]["cell_size"]
 
-        if "pkts_num_margin" in qosConfig["lossy_queue_1"].keys():
+        if "pkts_num_margin" in list(qosConfig["lossy_queue_1"].keys()):
             testParams["pkts_num_margin"] = qosConfig["lossy_queue_1"]["pkts_num_margin"]
 
         self.runPtfTest(
@@ -1002,11 +1002,11 @@ class TestQosSai(QosSaiBase):
             else:
                 testParams["platform_asic"] = None
 
-            if "packet_size" in qosConfig[LossyVoq].keys():
+            if "packet_size" in list(qosConfig[LossyVoq].keys()):
                 testParams["packet_size"] = qosConfig[LossyVoq]["packet_size"]
                 testParams["cell_size"] = qosConfig[LossyVoq]["cell_size"]
 
-            if "pkts_num_margin" in qosConfig[LossyVoq].keys():
+            if "pkts_num_margin" in list(qosConfig[LossyVoq].keys()):
                 testParams["pkts_num_margin"] = qosConfig[LossyVoq]["pkts_num_margin"]
 
             self.runPtfTest(
@@ -1259,7 +1259,7 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "lossy_queue_1" in dutQosConfig["param"][portSpeedCableLength].keys():
+        if "lossy_queue_1" in list(dutQosConfig["param"][portSpeedCableLength].keys()):
             testParams["ecn"] = qosConfig[portSpeedCableLength]["lossy_queue_1"]["ecn"]
         else:
             testParams["ecn"] = qosConfig["lossy_queue_1"]["ecn"]
@@ -1293,10 +1293,10 @@ class TestQosSai(QosSaiBase):
         """
 
         portSpeedCableLength = dutQosConfig["portSpeedCableLength"]
-        if pgProfile in dutQosConfig["param"][portSpeedCableLength].keys():
+        if pgProfile in list(dutQosConfig["param"][portSpeedCableLength].keys()):
             qosConfig = dutQosConfig["param"][portSpeedCableLength]
         else:
-            if dutTestParams['hwsku'] in self.BREAKOUT_SKUS and 'backend' not in dutTestParams['topo'] and pgProfile in dutQosConfig["param"][portSpeedCableLength]["breakout"].keys():
+            if dutTestParams['hwsku'] in self.BREAKOUT_SKUS and 'backend' not in dutTestParams['topo'] and pgProfile in list(dutQosConfig["param"][portSpeedCableLength]["breakout"].keys()):
                 qosConfig = dutQosConfig["param"][portSpeedCableLength]["breakout"]
             else:
                 qosConfig = dutQosConfig["param"]
@@ -1331,17 +1331,17 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
-        if "packet_size" in qosConfig[pgProfile].keys():
+        if "packet_size" in list(qosConfig[pgProfile].keys()):
             testParams["packet_size"] = qosConfig[pgProfile]["packet_size"]
 
-        if "pkts_num_margin" in qosConfig[pgProfile].keys():
+        if "pkts_num_margin" in list(qosConfig[pgProfile].keys()):
             testParams["pkts_num_margin"] = qosConfig[pgProfile]["pkts_num_margin"]
 
         # For J2C+ we need the internal header size in calculating the shared watermarks
-        if "internal_hdr_size" in qosConfig.keys():
+        if "internal_hdr_size" in list(qosConfig.keys()):
             testParams["internal_hdr_size"] = qosConfig["internal_hdr_size"]
 
         self.runPtfTest(
@@ -1400,13 +1400,13 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
-        if "pkts_num_margin" in qosConfig["wm_pg_headroom"].keys():
+        if "pkts_num_margin" in list(qosConfig["wm_pg_headroom"].keys()):
             testParams["pkts_num_margin"] = qosConfig["wm_pg_headroom"]["pkts_num_margin"]
 
-        if "packet_size" in qosConfig["wm_pg_headroom"].keys():
+        if "packet_size" in list(qosConfig["wm_pg_headroom"].keys()):
             testParams["packet_size"] = qosConfig["wm_pg_headroom"]["packet_size"]
 
         self.runPtfTest(
@@ -1432,7 +1432,7 @@ class TestQosSai(QosSaiBase):
         """
 
         portSpeedCableLength = dutQosConfig["portSpeedCableLength"]
-        if "pg_drop" in dutQosConfig["param"][portSpeedCableLength].keys():
+        if "pg_drop" in list(dutQosConfig["param"][portSpeedCableLength].keys()):
             qosConfig = dutQosConfig["param"][portSpeedCableLength]
         else:
             qosConfig = dutQosConfig["param"]
@@ -1498,7 +1498,7 @@ class TestQosSai(QosSaiBase):
                 qosConfig = dutQosConfig["param"][portSpeedCableLength]
             triggerDrop = qosConfig[queueProfile]["pkts_num_trig_ingr_drp"]
         else:
-            if queueProfile in dutQosConfig["param"][portSpeedCableLength].keys():
+            if queueProfile in list(dutQosConfig["param"][portSpeedCableLength].keys()):
                 qosConfig = dutQosConfig["param"][portSpeedCableLength]
             else:
                 qosConfig = dutQosConfig["param"]
@@ -1529,13 +1529,13 @@ class TestQosSai(QosSaiBase):
         else:
             testParams["platform_asic"] = None
 
-        if "pkts_num_egr_mem" in qosConfig.keys():
+        if "pkts_num_egr_mem" in list(qosConfig.keys()):
             testParams["pkts_num_egr_mem"] = qosConfig["pkts_num_egr_mem"]
 
-        if "packet_size" in qosConfig[queueProfile].keys():
+        if "packet_size" in list(qosConfig[queueProfile].keys()):
             testParams["packet_size"] = qosConfig[queueProfile]["packet_size"]
 
-        if "pkts_num_margin" in qosConfig[queueProfile].keys():
+        if "pkts_num_margin" in list(qosConfig[queueProfile].keys()):
             testParams["pkts_num_margin"] = qosConfig[queueProfile]["pkts_num_margin"]
 
         self.runPtfTest(
