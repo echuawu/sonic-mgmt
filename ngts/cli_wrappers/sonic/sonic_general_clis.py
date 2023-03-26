@@ -96,15 +96,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             delimiter = '-'
         return delimiter
 
-    def install_image(self, image_path, delimiter='-', is_skipping_migrating_package=False):
+    def install_image(self, image_path, delimiter='-', is_skipping_migrating_package=False, validate=True):
         if not is_skipping_migrating_package:
-            output = self.engine.run_cmd('sudo sonic{}installer install {} -y'.format(delimiter, image_path), validate=True)
+            output = self.engine.run_cmd('sudo sonic{}installer install {} -y'.
+                                         format(delimiter, image_path), validate=validate)
         else:
-            output = self.engine.run_cmd('sudo sonic{}installer install {} -y --skip-package-migration'.format(delimiter, image_path), validate=True)
+            output = self.engine.run_cmd('sudo sonic{}installer install {} -y --skip-package-migration'.
+                                         format(delimiter, image_path), validate=validate)
         return output
 
     def get_image_binary_version(self, image_path, delimiter='-'):
-        output = self.engine.run_cmd('sudo sonic{}installer binary{}version {}'.format(delimiter, delimiter, image_path),
+        output = self.engine.run_cmd('sudo sonic{}installer binary{}version {}'.
+                                     format(delimiter, delimiter, image_path),
                                      validate=True)
         return output
 
@@ -140,7 +143,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def download_file_from_http_url(self, url, target_file_path):
         self.engine.run_cmd('sudo curl {} -o {}'.format(url, target_file_path), validate=True)
 
-    def reboot_reload_flow(self, r_type='reboot', ports_list=None, topology_obj=None, wait_after_ping=45, reload_force=False):
+    def reboot_reload_flow(self, r_type='reboot', ports_list=None, topology_obj=None, wait_after_ping=45,
+                           reload_force=False):
         """
         Wrapper for reboot and reload methods - which executes appropriate method based on reboot/reload type
         """
@@ -212,7 +216,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.engine.reload(['sudo reboot'])
             retries = retries - 1
 
-    @retry(Exception, tries=21, delay=10)  # Add 6 tries due to fw update would add external delay to syncd container boot up
+    # Add 6 tries due to fw update would add external delay to syncd container boot up
+    @retry(Exception, tries=21, delay=10)
     def verify_dockers_are_up(self, dockers_list=None):
         """
         Verifying the dockers are in up state during a specific time interval
@@ -274,7 +279,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 logger.error(f"Not all expected processes of docker {docker} are running.\n"
                              f"Expected: {expected_processes[docker]}\nRunning: {running_processes}")
                 success = False
-        assert(success, 'Not all expected processes in RUNNING status')
+        assert success, 'Not all expected processes in RUNNING status'
 
     @retry(Exception, tries=5, delay=30)
     def generate_techsupport(self, duration=60):
@@ -405,7 +410,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.engine.run_cmd('sudo dhclient', validate=True)
 
     def deploy_bfb(self, image_path, topology_obj):
-        rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['Parent_device_NIC_name']
+        rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
+            'Parent_device_NIC_name']
         hyper_engine = topology_obj.players['hyper']['engine']
 
         with allure.step('Check RSHIM service running(restart if required'):
@@ -585,7 +591,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         ip = self.engine.ip
         port = self.engine.ssh_port
         logger.info('Executing remote reboot')
-        cmd = topology_obj.players[self.dut_alias]['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
+        cmd = topology_obj.players[self.dut_alias]['attributes'].noga_query_data['attributes']['Specific'][
+            'remote_reboot']
         _, _, rc = run_process_on_host(cmd)
         if rc == InfraConst.RC_SUCCESS:
             check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port)
@@ -870,7 +877,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         return config_db_json
 
     def is_supported_split_mode(self, hwsku, split_num):
-        split_supported_without_unmap = self.is_platform_supports_split_without_unmap(hwsku) or split_num is 2
+        split_supported_without_unmap = self.is_platform_supports_split_without_unmap(hwsku) or split_num == 2
         platform_not_sn3800 = not re.search("SN3800", hwsku)
         return split_supported_without_unmap and platform_not_sn3800
 
@@ -1004,7 +1011,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             for port_name, port_dict in platform_json_obj["interfaces"].items():
                 port_start_index = int(re.search(r'Ethernet(.*)', port_name).group(1))
                 lanes = port_dict[SonicConstant.LANES].split(",")
-                breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].keys())))
+                breakout_modes = re.findall(breakout_options, ",".join(list(port_dict[SonicConstant.BREAKOUT_MODES].
+                                                                            keys())))
                 lane_count = len(lanes)
                 breakout_ports = ["Ethernet{}".format(port_start_index + i) for i in range(lane_count)]
                 for port in breakout_ports:
@@ -1077,7 +1085,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 base_image = available_image_2
             else:
                 base_image = available_image_1
-        except Exception as err:
+        except Exception:
             logger.warning('Only 1 installed image available')
             base_image = None
 

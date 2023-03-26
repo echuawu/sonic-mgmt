@@ -49,7 +49,8 @@ class GeneralCliCommon(GeneralCliInterface):
         :Return app container status, None if no container data
         """
         container_data_format = "{'ID':'{{ .ID }}', 'Names':'{{ .Names }}', 'Status':'{{ .Status }}'}"
-        app_container_info = self.engine.run_cmd('docker ps -a -f name={}$ --format "{}" '.format(app_name, container_data_format), validate=True)
+        app_container_info = self.engine.run_cmd('docker ps -a -f name={}$ --format "{}" '.
+                                                 format(app_name, container_data_format), validate=True)
         logger.info("get {} container status:{}".format(app_name, app_container_info))
         app_container_status = None
         if app_container_info:
@@ -139,3 +140,35 @@ class GeneralCliCommon(GeneralCliInterface):
     def set_time(self, time_str):
         output = self.engine.run_cmd(f'sudo date -s "{time_str}"', validate=True)
         return output
+
+    def find(self, folder, name):
+        """
+        get result of find command
+        :return: command output
+        """
+        return self.engine.run_cmd(f"sudo find {folder} -name {name}")
+
+    def remove_module(self, module):
+        """
+        remove module
+        """
+        return self.engine.run_cmd(f"sudo rmmod {module}")
+
+    def check_module_status(self, module):
+        """
+        check module install status
+        :return: command output
+        """
+        return self.engine.run_cmd(f"sudo lsmod | grep {module}")
+
+    def install_module(self, module):
+        """
+        install module
+        """
+        return self.engine.run_cmd(f"sudo insmod {module}")
+
+    def extract_key_from_module(self, module):
+        """
+        extract key from a module
+        """
+        return self.engine.run_cmd(f"sudo strip -g {module}")
