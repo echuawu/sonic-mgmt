@@ -2261,3 +2261,14 @@
         - tests/nightly/dynamic_port_breakout/test_dpb_introp.py
       Redmine:
         - 3405332
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- mcCounterCheck: Invalid port oid.*'
+    - '.* ERR swss#orchagent: :- pfcFrameCounterCheck: Invalid port oid.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports
+      Redmine:
+      - 3137469
+      Platform:
+      - 4600
