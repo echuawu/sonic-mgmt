@@ -42,8 +42,8 @@ def configure_ldap(ldap_server_info):
     with allure.step("Configuring ldap server"):
         logging.info("Configuring ldap server")
         if ldap_server_info.get(LDAPConsts.PRIORITY):
-            system.aaa.ldap.set_hostname_priority(hostname=ldap_server_info[LDAPConsts.HOSTNAME],
-                                                  priority=ldap_server_info[LDAPConsts.PRIORITY])
+            system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LDAPConsts.HOSTNAME],
+                                                  priority=int(ldap_server_info[LDAPConsts.PRIORITY]))
         if ldap_server_info.get(LDAPConsts.SCOPE):
             system.aaa.ldap.set_scope(scope=ldap_server_info[LDAPConsts.SCOPE])
         if ldap_server_info.get(LDAPConsts.BASE_DN):
@@ -98,7 +98,7 @@ def validate_ldap_configurations(ldap_server_info):
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
                                                         expected_values=expected_values,
                                                         output_dict=output).verify_result()
-        output = system.aaa.ldap.show_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME])
+        output = system.aaa.ldap.hostname.show_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME])
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
         expected_field = [LDAPConsts.PRIORITY]
         expected_values = [ldap_server_info[LDAPConsts.PRIORITY]]
@@ -410,8 +410,8 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
     with allure.step("Validate Unset specific ldap hostname command"):
         logging.info("Validate Unset specific ldap hostname command")
         for hostname in configured_ldap_servers_hostname:
-            system.aaa.ldap.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
-            output = system.aaa.ldap.show_hostname(hostname=hostname)
+            system.aaa.ldap.hostname.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
+            output = system.aaa.ldap.hostname.show_hostname(hostname=hostname)
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)
 
     configured_ldap_servers_hostname = []
@@ -424,7 +424,7 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
     system.aaa.ldap.unset(apply=True).verify_result(should_succeed=True)
     with allure.step("Validating the show command output"):
         logging.info("Validating the show command output")
-        output = system.aaa.ldap.show_hostname()
+        output = system.aaa.ldap.hostname.show()
         for hostname in configured_ldap_servers_hostname:
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(hostname)
 
