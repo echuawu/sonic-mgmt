@@ -455,9 +455,12 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='state',
+
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
+                                                          field_name='state',
                                                           expected_value='enabled').verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='set-hostname',
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output,
+                                                          field_name='set-hostname',
                                                           expected_value='enabled').verify_result()
 
     with allure.step('Check hostname received by dhcp'):

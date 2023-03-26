@@ -328,14 +328,14 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
-        self.psu_fan_list = ["PSU1_FAN", "PSU2_FAN"]
+        self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
 
     def _init_temperature(self):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
                                  "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
 
     def _init_health_components(self):
-        self.health_components = self.fan_list + self.psu_list + ["ASIC", "PSU1_FAN", "PSU2_FAN"] + \
+        self.health_components = self.fan_list + self.psu_list + ["ASIC"] + self.psu_fan_list + \
             ["container_checker", "diskCheck", "memory_check"] + \
             ["database:redis", "ib-utils:ibcfgd", "rsyslog", "swss-ibv0:orchagent", "swss-ibv0:portmgrd",
              "swss-ibv0:portsyncd", "syncd-ibv0:syncd"] + ["root-overlay", "var-log"]
