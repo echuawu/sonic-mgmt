@@ -110,3 +110,24 @@ class OpenApiSystemCli(OpenApiBaseCli):
 
         return OpenApiCommandHelper.execute_action(ActionType.RESET, engine.engine.username, engine.engine.password,
                                                    engine.ip, "/system/{}".format(comp), params)
+
+    @staticmethod
+    def action_rotate_logs(engine):
+        logging.info("Running action: rotate system log on dut using OpenApi")
+        params = \
+            {
+                "state": "start",
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.ROTATE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, "/system/log", params)
+
+    @staticmethod
+    def action_reboot(engine, resource_path, op_param=""):
+        logging.info("Running action: rotate system log on dut using OpenApi")
+        params = \
+            {
+                "state": "start",
+                # "parameters": {op_param}
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.REBOOT, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)

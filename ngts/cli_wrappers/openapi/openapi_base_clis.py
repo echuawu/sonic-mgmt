@@ -19,7 +19,8 @@ class OpenApiBaseCli:
     def set(engine, resource_path, op_param_name="", op_param_value=""):
         logging.info("Running PATCH method on dut using openApi for {}".format(resource_path))
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
-                                                   OpenApiReqType.PATCH, engine.ip, resource_path, op_param_name, op_param_value)
+                                                   OpenApiReqType.PATCH, engine.ip, resource_path, op_param_name,
+                                                   op_param_value)
 
     @staticmethod
     def unset(engine, resource_path, op_param=""):
