@@ -41,9 +41,6 @@ def configure_ldap(ldap_server_info):
 
     with allure.step("Configuring ldap server"):
         logging.info("Configuring ldap server")
-        if ldap_server_info.get(LDAPConsts.PRIORITY):
-            system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LDAPConsts.HOSTNAME],
-                                                  priority=int(ldap_server_info[LDAPConsts.PRIORITY]))
         if ldap_server_info.get(LDAPConsts.SCOPE):
             system.aaa.ldap.set_scope(scope=ldap_server_info[LDAPConsts.SCOPE])
         if ldap_server_info.get(LDAPConsts.BASE_DN):
@@ -60,7 +57,13 @@ def configure_ldap(ldap_server_info):
             system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LDAPConsts.TIMEOUT_BIND])
         if ldap_server_info.get(LDAPConsts.VERSION):
             system.aaa.ldap.set_version(version=ldap_server_info[LDAPConsts.VERSION])
-        system.aaa.ldap.set_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME], apply=True).verify_result()
+        if ldap_server_info.get(LDAPConsts.PRIORITY):
+            priority = int(ldap_server_info[LDAPConsts.PRIORITY])
+        else:
+            priority = LDAPConsts.DEFAULT_PRIORTIY
+        system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LDAPConsts.HOSTNAME],
+                                              priority=priority,
+                                              apply=True).verify_result()
 
 
 def validate_ldap_configurations(ldap_server_info):

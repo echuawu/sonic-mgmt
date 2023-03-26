@@ -39,7 +39,7 @@ class Ldap(BaseComponent):
         return self.set("scope", scope, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_version(self, version, apply=False, ask_for_confirmation=False):
-        return self.set("version", version, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set("version", int(version), apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_timeout_bind(self, timeout, apply=False, ask_for_confirmation=False):
         return self.set("timeout-bind", int(timeout), apply=apply, ask_for_confirmation=ask_for_confirmation)

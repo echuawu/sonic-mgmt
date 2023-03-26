@@ -118,6 +118,7 @@ class LDAPConsts:
         DOCKER_LDAP_SERVER
     ]
 
+    DEFAULT_PRIORTIY = 1
     LDAP_LOW_TIMOEUT = '1'
     LDAP_HIGH_TIMEOUT = '60'
     MAX_PRIORITY = '8'
