@@ -464,7 +464,6 @@ class NtpConsts:
     KEY_1 = '6'
     KEY_2 = '09876'
     KEY_VALUE = 'v1234'
-    KEY_VALUE = 'v1234'
     KEY1_VALUE = 'blahblah'
     KEY2_VALUE = 'lbsdu234nj'
     SERVER1_IPV4 = '10.7.77.134'

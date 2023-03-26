@@ -220,7 +220,8 @@ def test_configure_ntp_server():
         with allure.step("Unset system ntp"):
             logging.info("Unset system ntp")
             system.ntp.unset().verify_result()
-            system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.DISABLED.value,
+            system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.DISABLED.value).verify_result()
+            system.ntp.set(op_param_name=NtpConsts.DHCP, op_param_value=NtpConsts.Dhcp.DISABLED.value,
                            apply=True).verify_result()
 
         with allure.step("Validate show system ntp commands output"):
@@ -228,6 +229,7 @@ def test_configure_ntp_server():
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
             default_dict = dict(NtpConsts.NTP_DEFAULT_DICT)
             default_dict[NtpConsts.STATE] = NtpConsts.State.DISABLED.value
+            default_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
             ValidationTool.compare_dictionary_content(ntp_show, default_dict).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
             ValidationTool.compare_dictionary_content(server_list, NtpConsts.SERVER_DEFAULT_DICT).verify_result()
@@ -411,16 +413,14 @@ def test_ntp_system_authentication():
             logging.info("Unset each of the configurations of the key")
             if TestToolkit.tested_api == ApiType.OPENAPI:
                 system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
-                    op_param_name=NtpConsts.TYPE, op_param_value=NtpConsts.KeyType.MD5).verify_result()
+                    op_param_name=NtpConsts.TYPE, op_param_value=NtpConsts.KeyType.MD5.value).verify_result()
                 system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
-                    op_param_name=NtpConsts.TRUSTED, op_param_value=NtpConsts.Trusted.NO, apply=True).verify_result()
-                system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
-                    op_param_name=NtpConsts.VALUE, op_param_value='', apply=True).verify_result(should_succeed=False)
+                    op_param_name=NtpConsts.TRUSTED, op_param_value=NtpConsts.Trusted.NO.value, apply=True).\
+                    verify_result()
             else:
                 system.ntp.keys.resources_dict[NtpConsts.KEY_1].unset(op_param=NtpConsts.TYPE).verify_result()
-                system.ntp.keys.resources_dict[NtpConsts.KEY_1].unset(op_param=NtpConsts.TRUSTED).verify_result()
-                system.ntp.keys.resources_dict[NtpConsts.KEY_1].unset(op_param=NtpConsts.VALUE).\
-                    verify_result(should_succeed=False)
+                system.ntp.keys.resources_dict[NtpConsts.KEY_1].unset(op_param=NtpConsts.TRUSTED, apply=True).\
+                    verify_result()
 
         with allure.step("Create wrong authentication key"):
             logging.info("Create wrong authentication key")
@@ -1132,13 +1132,13 @@ def test_configure_ntp_server_openapi():
     test_configure_ntp_server()
 
 
-# @pytest.mark.openapi
-# @pytest.mark.system
-# @pytest.mark.ntp
-# @pytest.mark.simx
-# def test_ntp_system_authentication_openapi():
-#     TestToolkit.tested_api = ApiType.OPENAPI
-#     test_ntp_system_authentication()
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.ntp
+@pytest.mark.simx
+def test_ntp_system_authentication_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_ntp_system_authentication()
 
 
 @pytest.mark.openapi
