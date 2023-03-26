@@ -226,18 +226,18 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
     found only in the first server and connect through credentials in the second server only
     and we are testing the local credentials
     '''
-    with allure.step("Create invalid ldap server"):
-        logging.info("Create invalid ldap server")
-        randomized_ldap_server_dict = randomize_ldap_server()
-        randomized_ldap_server_dict[LDAPConsts.PRIORITY] = LDAPConsts.MAX_PRIORITY
-        configure_ldap(randomized_ldap_server_dict)
-
     first_real_ldap_server = LDAPConsts.PHYSICAL_LDAP_SERVER.copy()
     first_real_ldap_server[LDAPConsts.PRIORITY] = '2'
     second_real_ldap_server = LDAPConsts.DOCKER_LDAP_SERVER_DNS.copy()
     second_real_ldap_server[LDAPConsts.PRIORITY] = '1'
     ldap_server_list = [first_real_ldap_server, second_real_ldap_server]
     configure_ldap_and_validate(engines, ldap_server_list=ldap_server_list, devices=devices)
+
+    with allure.step("Create invalid ldap server and configuring as high priority"):
+        logging.info("Create invalid ldap server and configuring as high priority")
+        randomized_ldap_server_dict = randomize_ldap_server()
+        randomized_ldap_server_dict[LDAPConsts.PRIORITY] = LDAPConsts.MAX_PRIORITY
+        configure_ldap(randomized_ldap_server_dict)
 
     with allure.step("Validating first ldap server credentials"):
         logging.info("Validating first ldap server credentials")
