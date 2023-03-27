@@ -528,14 +528,6 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
       - "https://redmine.mellanox.com/issues/3097795 and '202111' in release"
       - "https://redmine.mellanox.com/issues/3139078 and '202205' in release"
 
-platform_tests/test_advanced_reboot.py::test_fast_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332794 and platform msn4600c/msn3800"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332794 and 'msn4600c' in platform"
-      - "https://redmine.mellanox.com/issues/3332794 and 'msn3800' in platform"
-
 platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
@@ -1488,5 +1480,65 @@ acl/test_acl_outer_vlan.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
     conditions:
       - "https://redmine.mellanox.com/issues/3415969"
+
+platform_tests/test_advanced_reboot.py::test_fast_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3416343"
+
+platform_tests/test_advanced_reboot.py::test_warm_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3416343"
+
+arp/test_wr_arp.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3416343"
+
+crm/test_crm.py::test_crm_neighbor:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7853
+
+crm/test_crm.py::test_crm_nexthop:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7853
+
+crm/test_crm.py::test_crm_nexthop_group:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7853
+
+crm/test_crm.py::test_crm_route:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7853
+
+show_techsupport/test_techsupport.py::test_techsupport_commands:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7868"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7868
+
+platform_tests/link_flap/test_link_flap.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3417479"
+
+platform_tests/test_port_toggle.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3417479"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
