@@ -147,7 +147,15 @@ def get_dut_breakout_modes(dut_engine, cli_object):
     """
     platform_json = json_file_helper.get_platform_json(dut_engine, cli_object)
     config_db_json = json_file_helper.get_config_db(dut_engine)
-    return parse_platform_json(platform_json, config_db_json)
+    breakout_modes_by_ports = parse_platform_json(platform_json, config_db_json)
+    # TODO: Currently SONiC doesn't support 8x breakout in DPB, remove this when 8x breakout is supported
+    for _, breakout_data in breakout_modes_by_ports.items():
+        breakout_modes = breakout_data['breakout_modes']
+        for mode in breakout_modes:
+            if '8x' in mode:
+                breakout_modes.remove(mode)
+                break
+    return breakout_modes_by_ports
 
 
 def parse_platform_json(platform_json_obj, config_db_json):

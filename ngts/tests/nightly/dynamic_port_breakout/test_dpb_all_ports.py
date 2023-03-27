@@ -27,10 +27,6 @@ class TestDPBOnAllPorts:
         self.dut_engine = engines.dut
         self.cli_object = cli_objects.dut
         self.ports_breakout_modes = ports_breakout_modes.copy()
-        # TODO: Currently SONiC doesn't support 8x breakout in DPB, remove this when 8x breakout is supported
-        for mode in self.ports_breakout_modes:
-            if '8x' in mode:
-                self.ports_breakout_modes.remove(mode)
         self.dut_ports_interconnects = dut_ports_interconnects
         self.split_mode_supported_speeds = split_mode_supported_speeds
         self.dut_ports_default_speeds_configuration = dut_ports_default_speeds_configuration
