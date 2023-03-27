@@ -1,6 +1,18 @@
 SESSION_IDS = [:]
 
 
+def get_vault_creds() {
+    def vault_config = [vaultUrl: 'https://prod.vault.nvidia.com', vaultNamespace: "nbu-sws-devops", vaultCredentialId: 'vault-ngci-approle-prod', engineVersion: 1]
+    def vault_path_prefix = "nvidia/nbu/sws/ngci/kv"
+    def secrets = [
+        [path: "${vault_path_prefix}/server/common", engineVersion: 1, secretValues: [[envVar: 'STM_USER', vaultKey: 'username'],[envVar: 'STM_PASSWORD', vaultKey: 'password']]],
+        [path: "${vault_path_prefix}/sonic-sql-db", engineVersion: 1, secretValues: [[envVar: 'SONIC_SERVER_USER', vaultKey: 'username'],[envVar: 'SONIC_SERVER_PASSWORD', vaultKey: 'password']]]
+    ]
+
+    return [vault_config, secrets]
+}
+
+
 def get_SetupNameRebootTypeMap(setup_name) {
 
     reboot_types = []
@@ -120,13 +132,13 @@ def runTestForSetup(setup_name){
 def collectTestResults() {
     // Collect tests results
     echo "Collecting tests results for session IDs data: ${SESSION_IDS}"
-
-    SESSION_IDS.each{setup_name, session_id ->
-        echo "Collecting results from setup: ${setup_name} session id: ${session_id}"
-        sh "/ngts_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --session_id ${session_id} --setup_name ${setup_name}"
-
+    def (vault_config, secrets) = get_vault_creds()
+    withVault([configuration: vault_config, vaultSecrets: secrets]) {
+        SESSION_IDS.each{setup_name, session_id ->
+            echo "Collecting results from setup: ${setup_name} session id: ${session_id}"
+            sh "/ngts_venv/bin/python sonic-mgmt/sonic-tool/jenkins_scripts/sonic_run_reboot_tests_pipeline.py --session_id ${session_id} --setup_name ${setup_name}"
+        }
     }
-
 }
 
 
@@ -137,14 +149,6 @@ pipeline {
                  args '--entrypoint="" -v /.autodirect/sw_regression/system/SONIC/MARS/tarballs:/.autodirect/sw_regression/system/SONIC/MARS/tarballs/'
             }
         }
-
-    // TODO: Ask devops to provide env vars into docker container
-    environment {
-        SONIC_SERVER_USER     = 'sonic_db_user'
-        SONIC_SERVER_PASSWORD = 'Pa$$word01'
-        STM_USER              = 'root'
-        STM_PASSWORD          = '3tango'
-    }
 
     stages {
         stage('Preparation') {
@@ -162,7 +166,10 @@ pipeline {
                     ["Execution ${name}": {
                         // Following code will be executed in parallel for each chosen setup
                         stage(name) {
-                            runTestForSetup(name)
+                            def (vault_config, secrets) = get_vault_creds()
+                            withVault([configuration: vault_config, vaultSecrets: secrets]) {
+                                runTestForSetup(name)
+                            }
                         }
                     }]
                 }
