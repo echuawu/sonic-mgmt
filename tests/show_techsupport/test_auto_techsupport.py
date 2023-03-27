@@ -1125,7 +1125,7 @@ def create_stub_file(duthost, path_to_file, size_in_mb):
     :param path_to_file: full path to file which should be created
     :param size_in_mb: size of file in mb
     """
-    cmd = 'sudo dd if=/dev/zero of={} bs=1M count={}'.format(path_to_file, size_in_mb)
+    cmd = 'sudo dd if=/dev/zero of={} bs=1M count={}'.format(path_to_file, int(size_in_mb))
     duthost.shell(cmd)
 
 
