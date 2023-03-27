@@ -338,7 +338,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
         output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
         assert docker_to_stop in output, "Failed to stop docker"
         health_issue_dict = {docker_to_stop: "Container 'ib-utils' is not running"}
-        validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
+        validate_health_fix_or_issue(system, health_issue_dict, date_time, False, expected_in_monitor_list=False)
 
     finally:
         date_time = datetime.now()
@@ -410,7 +410,7 @@ def ignore_health_issue(components_list_to_ignore, engine, device):
                                                       device.health_monitor_config_file_path))
 
 
-def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetime, is_fix):
+def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetime, is_fix, expected_in_monitor_list=True):
     """
     validate health issue or fix with show commands
         - validate with system show cmd the health status
@@ -424,18 +424,29 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
         logger.info("Validate health issues {}".format("fix" if is_fix else ""))
         system.wait_until_health_status_change_to(status)
 
-        with allure.step("Validate detailed health report"):
-            logger.info("Validate detailed health report")
-            detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
-                Fae().health.show()).get_returned_value()
-            verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
-            monitor_dict = sort_monitor_list(detail_health_output[HealthConsts.MONITOR_LIST])
+        with allure.step("Validate health output issues"):
+            logger.info("Validate health output issues")
+            health_issues = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()[HealthConsts.ISSUES]
             for component, issue in health_issue_dict.items():
                 if is_fix:
-                    assert component not in monitor_dict[NOT_OK]
+                    assert component not in health_issues
                 else:
-                    assert component in monitor_dict[NOT_OK]
-                    assert issue == detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
+                    assert component in health_issues
+                    assert issue == health_issues[component]["issue"]
+
+        if expected_in_monitor_list:
+            with allure.step("Validate detailed health report"):
+                logger.info("Validate detailed health report")
+                detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
+                    Fae().health.show()).get_returned_value()
+                verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
+                monitor_dict = sort_monitor_list(detail_health_output[HealthConsts.MONITOR_LIST])
+                for component, issue in health_issue_dict.items():
+                    if is_fix:
+                        assert component not in monitor_dict[NOT_OK]
+                    else:
+                        assert component in monitor_dict[NOT_OK]
+                        assert issue == detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
 
         with allure.step("Validate health history file"):
             logger.info("Validate health history file")
