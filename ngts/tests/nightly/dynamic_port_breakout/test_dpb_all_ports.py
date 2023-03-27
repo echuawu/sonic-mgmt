@@ -124,8 +124,6 @@ class TestDPBOnAllPorts:
             self.get_splittable_ports_connected_as_lb(splitable_ports_list, splittable_ports_connected_to_hosts)
 
         breakout_ports_conf_for_all_tested_ports.update(
-            self.set_dpb_on_ports_connected_to_hosts(splittable_ports_connected_to_hosts, breakout_mode, cleanup_list))
-        breakout_ports_conf_for_all_tested_ports.update(
             self.set_dpb_on_ports_connected_as_lb(splittable_ports_connected_as_lb, breakout_mode,
                                                   cleanup_list))
 
@@ -162,26 +160,6 @@ class TestDPBOnAllPorts:
                     splittable_ports_connected_as_lb.remove(port)
         return splittable_ports_connected_as_lb
 
-    def set_dpb_on_ports_connected_to_hosts(self, splittable_ports_connected_to_hosts, breakout_mode, cleanup_list):
-        """
-
-        :param splittable_ports_connected_to_hosts: a list of ports that connected to host and can be split
-        ['Ethernet0', 'Ethernet60']
-        :param breakout_mode: breakout mode to configure on them, i.e 4x50G[10G,25G]
-        :param cleanup_list: a list of functions for cleanup
-        :return: a dictionary with ports status after breakout
-        i.e,
-        {'Ethernet0': '50G', 'Ethernet60': '50G'}
-        """
-        breakout_ports_conf = {}
-
-        with allure.step(f'Configure breakout mode: {breakout_mode} on '
-                         f'all splittable ports connected to hosts: {splittable_ports_connected_to_hosts}'):
-            for port_connected_to_host in splittable_ports_connected_to_hosts:
-                breakout_ports_conf.update(
-                    self.set_dpb_on_port_connected_to_host(port_connected_to_host, breakout_mode, cleanup_list))
-        return breakout_ports_conf
-
     def set_dpb_on_ports_connected_as_lb(self, splittable_ports_connected_as_lb,
                                          breakout_mode, cleanup_list):
         """
@@ -216,47 +194,6 @@ class TestDPBOnAllPorts:
             return updated_ports_connected_as_lb_breakout_ports_conf
         else:
             return ports_connected_as_lb_breakout_ports_conf
-
-    def set_dpb_on_port_connected_to_host(self, port_connected_to_host, breakout_mode, cleanup_list):
-        """
-        :param port_connected_to_host: i.e, Ethernet0
-        :param breakout_mode: i.e 4x50G[10G,25G]
-        :param cleanup_list: a list of functions for cleanup
-        :return: a dictionary with port status after breakout
-        i.e,
-        {'Ethernet0': '50G'}
-        """
-        with allure.step(f'Configure breakout mode: {breakout_mode} on '
-                         f'splittable port connected to hosts: {port_connected_to_host}'):
-            breakout_ports_conf = set_dpb_conf(self.dut_engine, self.cli_object,
-                                               self.ports_breakout_modes,
-                                               conf={breakout_mode: [port_connected_to_host]},
-                                               cleanup_list=cleanup_list,
-                                               original_speed_conf=self.dut_ports_default_speeds_configuration)
-        self.set_supported_speed_on_ports_connected_to_hosts_with_dpb(port_connected_to_host, breakout_mode,
-                                                                      breakout_ports_conf)
-        return {port_connected_to_host: breakout_ports_conf[port_connected_to_host]}
-
-    def set_supported_speed_on_ports_connected_to_hosts_with_dpb(self, port_connected_to_host, breakout_mode,
-                                                                 breakout_ports_conf):
-        """
-        :param port_connected_to_host: i.e, Ethernet0
-        :param breakout_mode: i.e 4x50G[10G,25G]
-        :param breakout_ports_conf: a dictionary with port status after breakout
-        i.e,
-        {'Ethernet0': '50G', 'Ethernet1': '50G', 'Ethernet2': '50G','Ethernet3': '50G'}
-        :return: none, set speed on breakout ports to minimum speed supported on breakout ports and update the
-        new speed in the breakout_ports_conf dict
-        """
-        breakout_port_supported_speeds = \
-            self.ports_breakout_modes[port_connected_to_host]['speeds_by_modes'][breakout_mode]
-        min_breakout_port_supported_speeds = min(breakout_port_supported_speeds,
-                                                 key=lambda speed_as_string: speed_string_to_int_in_mb(speed_as_string))
-        for breakout_port, speed_conf in breakout_ports_conf.items():
-            breakout_ports_conf[breakout_port] = min_breakout_port_supported_speeds
-        breakout_ports_interfaces = list(breakout_ports_conf.keys())
-        with allure.step(f'set speed {min_breakout_port_supported_speeds} on ports {breakout_ports_interfaces}'):
-            self.cli_object.interface.set_interfaces_speed(breakout_ports_conf)
 
     def filter_ports_list(self, ports_list):
         """
