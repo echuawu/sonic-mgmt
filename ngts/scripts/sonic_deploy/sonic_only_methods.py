@@ -289,6 +289,10 @@ class SonicInstallationSteps:
 
         # Community only steps
         if is_community(sonic_topo):
+            if is_dualtor_topo(sonic_topo):
+                config_y_cable_simulator(ansible_path=ansible_path, setup_name=setup_name, sonic_topo=sonic_topo)
+                for dut in setup_info['duts']:
+                    add_host_for_y_cable_simulator(dut, setup_info)
             for dut in setup_info['duts']:
                 general_cli_obj = dut['cli_obj']
                 deploy_minigpraph(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
@@ -299,8 +303,6 @@ class SonicInstallationSteps:
                 for dut in setup_info['duts']:
                     SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                     ansible_path=ansible_path)
-            if is_dualtor_topo(sonic_topo):
-                config_y_cable_simulator(ansible_path=ansible_path, setup_name=setup_name, sonic_topo=sonic_topo)
 
         for dut in setup_info['duts']:
             SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj, dut_name=dut['dut_name'],
@@ -311,9 +313,6 @@ class SonicInstallationSteps:
                                                   reboot_after_install=reboot_after_install,
                                                   deploy_only_target=deploy_only_target, fw_pkg_path=fw_pkg_path,
                                                   cli=dut['cli_obj'])
-        if is_dualtor_topo(sonic_topo):
-            for dut in setup_info['duts']:
-                add_host_for_y_cable_simulator(dut, setup_info)
 
         for dut in setup_info['duts']:
             SonicInstallationSteps.reboot_validation_sonic(dut_name=dut['dut_name'], sonic_topo=sonic_topo,

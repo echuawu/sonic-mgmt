@@ -342,8 +342,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if set_timezone:
             with allure.step("Set dut NTP timezone to {} time.".format(set_timezone)):
-                dut_engine = topology_obj.players['dut']['engine']
-                dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format(set_timezone), validate=True)
+                self.engine.disconnect()
+                self.engine.run_cmd('sudo timedatectl set-timezone {}'.format(set_timezone), validate=True)
 
         with allure.step("Init telemetry keys"):
             self.init_telemetry_keys()
