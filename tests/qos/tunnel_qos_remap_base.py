@@ -1,4 +1,5 @@
 
+import copy
 import ipaddress
 import pytest
 import logging
@@ -269,16 +270,23 @@ def _remove_ssh_tunnel_to_syncd_rpc(duthost):
 
 
 @pytest.fixture(scope='module')
-def swap_syncd(rand_selected_dut, creds, request):
-    if request.config.getoption("--qos_swap_syncd"):
-        # Swap syncd container
-        docker.swap_syncd(rand_selected_dut, creds)
-        _create_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
+def swap_syncd(request, rand_selected_dut, creds):
+    public_docker_reg = request.config.getoption("--public_docker_registry")
+    new_creds = None
+    if public_docker_reg:
+        new_creds = copy.deepcopy(creds)
+        new_creds['docker_registry_host'] = new_creds['public_docker_registry_host']
+        new_creds['docker_registry_username'] = ''
+        new_creds['docker_registry_password'] = ''
+    else:
+        new_creds = creds
+    # Swap syncd container
+    docker.swap_syncd(rand_selected_dut, new_creds)
+    _create_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
     yield
-    if request.config.getoption("--qos_swap_syncd"):
-        # Restore syncd container
-        docker.restore_default_syncd(rand_selected_dut, creds)
-        _remove_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
+    # Restore syncd container
+    docker.restore_default_syncd(rand_selected_dut, new_creds)
+    _remove_ssh_tunnel_to_syncd_rpc(rand_selected_dut)
 
 
 def _update_docker_service(duthost, docker="", action="", service=""):
