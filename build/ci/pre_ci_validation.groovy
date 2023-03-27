@@ -111,6 +111,11 @@ def run_step(name) {
             env.RUN_COMMUNITY_REGRESSION = true
         }
 
+        if (topic.contains("SKIP_SPELLCHECK")){
+            print "SKIP_SPELLCHECK is activated, spell check will not run"
+            env.SKIP_SPELLCHECK = true
+        }
+
         set_sonic_bin(topic_map, project)
         set_nvos_bin(topic_map, project)
 
