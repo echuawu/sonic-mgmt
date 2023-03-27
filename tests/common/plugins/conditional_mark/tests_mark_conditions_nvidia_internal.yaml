@@ -604,9 +604,9 @@ platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
 
 platform_tests/test_cpu_memory_usage.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3360417 and platform BF2"
+    reason: "Testcase ignored due to platform BF2"
     conditions:
-      - "https://redmine.mellanox.com/issues/3360417 and 'arm64-nvda_bf-mbf2h536c' in platform"
+      - "'arm64-nvda_bf-mbf2h536c' in platform"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
   skip:
