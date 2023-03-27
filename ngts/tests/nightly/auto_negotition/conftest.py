@@ -133,6 +133,8 @@ def interfaces_types_dict(platform_params, chip_type):
         supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC2[platform.upper()]
     elif chip_type == "SPC3":
         supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC3[platform.upper()]
+    elif chip_type == "SPC4":
+        supported_speed = {}
     else:
         raise AssertionError("Chip type {} is unrecognized".format(chip_type))
     return supported_speed
