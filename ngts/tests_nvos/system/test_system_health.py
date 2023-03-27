@@ -176,7 +176,7 @@ def test_ignore_health_issue(engines, devices):
             psu_id, fan_id = simulate_fan_and_psu_health_issue(engines, devices)
             psu_display_name = "PSU{}".format(psu_id)
             psu_config_name = "PSU {}".format(psu_id)
-            psu_fan_display_name = "PSU{}_FAN".format(psu_id)
+            psu_fan_display_name = "PSU{}/FAN".format(psu_id)
             psu_fan_config_name = "psu{}_fan1".format(psu_id)
             fan_display_name = get_fan_display_name(fan_id)
             fan_config_name = "fan{}".format(fan_id)
@@ -184,31 +184,43 @@ def test_ignore_health_issue(engines, devices):
         with allure.step("Validate health status and report"):
             logger.info("Validate health status and report")
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [psu_display_name, psu_fan_display_name, fan_display_name])
 
         with allure.step("Ignore PSU issue and Validate"):
             logger.info("Ignore PSU issue and Validate")
             ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK})
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
+                HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [fan_display_name])
 
         with allure.step("Ignore FAN issue too and Validate health state change to OK"):
             logger.info("Ignore FAN issue too and Validate health state change to OK")
             ignore_health_issue([psu_config_name, psu_fan_config_name, fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(OK)
-            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: IGNORED})
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
+                HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: IGNORED}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [])
 
         with allure.step("Remove the ignore from FAN issue and Validate health state change to Not OK"):
             logger.info("Remove the ignore from FAN issue and Validate health state change to Not OK")
             ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK})
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
+                HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [fan_display_name])
 
         with allure.step("Remove the ignore from PSU issue too and Validate"):
             logger.info("Remove the ignore from PSU issue too and Validate")
             ignore_health_issue(None, engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+            verify_devices_health_status_in_monitor_list({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+            verify_devices_health_status_in_issues_list(system, [psu_display_name, psu_fan_display_name, fan_display_name])
 
     finally:
 
@@ -246,7 +258,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
     try:
         psu_id, fan_id = simulate_fan_and_psu_health_issue(engines, devices)
         psu_display_name = "PSU{}".format(psu_id)
-        psu_fan_display_name = "PSU{}_FAN".format(psu_id)
+        psu_fan_display_name = "PSU{}/FAN".format(psu_id)
         fan_display_name = get_fan_display_name(fan_id)
         health_issue_dict = {psu_display_name: "missing or not available", psu_fan_display_name: "missing",
                              fan_display_name: "broken"}
@@ -353,14 +365,26 @@ def validate_new_summary_line_in_history_file_after_boot(system, last_summary_li
     assert "Monitoring service reboot, clearing issues history." in health_history_output
 
 
-def verify_devices_health_status(device_status_dict):
+def verify_devices_health_status_in_monitor_list(device_status_dict, monitor_list=None):
     """
     verify device status in the healthe detail output
     :param device_status_dict: dictionary with devices and their status, example: {PSU1: OK , PSU2: Not OK, FAN1/1: Ignored}
     """
-    monitor_dict = sort_monitor_list()
+    monitor_dict = sort_monitor_list(monitor_list)
     for device_name, status in device_status_dict.items():
-        assert device_name in monitor_dict[status]
+        if status == HealthConsts.IGNORED and monitor_list:
+            assert device_name not in list(monitor_list.keys()), "{} should be ignored , so should not appear in the monitor list"
+        else:
+            assert device_name in monitor_dict[status]
+
+
+def verify_devices_health_status_in_issues_list(system, devices_list):
+    """
+    verify device status in the health show output, under the section "issues"
+    :param devices_list: list of devices with issues, example: [PSU1, PSU2, FAN1/1]
+    """
+    issues_dict = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()[HealthConsts.ISSUES]
+    assert set(devices_list) == set(list(issues_dict.keys()))
 
 
 def simulate_fan_and_psu_health_issue(engines, devices):

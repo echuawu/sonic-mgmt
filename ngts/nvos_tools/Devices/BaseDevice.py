@@ -335,10 +335,8 @@ class BaseSwitch(BaseDevice, ABC):
                                  "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
 
     def _init_health_components(self):
-        self.health_components = self.fan_list + self.psu_list + ["ASIC"] + self.psu_fan_list + \
-            ["container_checker", "diskCheck", "memory_check"] + \
-            ["database:redis", "ib-utils:ibcfgd", "rsyslog", "swss-ibv0:orchagent", "swss-ibv0:portmgrd",
-             "swss-ibv0:portsyncd", "syncd-ibv0:syncd"] + ["root-overlay", "var-log"]
+        self.health_components = self.fan_list + self.psu_list + self.psu_fan_list + \
+            ["ASIC Temperature", "Containers", "CPU utilization", "Disk check", "Disk space", "Disk space log"]
 
 
 # -------------------------- Gorilla Switch ----------------------------
