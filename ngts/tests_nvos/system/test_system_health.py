@@ -88,7 +88,7 @@ def test_show_system_health(devices):
         logger.info("Validate \"nv show system health\" cmd")
         health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
         ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED], health_output.keys()).verify_result()
-        verify_expected_health_status(health_output, HealthConsts.STATUS, OK)
+        verify_health_status_and_led(system, HealthConsts.OK)
 
     with allure.step("Validate \"nv show fae health\" cmd"):
         logger.info("Validate \"nv show fae health\" cmd")
@@ -168,7 +168,7 @@ def test_ignore_health_issue(engines, devices):
     """
     system = System()
     ignore_health_issue(None, engines.dut, devices.dut)
-    system.validate_health_status(OK)
+    verify_health_status_and_led(system, OK)
 
     try:
         with allure.step("Simulate PSU and FAN health issue"):
@@ -184,6 +184,7 @@ def test_ignore_health_issue(engines, devices):
         with allure.step("Validate health status and report"):
             logger.info("Validate health status and report")
             system.wait_until_health_status_change_to(NOT_OK)
+            verify_health_status_and_led(system, NOT_OK)
             monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[HealthConsts.MONITOR_LIST]
             verify_devices_health_status_in_monitor_list({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK}, monitor_list)
             verify_devices_health_status_in_issues_list(system, [psu_display_name, psu_fan_display_name, fan_display_name])
@@ -192,6 +193,7 @@ def test_ignore_health_issue(engines, devices):
             logger.info("Ignore PSU issue and Validate")
             ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
+            verify_health_status_and_led(system, NOT_OK)
             monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
                 HealthConsts.MONITOR_LIST]
             verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK}, monitor_list)
@@ -201,6 +203,7 @@ def test_ignore_health_issue(engines, devices):
             logger.info("Ignore FAN issue too and Validate health state change to OK")
             ignore_health_issue([psu_config_name, psu_fan_config_name, fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(OK)
+            verify_health_status_and_led(system, OK)
             monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
                 HealthConsts.MONITOR_LIST]
             verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: IGNORED}, monitor_list)
@@ -210,6 +213,7 @@ def test_ignore_health_issue(engines, devices):
             logger.info("Remove the ignore from FAN issue and Validate health state change to Not OK")
             ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
+            verify_health_status_and_led(system, NOT_OK)
             monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
                 HealthConsts.MONITOR_LIST]
             verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK}, monitor_list)
@@ -219,6 +223,7 @@ def test_ignore_health_issue(engines, devices):
             logger.info("Remove the ignore from PSU issue too and Validate")
             ignore_health_issue(None, engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
+            verify_health_status_and_led(system, NOT_OK)
             verify_devices_health_status_in_monitor_list({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
             verify_devices_health_status_in_issues_list(system, [psu_display_name, psu_fan_display_name, fan_display_name])
 
@@ -230,6 +235,7 @@ def test_ignore_health_issue(engines, devices):
             HWSimulator.simulate_fix_fan_fault(engines.dut, fan_id)
             HWSimulator.simulate_fix_psu_fault(engines.dut, psu_id)
             system.wait_until_health_status_change_to(OK)
+            verify_health_status_and_led(system, OK)
 
 
 @pytest.mark.system
@@ -253,7 +259,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
     date_time = datetime.now()
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
-    system.validate_health_status(OK)
+    verify_health_status_and_led(system, OK)
 
     try:
         psu_id, fan_id = simulate_fan_and_psu_health_issue(engines, devices)
@@ -357,6 +363,14 @@ def validate_docker_is_up(engine, docker):
     assert docker in engine.run_cmd("docker ps")
 
 
+def verify_health_status_and_led(system, expected_status, output=None):
+    if not output:
+        output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
+    verify_expected_health_status(output, HealthConsts.STATUS, expected_status)
+    expected_led = HealthConsts.LED_OK_STATUS if expected_status == HealthConsts.OK else HealthConsts.LED_NOT_OK_STATUS
+    verify_expected_health_status(output, HealthConsts.STATUS_LED, expected_led)
+
+
 @retry(Exception, tries=12, delay=30)
 def validate_new_summary_line_in_history_file_after_boot(system, last_summary_line):
     health_history_output = system.health.history.show()
@@ -426,7 +440,9 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
 
         with allure.step("Validate health output issues"):
             logger.info("Validate health output issues")
-            health_issues = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()[HealthConsts.ISSUES]
+            health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
+            verify_health_status_and_led(system, status, health_output)
+            health_issues = health_output[HealthConsts.ISSUES]
             for component, issue in health_issue_dict.items():
                 if is_fix:
                     assert component not in health_issues

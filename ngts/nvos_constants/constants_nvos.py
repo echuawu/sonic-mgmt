@@ -649,6 +649,8 @@ class HealthConsts:
     IGNORED = "Ignored"
     STATUS = "status"
     STATUS_LED = "status-led"
+    LED_OK_STATUS = "green"
+    LED_NOT_OK_STATUS = "amber"
     MONITOR_LIST = "monitor-list"
     HEALTH_FIRST_FILE = "health_history"
     HEALTH_SECOND_FILE = "health_history.1"
