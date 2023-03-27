@@ -2218,9 +2218,9 @@
         - 3395468
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW assert msg: \[run_fw_assert_checker, old event, see the details by searching the original syndrome value in code\], FW assert event.*'
-    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW health event device:\[\d+\] FW cause:\[\d+,FW ASSERT EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[0x90f0\], long_process:\[\d+\],command_type:\[EMAD\], IRISC:\[\d+\], method:\[read\].*'
-    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW SOS device:\[\d+] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+]\).*'
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW assert msg: \[run_fw_assert_checker, old event, see the details by searching the original syndrome value in code\], FW assert event.*'
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW health event device:\[\d+\] FW cause:\[\d+,FW ASSERT EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[0x90f0\], long_process:\[\d+\],command_type:\[EMAD\], IRISC:\[\d+\], method:\[read\].*'
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW SOS device:\[\d+] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+]\).*'
   Conditions:
     - Redmine:
         - 3394692
