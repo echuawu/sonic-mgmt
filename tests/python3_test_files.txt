@@ -414,10 +414,6 @@ dualtor/test_orchagent_active_tor_downstream.py
 dualtor/conftest.py
 dualtor/test_orch_stress.py
 dualtor/test_toggle_mux.py
-passw_hardening/__init__.py
-passw_hardening/conftest.py
-passw_hardening/passw_hardening_utils.py
-passw_hardening/test_passw_hardening.py
 test_features.py
 conftest.py
 arp/test_neighbor_mac.py
