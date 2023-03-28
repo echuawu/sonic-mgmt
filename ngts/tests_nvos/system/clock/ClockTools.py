@@ -11,7 +11,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 
 
 class ClockTools:
@@ -378,8 +378,12 @@ class ClockTools:
         with allure.step("Verify error message"):
             logging.info("Verify error message for '{bdt}'".format(bdt=bad_datetime))
 
-            expected_msgs = ClockConsts.ERR_OPENAPI_DATETIME if TestToolkit.tested_api == ApiType.OPENAPI \
-                else expected_err if expected_err else ClockConsts.ERR_INVALID_DATETIME
+            if not expected_err and TestToolkit.tested_api == ApiType.OPENAPI:
+                expected_msgs = ClockConsts.ERR_OPENAPI_DATETIME
+            elif not expected_err:
+                expected_msgs = ClockConsts.ERR_INVALID_DATETIME
+            else:
+                expected_msgs = expected_err
 
             for msg in expected_msgs:
                 logging.info('Verify error msg for change datetime to "{}"\n'
@@ -421,3 +425,54 @@ class ClockTools:
         :return: ResultObj from the unset command
         """
         return system_obj.unset(engine=engine_obj, field_name=ClockConsts.TIMEZONE, apply=apply)
+
+    @staticmethod
+    def verify_show_and_log_times(system, engines):
+        """
+        @summary:
+            Verify that date-time in show system and timestamp of last system log line
+            are the same time
+        @param system: System object
+        @param engines: engines object
+        """
+        with allure.step('Take date-time from show and from last log timestamp'):
+            logging.info('Take date-time from show and from last log timestamp')
+            system.log.rotate_logs()
+            show_output = system.show()
+            logs = system.log.show_log(exit_cmd='q', expected_str=' ')
+
+            last_log_datetime = re.findall(NvosConst.DATE_TIME_REGEX, logs)[-1]
+            show_datetime = ClockTools.get_datetime_from_show_system_output(show_output)
+            log_datetime = ClockTools.get_datetime_of_system_log_line(last_log_datetime)
+            logging.info('show date-time: {}\nlogs date-time: {}'.format(show_datetime, log_datetime))
+
+        with allure.step('Verify log timestamp similar to show date-time'):
+            logging.info('Verify log timestamp similar to show date-time')
+            ClockTools.verify_same_datetimes(show_datetime, log_datetime)
+
+    @staticmethod
+    def get_datetime_of_system_log_line(log_line):
+        """
+        @summary:
+            Return the timestamp from a log line in the format "YYYY-MM-DD hh:mm:ss"
+        @param log_line: a line from system log
+        @return: the timestamp (str)
+        """
+        with allure.step('Take timestamp from a single log line'):
+            log_timestamp = ' '.join(log_line.split(' ')[0:3])
+            logging.info('Take timestamp from a single log line: {}'.format(log_timestamp))
+
+            current_year = datetime.now().year
+            logging.info('Take current year: {}'.format(current_year))
+
+            # convert date string to datetime object
+            datetime_obj = datetime.strptime(log_timestamp, '%b %d %H:%M:%S.%f')
+
+            # replace year in datetime object
+            new_datetime_obj = datetime_obj.replace(year=current_year)
+
+            # format datetime object to string
+            res = new_datetime_obj.strftime('%Y-%m-%d %H:%M:%S')
+            logging.info('Result date-time: {}'.format(res))
+
+            return res

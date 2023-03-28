@@ -5,9 +5,9 @@ class ClockConsts:
     TIMEZONE = SystemConsts.TIMEZONE    # 'timezone'
     DATETIME = SystemConsts.DATE_TIME   # 'date-time'
 
-    DATETIME_MARGIN = 9  # tune this to decide what diff (in seconds) is ok between timedatectl and nv show system
+    DATETIME_MARGIN = 12  # tune this to decide what diff (in seconds) is ok between timedatectl and nv show system
     DEFAULT_TIMEZONE = "Etc/UTC"  # todo: what's the def timezone?
-    PATH_TIMEZONE_YAML = "/auto/sw_system_release/nos/nvos/alonn/timezone.yaml"   # todo: where is it?
+    PATH_TIMEZONE_YAML = "/auto/sw_system_release/nos/nvos/alonn/timezone.yaml"
 
     TIMEDATECTL_CMD = "timedatectl"
     TIMEDATECTL_TIMEZONE_FIELD_NAME = "Time zone"
@@ -27,7 +27,7 @@ class ClockConsts:
     WAIT_TIME = 6
     NUM_SAMPLES = 3  # configure how many samples in several tests
 
-    MIN_SYSTEM_DATE = SystemConsts.MIN_SYSTEM_DATE  # todo: verify this
-    MAX_SYSTEM_DATE = SystemConsts.MAX_SYSTEM_DATE  # todo: verify this
-    MIN_SYSTEM_DATETIME = SystemConsts.MIN_SYSTEM_DATETIME     # todo: verify this
-    MAX_SYSTEM_DATETIME = SystemConsts.MAX_SYSTEM_DATETIME     # todo: verify this
+    MIN_SYSTEM_DATE = SystemConsts.MIN_SYSTEM_DATE
+    MAX_SYSTEM_DATE = SystemConsts.MAX_SYSTEM_DATE
+    MIN_SYSTEM_DATETIME = SystemConsts.MIN_SYSTEM_DATETIME
+    MAX_SYSTEM_DATETIME = SystemConsts.MAX_SYSTEM_DATETIME

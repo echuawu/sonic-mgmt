@@ -1,4 +1,7 @@
 import logging
+from datetime import datetime
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 import pytest
@@ -334,7 +337,8 @@ def test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off):
 
     for bad_datetime in bad_inputs:
         errs = ClockConsts.ERR_EMPTY_PARAM if bad_datetime == '' or \
-            len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(bad_datetime) else None
+            len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(
+                bad_datetime) else None
         ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
 
 
@@ -363,8 +367,162 @@ def test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off):
 
     for bad_datetime in bad_inputs:
         errs = ClockConsts.ERR_EMPTY_PARAM if bad_datetime == '' or \
-            len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(bad_datetime) else None
+            len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(
+                bad_datetime) else None
         ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
 
 
 # --------------------- Other Flows --------------------- #
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_datetime, ntp_off, pwh_off):
+    """
+    @summary:
+        Test that new date and time appear in logs timestamps after timezone/date-time changes.
+
+        Steps:
+            1. Show logs timestamp are same as current time (before change)
+            2. Set different timezone
+            3. Verify logs timestamp similar to the date-time in show
+            4. Unset timezone
+            5. Verify logs timestamp similar to the date-time in show
+            6. Change date-time
+            7. Verify logs timestamp similar to the date-time in show
+    """
+    with allure.step('Verify show date-time same as last log timestamp'):
+        logging.info('Verify show date-time same as last log timestamp')
+        ClockTools.verify_show_and_log_times(system, engines)
+
+    with allure.step('Set a random timezone'):
+        logging.info('Set a random timezone')
+        new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
+                                                             forbidden_values=[orig_timezone]).get_returned_value()
+        logging.info('Random timezone: "{}"'.format(new_timezone))
+
+        logging.info("Set the new timezone")
+        ClockTools.set_timezone(new_timezone, system, engines.dut, apply=True).verify_result()
+
+    with allure.step('Verify show date-time same as last log timestamp'):
+        logging.info('Verify show date-time same as last log timestamp')
+        ClockTools.verify_show_and_log_times(system, engines)
+
+    with allure.step("Unet the timezone"):
+        logging.info("Unet the timezone")
+        ClockTools.unset_timezone(system, engines.dut, apply=True).verify_result()
+
+    with allure.step('Verify show date-time same as last log timestamp'):
+        logging.info('Verify show date-time same as last log timestamp')
+        ClockTools.verify_show_and_log_times(system, engines)
+
+    with allure.step("Change date-time"):
+        logging.info("Pick random new date-time to set")
+        now = datetime.now()
+        now.replace(hour=0, minute=0, second=0, microsecond=0)
+        min_dt = now.strftime('%Y-%m-%d %H:%M:%S')
+        now.replace(hour=23, minute=59, second=59, microsecond=0)
+        max_dt = now.strftime('%Y-%m-%d %H:%M:%S')
+        new_datetime = RandomizationTool.select_random_datetime(min_datetime=min_dt, max_datetime=max_dt) \
+            .get_returned_value()
+
+        logging.info("Change date-time")
+        system.datetime.action_change(params=new_datetime).verify_result()
+
+    with allure.step('Verify show date-time same as last log timestamp'):
+        logging.info('Verify show date-time same as last log timestamp')
+        ClockTools.verify_show_and_log_times(system, engines)
+
+
+# --------------------- OpenApi --------------------- #
+''' currently there's a bug with unset using openapi. activate tests once its fixed
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_show_system_contains_timezone_and_datetime_openapi(engines, system):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_contains_timezone_and_datetime(engines, system)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_set_unset_timezone_ntp_off_openapi(engines, system, valid_timezones, orig_timezone, ntp_off):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_unset_timezone_ntp_off(engines, system, valid_timezones, orig_timezone, ntp_off)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_set_unset_timezone_ntp_on_openapi(engines, system, valid_timezones, orig_timezone, ntp_on):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_unset_timezone_ntp_on(engines, system, valid_timezones, orig_timezone, ntp_on)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_action_change_date_time_ntp_off_openapi(engines, system, init_datetime, ntp_off, pwh_off):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_action_change_date_time_ntp_off(engines, system, init_datetime, ntp_off, pwh_off)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_set_system_invalid_timezone_ntp_off_error_flow_openapi(engines, system, valid_timezones, orig_timezone, ntp_off):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_system_invalid_timezone_ntp_off_error_flow(engines, system, valid_timezones, orig_timezone, ntp_off)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_set_system_invalid_timezone_ntp_on_error_flow_openapi(engines, system, valid_timezones, orig_timezone, ntp_on):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_system_invalid_timezone_ntp_on_error_flow(engines, system, valid_timezones, orig_timezone, ntp_on)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_change_valid_datetime_ntp_on_error_flow_openapi(engines, system, ntp_on):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_change_valid_datetime_ntp_on_error_flow(engines, system, ntp_on)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_change_invalid_datetime_ntp_off_error_flow_openapi(engines, system, ntp_off):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_change_invalid_datetime_ntp_on_error_flow_openapi(engines, system, ntp_off):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.clock
+def test_new_time_in_logs_openapi(engines, system, orig_timezone, valid_timezones, init_datetime, ntp_off, pwh_off):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_datetime, ntp_off, pwh_off)
+'''
