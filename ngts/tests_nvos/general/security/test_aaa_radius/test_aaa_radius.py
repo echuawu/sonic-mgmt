@@ -271,7 +271,7 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
         invalid_port = Tools.RandomizationTool.select_random_value([i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
                                                                    [int(radius_server_info[RadiusConstans.RADIUS_AUTH_PORT])]).get_returned_value()
         logging.info("Configuring invalid auth-port: {}".format(invalid_port))
-        system.aaa.radius.set_hostname_auth_port(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
+        system.aaa.radius.hostname.set_auth_port(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
                                                  invalid_port, True, True)
         apply_configuration_sleep = 10
         with allure.step("Sleeping {} secs to apply configurations".format(apply_configuration_sleep)):
