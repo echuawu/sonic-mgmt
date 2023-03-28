@@ -18,6 +18,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 logger = logging.getLogger()
 
@@ -261,7 +262,8 @@ def configure_same_time_zone(engines):
     # TODO: add ntp enable when ntp is implemented
     try:
         logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-        engines.dut.run_cmd('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+        ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
+        TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
         os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
     except BaseException:
         logging.warning("Failed to configure timezone")
