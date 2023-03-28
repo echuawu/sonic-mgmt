@@ -1499,6 +1499,12 @@ arp/test_wr_arp.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3416343"
 
+bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3416343"
+
 crm/test_crm.py::test_crm_neighbor:
   skip:
     reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
@@ -1540,5 +1546,89 @@ platform_tests/test_port_toggle.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
     conditions:
       - "https://redmine.mellanox.com/issues/3417479"
+
+platform_tests/link_flap/test_cont_link_flap.py::TestContLinkFlap::test_cont_link_flap:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3417479"
+
+arp/test_neighbor_mac_noptf.py::TestNeighborMacNoPtf::testNeighborMacNoPtf:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3418928"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3418928"
+
+bfd/test_bfd.py::test_bfd_multihop:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419018"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419018"
+
+bgp/test_bgp_gr_helper.py::test_bgp_gr_helper_routes_perserved:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7880"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7880
+
+drop_packets/test_drop_counters.py::test_src_ip_is_loopback_addr:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+drop_packets/test_drop_counters.py::test_src_ip_is_multicast_addr:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+drop_packets/test_drop_counters.py::test_src_ip_is_class_e:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+drop_packets/test_drop_counters.py::test_dst_ip_link_local:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+drop_packets/test_drop_counters.py::test_unicast_ip_incorrect_eth_dst:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+qos/test_lossless_bum_traffic_drop.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+drop_packets/test_drop_counters.py::test_ip_pkt_with_exceeded_mtu:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419226"
+
+dualtor/test_orch_stress.py::test_flap_neighbor_entry_active:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419398"
+
+dualtor/test_orch_stress.py::test_flap_neighbor_entry_standby:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419398"
+
+lldp/test_lldp.py::test_lldp_neighbor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419460"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419460"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
