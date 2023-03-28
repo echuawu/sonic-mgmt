@@ -286,7 +286,7 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
     with allure.step("Configuring invalid password and validating applied configurations"):
         random_string = Tools.RandomizationTool.get_random_string(10)
         logging.info("Configuring invalid password: {}".format(random_string))
-        system.aaa.radius.set_hostname_password(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
+        system.aaa.radius.hostname.set_password(radius_server_info[RadiusConstans.RADIUS_HOSTNAME],
                                                 random_string, True, True)
         with allure.step("Sleeping {} secs to apply configurations".format(apply_configuration_sleep)):
             logging.info("Sleeping {} secs to apply configurations".format(apply_configuration_sleep))
