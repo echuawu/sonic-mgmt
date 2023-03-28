@@ -32,12 +32,14 @@ class OpenApiIbInterfaceCli:
         :param interface: interface to set (ib-speed, speed, lanes, state, opvls, mtu)
         """
         resource_path = interface.replace(' ', '/')
+        split_path = list(filter(None, resource_path.split('/')))
+
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
                                                    OpenApiReqType.DELETE, engine.ip,
                                                    '/interface/{interface_id}{resource_path}'.format(
                                                        interface_id=port_name,
                                                        resource_path="/" + resource_path if resource_path else ''),
-                                                   "", None)
+                                                   split_path[-1], None)
 
     @staticmethod
     def clear_stats(engine, port_name):

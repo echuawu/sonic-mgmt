@@ -184,7 +184,7 @@ class OpenApiRequest:
             r = requests.patch(url=OpenApiRequest._get_endpoint_url(request_data) + "/",
                                auth=OpenApiRequest._get_http_auth(request_data),
                                verify=False,
-                               data=json.dumps(OpenApiRequest.payload),
+                               data=json.dumps(OpenApiRequest.payload).replace('"null"', "null"),
                                params=rev_string,
                                headers=REQ_HEADER)
             OpenApiRequest.print_request(r.request)
@@ -196,29 +196,33 @@ class OpenApiRequest:
     def send_delete_request(request_data, op_params=''):
         with allure.step('Send DELETE request'):
             logging.info("Send DELETE request")
-            if OpenApiRequest.changeset is None:
-                OpenApiRequest.create_nvue_changest(request_data)
-
-            rev_string = {"rev": OpenApiRequest.changeset}
-            req_type = OpenApiReqType.DELETE
-
-            if request_data.param_name == '':
-                url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path
+            if op_params:
+                request_data.param_value = 'null'
+                return OpenApiRequest.send_patch_request(request_data, op_params)
             else:
-                url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path + "/" + \
-                    request_data.param_name
+                if OpenApiRequest.changeset is None:
+                    OpenApiRequest.create_nvue_changest(request_data)
 
-            logging.info("Send DELETE request")
-            r = requests.delete(url=url,
-                                auth=OpenApiRequest._get_http_auth(request_data),
-                                verify=False,
-                                params=rev_string,
-                                headers=REQ_HEADER)
+                rev_string = {"rev": OpenApiRequest.changeset}
+                req_type = OpenApiReqType.DELETE
 
-            OpenApiRequest.print_request(r.request)
-            OpenApiRequest.print_response(r, req_type)
-            res = OpenApiRequest._validate_response(r, req_type)
-            return res.info
+                if request_data.param_name == '':
+                    url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path
+                else:
+                    url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path + "/" + \
+                        request_data.param_name
+
+                logging.info("Send DELETE request")
+                r = requests.delete(url=url,
+                                    auth=OpenApiRequest._get_http_auth(request_data),
+                                    verify=False,
+                                    params=rev_string,
+                                    headers=REQ_HEADER)
+
+                OpenApiRequest.print_request(r.request)
+                OpenApiRequest.print_response(r, req_type)
+                res = OpenApiRequest._validate_response(r, req_type)
+                return res.info
 
     @staticmethod
     def send_action_request(request_data, resource_path):
