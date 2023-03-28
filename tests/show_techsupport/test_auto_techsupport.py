@@ -412,7 +412,7 @@ class TestAutoTechSupport:
             num_of_dummy_files = 4
             one_file_size_in_percent = 5
 
-            one_percent_in_mb = total / 100
+            one_percent_in_mb = total // 100
             # On some platforms one_percent_in_mb may be up to 800 Mb, in case of core test_mode
             # this significantly increases the generation time needed for techsupport
             one_file_size_in_percent = 1 if one_percent_in_mb > 300 and test_mode == 'core' else 5
@@ -1057,9 +1057,9 @@ def get_partition_usage_info(duthost, partition='/'):
     with allure.step('Getting HDD partition {} usage'.format(partition)):
         output = duthost.shell('sudo df {}'.format(partition))['stdout_lines']
         _, total, used, avail, used_percent, _ = output[-1].split()
-        total_mb = int(total) / KB_SIZE
-        used_mb = int(used) / KB_SIZE
-        avail_mb = int(avail) / KB_SIZE
+        total_mb = int(total) // KB_SIZE
+        used_mb = int(used) // KB_SIZE
+        avail_mb = int(avail) // KB_SIZE
         used_percent = int(used_percent.strip('%'))
 
     return total_mb, used_mb, avail_mb, used_percent
