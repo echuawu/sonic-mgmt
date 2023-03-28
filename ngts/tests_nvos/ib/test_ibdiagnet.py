@@ -137,6 +137,9 @@ def test_ibdiagnet_upload(engines):
     invalid_url_1 = 'scp://{}:{}{}/tmp/'.format(player.username, player.password, player.ip)
     invalid_url_2 = 'ffff://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
     upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
+    with allure.step('delete ibdiagnet as a cleanup step'):
+        ib.ibdiagnet.action_delete(file_name=IbConsts.IBDIAGNET_FILE_NAME)
+
     with allure.step('try to upload non exist ibdiagnet file'):
         output = ib.ibdiagnet.action_upload(upload_path=upload_path)
         assert "File not found: {}".format(IbConsts.IBDIAGNET_FILE_NAME) in output.info, "we can not upload a non exist file!"
@@ -195,7 +198,7 @@ def test_ibdiagnet_delete(engines):
 
         with allure.step('verify ibdiagnet file does not exist using show command'):
             paths = json.loads(ib.ibdiagnet.show())
-            assert 'ibdiagnet2.log' in paths.keys(), "the ibdiagnet file should not be deleted"
+            assert 'ibdiagnet2.log' not in paths.keys(), "the ibdiagnet file should not be deleted"
 
         with allure.step('Validate ibdiagnet directory does not exist anymore'):
             output = engines.dut.run_cmd('ls {path}'.format(path=IbConsts.IBDIAGNET_ZIPPED_FOLDER_PATH))
