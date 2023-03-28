@@ -91,18 +91,18 @@ class ConfigTool:
         if show_output == '{}' or not show_output:
             return ResultObj(bool(operation), "", {})
         with allure.step('Verify show config includes the resource change'):
-            diff_dictionary = json.loads(show_output)[0]
+            diff_dictionary = json.loads(show_output)[1]
             path = resource_path.split('/')
             with allure.step('Verify show config content the {opt}'.format(opt=operation)):
                 if operation not in diff_dictionary.keys():
-                    return ResultObj(False, '', 'the diff output should include {label}'.format(label=operation))
+                    return ResultObj(False, 'the diff output should include {label}'.format(label=operation))
             partial_diff_output = diff_dictionary[operation]
             with allure.step('Verify show config content the resource path {path}'.format(path=path)):
                 for label in path:
                     if label not in partial_diff_output.keys():
-                        return ResultObj(False, '', 'the diff output should include {label}'.format(label=label))
+                        return ResultObj(False, 'the diff output should include {label}'.format(label=label))
                     partial_diff_output = partial_diff_output[label]
             with allure.step('Verify show config content the change {value}'.format(value=value)):
                 if operation == 'set' and partial_diff_output != value:
-                    return ResultObj(False, '', 'the set value should be {label}'.format(label=value))
-                return ResultObj(True, '', '')
+                    return ResultObj(False, 'the set value should be {label}'.format(label=value))
+                return ResultObj(True, '')

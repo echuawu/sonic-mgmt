@@ -13,7 +13,7 @@ logger = logging.getLogger()
 
 ENDPOINT_URL_TEMPLATE = 'https://{ip}/nvue_v1'
 REQ_HEADER = {"Content-Type": "application/json"}
-INVALID_RESPONSE = ["ays_fail", "invalid"]
+INVALID_RESPONSE = ["ays_fail", "invalid", "Bad Request", "Not Found"]
 
 
 class RequestData:
@@ -123,7 +123,7 @@ class OpenApiRequest:
                 '''if obj["state"] == "ays" and obj["transition"]["progress"] == "Are you sure?":
                     OpenApiRequest.apply_nvue_changeset(request_data, changeset, True)
                     raise Exception("Waiting for configuration to be applied")'''
-                if obj["state"] in INVALID_RESPONSE:
+                if str(obj["state"]) in INVALID_RESPONSE:
                     msg = obj["transition"]["issue"]["0"]["message"]
                     return ResultObj(False, "Error: Failed to apply configuration. Reason: " + msg)
                 else:
@@ -144,7 +144,7 @@ class OpenApiRequest:
             response = r.json()
         else:
             response = json.loads(r.content)
-        if 'title' in response.keys() and response['title'] == "Bad Request":
+        if 'title' in response.keys() and response['title'] in INVALID_RESPONSE:
             return ResultObj(False, "Error: Request failed. Details: " + response['detail'])
         return ResultObj(True, "")
 
