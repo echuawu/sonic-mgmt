@@ -256,13 +256,14 @@ def get_dut_loopbacks(topology_obj):
 
 @pytest.fixture(scope='session')
 @pytest.mark.usefixtures("hosts_ports")
-def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports):
+def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports, platform):
     """
     :param topology_obj: topology object fixture
     :param engines: setup engines fixture
     :param cli_objects: cli objects fixture
     :param interfaces: host <-> dut interfaces fixture
     :param hosts_ports: a dictionary with hosts engine, cli_object and ports
+    :param platform: platform fixture
     :return: a dictionary with available breakout options on all setup ports (included host ports)
     format : {<port_name> : {<split type>: {[<supported speeds]}
 
@@ -280,7 +281,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
 
     # TODO: on moose, it dose not support 10G, 25G, there is open bug for it, when get the value from platform.json,
     # it has 10G, 25G, need to remove them.
-    if platform and "5600" in platform and is_redmine_issue_active([3416102]):
+    if "5600" in platform and is_redmine_issue_active([3416102]):
         for port in split_mode_supported_speeds.keys():
             for split_mode in split_mode_supported_speeds[port].keys():
                 for speed in ["10G", "25G"]:
