@@ -336,7 +336,6 @@ ip/test_ip_packet.py
 ip/__init__.py
 pfc_asym/test_pfc_asym.py
 pfc_asym/conftest.py
-test_nbr_health.py
 ntp/test_ntp.py
 saitests/ecmp_test.py
 saitests/copp_tests.py
@@ -486,7 +485,6 @@ sub_port_interfaces/test_sub_port_interfaces.py
 sub_port_interfaces/test_show_subinterface.py
 sub_port_interfaces/conftest.py
 sub_port_interfaces/sub_ports_helpers.py
-sub_port_interfaces/test_sub_port_l2_forwarding.py
 ipfwd/test_nhop_group.py
 ipfwd/test_mtu.py
 ipfwd/test_dir_bcast.py
@@ -642,7 +640,6 @@ vxlan/test_vxlan_decap.py
 vxlan/__init__.py
 vxlan/test_vnet_monitor.py
 vxlan/conftest.py
-vxlan/test_vnet_route_leak.py
 vxlan/test_vxlan_ecmp.py
 vxlan/vnet_utils.py
 vxlan/vnet_constants.py
