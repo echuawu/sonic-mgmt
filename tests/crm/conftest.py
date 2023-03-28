@@ -3,7 +3,8 @@ import time
 import json
 import logging
 
-from test_crm import RESTORE_CMDS, CRM_POLLING_INTERVAL
+from test_crm import RESTORE_CMDS
+from tests.common.helpers.crm import CRM_POLLING_INTERVAL
 from tests.common.errors import RunAnsibleModuleFail
 from tests.common.utilities import wait_until
 from tests.common.platform.interface_utils import parse_intf_status
