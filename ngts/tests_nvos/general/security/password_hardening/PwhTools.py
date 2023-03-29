@@ -731,3 +731,15 @@ class PwhTools:
                 if child.isalive():
                     child.terminate()
                 child.close()
+
+    @staticmethod
+    def run_chage(dut_obj, username):
+        """
+        Run chage linux command on a given user
+        @param dut_obj: dut engine object
+        @param username: given user name
+        """
+        cmd = 'sudo chage -l {}'.format(username)
+        with allure.step('Running command: "{}"'.format(cmd)):
+            logging.info('Running command: "{}"'.format(cmd))
+            return dut_obj.run_cmd(cmd)
