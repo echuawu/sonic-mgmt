@@ -38,6 +38,11 @@ class IbInterfaceConsts:
     LINK_LOGICAL_PORT_STATE = "logical-state"
     LINK_PHYSICAL_PORT_STATE = "physical-state"
     LINK_STATE = "state"
+    LINK_DIAGNOSTICS = "diagnostics"
+    LINK_DIAGNOSTICS_UNPLUGGED_PORT = {'1024': {'status': 'Cable is unplugged.'}}
+    LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT = {'1': {'status': 'Closed by command'}}
+    LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT = {'0': {'status': 'No issue was observed'}}
+    LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT = {'2': {'status': 'Negotiation failure'}}
     LINK_BREAKOUT = "breakout"
     LINK_IB_SPEED = "ib-speed"
     LINK_SUPPORTED_IB_SPEEDS = "supported-ib-speed"

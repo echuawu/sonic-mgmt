@@ -11,6 +11,7 @@ class Link(ConfigurationBase):
     logical_port_state = None
     physical_port_state = None
     state = None
+    diagnostics = None
     breakout = None
     ib_speed = None
     supported_ib_speeds = None
@@ -49,6 +50,8 @@ class Link(ConfigurationBase):
                                                         level2=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE))
 
         self.state = State(port_obj=self.port_obj)
+
+        self.diagnostics = Diagnostics(port_obj=self.port_obj)
 
         self.breakout = Breakout(port_obj=self.port_obj)
 
@@ -125,6 +128,7 @@ class Link(ConfigurationBase):
 
 class LinkMgmt(ConfigurationBase):
     state = None
+    diagnostics = None
     speed = None
     mtu = None
     breakout = None
@@ -141,6 +145,7 @@ class LinkMgmt(ConfigurationBase):
                                    field_name_in_db={},
                                    output_hierarchy=IbInterfaceConsts.LINK)
         self.state = State(port_obj=self.port_obj)
+        self.diagnostics = Diagnostics(port_obj=self.port_obj)
         self.speed = Speed(port_obj=self.port_obj)
         self.mtu = Mtu(port_obj=self.port_obj)
         self.breakout = Breakout(port_obj=self.port_obj)
