@@ -26,11 +26,6 @@ LOOP_TIMES_LEVEL_MAP = {
 
 logger = logging.getLogger(__name__)
 
-pytestmark = [
-    pytest.mark.topology('any')
-]
-
-
 def get_fdb_dict(ptfadapter, vlan_table, dummay_mac_count):
     """
     :param ptfadapter: PTF adapter object
