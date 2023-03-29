@@ -281,7 +281,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
 
     # TODO: on moose, it dose not support 10G, 25G, there is open bug for it, when get the value from platform.json,
     # it has 10G, 25G, need to remove them.
-    if PlatformTypesConstants.FILTERED_PLATFORM_MOOSE in platform and is_redmine_issue_active([3416102]):
+    if PlatformTypesConstants.PLATFORM_MOOSE == platform and is_redmine_issue_active([3416102]):
         for port in split_mode_supported_speeds.keys():
             for split_mode in split_mode_supported_speeds[port].keys():
                 for speed in ["10G", "40G"]:
