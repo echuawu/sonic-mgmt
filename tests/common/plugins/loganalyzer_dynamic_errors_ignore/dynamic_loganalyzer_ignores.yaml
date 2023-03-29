@@ -2218,6 +2218,14 @@
         - 3395468
 
 - Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE\.ERR\] FW CR timeout on log_address:\[0x.*\] old_event:\[\d+\] log_id:\[\d+\] log_ip:\[0x\d+\] \[crspace timeout case is unknown\. Check FW\].*'
+  Conditions:
+    - Redmine:
+        - 3420176
+      Platform:
+        - x86_64-nvidia_sn5600-r0
+
+- Errors_list:
     - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW assert msg: \[run_fw_assert_checker, old event, see the details by searching the original syndrome value in code\], FW assert event.*'
     - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW health event device:\[\d+\] FW cause:\[\d+,FW ASSERT EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[0x90f0\], long_process:\[\d+\],command_type:\[EMAD\], IRISC:\[\d+\], method:\[read\].*'
     - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW SOS device:\[\d+] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+]\).*'
@@ -2245,3 +2253,11 @@
   Conditions:
     - Redmine:
         - 3415969
+
+- Errors_list:
+    - '.*ERR swss#orchagent.*doPortTask: Failed to get port id by alias:Ethernet.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/dynamic_port_breakout/test_dpb_introp.py
+      Redmine:
+        - 3405332

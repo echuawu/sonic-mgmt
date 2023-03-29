@@ -248,9 +248,11 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   skip:
-    reason: "Testcase ignored due to platform SIMX"
+    reason: "Testcase ignored due to platform SIMX or https://redmine.mellanox.com/issues/3419484 and 'sn5' in platform"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3419484 and 'sn5' in platform"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
@@ -490,6 +492,12 @@ tests/nightly/ecmp_calculator/test_ecmp_calculator.py:
       - "https://redmine.mellanox.com/issues/3332330 and 'sn4600' in platform"
       - "https://redmine.mellanox.com/issues/3332330 and 'sn2201' in platform"
 
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag_without_fdb:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416551"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3416551 and '5600' in platform"
+
 ########################## NGTS IGNORE END ##########################
 
 
@@ -589,9 +597,11 @@ platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
 
 platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3362109 and platform nvda_bf"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3362109 and platform nvda_bf or https://redmine.mellanox.com/issues/3413691 and '5600' in platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3362109 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3413691 and '5600' in platform"
 
 platform_tests/test_memory_exhaustion.py:
   skip:
@@ -1650,5 +1660,11 @@ lldp/test_lldp.py::test_lldp_neighbor:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419460"
     conditions:
       - "https://redmine.mellanox.com/issues/3419460"
+
+platform_tests.test_reboot.py::test_warm_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420124 and '5600' in platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3420124 and '5600' in platform"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
