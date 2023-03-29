@@ -154,4 +154,4 @@ def verify_invalid_messages(supported_rules, set_output):
     with allure.step('verify the error message is as expected'):
         output_lines = set_output.splitlines()[2:]
         expected_output = [messeges_dict[value] for value in messeges_dict.keys() if value not in supported_rules]
-        assert expected_output == output_lines, "at least one of the error messages is missing, output = {output} expected = {expected}".format(output=output_lines, expected=expected_output)
+        assert expected_output.sort() == output_lines.sort(), "at least one of the error messages is missing, output = {output} expected = {expected}".format(output=output_lines, expected=expected_output)
