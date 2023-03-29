@@ -76,6 +76,9 @@ R-R740-08 ansible_host=r-r740-08
 [vm_host_59]
 R-R740-09 ansible_host=r-r740-09
 
+[vm_host_60]
+R-R640-15 ansible_host=r-r640-15
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -103,6 +106,7 @@ vm_host_56
 vm_host_57
 vm_host_58
 vm_host_59
+vm_host_60
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -802,6 +806,40 @@ VM2402 ansible_host=10.215.5.5
 VM2403 ansible_host=10.215.5.8
 VM2404 ansible_host=10.215.5.9
 
+[vms_60]
+VM2501 ansible_host=10.215.22.4
+VM2502 ansible_host=10.215.22.5
+VM2503 ansible_host=10.215.22.6
+VM2504 ansible_host=10.215.22.7
+VM2505 ansible_host=10.215.22.8
+VM2506 ansible_host=10.215.22.9
+VM2507 ansible_host=10.215.22.10
+VM2508 ansible_host=10.215.22.11
+VM2509 ansible_host=10.215.22.12
+VM2510 ansible_host=10.215.22.13
+VM2511 ansible_host=10.215.22.14
+VM2512 ansible_host=10.215.22.15
+VM2513 ansible_host=10.215.22.16
+VM2514 ansible_host=10.215.22.17
+VM2515 ansible_host=10.215.22.18
+VM2516 ansible_host=10.215.22.19
+VM2517 ansible_host=10.215.22.20
+VM2518 ansible_host=10.215.22.21
+VM2519 ansible_host=10.215.22.22
+VM2520 ansible_host=10.215.22.23
+VM2521 ansible_host=10.215.22.24
+VM2522 ansible_host=10.215.22.25
+VM2523 ansible_host=10.215.22.26
+VM2524 ansible_host=10.215.22.27
+VM2525 ansible_host=10.215.22.28
+VM2526 ansible_host=10.215.22.29
+VM2527 ansible_host=10.215.22.30
+VM2528 ansible_host=10.215.22.31
+VM2529 ansible_host=10.215.22.32
+VM2530 ansible_host=10.215.22.33
+VM2531 ansible_host=10.215.22.34
+VM2532 ansible_host=10.215.22.35
+
 [eos:children]
 vms_1
 vms_2
@@ -829,6 +867,7 @@ vms_56
 vms_57
 vms_58
 vms_59
+vms_60
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -1045,6 +1084,17 @@ host_var_file=host_vars/R-R740-09.yml
 host_var_file=host_vars/R-R740-09.yml
 mgmt_prefixlen=16
 
+[server_60:children]
+vm_host_60
+vms_60
+
+[server_60:vars]
+host_var_file=host_vars/R-R640-15.yml
+
+[vms_60:vars]
+host_var_file=host_vars/R-R640-15.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1072,6 +1122,7 @@ server_56
 server_57
 server_58
 server_59
+server_60
 
 [servers:vars]
 topologies=['dualtor', 't1', 't1-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', appliance]

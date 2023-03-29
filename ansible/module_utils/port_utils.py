@@ -125,7 +125,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_id=None):
          (hwsku == "ACS-MSN3700") or (hwsku == "ACS-MSN3700C") or \
          (hwsku == "ACS-MSN3800") or (hwsku == "Mellanox-SN3800-D112C8") or \
          (hwsku == "ACS-MSN4700") or (hwsku == "ACS-MSN4600C") or (hwsku == "Mellanox-SN4600C-D112C8") or (hwsku == "Mellanox-SN4600C-C64") or \
-         (hwsku == "ACS-MSN3420"):
+         (hwsku == "ACS-MSN3420") or (hwsku == 'ACS-SN5600'):
         if hostname == "arc-switch1038":
             for i in range(1, 17):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
@@ -386,6 +386,9 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_id=None):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
         elif hostname in ["r-leopard-01" , "r-leopard-58"]:
             for i in range(1, 33):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
+        elif hostname in ["r-moose-01"]:
+            for i in range(1, 65):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
         else:
             for i in range(1, 33):

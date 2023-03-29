@@ -259,11 +259,13 @@
           <Type>SSH</Type>
         </AclInterface>
 {% if card_type is not defined or card_type != 'supervisor' %}
+        {% if ansible_host != '10.210.24.105' %}
         <AclInterface>
           <AttachTo>ERSPAN</AttachTo>
           <InAcl>Everflow</InAcl>
           <Type>Everflow</Type>
         </AclInterface>
+        {% endif %}
         <AclInterface>
           <AttachTo>ERSPANV6</AttachTo>
           <InAcl>EverflowV6</InAcl>

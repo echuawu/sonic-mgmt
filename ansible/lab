@@ -8,8 +8,8 @@ r-ocelot-07      ansible_host=10.210.24.11 ansible_hostv6="fe80::e42:a1ff:fe44:4
 r-tigris-22      ansible_host=10.210.24.108 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3800" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-spider-05      ansible_host=10.210.24.178 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2410" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 moose-198      ansible_host=10.7.144.198 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Mellanox-SN5600-C8" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-moose-01      ansible_host=10.210.24.105 ansible_hostv6="fe80::966d:aeff:fe54:4f1a" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0000
 moose-42      ansible_host=10.7.148.42 ansible_hostv6="fe80::966d:aeff:fe54:4c7a" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0000
+r-moose-01      ansible_host=10.210.24.105 ansible_hostv6="fe80::966d:aeff:fe54:4f1a" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM2501
 r-moose-simx-18      ansible_host=10.215.14.18 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-22      ansible_host=10.215.14.22 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-26      ansible_host=10.215.14.26 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
@@ -166,6 +166,7 @@ ptf-r-tigon-04   ansible_host=10.213.84.61 ansible_ssh_user=root ansible_ssh_pas
 ptf-r-tigon-20   ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-r-tigon-21   ansible_host=10.215.20.122 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-r-tigon-11   ansible_host=10.213.14.62 ansible_ssh_user=root ansible_ssh_pass=root
+ptf-r-moose-01   ansible_host=10.215.22.3 ansible_ssh_user=root ansible_ssh_pass=root
 mts-ptf     ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-mtbc02  ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-c-panther-01  ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
@@ -205,6 +206,7 @@ arc-switchmtbc02    ansible_host=10.75.67.41 os=mellanox
 r-panther-03        ansible_host=10.210.25.83 os=mellanox
 r-tigris-17         ansible_host=10.210.25.57 os=mellanox
 r-tigris-23         ansible_host=10.210.24.81 os=mellanox
+r-liger-12          ansible_host=10.210.24.76 os=mellanox
 r-tigris-28         ansible_host=10.210.24.175 os=mellanox
 r-tigon-19          ansible_host=10.210.24.182 os=mellanox
 r-tigon-22          ansible_host=10.210.24.194 os=mellanox
