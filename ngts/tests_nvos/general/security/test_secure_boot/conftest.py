@@ -51,11 +51,6 @@ def remove_kernel_module(kernel_module_filename, serial_engine):
     logger.info("Unloading kernel module {} if it exists before running the test".format(kernel_module_filename))
     serial_engine.run_cmd_and_get_output('sudo rmmod {}'.format(kernel_module_filename.split('.')[0]))
 
-    yield
-
-    logger.info("Unloading kernel module {} if it exists after running the test".format(kernel_module_filename))
-    serial_engine.run_cmd_and_get_output('sudo rmmod {}'.format(kernel_module_filename.split('.')[0]))
-
 
 @pytest.fixture(scope='function')
 def restore_image_path(request):
