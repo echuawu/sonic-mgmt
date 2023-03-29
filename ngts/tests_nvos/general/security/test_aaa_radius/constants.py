@@ -75,3 +75,5 @@ class RadiusConstans:
             ]
         }
     }
+
+    SLEEP_TO_APPLY_CONFIGURATIONS = 5

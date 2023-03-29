@@ -213,6 +213,10 @@ def test_radius_priority_and_fail_through_functionality(engines,
             configure_radius_server(radius_server_info)
             real_radius_servers_order.append(radius_key)
             priority -= 1
+    
+    with allure.step("Sleeping {} secs to apply configurations".format(RadiusConstans.SLEEP_TO_APPLY_CONFIGURATIONS)):
+        logging.info("Sleeping {} secs to apply configurations".format(RadiusConstans.SLEEP_TO_APPLY_CONFIGURATIONS))
+        time.sleep(RadiusConstans.SLEEP_TO_APPLY_CONFIGURATIONS)
 
     with allure.step("Testing Priority by connecting to switch using first real radius server credentials"):
         logging.info("Testing Priority by connecting to switch using first real radius server credentials")
