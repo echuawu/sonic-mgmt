@@ -1,5 +1,5 @@
 ########################## NVOS IGNORE START ##########################
-tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_apply_new_password_and_expiration_settings_together:
+tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_apply_new_password_and_expiration_settings_together_password_hardening:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3408710"
     conditions:

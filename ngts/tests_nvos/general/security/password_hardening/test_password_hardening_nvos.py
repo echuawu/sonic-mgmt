@@ -547,7 +547,7 @@ def test_expiration_warning_functionality_password_hardening(engines, system, in
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_apply_new_password_and_expiration_settings_together(engines, system, init_pwh, init_time):
+def test_apply_new_password_and_expiration_settings_together_password_hardening(engines, system, init_pwh, init_time):
     """
     Test several times in a row that running 'apply' on the expiration settings and new user password together
      apply the new settings also on the new user.
@@ -633,3 +633,95 @@ def test_apply_new_password_and_expiration_settings_together(engines, system, in
                              .format(int(orig_pwh_conf[PwhConsts.EXPIRATION_WARNING]), int(cur_pwh_conf[PwhConsts.EXPIRATION_WARNING])))
                 ValidationTool.compare_values(int(orig_pwh_conf[PwhConsts.EXPIRATION_WARNING]),
                                               int(cur_pwh_conf[PwhConsts.EXPIRATION_WARNING])).verify_result()
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_history_multi_user_password_hardening(engines, system, init_pwh, testing_users):
+    """
+    @summary:
+        Test that password history of one user doesn't affect another user
+
+        1. Set history-count to N
+        2. Set user1 with N new passwords (pw1, pw2, ... , pwN)
+        3. Set user2 with the same N passwords
+        4. Expect success (user1's history shouldn't affect user2)
+        5. Set user2 with another password (pwN+1)
+        6. Try to set user1 with password pw1
+        7. Expect failure (pw1 is in the previous N passwords for user1)
+        8. Set user2 with password pw1
+        9. Expect success (pw1 is no longer in the previous N passwords for user2)
+    """
+    pwh = system.security.password_hardening
+
+    user1 = PwhConsts.ADMIN_TEST_USR
+    user1_obj = testing_users[user1][PwhConsts.USER_OBJ]
+    pw1 = testing_users[user1][PwhConsts.PW]
+    pw_hist1 = [pw1]
+
+    user2 = PwhConsts.MONITOR_TEST_USR
+    user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
+    pw2 = testing_users[user2][PwhConsts.PW]
+    pw_hist2 = [pw2]
+
+    hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.MAX[PwhConsts.HISTORY_CNT])
+    logging.info('Chosen history-count for test_history_multi_user_password_hardening: {}'.format(hist_cnt))
+
+    with allure.step('Set history-count to {}'.format(hist_cnt)):
+        logging.info('Set history-count to {}'.format(hist_cnt))
+        pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
+
+    with allure.step('Set user1 "{}" with {} new passwords'.format(user1, hist_cnt)):
+        logging.info('Set user1 "{}" with {} new passwords'.format(user1, hist_cnt))
+
+        pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
+
+        for i in range(hist_cnt):
+            pw1 = PwhTools.generate_strong_pw(pwh_conf, user1, pw_hist1)
+            logging.info('Round #{} - Set user1 "{}" with password "{}"'.format(i + 1, user1, pw1))
+            PwhTools.set_pw_and_apply(user1_obj, pw1).verify_result()
+            pw_hist1.append(pw1)
+
+    with allure.step('Set user2 "{}" with the same {} passwords, and expect success'.format(user2, hist_cnt)):
+        logging.info('Set user2 "{}" with the same {} passwords, and expect success'.format(user2, hist_cnt))
+        passwords_to_set = pw_hist1[1:]  # take the same N new passwords that were set to user1
+        assert len(passwords_to_set) == hist_cnt, 'Error: Something is wrong.\nExpected len(passwords_to_set) : {}\n' \
+                                                  'Actual len(passwords_to_set) : {}\n' \
+                                                  'passwords_to_set : {}'\
+            .format(hist_cnt, len(passwords_to_set), passwords_to_set)
+
+        for i in range(hist_cnt):
+            pw2 = passwords_to_set[i]
+            logging.info('Round #{} - Set user2 "{}" with password "{}"'.format(i + 1, user2, pw2))
+            PwhTools.set_pw_and_apply(user2_obj, pw2).verify_result()
+            pw_hist2.append(pw2)
+
+    with allure.step('Set user2 "{}" with another password (pw_{}+1)'.format(user2, hist_cnt)):
+        logging.info('Set user2 "{}" with another password (pw_{}+1)'.format(user2, hist_cnt))
+        pw2 = PwhTools.generate_strong_pw(pwh_conf, user2, pw_hist2)
+        logging.info('Set user2 "{}" with password "{}"'.format(user2, pw2))
+        PwhTools.set_pw_and_apply(user2_obj, pw2).verify_result()
+        pw_hist2.append(pw2)
+
+    with allure.step('Try to set user1 "{}" with password pw_1 "{}"'.format(user1, pw_hist1[1])):
+        logging.info('Try to set user1 "{}" with password pw_1 "{}"'.format(user1, pw_hist1[1]))
+        res_obj = PwhTools.set_pw_and_apply(user1_obj, pw_hist1[1])
+
+    with allure.step('Expect failure'):
+        logging.info('Expect failure')
+        res_obj.verify_result(should_succeed=False)
+        if TestToolkit.tested_api == ApiType.NVUE:
+            logging.info('Detaching the failed config')
+            NvueGeneralCli.detach_config(engines.dut)
+
+    with allure.step('Set user2 "{}" with password pw_1 "{}"'.format(user2, pw_hist2[1])):
+        logging.info('Set user2 "{}" with password pw_1 "{}"'.format(user2, pw_hist2[1]))
+        assert pw_hist1[1] == pw_hist2[1], 'Error: expected pw_hist1[1] == pw_hist2[1]\n' \
+                                           'pw_hist1[1] = {}\n' \
+                                           'pw_hist2[1] = {}'.format(pw_hist1[1], pw_hist2[1])
+        res_obj = PwhTools.set_pw_and_apply(user2_obj, pw_hist2[1])
+
+    with allure.step('Expect success'):
+        logging.info('Expect success')
+        res_obj.verify_result()
