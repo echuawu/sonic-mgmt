@@ -542,6 +542,12 @@ vlan/test_vlan.py:
       - "https://redmine.mellanox.com/issues/3419725 and '202211' in release and 'msn4600c' in platform"
       - "https://redmine.mellanox.com/issues/3419711 and '202211' in release and 'msn3800' in platform"
 
+vlan/test_autostate_disabled.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419725 and branch 202211 and 't0-64' in topo_name"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3419725 and '202211' in release and 't0-64' in topo_name"
+
 platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132437 and paltform msn4"
@@ -846,15 +852,33 @@ vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v6_
 
 sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3117697"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3117697;  Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420740 and branch 202211"
+    conditions_logical_operator: or
     conditions:
       - https://redmine.mellanox.com/issues/3117697
+      - "https://redmine.mellanox.com/issues/3420740 and '202211' in release"
 
 sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_valid_vlan:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3117697"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421654 and 202211 branch and msn3800 platform; Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419711 and branch 202211"
+    conditions_logical_operator: or
     conditions:
-      - https://redmine.mellanox.com/issues/3117697
+      - "https://redmine.mellanox.com/issues/3419711 and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3421654 and '202211' in release and 'msn3800' in platform"
+
+span/test_port_mirroring.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421654 and branch 202211 and platform msn3800; Testcase ignored due to GitHub issue:  https://github.com/sonic-net/sonic-mgmt/issues/7904 and branch 202211 and platform msn2700"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3421654 and '202211' in release and 'msn3800' in platform"
+      - "https://github.com/sonic-net/sonic-mgmt/issues/7904 and '202211' in release and 'msn2700' in platform"
+
+route/test_route_perf.py::test_perf_add_remove_routes:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421817"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3421817 and '202211' in release"
 
 radv/test_radv_ipv6_ra.py:
   skip:
