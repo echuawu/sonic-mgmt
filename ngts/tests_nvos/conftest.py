@@ -206,6 +206,8 @@ def clear_config(markers):
             NvueSystemCli.unset(TestToolkit.engines.dut, 'ib')
             NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), TestToolkit.engines.dut, apply=True).verify_result()
+            NvueGeneralCli.save_config(TestToolkit.engines.dut)
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
 
