@@ -236,7 +236,7 @@ class PlatformTypesConstants:
     PLATFORM_SPIDER = 'x86_64-mlnx_msn2410-r0'
     PLATFORM_TIGON = 'x86_64-mlnx_msn4600c-r0'
     PLATFORM_TIGRIS = 'x86_64-mlnx_msn3800-r0'
-    PLATFORM_MOOSE = 'x86_64-nvidia_sn5600_simx-r0'
+    PLATFORM_MOOSE = 'x86_64-nvidia_sn5600-r0'
 
 
 class InterfacesTypeConstants:

@@ -4,7 +4,7 @@ import allure
 import re
 import logging
 
-from ngts.constants.constants import PlatformTypesConstants, PytestConst
+from ngts.constants.constants import PlatformTypesConstants, PytestConst, PlatformTypesConstants
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 logger = logging.getLogger()
 
@@ -16,7 +16,7 @@ class SupportedRebootReloadTypes:
         self.warm_reboot = 'warm-reboot'
         self.config_reload = 'config reload -y'
         # TODO: This is the WA for Bug SW #3395060, remove it when the bug is fixed.
-        if platform and "5600" in platform and is_redmine_issue_active([3395060]):
+        if PlatformTypesConstants.FILTERED_PLATFORM_MOOSE in platform and is_redmine_issue_active([3420124]):
             del self.warm_reboot
         if platform == PlatformTypesConstants.PLATFORM_BOXER:
             del self.fast_reboot

@@ -14,7 +14,7 @@ import logging
 
 from dotted_dict import DottedDict
 from deepdiff import DeepDiff
-from ngts.constants.constants import PytestConst
+from ngts.constants.constants import PytestConst, PlatformTypesConstants
 from ngts.helpers import json_file_helper
 from ngts.tests.nightly.conftest import convert_speed_format_to_m_speed
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
@@ -281,10 +281,10 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
 
     # TODO: on moose, it dose not support 10G, 25G, there is open bug for it, when get the value from platform.json,
     # it has 10G, 25G, need to remove them.
-    if "5600" in platform and is_redmine_issue_active([3416102]):
+    if PlatformTypesConstants.FILTERED_PLATFORM_MOOSE in platform and is_redmine_issue_active([3416102]):
         for port in split_mode_supported_speeds.keys():
             for split_mode in split_mode_supported_speeds[port].keys():
-                for speed in ["10G", "25G"]:
+                for speed in ["10G", "40G"]:
                     if speed in split_mode_supported_speeds[port][split_mode]:
                         split_mode_supported_speeds[port][split_mode].remove(speed)
 
