@@ -138,8 +138,14 @@ class System(BaseComponent):
         return result_obj
 
     def unset(self, engine, field_name="", apply=True):
+        if TestToolkit.tested_api == ApiType.NVUE:
+            op_param_value = ""
+        else:
+            op_param_value = field_name
+
         result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                                     engine, self._resource_path + "/" + field_name)
+                                                     engine, self._resource_path + "/" + field_name,
+                                                     op_param_value)
         if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
@@ -182,8 +188,14 @@ class Message(BaseComponent):
         return result_obj
 
     def unset(self, engine, field_name="", apply=True):
+        if TestToolkit.tested_api == ApiType.NVUE:
+            op_param_value = ""
+        else:
+            op_param_value = field_name
+
         result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                                     engine, self.get_resource_path() + "/" + field_name)
+                                                     engine, self.get_resource_path() + "/" + field_name,
+                                                     op_param_value)
         if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
