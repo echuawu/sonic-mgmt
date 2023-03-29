@@ -47,10 +47,22 @@ tests_nvos/interfaces/test_port_split.py::test_split_all_ports:
     conditions:
       - https://redmine.mellanox.com/issues/3389560
 
-tests_nvos/system/test_system_health.py::test_ignore_health_issue:
+tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3415083"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3421199"
     conditions:
-      - https://redmine.mellanox.com/issues/3415083
+      - https://redmine.mellanox.com/issues/3421199
+
+tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3421199"
+    conditions:
+      - https://redmine.mellanox.com/issues/3421199
+
+tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3421199"
+    conditions:
+      - https://redmine.mellanox.com/issues/3421199
 
 ########################## NVOS IGNORE END ##########################

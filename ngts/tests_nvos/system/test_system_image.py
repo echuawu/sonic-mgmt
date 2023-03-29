@@ -504,8 +504,8 @@ def get_image_data_and_fetch_random_image_files(release_name, system, images_amo
         images_to_fetch = get_images_to_fetch(release_name, original_image, images_amount_to_fetch)
         images_name = []
         for image_name, image_path in images_to_fetch:
-            scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                               InfraConst.HTTP_SERVER.replace("http://", ""))
+            player = TestToolkit.engines['sonic_mgmt']
+            scp_path = 'scp://{}:{}@{}'.format(player.username, player.password, player.ip)
             with allure.step("Fetch an image {}".format(scp_path + image_path)):
                 system.image.action_fetch(scp_path + image_path)
                 images_name.append(image_name)
