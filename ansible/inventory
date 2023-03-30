@@ -46,6 +46,10 @@ moose-198 ansible_host=moose-198  sonic_version=v2  sonic_hwsku=Mellanox-SN5600-
 r-moose-01-ptf-any ansible_host=r-moose-01  sonic_version=v2  sonic_hwsku=ACS-SN5600             serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-47 base_mac=9C:05:91:99:26:00 serial=MT2307XZ02H5 model=MSN-9N402-00RI-7N0 syseeprom_info="{'0x28': u'x86_64-nvidia_sn5600-r0', '0x29': u'2022.08-5.3.0010-dev-9600-dev', '0x22': u'MSN-9N402-00RI-7N0', '0x23': u'MT2307XZ02H5', '0x21': u'SN5600', '0x26': u'0', '0x24': u'9C:05:91:99:26:00', '0x25': u'03/16/2023 03:42:43', '0xfe': u'0x58BC4522', '0x2b': u'Nvidia', '0x2a': u'512'}"
 r-moose-01 ansible_host=r-moose-01  sonic_version=v2  sonic_hwsku=ACS-SN5600            serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-47 base_mac=9C:05:91:99:26:00 serial=MT2307XZ02H5 model=MSN-9N402-00RI-7N0 syseeprom_info="{'0x28': u'x86_64-nvidia_sn5600-r0', '0x29': u'2022.08-5.3.0010-dev-9600-dev', '0x22': u'MSN-9N402-00RI-7N0', '0x23': u'MT2307XZ02H5', '0x21': u'SN5600', '0x26': u'0', '0x24': u'9C:05:91:99:26:00', '0x25': u'03/16/2023 03:42:43', '0xfe': u'0x58BC4522', '0x2b': u'Nvidia', '0x2a': u'512'}"
 
+# MTL canonical testbed sonic_moose_moose-42 topologies
+moose-42-ptf-any ansible_host=moose-42  sonic_version=v2  sonic_hwsku=ACS-SN5600             serial_console="ssh -l rcon:7007 10.7.150.241" ptf_host=ptf-dummy ptf_portmap="" pdu_host= base_mac=9c:05:91:99:2a:00 serial=MT2307XZ02H7 model=MSN-9N402-00RI-7N0 syseeprom_info="{'0x28': u'x86_64-nvidia_sn5600-r0', '0x29': u'2020.11-5.3.0005-9600', '0x22': u'MSN-9N402-00RI-7N0', '0x23': u'MT2307XZ02H7', '0x21': u'SN5600', '0x26': u'0', '0x24': u'9C:05:91:99:2A:00', '0x25': u'03/15/2023 23:40:06', '0xfe': u'0xF59F710C', '0x2b': u'Nvidia', '0x2a': u'512'}"
+moose-42 ansible_host=moose-42  sonic_version=v2  sonic_hwsku=ACS-SN5600            serial_console="ssh -l rcon:7007 10.7.150.241" ptf_host=ptf-dummy ptf_portmap="" pdu_host= base_mac=9c:05:91:99:2a:00 serial=MT2307XZ02H7 model=MSN-9N402-00RI-7N0 syseeprom_info="{'0x28': u'x86_64-nvidia_sn5600-r0', '0x29': u'2020.11-5.3.0005-9600', '0x22': u'MSN-9N402-00RI-7N0', '0x23': u'MT2307XZ02H7', '0x21': u'SN5600', '0x26': u'0', '0x24': u'9C:05:91:99:2A:00', '0x25': u'03/15/2023 23:40:06', '0xfe': u'0xF59F710C', '0x2b': u'Nvidia', '0x2a': u'512'}"
+
 # MTR canonical testbed r-moose-simx-18 topologies
 r-moose-simx-18-ptf-any ansible_host=r-moose-simx-18  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-moose-simx-18 ansible_host=r-moose-simx-18  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
@@ -1061,6 +1065,9 @@ moose-198
 
 r-moose-01-ptf-any
 r-moose-01
+
+moose-42-ptf-any
+moose-42
 
 r-panther-simx-23-ptf-any
 r-panther-simx-23
