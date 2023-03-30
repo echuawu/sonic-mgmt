@@ -69,12 +69,14 @@ class Parse_Lab_Graph():
         self.vlanrange = {}
         self.links = {}
         self.consolelinks = {}
+        self.bmclinks = {}
         self.pdulinks = {}
         self.server = defaultdict(dict)
         self.pngtag = 'PhysicalNetworkGraphDeclaration'
         self.dpgtag = 'DataPlaneGraph'
         self.pcgtag = 'PowerControlGraphDeclaration'
         self.csgtag = 'ConsoleGraphDeclaration'
+        self.bmcgtag = 'BmcGraphDeclaration'
 
     def port_vlanlist(self, vlanrange):
         vlans = []
@@ -100,21 +102,16 @@ class Parse_Lab_Graph():
         devices = deviceroot.findall('Device')
         if devices is not None:
             for dev in devices:
-                hostname = dev.attrib['Hostname']
+                attributes = dev.attrib
+                hostname = attributes['Hostname']
                 if hostname is not None:
                     deviceinfo[hostname] = {}
-                    hwsku = dev.attrib['HwSku']
-                    devtype = dev.attrib['Type']
-                    card_type = "Linecard"
-                    if 'CardType' in dev.attrib:
-                        card_type = dev.attrib['CardType']
-                    hwsku_type = "predefined"
-                    if "HwSkuType" in dev.attrib:
-                        hwsku_type = dev.attrib["HwSkuType"]
-                    deviceinfo[hostname]['HwSku'] = hwsku
-                    deviceinfo[hostname]['Type'] = devtype
-                    deviceinfo[hostname]['CardType'] = card_type
-                    deviceinfo[hostname]["HwSkuType"] = hwsku_type
+                    deviceinfo[hostname]["Hostname"] = hostname
+                    deviceinfo[hostname]['HwSku'] = attributes.get('HwSku')
+                    deviceinfo[hostname]['Type'] = attributes.get('Type')
+                    deviceinfo[hostname]['CardType'] = attributes.get('CardType', 'Linecard')
+                    deviceinfo[hostname]['HwSkuType'] = attributes.get('HwSkuType', 'predefined')
+                    deviceinfo[hostname]['Os'] = attributes.get('Os')
                     self.links[hostname] = {}
         devicel2info = {}
         devicel3s = self.root.find(self.dpgtag).findall('DevicesL3Info')
@@ -135,6 +132,7 @@ class Parse_Lab_Graph():
             for l3info in devicel3s:
                 hostname = l3info.attrib['Hostname']
                 if hostname is not None:
+                    deviceinfo[hostname]["Hostname"] = hostname
                     management_ip = l3info.find('ManagementIPInterface').attrib['Prefix']
                     deviceinfo[hostname]['ManagementIp'] = management_ip
                     mgmtip = ipaddress.IPNetwork(management_ip)
@@ -156,33 +154,101 @@ class Parse_Lab_Graph():
             devicescsg = devicecsgroot.findall('DeviceConsoleInfo')
             if devicescsg is not None:
                 for dev in devicescsg:
-                    hostname = dev.attrib['Hostname']
+                    attributes = dev.attrib
+                    hostname = attributes['Hostname']
                     if hostname is not None:
                         deviceinfo[hostname] = {}
-                        hwsku = dev.attrib['HwSku']
-                        devtype = dev.attrib['Type']
-                        protocol = dev.attrib['Protocol']
-                        mgmt_ip = dev.attrib['ManagementIp']
-                        deviceinfo[hostname]['HwSku'] = hwsku
-                        deviceinfo[hostname]['Type'] = devtype
-                        deviceinfo[hostname]['Protocol'] = protocol
+                        deviceinfo[hostname]["Hostname"] = hostname
+                        deviceinfo[hostname]['HwSku'] = attributes.get('HwSku')
+                        deviceinfo[hostname]['Type'] = attributes.get('Type')
+                        deviceinfo[hostname]['Protocol'] = attributes.get('Protocol')
+                        deviceinfo[hostname]['Os'] = attributes.get('Os')
+                        mgmt_ip = attributes.get('ManagementIp')
+                        management_gw = str(ipaddress.IPNetwork(mgmt_ip).network+1)
                         deviceinfo[hostname]['ManagementIp'] = mgmt_ip
+                        deviceinfo[hostname]['ManagementGw'] = management_gw
                         self.consolelinks[hostname] = {}
             console_link_root = console_root.find('ConsoleLinksInfo')
             if console_link_root:
                 allconsolelinks = console_link_root.findall('ConsoleLinkInfo')
                 if allconsolelinks is not None:
                     for consolelink in allconsolelinks:
-                        start_dev = consolelink.attrib['StartDevice']
-                        end_dev = consolelink.attrib['EndDevice']
+                        attributes = consolelink.attrib
+                        start_dev = attributes.get('StartDevice')
+                        start_port = attributes.get('StartPort')
+                        end_dev = attributes.get('EndDevice')
+                        end_port = 'ConsolePort'
+                        console_proxy = attributes.get('Proxy')
+                        console_type = attributes.get('Console_type')
+                        baud_rate = attributes.get('BaudRate')
+
                         if start_dev:
                             if start_dev not in self.consolelinks:
                                 self.consolelinks.update({start_dev : {}})
-                            self.consolelinks[start_dev][consolelink.attrib['StartPort']] = {'peerdevice':consolelink.attrib['EndDevice'], 'peerport': 'ConsolePort'}
+                            self.consolelinks[start_dev][start_port] = {
+                                'peerdevice': end_dev,
+                                'peerport': end_port,
+                                'proxy':console_proxy,
+                                'type':console_type,
+                                'baud_rate': baud_rate
+                            }
                         if end_dev:
                             if end_dev not in self.consolelinks:
                                 self.consolelinks.update({end_dev : {}})
-                            self.consolelinks[end_dev]['ConsolePort'] = {'peerdevice': consolelink.attrib['StartDevice'], 'peerport': consolelink.attrib['StartPort']}
+                            self.consolelinks[end_dev][end_port] = {
+                                'peerdevice': start_dev,
+                                'peerport': start_port,
+                                'proxy':console_proxy,
+                                'type':console_type,
+                                'baud_rate': baud_rate
+                            }
+        bmc_root = self.root.find(self.bmcgtag)
+        if bmc_root:
+            devicebmcgroot = bmc_root.find('DevicesBmcInfo')
+            devicesbmcg = devicebmcgroot.findall('DeviceBmcInfo')
+            if devicesbmcg is not None:
+                for dev in devicesbmcg:
+                    attributes = dev.attrib
+                    hostname = attributes['Hostname']
+                    if hostname is not None:
+                        deviceinfo[hostname] = {}
+                        deviceinfo[hostname]["Hostname"] = hostname
+                        deviceinfo[hostname]['HwSku'] = attributes.get('HwSku')
+                        deviceinfo[hostname]['Type'] = attributes.get('Type')
+                        deviceinfo[hostname]['Protocol'] = attributes.get('Protocol')
+                        deviceinfo[hostname]['Os'] = attributes.get('Os')
+                        mgmt_ip = attributes.get('ManagementIp')
+                        management_gw = str(ipaddress.IPNetwork(mgmt_ip).network+1)
+                        deviceinfo[hostname]['ManagementIp'] = mgmt_ip
+                        deviceinfo[hostname]['ManagementGw'] = management_gw
+                        self.bmclinks[hostname] = {}
+            bmc_link_root = bmc_root.find('BmcLinksInfo')
+            if bmc_link_root:
+                allbmclinks = bmc_link_root.findall('BmcLinkInfo')
+                if allbmclinks is not None:
+                    for bmclink in allbmclinks:
+                        attributes = bmclink.attrib
+                        start_dev = attributes.get('StartDevice')
+                        start_port = attributes.get('StartPort')
+                        end_dev = attributes.get('EndDevice')
+                        end_port = attributes.get('EndPort')
+                        bmc_ip = attributes.get("BmcIp")
+                        if start_dev:
+                            if start_dev not in self.bmclinks:
+                                self.bmclinks.update({start_dev : {}})
+                            self.bmclinks[start_dev][start_port] = {
+                                'peerdevice': end_dev,
+                                'peerport': end_port,
+                                'bmc_ip': bmc_ip
+                            }
+                        if end_dev:
+                            if end_dev not in self.bmclinks:
+                                self.bmclinks.update({end_dev : {}})
+                            self.bmclinks[end_dev][end_port] = {
+                                'peerdevice': start_dev,
+                                'peerport': start_port,
+                                'bmc_ip': bmc_ip
+                            }
 
         pdu_root = self.root.find(self.pcgtag)
         if pdu_root:
@@ -193,6 +259,7 @@ class Parse_Lab_Graph():
                     hostname = dev.attrib['Hostname']
                     if hostname is not None:
                         deviceinfo[hostname] = {}
+                        deviceinfo[hostname]["Hostname"] = hostname
                         hwsku = dev.attrib['HwSku']
                         devtype = dev.attrib['Type']
                         protocol = dev.attrib['Protocol']
@@ -293,7 +360,7 @@ class Parse_Lab_Graph():
                 count += 1
         return hostnames and (count * 1.0 / len(hostnames) >= THRESHOLD)
 
-
+    # get the console of a device, if it exists, host is being managed by the returned device
     def get_host_console_info(self, hostname):
         """
         return  the given hostname console info of mgmtip, protocol, hwsku and type
@@ -312,6 +379,7 @@ class Parse_Lab_Graph():
             """
             return {}
 
+    # return the list of devices that is managed by host through console
     def get_host_console_link(self, hostname):
         """
         return  the given hostname console link info of console server and port
@@ -322,13 +390,42 @@ class Parse_Lab_Graph():
             # Please be noted that an empty dict is returned when hostname is not found
             return {}
 
+    # get the bmc of a device, if it exists, host is being managed by the returned device
+    def get_host_bmc_info(self, hostname):
+        """
+        return  the given hostname bmc info of mgmtip, protocol, hwsku and type
+        """
+        if hostname in self.devices:
+            try:
+                # currently we only support end port iDRAC
+                ret = self.devices[self.bmclinks[hostname]['iDRAC']['peerdevice']]
+            except KeyError:
+                ret = {}
+            return ret
+        else:
+            """
+            Please be noted that an empty dict is returned when hostname is not found
+            The behavior is different with get_host_vlan.
+            """
+            return {}
+
+    # return the list of devices that is managed by host through bmc
+    def get_host_bmc_link(self, hostname):
+        """
+        return  the given hostname bmc link info of management server and port
+        """
+        if hostname in self.bmclinks:
+            return  self.bmclinks[hostname]
+        else:
+            # Please be noted that an empty dict is returned when hostname is not found
+            return {}
+
     def get_host_pdu_info(self, hostname):
         """
         return  the given hostname pdu info of mgmtip, protocol, hwsku and type
         """
         if hostname in self.devices:
             ret = {}
-
             for key in ['PSU1', 'PSU2', 'PSU3', 'PSU4']:
                 try:
                     ret.update({key : self.devices[self.pdulinks[hostname][key]['peerdevice']]})
