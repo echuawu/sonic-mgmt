@@ -7,8 +7,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_constants.constants_nvos import ImageConsts, NvosConst
-from ngts.constants.constants import InfraConst
+from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -215,8 +214,8 @@ def test_system_image_bad_flow(engines, release_name):
     with allure.step("Fetch bad flows"):
         logging.info("Fetch bad flows")
         with allure.step("Fetch an image"):
-            scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                               InfraConst.HTTP_SERVER.replace("http://", ""))
+            player = engines['sonic_mgmt']
+            scp_path = 'scp://{}:{}@{}'.format(player.username, player.password, player.ip)
             system.image.action_fetch(scp_path + image_path)
             images_name.append(image_name)
         with allure.step("Fetch the same image again"):
@@ -321,8 +320,8 @@ def test_image_install(release_name):
 
     with allure.step("Fetch the second image"):
         logging.info("Fetch the second image")
-        scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                           InfraConst.HTTP_SERVER.replace("http://", ""))
+        player = TestToolkit.engines['sonic_mgmt']
+        scp_path = 'scp://{}:{}@{}'.format(player.username, player.password, player.ip)
 
         with allure.step("Fetch an image {}".format(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH)):
             logging.info("Fetch an image {}".format(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH))
