@@ -1,15 +1,15 @@
 ########################## NVOS IGNORE START ##########################
 tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_size_disk_percentage:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3215005"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3212520"
     conditions:
-      - https://redmine.mellanox.com/issues/3215005
+      - https://redmine.mellanox.com/issues/3212520
 
 tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotation_size_disk_percentage:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3215005"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3212520"
     conditions:
-      - https://redmine.mellanox.com/issues/3215005
+      - https://redmine.mellanox.com/issues/3212520
 
 tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_non_signed_kernel_module_load:
   skip:
@@ -65,4 +65,15 @@ tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docke
     conditions:
       - https://redmine.mellanox.com/issues/3421199
 
+tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_link_diagnostics_basic:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3383943"
+    conditions:
+      - https://redmine.mellanox.com/issues/3383943
+
+tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_link_diagnostics_functional:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3424265"
+    conditions:
+      - https://redmine.mellanox.com/issues/3424265
 ########################## NVOS IGNORE END ##########################
