@@ -2272,3 +2272,15 @@
       - 3137469
       Platform:
       - 4600
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- mlnx_allocate_sx_bulk_buffer: Failed to create buffer: Driver.* Return Status is Non-Zero.*'
+    - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_sai_bulk_queue_stats_get: Failed to prepare bulk counter for queue stats.*'
+    - '.* WARNING kernel:\[.*\] syncd: page allocation failure: order:\d+, mode:.*\(GFP_KERNEL\|__GFP_COMP\), nodemask=\(null\),cpuset=.*,mems_allowed=\d+.*'
+    - '.* WARNING kernel: .* Node 0 DMA.* free:.* min:.* low:.* high:.* reserved_highatomic:.* active_anon:.* inactive_anon:.* active_file:.* inactive_file:.* unevictable:.* writepending:.* present:.* managed:.* mlocked:.* pagetables:.* bounce:.* free_pcp:.* local_pcp:.* free_cma:.*'
+    - '.* WARNING kernel: .* Node 0 Normal.* free:.* min:.* low:.* high:.* reserved_highatomic:.* active_anon:.* inactive_anon:.* active_file:.* inactive_file:.* unevictable:.* writepending:.* present:.* managed:.* mlocked:.* pagetables:.* bounce:.* free_pcp:.* local_pcp:.* free_cma:.*'
+  Conditions:
+    - Affected_test_cases:
+      - show_techsupport/test_auto_techsupport.py
+      Redmine:
+      - 3425181
