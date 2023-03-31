@@ -62,6 +62,7 @@ def wait_until_background_procs_done(processes_dict):
     """
     for proc_name, proc in processes_dict.items():
         with allure.step(f'Checking background process: "{proc_name}" results'):
+            logger.info(f'Checking background process: "{proc_name}" results')
             std_out, std_err, rc = proc.result()
 
             result = ''

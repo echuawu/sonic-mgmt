@@ -95,7 +95,9 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version,
                              reboot_after_install=reboot_after_install, is_shutdown_bgp=is_shutdown_bgp,
                              fw_pkg_path=fw_pkg_path, cli_type=dut['cli_obj'])
 
+        logger.info("Wait until background process done")
         wait_until_background_procs_done(threads_dict)
+        logger.info("background processes are done")
 
         post_installation_steps(topology_obj=topology_obj, sonic_topo=sonic_topo,
                                 recover_by_reboot=recover_by_reboot, setup_name=setup_name,
