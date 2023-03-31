@@ -498,6 +498,12 @@ tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_ca
     conditions:
       - "https://redmine.mellanox.com/issues/3416551 and '5600' in platform"
 
+tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421305"
+    conditions:
+      - https://redmine.mellanox.com/issues/3421305
+
 ########################## NGTS IGNORE END ##########################
 
 
