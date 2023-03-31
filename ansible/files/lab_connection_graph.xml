@@ -3224,6 +3224,7 @@
       <DevicePowerControlInfo Hostname="pdu-10-208-2-11" HwSku="Emerson" ManagementIp="10.208.2.11" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-2-17" HwSku="Emerson" ManagementIp="10.208.2.17" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-2-47" HwSku="Vertiv" ManagementIp="10.208.2.47" Protocol="snmp" Type="Pdu"/>
+      <DevicePowerControlInfo Hostname="pdu-10-7-219-120" HwSku="Vertiv" ManagementIp="10.7.219.120" Protocol="snmp" Type="Pdu"/>
 
       <DevicePowerControlInfo Hostname="pdu-10-75-68-211" HwSku="ApcRPDU" ManagementIp="10.75.68.211" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-75-68-210" HwSku="Sentry" ManagementIp="10.75.68.210" Protocol="snmp" Type="CDU"/>
@@ -3399,6 +3400,8 @@
 
       <PowerControlLinkInfo EndDevice="c-panther-02" EndPort="PSU1" StartDevice="pdu-10-75-68-211" StartPort="21"/>
       <PowerControlLinkInfo EndDevice="c-panther-02" EndPort="PSU2" StartDevice="pdu-10-75-68-210" StartPort="1.5"/>
+
+      <PowerControlLinkInfo EndDevice="moose-42" EndPort="PSU1" StartDevice="pdu-10-7-219-120" StartPort="1.32"/>
 
     </PowerControlLinksInfo>
   </PowerControlGraphDeclaration>
