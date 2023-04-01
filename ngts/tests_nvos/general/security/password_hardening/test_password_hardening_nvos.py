@@ -774,3 +774,61 @@ def test_password_hardening_history_increase(engines, system, init_pwh, testing_
             pw_i = pw_history[i]
             logging.info('Round #{} - Set user "{}" with password pw_{} - "{}"'.format(i, username, i, pw_i))
             PwhTools.set_pw_and_apply(user_obj, pw_i).verify_result(should_succeed=False)
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_password_hardening_history_when_feature_disabled(engines, system, init_pwh, testing_users):
+    """
+    @summary:
+        Check if passwords are recorded in password history when feature is disabled
+
+        Steps:
+        1. Set history-cnt to N
+        2. Disable the feature
+        3. Set N new passwords
+        4. Enable the feature
+        5. Try to set again the N passwords
+        6. Expect failure
+    """
+    username = PwhConsts.ADMIN_TEST_USR
+    user_obj = testing_users[username][PwhConsts.USER_OBJ]
+    orig_pw = testing_users[username][PwhConsts.PW]
+    pwh = system.security.password_hardening
+    pw_history = [orig_pw]
+
+    with allure.step('Set history-cnt'):
+        logging.info('Set history-cnt')
+        hist_cnt = int(RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[PwhConsts.HISTORY_CNT]).get_returned_value())
+        logging.info('Set history-cnt to {}'.format(hist_cnt))
+        pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
+        pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
+
+    with allure.step('Disable the feature'):
+        logging.info('Disable the feature')
+        pwh.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True).verify_result()
+
+    with allure.step('Set {} new passwords'.format(hist_cnt)):
+        logging.info('Set {} new passwords'.format(hist_cnt))
+        for i in range(1, hist_cnt + 1):
+            pw_i = PwhTools.generate_strong_pw(pwh_conf, username, pw_history)
+            logging.info('Round #{} - Set user "{}" wit pw_{} - "{}"'.format(i, username, i, pw_i))
+            PwhTools.set_pw_and_apply(user_obj, pw_i).verify_result()
+            pw_history.append(pw_i)
+
+    with allure.step('Enable the feature'):
+        logging.info('Enable the feature')
+        pwh.set(PwhConsts.STATE, PwhConsts.ENABLED, apply=True).verify_result()
+
+    with allure.step('Try to set again the {} new passwords. Expect failure'.format(hist_cnt)):
+        logging.info('Try to set again the {} new passwords. Expect failure'.format(hist_cnt))
+        for i in range(1, hist_cnt):
+            pw_i = pw_history[i]
+            with allure.step('Set user "{}" with pw_{} - "{}"'.format(username, i, pw_i)):
+                logging.info('Round #{} - Set user "{}" with pw_{} - "{}"'.format(i, username, i, pw_i))
+                res_obj = PwhTools.set_pw_and_apply(user_obj, pw_i)
+
+            with allure.step('Verify error'):
+                logging.info('Verify error')
+                PwhTools.verify_error(res_obj, PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
