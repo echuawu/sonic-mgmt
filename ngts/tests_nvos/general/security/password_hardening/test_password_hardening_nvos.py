@@ -18,7 +18,7 @@ from ngts.tests_nvos.general.security.password_hardening.PwhTools import PwhTool
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_weak_and_strong_passwords_password_hardening(engines, system):
+def test_password_hardening_weak_and_strong_passwords(engines, system):
     """
     @summary:
         Verify that setting a strong password succeeds, an setting a weak password fails
@@ -79,7 +79,7 @@ def test_weak_and_strong_passwords_password_hardening(engines, system):
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_show_system_security_password_hardening(engines, system):
+def test_password_hardening_show_system_security(engines, system):
     """
     Check pwh configuration appears correctly in show output,
     and verify initial pwh configuration contains default values to all pwh settings.
@@ -109,7 +109,7 @@ def test_show_system_security_password_hardening(engines, system):
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_enable_disable_password_hardening(engines, system, testing_users):
+def test_password_hardening_enable_disable(engines, system, testing_users):
     """
     Check pwh configuration values (in show) when feature is enabled/disabled.
     Also, check pwh functionality when feature is enabled/disabled.
@@ -179,7 +179,7 @@ def test_enable_disable_password_hardening(engines, system, testing_users):
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_set_unset_password_hardening(engines, system):
+def test_password_hardening_set_unset(engines, system):
     """
     Verify set/unset to each pwh setting, with valid inputs.
     The verification is done in show only (without functionality check - tested later)
@@ -237,7 +237,7 @@ def test_set_unset_password_hardening(engines, system):
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_set_invalid_input_password_hardening(engines, system):
+def test_password_hardening_set_invalid_input(engines, system):
     """
     Verify that running set command with invalid input values cause error and doesn't change pwh configuration.
 
@@ -291,7 +291,7 @@ def test_set_invalid_input_password_hardening(engines, system):
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.checklist
-def test_functionality_password_hardening(engines, system, init_pwh, testing_users, tst_all_pwh_confs):
+def test_password_hardening_functionality(engines, system, init_pwh, testing_users, tst_all_pwh_confs):
     """
     @summary:
         Check functionality with several password hardening configurations.
@@ -371,7 +371,7 @@ def test_functionality_password_hardening(engines, system, init_pwh, testing_use
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_history_functionality_password_hardening(engines, system, init_pwh, testing_users):
+def test_password_hardening_history_functionality(engines, system, init_pwh, testing_users):
     """
     Test the functionality of history-cnt password hardening setting.
 
@@ -427,7 +427,7 @@ def test_history_functionality_password_hardening(engines, system, init_pwh, tes
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_expiration_functionality_password_hardening(engines, system, init_time, testing_users, init_pwh):
+def test_password_hardening_expiration_functionality(engines, system, init_time, testing_users, init_pwh):
     """
     Test the functionality of password expiration setting.
 
@@ -485,7 +485,7 @@ def test_expiration_functionality_password_hardening(engines, system, init_time,
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_expiration_warning_functionality_password_hardening(engines, system, init_time, testing_users, init_pwh):
+def test_password_hardening_expiration_warning_functionality(engines, system, init_time, testing_users, init_pwh):
     """
     Test the functionality of password expiration-warning setting.
 
@@ -547,7 +547,7 @@ def test_expiration_warning_functionality_password_hardening(engines, system, in
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_apply_new_password_and_expiration_settings_together_password_hardening(engines, system, init_pwh, init_time):
+def test_password_hardening_apply_new_password_and_expiration_settings_together(engines, system, init_pwh, init_time):
     """
     Test several times in a row that running 'apply' on the expiration settings and new user password together
      apply the new settings also on the new user.
@@ -638,7 +638,7 @@ def test_apply_new_password_and_expiration_settings_together_password_hardening(
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx
-def test_history_multi_user_password_hardening(engines, system, init_pwh, testing_users):
+def test_password_hardening_history_multi_user(engines, system, init_pwh, testing_users):
     """
     @summary:
         Test that password history of one user doesn't affect another user
@@ -725,3 +725,52 @@ def test_history_multi_user_password_hardening(engines, system, init_pwh, testin
     with allure.step('Expect success'):
         logging.info('Expect success')
         res_obj.verify_result()
+
+
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx
+def test_password_hardening_history_increase(engines, system, init_pwh, testing_users):
+    """
+    @summary:
+        Check if a record of password which is older than history-count is not dropped from the records.
+
+        Steps:
+        1. Set history-count to N
+        2. Set 2N new passwords (pw1, .. , pwN , .. , pw_2N)
+        3. Increase history-count to 2N
+        4. Try to set again pw1, .. , pwN
+        5. Expect failure
+    """
+    pwh = system.security.password_hardening
+    username = PwhConsts.ADMIN_TEST_USR
+    user_obj = testing_users[username][PwhConsts.USER_OBJ]
+    orig_pw = testing_users[username][PwhConsts.PW]
+
+    with allure.step('Set history-count'):
+        logging.info('Set history-count')
+        hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], int(PwhConsts.MAX[PwhConsts.HISTORY_CNT] / 2) - 1)
+        logging.info('Set history-count to {}'.format(hist_cnt))
+        pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
+        pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
+
+    with allure.step('Set 2*{} ({}) new passwords'.format(hist_cnt, 2 * hist_cnt)):
+        logging.info('Set 2*{} ({}) new passwords'.format(hist_cnt, 2 * hist_cnt))
+        pw_history = [orig_pw]
+        for i in range(1, (2 * hist_cnt) + 1):
+            pw_i = PwhTools.generate_strong_pw(pwh_conf, username, pw_history)
+            logging.info('Round #{} - Set user "{}" with password "{}"'.format(i, username, pw_i))
+            PwhTools.set_pw_and_apply(user_obj, pw_i).verify_result()
+            pw_history.append(pw_i)
+
+    with allure.step('Increase history-count to 2*{} ({})'.format(hist_cnt, 2 * hist_cnt)):
+        logging.info('Increase history-count to 2*{} ({})'.format(hist_cnt, 2 * hist_cnt))
+        pwh.set(PwhConsts.HISTORY_CNT, 2 * hist_cnt, apply=True).verify_result()
+        pwh_conf[PwhConsts.HISTORY_CNT] = 2 * hist_cnt
+
+    with allure.step('Try to set again the first {} passwords. Expect failure'.format(hist_cnt)):
+        logging.info('Try to set again the first {} passwords. Expect failure'.format(hist_cnt))
+        for i in range(1, hist_cnt + 1):
+            pw_i = pw_history[i]
+            logging.info('Round #{} - Set user "{}" with password pw_{} - "{}"'.format(i, username, i, pw_i))
+            PwhTools.set_pw_and_apply(user_obj, pw_i).verify_result(should_succeed=False)
