@@ -130,7 +130,7 @@ class PwhTools:
                 else:
                     k = int(pwh_conf[PwhConsts.HISTORY_CNT])  # k = history-cnt
                     n = len(pw_history)
-                    newest_k_pws = pw_history[n - k + 1:] if k <= n else pw_history
+                    newest_k_pws = pw_history[n - k:] if k <= n else pw_history
                     pw = random.choice(newest_k_pws)
                     logging.info('everithing else disabled. chose random pw from history: {}'.format(pw))
 
@@ -302,25 +302,14 @@ class PwhTools:
         @param res_obj: the given result object of the switch operation run
         @param error_should_contain: the given string that should be contained in the error message
         """
-        with allure.step('Verify that switch operation failed'):
-            logging.info('Verify that switch operation failed')
-            res_obj.verify_result(should_succeed=False)
-
-        with allure.step('Switch operation failed as expected'):
-            logging.info('Switch operation failed as expected')
-
-        with allure.step('Verify that op error message "{}" contains the given string "{}"'
-                         .format(res_obj.info, error_should_contain)):
-            logging.info('Verify that op error message "{}" contains the given string "{}"'
-                         .format(res_obj.info, error_should_contain))
-            err_msg = 'Error: switch operation failed, but error message is not as expected.\n' \
-                      '\tActual operation error message: "{}"\n' \
-                      '\tExpected (missing) substring: "{}"'.format(res_obj.info, error_should_contain)
-            ValidationTool.verify_substring_in_output(output=res_obj.info, substring=error_should_contain,
+        with allure.step('Verify that op failed with error that contains "{}"'.format(error_should_contain)):
+            logging.info('Verify that op failed with error that contains "{}"'.format(error_should_contain))
+            err_msg = 'Error: operation message is not as expected.\n' \
+                      '\tExpected substring: "{}"' \
+                      '\tActual ResultObject: "{}"\n'.format(error_should_contain, res_obj)
+            actual_message = res_obj.info if not res_obj.result else res_obj.returned_value
+            ValidationTool.verify_substring_in_output(output=actual_message, substring=error_should_contain,
                                                       err_message_in_case_of_failure=err_msg, should_be_found=True)
-
-        with allure.step('Switch operation failed with expected error message'):
-            logging.info('Switch operation failed with expected error message')
 
     @staticmethod
     def assert_valid_password_hardening_field_value(field, value):

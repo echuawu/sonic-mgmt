@@ -93,6 +93,7 @@ class PwhConsts:
     ERR_INCOMPLETE_SET_CMD = 'Incomplete Command: set system security password-hardening'
     ERR_INVALID_SET_ENABLE_DISABLED = "is not one of ['enabled', 'disabled']"
     ERR_PW_SHOULD_CONTAIN = 'Password should contain at least '
+    ERR_RANGE = 'Valid range is'
 
     WEAK_PW_ERRORS = {
         HISTORY_CNT: 'Password should be different than',
@@ -117,6 +118,7 @@ class PwhConsts:
 
     # regex
     REGEX_TIME = r"\d{2}:\d{2}:\d{2}"
+    REGEX_NUMERIC = r"^-?\d+$"
 
     # expiration prompted warnings
     PROMPT_PW_EXPIRED = ['Current password', 'You must change your password now and login again']
