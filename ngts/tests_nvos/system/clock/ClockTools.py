@@ -291,13 +291,16 @@ class ClockTools:
         @param dt2: 2nd given date-time value
         @param allowed_margin: the allowed margin (seconds)
         """
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            allowed_margin *= 2  # commands take a little longer with openapi infra, so allow larger margin
+
         with allure.step("Calculate diff (in seconds) between dt1: {dt1} and dt2 {dt2}".format(dt1=dt1, dt2=dt2)):
             logging.info("Calculate diff (in seconds) between dt1: {dt1} and dt2 {dt2}".format(dt1=dt1, dt2=dt2))
             diff = ClockTools.datetime_difference_in_seconds(dt1, dt2)
 
-        with allure.step("Assert diff: {diff} < const {const}".format(diff=diff, const=ClockConsts.DATETIME_MARGIN)):
-            logging.info("Assert diff: {diff} < const {const}".format(diff=diff, const=ClockConsts.DATETIME_MARGIN))
-            assert diff < ClockConsts.DATETIME_MARGIN, \
+        with allure.step("Assert diff: {diff} < const {const}".format(diff=diff, const=allowed_margin)):
+            logging.info("Assert diff: {diff} < const {const}".format(diff=diff, const=allowed_margin))
+            assert diff < allowed_margin, \
                 ("Difference (delta) between times in 'nv show system' and 'timedatectl' is too high! \n"
                  "Expected delta: less than '{expected}' seconds, Actual delta: '{actual}' seconds"
                  .format(expected=allowed_margin, actual=diff))
@@ -377,14 +380,7 @@ class ClockTools:
         with allure.step("Verify error message"):
             logging.info("Verify error message for '{bdt}'".format(bdt=bad_datetime))
 
-            if not expected_err and TestToolkit.tested_api == ApiType.OPENAPI:
-                expected_msgs = ClockConsts.ERR_OPENAPI_DATETIME
-            elif not expected_err:
-                expected_msgs = ClockConsts.ERR_INVALID_DATETIME
-            else:
-                expected_msgs = expected_err
-
-            for msg in expected_msgs:
+            for msg in expected_err:
                 logging.info('Verify error msg for change datetime to "{}"\n'
                              'expect to contain: "{}"\n'
                              'actual error: "{}"'.format(bad_datetime, msg, res_obj.info))
@@ -440,7 +436,7 @@ class ClockTools:
             show_output = system.show()
             logs = system.log.show_log(exit_cmd='q', expected_str=' ')
 
-            last_log_datetime = re.findall(NvosConst.DATE_TIME_REGEX, logs)[-1]
+            last_log_datetime = ' '.join((re.findall(NvosConst.DATE_TIME_REGEX, logs)[-1]).split(' '))
             show_datetime = ClockTools.get_datetime_from_show_system_output(show_output)
             log_datetime = ClockTools.get_datetime_of_system_log_line(last_log_datetime)
             logging.info('show date-time: {}\nlogs date-time: {}'.format(show_datetime, log_datetime))
@@ -458,14 +454,15 @@ class ClockTools:
         @return: the timestamp (str)
         """
         with allure.step('Take timestamp from a single log line'):
-            log_timestamp = ' '.join(log_line.split(' ')[0:3])
+            log_timestamp = log_line.split('.')[0].split(' ')  # remove .<microseconds>
+            log_timestamp = ' '.join([substr for substr in log_timestamp if substr != ''])  # clean from double spaces
             logging.info('Take timestamp from a single log line: {}'.format(log_timestamp))
 
             current_year = datetime.now().year
             logging.info('Take current year: {}'.format(current_year))
 
             # convert date string to datetime object
-            datetime_obj = datetime.strptime(log_timestamp, '%b %d %H:%M:%S.%f')
+            datetime_obj = datetime.strptime(log_timestamp, "%b %d %H:%M:%S")  # [.%f] if need .<microseconds> optional
 
             # replace year in datetime object
             new_datetime_obj = datetime_obj.replace(year=current_year)

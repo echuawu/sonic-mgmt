@@ -336,9 +336,12 @@ def test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off):
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
     for bad_datetime in bad_inputs:
-        errs = ClockConsts.ERR_EMPTY_PARAM if bad_datetime == '' or \
-            len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(
-                bad_datetime) else None
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            errs = ClockConsts.ERR_OPENAPI_DATETIME
+        elif bad_datetime == '' or len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(bad_datetime):
+            errs = ClockConsts.ERR_EMPTY_PARAM
+        else:
+            errs = ClockConsts.ERR_INVALID_DATETIME
         ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
 
 
@@ -366,9 +369,12 @@ def test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off):
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
     for bad_datetime in bad_inputs:
-        errs = ClockConsts.ERR_EMPTY_PARAM if bad_datetime == '' or \
-            len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(
-                bad_datetime) else None
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            errs = ClockConsts.ERR_OPENAPI_DATETIME
+        elif bad_datetime == '' or len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(bad_datetime):
+            errs = ClockConsts.ERR_EMPTY_PARAM
+        else:
+            errs = ClockConsts.ERR_INVALID_DATETIME
         ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
 
 
@@ -436,7 +442,8 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
 
 
 # --------------------- OpenApi --------------------- #
-''' currently there's a bug with unset using openapi. activate tests once its fixed
+
+
 @pytest.mark.openapi
 @pytest.mark.system
 @pytest.mark.simx
@@ -516,13 +523,3 @@ def test_change_invalid_datetime_ntp_off_error_flow_openapi(engines, system, ntp
 def test_change_invalid_datetime_ntp_on_error_flow_openapi(engines, system, ntp_off):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_new_time_in_logs_openapi(engines, system, orig_timezone, valid_timezones, init_datetime, ntp_off, pwh_off):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_datetime, ntp_off, pwh_off)
-'''

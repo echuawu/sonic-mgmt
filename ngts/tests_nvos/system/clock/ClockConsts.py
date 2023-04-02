@@ -5,8 +5,8 @@ class ClockConsts:
     TIMEZONE = SystemConsts.TIMEZONE    # 'timezone'
     DATETIME = SystemConsts.DATE_TIME   # 'date-time'
 
-    DATETIME_MARGIN = 12  # tune this to decide what diff (in seconds) is ok between timedatectl and nv show system
-    DEFAULT_TIMEZONE = "Etc/UTC"  # todo: what's the def timezone?
+    DATETIME_MARGIN = 10  # tune this to decide what diff (in seconds) is ok between timedatectl and nv show system
+    DEFAULT_TIMEZONE = "Etc/UTC"
     PATH_TIMEZONE_YAML = "/auto/sw_system_release/nos/nvos/alonn/timezone.yaml"
 
     TIMEDATECTL_CMD = "timedatectl"
@@ -14,9 +14,9 @@ class ClockConsts:
     TIMEDATECTL_DATETIME_FIELD_NAME = "Local time"
 
     ERR_EMPTY_PARAM = ["Incomplete Command"]
-    ERR_INVALID_TIMEZONE = ["is not one of"]  # ["Error at timezone:", "is not one of"]   # todo: what should be the error message? verify with meir
-    ERR_INVALID_DATETIME = ["Invalid Command: action change system date-time"]   # todo: what should be the error message? verify with meir
-    ERR_DATETIME_NTP = ["Unable to change date and time in case NTP is enabled"]  # "Action failed with the following issue"
+    ERR_INVALID_TIMEZONE = ["is not one of"]
+    ERR_INVALID_DATETIME = ["Invalid Command: action change system date-time"]
+    ERR_DATETIME_NTP = ["Unable to change date and time in case NTP is enabled"]
     ERR_OPENAPI_DATETIME = ["Date-time internal error occurred"]
 
     NTP = 'ntp'
