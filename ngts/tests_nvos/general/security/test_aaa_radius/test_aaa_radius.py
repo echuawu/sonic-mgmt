@@ -86,6 +86,11 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
         logging.info("Using username: {}, role: {}".format(username, role))
         engines.dut.update_credentials(username=username, password=password)
 
+    SLEEP_BEFORE_EXECUTING_CMDS = 5
+    with allure.step("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS)):
+        logging.info("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS))
+        time.sleep(SLEEP_BEFORE_EXECUTING_CMDS)
+
     system = System(None)
     SHOW_SYSTEM_VERSION_CMD = 'nv show system version'
     with allure.step("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD)):
@@ -213,7 +218,7 @@ def test_radius_priority_and_fail_through_functionality(engines,
             configure_radius_server(radius_server_info)
             real_radius_servers_order.append(radius_key)
             priority -= 1
-    
+
     with allure.step("Sleeping {} secs to apply configurations".format(RadiusConstans.SLEEP_TO_APPLY_CONFIGURATIONS)):
         logging.info("Sleeping {} secs to apply configurations".format(RadiusConstans.SLEEP_TO_APPLY_CONFIGURATIONS))
         time.sleep(RadiusConstans.SLEEP_TO_APPLY_CONFIGURATIONS)
