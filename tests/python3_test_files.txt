@@ -484,6 +484,7 @@ sub_port_interfaces/test_sub_port_interfaces.py
 sub_port_interfaces/test_show_subinterface.py
 sub_port_interfaces/conftest.py
 sub_port_interfaces/sub_ports_helpers.py
+sub_port_interfaces/test_sub_port_l2_forwarding.py
 ipfwd/test_mtu.py
 ipfwd/test_dip_sip.py
 ipfwd/conftest.py

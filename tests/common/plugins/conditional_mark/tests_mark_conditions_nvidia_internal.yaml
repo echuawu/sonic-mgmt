@@ -1729,15 +1729,15 @@ drop_packets/test_drop_counters.py::test_ip_pkt_with_exceeded_mtu:
 
 dualtor/test_orch_stress.py::test_flap_neighbor_entry_active:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7934"
     conditions:
-      - "https://redmine.mellanox.com/issues/3419398"
+      - https://github.com/sonic-net/sonic-mgmt/issues/7934
 
 dualtor/test_orch_stress.py::test_flap_neighbor_entry_standby:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7934"
     conditions:
-      - "https://redmine.mellanox.com/issues/3419398"
+      - https://github.com/sonic-net/sonic-mgmt/issues/7934
 
 lldp/test_lldp.py::test_lldp_neighbor:
   skip:
@@ -1804,5 +1804,23 @@ decap/test_decap.py:
     reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7905"
     conditions:
       - https://github.com/sonic-net/sonic-mgmt/issues/7905
+
+ipfwd/test_dir_bcast.py::test_dir_bcast:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7900"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7900
+
+pc/test_po_update.py::test_po_update_io_no_loss:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3423765"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3423765"
+
+sub_port_interfaces/test_sub_port_l2_forwarding.py:
+  skip:
+    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7884"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/7884
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
