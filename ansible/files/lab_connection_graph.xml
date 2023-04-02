@@ -160,6 +160,7 @@
       <Device Hostname="r-jaguar-03" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="gorilla-153" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-154" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="gorilla-11" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="nvidia-arm-orion" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-simx-84" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-simx-85" HwSku="ACS-MQM9700" Type="DevSonic"/>
