@@ -653,6 +653,54 @@ platform_tests/test_auto_negotiation.py:
       - "'3800' in platform"
       - https://redmine.mellanox.com/issues/3332324
 
+ecmp/inner_hashing/test_wr_inner_hashing.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+ecmp/inner_hashing/test_wr_inner_hashing_lag.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+arp/test_wr_arp.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+platform_tests/test_cont_warm_reboot.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+pfcwd/test_pfcwd_warm_reboot.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+platform_tests/test_service_warm_restart.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+platform_tests/test_advanced_reboot.py::test_warm_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
+platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
 platform_tests/test_auto_negotiation.py::test_force_speed:
   skip:
     reason: "Missing adaptation of fanout code to this test. Community issue https://github.com/sonic-net/sonic-mgmt/issues/7271"
