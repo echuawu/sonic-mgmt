@@ -8,6 +8,9 @@ import shutil
 import os
 import subprocess
 import shlex
+from ngts.constants.constants import LinuxConsts
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
 
@@ -53,17 +56,26 @@ class NvosInstallationSteps:
                 logger.warning("Failed to replace minigraph_facts.py in ansible path. Community tests will fail.")
 
         with allure.step('Waiting till NVOS become functional'):
-            assert NvosInstallationSteps.wait_for_nvos_to_become_functional(topology_obj), "Timeout " \
+            dut_engine = topology_obj.players['dut']['engine']
+            assert NvosInstallationSteps.wait_for_nvos_to_become_functional(dut_engine), "Timeout " \
                 "occurred while waiting for " \
                 "NVOS to complete the initialization"
 
+        with allure.step('Configure timezone'):
+            try:
+                logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+                ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), dut_engine, apply=True).verify_result()
+                NvueGeneralCli.save_config(dut_engine)
+                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+            except BaseException as ex:
+                logger.warning('Failed to configure timezone')
+
     @staticmethod
-    def wait_for_nvos_to_become_functional(topology_obj):
+    def wait_for_nvos_to_become_functional(dut_engine):
         """
         Waiting for NVOS to complete the init and become functional after the installation
         :return: Bool
         """
-        dut_engine = topology_obj.players['dut']['engine']
         try:
             NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
             return True

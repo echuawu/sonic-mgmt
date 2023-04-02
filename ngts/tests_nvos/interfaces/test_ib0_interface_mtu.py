@@ -86,23 +86,28 @@ def test_interface_ib0_arp_timeout_disabled_sm(stop_sm):
         Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
 
     with allure.step('try a random not supported ib0 arp-timeout {value} - between 0 and 60'.format(value=random_invalid_timeout)):
-        output = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout,
-                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI).get_returned_value()
-        assert "Valid range is" in output or 'Invalid Command' in output, "Set of an invalid arp-timeout should fail"
+        result = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout,
+                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI).verify_result()
+        assert not result or "Valid range is" in result.returned_value or \
+            'Invalid Command' in result.returned_value, "Set of an invalid arp-timeout should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
 
     with allure.step('try a random not supported ib0 arp-timeout {value} - less than 0'.format(value=random_invalid_timeout_neg)):
-        output = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout_neg,
-                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI).get_returned_value()
-        assert "Valid range is" in output or 'Invalid Command' in output, "Set of an invalid arp-timeout should fail"
+        result = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout_neg,
+                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI).verify_result()
+        assert not result or "Valid range is" in result.returned_value or \
+            'Invalid Command' in result.returned_value, "Set of an invalid arp-timeout should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
 
     with allure.step('try a random not supported ib0 arp-timeout {value} - more than 28800'.format(value=random_invalid_timeout_max)):
-        ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout_max, apply=True, ask_for_confirmation=True).verify_result(False)
+        result = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout_max,
+                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI).verify_result()
+        assert not result or "Valid range is" in result.returned_value or \
+            'Invalid Command' in result.returned_value, "Set of an invalid arp-timeout should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()

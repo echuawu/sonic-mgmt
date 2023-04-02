@@ -118,6 +118,7 @@ class OpenApiRequest:
             obj = json.loads(r.content)
 
             if "state" in obj.keys():
+                logging.info("Apply state: " + str(obj["state"]))
                 if obj["state"] == "applied":
                     return ResultObj(True, "Configuration applied successfully")
                 '''if obj["state"] == "ays" and obj["transition"]["progress"] == "Are you sure?":

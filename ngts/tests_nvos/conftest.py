@@ -253,19 +253,3 @@ def save_results_and_clear_after_test(item):
         raise AssertionError(err)
     finally:
         clear_config(markers)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def configure_same_time_zone(engines):
-    '''
-    @summary: configure same time zone for local engine running device
-    and device under test
-    '''
-    # TODO: add ntp enable when ntp is implemented
-    try:
-        logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-        ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
-        TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
-        os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
-    except BaseException:
-        logging.warning("Failed to configure timezone")
