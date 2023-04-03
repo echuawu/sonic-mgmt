@@ -434,7 +434,7 @@ class QosSaiBase(QosBase):
             testVlanIp = None
             for vlan in mgFacts["minigraph_vlan_interfaces"]:
                 if mgFacts["minigraph_vlans"][testVlan]["name"] in vlan["attachto"]:
-                    testVlanIp = ipaddress.ip_address(str(vlan["addr"]))  # noqa F821
+                    testVlanIp = ipaddress.ip_address(vlan["addr"])  # noqa F821
                     break
             pytest_assert(testVlanIp, "Failed to obtain vlan IP")
 
