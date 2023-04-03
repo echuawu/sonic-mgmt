@@ -2285,3 +2285,28 @@
       - show_techsupport/test_auto_techsupport.py
       Redmine:
       - 3425181
+
+- Errors_list:
+    - '.*ERR swss#orchagent.*doPortTask: Unsupported port speed [1|4]0000$'
+  Conditions:
+    - Redmine:
+      - 3416102
+      Platform:
+      - 5600
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] mlnx_sai_utils\.c.*sai_attribute_valid_condition_check: Attribute SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP doesn.*match a valid conditions:.*SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION : TRAP.*SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION : COPY.*'
+    - '.*ERR syncd#SDK: \[SAI_HOST_INTERFACE\.ERR\] mlnx_sai_host_interface\.c.*mlnx_create_hostif_trap: Failed attribs check.*'
+    - '.*ERR syncd#SDK:.*sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE.*'
+    - '.*ERR syncd#SDK.*processQuadEvent: attr: SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE: SAI_HOSTIF_TRAP_TYPE_TTL_ERROR.*'
+    - '.*ERR syncd#SDK.*processQuadEvent: attr: SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP: oid:0x.*'
+    - '.*ERR syncd#SDK.*processQuadEvent: attr: SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION: SAI_PACKET_ACTION_DROP.*'
+    - '.*ERR swss#orchagent.*create: create status: SAI_STATUS_FAILURE.*'
+    - '.*ERR swss#orchagent.*applyAttributesToTrapIds: Failed to create trap \d+, rv:-1.*'
+  Conditions:
+    - Affected_test_cases:
+        - drop_packets/test_wjh.py
+      Redmine:
+        - 3428827
+      Platform:
+        - 5600
