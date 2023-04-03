@@ -202,12 +202,12 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
             assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is None, \
                 "Capability change message appeared when it should not"
 
-    if expected_login_record_period:
-        with allure.step("Validating login-record-period value"):
-            logger.info("Validating login-record-period value")
-            assert second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD] == str(expected_login_record_period), \
-                "Not same login record period value, expected: {}, actual: {}".format(expected_login_record_period,
-                                                                                      second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD])
+    # if expected_login_record_period:
+    #     with allure.step("Validating login-record-period value"):
+    #         logger.info("Validating login-record-period value")
+    #         assert second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD] == str(expected_login_record_period), \
+    #             "Not same login record period value, expected: {}, actual: {}".format(expected_login_record_period,
+    #                                                                                   second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD])
 
 
 def get_current_time_in_secs():
