@@ -154,7 +154,7 @@ class QosSaiBase(QosBase):
             db = "4"
             keystr = "BUFFER_POOL|"
         if check_qos_db_fv_reference_with_table(dut_asic):
-            pool = bufferProfile["pool"].encode("utf-8").translate(None, "[]")
+            pool = bufferProfile["pool"].translate(None, "[]")
         else:
             pool = keystr + bufferProfile["pool"]
         bufferSize = int(
@@ -181,27 +181,27 @@ class QosSaiBase(QosBase):
         """
         if check_qos_db_fv_reference_with_table(dut_asic):
             if self.isBufferInApplDb(dut_asic):
-                bufferPoolName = bufferProfile["pool"].encode("utf-8").translate(
+                bufferPoolName = bufferProfile["pool"].translate(
                     None, "[]").replace("BUFFER_POOL_TABLE:", ''
                                         )
             else:
-                bufferPoolName = bufferProfile["pool"].encode("utf-8").translate(
+                bufferPoolName = bufferProfile["pool"].translate(
                     None, "[]").replace("BUFFER_POOL|", ''
                                         )
         else:
-            bufferPoolName = bufferProfile["pool"].encode("utf-8")
+            bufferPoolName = bufferProfile["pool"]
 
         bufferPoolVoid = dut_asic.run_redis_cmd(
             argv=[
                 "redis-cli", "-n", "2", "HGET",
                 "COUNTERS_BUFFER_POOL_NAME_MAP", bufferPoolName
             ]
-        )[0].encode("utf-8")
+        )[0]
         bufferProfile.update({"bufferPoolVoid": bufferPoolVoid})
 
         bufferPoolRoid = dut_asic.run_redis_cmd(
             argv=["redis-cli", "-n", "1", "HGET", "VIDTORID", bufferPoolVoid]
-        )[0].encode("utf-8").replace("oid:", '')
+        )[0].replace("oid:", '')
         bufferProfile.update({"bufferPoolRoid": bufferPoolRoid})
 
     def __getBufferProfile(self, request, dut_asic, os_version, table, port, priorityGroup):
@@ -238,7 +238,7 @@ class QosSaiBase(QosBase):
         if check_qos_db_fv_reference_with_table(dut_asic):
             bufferProfileName = dut_asic.run_redis_cmd(
                 argv=["redis-cli", "-n", db, "HGET", keystr, "profile"]
-            )[0].encode("utf-8").translate(None, "[]")
+            )[0].translate(None, "[]")
         else:
             bufferProfileName = bufkeystr + dut_asic.run_redis_cmd(
                 argv = ["redis-cli", "-n", db, "HGET", keystr, "profile"])[0]
@@ -311,7 +311,7 @@ class QosSaiBase(QosBase):
                     "{0}|{1}|{2}".format(table, port, self.TARGET_QUEUE_WRED),
                     "wred_profile"
                 ]
-            )[0].encode("utf-8").translate(None, "[]")
+            )[0].translate(None, "[]")
         else:
             wredProfileName = "WRED_PROFILE|" + dut_asic.run_redis_cmd(
                 argv=[
@@ -319,7 +319,7 @@ class QosSaiBase(QosBase):
                     "{0}|{1}|{2}".format(table, port, self.TARGET_QUEUE_WRED),
                     "wred_profile"
                 ]
-            )[0].encode("utf-8")
+            )[0]
 
         result = dut_asic.run_redis_cmd(
             argv=["redis-cli", "-n", "4", "HGETALL", wredProfileName]
@@ -344,7 +344,7 @@ class QosSaiBase(QosBase):
                 "redis-cli", "-n", "4", "HGET",
                 "FLEX_COUNTER_TABLE|QUEUE_WATERMARK", "FLEX_COUNTER_STATUS"
             ]
-        )[0].encode("utf-8")
+        )[0]
 
         return watermarkStatus
 
@@ -366,18 +366,18 @@ class QosSaiBase(QosBase):
                     "redis-cli", "-n", "4", "HGET",
                     "QUEUE|{0}|{1}".format(port, queue), "scheduler"
                 ]
-            )[0].encode("utf-8").translate(None, "[]")
+            )[0].translate(None, "[]")
         else:
             schedProfile = "SCHEDULER|" + dut_asic.run_redis_cmd(
                 argv=[
                     "redis-cli", "-n", "4", "HGET",
                     "QUEUE|{0}|{1}".format(port, queue), "scheduler"
                 ]
-            )[0].encode("utf-8")
+            )[0]
 
         schedWeight = dut_asic.run_redis_cmd(
             argv=["redis-cli", "-n", "4", "HGET", schedProfile, "weight"]
-        )[0].encode("utf-8")
+        )[0]
 
         return {"schedProfile": schedProfile, "schedWeight": schedWeight}
 
@@ -410,7 +410,7 @@ class QosSaiBase(QosBase):
             testVlanIp = None
             for vlan in mgFacts["minigraph_vlan_interfaces"]:
                 if mgFacts["minigraph_vlans"][testVlan]["name"] in vlan["attachto"]:
-                    testVlanIp = ipaddress.ip_address(str(vlan["addr"]))  # noqa F821
+                    testVlanIp = ipaddress.ip_address(vlan["addr"])  # noqa F821
                     break
             pytest_assert(testVlanIp, "Failed to obtain vlan IP")
 

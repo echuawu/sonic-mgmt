@@ -1775,12 +1775,6 @@ route/test_route_flow_counter.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3420524"
 
-qos/test_qos_sai.py:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7866"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7866
-
 dhcp_relay/test_dhcpv6_relay.py::test_dhcp_relay_default:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
