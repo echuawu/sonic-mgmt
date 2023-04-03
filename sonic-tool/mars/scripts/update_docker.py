@@ -12,6 +12,7 @@ import json
 import sys
 import time
 import traceback
+import os
 from retry import retry
 
 # Third-party libs
@@ -168,17 +169,18 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
 
     logger.info("Try to remove existing docker container anyway")
     conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
-
+    mars_docker_env_secrets = os.getenv("MARS_DOCKER_ENV_SECRETS")
     cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
                 "--privileged --network=containers_network --mac-address={MAC_ADDRESS} " \
-                "--env ANSIBLE_CONFIG=/root/mars/workspace/sonic-mgmt/ansible/ansible.cfg " \
+                "--env ANSIBLE_CONFIG=/root/mars/workspace/sonic-mgmt/ansible/ansible.cfg {MARS_DOCKER_ENV_SECRETS} " \
                 "--name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
     cmd = cmd_tmplt.format(
         CONTAINER_MOUNTPOINTS=container_mountpoints,
         MAC_ADDRESS=container_iface_mac,
         CONTAINER_NAME=container_name,
         IMAGE_NAME=image_name,
-        IMAGE_TAG=image_tag
+        IMAGE_TAG=image_tag,
+        MARS_DOCKER_ENV_SECRETS=mars_docker_env_secrets
     )
     conn.run(cmd, warn=True)
     logger.info("Created container, wait a few seconds for it to start")
@@ -362,7 +364,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.201'}
+    default_list = {'docker-ngts': '1.2.202'}
     return default_list.get(docker_name, latest)
 
 
