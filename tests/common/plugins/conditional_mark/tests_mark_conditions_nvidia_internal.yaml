@@ -1589,18 +1589,6 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
     conditions:
       - "https://redmine.mellanox.com/issues/3416343"
 
-platform_tests/test_advanced_reboot.py::test_warm_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3416343"
-
-arp/test_wr_arp.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3416343"
-
 bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
