@@ -258,7 +258,7 @@ class BranchDynamicErrorsIgnore(LaDynamicErrorsIgnore):
         # master branch always has release "none"
         if branch_name == "none":
             branch_name = "master"
-        return branch_name
+        return str(branch_name)
 
     def is_checker_match(self):
         is_errors_ignore_required = True
