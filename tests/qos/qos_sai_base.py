@@ -11,7 +11,7 @@ import sys
 from tests.common.fixtures.ptfhost_utils import ptf_portmap_file  # noqa F401
 from tests.common.helpers.assertions import pytest_assert, pytest_require
 from tests.common.mellanox_data import is_mellanox_device as isMellanoxDevice
-#from tests.common.dualtor.dual_tor_utils import upper_tor_host, lower_tor_host, dualtor_ports  # noqa F401
+from tests.common.dualtor.dual_tor_utils import upper_tor_host, lower_tor_host, dualtor_ports  # noqa F401
 from tests.common.dualtor.mux_simulator_control \
     import toggle_all_simulator_ports, get_mux_status, check_mux_status, validate_check_result  # noqa F401
 from tests.common.dualtor.constants import UPPER_TOR, LOWER_TOR  # noqa F401
@@ -85,7 +85,8 @@ class QosBase:
                         if 'mac' in vlan and vlan['mac']:
                             dut_test_params["basicParams"]["def_vlan_mac"] = vlan['mac']
                             break
-            pytest_assert(dut_test_params["basicParams"]["def_vlan_mac"] is not None, "Dual-TOR miss default VLAN MAC address")
+            pytest_assert(
+                dut_test_params["basicParams"]["def_vlan_mac"] is not None, "Dual-TOR miss default VLAN MAC address")
         else:
             try:
                 duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
@@ -241,7 +242,7 @@ class QosSaiBase(QosBase):
             )[0].translate(None, "[]")
         else:
             bufferProfileName = bufkeystr + dut_asic.run_redis_cmd(
-                argv = ["redis-cli", "-n", db, "HGET", keystr, "profile"])[0]
+                argv=["redis-cli", "-n", db, "HGET", keystr, "profile"])[0]
 
         result = dut_asic.run_redis_cmd(
             argv=["redis-cli", "-n", db, "HGETALL", bufferProfileName]
@@ -733,7 +734,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class')
     def ssh_tunnel_to_syncd_rpc(
             self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index,
-            swapSyncd, tbinfo, lower_tor_host
+            swapSyncd, tbinfo, lower_tor_host  # noqa: F811
     ):
         if 'dualtor' in tbinfo['topo']['name']:
             duthost = lower_tor_host
@@ -749,7 +750,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class')
     def updateIptables(
             self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index, swapSyncd, tbinfo,
-            lower_tor_host
+            lower_tor_host  # noqa: F811
     ):
         """
             Update iptables on DUT host with drop rule for BGP SYNC packets
@@ -981,7 +982,7 @@ class QosSaiBase(QosBase):
             self, duthosts, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname,
             dutConfig, ingressLosslessProfile, ingressLossyProfile,
             egressLosslessProfile, egressLossyProfile, sharedHeadroomPoolSize,
-            tbinfo, lower_tor_host
+            tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Prepares DUT host QoS configuration
@@ -1171,7 +1172,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class', autouse=True)
     def populateArpEntries(
             self, duthosts, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname,
-            ptfhost, dutTestParams, dutConfig, releaseAllPorts, handleFdbAging, tbinfo, lower_tor_host
+            ptfhost, dutTestParams, dutConfig, releaseAllPorts, handleFdbAging, tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Update ARP entries of QoS SAI test ports
@@ -1215,7 +1216,8 @@ class QosSaiBase(QosBase):
             )
 
     @pytest.fixture(scope='class', autouse=True)
-    def dut_disable_ipv6(self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, tbinfo, lower_tor_host):
+    def dut_disable_ipv6(
+            self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, tbinfo, lower_tor_host):  # noqa: F811
         if 'dualtor' in tbinfo['topo']['name']:
             duthost = lower_tor_host
         else:
@@ -1229,7 +1231,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class', autouse=True)
     def sharedHeadroomPoolSize(
             self, request, duthosts, enum_frontend_asic_index,
-            enum_rand_one_per_hwsku_frontend_hostname, tbinfo, lower_tor_host
+            enum_rand_one_per_hwsku_frontend_hostname, tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Retreives shared headroom pool size
@@ -1255,7 +1257,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class', autouse=True)
     def ingressLosslessProfile(
             self, request, duthosts, enum_frontend_asic_index,
-            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host, dualtor_ports
+            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host, dualtor_ports  # noqa: F811
     ):
         """
             Retreives ingress lossless profile
@@ -1294,7 +1296,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class', autouse=True)
     def ingressLossyProfile(
             self, request, duthosts, enum_frontend_asic_index,
-            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host
+            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Retreives ingress lossy profile
@@ -1326,7 +1328,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class', autouse=True)
     def egressLosslessProfile(
             self, request, duthosts, enum_frontend_asic_index,
-            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host, dualtor_ports
+            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host, dualtor_ports  # noqa: F811
     ):
         """
             Retreives egress lossless profile
@@ -1365,7 +1367,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class', autouse=True)
     def egressLossyProfile(
             self, request, duthosts, enum_frontend_asic_index,
-            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host, dualtor_ports
+            enum_rand_one_per_hwsku_frontend_hostname, dutConfig, tbinfo, lower_tor_host, dualtor_ports  # noqa: F811
     ):
         """
             Retreives egress lossy profile
@@ -1404,7 +1406,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class')
     def losslessSchedProfile(
             self, duthosts, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname,
-            dutConfig, tbinfo, lower_tor_host
+            dutConfig, tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Retreives lossless scheduler profile
@@ -1431,7 +1433,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture(scope='class')
     def lossySchedProfile(
             self, duthosts, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname,
-            dutConfig, tbinfo, lower_tor_host
+            dutConfig, tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Retreives lossy scheduler profile
@@ -1458,7 +1460,7 @@ class QosSaiBase(QosBase):
     @pytest.fixture
     def updateSchedProfile(
             self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index,
-            dutQosConfig, losslessSchedProfile, lossySchedProfile, tbinfo, lower_tor_host
+            dutQosConfig, losslessSchedProfile, lossySchedProfile, tbinfo, lower_tor_host  # noqa: F811
     ):
         """
             Updates lossless/lossy scheduler profiles
@@ -1530,9 +1532,8 @@ class QosSaiBase(QosBase):
             updateRedisSchedParam(schedParam)
 
     @pytest.fixture
-    def resetWatermark(
-            self, duthosts, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname, tbinfo, lower_tor_host
-    ):
+    def resetWatermark(self, duthosts, enum_frontend_asic_index,
+                       enum_rand_one_per_hwsku_frontend_hostname, tbinfo, lower_tor_host):  # noqa: F811
         """
             Reset queue watermark
 
