@@ -314,7 +314,14 @@ def test_radius_set_show_unset(engines, clear_all_radius_configurations):
         2. show
         3. unset
     """
+    system = System()
     configured_radius_servers_hostname = []
+
+    with allure.step("Validating no Radius servers configured"):
+        logging.info("Validating no Radius servers configured")
+        output = system.aaa.radius.hostname().verify_result(should_succeed=True)
+        assert RadiusConstans.RADIUS_HOSTNAME_KEY in output, "There are Radius serves configured on the " \
+                                                             "system.\noutput:\n{}".format(output)
 
     with allure.step("Configuring Radius Server"):
         logging.info("Configuring Radius Server")
@@ -322,7 +329,6 @@ def test_radius_set_show_unset(engines, clear_all_radius_configurations):
             configure_radius_server(radius_server_info)
             configured_radius_servers_hostname.append(radius_server_info[RadiusConstans.RADIUS_HOSTNAME])
 
-    system = System()
     with allure.step("Validate Unset command"):
         logging.info("Validate Unset command")
         for hostname in configured_radius_servers_hostname:

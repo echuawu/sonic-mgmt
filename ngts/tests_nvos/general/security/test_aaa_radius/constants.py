@@ -6,6 +6,7 @@ class RadiusConstans:
     '''
     # keys
     RADIUS_HOSTNAME = 'hostname'
+    RADIUS_HOSTNAME_KEY = 'Hostname'
     RADIUS_PASSWORD = 'password'
     RADIUS_TIMEOUT = 'timeout'
     RADIUS_AUTH_PORT = 'auth-port'
