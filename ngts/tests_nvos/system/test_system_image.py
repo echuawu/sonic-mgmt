@@ -436,7 +436,8 @@ def install_image_and_verify(image_name, partition_id, original_images, system):
 
 def get_list_of_directories(current_installed_img, starts_with=None):
     def mtime(f): return os.stat(os.path.join(PATH_TO_IMAGED_DIRECTORY, f)).st_mtime
-    temp_directories = list(sorted(os.listdir(PATH_TO_IMAGED_DIRECTORY), key=mtime))
+    temp_directories = [dev for dev in os.listdir(PATH_TO_IMAGED_DIRECTORY) if "lastrc" not in str(dev)]
+    temp_directories = list(sorted(temp_directories, key=mtime))
     all_directories = list(directory for directory in temp_directories if directory.startswith(starts_with + "-"))
     all_directories.reverse()
     return_directories = {}

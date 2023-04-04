@@ -118,13 +118,13 @@ class OpenApiRequest:
             obj = json.loads(r.content)
 
             if "state" in obj.keys():
-                logging.info("Apply state: " + str(obj["state"]))
                 if obj["state"] == "applied":
                     return ResultObj(True, "Configuration applied successfully")
                 '''if obj["state"] == "ays" and obj["transition"]["progress"] == "Are you sure?":
                     OpenApiRequest.apply_nvue_changeset(request_data, changeset, True)
                     raise Exception("Waiting for configuration to be applied")'''
                 if str(obj["state"]) in INVALID_RESPONSE:
+                    logging.info("Apply state: " + str(obj["state"]))
                     msg = obj["transition"]["issue"]["0"]["message"]
                     return ResultObj(False, "Error: Failed to apply configuration. Reason: " + msg)
                 else:
