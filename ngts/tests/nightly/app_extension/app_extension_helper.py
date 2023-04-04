@@ -92,10 +92,10 @@ def verify_app_container_up_and_repo_status_installed(cli_obj, app_name, version
     Verify app container is up and status in repo is installed
     :param cli_obj: cli_obj object
     :param app_name: app package name
+    :param version: app package version
     :Return None, or raise exception  if app info not match all
 
     """
-    retry_verify_app_container_up(cli_obj, app_name)
     app_package_repo_dict = cli_obj.app_ext.parse_app_package_list_dict()
     if app_name in app_package_repo_dict:
         app_info = app_package_repo_dict[app_name]
@@ -103,6 +103,7 @@ def verify_app_container_up_and_repo_status_installed(cli_obj, app_name, version
             assert version == app_info["Version"], "Expected Version is {}, Actual Version is {}".format(version, app_info["Version"])
         assert app_info["Status"] == "Installed", "Expected status is Installed, Actual status is {}".format(
             app_info["Status"])
+        retry_verify_app_container_up(cli_obj, app_name)
     else:
         assert False, "No app package info: {}".format(app_package_repo_dict)
 
