@@ -736,12 +736,16 @@ def test_ntp_performance():
             end_time = time.time()
             show_1_duration = end_time - start_time
 
+        with allure.step("Remove all ntp servers"):
+            logging.info("Remove all ntp servers")
+            system.ntp.unset(apply=True).verify_result()
+
         with allure.step("Measure configuring time of 10 servers"):
             logging.info("Measure configuring time of 10 servers")
             for server_id in range(1, NtpConsts.MULTIPLE_SERVERS_NUMBER):
-                server_name = 'server_' + str(server_id)
+                server_name = 'server' + str(server_id)
                 system.ntp.servers.set_resource(server_name, apply=False)
-            server_name = 'server_10'
+            server_name = 'server10'
             start_time = time.time()
             system.ntp.servers.set_resource(server_name, apply=True)
             end_time = time.time()
