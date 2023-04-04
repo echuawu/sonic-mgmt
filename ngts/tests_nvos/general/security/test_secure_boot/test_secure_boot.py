@@ -32,8 +32,8 @@ def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_k
         serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBoootConsts.TMP_FOLDER,
                                                                         kernel_module_filename))
     # assert
-    lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"secure_kernel_module\"')
-    assert "secure_kernel_module" in lsmod_output, "secure kernel module is not showing in lsmod output"
+    lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"{}\"'.format(kernel_module_filename.split('.')[0]))
+    assert kernel_module_filename.split('.')[0] in lsmod_output, "secure kernel module: {}, is not showing in lsmod output".format(kernel_module_filename.split('.')[0])
 
 
 @pytest.mark.checklist
@@ -41,7 +41,7 @@ def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_k
 def test_non_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_kernel_module,
                                        kernel_module_filename):
     '''
-    @sumamry: in this test case we want to validate unsuccessful load
+    @summary: in this test case we want to validate unsuccessful load
     of unsigned kernel module
     '''
     with allure.step("Inserting non signed kernel module using insmod"):
@@ -80,7 +80,7 @@ def manipulate_signature(serial_engine, test_server_engine, filepath):
         test_server_engine.run_cmd('sudo chmod 777 {}/{}'.format(SecureBoootConsts.LOCAL_SECURE_BOOT_DIR, filename))
         random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=random.randint(5, 10)))
         fileObject = open(SecureBoootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.format(filename), "ab")
-        # mainulpate sig in the [SIG_START,SIG_END] range
+        # manipulate sig in the [SIG_START,SIG_END] range
         fileObject.seek(random.randint(SecureBoootConsts.SIG_START, SecureBoootConsts.SIG_END), os.SEEK_END)
         fileObject.write(random_string.encode())
         fileObject.close()
@@ -178,7 +178,7 @@ def test_unsigned_shim_secure_boot(serial_engine, mount_uefi_disk_partition, tes
                                    validate_all_dockers_are_up_after_nvos_boot):
     '''
     @summary: in this test case we want to simulate broken signature of shim
-    by manually changing it and then do reboot and see that it doesn't boot successfully
+    by manually changing it and then do reboot and see that it does not boot successfully
     :param serial_engine: serial connection
     '''
     unsigned_file_secure_boot(serial_engine,
@@ -193,7 +193,7 @@ def test_unsigned_grub_secure_boot(serial_engine, mount_uefi_disk_partition, tes
                                    validate_all_dockers_are_up_after_nvos_boot):
     '''
     @summary: in this test case we want to simulate broken signature of grub
-    by manually changing it and then do reboot and see that it doesn't boot successfully
+    by manually changing it and then do reboot and see that it does not boot successfully
     :param serial_engine: serial connection
     '''
     unsigned_file_secure_boot(serial_engine,
@@ -204,11 +204,11 @@ def test_unsigned_grub_secure_boot(serial_engine, mount_uefi_disk_partition, tes
 
 @pytest.mark.checklist
 @pytest.mark.secure_boot
-def test_unsgined_vmlinuz_secure_boot(serial_engine, test_server_engine, restore_image_path, vmiluz_filepath,
+def test_unsigned_vmlinuz_secure_boot(serial_engine, test_server_engine, restore_image_path, vmiluz_filepath,
                                       validate_all_dockers_are_up_after_nvos_boot):
     '''
     @summary: in this test case we want to simulate broken signature of vmiluz component
-    by manually changing it and then do reboot and see that it doesn't boot successfully
+    by manually changing it and then do reboot and see that it does not boot successfully
     :param serial_engine: serial connection
     '''
     unsigned_file_secure_boot(serial_engine,

@@ -25,6 +25,7 @@ class BaseDevice:
         self.fan_list = {}
         self.psu_list = {}
         self.psu_fan_list = {}
+        self.fan_led_list = {}
         self.temperature_list = {}
         self.health_components = []
 
@@ -295,7 +296,7 @@ class BaseSwitch(BaseDevice, ABC):
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
-                       SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.HEALTH_STATUS],
+                       SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.HEALTH_STATUS, SystemConsts.DATE_TIME],
             'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
             'reboot': [SystemConsts.REBOOT_REASON],
             'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
@@ -323,20 +324,19 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_fan_list(self):
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
+        self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6']
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
-        self.psu_fan_list = ["PSU1_FAN", "PSU2_FAN"]
+        self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
 
     def _init_temperature(self):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
                                  "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
 
     def _init_health_components(self):
-        self.health_components = self.fan_list + self.psu_list + ["ASIC", "PSU1_FAN", "PSU2_FAN"] + \
-            ["container_checker", "diskCheck", "memory_check"] + \
-            ["database:redis", "ib-utils:ibcfgd", "rsyslog", "swss-ibv0:orchagent", "swss-ibv0:portmgrd",
-             "swss-ibv0:portsyncd", "syncd-ibv0:syncd"] + ["root-overlay", "var-log"]
+        self.health_components = self.fan_list + self.psu_list + self.psu_fan_list + \
+            ["ASIC Temperature", "Containers", "CPU utilization", "Disk check", "Disk space", "Disk space log"]
 
 
 # -------------------------- Gorilla Switch ----------------------------
@@ -363,6 +363,7 @@ class GorillaSwitch(BaseSwitch):
         BaseSwitch._init_fan_list(self)
         self.fan_list.append("FAN7/1")
         self.fan_list.append("FAN7/2")
+        self.fan_led_list.append('FAN7')
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)

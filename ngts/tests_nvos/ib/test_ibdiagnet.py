@@ -87,7 +87,7 @@ def test_ibdiagnet_negative(engines):
     """
     Will validate the two invalid cases to run the ibdiagnet generating command "nv action run ib cmd"
     case1: using string != ibdiagnet
-    case2: using invalid option, for now the valid optoions = [get_phy_info, get_ cable_info]
+    case2: using invalid option, for now the valid options = [get_phy_info, get_ cable_info]
     Test flow:
             1. generate invalid command
             2. run nv action run ib cmd <invalid_cmd>
@@ -137,6 +137,9 @@ def test_ibdiagnet_upload(engines):
     invalid_url_1 = 'scp://{}:{}{}/tmp/'.format(player.username, player.password, player.ip)
     invalid_url_2 = 'ffff://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
     upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
+    with allure.step('delete ibdiagnet as a cleanup step'):
+        ib.ibdiagnet.action_delete(file_name=IbConsts.IBDIAGNET_FILE_NAME)
+
     with allure.step('try to upload non exist ibdiagnet file'):
         output = ib.ibdiagnet.action_upload(upload_path=upload_path)
         assert "File not found: {}".format(IbConsts.IBDIAGNET_FILE_NAME) in output.info, "we can not upload a non exist file!"
@@ -154,11 +157,11 @@ def test_ibdiagnet_upload(engines):
         with allure.step('verify files in the target directory'):
             ValidationTool.verify_all_files_in_compressed_folder(player, IbConsts.IBDIAGNET_FILE_NAME, IbConsts.IBDIAGNET_EXPECTED_FILES_LIST, '/tmp', IbConsts.IBDIAGNET_PATH).verify_result()
 
-    with allure.step('try to upload ibdiagnet to inalid url - url is not in the right format'):
+    with allure.step('try to upload ibdiagnet to invalid url - url is not in the right format'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_1)
         assert "Invalid Command:" in output.info, "URL was not in the right format"
 
-    with allure.step('try to upload ibdiagnet to inalid url - using non supported transfer protocol'):
+    with allure.step('try to upload ibdiagnet to invalid url - using non supported transfer protocol'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_2)
         assert "Invalid Command:" in output.info, "URL used non supported transfer protocol"
 
@@ -194,8 +197,8 @@ def test_ibdiagnet_delete(engines):
         assert 'File delete successfully' in output.returned_value, "ibdiagnet delete action failed"
 
         with allure.step('verify ibdiagnet file does not exist using show command'):
-            paths = json.loads(ib.ibdiagnet.show())
-            assert 'ibdiagnet2.log' in paths.keys(), "the ibdiagnet file should not be deleted"
+            paths_keys = json.loads(ib.ibdiagnet.show()).keys()
+            assert 'ibdiagnet2.log' in paths_keys and len(list(paths_keys)) == 1, "the ibdiagnet file should not be deleted"
 
         with allure.step('Validate ibdiagnet directory does not exist anymore'):
             output = engines.dut.run_cmd('ls {path}'.format(path=IbConsts.IBDIAGNET_ZIPPED_FOLDER_PATH))

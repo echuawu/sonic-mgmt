@@ -57,7 +57,7 @@ def test_show_platform_environment_led(engines, devices):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_list + PlatformConsts.ENV_LED_COMP)
+        output = _verify_output(platform, "led", devices.dut.fan_led_list + PlatformConsts.ENV_LED_COMP)
 
     with allure.step("Check that all required properties for each led"):
         logging.info("Check that all required properties for each led")
@@ -86,7 +86,7 @@ def test_set_platform_environment_led(engines, devices):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_list + PlatformConsts.ENV_LED_COMP)
+        output = _verify_output(platform, "led", devices.dut.fan_led_list + PlatformConsts.ENV_LED_COMP)
 
     with allure.step("Check that all leds are green and UID off by default"):
         logging.info("Check that all leds are green and UID off by default")

@@ -57,8 +57,11 @@ class ValidationTool:
                 return result_obj
 
             result_obj.info = ""
+            nested_list = []
+            for nested_dict_key in ValidationTool._get_all_keys(json_output):
+                nested_list.append(nested_dict_key)
             for key in keys_to_search_for:
-                if key in json_output.keys():
+                if key in json_output.keys() or key in nested_list:
                     if should_be_found:
                         logging.info("'{str_to_search_for}' field was found".format(str_to_search_for=key))
                     else:
@@ -73,6 +76,13 @@ class ValidationTool:
                         logging.info("'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
 
             return result_obj
+
+    @staticmethod
+    def _get_all_keys(json_output):
+        for key, value in json_output.items():
+            yield key
+            if isinstance(value, dict):
+                yield from ValidationTool._get_all_keys(value)
 
     @staticmethod
     def verify_field_value_in_output(output_dictionary, field_name, expected_value, should_be_equal=True):

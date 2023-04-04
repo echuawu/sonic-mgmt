@@ -11,6 +11,8 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
 import random
 import allure
+import datetime as dt
+from datetime import timedelta, datetime
 
 logger = logging.getLogger()
 
@@ -204,3 +206,84 @@ class RandomizationTool:
         """
         result_str = ''.join(random.choice(ascii_letters) for i in range(length))
         return result_str
+
+    @staticmethod
+    def select_random_datetime(min_datetime=SystemConsts.MIN_SYSTEM_DATETIME, max_datetime=SystemConsts.MAX_SYSTEM_DATETIME, forbidden_datetimes=[]):
+        """
+        @summary:
+            Selects a random date & time between two given date-time values.
+            All date-time values (parameters and returned value) are strings in the format 'YYYY-MM-DD hh:mm:ss'
+        @param min_datetime: minimum date-time value
+        @param max_datetime: maximal date-time value
+        @param forbidden_datetime: list of date-time values (strings) that should not be picked
+        @return: ResultObj object containing a random date-time between min and max
+        """
+        with allure.step("Select date-time from given range of date-times"):
+            min_dt_obj, max_dt_obj = datetime.fromisoformat(min_datetime), datetime.fromisoformat(max_datetime)
+            # validate parameters
+            if min_dt_obj > max_dt_obj:
+                return ResultObj(False, "Invalid datetime range")
+            if min_datetime == max_datetime and min_datetime in forbidden_datetimes:
+                return ResultObj(False, "Can't pick a random date-time between {dt} and {dt} and shouldn't be {dt}".format(dt=min_datetime))
+            diff_timedelta_obj = max_dt_obj - min_dt_obj
+            diff_in_seconds = diff_timedelta_obj.total_seconds()
+            random_datetime = None
+            while random_datetime is None or random_datetime in forbidden_datetimes:
+                # randomize delta for the new random time
+                random_delta_in_seconds = random.randint(0, int(diff_in_seconds))
+                random_delta_timedelta_obj = timedelta(seconds=random_delta_in_seconds)
+                # create the random date-time by adding the delta to the min_datetime
+                random_dt_obj = min_dt_obj + random_delta_timedelta_obj
+                random_datetime = random_dt_obj.strftime("%Y-%m-%d %H:%M:%S")
+
+            return ResultObj(True, "Picked random date-time success", random_datetime)
+
+    @staticmethod
+    def select_random_time(forbidden_time_values=[]):
+        """
+        @summary:
+            Selects a random time in a day.
+            all time values (the returned one and given forbidden ones) are strings in the format 'hh:mm:ss'
+        @param forbidden_time_values: list of time values (strings) that should not be picked
+        @return: ResultObj object containing a random time
+        """
+        with allure.step("Select a random time"):
+            # select random date-time and remove the date
+            base_date = "2023-01-01 "
+            result_obj = RandomizationTool.select_random_datetime(min_datetime=base_date + "00:00:00",
+                                                                  max_datetime=base_date + "23:59:59",
+                                                                  forbidden_datetimes=[base_date + t for t in forbidden_time_values])
+            if result_obj.result:
+                result_obj.returned_value = result_obj.returned_value.split(' ')[1]
+            return result_obj
+
+    @staticmethod
+    def select_random_date(min_date=SystemConsts.MIN_SYSTEM_DATE, max_date=SystemConsts.MAX_SYSTEM_DATE, forbidden_dates=[]):
+        """
+        @summary:
+            Selects a random date between two given dates.
+            All date values (parameters and returned value) are strings in the format 'YYYY-MM-DD'
+        @param min_date: minimum date value
+        @param max_date: maximal date value
+        @param forbidden_dates: list of date values (strings) that should not be picked
+        @return: ResultObj object containing a random date between min and max
+        """
+        with allure.step("Select date from given range of date"):
+            min_date_obj, max_date_obj = dt.date.fromisoformat(min_date), dt.date.fromisoformat(max_date)
+            # validate parameters
+            if min_date_obj > max_date_obj:
+                return ResultObj(False, "Invalid date range")
+            if min_date == max_date and min_date in forbidden_dates:
+                return ResultObj(False, "Can't pick a random date between {dt} and {dt} and shouldn't be {dt}".format(dt=min_date))
+            diff_timedelta_obj = max_date_obj - min_date_obj
+            diff_in_seconds = diff_timedelta_obj.total_seconds()
+            random_date = None
+            while random_date is None or random_date in forbidden_dates:
+                # randomize delta for the new random time
+                random_delta_in_seconds = random.randint(0, int(diff_in_seconds))
+                random_delta_timedelta_obj = timedelta(seconds=random_delta_in_seconds)
+                # create the random date-time by adding the delta to the min_datetime
+                random_date_obj = min_date_obj + random_delta_timedelta_obj
+                random_date = random_date_obj.strftime("%Y-%m-%d")
+
+            return ResultObj(True, "Picked random date success", random_date)

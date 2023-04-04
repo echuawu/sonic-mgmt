@@ -59,8 +59,7 @@ def test_reboot_test():
 
     with allure.step("Validate health history file indicates reboot occurred and print the status again"):
         logger.info("Validate health history file indicates reboot occurred and print the status again")
-        assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[-1] != last_status_line, "Didn't print new summary line after the reboot"
-        assert "Monitoring service reboot, clearing issues history." in health_history_output
+        validate_new_summary_line_in_history_file_after_boot(system, last_status_line)
 
 
 @pytest.mark.system
@@ -89,7 +88,7 @@ def test_show_system_health(devices):
         logger.info("Validate \"nv show system health\" cmd")
         health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
         ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED], health_output.keys()).verify_result()
-        verify_expected_health_status(health_output, HealthConsts.STATUS, OK)
+        verify_health_status_and_led(system, HealthConsts.OK)
 
     with allure.step("Validate \"nv show fae health\" cmd"):
         logger.info("Validate \"nv show fae health\" cmd")
@@ -112,7 +111,7 @@ def test_show_system_health(devices):
         logger.info("Validate \"nv show system health history files\" cmd")
         health_history_files = OutputParsingTool.parse_json_str_to_dictionary(system.health.history.files.show()).get_returned_value()
         files_amount = len(health_history_files)
-        assert files_amount in [1, 2], "Unexpected amout of history files.\n Expected: 1 or 2 , but got {}".format(files_amount)
+        assert files_amount in [1, 2], "Unexpected amount of history files.\n Expected: 1 or 2 , but got {}".format(files_amount)
         assert HealthConsts.HEALTH_FIRST_FILE in health_history_files, "Expect to have {} as health file, but have those files {}"\
             .format(HealthConsts.HEALTH_FIRST_FILE, health_history_files)
         if files_amount == 2:
@@ -121,7 +120,7 @@ def test_show_system_health(devices):
 
         health_history_file_output = system.health.history.show_health_report_file(HealthConsts.HEALTH_FIRST_FILE)
         # first line in the health report output is the cmd itself, so we will compared just the file itself.
-        assert health_history_file_output.split("\n", 2)[2] == health_history_output.split("\n", 2)[2], "The first health file doesnt show the same info as the default cmd"
+        assert health_history_file_output.split("\n", 2)[2] == health_history_output.split("\n", 2)[2], "The first health file does not show the same info as the default cmd"
 
 
 @pytest.mark.system
@@ -169,7 +168,7 @@ def test_ignore_health_issue(engines, devices):
     """
     system = System()
     ignore_health_issue(None, engines.dut, devices.dut)
-    system.validate_health_status(OK)
+    verify_health_status_and_led(system, OK)
 
     try:
         with allure.step("Simulate PSU and FAN health issue"):
@@ -177,7 +176,7 @@ def test_ignore_health_issue(engines, devices):
             psu_id, fan_id = simulate_fan_and_psu_health_issue(engines, devices)
             psu_display_name = "PSU{}".format(psu_id)
             psu_config_name = "PSU {}".format(psu_id)
-            psu_fan_display_name = "PSU{}_FAN".format(psu_id)
+            psu_fan_display_name = "PSU{}/FAN".format(psu_id)
             psu_fan_config_name = "psu{}_fan1".format(psu_id)
             fan_display_name = get_fan_display_name(fan_id)
             fan_config_name = "fan{}".format(fan_id)
@@ -185,31 +184,48 @@ def test_ignore_health_issue(engines, devices):
         with allure.step("Validate health status and report"):
             logger.info("Validate health status and report")
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+            verify_health_status_and_led(system, NOT_OK)
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [psu_display_name, psu_fan_display_name, fan_display_name])
 
         with allure.step("Ignore PSU issue and Validate"):
             logger.info("Ignore PSU issue and Validate")
             ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK})
+            verify_health_status_and_led(system, NOT_OK)
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
+                HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [fan_display_name])
 
         with allure.step("Ignore FAN issue too and Validate health state change to OK"):
             logger.info("Ignore FAN issue too and Validate health state change to OK")
             ignore_health_issue([psu_config_name, psu_fan_config_name, fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(OK)
-            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: IGNORED})
+            verify_health_status_and_led(system, OK)
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
+                HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: IGNORED}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [])
 
         with allure.step("Remove the ignore from FAN issue and Validate health state change to Not OK"):
             logger.info("Remove the ignore from FAN issue and Validate health state change to Not OK")
             ignore_health_issue([psu_config_name, psu_fan_config_name], engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK})
+            verify_health_status_and_led(system, NOT_OK)
+            monitor_list = OutputParsingTool.parse_json_str_to_dictionary(Fae().health.show()).get_returned_value()[
+                HealthConsts.MONITOR_LIST]
+            verify_devices_health_status_in_monitor_list({psu_display_name: IGNORED, psu_fan_display_name: IGNORED, fan_display_name: NOT_OK}, monitor_list)
+            verify_devices_health_status_in_issues_list(system, [fan_display_name])
 
         with allure.step("Remove the ignore from PSU issue too and Validate"):
             logger.info("Remove the ignore from PSU issue too and Validate")
             ignore_health_issue(None, engines.dut, devices.dut)
             system.wait_until_health_status_change_to(NOT_OK)
-            verify_devices_health_status({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+            verify_health_status_and_led(system, NOT_OK)
+            verify_devices_health_status_in_monitor_list({psu_display_name: NOT_OK, psu_fan_display_name: NOT_OK, fan_display_name: NOT_OK})
+            verify_devices_health_status_in_issues_list(system, [psu_display_name, psu_fan_display_name, fan_display_name])
 
     finally:
 
@@ -219,6 +235,7 @@ def test_ignore_health_issue(engines, devices):
             HWSimulator.simulate_fix_fan_fault(engines.dut, fan_id)
             HWSimulator.simulate_fix_psu_fault(engines.dut, psu_id)
             system.wait_until_health_status_change_to(OK)
+            verify_health_status_and_led(system, OK)
 
 
 @pytest.mark.system
@@ -228,7 +245,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
     Validate health monitoring.
     Health status should change to "Not OK" when we simulate a problem and return to "OK" if status fixed or ignored.
         Test flow:
-            1. Simulate health problem with HW simultor
+            1. Simulate health problem with HW simulator
             2. validate health status changed to "Not OK"
             3. validate devices appear in the detailed health report as not OK
             5. validate status has changed in the log
@@ -242,12 +259,12 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
     date_time = datetime.now()
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
-    system.validate_health_status(OK)
+    verify_health_status_and_led(system, OK)
 
     try:
         psu_id, fan_id = simulate_fan_and_psu_health_issue(engines, devices)
         psu_display_name = "PSU{}".format(psu_id)
-        psu_fan_display_name = "PSU{}_FAN".format(psu_id)
+        psu_fan_display_name = "PSU{}/FAN".format(psu_id)
         fan_display_name = get_fan_display_name(fan_id)
         health_issue_dict = {psu_display_name: "missing or not available", psu_fan_display_name: "missing",
                              fan_display_name: "broken"}
@@ -327,7 +344,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
         output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
         assert docker_to_stop in output, "Failed to stop docker"
         health_issue_dict = {docker_to_stop: "Container 'ib-utils' is not running"}
-        validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
+        validate_health_fix_or_issue(system, health_issue_dict, date_time, False, expected_in_monitor_list=False)
 
     finally:
         date_time = datetime.now()
@@ -346,14 +363,42 @@ def validate_docker_is_up(engine, docker):
     assert docker in engine.run_cmd("docker ps")
 
 
-def verify_devices_health_status(device_status_dict):
+def verify_health_status_and_led(system, expected_status, output=None):
+    if not output:
+        output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
+    verify_expected_health_status(output, HealthConsts.STATUS, expected_status)
+    expected_led = HealthConsts.LED_OK_STATUS if expected_status == HealthConsts.OK else HealthConsts.LED_NOT_OK_STATUS
+    verify_expected_health_status(output, HealthConsts.STATUS_LED, expected_led)
+
+
+@retry(Exception, tries=12, delay=30)
+def validate_new_summary_line_in_history_file_after_boot(system, last_summary_line):
+    health_history_output = system.health.history.show()
+    assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[
+        -1] != last_summary_line, "Didn't print new summary line after boot"
+    assert "Monitoring service reboot, clearing issues history." in health_history_output
+
+
+def verify_devices_health_status_in_monitor_list(device_status_dict, monitor_list=None):
     """
-    verify device status in the healthe detail output
+    verify device status in the health detail output
     :param device_status_dict: dictionary with devices and their status, example: {PSU1: OK , PSU2: Not OK, FAN1/1: Ignored}
     """
-    monitor_dict = sort_monitor_list()
+    monitor_dict = sort_monitor_list(monitor_list)
     for device_name, status in device_status_dict.items():
-        assert device_name in monitor_dict[status]
+        if status == HealthConsts.IGNORED and monitor_list:
+            assert device_name not in list(monitor_list.keys()), "{} should be ignored , so should not appear in the monitor list"
+        else:
+            assert device_name in monitor_dict[status]
+
+
+def verify_devices_health_status_in_issues_list(system, devices_list):
+    """
+    verify device status in the health show output, under the section "issues"
+    :param devices_list: list of devices with issues, example: [PSU1, PSU2, FAN1/1]
+    """
+    issues_dict = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()[HealthConsts.ISSUES]
+    assert set(devices_list) == set(list(issues_dict.keys()))
 
 
 def simulate_fan_and_psu_health_issue(engines, devices):
@@ -379,7 +424,7 @@ def ignore_health_issue(components_list_to_ignore, engine, device):
                                                       device.health_monitor_config_file_path))
 
 
-def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetime, is_fix):
+def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetime, is_fix, expected_in_monitor_list=True):
     """
     validate health issue or fix with show commands
         - validate with system show cmd the health status
@@ -393,18 +438,31 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
         logger.info("Validate health issues {}".format("fix" if is_fix else ""))
         system.wait_until_health_status_change_to(status)
 
-        with allure.step("Validate detailed health report"):
-            logger.info("Validate detailed health report")
-            detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
-                Fae().health.show()).get_returned_value()
-            verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
-            monitor_dict = sort_monitor_list(detail_health_output[HealthConsts.MONITOR_LIST])
+        with allure.step("Validate health output issues"):
+            logger.info("Validate health output issues")
+            health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
+            verify_health_status_and_led(system, status, health_output)
+            health_issues = health_output[HealthConsts.ISSUES]
             for component, issue in health_issue_dict.items():
                 if is_fix:
-                    assert component not in monitor_dict[NOT_OK]
+                    assert component not in health_issues
                 else:
-                    assert component in monitor_dict[NOT_OK]
-                    assert issue == detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
+                    assert component in health_issues
+                    assert issue == health_issues[component]["issue"]
+
+        if expected_in_monitor_list:
+            with allure.step("Validate detailed health report"):
+                logger.info("Validate detailed health report")
+                detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
+                    Fae().health.show()).get_returned_value()
+                verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
+                monitor_dict = sort_monitor_list(detail_health_output[HealthConsts.MONITOR_LIST])
+                for component, issue in health_issue_dict.items():
+                    if is_fix:
+                        assert component not in monitor_dict[NOT_OK]
+                    else:
+                        assert component in monitor_dict[NOT_OK]
+                        assert issue == detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
 
         with allure.step("Validate health history file"):
             logger.info("Validate health history file")
@@ -413,7 +471,8 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                 health_history_output) == status, "Last status in the health report file is not {}, as we expect".format(status)
             assert len(TestToolkit.search_line_after_a_specific_date_time(
                 HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + status, health_history_output,
-                search_since_datetime)) > 0
+                search_since_datetime)) > 0, "Didn't find health status in history file since time : {},\n" \
+                                             "history:\n {}".format(search_since_datetime, health_history_output)
             for component, issue in health_issue_dict.items():
                 assert len(TestToolkit.search_line_after_a_specific_date_time(
                     regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issue), health_history_output, search_since_datetime)) > 0
@@ -422,7 +481,9 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
             logger.info("Validate health status change appears in system log")
             log_output = system.log.show_log(exit_cmd='q', expected_str="Health DB change cache")
             assert len(TestToolkit.search_line_after_a_specific_date_time(
-                NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output, search_since_datetime)) > 0
+                NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output,
+                search_since_datetime)) > 0, "Didn't find health status line in the system log since specific time :{}\n" \
+                                             "System Log:\n {}".format(search_since_datetime, log_output)
 
 
 def system_health_files_test(engines, devices, check_rotation=False):

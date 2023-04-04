@@ -29,8 +29,8 @@ class LDAPConsts:
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
-        "timeout-bind": "5",
-        "timeout-search": "5",
+        "timeout-bind": "1",
+        "timeout-search": "1",
         "version": '3',
         "priority": '1',
         "users": [
@@ -60,7 +60,7 @@ class LDAPConsts:
     }
 
     DOCKER_LDAP_SERVER = {
-        "hostname": "10.237.0.86",
+        "hostname": "fdfd:fdfd:10:237:250:56ff:fe1b:56",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
@@ -68,10 +68,37 @@ class LDAPConsts:
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
-        "timeout-bind": "5",
-        "timeout-search": "5",
+        "timeout-bind": "1",
+        "timeout-search": "1",
         "version": '3',
         "priority": '2',
+        "users": [
+            {
+                'username': 'monitoruser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'azmy',  # TODO: change to volt once it is in
+                'password': 'azmy',  # TODO: change to volt once it is in
+                'role': 'admin'
+            }
+        ]
+    }
+
+    DOCKER_LDAP_SERVER_DNS = {
+        "hostname": "fit-l-vrt-60-086",
+        "base-dn": "dc=itzgeek,dc=local",
+        "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
+        "password": "secret",
+        "login-attribute": "cn",
+        "group-attribute": "member",
+        # "scope": "subtree", not supported now
+        "auth-port": "389",
+        "timeout-bind": "1",
+        "timeout-search": "1",
+        "version": '3',
+        "priority": '3',
         "users": [
             {
                 'username': 'monitoruser',  # TODO: change to volt once it is in
@@ -91,6 +118,8 @@ class LDAPConsts:
         DOCKER_LDAP_SERVER
     ]
 
+    DEFAULT_PRIORTIY = 1
     LDAP_LOW_TIMOEUT = '1'
     LDAP_HIGH_TIMEOUT = '60'
     MAX_PRIORITY = '8'
+    LDAP_SLEEP_TO_APPLY_CONFIGURATIONS = 10

@@ -71,11 +71,11 @@ def test_upload_document(engines):
         with allure.step('verify the upload message'):
             assert expected_msg_upload in output.returned_value, "Failed to upload {}".format(random_file)
 
-    with allure.step('try to upload {} to invalid url - url is not in the right format').format(random_file):
+    with allure.step('try to upload {} to invalid url - url is not in the right format'.format(random_file)):
         output = system.documentation.action_upload(file_name=random_file, upload_path=invalid_url_1)
         assert "Invalid Command:" in output.info, "URL was not in the right format"
 
-    with allure.step('try to upload {} to invalid url - using non supported transfer protocol').format(random_file):
+    with allure.step('try to upload {} to invalid url - using non supported transfer protocol'.format(random_file)):
         output = system.documentation.action_upload(file_name=random_file, upload_path=invalid_url_2)
         assert "Invalid Command:" in output.info, "URL used non supported transfer protocol"
 

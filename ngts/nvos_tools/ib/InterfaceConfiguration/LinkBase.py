@@ -214,3 +214,26 @@ class State(LinkBaseOperational):
                                          output_hierarchy=self.output_hierarchy,
                                          value=value_to_use, apply=apply, port_obj=self.port_obj,
                                          ask_for_confirmation=ask_for_confirmation)
+
+
+class Diagnostics(LinkBaseOperational):
+    def __init__(self, port_obj):
+        LinkBaseOperational.__init__(self, port_obj=port_obj,
+                                     label=IbInterfaceConsts.LINK_DIAGNOSTICS,
+                                     description="The state of the interface",
+                                     field_name_in_db={},
+                                     output_hierarchy="{level1} {level2}".format(
+                                         level1=IbInterfaceConsts.LINK,
+                                         level2=IbInterfaceConsts.LINK_DIAGNOSTICS))
+
+    def show_interface_link_diagnostics(self, dut_engine=None, output_format=OutputFormat.json):
+        """
+        Executes show interface
+        :return: str output
+        """
+        with allure.step('Execute show interface link for {port_name}'.format(port_name=self.port_obj.name)):
+            if not dut_engine:
+                dut_engine = TestToolkit.engines.dut
+
+            return SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].show_interface,
+                                                   dut_engine, self.port_obj.name, self.output_hierarchy).get_returned_value()

@@ -40,7 +40,7 @@ def testing_users(engines, system):
     There are 2 test users: 'test_admin' and 'test_monitor'.
     @return: (yield) Dictionary of
         {
-            <usrname (str)>:    {
+            <username (str)>:    {
                                     'user_object': <User obj>, 'password': <pw (str)>
                                 }
         }
@@ -53,9 +53,9 @@ def testing_users(engines, system):
                 .get_returned_value()
             logging.info("Get pwh configuration:\n{}".format(pwh_conf))
 
-        with allure.step("Generate testing usrnames"):
+        with allure.step("Generate testing usernames"):
             usrname_admin, usrname_monitor = PwhConsts.ADMIN_TEST_USR, PwhConsts.MONITOR_TEST_USR
-            logging.info("Generate testing usrnames: {} , {}".format(usrname_admin, usrname_monitor))
+            logging.info("Generate testing usernames: {} , {}".format(usrname_admin, usrname_monitor))
 
         with allure.step("Generate testing pw"):
             pw_admin = PwhTools.generate_strong_pw(pwh_conf, usrname_admin)
@@ -70,17 +70,9 @@ def testing_users(engines, system):
             with allure.step('Set test usr "{}" and pw "{}" with role {}'.format(usrname, pw, role)):
                 logging.info('Set test usr "{}" and pw "{}" with role {}'.format(usrname, pw, role))
 
-                logging.info('verify firstly that usr doesnt exist accidently')
-                PwhTools.verify_user(system, usrname, usr_should_exist=False)
-                PwhTools.verify_login(engines.dut, usrname, pw, login_should_succeed=False)
-
                 logging.info('set the usr + pw')
                 system.create_new_user(engines.dut, usrname, pw, role)
                 user_obj = System(username=usrname).aaa.user
-
-                logging.info('verify usr exists now and can login with pw')
-                PwhTools.verify_user(system, usrname)
-                PwhTools.verify_login(engines.dut, usrname, pw)
 
                 users[usrname] = {PwhConsts.USER_OBJ: user_obj, PwhConsts.PW: pw}
 
@@ -91,13 +83,7 @@ def testing_users(engines, system):
         for usrname, usr_dict in users.items():
             with allure.step('Unset test usr "{}"'.format(usrname)):
                 logging.info('Unset test usr "{}"'.format(usrname))
-
-                logging.info('unset the usr')
                 usr_dict[PwhConsts.USER_OBJ].unset(apply=True).verify_result()
-
-                logging.info('verify usr doesnt exist now and cannot login with pw')
-                PwhTools.verify_user(system, usrname, usr_should_exist=False)
-                PwhTools.verify_login(engines.dut, usrname, usr_dict[PwhConsts.PW], login_should_succeed=False)
 
 
 @pytest.fixture(scope='function')

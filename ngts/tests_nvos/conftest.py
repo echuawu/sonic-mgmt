@@ -18,6 +18,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 logger = logging.getLogger()
 
@@ -30,7 +31,7 @@ available_mts_devices = \
 def pytest_addoption(parser):
     """
     Parse NVOS pytest options
-    :param parser: pytest buildin
+    :param parser: pytest build in
     """
     logger.info('Parsing NVOS pytest options')
     parser.addoption('--release_name', action='store',
@@ -41,6 +42,10 @@ def pytest_addoption(parser):
                      action="store", default=None, help="restore image after error flow")
     parser.addoption("--traffic_available",
                      action="store", default='True', help="True to run traffic tests")
+    parser.addoption("--tst_all_pwh_confs",
+                     action="store", default='False', help="True to test functionality of all password hardening "
+                                                           "configurations; False otherwise (only several random "
+                                                           "configurations will be picked to testing)")
 
 
 @pytest.fixture(scope='session')
@@ -77,6 +82,18 @@ def traffic_available(request):
     :return: True/False
     """
     return bool(request.config.getoption('--traffic_available'))
+
+
+@pytest.fixture
+def tst_all_pwh_confs(request):
+    """
+    True to test functionality of all password hardening configurations;
+        False otherwise (only several random configurations will be picked to testing)
+    :param request: pytest builtin
+    :return: True/False
+    """
+    param_val = request.config.getoption('--tst_all_pwh_confs')
+    return True if param_val == 'True' else False
 
 
 @pytest.fixture
@@ -189,6 +206,8 @@ def clear_config(markers):
             NvueSystemCli.unset(TestToolkit.engines.dut, 'ib')
             NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), TestToolkit.engines.dut, apply=True).verify_result()
+            NvueGeneralCli.save_config(TestToolkit.engines.dut)
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
 
@@ -234,18 +253,3 @@ def save_results_and_clear_after_test(item):
         raise AssertionError(err)
     finally:
         clear_config(markers)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def configure_same_time_zone(engines):
-    '''
-    @summary: configure same time zone for local engine running device
-    and device under test
-    '''
-    # TODO: add ntp enable when ntp is implemented
-    try:
-        logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-        engines.dut.run_cmd('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
-        os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
-    except BaseException:
-        logging.warning("Failed to configure timezone")

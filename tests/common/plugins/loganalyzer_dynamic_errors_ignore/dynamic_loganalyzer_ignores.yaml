@@ -960,15 +960,6 @@
         - 3044595
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[ROUTER.ERR\] VRID \[\d+\] is in use.'
-    - '.* ERR syncd#SDK: \[ROUTER.ERR\] Cannot deinit - resources are in use. \[Resource is in use\]'
-    - ' .* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: Router deinit failed.'
-    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: killall -w sx_sdk failed.'
-  Conditions:
-    - Redmine:
-        - 3428674
-
-- Errors_list:
     - ".*Failed to add device '/dev/sda\\d*' to watch: Operation not permitted.*"
     - ".*Failed to add device '/dev/loop\\d*' to watch: Operation not permitted.*"
   Conditions:
@@ -1573,12 +1564,10 @@
     - Affected_test_cases:
       - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
-      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       Redmine:
       - 3216771
       Branch:
       - 202205
-      - master
 
 - Errors_list:
     - '.* ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data.*'
@@ -2304,12 +2293,6 @@
       - 3416102
       Platform:
       - 5600
-
-- Errors_list:
-    - '.*ERR swss#orchagent.*doPortTask: Unsupported port speed.*'
-  Conditions:
-    - Redmine:
-      - 3430196
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] mlnx_sai_utils\.c.*sai_attribute_valid_condition_check: Attribute SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP doesn.*match a valid conditions:.*SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION : TRAP.*SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION : COPY.*'

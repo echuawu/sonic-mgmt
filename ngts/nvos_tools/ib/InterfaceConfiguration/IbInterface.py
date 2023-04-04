@@ -1,6 +1,5 @@
 from .Description import Description
 from .Type import Type
-from .Pluggable import Pluggable
 from .Link import Link
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from .nvos_consts import InternalNvosConsts
@@ -19,7 +18,6 @@ class IbInterface:
     port_obj = None
     description = None
     type = None
-    pluggable = None
     link = None
     signal_degrade = None
 
@@ -27,7 +25,6 @@ class IbInterface:
         self.port_obj = port_obj
         self.description = Description(self.port_obj)
         self.type = Type(self.port_obj)
-        self.pluggable = Pluggable(self.port_obj)
         self.link = Link(self.port_obj)
         self.signal_degrade = SignalDegrade(port_obj=self.port_obj)
 

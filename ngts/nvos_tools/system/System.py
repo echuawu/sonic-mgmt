@@ -7,6 +7,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ntp import Ntp
@@ -31,6 +32,7 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import OutputFormat
+import datetime
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 logger = logging.getLogger()
@@ -79,6 +81,8 @@ class System(BaseComponent):
         self.profile = Profile(self)
         self.health = Health(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        # self.timezone = Timezone(self)
+        self.datetime = DateTime(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
@@ -134,8 +138,14 @@ class System(BaseComponent):
         return result_obj
 
     def unset(self, engine, field_name="", apply=True):
+        if TestToolkit.tested_api == ApiType.NVUE:
+            op_param_value = ""
+        else:
+            op_param_value = field_name
+
         result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                                     engine, self._resource_path + "/" + field_name)
+                                                     engine, self._resource_path + "/" + field_name,
+                                                     op_param_value)
         if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
@@ -178,8 +188,14 @@ class Message(BaseComponent):
         return result_obj
 
     def unset(self, engine, field_name="", apply=True):
+        if TestToolkit.tested_api == ApiType.NVUE:
+            op_param_value = ""
+        else:
+            op_param_value = field_name
+
         result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                                     engine, self.get_resource_path() + "/" + field_name)
+                                                     engine, self.get_resource_path() + "/" + field_name,
+                                                     op_param_value)
         if result_obj.result and apply:
             with allure.step("Applying configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
@@ -253,3 +269,30 @@ class FactoryDefault(BaseComponent):
             with allure.step("Reset factory till system is functional takes: {} seconds".format(duration)):
                 logger.info("Reset factory till system is functional takes: {} seconds".format(duration))
             return res_obj
+
+
+class DateTime(BaseComponent):
+    """
+    @summary:
+    Infra class for system.date-time field object
+    """
+
+    def __init__(self, parent_obj):
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/date-time'
+        self.parent_obj = parent_obj
+
+    def action_change(self, params=""):
+        rsrc_path = self.get_resource_path()
+
+        with allure.step('Execute action change for {rsrcp} \tparams: {prm}'.format(rsrcp=rsrc_path, prm=params)):
+            logging.info('Execute action change for {rsrcp} \tparams: {prm}'.format(rsrcp=rsrc_path, prm=params))
+
+            if TestToolkit.tested_api == ApiType.OPENAPI:
+                params_list = params.split(' ')
+                clock_date = params_list[0] if len(params_list) else ''
+                clock_time = params_list[1] if len(params_list) > 1 else ''
+                params = {'clock-date': clock_date, 'clock-time': clock_time}
+
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_change,
+                                                   TestToolkit.engines.dut, rsrc_path, params)

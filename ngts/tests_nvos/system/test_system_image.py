@@ -8,8 +8,7 @@ from ngts.nvos_tools.system.Files import File
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_constants.constants_nvos import ImageConsts, NvosConst
-from ngts.constants.constants import InfraConst
+from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -21,8 +20,8 @@ logger = logging.getLogger()
 
 PATH_TO_IMAGED_DIRECTORY = "/auto/sw_system_release/nos/nvos/"
 PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
-BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-25.01.0800.bin"
-BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/25.01.0800/amd64/nvos-amd64-25.01.0800.bin"
+BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-{pre_release_name}-001.bin"
+BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}-001/amd64/{base_image}"
 
 
 @pytest.mark.checklist
@@ -220,8 +219,8 @@ def test_system_image_bad_flow(engines, release_name):
     with allure.step("Fetch bad flows"):
         logging.info("Fetch bad flows")
         with allure.step("Fetch an image"):
-            scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                               InfraConst.HTTP_SERVER.replace("http://", ""))
+            player = engines['sonic_mgmt']
+            scp_path = 'scp://{}:{}@{}'.format(player.username, player.password, player.ip)
             system.image.action_fetch(scp_path + image_path)
             images_name.append(image_name)
         with allure.step("Fetch the same image again"):
@@ -302,6 +301,16 @@ def test_image_install(release_name):
     9. Uninstall all images that have been installed during the test
     10. Delete all images that have been fetched during the test
     """
+    with allure.step(f"Update path with provided release name: {release_name}"):
+        global BASE_IMAGE_VERSION_TO_INSTALL
+        BASE_IMAGE_VERSION_TO_INSTALL = BASE_IMAGE_VERSION_TO_INSTALL.format(pre_release_name=release_name)
+        logging.info(f"base image name: {BASE_IMAGE_VERSION_TO_INSTALL}")
+
+        global BASE_IMAGE_VERSION_TO_INSTALL_PATH
+        BASE_IMAGE_VERSION_TO_INSTALL_PATH = BASE_IMAGE_VERSION_TO_INSTALL_PATH.format(pre_release_name=release_name,
+                                                                                       base_image=BASE_IMAGE_VERSION_TO_INSTALL)
+        logging.info(f"base image path: {BASE_IMAGE_VERSION_TO_INSTALL_PATH}")
+
     system = System()
     original_images, original_image, original_image_partition, partition_id_for_new_image, image_files = \
         get_image_data_and_fetch_random_image_files(release_name, system, 1)
@@ -316,8 +325,8 @@ def test_image_install(release_name):
 
     with allure.step("Fetch the second image"):
         logging.info("Fetch the second image")
-        scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                           InfraConst.HTTP_SERVER.replace("http://", ""))
+        player = TestToolkit.engines['sonic_mgmt']
+        scp_path = 'scp://{}:{}@{}'.format(player.username, player.password, player.ip)
 
         with allure.step("Fetch an image {}".format(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH)):
             logging.info("Fetch an image {}".format(scp_path + BASE_IMAGE_VERSION_TO_INSTALL_PATH))
@@ -371,7 +380,7 @@ def image_uninstall_test(release_name, uninstall_force=""):
     Test flow:
     1. Validate that uninstall [force] with 1 image only will fail
     2. Fetch and install an images
-    3. Validate that uninstall will fail (beause one is the current and the other is next-boot),
+    3. Validate that uninstall will fail (because one is the current and the other is next-boot),
         but uninstall force success
         3.1. if we check the force command so we will install the new image again
     4. Set the original image to be booted next
@@ -432,18 +441,20 @@ def install_image_and_verify(image_name, partition_id, original_images, system):
 
 def get_list_of_directories(current_installed_img, starts_with=None):
     def mtime(f): return os.stat(os.path.join(PATH_TO_IMAGED_DIRECTORY, f)).st_mtime
-    all_directories = list(sorted(os.listdir(PATH_TO_IMAGED_DIRECTORY), key=mtime))
+    temp_directories = [dev for dev in os.listdir(PATH_TO_IMAGED_DIRECTORY) if "lastrc" not in str(dev)]
+    temp_directories = list(sorted(temp_directories, key=mtime))
+    all_directories = list(directory for directory in temp_directories if directory.startswith(starts_with + "-"))
     all_directories.reverse()
     return_directories = {}
     for directory in all_directories:
         temp_dir = PATH_TO_IMAGED_DIRECTORY + PATH_TO_IMAGE_TEMPLATE.format(directory)
-        if os.path.isdir(temp_dir) and starts_with and directory.startswith(starts_with):
+        if os.path.isdir(temp_dir) and "-001" not in temp_dir:
             logging.info("Searching for images in path: " + temp_dir)
             relevant_images = [f for f in os.listdir(temp_dir) if f.startswith("nvos-amd64-25.") and
                                current_installed_img.replace("nvos-25", "nvos-amd64-25") not in f]
             if relevant_images:
                 return_directories[temp_dir] = relevant_images
-        if len(return_directories) > 4:
+        if len(return_directories) == 2:
             break
     return return_directories
 
@@ -498,8 +509,8 @@ def get_image_data_and_fetch_random_image_files(release_name, system, images_amo
         images_to_fetch = get_images_to_fetch(release_name, original_image, images_amount_to_fetch)
         images_name = []
         for image_name, image_path in images_to_fetch:
-            scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                               InfraConst.HTTP_SERVER.replace("http://", ""))
+            player = TestToolkit.engines['sonic_mgmt']
+            scp_path = 'scp://{}:{}@{}'.format(player.username, player.password, player.ip)
             with allure.step("Fetch an image {}".format(scp_path + image_path)):
                 system.image.action_fetch(scp_path + image_path)
                 images_name.append(image_name)

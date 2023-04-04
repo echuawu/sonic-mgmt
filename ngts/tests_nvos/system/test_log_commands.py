@@ -186,7 +186,7 @@ def test_show_debug_log_continues(engines):
 @pytest.mark.simx
 def test_show_debug_log_files(engines):
     """
-    Check all fields in debug-log filles command
+    Check all fields in debug-log files command
 
     Test flow:
         1. Run nv show system debug-log files command and validate fields
@@ -435,8 +435,8 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
         system_log_obj.rotation.set('size', '0.0001').verify_result(False)
         system_log_obj.rotation.set('size', '3500.01').verify_result(False)
 
-    with allure.step("Validate all posible rotation size"):
-        logging.info("Validate all posible rotation size")
+    with allure.step("Validate all possible rotation size"):
+        logging.info("Validate all possible rotation size")
         system_log_obj.rotation.set('size', '0.001')
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
@@ -539,7 +539,8 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         default_max_number = output_dictionary['max-number']
         system_log_obj.rotation.set('max-number', '0.001').verify_result(False)
-        system_log_obj.rotation.set('max-number', '9999999').verify_result(False)
+        output = system_log_obj.rotation.set('max-number', '9999999').get_returned_value()
+        assert "Valid range is" in output or 'Invalid Command' in output, "Set of invalid max-number should fail"
 
     with allure.step("Validate set max-number 5"):
         logging.info("Validate set max-number 5")
@@ -624,7 +625,7 @@ def test_log_files_rotation_force(engines):
 @pytest.mark.simx
 def test_log_components(engines):
     """
-    Check all fields in components command, check all components can be set/uset with all log levels
+    Check all fields in components command, check all components can be set/unset with all log levels
 
     Test flow:
         1. Run show system log component and validate all fields
@@ -697,7 +698,7 @@ def test_upload_log_files(engines, topology_obj):
     """
     with allure.step("Create System object"):
         system = System(None)
-
+        system.log.rotate_logs()
     _upload_log_files(topology_obj, system.log)
 
 
@@ -739,8 +740,8 @@ def _upload_log_files(topology_obj, system_log_obj):
         assert player.run_cmd(cmd='ls -la | grep {}'.format(log_file))
         player.run_cmd(cmd='rm -f {}'.format(log_file))
 
-    with allure.step("Run nv show system log command to check if command with password hiden"):
-        logging.info("Run nv show system log command to check if command with password hiden")
+    with allure.step("Run nv show system log command to check if command with password hidden"):
+        logging.info("Run nv show system log command to check if command with password hidden")
         show_output = system_log_obj.show_log(exit_cmd='q')
         ValidationTool.verify_expected_output(show_output, upload_path).verify_result(False)
 

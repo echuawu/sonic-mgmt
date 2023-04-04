@@ -116,6 +116,7 @@ class ActionType:
     RENAME = '@rename'
     UPLOAD = '@upload'
     RESET = '@reset'
+    CHANGE = '@change'
 
 
 class SystemConsts:
@@ -129,8 +130,17 @@ class SystemConsts:
     SYSTEM_MEMORY = 'system-memory'
     UPTIME = 'uptime'
     TIMEZONE = 'timezone'
+    DATE_TIME = 'date-time'
     VERSION = 'version'
     SECURITY = 'security'
+    DATE_TIME = 'date-time'
+
+    MIN_SYSTEM_YEAR = '1970'
+    MAX_SYSTEM_YEAR = '2231'
+    MIN_SYSTEM_DATE = MIN_SYSTEM_YEAR + "-01-01"
+    MAX_SYSTEM_DATE = MAX_SYSTEM_YEAR + "-12-31"
+    MIN_SYSTEM_DATETIME = MIN_SYSTEM_DATE + " 00:00:00"
+    MAX_SYSTEM_DATETIME = MAX_SYSTEM_DATE + " 23:59:59"
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'
@@ -163,7 +173,6 @@ class SystemConsts:
     SNMP_LISTENING_ADDRESS = 'listening-address'
     SNMP_READONLY_COMMUNITY = 'readonly-community'
     SNMP_STATE = 'state'
-    SNMP_SYSTEM_NAME = 'system-name'
     SNMP_SYSTEM_CONTACT = 'system-contact'
     SNMP_SYSTEM_LOCATION = 'system-location'
     SNMP_OUTPUT_FIELDS = [SNMP_IS_RUNNING, SNMP_LISTENING_ADDRESS, SNMP_READONLY_COMMUNITY, SNMP_STATE]
@@ -316,6 +325,9 @@ class PlatformConsts:
     FW_SSD = "SSD"
     FW_COMP = [FW_BIOS, FW_ONIE, FW_SSD, FW_CPLD + '1', FW_CPLD + '2', FW_CPLD + '3']
     FW_FIELDS = ["actual-firmware", "installed-firmware", "part-number", "serial-number", "type"]
+    HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
+    HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
+    HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"
     ENV_FAN = "fan"
     ENV_LED = "led"
     ENV_UID = "UID"
@@ -388,7 +400,7 @@ class ImageConsts:
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                       InfraConst.HTTP_SERVER.replace("http://", ""))
+                                       'fit70')
 
 
 class NtpConsts:
@@ -458,23 +470,23 @@ class NtpConsts:
     KEY_1 = '6'
     KEY_2 = '09876'
     KEY_VALUE = 'v1234'
-    KEY_VALUE = 'v1234'
-    KEY1_VALUE = 'blahblah'
-    KEY2_VALUE = 'lbsdu234nj'
+    KEY1_VALUE = 'temp_value'
+    KEY2_VALUE = 'temp_value123'
     SERVER1_IPV4 = '10.7.77.134'
     SERVER2_IPV4 = '10.7.77.135'
-    SERVER2_HOSTNAME = 'l-coreslave'
+    HOSTNAME_SUFFIX = '.lab.mtl.com'
+    SERVER2_HOSTNAME = 'l-coreslave' + HOSTNAME_SUFFIX
     SERVER3_IPV4 = '10.7.77.136'
     AUTH_SERVER_HOSTNAME = 'mtl-vdi-745.wap.labs.mlnx'
     AUTH_SERVER_IPV4 = '10.228.130.8'
-    DUMMY_SERVER1 = 'server_1'
-    DUMMY_SERVER2 = 'server_2'
-    DUMMY_SERVER3 = 'server_3'
-    DUMMY_SERVER4 = 'server_4'
-    DUMMY_SERVER5 = 'server_5'
-    DUMMY_SERVER6 = 'server_6'
-    DUMMY_SERVER7 = 'server_7'
-    DUMMY_SERVER8 = 'server_8'
+    DUMMY_SERVER1 = 'server1'
+    DUMMY_SERVER2 = 'server2'
+    DUMMY_SERVER3 = 'server3'
+    DUMMY_SERVER4 = 'server4'
+    DUMMY_SERVER5 = 'server5'
+    DUMMY_SERVER6 = 'server6'
+    DUMMY_SERVER7 = 'server7'
+    DUMMY_SERVER8 = 'server8'
     SERVER_FAILED = 'DNS resolution failed'
     MULTIPLE_SERVERS_NUMBER = 11
     CONFIG_TIME_DIFF_THRESHOLD = 1.0  # [sec]
@@ -485,23 +497,25 @@ class NtpConsts:
     OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
     NTP_MAX_DIFF_TIME = 180  # [sec]
 
-    INVALID_STATE = 'enablde'
-    INVALID_AUTHENTICATION = 'disablde'
+    INVALID_STATE = 'enable1'
+    INVALID_AUTHENTICATION = 'disable1'
+    INVALID_LISTEN = 'eth1'
+    INVALID_DHCP = 'enabled1'
+    INVALID_VRF = 'temp_str'
     INVALID_HIGHER_KEY = '65536'
     INVALID_LOWER_KEY = '0'
     INVALID_KEY_TYPE = '0'
     INVALID_KEY_TRUSTED = 'noo'
     INVALID_SERVER = '1234.1234'
-    INVALID_SERVER_ASSOCIATION_TYPE = 'ssserver'
-    INVALID_SERVER_STATE = 'ddddisable'
+    INVALID_SERVER_ASSOCIATION_TYPE = 'server1'
+    INVALID_SERVER_STATE = 'disable2'
     INVALID_SERVER_HIGHER_KEY = '100000'
     INVALID_SERVER_LOWER_KEY = '-565'
-    INVALID_SERVER_TRUSTED = 'ssserver'
+    INVALID_SERVER_TRUSTED = 'server2'
     INVALID_SERVER_VERSION = '5'
-    INVALID_VRF = 'masdfasdf'
 
-    LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'enabled', " \
-                        "'server_role': 'disabled', 'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
+    LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'disabled', " \
+                        "'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
     LOG_MSG_SERVER_CONFIG = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
                             "'resolve_as': '10.7.77.134', 'state': 'enabled', 'trusted': 'no', 'version': '4'}}"
     LOG_MSG_SERVER_CONFIG_UPDATE = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
@@ -570,7 +584,7 @@ class NtpConsts:
         DUMMY_SERVER8: SERVER_DEFAULT_VALUES_DICT,
     }
     SERVER_NONE_DEFAULT_VALUES_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        AGGRESSIVE_POLLING: AggressivePolling.ON.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         KEY: KEY_1,
         RESOLVE_AS: SERVER1_IPV4,
@@ -642,6 +656,8 @@ class HealthConsts:
     IGNORED = "Ignored"
     STATUS = "status"
     STATUS_LED = "status-led"
+    LED_OK_STATUS = "green"
+    LED_NOT_OK_STATUS = "amber"
     MONITOR_LIST = "monitor-list"
     HEALTH_FIRST_FILE = "health_history"
     HEALTH_SECOND_FILE = "health_history.1"

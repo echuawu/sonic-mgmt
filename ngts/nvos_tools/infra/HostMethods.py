@@ -10,10 +10,7 @@ class HostMethods:
     def host_snmp_get(host_engine, ip_address, community='qwerty12', port='', get_param='sysName.0'):
         with allure.step("Running snmpget command"):
             logging.info("Running snmpget command")
-            return host_engine.run_cmd('snmpget -v 2c -c {community} {ip_address}{port} {get_param}'.format(community,
-                                                                                                            ip_address,
-                                                                                                            port,
-                                                                                                            get_param))
+            return host_engine.run_cmd('snmpget -v 2c -c {0} {1}{2} {3}'.format(community, ip_address, port, get_param))
 
     @staticmethod
     def host_snmp_walk(host_engine, ip_address, community='qwerty12', param=''):

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def pytest_addoption(parser):
     """
     secure boot NVOS pytest options
-    :param parser: pytest buildin
+    :param parser: pytest build in
     """
     parser.addoption('--kernel_module_path', action='store',
                      help='Kernel modules path to test')
@@ -23,7 +23,7 @@ def pytest_addoption(parser):
 @pytest.fixture(scope='function')
 def kernel_module_path(request):
     '''
-    @summary: in this fixture we want to uplaod the kernel module
+    @summary: in this fixture we want to upload the kernel module
     to the duthost and after test run we want to clean it
     '''
     kernel_moudle_path = request.config.getoption('kernel_module_path')
@@ -34,7 +34,7 @@ def kernel_module_path(request):
 @pytest.fixture(scope='function')
 def kernel_module_filename(kernel_module_path):
     '''
-    @summary: extracting the kernel module filenmae
+    @summary: extracting the kernel module file name
     :param kernel_module_path: the path
     :return: the filename
     '''
@@ -49,11 +49,6 @@ def remove_kernel_module(kernel_module_filename, serial_engine):
     :param kernel_module_path:
     '''
     logger.info("Unloading kernel module {} if it exists before running the test".format(kernel_module_filename))
-    serial_engine.run_cmd_and_get_output('sudo rmmod {}'.format(kernel_module_filename.split('.')[0]))
-
-    yield
-
-    logger.info("Unloading kernel module {} if it exists after running the test".format(kernel_module_filename))
     serial_engine.run_cmd_and_get_output('sudo rmmod {}'.format(kernel_module_filename.split('.')[0]))
 
 

@@ -8,6 +8,9 @@ import shutil
 import os
 import subprocess
 import shlex
+from ngts.constants.constants import LinuxConsts
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
 
@@ -16,22 +19,6 @@ class NvosInstallationSteps:
 
     @staticmethod
     def pre_installation_steps(setup_info):
-        """
-        Pre-installation steps for NVOS NOS
-
-        Check if MLNXOS installed on this setup. If so, use boot_to_onie script located in a static directory
-        /.autodirect/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py to enter onie before installing NVOS
-        """
-        '''if setup_info['duts'][0]['switch_type'] == "MLNX_SWITCH":
-            cmd = "python /.autodirect/mswg/projects/sx_mlnx_os/sx_fit_regression/libs/scripts/boot_to_onie.py {}".format(
-                setup_info['duts'][0]['dut_ip'])
-            logger.info("Executing script: {}".format(cmd))
-            p = subprocess.Popen(shlex.split(cmd))
-            p.communicate(timeout=900000)
-            logger.info(p.stdout)
-            if p.returncode != 0:
-                raise AssertionError('boot_to_onie failed: {}\n with RC: {}'.format(p.stdout, p.returncode))
-            return p.returncode'''
         pass
 
     @staticmethod
@@ -53,17 +40,26 @@ class NvosInstallationSteps:
                 logger.warning("Failed to replace minigraph_facts.py in ansible path. Community tests will fail.")
 
         with allure.step('Waiting till NVOS become functional'):
-            assert NvosInstallationSteps.wait_for_nvos_to_become_functional(topology_obj), "Timeout " \
+            dut_engine = topology_obj.players['dut']['engine']
+            assert NvosInstallationSteps.wait_for_nvos_to_become_functional(dut_engine), "Timeout " \
                 "occurred while waiting for " \
                 "NVOS to complete the initialization"
 
+        with allure.step('Configure timezone'):
+            try:
+                logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+                ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), dut_engine, apply=True).verify_result()
+                NvueGeneralCli.save_config(dut_engine)
+                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+            except BaseException as ex:
+                logger.warning('Failed to configure timezone')
+
     @staticmethod
-    def wait_for_nvos_to_become_functional(topology_obj):
+    def wait_for_nvos_to_become_functional(dut_engine):
         """
         Waiting for NVOS to complete the init and become functional after the installation
         :return: Bool
         """
-        dut_engine = topology_obj.players['dut']['engine']
         try:
             NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
             return True

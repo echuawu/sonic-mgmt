@@ -8,25 +8,47 @@ class Radius(BaseComponent):
     def __init__(self, parent_obj=None):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/radius'
+        self.hostname = RadiusHostname(self)
         self.parent_obj = parent_obj
 
-    def set_hostname_password(self, hostname, password, apply=False, ask_for_confirmation=False):
-        return self.set("hostname {} password".format(hostname), password, apply, ask_for_confirmation)
 
-    def set_hostname_auth_port(self, hostname, auth_port, apply=False, ask_for_confirmation=False):
-        return self.set("hostname {} auth-port".format(hostname), auth_port, apply, ask_for_confirmation)
+class RadiusHostname(BaseComponent):
+    def __init__(self, parent_obj):
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/hostname'
+        self.parent_obj = parent_obj
 
-    def set_hostname_auth_type(self, hostname, auth_type, apply=False, ask_for_confirmation=False):
-        return self.set("hostname {} auth-type".format(hostname), auth_type, apply, ask_for_confirmation)
+    def set_priority(self, hostname, priority, apply=False, ask_for_confirmation=False):
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.set("priority", priority, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def set_hostname_timeout(self, hostname, timeout, apply=False, ask_for_confirmation=False):
-        return self.set("hostname {} timeout".format(hostname), timeout, apply, ask_for_confirmation)
+    def set_password(self, hostname, password, apply=False, ask_for_confirmation=False):
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.set("password", password, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def set_hostname_priority(self, hostname, priority, apply=False, ask_for_confirmation=False):
-        return self.set("hostname {} priority".format(hostname), priority, apply, ask_for_confirmation)
+    def set_auth_port(self, hostname, auth_port, apply=False, ask_for_confirmation=False):
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.set("auth-port", auth_port, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def show_hostname(self, hostname=''):
-        return self.show("hostname {}".format(hostname))
+    def set_auth_type(self, hostname, auth_type, apply=False, ask_for_confirmation=False):
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.set("auth-type", auth_type, apply=apply, ask_for_confirmation=ask_for_confirmation)
+
+    def set_timeout(self, hostname, timeout, apply=False, ask_for_confirmation=False):
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.set("timeout", timeout, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def unset_hostname(self, hostname, apply=False, ask_for_confirmation=False):
-        return self.unset("hostname {}".format(hostname), apply=apply, ask_for_confirmation=ask_for_confirmation)
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.unset(apply=apply, ask_for_confirmation=ask_for_confirmation)
+
+    def show_hostname(self, hostname):
+        radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
+        return radius_hostname.show()
+
+
+class RadiusHostnameResource(BaseComponent):
+    def __init__(self, parent_obj, hostname_id):
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/{id}'.format(id=hostname_id)
+        self.parent_obj = parent_obj

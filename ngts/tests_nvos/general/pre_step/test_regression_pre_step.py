@@ -11,6 +11,7 @@ from infra.tools.validations.traffic_validations.port_check.port_checker import 
 logger = logging.getLogger()
 
 REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {server_name}-ilo -U root -P 3tango11 chassis power cycle"
+SONIC_MGMT_HYPERVISOR = "fit-nvos-vrt-60"
 
 
 @pytest.mark.no_cli_coverage_run
@@ -21,6 +22,10 @@ def test_regression_pre_step(engines, topology_obj):
     """
     res = True
     info = ""
+    vms_to_check = [SONIC_MGMT_HYPERVISOR]
+
+    if "server" in topology_obj.players:
+        vms_to_check.append(topology_obj.players['server']['attributes'].noga_query_data['attributes']['Common']['Name'])
 
     with allure.step(f"Verify DUT {engines.dut.ip} is reachable and functional"):
         if not ping_device(engines.dut.ip):
@@ -32,13 +37,12 @@ def test_regression_pre_step(engines, topology_obj):
                     res = ping_device(engines.dut.ip)
                     info = f"dut {engines.dut.ip} is unreachable"
 
-    if "server" in topology_obj.players:
-        with allure.step(f"Verify server {engines.server.ip} is reachable"):
-            if not ping_device(engines.server.ip):
-                server_name = topology_obj.players['server']['attributes'].noga_query_data['attributes']['Common']['Name']
-                reboot_server(server_name)
-                res = ping_device(engines.server.ip)
-                info += f"server {engines.dut.ip} is unreachable"
+    for vm in vms_to_check:
+        with allure.step(f"Make sure {vm} is up"):
+            if not ping_device(vm):
+                reboot_server(vm)
+                res = ping_device(vm)
+                info += f"Hypervisor {vm} is unreachable"
 
     assert res, info
 
@@ -52,7 +56,7 @@ def ping_device(ip_add):
         return False
 
 
-@retry(Exception, tries=5, delay=3)
+@retry(Exception, tries=5, delay=10)
 def _ping_device(ip_add):
     with allure.step(f"Ping device ip {ip_add}"):
         cmd = f"ping -c 3 {ip_add}"
@@ -102,6 +106,6 @@ def reboot_server(server_name):
         cmd = REBOOT_CMD_TO_RUN.format(server_name=server_name)
         logging.info(f"cmd: {cmd}")
         os.system(cmd)
-        logging.info("Sleep for 2 min")
-        time.sleep(120)
+        logging.info("Sleep for 5 min")
+        time.sleep(300)
         logging.info(f"Reboot completed for '{server_name}'")

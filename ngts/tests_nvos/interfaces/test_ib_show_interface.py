@@ -170,29 +170,6 @@ def test_ib_show_interface_name_link(engines):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_show_interface_name_pluggable(engines):
-    """
-    Run show interface command and verify the required fields exist
-    Command: nv show interface <name> pluggable
-
-    flow:
-    1. Select a random port (status of which is up)
-    2. Run 'nv show interface <name> pluggable' on selected port
-    3. Verify the required fields are presented in the output
-    """
-    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
-
-    TestToolkit.update_tested_ports([selected_port])
-
-    with allure.step('Run show command on selected port and verify that each field has an appropriate '
-                     'value according to the state of the port'):
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            selected_port.ib_interface.pluggable.show_interface_pluggable()).get_returned_value()
-
-        validate_pluggable_fields(selected_port, output_dictionary)
-
-
-@pytest.mark.ib_interfaces
 def test_ib_show_interface_name_stats(engines):
     """
     Run show interface command and verify the required fields exist
@@ -216,12 +193,11 @@ def test_ib_show_interface_name_stats(engines):
 
 
 def validate_interface_fields(selected_port, output_dictionary):
-    with allure.step('Check that the following fields exist in the output: type, description, link, pluggable'):
-        logging.info('Check that the following fields exist in the output: type, description, link, pluggable')
+    with allure.step('Check that the following fields exist in the output: type, description, link'):
+        logging.info('Check that the following fields exist in the output: type, description, link')
         field_to_check = [selected_port.ib_interface.type.label,
                           selected_port.ib_interface.description.label,
-                          selected_port.ib_interface.link.label,
-                          selected_port.ib_interface.pluggable.label]
+                          selected_port.ib_interface.link.label]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
@@ -251,17 +227,6 @@ def validate_link_fields(selected_port, output_dictionary, port_up=True):
         logging.warning(res.info)
 
 
-def validate_pluggable_fields(selected_port, output_dictionary):
-    with allure.step('Check that all expected fields under pluggable field exist in the output'):
-        logging.info('Check that all expected fields under pluggable field exist in the output')
-        field_to_check = [selected_port.ib_interface.pluggable.identifier.label,
-                          selected_port.ib_interface.pluggable.vendor_name.label,
-                          selected_port.ib_interface.pluggable.vendor_pn.label,
-                          selected_port.ib_interface.pluggable.vendor_rev.label,
-                          selected_port.ib_interface.pluggable.vendor_sn.label]
-        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
-
-
 def validate_stats_fields(selected_port, output_dictionary):
     with allure.step('Check that all expected fields under link-stats field exist in the output'):
         logging.info('Check that all expected fields under link-stats field exist in the output')
@@ -284,9 +249,6 @@ def validate_one_port_show_output(selected_port):
     validate_link_fields(selected_port,
                          selected_port.show_output_dictionary[selected_port.ib_interface.link.label])
 
-    validate_pluggable_fields(selected_port,
-                              selected_port.show_output_dictionary[selected_port.ib_interface.pluggable.label])
-
     validate_stats_fields(selected_port,
                           selected_port.show_output_dictionary[
                               selected_port.ib_interface.link.label][
@@ -296,8 +258,7 @@ def validate_one_port_show_output(selected_port):
 def validate_one_port_in_show_all_ports(selected_port, output_dictionary, port_up=True):
     field_to_check = [selected_port.ib_interface.type.label,
                       selected_port.ib_interface.description.label,
-                      selected_port.ib_interface.link.label,
-                      selected_port.ib_interface.pluggable.label]
+                      selected_port.ib_interface.link.label]
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
     validate_link_fields(selected_port, output_dictionary[selected_port.ib_interface.link.label], port_up)
@@ -336,13 +297,6 @@ def test_ib_show_interface_all_state_down_openapi(engines):
 def test_ib_show_interface_name_link_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib_show_interface_name_link(engines)
-
-
-@pytest.mark.openapi
-@pytest.mark.ib_interfaces
-def test_ib_show_interface_name_pluggable_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_name_pluggable(engines)
 
 
 @pytest.mark.openapi
