@@ -2295,6 +2295,12 @@
       - 5600
 
 - Errors_list:
+    - '.*ERR swss#orchagent.*doPortTask: Unsupported port speed.*'
+  Conditions:
+    - Redmine:
+      - 3430196
+
+- Errors_list:
     - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] mlnx_sai_utils\.c.*sai_attribute_valid_condition_check: Attribute SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP doesn.*match a valid conditions:.*SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION : TRAP.*SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION : COPY.*'
     - '.*ERR syncd#SDK: \[SAI_HOST_INTERFACE\.ERR\] mlnx_sai_host_interface\.c.*mlnx_create_hostif_trap: Failed attribs check.*'
     - '.*ERR syncd#SDK:.*sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE.*'
