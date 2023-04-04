@@ -707,6 +707,12 @@ vxlan/test_vnet_vxlan.py::test_vnet_vxlan[WR_ARP-r-moose-01]:
     conditions:
       - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
 
+bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot[warm-r-moose-01-default]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+
 platform_tests/test_auto_negotiation.py::test_force_speed:
   skip:
     reason: "Missing adaptation of fanout code to this test. Community issue https://github.com/sonic-net/sonic-mgmt/issues/7271"
