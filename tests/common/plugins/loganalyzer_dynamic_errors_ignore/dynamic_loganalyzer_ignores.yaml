@@ -2368,3 +2368,11 @@
         - tests/nightly/sflow/test_sflow.py::test_sflow_agent_id
       Redmine:
         - 3431869
+
+- Errors_list:
+    - '.* ERR kernel: \[.*\] sx_core: lag_id \d+ is invalid.*'
+  Conditions:
+    - Redmine:
+      - 3432786
+      Platform:
+        - simx

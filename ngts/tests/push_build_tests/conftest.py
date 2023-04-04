@@ -4,6 +4,7 @@ import allure
 import os
 import itertools
 import time
+import random
 
 from retry.api import retry_call
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
@@ -27,6 +28,8 @@ from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, \
     is_support_rocev2_acl_counter_feature
 from ngts.helpers.sonic_branch_helper import get_sonic_branch
+from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.common.checkers import is_feature_ready
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -376,8 +379,8 @@ def acl_table_config_list(engines, interfaces):
     yield acl_table_config_list
 
 
-@pytest.fixture(scope='package')
-def basic_sflow_configuration_for_function(engines, cli_objects, interfaces):
+@pytest.fixture(scope='package', autouse=True)
+def basic_sflow_configuration_for_function(engines, cli_objects, interfaces, push_gate_configuration):
     """
     Pytest fixture used to configure basic sflow configuration for test function
     :param engines: engines fixture
@@ -417,3 +420,38 @@ def basic_sflow_configuration_for_function(engines, cli_objects, interfaces):
         cli_obj.sflow.disable_sflow_feature()
     with allure.step("Remove sflowtool sample files"):
         remove_tmp_sample_file(engines)
+
+
+def check_feature_enabled(cli_objects, feature):
+    """
+    This function is used to check the feature installed status
+    """
+    with allure.step(f"Validating {feature} is installed and enabled on the DUT"):
+        status, msg = is_feature_ready(cli_objects, feature_name=feature, docker_name=feature)
+
+    return status, msg
+
+
+@pytest.fixture(scope='package', autouse=True)
+def randomly_enable_sflow_wjh(cli_objects, basic_sflow_configuration_for_function):
+    """
+    Pytest fixture which is used to disable feature sflow and wjh then enable them randomly
+    """
+    feature_list = [SflowConsts.SFLOW_FEATURE_NAME, AppExtensionInstallationConstants.WJH_APP_NAME]
+
+    with allure.step("Check feature sflow and wjh feature installed status and docker status"):
+        for feature in feature_list:
+            status, msg = check_feature_enabled(cli_objects, feature)
+            if not status:
+                logger.info(f"Skipping randomly enable sflow and whj - {msg}")
+                return
+
+    with allure.step("Disable feature sflow and wjh"):
+        cli_objects.dut.general.set_feature_state(SflowConsts.SFLOW_FEATURE_NAME, 'disabled')
+        cli_objects.dut.general.set_feature_state(AppExtensionInstallationConstants.WJH_APP_NAME, 'disabled')
+
+    with allure.step("Enable feature sflow and wjh randomly"):
+        random.shuffle(feature_list)
+        for feature in feature_list:
+            logger.info(f"Enabling feature {feature}")
+            cli_objects.dut.general.set_feature_state(feature, 'enabled')

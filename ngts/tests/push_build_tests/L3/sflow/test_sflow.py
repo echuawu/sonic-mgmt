@@ -16,8 +16,7 @@ COLLECTOR_WARNING_CONTENT = "Only 2 collectors can be configured, please delete 
 @pytest.mark.build
 @pytest.mark.physical_coverage
 @pytest.mark.push_gate
-def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac,
-                              basic_sflow_configuration_for_function):
+def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac):
     """
     Test sflow funcrionality under reboot/fast reboot/warm reboot/config reload
     In order to make the execution time limited, use randomly reboot function
@@ -30,7 +29,6 @@ def test_basic_sflow_function(engines, cli_objects, interfaces, topology_obj, ha
     """
     try:
         cli_obj = cli_objects.dut
-        basic_sflow_configuration_for_function
 
         with allure.step(f"Configure sflow polling interval to {SflowConsts.POLLING_INTERVAL_1}"):
             cli_obj.sflow.config_sflow_polling_interval(SflowConsts.POLLING_INTERVAL_1)
