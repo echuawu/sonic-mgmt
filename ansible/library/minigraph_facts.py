@@ -98,15 +98,17 @@ def parse_asic_external_link(link, asic_name, hostname):
     # if chassis internal is false, the interface name will be
     # interface alias which should be converted to asic port name
     if (enddevice.lower() == hostname.lower()):
-        if endport in port_alias_to_port_asic_alias_map:
-            endport = port_alias_to_port_asic_alias_map[endport]
-            neighbors[port_alias_asic_map[endport]] = {'name': startdevice, 'port': startport}
+        if ((endport in port_alias_asic_map) and
+                (asic_name.lower() in port_alias_asic_map[endport].lower())):
+            endport = port_alias_asic_map[endport]
+            neighbors[port_name_to_alias_map[endport]] = {'name': startdevice, 'port': startport}
             if bandwidth:
                 port_speeds[port_alias_map[endport]] = bandwidth
     elif (startdevice.lower() == hostname.lower()):
-        if startport in port_alias_to_port_asic_alias_map:
-            startport = port_alias_to_port_asic_alias_map[startport]
-            neighbors[port_alias_asic_map[startport]] = {'name': enddevice, 'port': endport}
+        if ((startport in port_alias_asic_map) and
+                (asic_name.lower() in port_alias_asic_map[startport].lower())):
+            startport = port_alias_asic_map[startport]
+            neighbors[port_name_to_alias_map[startport]] = {'name': enddevice, 'port': endport}
             if bandwidth:
                 port_speeds[port_name_to_alias_map[startport]] = bandwidth
 

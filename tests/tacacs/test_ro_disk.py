@@ -1,7 +1,5 @@
 import pytest
 import logging
-import os
-import time
 
 from tests.common.devices.base import RunAnsibleModuleFail
 from tests.common.utilities import wait_until

@@ -30,7 +30,7 @@ def test_default_password_change_after_first_boot(dut_hostname):
     Test Flow:
         1.A message should appear after initial boot, requesting password change for default user.
         2.Password change, it will be tested by relogin to dut with new password and expecting no expire message again
-        3. reboot and login again and expect no expiring message
+	3. reboot and login again and expect no expiring message
     :param dut_hostname: name of device under test
     '''
     logger.info("------ STAGE 1 ------")
@@ -58,7 +58,7 @@ def test_default_password_change_after_first_boot(dut_hostname):
     logger.info('Retyping the new password')
     engine.expect(DefaultConsts.RETYPE_PASSWORD_REGEX)
     engine.sendline(DefaultConsts.NEW_PASSWORD + '\r')
-    engine.expect(DefaultConsts.DEFAULT_PROMPT)
+    engine.expect('[Pp]assword\s+changed')
     # update global configuration database, it will be used in cleanup later
     currentConfigurations.currentPassword = DefaultConsts.NEW_PASSWORD
     logger.info("Exit cli for the default user and re-enter again and expect no password expire message")
@@ -79,6 +79,9 @@ def test_default_password_change_after_first_boot(dut_hostname):
     if index == 0:
         engine.close()
         raise Exception("We captured the expiring message again after updating a new password!\n")
+    logger.info("save configurations")
+    engine.sendline('nv config save')
+    engine.expect(DefaultConsts.DEFAULT_PROMPT)
     engine.close()
 
     logger.info("------ STAGE 2 ------")

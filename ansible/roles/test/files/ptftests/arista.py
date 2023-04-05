@@ -11,7 +11,7 @@ import subprocess
 from ptf.mask import Mask
 import socket
 import ptf.packet as scapy
-from six.moves import _thread as thread
+import thread
 import threading
 from multiprocessing.pool import ThreadPool, TimeoutError
 import os
@@ -27,6 +27,7 @@ import re
 from collections import defaultdict
 import json
 import paramiko
+import Queue
 import pickle
 from operator import itemgetter
 import scapy.all as scapyall

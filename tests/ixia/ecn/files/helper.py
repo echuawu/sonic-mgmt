@@ -2,9 +2,10 @@ import time
 import dpkt
 
 from tests.common.helpers.assertions import pytest_assert
-from tests.common.fixtures.conn_graph_facts import conn_graph_facts, fanout_graph_facts         # noqa F401
+from tests.common.fixtures.conn_graph_facts import conn_graph_facts,\
+    fanout_graph_facts
 from tests.common.ixia.ixia_fixtures import ixia_api_serv_ip, ixia_api_serv_port,\
-    ixia_api_serv_user, ixia_api_serv_passwd, ixia_api                                          # noqa F401
+    ixia_api_serv_user, ixia_api_serv_passwd, ixia_api
 from tests.common.ixia.ixia_helpers import get_dut_port_id
 from tests.common.ixia.common_helpers import pfc_class_enable_vector, config_wred,\
     enable_ecn, config_ingress_lossless_buffer_alpha, stop_pfcwd, disable_packet_aging
@@ -12,7 +13,7 @@ from tests.common.ixia.port import select_ports, select_tx_port
 
 from abstract_open_traffic_generator.capture import CustomFilter, Capture,\
     BasicFilter
-from abstract_open_traffic_generator.flow import TxRx, Flow, Header, Size, Rate,\
+from abstract_open_traffic_generator.flow import TxRx, Flow, Header,Size, Rate,\
     Duration, FixedSeconds, FixedPackets, PortTxRx, PfcPause
 from abstract_open_traffic_generator.flow_ipv4 import Priority, Dscp
 from abstract_open_traffic_generator.flow import Pattern as FieldPattern
@@ -27,7 +28,6 @@ DATA_START_DELAY_SEC = 0.1
 IXIA_POLL_DELAY_SEC = 2
 PAUSE_FLOW_NAME = 'Pause Storm'
 DATA_FLOW_NAME = 'Data Flow'
-
 
 def run_ecn_test(api,
                  testbed_config,
@@ -137,11 +137,7 @@ def run_ecn_test(api,
 
     return result
 
-
-def sec_to_nanosec(secs):
-    """ Convert seconds to nanoseconds """
-    return secs * 1e9
-
+sec_to_nanosec = lambda x : x * 1e9
 
 def __gen_traffic(testbed_config,
                   port_config_list,
@@ -203,8 +199,8 @@ def __gen_traffic(testbed_config,
     data_flow_delay_nanosec = sec_to_nanosec(data_flow_delay_sec)
 
     eth_hdr = EthernetHeader(src=FieldPattern(tx_mac),
-                             dst=FieldPattern(rx_mac),
-                             pfc_queue=FieldPattern([prio]))
+                            dst=FieldPattern(rx_mac),
+                            pfc_queue=FieldPattern([prio]))
 
     ip_prio = Priority(Dscp(phb=FieldPattern(choice=prio_dscp_map[prio]),
                             ecn=FieldPattern(choice=Dscp.ECN_CAPABLE_TRANSPORT_1)))
@@ -291,7 +287,6 @@ def __config_capture_ip_pkt(testbed_config, port_id):
                       enable=True)]
     return result
 
-
 def __run_traffic(api,
                   config,
                   all_flow_names,
@@ -364,7 +359,6 @@ def __get_ip_pkts(pcap_file_name):
             ip_pkts.append(eth.data)
 
     return ip_pkts
-
 
 def is_ecn_marked(ip_pkt):
     """

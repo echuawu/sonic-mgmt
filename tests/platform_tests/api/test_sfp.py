@@ -19,7 +19,7 @@ import sys
 if sys.version_info.major == 3:
     STRING_TYPE = str
 else:
-    STRING_TYPE = str
+    STRING_TYPE = basestring
 # END Remove this after we transition to Python 3
 ###################################################
 
@@ -44,14 +44,14 @@ def setup(request, duthosts, enum_rand_one_per_hwsku_hostname, xcvr_skip_list, c
     physical_port_index_map = get_physical_port_indices(duthost, physical_intfs)
 
     sfp_port_indices = set([physical_port_index_map[intf] \
-        for intf in list(physical_port_index_map.keys())])
+        for intf in physical_port_index_map.keys()])
     sfp_setup["sfp_port_indices"] = sorted(sfp_port_indices)
 
     if len(xcvr_skip_list[duthost.hostname]):
         logging.info("Skipping tests on {}".format(xcvr_skip_list[duthost.hostname]))
 
     sfp_port_indices = set([physical_port_index_map[intf] for intf in \
-                                                list(physical_port_index_map.keys()) \
+                                                physical_port_index_map.keys() \
                                                 if intf not in xcvr_skip_list[duthost.hostname]])
     sfp_setup["sfp_test_port_indices"] = sorted(sfp_port_indices)
 
@@ -400,7 +400,7 @@ class TestSfpApi(PlatformApiTestBase):
                 if self.expect(isinstance(bulk_status_dict, dict), "Transceiver {} bulk status appears incorrect".format(i)):
                     # TODO: This set of keys should be present no matter how many channels are present on the xcvr
                     #       If the xcvr has multiple channels, we should adjust the fields here accordingly
-                    actual_keys = list(bulk_status_dict.keys())
+                    actual_keys = bulk_status_dict.keys()
 
                     missing_keys = set(self.EXPECTED_XCVR_BULK_STATUS_KEYS) - set(actual_keys)
                     for key in missing_keys:
@@ -417,7 +417,7 @@ class TestSfpApi(PlatformApiTestBase):
             thold_info_dict = sfp.get_transceiver_threshold_info(platform_api_conn, i)
             if self.expect(thold_info_dict is not None, "Unable to retrieve transceiver {} threshold info".format(i)):
                 if self.expect(isinstance(thold_info_dict, dict), "Transceiver {} threshold info appears incorrect".format(i)):
-                    actual_keys = list(thold_info_dict.keys())
+                    actual_keys = thold_info_dict.keys()
 
                     missing_keys = set(self.EXPECTED_XCVR_THRESHOLD_INFO_KEYS) - set(actual_keys)
                     for key in missing_keys:
@@ -727,7 +727,7 @@ class TestSfpApi(PlatformApiTestBase):
             if self.expect(error_description is not None, "Unable to retrieve transceiver {} error description".format(i)):
                 if "Not implemented" in error_description:
                     pytest.skip("get_error_description isn't implemented. Skip the test")
-                if self.expect(isinstance(error_description, str) or isinstance(error_description, str), "Transceiver {} error description appears incorrect".format(i)):
+                if self.expect(isinstance(error_description, str) or isinstance(error_description, unicode), "Transceiver {} error description appears incorrect".format(i)):
                     self.expect(error_description == "OK", "Transceiver {} is not present".format(i))
         self.assert_expectations()
 

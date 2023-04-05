@@ -3,7 +3,6 @@ import random
 from tests.common.ixia.common_helpers import enable_packet_aging, start_pfcwd
 from tests.conftest import generate_priority_lists
 
-
 @pytest.fixture(autouse=True, scope="module")
 def rand_lossless_prio(request):
     """
@@ -21,7 +20,6 @@ def rand_lossless_prio(request):
         yield random.sample(lossless_prios, 1)[0]
     else:
         yield 'unknown|unknown'
-
 
 @pytest.fixture(autouse=True, scope="module")
 def rand_lossy_prio(request):
@@ -41,7 +39,6 @@ def rand_lossy_prio(request):
     else:
         yield 'unknown|unknown'
 
-
 @pytest.fixture(autouse=True, scope="module")
 def start_pfcwd_after_test(duthosts, rand_one_dut_hostname):
     """
@@ -58,7 +55,6 @@ def start_pfcwd_after_test(duthosts, rand_one_dut_hostname):
 
     duthost = duthosts[rand_one_dut_hostname]
     start_pfcwd(duthost)
-
 
 @pytest.fixture(autouse=True, scope="module")
 def enable_packet_aging_after_test(duthosts, rand_one_dut_hostname):

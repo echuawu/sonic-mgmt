@@ -18,7 +18,7 @@ import random
 import socket
 import threading
 from collections import defaultdict
-from six.moves.queue import Queue
+from Queue import Queue
 
 import ptf
 from ptf.base_tests import BaseTest
