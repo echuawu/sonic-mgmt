@@ -329,6 +329,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
+        # TODO: temporary workaround for r-moose-01 community setup, remove once will not need it
+        if platform_params.setup_name == 'r-moose-01_setup':
+            self.engine.disconnect()
+            self.remote_reboot(topology_obj)
+            logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
+            time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
+
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
                 self.validate_dockers_are_up_reboot_if_fail()
