@@ -934,11 +934,9 @@ sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_route
 
 span/test_port_mirroring.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421654 and branch 202211 and platform msn3800; Testcase ignored due to GitHub issue:  https://github.com/sonic-net/sonic-mgmt/issues/7904 and branch 202211 and platform msn2700"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421654 and branch 202211 and platform msn3800"
     conditions:
       - "https://redmine.mellanox.com/issues/3421654 and '202211' in release and 'msn3800' in platform"
-      - "https://github.com/sonic-net/sonic-mgmt/issues/7904 and '202211' in release and 'msn2700' in platform"
 
 route/test_route_perf.py::test_perf_add_remove_routes:
   skip:
@@ -1607,36 +1605,6 @@ bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot:
     conditions:
       - "https://redmine.mellanox.com/issues/3416343"
 
-crm/test_crm.py::test_crm_neighbor:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7853
-
-crm/test_crm.py::test_crm_nexthop:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7853
-
-crm/test_crm.py::test_crm_nexthop_group:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7853
-
-crm/test_crm.py::test_crm_route:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7853"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7853
-
-show_techsupport/test_techsupport.py::test_techsupport_commands:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7868"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7868
-
 platform_tests/link_flap/test_link_flap.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
@@ -1678,12 +1646,6 @@ bfd/test_bfd.py::test_bfd_multihop:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419018"
     conditions:
       - "https://redmine.mellanox.com/issues/3419018"
-
-bgp/test_bgp_gr_helper.py::test_bgp_gr_helper_routes_perserved:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7880"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7880
 
 drop_packets/test_drop_counters.py::test_src_ip_is_loopback_addr:
   skip:
@@ -1727,18 +1689,6 @@ drop_packets/test_drop_counters.py::test_ip_pkt_with_exceeded_mtu:
     conditions:
       - "https://redmine.mellanox.com/issues/3419226"
 
-dualtor/test_orch_stress.py::test_flap_neighbor_entry_active:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7934"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7934
-
-dualtor/test_orch_stress.py::test_flap_neighbor_entry_standby:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7934"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7934
-
 lldp/test_lldp.py::test_lldp_neighbor:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419460"
@@ -1763,12 +1713,6 @@ iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_port_f
     conditions:
       - "https://redmine.mellanox.com/issues/3417479"
 
-pfcwd/test_pfcwd_function.py::TestPfcwdFunc::test_pfcwd_mmu_change:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7888"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7888
-
 route/test_route_flow_counter.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420524"
@@ -1792,18 +1736,6 @@ dhcp_relay/test_dhcpv6_relay.py::test_dhcp_relay_start_with_uplinks_down:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
     conditions:
       - "https://redmine.mellanox.com/issues/3419398"
-
-decap/test_decap.py:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7905"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7905
-
-ipfwd/test_dir_bcast.py::test_dir_bcast:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/7900"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7900
 
 pc/test_po_update.py::test_po_update_io_no_loss:
   skip:
