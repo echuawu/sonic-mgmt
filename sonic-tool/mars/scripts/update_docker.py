@@ -302,13 +302,13 @@ def main():
 
     topo = parse_topology(args.topo)
     test_server_device = topo.get_device_by_topology_id(constants.TEST_SERVER_DEVICE_ID)
-
+    test_server_device_username, test_server_device_password = topo.get_user_access(test_server_device.USERS[0])
     docker_host = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
     mac = docker_host.MAC_ADDRESS
 
-    test_server = Connection(test_server_device.BASE_IP, user=test_server_device.USERS[0].USERNAME,
+    test_server = Connection(test_server_device.BASE_IP, user=test_server_device_username,
                              config=Config(overrides={"run": {"echo": True}}),
-                             connect_kwargs={"password": test_server_device.USERS[0].PASSWORD})
+                             connect_kwargs={"password": test_server_device_password})
 
     if args.send_takeover_notification == 'yes':
         send_takeover_notification(topo)
@@ -374,8 +374,10 @@ def send_takeover_notification(topo):
     players_were_notified = False
     for player in players_to_be_notified:
         player_info = topo.get_device_by_topology_id(player)
+        player_info_username, player_info_password = topo.get_user_access(player_info.USERS[0])
         try:
-            notify_player_users(player_info, wait_between_notf_to_regression_start)
+            notify_player_users(player_info, wait_between_notf_to_regression_start,
+                                player_info_username, player_info_password)
             players_were_notified = True
         except Exception:
             logger.warning("Unable to connect to {}:{}, in order to notify logged users about regression "
@@ -385,12 +387,12 @@ def send_takeover_notification(topo):
         time.sleep(wait_between_notf_to_regression_start * 60)
 
 
-def notify_player_users(player_info, wait_between_notf_to_regression_start):
+def notify_player_users(player_info, wait_between_notf_to_regression_start, player_info_username, player_info_password):
     takeover_message = "Mars regression is taking over in {} minutes. Please save your work and logout".\
         format(wait_between_notf_to_regression_start)
-    player_engine = Connection(player_info.BASE_IP, user=player_info.USERS[0].USERNAME,
+    player_engine = Connection(player_info.BASE_IP, user=player_info_username,
                                config=Config(overrides={"run": {"echo": True}}),
-                               connect_kwargs={"password": player_info.USERS[0].PASSWORD},
+                               connect_kwargs={"password": player_info_password},
                                connect_timeout=5)
     logger.info("Sending takeover notification to:{}".format(player_info.BASE_IP))
     player_engine.run('wall {}'.format(takeover_message))

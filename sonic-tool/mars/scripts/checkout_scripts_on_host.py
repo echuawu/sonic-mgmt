@@ -46,10 +46,10 @@ def main():
     host_name = args.host_name if args.host_name else constants.TEST_SERVER_DEVICE_ID
     topo = parse_topology(args.topo)
     host_device = topo.get_device_by_topology_id(host_name)
-
-    host = Connection(host_device.BASE_IP, user=host_device.USERS[0].USERNAME,
+    host_device_username, host_device_password = topo.get_user_access(host_device.USERS[0])
+    host = Connection(host_device.BASE_IP, user=host_device_username,
                       config=Config(overrides={"run": {"echo": True}}),
-                      connect_kwargs={"password": host_device.USERS[0].PASSWORD})
+                      connect_kwargs={"password": host_device_password})
 
     logger.info("Check if {} exists ".format(workspace_path))
     if host.run("test -d {}".format(workspace_path), warn=True).ok:
