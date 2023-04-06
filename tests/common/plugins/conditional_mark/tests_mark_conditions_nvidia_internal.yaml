@@ -1743,4 +1743,13 @@ pc/test_po_update.py::test_po_update_io_no_loss:
     conditions:
       - "https://redmine.mellanox.com/issues/3423765"
 
+dash/platform/test_dpu_show_platform_temperature.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431716;  Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3376864; Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3428696"
+    conditions_logical_operator: or
+    conditions:
+      - https://redmine.mellanox.com/issues/3431716
+      - https://redmine.mellanox.com/issues/3376864
+      - https://redmine.mellanox.com/issues/3428696
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
