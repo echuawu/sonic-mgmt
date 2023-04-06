@@ -23,27 +23,31 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
     chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
 
     pre_stuck_dumps = duthost.run_cmd('ls -t {}/*.tar | wc -l'.format(SDK_DUMP_DIR))
-    with allure.step('Stop all iRISICs to halt FW'):
-        stop_irisics(chip_type, duthost)
 
-    with allure.step('Wait for DumpMe dump to be created'):
-        retry_call(
-            verify_sdkdump_created,
-            fargs=[duthost, pre_stuck_dumps],
-            tries=30,
-            delay=10,
-            logger=logger,
-        )
+    try:
+        with allure.step('Stop all iRISICs to halt FW'):
+            stop_irisics(chip_type, duthost)
 
-    with allure.step('Validate that the DumpMe dump contain all of the SDK extended dump files'):
-        check_all_dumps_file_exsits(duthost)
+        with allure.step('Wait for DumpMe dump to be created'):
+            retry_call(
+                verify_sdkdump_created,
+                fargs=[duthost, pre_stuck_dumps],
+                tries=30,
+                delay=10,
+                logger=logger,
+            )
 
-    # with allure.step('Count number of SDK extended dumps on dut after stuck occurred'):
-    #     number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
-    #     assert number_of_sdk_error_after == pre_stuck_dumps + 1
+        with allure.step('Validate that the DumpMe dump contain all of the SDK extended dump files'):
+            check_all_dumps_file_exsits(duthost)
 
-    with allure.step('Rebooting the system - necessary to restart the iRISCs'):
-        cli_objects.dut.general.reboot_reload_flow(topology_obj=topology_obj)
+        # with allure.step('Count number of SDK extended dumps on dut after stuck occurred'):
+        #     number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
+        #     assert number_of_sdk_error_after == pre_stuck_dumps + 1
+    except Exception as err:
+        raise err
+    finally:
+        with allure.step('Rebooting the system - necessary to restart the iRISCs'):
+            cli_objects.dut.general.reboot_reload_flow(topology_obj=topology_obj)
 
 
 def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
@@ -99,7 +103,7 @@ def generate_tech_support_and_count_sdk_dumps(engine):
 
     after_list = list(filter(r.match, filenames))
 
-    engine.run_cmd("rm -rf {}".format(tar_file))
+    engine.run_cmd("sudo rm -rf {}".format(tar_file))
     return len(after_list)
 
 
