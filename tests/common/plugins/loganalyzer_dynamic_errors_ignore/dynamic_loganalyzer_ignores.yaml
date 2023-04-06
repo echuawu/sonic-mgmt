@@ -1574,10 +1574,12 @@
     - Affected_test_cases:
       - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
       - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       Redmine:
       - 3216771
       Branch:
       - 202205
+      - master
 
 - Errors_list:
     - '.* ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data.*'
