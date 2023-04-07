@@ -655,63 +655,69 @@ platform_tests/test_auto_negotiation.py:
 
 ecmp/inner_hashing/test_wr_inner_hashing.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 ecmp/inner_hashing/test_wr_inner_hashing_lag.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 arp/test_wr_arp.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 platform_tests/test_cont_warm_reboot.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 pfcwd/test_pfcwd_warm_reboot.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 platform_tests/test_service_warm_restart.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 vxlan/test_vnet_vxlan.py::test_vnet_vxlan[WR_ARP-r-moose-01]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot[warm-r-moose-01-default]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3427114 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
-      - "https://redmine.mellanox.com/issues/3427114 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
+
+sflow/test_sflow.py::testWarmreboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
 platform_tests/test_auto_negotiation.py::test_force_speed:
   skip:
@@ -1697,9 +1703,9 @@ lldp/test_lldp.py::test_lldp_neighbor:
 
 platform_tests.test_reboot.py::test_warm_reboot:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420124 and '5600' in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and '5600' in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3420124 and '5600' in platform"
+      - "https://redmine.mellanox.com/issues/3429331 and '5600' in platform"
 
 bgp/test_bgp_speaker.py:
   skip:
