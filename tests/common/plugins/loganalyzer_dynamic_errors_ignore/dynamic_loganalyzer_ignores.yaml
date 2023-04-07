@@ -2329,3 +2329,20 @@
   Conditions:
     - Redmine:
         - 3428674
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Ethernet\d+: Got SFP error event 19'
+  Conditions:
+    - Affected_test_cases:
+        - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
+      Redmine:
+        - 3431854
+
+- Errors_list:
+    - '.* ERR what-just-happened#wjhd: :- parse_packet: Netlink message doesn''t have the NET_DM_ATTR_HW_TRAP_NAME'
+    - '.* ERR what-just-happened#wjhd: :- dropmonsock_poll: Failed to read an event from Drop monitor socket'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/sflow/test_sflow.py::test_sflow_agent_id
+      Redmine:
+        - 3431869
