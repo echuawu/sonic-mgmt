@@ -50,6 +50,9 @@ def inbound_vnet_packets(dash_config_info):
     # Ignore "id" and "chksum" fields during packet matching. Temporary workaround to overcome #3394651 issue.
     masked_exp_packet.set_do_not_care_scapy(scapy.IP, "id")
     masked_exp_packet.set_do_not_care_scapy(scapy.IP, "chksum")
+    # Ignore "ttl" field during packet matching. Temporary workaround to overcome #3431877 issue.
+    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "ttl")
+
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "sport")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "chksum")
 
@@ -88,6 +91,9 @@ def outbound_vnet_packets(dash_config_info):
     # Ignore "id" and "chksum" fields during packet matching. Temporary workaround to overcome #3394651 issue.
     masked_exp_packet.set_do_not_care_scapy(scapy.IP, "id")
     masked_exp_packet.set_do_not_care_scapy(scapy.IP, "chksum")
+    # Ignore "ttl" field during packet matching. Temporary workaround to overcome #3431877 issue.
+    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "ttl")
+
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "sport")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "chksum")
     return inner_packet, vxlan_packet, masked_exp_packet
