@@ -323,33 +323,9 @@ dualtor/test_standby_tor_upstream_mux_toggle.py:
 
 dualtor/test_orchagent_active_tor_downstream.py::test_downstream_ecmp_nexthops:
   skip:
-    reason: "On Mellanox 2700 platform, due to HW limitation, the hierarchy ecmp behavior is not exactly as expected in the test case."
+    reason: "On Mellanox SPC1 platforms, due to HW limitation, the hierarchy ecmp behavior is not exactly as expected in the test case."
     conditions:
-      - "'sn2700' in platform"
-
-dualtor_io/test_link_failure.py::test_active_link_down_downstream_active[active-standby]:
-  skip:
-    reason: "Skip by github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272 on Nvidia platforms"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/8272 and platform in ['x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn4600c-r0']"
-
-dualtor_io/test_link_failure.py::test_active_link_down_downstream_standby[active-standby]:
-  skip:
-    reason: "Skip by github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272 on Nvidia platforms"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/8272 and platform in ['x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn4600c-r0']"
-
-dualtor_io/test_link_failure.py::test_active_tor_downlink_down_downstream_active[active-standby]:
-  skip:
-    reason: "Skip by github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272 on Nvidia platforms"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/8272 and platform in ['x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn4600c-r0']"
-
-dualtor_io/test_link_failure.py::test_active_tor_downlink_down_downstream_standby[active-standby]:
-  skip:
-    reason: "Skip by github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272 on Nvidia platforms"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/8272 and platform in ['x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn4600c-r0']"
+      - "asic_gen == 'spc1'"
 
 #######################################
 #####         dut_console         #####
