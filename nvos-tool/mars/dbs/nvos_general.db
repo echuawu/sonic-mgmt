@@ -42,4 +42,8 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/general/nvos_general_config_commands.cases </cases>
 	</test>
 
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/general/nvos_general_config_commands_loganalyzer.cases </cases>
+	</test>
+
 </DBDEF>
