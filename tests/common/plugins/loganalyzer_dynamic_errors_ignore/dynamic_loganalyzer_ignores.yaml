@@ -2201,6 +2201,28 @@
         - 202211
 
 - Errors_list:
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY: .*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_FDB_EVENT_NOTIFY: .*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_INIT_SWITCH: .*'
+    - '.* ERR syncd#SDK: :- logEventData: op: create, key: SAI_OBJECT_TYPE_SWITCH:.*'
+    - '.* ERR syncd#SDK: :- threadFunction: time span WD exceeded \d+ ms for create:SAI_OBJECT_TYPE_SWITCH:.*'
+    - '.* ERR syncd#SDK: :- logEventData: fv: SAI_SWITCH_ATTR_SWITCH_SHUTDOWN_REQUEST_NOTIFY:.*'
+    - '.* ERR syncd#SDK: :- setEndTime: event ''create:SAI_OBJECT_TYPE_SWITCH:oid:0[xX][0-9a-fA-F]+'' took \d+ ms to execute.*'
+  Conditions:
+    - Redmine:
+      - 3432623
+      Branch:
+        - 202211_SPC4_CS
+
+- Errors_list:
+    - '.* ERR systemd\[\d+\]: Failed to start Rotate log files'
+  Conditions:
+    - Redmine:
+      - 3432683
+      Branch:
+        - 202211_SPC4_CS
+
+- Errors_list:
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: sx_lib_host_ifc_recv_list failed, error: Driver''s Return Status is Non-Zero.'
     - '.* ERR what-just-happened#wjhd\[\d+\]: \[WJH_LIB.ERROR  \]: __wjh_non_l1_cyclic_channel_read failed, err: 1'
   Conditions:
