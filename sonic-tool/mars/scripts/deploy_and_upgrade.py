@@ -574,13 +574,16 @@ def main():
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
     hypervisor_device = topo.get_device_by_topology_id(constants.TEST_SERVER_DEVICE_ID)
 
-    mgmt_docker_engine = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device.USERS[0].USERNAME,
-                                    config=Config(overrides={"run": {"echo": True}}),
-                                    connect_kwargs={"password": sonic_mgmt_device.USERS[0].PASSWORD})
+    sonic_mgmt_device_username, sonic_mgmt_device_password = topo.get_user_access(sonic_mgmt_device.USERS[0])
+    hypervisor_device_username, hypervisor_device_password = topo.get_user_access(hypervisor_device.USERS[0])
 
-    hypervisor_engine = Connection(hypervisor_device.BASE_IP, user=hypervisor_device.USERS[0].USERNAME,
+    mgmt_docker_engine = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device_username,
+                                    config=Config(overrides={"run": {"echo": True}}),
+                                    connect_kwargs={"password": sonic_mgmt_device_password})
+
+    hypervisor_engine = Connection(hypervisor_device.BASE_IP, user=hypervisor_device_username,
                                    config=Config(overrides={"run": {"echo": True}}),
-                                   connect_kwargs={"password": hypervisor_device.USERS[0].PASSWORD})
+                                   connect_kwargs={"password": hypervisor_device_password})
 
     image_urls = prepare_images(args.base_version, args.target_version, args.serve_files)
 

@@ -40,10 +40,10 @@ def main():
 
     topo = parse_topology(args.topo)
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
-
-    sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device.USERS[0].USERNAME,
+    sonic_mgmt_device_username, sonic_mgmt_device_password = topo.get_user_access(sonic_mgmt_device.USERS[0])
+    sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device_username,
                             config=Config(overrides={"run": {"echo": True}}),
-                            connect_kwargs={"password": sonic_mgmt_device.USERS[0].PASSWORD})
+                            connect_kwargs={"password": sonic_mgmt_device_password})
 
     workspace_path = args.workspace_path
     repo_name = args.repo_name

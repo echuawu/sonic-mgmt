@@ -81,12 +81,14 @@ if __name__ == "__main__":
 
     topo = parse_topology(args.topo)
     dut_device = topo.get_device_by_topology_id(constants.DUT_DEVICE_ID)
+    dut_device_username, dut_device_password = topo.get_user_access(dut_device.USERS[0])
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
+    sonic_mgmt_device_username, sonic_mgmt_device_password = topo.get_user_access(sonic_mgmt_device.USERS[0])
 
-    dut = SonicDevice(dut_device.BASE_IP, dut_device.USERS[0].USERNAME, dut_device.USERS[0].PASSWORD)
-    sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device.USERS[0].USERNAME,
+    dut = SonicDevice(dut_device.BASE_IP, dut_device_username, dut_device_password)
+    sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device_username,
                             config=Config(overrides={"run": {"echo": True}}),
-                            connect_kwargs={"password": sonic_mgmt_device.USERS[0].PASSWORD})
+                            connect_kwargs={"password": sonic_mgmt_device_password})
     topology_check(sonic_mgmt, args.test_name, args.sonic_topo, repo_path)
 
     issu_check(dut)

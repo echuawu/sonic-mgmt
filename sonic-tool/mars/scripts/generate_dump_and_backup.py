@@ -44,15 +44,15 @@ def main():
 
     topo = parse_topology(args.topo)
     dut_device = topo.get_device_by_topology_id(constants.DUT_DEVICE_ID)
-
-    dut = Connection(dut_device.BASE_IP, user=dut_device.USERS[0].USERNAME,
+    dut_device_username, dut_device_password = topo.get_user_access(dut_device.USERS[0])
+    dut = Connection(dut_device.BASE_IP, user=dut_device_username,
                      config=Config(overrides={"run": {"echo": True}}),
-                     connect_kwargs={"password": dut_device.USERS[0].PASSWORD})
+                     connect_kwargs={"password": dut_device_password})
 
     logger.info("Generating dump on sonic")
     generate_dump_cmd = "sudo generate_dump -s '%s'" % args.since
     cmd_run = 'sshpass -p {} ssh {}@{} -o StrictHostKeyChecking=no "{}"'.format(
-        dut_device.USERS[0].PASSWORD, dut_device.USERS[0].USERNAME, dut_device.BASE_IP, generate_dump_cmd)
+        dut_device_password, dut_device_username, dut_device.BASE_IP, generate_dump_cmd)
 
     process = subprocess.Popen(cmd_run, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, unused_err = process.communicate()

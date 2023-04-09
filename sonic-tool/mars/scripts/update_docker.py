@@ -13,6 +13,7 @@ import sys
 import time
 import traceback
 import os
+import re
 from retry import retry
 
 # Third-party libs
@@ -141,6 +142,19 @@ def create_mgmt_network(conn):
         logger.info('macvlan network \"%s\" - already exist', NETWORK_NAME)
 
 
+def create_secrets_vars_script(conn, mars_docker_env_secrets, container_name):
+    export_env_var_script_path = "/tmp/{CONTAINER_NAME}_export_env_var.sh".format(CONTAINER_NAME=container_name)
+    if os.path.exists(export_env_var_script_path):
+        conn.run("rm -f {SCRIPT_PATH}".format(SCRIPT_PATH=export_env_var_script_path), warn=True)
+    regex = "[\w|_]*=[\'|\w|\d|$|!|-]*"
+    env_vars = re.findall(regex, mars_docker_env_secrets)
+    script_content = ["export {0}".format(env_var) for env_var in env_vars]
+    script_content = ["#!/bin/bash"] + script_content
+    for line in script_content:
+        conn.run("echo \"{LINE}\" >> {SCRIPT_PATH}".format(LINE=line, SCRIPT_PATH=export_env_var_script_path), warn=True)
+    return export_env_var_script_path
+
+
 def create_and_start_container(conn, image_name, image_tag, container_name, mac_address):
     """
     @summary: Create and start specified container from specified image
@@ -170,6 +184,7 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     logger.info("Try to remove existing docker container anyway")
     conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
     mars_docker_env_secrets = os.getenv("MARS_DOCKER_ENV_SECRETS")
+    secrets_vars_script_path = create_secrets_vars_script(conn, mars_docker_env_secrets, container_name)
     cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
                 "--privileged --network=containers_network --mac-address={MAC_ADDRESS} " \
                 "--env ANSIBLE_CONFIG=/root/mars/workspace/sonic-mgmt/ansible/ansible.cfg {MARS_DOCKER_ENV_SECRETS} " \
@@ -197,7 +212,11 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
 
     validate_docker_is_up(conn, container_name)
     logger.info("Configure container after starting it")
-
+    copy_script_cmd = "docker cp {SCRIPT_PATH} " \
+                      "{CONTAINER_NAME}:/etc/profile.d/".format(SCRIPT_PATH=secrets_vars_script_path,
+                                                                CONTAINER_NAME=container_name)
+    conn.run(copy_script_cmd, warn=True)
+    conn.run("rm -f {SCRIPT_PATH}".format(SCRIPT_PATH=secrets_vars_script_path), warn=True)
     if not configure_docker_route(conn, container_name):
         logger.error("Configure docker container failed.")
         sys.exit(1)
@@ -364,7 +383,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.203'}
+    default_list = {'docker-ngts': '1.2.204'}
     return default_list.get(docker_name, latest)
 
 

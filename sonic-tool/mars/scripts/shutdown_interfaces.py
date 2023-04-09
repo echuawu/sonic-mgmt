@@ -35,7 +35,8 @@ def main():
     args = _parse_args()
     topo = parse_topology(args.topo)
     dut_device = topo.get_device_by_topology_id(constants.DUT_DEVICE_ID)
-    dut = SonicDevice(dut_device.BASE_IP, dut_device.USERS[0].USERNAME, dut_device.USERS[0].PASSWORD)
+    dut_device_username, dut_device_password = topo.get_user_access(dut_device.USERS[0])
+    dut = SonicDevice(dut_device.BASE_IP, dut_device_username, dut_device_password)
     if str(args.iface) != "None":
         i = 0
         iface_index = int(args.iface.replace('Ethernet',''))

@@ -34,8 +34,9 @@ if __name__ == "__main__":
 
     dut_device = topo.get_device_by_topology_id(constants.DUT_DEVICE_ID)
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
+    dut_device_username, dut_device_password = topo.get_user_access(dut_device.USERS[0])
 
-    dut = SonicDevice(dut_device.BASE_IP, dut_device.USERS[0].USERNAME, dut_device.USERS[0].PASSWORD)
+    dut = SonicDevice(dut_device.BASE_IP, dut_device_username, dut_device_password)
 
     command = "sudo sonic-cfggen -H -k {} -p --preset {} > /tmp/config_db.json".format(args.hwsku, args.preset)
     dut.run(command)

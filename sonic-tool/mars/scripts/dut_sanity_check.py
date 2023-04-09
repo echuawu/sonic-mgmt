@@ -114,10 +114,11 @@ if __name__ == "__main__":
 
     dut_device = topo.get_device_by_topology_id(constants.DUT_DEVICE_ID)
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
-
-    dut = SonicDevice(dut_device.BASE_IP, dut_device.USERS[0].USERNAME, dut_device.USERS[0].PASSWORD)
-    sonic_mgmt_container = SonicMgmtDevice(sonic_mgmt_device.BASE_IP, sonic_mgmt_device.USERS[0].USERNAME,
-                                           sonic_mgmt_device.USERS[0].PASSWORD, repo_path)
+    dut_device_username, dut_device_password = topo.get_user_access(dut_device.USERS[0])
+    sonic_mgmt_device_username, sonic_mgmt_device_password = topo.get_user_access(sonic_mgmt_device.USERS[0])
+    dut = SonicDevice(dut_device.BASE_IP, dut_device_username, dut_device_password)
+    sonic_mgmt_container = SonicMgmtDevice(sonic_mgmt_device.BASE_IP, sonic_mgmt_device_username,
+                                           sonic_mgmt_device_password, repo_path)
 
     # Record SONiC version in log
     dut.run("show version")

@@ -44,10 +44,11 @@ if __name__ == "__main__":
 
     topo = parse_topology(args.topo)
     sonic_mgmt_device = topo.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
+    sonic_mgmt_device_username, sonic_mgmt_device_password = topo.get_user_access(sonic_mgmt_device.USERS[0])
 
-    sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device.USERS[0].USERNAME,
+    sonic_mgmt = Connection(sonic_mgmt_device.BASE_IP, user=sonic_mgmt_device_username,
                             config=Config(overrides={"run": {"echo": True}}),
-                            connect_kwargs={"password": sonic_mgmt_device.USERS[0].PASSWORD})
+                            connect_kwargs={"password": sonic_mgmt_device_password})
 
 
     with sonic_mgmt.cd(ansible_path):

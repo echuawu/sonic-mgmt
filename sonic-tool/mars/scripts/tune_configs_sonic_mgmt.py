@@ -43,12 +43,13 @@ if __name__ == "__main__":
     topo_obj = parse_topology(topo_file)
 
     sonic_mgmt_container_info = topo_obj.get_device_by_topology_id(constants.SONIC_MGMT_DEVICE_ID)
+    sonic_mgmt_device_username, sonic_mgmt_device_password = topo_obj.get_user_access(sonic_mgmt_container_info.USERS[0])
     print('sonic_mgmt_repo_path : {}'.format(sonic_mgmt_repo_path))
 
     sonic_mgmt_container = Connection(sonic_mgmt_container_info.BASE_IP,
-                                      user=sonic_mgmt_container_info.USERS[0].USERNAME,
+                                      user=sonic_mgmt_device_username,
                                       config=Config(overrides={"run": {"echo": True}}),
-                                      connect_kwargs={"password": sonic_mgmt_container_info.USERS[0].PASSWORD})
+                                      connect_kwargs={"password": sonic_mgmt_device_password})
     cmd = "PYTHONPATH=/devts/ {ngts_path} {mgmt_repo}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py " \
           "--dut=\"{dut}\" --mgmt_repo=\"{mgmt_repo}\"".format(ngts_path=constants.NGTS_PATH_PYTHON, dut=args.dut_name,
                                                                mgmt_repo=sonic_mgmt_repo_path)
