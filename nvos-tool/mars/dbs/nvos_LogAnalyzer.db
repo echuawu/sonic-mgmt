@@ -42,4 +42,48 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/general/nvos_general_config_commands.cases </cases>
 	</test>
 
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/general/nvos_general_config_commands_loganalyzer.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_show_commands.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_show_commands_loganalyzer.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_reboot.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_reboot_loganalyzer.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_username.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_username_loganalyzer.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_ntp.cases </cases>
+    </test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_ntp_loganalyzer.cases </cases>
+    </test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_document.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_document_loganalyzer.cases </cases>
+	</test>
+
 </DBDEF>
