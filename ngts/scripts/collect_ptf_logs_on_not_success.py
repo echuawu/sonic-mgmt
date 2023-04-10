@@ -4,7 +4,7 @@ import time
 import logging
 import pytest
 
-from infra.tools.general_constants.constants import DefaultCred
+from infra.tools.general_constants.constants import DefaultTestServerCred
 logger = logging.getLogger()
 
 
@@ -14,8 +14,8 @@ def test_collect_ptf_logs(topology_obj, dumps_folder, is_simx, is_air):
         ptf_log_file = 'ptf_logs.{}.tgz'.format(time.time_ns())
         dest_file = dumps_folder + '/' + ptf_log_file
         hyper_engine = topology_obj.players['hypervisor']['engine']
-        hyper_engine.username = DefaultCred.DEFAULT_USERNAME
-        hyper_engine.password = DefaultCred.DEFAULT_PASS
+        hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
+        hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
         ptf_docker_name = 'ptf_vm-t1'
         try:
             with allure.step('Generate ptf log tar file {}'.format(ptf_log_file)):
