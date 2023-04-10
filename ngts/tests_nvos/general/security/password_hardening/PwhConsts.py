@@ -94,6 +94,7 @@ class PwhConsts:
     ERR_INVALID_SET_ENABLE_DISABLED = "is not one of ['enabled', 'disabled']"
     ERR_PW_SHOULD_CONTAIN = 'Password should contain at least '
     ERR_RANGE = 'Valid range is'
+    ERR_EXP_WARN_LEQ_EXP = 'expiration-warning should be equal or smaller than expiration'
 
     WEAK_PW_ERRORS = {
         HISTORY_CNT: 'Password should be different than',

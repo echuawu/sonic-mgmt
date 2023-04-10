@@ -286,6 +286,34 @@ def test_password_hardening_set_invalid_input(engines, system):
                                  .format(setting, orig_pwh_conf[setting]))
                     PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, orig_pwh_conf[setting])
 
+    with allure.step('Verify the constraint expiration-warning must be less or equal to expiration'):
+        logging.info('Verify the constraint expiration-warning must be less or equal to expiration')
+        with allure.step('Try to set expiration-warning which is larger than expiration'):
+            logging.info('Try to set expiration-warning which is larger than expiration')
+            exp = random.randint(0, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING] - 1)
+            bad_exp_warn = random.randint(exp + 1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING])
+            logging.info('Set expiration to {} - should succeed'.format(exp))
+            pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
+            logging.info('Try to set expiration-warning to {} (larger) - should fail'.format(bad_exp_warn))
+            res_obj = pwh_obj.set(PwhConsts.EXPIRATION_WARNING, bad_exp_warn, apply=True)
+            logging.info('Verify error')
+            PwhTools.verify_error(res_obj=res_obj, error_should_contain=PwhConsts.ERR_EXP_WARN_LEQ_EXP)
+
+        with allure.step('Unset password hardening configuration'):
+            logging.info('Unset password hardening configuration')
+            pwh_obj.unset(apply=True).verify_result()
+
+        with allure.step('Try to set expiration which is smaller than expiration-warning'):
+            logging.info('Try to set expiration which is smaller than expiration-warning')
+            exp_warn = random.randint(1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING])
+            bad_exp = random.randint(0, exp_warn - 1)
+            logging.info('Set expiration-warning to {} - should succeed'.format(exp_warn))
+            pwh_obj.set(PwhConsts.EXPIRATION_WARNING, exp_warn, apply=True).verify_result()
+            logging.info('Try to set expiration to {} (smaller) - should fail'.format(bad_exp))
+            res_obj = pwh_obj.set(PwhConsts.EXPIRATION, bad_exp, apply=True)
+            logging.info('Verify error')
+            PwhTools.verify_error(res_obj=res_obj, error_should_contain=PwhConsts.ERR_EXP_WARN_LEQ_EXP)
+
 
 @pytest.mark.system
 @pytest.mark.security
