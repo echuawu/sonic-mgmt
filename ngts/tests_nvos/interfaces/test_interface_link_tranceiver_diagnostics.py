@@ -30,8 +30,11 @@ def test_interface_tranceiver_diagnostics_basic(engines):
     with allure.step("Run diagnostics for optical cable and verify fields in output"):
         optical_output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
             platform.hardware.tranceiver.show('sw16')).get_returned_value()
+        yaml_output = platform.hardware.tranceiver.show('sw16', output_format=OutputFormat.yaml)
         fields_to_check = ["cable-length", "cable-type", "channel", "diagnostics-status", "identifier", "temperature",
                            "vendor-date-code", "vendor-name", "vendor-pn", "vendor-rev", "vendor-sn", "voltage"]
+        for field in fields_to_check:
+            assert field in yaml_output, '{0} not exist in yaml output'.format(field)
         Tools.ValidationTool.verify_field_exist_in_json_output(optical_output_dictionary, fields_to_check).\
             verify_result()
 
@@ -73,6 +76,9 @@ def test_interface_tranceiver_diagnostics_basic(engines):
     with allure.step("Run diagnostics with channel-id for link and verify output"):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
             platform.hardware.tranceiver.show('sw16 channel channel-1')).get_returned_value()
+        assert output_dictionary['rx-power'] != '-inf mW', "RX power value not as expected"
+        assert output_dictionary['tx-bias-current'] != '-inf mW', "TX bias power value not as expected"
+        assert output_dictionary['tx-power'] != '-inf mW', "TX power value not as expected"
         fields_to_check = ["rx-power", "tx-power", "tx-bias-current"]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, fields_to_check).verify_result()
 
