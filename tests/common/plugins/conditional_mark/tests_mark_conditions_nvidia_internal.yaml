@@ -389,11 +389,11 @@ tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
 
 tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 or RM issue: https://redmine.mellanox.com/issues/3413764 and failed on only r-moose-01"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 or RM issue: https://redmine.mellanox.com/issues/3416102 and failed on only r-moose-01"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
-      - "https://redmine.mellanox.com/issues/3413764 and 'sn5' in platform"
+      - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
 
 tests/nightly/lag/test_lag.py::test_lag_min_links:
   skip:
@@ -750,6 +750,12 @@ everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_e
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2739322 and platform msn3/msn4"
     conditions:
       - "https://redmine.mellanox.com/issues/2739322 and ('msn3' in platform or 'msn4' in platform)"
+
+everflow/test_everflow_testbed.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 and platform sn5"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3431638 and 'sn5' in platform"
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
@@ -1522,16 +1528,16 @@ platform_tests/daemon/test_pcied.py::test_pmon_pcied_running_status:
 
 qos.test_buffer#test_change_speed_cable[10000-1500-15m]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413764"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416102"
     conditions:
       - "'x86_64-nvidia_sn5600-r0' in platform"
-      - "https://redmine.mellanox.com/issues/3413764 and 'sn5' in platform"
+      - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
 
 qos.test_buffer#test_change_speed_cable[10000-1500-40m]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413764"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416102"
     conditions:
-      - "https://redmine.mellanox.com/issues/3413764 and 'sn5' in platform"
+      - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
 
 platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause:
   skip:
