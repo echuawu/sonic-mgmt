@@ -1928,8 +1928,10 @@
       - show_techsupport/test_auto_techsupport.py
       - show_techsupport/test_techsupport_no_secret.py
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+    - Platform:
+      - simx
       Redmine:
-        - 3272016
+      - 3272016
 
 - Errors_list:
     - '.* ERR syncd#SAI: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_initialize_dev_mac_address: Failed, Need valid mac addresses for device, mac: /tmp/sai.profile'
