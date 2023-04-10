@@ -331,17 +331,23 @@ class PwhTools:
                 .format(v=value, f=field, fvv=PwhConsts.VALID_VALUES[field])
 
     @staticmethod
-    def set_pwh_conf(pwh_conf, pwh_obj):
+    def set_pwh_conf(pwh_conf, pwh_obj, engines, prev_conf=None):
         """
         Set (and apply) the password hardening configuration according to the given desired configuration
         @param pwh_conf: the desired configuration as a dictionary of { pwh_field: value }
         @param pwh_obj: system.Password_hardening object
+        @param engines: engines object
+        @param prev_conf: original password hardening configuration (optional)
         """
         PwhTools.assert_is_pwh_conf(pwh_conf)
 
         with allure.step('Getting orig password hardening configuration from show command'):
             logging.info('Getting orig password hardening configuration from show command')
-            orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+            if prev_conf is None:
+                orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
+            else:
+                PwhTools.assert_is_pwh_conf(prev_conf)
+                orig_pwh_conf = prev_conf
             logging.info('orig pwh configuration:\n{}'.format(orig_pwh_conf))
 
         with allure.step('Setting the desired password hardening configuration'):
@@ -353,7 +359,11 @@ class PwhTools:
                     PwhTools.assert_valid_password_hardening_field_value(field=field, value=pwh_conf[field])
 
                     if pwh_conf[field] != orig_pwh_conf[field]:
-                        pwh_obj.set(field, pwh_conf[field], apply=True).verify_result()
+                        pwh_obj.set(field, pwh_conf[field], apply=False).verify_result()
+
+        with allure.step('Apply all changes'):
+            logging.info('Apply all changes')
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
 
         with allure.step('Verify desired configuration'):
             logging.info('Verify desired configuration')

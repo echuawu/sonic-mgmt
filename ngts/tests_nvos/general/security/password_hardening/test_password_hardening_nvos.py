@@ -38,7 +38,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
     with allure.step('Set a password hardening configuration'):
         logging.info('Set a password hardening configuration')
         conf = PwhTools.generate_conf_with_random_password_policies()
-        PwhTools.set_pwh_conf(conf, system.security.password_hardening)
+        PwhTools.set_pwh_conf(conf, system.security.password_hardening, engines)
 
     with allure.step('Pick a strong and a weak password'):
         logging.info('Pick a strong and a weak password')
@@ -351,6 +351,7 @@ def test_password_hardening_functionality(engines, system, init_pwh, testing_use
 
     with allure.step('Test functionality for each password hardening configuration'):
         logging.info('Test functionality for each password hardening configuration')
+        prev_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
         for i, conf in enumerate(test_confs):
             logging.info('Testing with conf #{} :\n{}'.format(i, conf))  # for debugging
 
@@ -360,7 +361,7 @@ def test_password_hardening_functionality(engines, system, init_pwh, testing_use
 
             with allure.step('Set password hardening configuration'):
                 logging.info('Set password hardening configuration:\n{}'.format(conf))
-                PwhTools.set_pwh_conf(conf, pwh_obj)
+                PwhTools.set_pwh_conf(conf, pwh_obj, engines, prev_conf)
 
             lowers = False if conf[PwhConsts.LOWER_CLASS] == PwhConsts.ENABLED else True
             uppers = False if conf[PwhConsts.UPPER_CLASS] == PwhConsts.ENABLED else True
@@ -395,6 +396,8 @@ def test_password_hardening_functionality(engines, system, init_pwh, testing_use
                 pw_history.append(strong_pw)
                 old_pw = strong_pw
 
+            prev_conf = conf  # step
+
 
 @pytest.mark.system
 @pytest.mark.security
@@ -413,7 +416,7 @@ def test_password_hardening_history_functionality(engines, system, init_pwh, tes
         7. Verify success (it is N+1 passwords ago)
     """
     # random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.MAX[PwhConsts.HISTORY_CNT]) -> too long test
-    hist_cnt = PwhConsts.NUM_SAMPLES
+    hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.NUM_SAMPLES)
     logging.info('Chosen N = {}'.format(hist_cnt))
 
     pwh_obj = system.security.password_hardening
@@ -703,7 +706,7 @@ def test_password_hardening_history_multi_user(engines, system, init_pwh, testin
     pw2 = testing_users[user2][PwhConsts.PW]
     pw_hist2 = [pw2]
 
-    hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.MAX[PwhConsts.HISTORY_CNT])
+    hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.NUM_SAMPLES)
     logging.info('Chosen history-count for test_history_multi_user_password_hardening: {}'.format(hist_cnt))
 
     with allure.step('Set history-count to {}'.format(hist_cnt)):
@@ -787,7 +790,7 @@ def test_password_hardening_history_increase(engines, system, init_pwh, testing_
 
     with allure.step('Set history-count'):
         logging.info('Set history-count')
-        hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], int(PwhConsts.MAX[PwhConsts.HISTORY_CNT] / 2) - 1)
+        hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.NUM_SAMPLES)
         logging.info('Set history-count to {}'.format(hist_cnt))
         pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
@@ -838,7 +841,7 @@ def test_password_hardening_history_when_feature_disabled(engines, system, init_
 
     with allure.step('Set history-cnt'):
         logging.info('Set history-cnt')
-        hist_cnt = int(RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[PwhConsts.HISTORY_CNT]).get_returned_value())
+        hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.NUM_SAMPLES)
         logging.info('Set history-cnt to {}'.format(hist_cnt))
         pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
