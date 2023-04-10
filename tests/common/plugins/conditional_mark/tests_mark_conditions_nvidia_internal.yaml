@@ -713,7 +713,7 @@ bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot[wa
     conditions:
       - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
 
-sflow/test_sflow.py::testWarmreboot:
+sflow/test_sflow.py::TestReboot::testWarmreboot:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
