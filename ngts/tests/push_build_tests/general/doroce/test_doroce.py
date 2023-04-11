@@ -63,13 +63,22 @@ WATERMARK_THRESHOLD = '1000'
 @pytest.fixture(scope='module')
 def check_feature_status(cli_objects):
     """
-    An autouse fixture to check if DoRoCE fixture is installed and enabled
+    An autouse fixture to check if DoRoCE or DoAI is installed and enabled
     """
-    with allure.step('Validating doroce feature is installed'):
+    def check_doroce_or_doai_installed():
+        # NOTE: Either doroce or doai is installed
+        doai_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOAI)
+        if doai_status:
+            return doai_status, msg, AppExtensionInstallationConstants.DOAI
+
         doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
-        if doroce_status:
-            cli_objects.dut.app_ext.disable_app(AppExtensionInstallationConstants.DOROCE)
-            cli_objects.dut.app_ext.enable_app(AppExtensionInstallationConstants.DOROCE)
+        return doroce_status, msg, AppExtensionInstallationConstants.DOROCE
+
+    with allure.step('Validating doroce feature is installed'):
+        status, msg, ext_name = check_doroce_or_doai_installed()
+        if status:
+            cli_objects.dut.app_ext.disable_app(ext_name)
+            cli_objects.dut.app_ext.enable_app(ext_name)
             # TODO: workaround for the issue https://redmine.mellanox.com/issues/2834968
             # happens in push_gate with reload
             # when will be fixed, must be left only reload_qos
@@ -79,8 +88,8 @@ def check_feature_status(cli_objects):
         else:
             pytest.skip(f"{msg} Skipping the test.")
 
-    with allure.step('Validating doroce docker is UP'):
-        cli_objects.dut.general.verify_dockers_are_up(dockers_list=['doroce'])
+    with allure.step(f'Validating {ext_name} docker is UP'):
+        cli_objects.dut.general.verify_dockers_are_up(dockers_list=[ext_name])
 
 
 @pytest.fixture(scope='module', autouse=True)
