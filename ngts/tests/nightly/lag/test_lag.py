@@ -9,6 +9,7 @@ import pytest
 
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vlan_config_template import VlanConfigTemplate
@@ -131,7 +132,10 @@ def test_core_functionality_with_reboot(topology_obj, cli_objects, traffic_type,
 
         with allure.step('STEP4: Reboot dut'):
             dut_cli.general.save_configuration()
-            reboot_type = random.choice(get_supported_reboot_reload_types_list(platform=platform_params.platform))
+            reboot_types = get_supported_reboot_reload_types_list(platform=platform_params.platform)
+            if is_redmine_issue_active([3431712]):
+                reboot_types.remove('fast-reboot')
+            reboot_type = random.choice(reboot_types)
             if is_simx:
                 reboot_type = 'reboot'
             dut_cli.general.reboot_reload_flow(r_type=reboot_type, topology_obj=topology_obj)

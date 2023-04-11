@@ -6,6 +6,7 @@ import logging
 
 from retry.api import retry_call
 from ngts.constants.constants import InterfacesTypeConstants
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -126,8 +127,9 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
     if simx:
         supported_reboot_modes = ['reload', 'reboot', 'fast-reboot']
     chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
-    if chip_type == "SPC2":
+    if chip_type == "SPC2" or is_redmine_issue_active([3431712]):
         supported_reboot_modes.remove('fast-reboot')
+
     mode = random.choice(supported_reboot_modes)
     with allure.step('Preforming {} on dut:'.format(mode)):
         logger.info('Saving Configuration and preforming {} on dut:'.format(mode))
