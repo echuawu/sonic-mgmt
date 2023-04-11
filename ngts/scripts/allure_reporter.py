@@ -13,7 +13,7 @@ sys.path.append(sonic_mgmt_path)
 from ngts.constants.constants import InfraConst  # noqa: E402
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'
-HTTP_TIMEOUT = 30
+HTTP_TIMEOUT = 60
 
 
 def get_logger():
