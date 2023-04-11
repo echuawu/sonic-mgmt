@@ -111,6 +111,7 @@ def check_neighbor(duthost, ip_address, mac_address, interface):
         return False
     return True
 
+
 def get_tested_up_ports(duthost, ptf_ifaces_map, count=10):
     """
     Get the specified number of up ports
@@ -469,8 +470,7 @@ def add_ptf_bond(ptfhost, port, bond_id, ip_addr):
     """
     try:
         bond_port = 'bond{}'.format(bond_id)
-        ptfhost.shell("ip link add {} type bond".format(bond_port))
-        ptfhost.shell("ip link set {} type bond miimon 100 mode 802.3ad".format(bond_port))
+        ptfhost.shell("teamd -t {} -d -c '{{\"runner\": {{\"name\": \"lacp\"}}}}'".format(bond_port))
         ptfhost.shell("ip link set {} down".format(port))
         ptfhost.shell("ip link set {} master {}".format(port, bond_port))
         ptfhost.shell("ip link set dev {} up".format(bond_port))

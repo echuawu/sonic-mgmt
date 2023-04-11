@@ -668,12 +668,11 @@ def create_bond_port(ptfhost, ptf_ports):
 
     for port_index, port_name in list(ptf_ports.items()):
         bond_port = 'bond{}'.format(port_index)
-        cmds.append("ip link add {} type bond".format(bond_port))
-        cmds.append("ip link set {} type bond miimon 100 mode 802.3ad".format(bond_port))
-        cmds.append("ip link set {} down".format(port_name))
-        cmds.append("ip link set {} master {}".format(port_name, bond_port))
-        cmds.append("ip link set dev {} up".format(bond_port))
-        cmds.append("ifconfig {} mtu 9216 up".format(bond_port))
+        ptfhost.shell("teamd -t {} -d -c '{{\"runner\": {{\"name\": \"lacp\"}}}}'".format(bond_port))
+        ptfhost.shell("ip link set {} down".format(port_name))
+        ptfhost.shell("ip link set {} master {}".format(port_name, bond_port))
+        ptfhost.shell("ip link set dev {} up".format(bond_port))
+        ptfhost.shell("ifconfig {} mtu 9216 up".format(bond_port))
 
         bond_port_map[bond_port] = port_name
 
