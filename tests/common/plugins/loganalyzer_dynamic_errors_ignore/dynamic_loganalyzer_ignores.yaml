@@ -1266,6 +1266,7 @@
 - Errors_list:
     - '.* ERR pmon#xcvrd: Receive PMPE error event on module \d+: status \d+ error type \d+.*'
     - '.* ERR pmon#xcvrd: Got unrecognized event \d+, ignored.*'
+    - '.* ERR pmon#xcvrd: Ethernet\d+: Got SFP error event 19'
   Conditions:
     - Affected_test_cases:
       - platform_tests/sfp/test_sfputil.py
@@ -2353,14 +2354,6 @@
   Conditions:
     - Redmine:
         - 3428674
-
-- Errors_list:
-    - '.* ERR pmon#xcvrd: Ethernet\d+: Got SFP error event 19'
-  Conditions:
-    - Affected_test_cases:
-        - platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset
-      Redmine:
-        - 3431854
 
 - Errors_list:
     - '.* ERR what-just-happened#wjhd: :- parse_packet: Netlink message doesn''t have the NET_DM_ATTR_HW_TRAP_NAME'
