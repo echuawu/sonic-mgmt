@@ -2371,3 +2371,12 @@
       - 3432786
       Platform:
         - simx
+
+- Errors_list:
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''
+  Conditions:
+    - Redmine:
+        - 3431874
+      Platform:
+        - arm64-nvda_bf-mbf2h536c
+        - arm64-nvda_bf-9009d3b600cvaa
