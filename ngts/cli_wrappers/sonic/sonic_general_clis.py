@@ -330,7 +330,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
         # TODO: temporary workaround for moose setup, remove once will not need it
-        if "moose" in platform_params.setup_name:
+        if "moose" in platform_params.setup_name and 'simx' not in platform_params.platform:
             self.engine.disconnect()
             self.remote_reboot(topology_obj)
             logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
