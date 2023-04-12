@@ -329,8 +329,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
-        # TODO: temporary workaround for r-moose-01 community setup, remove once will not need it
-        if platform_params.setup_name == 'r-moose-01_setup':
+        # TODO: temporary workaround for moose setup, remove once will not need it
+        if "moose" in platform_params.setup_name:
             self.engine.disconnect()
             self.remote_reboot(topology_obj)
             logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
