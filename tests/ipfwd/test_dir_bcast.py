@@ -15,13 +15,11 @@ logger = logging.getLogger(__name__)
 
 PTF_TEST_PORT_MAP = '/root/ptf_test_port_map.json'
 
-def get_ptf_src_ports(mg_facts):
+
+def get_ptf_src_ports(tbinfo, duthost):
     # Source ports are upstream ports
-    pc_interfaces = [pc["attachto"] for pc in mg_facts["minigraph_portchannel_interfaces"]]
-    ptf_src_ports = []
-    for pc in pc_interfaces:
-        for member in mg_facts['minigraph_portchannels'][pc]['members']:
-            ptf_src_ports.append(mg_facts['minigraph_ptf_indices'][member])
+    upstream_neightbor_name = UPSTREAM_NEIGHBOR_MAP[tbinfo["topo"]["type"]]
+    ptf_src_ports = get_neighbor_ptf_port_list(duthost, upstream_neightbor_name, tbinfo)
     return ptf_src_ports
 
 def get_ptf_dst_ports(duthost, mg_facts, testbed_type):
@@ -53,7 +51,7 @@ def get_ptf_dst_ports(duthost, mg_facts, testbed_type):
 
 def ptf_test_port_map(duthost, ptfhost, mg_facts, testbed_type):
     ptf_test_port_map = {}
-    ptf_src_ports = get_ptf_src_ports(mg_facts)
+    ptf_src_ports = get_ptf_src_ports(tbinfo, duthost)
     vlan_ip_port_pair = get_ptf_dst_ports(duthost, mg_facts, testbed_type)
 
     ptf_test_port_map = {
