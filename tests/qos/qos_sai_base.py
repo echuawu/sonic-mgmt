@@ -69,13 +69,13 @@ class QosBase:
                 dutTestParams (dict): DUT host test params
         """
         # update router mac
+        dut_test_params["basicParams"]["asic_id"] = enum_frontend_asic_index
         if dut_test_params["topo"] in self.SUPPORTED_T0_TOPOS:
             dut_test_params["basicParams"]["router_mac"] = ''
 
-        dut_test_params["basicParams"]["asic_id"] = enum_frontend_asic_index
-        # For dualtor qos test scenario, DMAC of test traffic is default vlan interface's MAC address.
-        # To reduce duplicated code, put "is_dualtor" and "def_vlan_mac" into dutTestParams['basicParams'].
-        if "dualtor" in tbinfo["topo"]["name"]:
+        elif "dualtor" in tbinfo["topo"]["name"]:
+            # For dualtor qos test scenario, DMAC of test traffic is default vlan interface's MAC address.
+            # To reduce duplicated code, put "is_dualtor" and "def_vlan_mac" into dutTestParams['basicParams'].
             dut_test_params["basicParams"]["is_dualtor"] = True
             vlan_cfgs = tbinfo['topo']['properties']['topology']['DUT']['vlan_configs']
             if vlan_cfgs and 'default_vlan_config' in vlan_cfgs:
