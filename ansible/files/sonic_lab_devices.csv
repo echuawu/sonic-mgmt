@@ -26,3 +26,5 @@ r-liger-05,10.210.24.104/22,ACS-MSN4600,FanoutLeaf
 r-anaconda-86,10.210.24.190/24,Mellanox-3700,FanoutLeaf
 dummy-fanout,1.1.1.1/22,ACS-MSN3700,FanoutLeaf
 r-leopard-20,10.210.25.114/22,ACS-MSN4700,FanoutLeaf
+r-leopard-71,10.210.24.133/22,ACS-MSN4700,FanoutLeaf
+r-leopard-70,10.210.24.88/22,ACS-MSN4700,DevSonic

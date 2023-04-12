@@ -49,6 +49,12 @@ r-leopard-58-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-leopard-58,10.213.103.5/1
 r-leopard-58-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-leopard-58,10.213.103.5/16,,server_11,VM1101,r-leopard-58,Mellanox MTR testbed
 r-leopard-58-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-leopard-58,10.213.103.5/16,,server_11,VM1101,r-leopard-58,Mellanox MTR testbed
 
+r-leopard-70-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
+r-leopard-70-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
+r-leopard-70-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
+r-leopard-70-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
+r-leopard-70-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
+
 r-moose-01-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-moose-01,10.215.22.3/16,,server_60,VM2501,r-moose-01,Mellanox MTR testbed
 r-moose-01-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-moose-01,10.215.22.3/16,,server_60,VM2501,r-moose-01,Mellanox MTR testbed
 r-moose-01-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-moose-01,10.215.22.3/16,,server_60,VM2501,r-moose-01,Mellanox MTR testbed
@@ -228,6 +234,7 @@ arc-switch1038-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1038,10.213.84.41/16,,ser
 arc-switch1025-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1025,10.213.84.213/16,,server_6,VM0601,arc-switch1025,Mellanox MTR testbed
 arc-switch1004-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-1004,10.213.80.153/16,,server_7,VM0701,arc-switch1004,Mellanox MTR testbed
 r-leopard-58-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-58,10.213.103.5/16,,server_11,VM1101,r-leopard-58,Mellanox MTR testbed
+r-leopard-70-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
 r-tigris-04-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigris-04,10.213.104.5/16,,server_12,VM1201,r-tigris-04,Mellanox MTR testbed
 r-tigris-13-fastreboot,vm-t1,t0-64,docker-ptf-mlnx,ptf-r-tigris-13,10.215.0.61/16,,server_13,VM1301,r-tigris-13,Mellanox MTR testbed
 r-tigris-25-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigris-25,10.213.84.41/16,,server_1,VM0101,r-tigris-25,Mellanox MTR testbed

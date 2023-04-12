@@ -479,6 +479,15 @@ r-leopard-58-t1-lag  ansible_host=10.210.25.116 sonic_version=v2 sonic_hwsku=ACS
 r-leopard-58-ptf32   ansible_host=10.210.25.116 sonic_version=v2 sonic_hwsku=ACS-MSN4700 iface_speed=100000 ptf_host=ptf-r-leopard-58 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-59 dut_mac="98:03:9b:98:cf:46" serial_console="ssh -l rcon:7002 10.208.0.85" pdu_host=pdu-10-208-0-182
 r-leopard-58-ptf-any   ansible_host=10.210.25.116 sonic_version=v2 sonic_hwsku=ACS-MSN4700 iface_speed=100000 ptf_host=ptf-r-leopard-58 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-59 dut_mac="98:03:9b:98:cf:46" serial_console="ssh -l rcon:7002 10.208.0.85" pdu_host=pdu-10-208-0-182
 
+# MTR testbed r-leopard-70 topologies
+r-leopard-70  ansible_host=10.210.24.88  sonic_version=v2  sonic_hwsku=ACS-MSN4700 iface_speed=400000 serial_console="ssh -l rcon:7016 10.208.0.45" ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-22
+r-leopard-70-t0  ansible_host=10.210.24.88  sonic_version=v2  sonic_hwsku=ACS-MSN4700 iface_speed=400000 serial_console="ssh -l rcon:7016 10.208.0.45" ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-22
+r-leopard-70-t0-64-32  ansible_host=10.210.24.88  sonic_version=v2  sonic_hwsku=ACS-MSN4700 iface_speed=400000 serial_console="ssh -l rcon:7016 10.208.0.45" ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-22
+r-leopard-70-t1  ansible_host=10.210.24.88 sonic_version=v2 sonic_hwsku=ACS-MSN4700 iface_speed=400000 ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-71 dut_mac="94:6d:ae:14:2d:7c" serial_console="ssh -l rcon:7016 10.208.0.45" pdu_host=pdu-10-208-0-22
+r-leopard-70-t1-lag  ansible_host=10.210.24.88 sonic_version=v2 sonic_hwsku=ACS-MSN4700 iface_speed=400000 ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-71 dut_mac="94:6d:ae:14:2d:7c" serial_console="ssh -l rcon:7016 10.208.0.45" pdu_host=pdu-10-208-0-22
+r-leopard-70-ptf32   ansible_host=10.210.24.88 sonic_version=v2 sonic_hwsku=ACS-MSN4700 iface_speed=400000 ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-71 dut_mac="94:6d:ae:14:2d:7c" serial_console="ssh -l rcon:7016 10.208.0.45" pdu_host=pdu-10-208-0-22
+r-leopard-70-ptf-any   ansible_host=10.210.24.88 sonic_version=v2 sonic_hwsku=ACS-MSN4700 iface_speed=400000 ptf_host=ptf-r-leopard-70 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-71 dut_mac="94:6d:ae:14:2d:7c" serial_console="ssh -l rcon:7016 10.208.0.45" pdu_host=pdu-10-208-0-22
+
 # MTR community testbed r-moose-01_setup topologies
 r-moose-01  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 r-moose-01-t0  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
@@ -744,6 +753,7 @@ arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user="{{ lookup('env','ON
 r-anaconda-86 ansible_host=r-anaconda-86 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 arc-switch1007 ansible_host=arc-switch1007 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-leopard-59 ansible_host=r-leopard-59 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-leopard-71 ansible_host=r-leopard-71 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 arc-switch1035 ansible_host=arc-switch1035 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 arc-switch1039 ansible_host=arc-switch1039 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 c-panther-02 ansible_host=c-panther-02 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
@@ -812,6 +822,15 @@ r-leopard-58-t1
 r-leopard-58-t1-lag
 r-leopard-58-ptf32
 r-leopard-58-ptf-any
+
+# MTR r-leopard-70 topologies
+r-leopard-70
+r-leopard-70-t0
+r-leopard-70-t0-64-32
+r-leopard-70-t1
+r-leopard-70-t1-lag
+r-leopard-70-ptf32
+r-leopard-70-ptf-any
 
 # MTR r-tigris-04 topologies
 r-tigris-04
@@ -1312,6 +1331,15 @@ r-leopard-58-t1-lag
 r-leopard-58-ptf32
 r-leopard-58-ptf-any
 
+# MTR r-leopard-70 topologies
+r-leopard-70
+r-leopard-70-t0
+r-leopard-70-t0-64-32
+r-leopard-70-t1
+r-leopard-70-t1-lag
+r-leopard-70-ptf32
+r-leopard-70-ptf-any
+
 # MTR r-tigris-04 topologies
 r-tigris-04
 r-tigris-04-t0
@@ -1671,6 +1699,10 @@ ptf-1004 ansible_host=10.213.80.153 ansible_ssh_user="{{ lookup('env','PTF_USER'
 # MTR r-leopard-58 PTF host
 ptf-r-leopard-58 ansible_host=10.213.103.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.213.103.5 ansible_host=10.213.103.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+
+# MTR r-leopard-70 PTF host
+ptf-r-leopard-70 ansible_host=10.215.26.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.26.182 ansible_host=10.215.26.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-moose-01 PTF host
 ptf-r-moose-01 ansible_host=10.215.22.3 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
