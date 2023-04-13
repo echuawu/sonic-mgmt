@@ -1417,12 +1417,6 @@ ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_dr
     conditions:
       - "https://redmine.mellanox.com/issues/3373836"
 
-ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_tolerant:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3373836"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3373836"
-
 dualtor_io/test_tor_failure.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
