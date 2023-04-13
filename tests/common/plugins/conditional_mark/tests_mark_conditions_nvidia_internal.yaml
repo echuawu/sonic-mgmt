@@ -541,11 +541,9 @@ vxlan/test_vnet_vxlan.py:
 
 vlan/test_vlan.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419725 and branch 202211 and 'msn4600c' in platform; Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419711 and branch 202211 and 'msn3800' in platform"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419725 and branch 202211 and 'msn4600c' in platform"
     conditions:
       - "https://redmine.mellanox.com/issues/3419725 and '202211' in release and 'msn4600c' in platform"
-      - "https://redmine.mellanox.com/issues/3419711 and '202211' in release and 'msn3800' in platform"
 
 vlan/test_autostate_disabled.py:
   skip:
