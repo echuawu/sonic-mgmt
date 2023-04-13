@@ -38,7 +38,7 @@ def test_system_profile_change_default(engines):
     with allure.step('Verify default fields'):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
             system_profile_output, SystemConsts.PROFILE_OUTPUT_FIELDS).verify_result()
         logging.info("All expected fields were found")
 

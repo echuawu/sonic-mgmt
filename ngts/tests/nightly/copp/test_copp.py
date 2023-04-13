@@ -259,7 +259,7 @@ class CoppBase:
         if self.is_trap_counters_supported:
             # restart the timer
             self.set_counters_short_trap_interval()
-            time.sleep(self.long_interval / 1000)     # millisec to sec
+            time.sleep(self.long_interval / 1000)     # milliseconds to seconds
             self.set_counters_long_trap_interval()
 
         with allure.step(f'Check functionality of non default {primary_traffic_type} limit value after reboot'):
@@ -361,7 +361,7 @@ class CoppBase:
 
     def create_burst_validation(self, cbs_value):
         """
-        Creating burst valudation, based on given CBS value
+        Creating burst validation, based on given CBS value
         :param cbs_value: CBS value
         """
         self.create_validation(pps=cbs_value * BURST_TRAFFIC_MULTIPLIER,
@@ -372,7 +372,7 @@ class CoppBase:
 
     def create_rate_validation(self, cir_value):
         """
-        Creating rate valudation, based on given CIR value
+        Creating rate validation, based on given CIR value
         :param cir_value: CIR value
         """
         if cir_value == SIMX_DEFAULT_CIR:
@@ -462,7 +462,7 @@ class CoppBase:
                     verify_deviation(rx_trap_count, rx_ifconfig_count, self.flowcnt_deviation)
                     raise Exception("The flow counters updated before long interval time elapsed")
             except AssertionError as err:
-                logger.info('As expected, the flowcnts not updated before interval time,'
+                logger.info('As expected, the flowcnt not updated before interval time,'
                             ' wait this time {}ms and check again '.format(self.long_interval))
                 time.sleep(int(self.long_interval) / 1000)  # interval in msec
                 rx_trap_count = self.get_flowcnt_trap_results()
@@ -1005,7 +1005,7 @@ def get_trap_group(protocol, copp_dict, trap_ids=''):
 
 def add_new_protocol_to_config(protocol, copp_dict, trap_ids):
     """
-    Add new protocon to config dictionary
+    Add new protocol to config dictionary
     :param protocol: protocol name
     :param copp_dict: config dictionary
     :param trap_ids: traps ids

@@ -90,7 +90,7 @@ class TestDPBInterop(DependenciesBase):
         :param breakout_output: the output from the breakout configuration command
         :return: None, raise assertion error in case of failure
         """
-        err_msg = r"Dependecies\s+Exist\.\s+No\s+further\s+action\s+will\s+be\s+taken"
+        err_msg = r"Dependencies\s+Exist\.\s+No\s+further\s+action\s+will\s+be\s+taken"
         with allure.step(f'Configure breakout without force fail with error: {err_msg}'):
             if not re.search(err_msg, breakout_output, re.IGNORECASE):
                 raise AssertionError(f"Error message: {err_msg} was not found in breakout output")

@@ -90,7 +90,7 @@ def basic_sflow_configuration_for_function(engines, cli_objects, interfaces):
         cli_obj.sflow.disable_all_sflow_interface()
     with allure.step(f"Enable sflow interface {interfaces.dut_ha_1}"):
         cli_obj.sflow.enable_sflow_interface(interfaces.dut_ha_1)
-    with allure.step(f"Eanble sflow interface {interfaces.dut_ha_2}"):
+    with allure.step(f"Enable sflow interface {interfaces.dut_ha_2}"):
         cli_obj.sflow.enable_sflow_interface(interfaces.dut_ha_2)
 
     yield
@@ -114,7 +114,7 @@ def basic_sflow_configuration_for_function(engines, cli_objects, interfaces):
 def test_sflow_agent_id(engines, cli_objects):
     """
     Add loopback ip as the agent id and check the samples are received with intended agent-id.
-    Remove agent-ip and check whether samples are received with previously cofigured agent ip.
+    Remove agent-ip and check whether samples are received with previously configured agent ip.
     Add eth0 ip as the agent ip and check the samples are received with intended agent-id.
     :param engines: engines fixture
     :param cli_objects: cli_objects fixture
@@ -181,7 +181,7 @@ def test_sflow_interface(engines, cli_objects, interfaces, topology_obj, ha_dut_
     """
     Enable/disable sflow interfaces and check the samples are received only from the intended interface
     Test interfaces with different sampling rate
-    :param engines: engines fixturesf
+    :param engines: engines fixture
     :param cli_objects: cli_objects fixture
     :param interfaces: interfaces fixture
     :param topology_obj: topology_obj fixture

@@ -15,7 +15,6 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from infra.tools.exceptions.real_issue import RealIssue
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
     AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
@@ -25,7 +24,7 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
-from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
+from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, get_latest_onie_version
 from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
 from infra.tools.general_constants.constants import SonicSimxConstants, SonicHostsConstants
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
@@ -207,7 +206,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.verify_dockers_are_up()
                 break
             except BaseException:
-                logger.error('Catched exception {} during verifing docker conatiners are up.'
+                logger.error('Caught exception {} during verifying docker containers are up.'
                              ' Rebooting dut and try again, try number {}'.format(traceback.print_exc(),
                                                                                   initial_count - retries + 1))
                 self.engine.reload(['sudo reboot'])
@@ -321,8 +320,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step("Trying to install sonic image"):
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
         except OnieInstallationError:
-            with allure.step("Catched exception OnieInstallationError during install. Perform reboot and trying again"):
-                logger.error('Catched exception OnieInstallationError during install. Perform reboot and trying again')
+            with allure.step("Caught exception OnieInstallationError during install. Perform reboot and trying again"):
+                logger.error('Caught exception OnieInstallationError during install. Perform reboot and trying again')
                 self.engine.disconnect()
                 self.remote_reboot(topology_obj)
                 logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
@@ -522,7 +521,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def update_simx_platform_type(self, platform_params):
         """
         Update SIMX platform type in ONIE
-        :param platform_params: platform_params fixure
+        :param platform_params: platform_params fixture
         """
         board_name = SonicSimxConstants.PLATFORM_TO_MACHINE_NAME_DICT[platform_params.platform]
         SonicOnieCliDevts(self.engine.ip, board_name, logger, self.engine.ssh_port).update_onie()
@@ -1018,7 +1017,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def show_warm_restart_state(self):
         """
-        Show warm_sestart_state
+        Show warm_restart_state
         Example:
             name             restore_count  state
             -------------  ---------------  ----------------------

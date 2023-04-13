@@ -174,7 +174,7 @@ def test_techsupport_upload(engines):
         output = system.techsupport.action_upload(file_name='nonexist', upload_path=invalid_url_1)
         assert "Invalid Command" in output.info, "URL was not in the right format"
 
-    with allure.step('try to upload ibdiagnet to inalid url - using non supported transfer protocol'):
+    with allure.step('try to upload ibdiagnet to invalid url - using non supported transfer protocol'):
         output = system.techsupport.action_upload(file_name='nonexist', upload_path=invalid_url_2)
         assert "Invalid Command" in output.info, "URL used non supported transfer protocol"
 

@@ -90,7 +90,7 @@ class SonicRouteCli(RouteCliCommon):
         :param ifaces_list: list with route interfaces ["Ethernet0", "Ethernet12"]
         :param route_app_config_path: path to file where app config should be stored: "/tmp/route_config.json"
         :param op: app config operation, can be "SET" for add route or "DEL" for remove route
-        :return: routes app config(the same as writen in file)
+        :return: routes app config(the same as written in file)
         """
         route_app_config_data = []
 

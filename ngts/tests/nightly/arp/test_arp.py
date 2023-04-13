@@ -10,7 +10,6 @@ from ngts.helpers.arp_helper import verify_arp_entry_in_arp_table,\
     verify_arp_entry_not_in_arp_table, arp_request_traffic_validation, INTERFACE_TYPE_LIST, \
     clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted, \
     send_arp_request_and_check_update_corresponding_entry_into_arp_table
-from ngts.cli_wrappers.common.ip_clis_common import IpCliCommon
 from ngts.helpers.network import gen_new_mac_based_old_mac
 
 
@@ -19,15 +18,14 @@ logger = logging.getLogger()
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test corresponding arp is clean after dut shutdown the specified interface')
-def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, players, cli_objects,
+def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(players, cli_objects,
                                                                        pre_test_interface_data, interface_type):
     """
-    Verify that a dynamic arp entry is removed after shutting down the link on which it was learnt.
+    Verify that a dynamic arp entry is removed after shutting down the link on which it was learned.
     1. Host A sends ARP request for broadcast
     2. Verify DUT add the Host A's IP and MAC into the ARP table
     2. DUT shutdown the specified interface
     3. Verify the arp entry related to the interface will be cleaned
-    :param engines: engines fixture
     :param players: players fixture
     :param cli_objects: cli_objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
@@ -53,7 +51,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
             retry_call(verify_arp_entry_not_in_arp_table, fargs=[cli_objects.dut, interface_data["host_ip"]], tries=3,
                        delay=10, logger=logger)
 
-        with allure.step("DUT sartup interface:".format(interface_data["dut_interface"])):
+        with allure.step("DUT startup interface:".format(interface_data["dut_interface"])):
             cli_objects.dut.interface.enable_interface(interface_data["dut_interface"])
 
     except Exception as err:
@@ -67,7 +65,7 @@ def test_corresponding_dynamic_arp_is_cleaned_after_dut_interface_down(engines, 
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test arp entry update by changing mac and ip')
-def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_change_mac_ip_lead_arp_entry_update(players, cli_objects, pre_test_interface_data, interface_type):
     """
     Verify arp entry update by changing mac and ip
     1. Host sends ARP request for broadcast
@@ -76,8 +74,8 @@ def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_
     4. Verify DUT Update the old entry with new mac
     5. Host sends ARP request with new ip
     6. Verify the arp entry related new ip is added into the arp table, the old one related the old ip still exist.
-    :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     :param interface_type: interface type
     """
@@ -119,15 +117,15 @@ def test_change_mac_ip_lead_arp_entry_update(engines, players, cli_objects, pre_
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test src ip and dst ip not in one subnet')
-def test_src_ip_dst_ip_not_in_one_subnet(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_src_ip_dst_ip_not_in_one_subnet(players, cli_objects, pre_test_interface_data, interface_type):
     """
     Verify when arp request with src ip and dst ip not in one subnet, the corresponding arp will not be added into
     arp table, and dut will not reply the arp
     1. Host sends ARP request for broadcast with src ip and dst ip not in one subnet
     2. Verify DUT not add the Host's IP and MAC into the ARP table
     3. Verify host not receive the arp response
-    :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     :param interface_type: interface type
     """
@@ -154,15 +152,15 @@ def test_src_ip_dst_ip_not_in_one_subnet(engines, players, cli_objects, pre_test
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('Test static arp')
-def test_static_arp(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_static_arp(players, cli_objects, pre_test_interface_data, interface_type):
     """
     Verify the following behaviors
-    1. When there is a dynamic arp, static arp can not overide it
+    1. When there is a dynamic arp, static arp can not override it
     2. DUT can add static arp into arp table
     3. Static arp will not be updated by dynamic arp
     4. Static arp can be removed
-    :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     :param interface_type: interface type
     """
@@ -207,7 +205,7 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
         with allure.step("Verify that the dynamic arp entry didn't override the static one"):
             current_mac_in_arp_table = cli_objects.dut.arp.show_arp_table()[interface_data["host_ip"]]["MacAddress"]
             assert interface_data["host_mac"] != current_mac_in_arp_table, \
-                "Dynamic ARP mac: {} overide the static arp mac:{}".format(
+                "Dynamic ARP mac: {} override the static arp mac:{}".format(
                     interface_data["host_mac"], current_mac_in_arp_table)
 
         with allure.step('DUT del static arp'):
@@ -223,7 +221,7 @@ def test_static_arp(engines, players, cli_objects, pre_test_interface_data, inte
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('test arp gratuitous without arp update')
-def test_arp_gratuitous_without_arp_update(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_arp_gratuitous_without_arp_update(players, cli_objects, pre_test_interface_data, interface_type):
     """
     Verify When receiving gratuitous ARP packet, if it was not resolved in ARP table before,
     DUT should discard the request and won't add ARP entry for the GARP
@@ -231,8 +229,8 @@ def test_arp_gratuitous_without_arp_update(engines, players, cli_objects, pre_te
     2. Host A sends GARP request
     3. Verify Host A not receive any arp response
     4. Verify DUT not add the Host A's IP and MAC into the ARP table
-    :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     :param interface_type: interface type
     """
@@ -257,18 +255,18 @@ def test_arp_gratuitous_without_arp_update(engines, players, cli_objects, pre_te
 
 @pytest.mark.parametrize("interface_type", INTERFACE_TYPE_LIST)
 @allure.title('test arp gratuitous with arp update')
-def test_arp_gratuitous_with_arp_update(engines, players, cli_objects, pre_test_interface_data, interface_type):
+def test_arp_gratuitous_with_arp_update(players, cli_objects, pre_test_interface_data, interface_type):
     """
     Verify When receiving gratuitous ARP packet, if it was resolved in ARP table before,
     DUT should update ARP entry with new mac
     1. DUT clear all arp table by conic-clear arp
-    2. Generater one arp by Host sendsing one unicast ARP
+    2. Generate one arp, send by Host one unicast ARP
     3. Check A''s IP and MAC have been added into the ARP table
     4. Host A sends GARP request
     5. Verify Host A not receive any arp response
     6. Verify DUT update ARP entry with new mac
-    :param engines: engines fixture
     :param players: players fixture
+    :param cli_objects: cli objects fixture
     :param pre_test_interface_data: pre_test_interface_data fixture
     :param interface_type: interface type
     """
@@ -300,7 +298,7 @@ def test_arp_gratuitous_with_arp_update(engines, players, cli_objects, pre_test_
 
 
 @allure.title('test arp proxy')
-def test_arp_proxy(engines, players, cli_objects, interfaces, pre_test_interface_data):
+def test_arp_proxy(players, cli_objects, interfaces, pre_test_interface_data):
     """
     Verify arp behavior when arp proxy is disable/enable in one l2 domain
     1. Disable arp proxy in vlan 40
@@ -311,7 +309,6 @@ def test_arp_proxy(engines, players, cli_objects, interfaces, pre_test_interface
     6. Host A sends arp request to Host B
     7. Verify Dut reply the arp request, and host A's mac and ip exists on DUT's arp table
     8. Recover the arp proxy to the default value by disabling it
-    :param engines: engines fixture
     :param players: players fixture
     :param cli_objects: cli_objects fixture
     :param interfaces: interfaces fixture
@@ -350,5 +347,5 @@ def test_arp_proxy(engines, players, cli_objects, interfaces, pre_test_interface
     except Exception as err:
         raise AssertionError(err)
     finally:
-        with allure.step('Recover the default config of arp proxy by disabing arp proxy'):
+        with allure.step('Recover the default config of arp proxy by disabling arp proxy'):
             cli_objects.dut.vlan.disable_vlan_arp_proxy(interface_data["dut_vlan_id"])

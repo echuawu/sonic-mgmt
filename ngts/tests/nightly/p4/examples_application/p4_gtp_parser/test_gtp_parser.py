@@ -278,13 +278,13 @@ def verify_entries_hit_as_expect(dut_engine, entry_key_list, expected_count_list
             f"The counter for entry {entry_key} is not correct, expect {pkt_count} >= {expected_count}"
 
 
-def create_gtp_pkt(teid, ourter_src_ip, outer_dst_ip, inner_src_ip, inner_dst_ip):
+def create_gtp_pkt(teid, outer_src_ip, outer_dst_ip, inner_src_ip, inner_dst_ip):
     if inner_src_ip:
-        gtp_pkt = f'Ether()/IP(proto={UDP_PROTOCOL}, src="{ourter_src_ip}", ' \
+        gtp_pkt = f'Ether()/IP(proto={UDP_PROTOCOL}, src="{outer_src_ip}", ' \
             f'dst="{outer_dst_ip}")/UDP(dport={GTP_U_PORT})/GTPHeader(seq=12345, ' \
             f'length=9, teid={teid})/IP(src="{inner_src_ip}", dst="{inner_dst_ip}")/TCP()'
     else:
-        gtp_pkt = f'Ether()/IP(proto={UDP_PROTOCOL}, src="{ourter_src_ip}", ' \
+        gtp_pkt = f'Ether()/IP(proto={UDP_PROTOCOL}, src="{outer_src_ip}", ' \
             f'dst="{outer_dst_ip}")/UDP(dport={GTP_U_PORT})/GTPHeader(seq=12345, ' \
             f'length=9, teid={teid})/IP(dst="{inner_dst_ip}")/TCP()'
     return gtp_pkt

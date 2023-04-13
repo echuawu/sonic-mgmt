@@ -9,7 +9,7 @@ logger = logging.getLogger()
 @allure.title('Switch sonic image')
 def test_switch_sonic_image(topology_obj, setup_name):
     """
-    This script will swtich sonic image on the dut.
+    This script will switch sonic image on the dut.
     :param topology_obj: topology object fixture
     :param setup_name: setup_name fixture
     :return: raise assertion error in case of script failure

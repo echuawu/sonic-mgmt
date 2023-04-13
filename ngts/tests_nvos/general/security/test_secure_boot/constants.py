@@ -4,9 +4,9 @@ for secure boot testing
 '''
 
 
-class SecureBoootConsts:
+class SecureBootConsts:
     '''
-    class conatins commands and consts
+    class contains commands and consts
     '''
     ROOT_PRIVILAGE = 'sudo su'
     TMP_FOLDER = '/tmp'
@@ -17,8 +17,8 @@ class SecureBoootConsts:
     EFI_SECURE_COMPONENT = '{}/EFI/nvos/{}'
     SHIM_FILEPATH = EFI_SECURE_COMPONENT.format(MOUNT_FOLDER, 'shimx64.efi')
     GRUB_FILEPATH = EFI_SECURE_COMPONENT.format(MOUNT_FOLDER, 'grubx64.efi')
-    VMILUNZ_REGEX = '(vmlinuz-.*-amd64)'
-    VMILUNZ_DIR = '/boot/'
+    VMLINUZ_REGEX = '(vmlinuz-.*-amd64)'
+    VMLINUZ_DIR = '/boot/'
     INVALID_SIGNATURE = ["Invalid signature detected",
                          "Malformed binary after Attribute Certificate Table",
                          "bad.*signature"]

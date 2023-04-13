@@ -33,10 +33,10 @@ class CounterpollHelper:
     @staticmethod
     def get_parsed_counterpoll_show(counterpoll_show):
         """
-        This method is used to get the formated parsed counterpoll show output
+        This method is used to get the formatted parsed counterpoll show output
         It removes the type key
         :param counterpoll_show:
-        :return: formated parsed counterpoll show output which removes the type key
+        :return: formatted parsed counterpoll show output which removes the type key
         """
         parsed_counterpoll = {}
         for _, counterpoll in counterpoll_show.items():
@@ -307,7 +307,7 @@ class CounterpollHelper:
         :param monit_results: a list which stores the top monitor result
         :param mem_re: memory re pattern
         :param line: line in top command output
-        :param mem_attrs: a tuple which stores the memory attributs
+        :param mem_attrs: a tuple which stores the memory attributes
         """
         line_match = mem_re.match(line)
         values = (line_match.group(_) for _ in mem_attrs)

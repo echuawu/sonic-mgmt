@@ -282,7 +282,7 @@ def test_crm_acl(env, cleanup):
 @allure.title('Test CRM thresholds')
 def test_crm_thresholds_neighbors(env, cleanup, map_res_to_thr, thresholds_cleanup,
                                   disable_rsyslog_ratelimit, ip_ver, start_ip):
-    # Test name used for lognalyzer marker
+    # Test name used for loganalyzer marker
     test_name = 'test_crm_thresholds'
 
     with allure.step("Generate and apply neighbors config"):
@@ -310,7 +310,7 @@ def test_crm_thresholds_nexthop(env, cleanup, map_res_to_thr, thresholds_cleanup
                                 disable_rsyslog_ratelimit, ip_ver, start_ip):
     nexthop_group_res = 'nexthop_group'
     nexthop_group_member_res = 'nexthop_group_member'
-    # Test name used for lognalyzer marker
+    # Test name used for loganalyzer marker
     test_name = 'test_crm_thresholds_nexthop'
     with allure.step("Generate and apply nexthop and nexthop group members config"):
         neigh_cfg_add = th_apply_neighbor_config(env, ip_ver, start_ip, env.vlan_iface_40)
@@ -353,7 +353,7 @@ def test_crm_thresholds_nexthop(env, cleanup, map_res_to_thr, thresholds_cleanup
 @allure.title('Test CRM thresholds FDB')
 def test_crm_thresholds_fdb(env, cleanup, map_res_to_thr, thresholds_cleanup,
                             disable_rsyslog_ratelimit):
-    # Test name used for lognalyzer marker
+    # Test name used for loganalyzer marker
     test_name = 'test_crm_thresholds_fdb'
     fdb_entry_res = "fdb_entry"
     fdb_conf_set = th_apply_fdb_config(env, fdb_entry_res)
@@ -374,7 +374,7 @@ def test_crm_thresholds_fdb(env, cleanup, map_res_to_thr, thresholds_cleanup,
 @allure.title('Test CRM thresholds ACL')
 def test_crm_thresholds_acl(env, cleanup, map_res_to_thr, thresholds_cleanup,
                             disable_rsyslog_ratelimit):
-    # Test name used for lognalyzer marker
+    # Test name used for loganalyzer marker
     test_name = 'test_crm_thresholds_acl'
     acl_entry_resource = 'acl_entry'
     acl_counter_resource = 'acl_counter'

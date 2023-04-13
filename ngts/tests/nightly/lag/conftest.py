@@ -70,7 +70,7 @@ def lag_lacp_base_configuration(topology_obj, interfaces, engines):
 
     dut_cli.general.save_configuration()
     # to prevent advertising the same mac on an interfaces,
-    # need to restart ports status after lldp enbling
+    # need to restart ports status after lldp enabling
     hosts_aliases = ['ha', 'hb']
     for host_alias in hosts_aliases:
         host_engine = topology_obj.players[host_alias]['engine']

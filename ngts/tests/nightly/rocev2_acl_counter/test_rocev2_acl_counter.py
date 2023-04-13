@@ -24,10 +24,10 @@ class TestRocev2AclCounter:
     def test_rocev2_acl_counter(self, rocev2_acl_rule_list, apply_rocev2_acl_config, port_type):
         """
         This test verifying that rocev2 acl counter works correctly when sending rocev2 packets,
-        matching the corresponding acl rule or non-rocev2 packet unmatching corresponding acl rule
+        matching the corresponding acl rule or non-rocev2 packet not matching corresponding acl rule
         1. Send packet matching acl rule
         2. Verify relevant counter counts correctly
-        3. Send packets unmatching acl rule
+        3. Send packets not matching acl rule
         4. Verify relevant counter counts correctly
         """
         self.verify_rocev2_counter_by_sending_packet(port_type, rocev2_acl_rule_list)
@@ -37,11 +37,11 @@ class TestRocev2AclCounter:
     def test_toggle_port_rocev2_acl_counter(self, toggle_tested_port, rocev2_acl_rule_list, apply_rocev2_acl_config, port_type):
         """
         This test verifying that after toggle the tested ports, rocev2 acl counter works correctly when sending rocev2
-        packets, matching the corresponding acl rule or non-rocev2 packet unmatching corresponding acl rule
+        packets, matching the corresponding acl rule or non-rocev2 packet not matching corresponding acl rule
         1. Toggle test ports, check port is up or not
         2. Send packet matching acl rule
         3. Verify relevant counter counts correctly
-        4. Send packets unmatching acl rule
+        4. Send packets not matching acl rule
         5. Verify relevant counter counts correctly
         """
         self.verify_rocev2_counter_by_sending_packet(port_type, rocev2_acl_rule_list)

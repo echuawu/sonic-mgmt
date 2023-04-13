@@ -185,7 +185,7 @@ class TestEvpnVxlanTechSupport:
 
     def validate_vxlan_tables_in_tech_support(self, engines):
         """
-        This method is used to very all needed VXLAN infos exist in tech support dump files
+        This method is used to very all needed VXLAN info exist in tech support dump files
         Typical VXLAN tables in CONFIG_DB.json:
             "VXLAN_EVPN_NVO"
             "VXLAN_TUNNEL_MAP"

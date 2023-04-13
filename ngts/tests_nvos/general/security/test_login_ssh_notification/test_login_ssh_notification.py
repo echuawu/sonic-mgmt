@@ -141,7 +141,7 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
                                                                                      LoginSSHNotificationConsts.PASSWORD_MAX_LEN))
                 logger.info("Iteration {} - connecting using random password: {}".format(index, random_password))
                 connection.sendline(random_password)
-                connection.expect("[Pp]ermission denied")
+                connection.expect(["Permission denied", "permission denied"])
             finally:
                 connection.close()
 

@@ -11,7 +11,7 @@ counterpoll_name_list = ["flowcnt-trap", "pg-drop", "port", "port-buffer-drop", 
 
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("action", ["enable", "disable"])
-@allure.title('Workaround: change counterpooll status')
+@allure.title('Workaround: change counterpoll status')
 def test_change_counterpoll_status(topology_obj, action):
     """
     This test will change counterpoll status.

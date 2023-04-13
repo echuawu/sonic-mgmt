@@ -12,7 +12,7 @@ import pytest
 def pytest_addoption(parser):
     """
     Parse pytest options
-    :param parser: pytest buildin
+    :param parser: pytest builtin
     """
     parser.addoption('--dest', action='store', required=True, help='The directory in which to save the extracted coverage .xml files')
     parser.addoption("--nvos", action="store_true", default=False, help="Run on NVOS system (IB)")

@@ -89,7 +89,7 @@ def test_cpu_memory_usage_all_processes(engines, setup_thresholds):
     with allure.step(f"Collect CPU and Memory usage of DUT - interval: {CounterpollConstants.CPU_MEMORY_SAMPLE_INTERVAL_1} iterations: {CounterpollConstants.CPU_MEMORY_SAMPLE_ITERATION_1}"):
         monit_results = CounterpollHelper.monit_process(engines, interval=CounterpollConstants.CPU_MEMORY_SAMPLE_INTERVAL_1, iterations=CounterpollConstants.CPU_MEMORY_SAMPLE_ITERATION_1)
 
-    with allure.step("Check and then analyse CPU and Memory usage"):
+    with allure.step("Check and then analyze CPU and Memory usage"):
         CounterpollHelper.check_and_analyse_cpu_memory_usage(monit_results, setup_thresholds)
 
 
@@ -101,7 +101,7 @@ def test_cpu_memory_usage_desired_process(engines, cli_objects, setup_thresholds
     Collect memory and CPUs usage for 60 secs
     Compare the memory usage with the memory threshold
     Compare the average cpu usage with the cpu threshold for the specified progress
-    Restore counterpolls status
+    Restore counterpoll status
     :param engines: engines fixture
     :param cli_objects: cli_objects fixture
     :param setup_thresholds: setup_threshold fixture
@@ -130,7 +130,7 @@ def test_cpu_memory_usage_desired_process(engines, cli_objects, setup_thresholds
     with allure.step(f"Configure {counterpoll_type} interval to default value {CounterpollConstants.WATERMARK_INTERVAL_DEFAULT}"):
         cli_obj.counterpoll.set_counterpoll_interval(counterpoll_type, CounterpollConstants.WATERMARK_INTERVAL_DEFAULT)
 
-    with allure.step("Caculate average CPU usage"):
+    with allure.step("Calculate average CPU usage"):
         poll_interval = CounterpollConstants.COUNTERPOLL_INTERVAL[counterpoll_type] // MILLISECOND_TO_SECOND
         outstanding_mem_polls = {}
         cpu_usage_program_to_check = []

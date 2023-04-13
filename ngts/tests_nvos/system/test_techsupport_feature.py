@@ -87,7 +87,7 @@ def get_techsupport_dump_files_names(engine, techsupport):
     """
     :param engine:
     :param techsupport: the techsupport .tar.gz name
-    :return: list of the fump files in the tech-support
+    :return: list of the dump files in the tech-support
     """
     with allure.step('Get all tech-support dump files'):
         engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
@@ -120,7 +120,7 @@ def validate_techsupport_folder_name(system, tech_support_folder):
     """
     Test flow:
         1. run nv show system
-        2. get the hosname value
+        2. get the hostname value
         3. validate the tar.gz name is /host/dump/nvos_dump_<hostname>_<time_now>.tar.gz
     """
     with allure.step('Check that tech-support name is as expected :/host/dump/nvos_dump_<hostname>_<time_now>.tar.gz'):

@@ -50,7 +50,7 @@ def copp_configuration(topology_obj, engines, interfaces, cli_objects, setup_nam
 @pytest.fixture(scope='session', autouse=True)
 def is_trap_counters_supported(engines):
     """
-    Pytest fixture which is veriies if Trap Counters supported on installed image
+    Pytest fixture which is verifies if Trap Counters supported on installed image
     """
     logger.info('Verify if Trap Counters supported on installed image')
     try:

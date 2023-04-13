@@ -12,7 +12,7 @@ logger = logging.getLogger()
 @pytest.fixture(scope='function', autouse=False)
 def add_app_into_repo(engines, cli_objects):
     """
-    :parm engines: ssh engines fixture
+    :param engines: ssh engines fixture
 
     """
     dut_engine = engines.dut
@@ -32,7 +32,7 @@ def add_app_into_repo(engines, cli_objects):
 @pytest.fixture(scope='function', autouse=False)
 def pre_install_app(engines, cli_objects, add_app_into_repo):
     """
-    :parm engines: ssh engines fixture
+    :param engines: ssh engines fixture
 
     """
     dut_engine, app_name, version = add_app_into_repo

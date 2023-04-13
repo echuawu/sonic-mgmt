@@ -131,7 +131,7 @@ class TestEcmpCalcBase:
         """
         try:
             with allure.step("Find one egress port which is one vlan member or lag member, and generate test data"):
-                packet_json_file_name = f"pakect_without_fdb_{vrf}.json"
+                packet_json_file_name = f"packet_without_fdb_{vrf}.json"
                 test_data, egress_port = self.find_egress_port_is_one_member_in_lag_or_vlan(packet_json_file_name, vrf)
 
             with allure.step("Generate static arp"):

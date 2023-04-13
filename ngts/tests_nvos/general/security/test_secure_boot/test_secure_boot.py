@@ -13,7 +13,7 @@ import logging
 import allure
 import pytest
 import os
-from ngts.tests_nvos.general.security.test_secure_boot.constants import SecureBoootConsts
+from ngts.tests_nvos.general.security.test_secure_boot.constants import SecureBootConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 
@@ -29,7 +29,7 @@ def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_k
     '''
     with allure.step("Inserting signed kernel module using insmod"):
         logger.info("Inserting signed kernel module using insmod")
-        serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBoootConsts.TMP_FOLDER,
+        serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBootConsts.TMP_FOLDER,
                                                                         kernel_module_filename))
     # assert
     lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"{}\"'.format(kernel_module_filename.split('.')[0]))
@@ -46,7 +46,7 @@ def test_non_signed_kernel_module_load(serial_engine, remove_kernel_module, uplo
     '''
     with allure.step("Inserting non signed kernel module using insmod"):
         logger.info("Inserting non signed kernel module using insmod")
-        serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBoootConsts.TMP_FOLDER,
+        serial_engine.run_cmd_and_get_output('sudo insmod {}/{}'.format(SecureBootConsts.TMP_FOLDER,
                                                                         kernel_module_filename))
     # assert
     lsmod_output = serial_engine.run_cmd_and_get_output('lsmod | grep \"unsecure_kernel_module\"')
@@ -65,23 +65,23 @@ def manipulate_signature(serial_engine, test_server_engine, filepath):
     filename = os.path.split(filepath)[1]
 
     with allure.step("Uploading {} to {} directory on the local device in order to manipulate it locally".
-                     format(filename, SecureBoootConsts.LOCAL_SECURE_BOOT_DIR)):
+                     format(filename, SecureBootConsts.LOCAL_SECURE_BOOT_DIR)):
         logger.info("Uploading {} to {} directory on the local device in order to manipulate it locally".
-                    format(filename, SecureBoootConsts.LOCAL_SECURE_BOOT_DIR))
+                    format(filename, SecureBootConsts.LOCAL_SECURE_BOOT_DIR))
         serial_engine.upload_file_using_scp(test_server_engine.username,
                                             test_server_engine.password,
                                             test_server_engine.ip,
                                             filepath,
-                                            SecureBoootConsts.LOCAL_SECURE_BOOT_DIR)
+                                            SecureBootConsts.LOCAL_SECURE_BOOT_DIR)
 
     # manipulate file sig
     with allure.step("manipulating signature to file {}".format(filename)):
         logger.info("manipulating signature to file {}".format(filename))
-        test_server_engine.run_cmd('sudo chmod 777 {}/{}'.format(SecureBoootConsts.LOCAL_SECURE_BOOT_DIR, filename))
+        test_server_engine.run_cmd('sudo chmod 777 {}/{}'.format(SecureBootConsts.LOCAL_SECURE_BOOT_DIR, filename))
         random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=random.randint(5, 10)))
-        fileObject = open(SecureBoootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.format(filename), "ab")
+        fileObject = open(SecureBootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.format(filename), "ab")
         # manipulate sig in the [SIG_START,SIG_END] range
-        fileObject.seek(random.randint(SecureBoootConsts.SIG_START, SecureBoootConsts.SIG_END), os.SEEK_END)
+        fileObject.seek(random.randint(SecureBootConsts.SIG_START, SecureBootConsts.SIG_END), os.SEEK_END)
         fileObject.write(random_string.encode())
         fileObject.close()
 
@@ -90,10 +90,10 @@ def manipulate_signature(serial_engine, test_server_engine, filepath):
         test_server_engine.upload_file_using_scp(serial_engine.username,
                                                  serial_engine.password,
                                                  serial_engine.ip,
-                                                 SecureBoootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.format(filename),
-                                                 SecureBoootConsts.TMP_FOLDER)
-        serial_engine.run_cmd(SecureBoootConsts.ROOT_PRIVILAGE)
-        serial_engine.run_cmd('cp {}/{} {}'.format(SecureBoootConsts.TMP_FOLDER, filename,
+                                                 SecureBootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.format(filename),
+                                                 SecureBootConsts.TMP_FOLDER)
+        serial_engine.run_cmd(SecureBootConsts.ROOT_PRIVILAGE)
+        serial_engine.run_cmd('cp {}/{} {}'.format(SecureBootConsts.TMP_FOLDER, filename,
                                                    '/'.join(filepath.split('/')[0:-1])))
 
 
@@ -128,16 +128,16 @@ def recover_switch_after_secure_boot_violation_message(serial_engine, test_serve
     # stop onie discovery to reduce log messages
     serial_engine.run_cmd_and_get_output('onie-stop')
 
-    with allure.step("Uploading restore image to {} on the switch".format(SecureBoootConsts.TMP_FOLDER)):
-        logger.info("Uploading restore image to {} on the switch".format(SecureBoootConsts.TMP_FOLDER))
+    with allure.step("Uploading restore image to {} on the switch".format(SecureBootConsts.TMP_FOLDER)):
+        logger.info("Uploading restore image to {} on the switch".format(SecureBootConsts.TMP_FOLDER))
         test_server_engine.upload_file_using_scp(DefaultConnectionValues.ONIE_USERNAME,
                                                  DefaultConnectionValues.ONIE_PASSWORD,
                                                  serial_engine.ip,
                                                  restore_image_path,
-                                                 SecureBoootConsts.TMP_FOLDER,
+                                                 SecureBootConsts.TMP_FOLDER,
                                                  timeout=300)
         image_filename = os.path.split(restore_image_path)[1]
-        serial_engine.run_cmd('onie-nos-install {}/{}'.format(SecureBoootConsts.TMP_FOLDER, image_filename),
+        serial_engine.run_cmd('onie-nos-install {}/{}'.format(SecureBootConsts.TMP_FOLDER, image_filename),
                               'Installed.*base image.*successfully',
                               300)
 
@@ -147,9 +147,9 @@ def recover_switch_after_secure_boot_violation_message(serial_engine, test_serve
     with allure.step("ping till alive after system is down"):
         ping_till_alive(should_be_alive=True, destination_host=serial_engine.ip)
 
-    with allure.step("Sleep {} secs to allow CLI bring up".format(SecureBoootConsts.SLEEP_AFTER_ONIE_INSTALL)):
-        logger.info("Sleep {} secs to allow CLI bring up".format(SecureBoootConsts.SLEEP_AFTER_ONIE_INSTALL))
-        time.sleep(SecureBoootConsts.SLEEP_AFTER_ONIE_INSTALL)
+    with allure.step("Sleep {} secs to allow CLI bring up".format(SecureBootConsts.SLEEP_AFTER_ONIE_INSTALL)):
+        logger.info("Sleep {} secs to allow CLI bring up".format(SecureBootConsts.SLEEP_AFTER_ONIE_INSTALL))
+        time.sleep(SecureBootConsts.SLEEP_AFTER_ONIE_INSTALL)
 
 
 def unsigned_file_secure_boot(serial_engine, secure_component, test_server_engine, restore_image_path):
@@ -162,8 +162,8 @@ def unsigned_file_secure_boot(serial_engine, secure_component, test_server_engin
     '''
     try:
         manipulate_signature(serial_engine, test_server_engine, secure_component)
-        serial_engine.run_cmd(SecureBoootConsts.REBOOT_CMD,
-                              SecureBoootConsts.INVALID_SIGNATURE,
+        serial_engine.run_cmd(SecureBootConsts.REBOOT_CMD,
+                              SecureBootConsts.INVALID_SIGNATURE,
                               timeout=180)
     except Exception as err:
         raise err
@@ -182,7 +182,7 @@ def test_unsigned_shim_secure_boot(serial_engine, mount_uefi_disk_partition, tes
     :param serial_engine: serial connection
     '''
     unsigned_file_secure_boot(serial_engine,
-                              secure_component=SecureBoootConsts.SHIM_FILEPATH,
+                              secure_component=SecureBootConsts.SHIM_FILEPATH,
                               test_server_engine=test_server_engine,
                               restore_image_path=restore_image_path)
 
@@ -197,7 +197,7 @@ def test_unsigned_grub_secure_boot(serial_engine, mount_uefi_disk_partition, tes
     :param serial_engine: serial connection
     '''
     unsigned_file_secure_boot(serial_engine,
-                              secure_component=SecureBoootConsts.GRUB_FILEPATH,
+                              secure_component=SecureBootConsts.GRUB_FILEPATH,
                               test_server_engine=test_server_engine,
                               restore_image_path=restore_image_path)
 
@@ -212,6 +212,6 @@ def test_unsigned_vmlinuz_secure_boot(serial_engine, test_server_engine, restore
     :param serial_engine: serial connection
     '''
     unsigned_file_secure_boot(serial_engine,
-                              secure_component=vmiluz_filepath,
+                              secure_component=vmlinuz_filepath,
                               test_server_engine=test_server_engine,
                               restore_image_path=restore_image_path)

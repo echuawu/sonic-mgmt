@@ -203,7 +203,7 @@ def test_show_package_changelog(add_app_into_repo, cli_objects):
 @allure.title('test app techsupport integration ')
 def test_app_techsupport_integration(add_app_into_repo, cli_objects):
     """
-    This test is to test techsupport inegration in app extension
+    This test is to test techsupport integration in app extension
     1. The installed app's manifest should include the debug-dump info as follows:
         {
             "package": {

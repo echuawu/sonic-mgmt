@@ -7,7 +7,7 @@ logger = logging.getLogger()
 def pytest_addoption(parser):
     """
     Parse pytest options
-    :param parser: pytest buildin
+    :param parser: pytest builtin
     """
     logger.info('Parsing pytest script options')
     parser.addoption("--preset", action="store", default=None,
@@ -24,7 +24,7 @@ def pytest_addoption(parser):
 def preset(request):
     """
     Method for get the configuration setting required on the switch
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: the configuration setting required on the switch, i.e. "l2"
     """
     return request.config.getoption('--preset')
@@ -34,7 +34,7 @@ def preset(request):
 def dockers_list(request):
     """
     Method for getting a list of dockers that should be up on the switch
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: a list of dockers that should be up on the switch, i.e ['database','swss']
     """
     return request.config.getoption('--dockers_list').split(',')

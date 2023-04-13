@@ -17,7 +17,7 @@ def lldp_configuration(topology_obj, cli_objects):
         if not cli_object.lldp.is_lldp_enabled_on_host():
             cli_object.lldp.enable_lldp_on_host()
             # to prevent advertising the same mac on an interfaces,
-            # need to restart ports status after lldp enbling
+            # need to restart ports status after lldp enabling
             for port in topology_obj.players_all_ports[host_alias]:
                 cli_object.interface.disable_interface(port)
                 cli_object.interface.enable_interface(port)

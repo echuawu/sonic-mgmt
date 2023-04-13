@@ -33,7 +33,7 @@ def create_metadata_dir(session_id, cli_type):
     :param setup_name: name of the setup
     :param session_id: MARS session id
     :param suffix_path_name: End part of the directory name
-    :param cli_type: the type of cli, wether its NVUE or SONIC
+    :param cli_type: the type of cli, whether its NVUE or SONIC
     :return: created directory path
     """
 
@@ -64,8 +64,8 @@ def create_test_record(session_id, setup_name, mars_key_id, test_name, result, s
 def pytest_sessionfinish(session, exitstatus):
     """
     Pytest hook which are executed after all tests before exist from program
-    :param session: pytest buildin
-    :param exitstatus: pytest buildin
+    :param session: pytest builtin
+    :param exitstatus: pytest builtin
     """
     if not session.config.getoption("--collectonly"):
         session_id = session.config.option.session_id
@@ -127,7 +127,7 @@ def export_data(session_id, mars_key_id, cli_type):
         logger.info("Exporting json tests data with command:\n{}".format(export_data_cmd))
         subprocess.check_output(export_data_cmd, shell=True)
     except Exception as e:
-        logger.warning("Error: {} has occured, test data might not be exported".format(e))
+        logger.warning("Error: {} has occurred, test data might not be exported".format(e))
 
 
 def valid_tests_data(report_url, session_id, mars_key_id):
@@ -182,17 +182,17 @@ def get_skip_type_reason(test_obj):
     return skipped_flavor, str(skipreason)
 
 
-def get_updated_skipped_type(skipped_type, skipped_flavors, skipreason):
+def get_updated_skipped_type(skipped_type, skipped_flavors, skip_reason):
     """
-    Check if it is one of the defined skip flavor based on the skipreason.
+    Check if it is one of the defined skip flavor based on the skip_reason.
     :param skipped_type: defined skip type
     :param skipped_flavors: the skipped flavor dict.
-    :param skipreason: the skip reason
+    :param skip_reason: the skip reason
     :return: skip flavor.
     """
     for skipped_flavor, skipreason_keys in skipped_flavors.items():
         for skipreason_key in skipreason_keys:
-            if skipreason_key in skipreason:
+            if skipreason_key in skip_reason:
                 return skipped_flavor
     return skipped_type
 

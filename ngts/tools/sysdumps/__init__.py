@@ -65,7 +65,7 @@ def pytest_runtest_makereport(item, call):
 def get_test_duration(item):
     """
     Get duration of test case. Init time + test body time + 120 seconds
-    :param item: pytest buildin
+    :param item: pytest build-in
     :return: integer, test duration
     """
     return math.ceil(item.rep_setup.duration) + math.ceil(item.rep_call.duration) + 120

@@ -65,7 +65,7 @@ def test_ibdiagnet_run(engines):
 @pytest.mark.ib
 def test_ibdiagnet_run_multiple_times(engines):
     """
-    Validate only one ibdianget file will be exist after generating it many times
+    Validate only one ibdiagnet file will be exist after generating it many times
     :param engines:
     :return:
     """
@@ -75,7 +75,7 @@ def test_ibdiagnet_run_multiple_times(engines):
         for i in range(0, tries_number):
             ib.ibdiagnet.action_run(command=IbConsts.IBDIAGNET_COMMAND, option=IbConsts.IBDIAGNET_PHY_INFO, expected_str=IbConsts.IBDIAGNET_EXPECTED_MESSAGE)
 
-    with allure.step('Validate only one ibdianget file will be exist after generating it {tries} times'.format(tries=tries_number)):
+    with allure.step('Validate only one ibdiagnet file will be exist after generating it {tries} times'.format(tries=tries_number)):
         output = engines.dut.run_cmd('ls {path}'.format(path=IbConsts.IBDIAGNET_ZIPPED_FOLDER_PATH))
         assert len(output.split()) == 2, "more than ibdiagnet files are exist"
 

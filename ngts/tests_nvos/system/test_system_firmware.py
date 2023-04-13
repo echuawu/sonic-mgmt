@@ -173,7 +173,7 @@ def test_set_unset_system_firmware_default(engines):
     with allure.step("Verify the configuration applied successfully - firmware default is user"):
         verify_firware_value(system, "default", "user")
 
-    with allure.step("Unet firmware default"):
+    with allure.step("Unset firmware default"):
         unset_firmware_default(system)
 
     with allure.step("Verify the configuration applied successfully - firmware default is image"):
@@ -187,7 +187,7 @@ def set_firmware_default(system, value):
 
 
 def unset_firmware_default(system):
-    logging.info("Unsetting firmware default")
+    logging.info("Unset firmware default")
     system.firmware.unset("default")
     TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut, True)
 
@@ -219,7 +219,7 @@ def verify_asic_fields(asic_dictionary):
 
 def compare_asic_names(first_dictionary, second_dictionary):
     logging.info("Compare asic names")
-    assert set(first_dictionary.keys()) == set(second_dictionary.keys()), "asics lists are not equal"
+    assert set(first_dictionary.keys()) == set(second_dictionary.keys()), "asic lists are not equal"
 
 
 def compare_asic_fields(first_dictionary, second_dictionary):

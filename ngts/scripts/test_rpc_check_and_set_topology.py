@@ -19,7 +19,7 @@ logger = logging.getLogger("PreTestCheck")
 def current_topo(request):
     """
     Method for get current_topo from pytest arguments
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: current_topo, i.e. t1-lag
     """
     return request.config.getoption('--current_topo')
@@ -29,7 +29,7 @@ def current_topo(request):
 def expected_topo(request):
     """
     Method for get expected_topo from pytest arguments
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: expected_topo, i.e. ptf32
     """
     return request.config.getoption('--expected_topo')

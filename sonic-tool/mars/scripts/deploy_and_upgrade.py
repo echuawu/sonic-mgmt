@@ -517,7 +517,7 @@ def install_supported_app_extensions(ansible_path, mgmt_docker_engine, setup_nam
     cmd = "PYTHONPATH=/devts:{sonic_mgmt_dir} {ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
           " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results " \
           " --disable_loganalyzer {app_extension_path_str} " \
-          " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extesions.py". \
+          " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extensions.py". \
         format(ngts_pytest=constants.NGTS_PATH_PYTEST, sonic_mgmt_dir=constants.SONIC_MGMT_DIR, setup_name=setup_name,
                app_extension_path_str=app_extension_path_str)
     with mgmt_docker_engine.cd(ansible_path):

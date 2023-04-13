@@ -30,7 +30,7 @@ def pytest_cmdline_main(config):
 @pytest.fixture(scope="session")
 def duthosts(ansible_adhoc, topology_obj):
     """
-    Emulate duhosts fixure from community
+    Emulate duthosts fixture from community
     :param ansible_adhoc: ansible_adhoc fixture
     :param topology_obj: topology_obj fixture
     :return: list of ansible engines

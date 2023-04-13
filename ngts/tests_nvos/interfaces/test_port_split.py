@@ -49,7 +49,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
                                                 ask_for_confirmation=True).verify_result(False)
             NvueGeneralCli.detach_config(TestToolkit.engines.dut)
             output = NvueGeneralCli.diff_config(TestToolkit.engines.dut)
-            assert not output, "config not dettached"
+            assert not output, "config not detached"
 
     with allure.step("Try split eth0 and ib0 port in not breakout system profile"):
         mgmt_port = MgmtPort('eth0')
@@ -60,7 +60,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
                                               ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output = NvueGeneralCli.diff_config(TestToolkit.engines.dut)
-        assert not output, "config not dettached"
+        assert not output, "config not detached"
 
         ipoib_port.interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_HDR, apply=True,
                                                ask_for_confirmation=True).verify_result(False)
@@ -68,7 +68,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
                                                ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output = NvueGeneralCli.diff_config(TestToolkit.engines.dut)
-        assert not output, "config not dettached"
+        assert not output, "config not detached"
 
     with allure.step('Change system profile to breakout-mode enabled, adaptive-routing enabled'):
         with allure.step("Enable adaptive-routing and enable breakout-mode "):
@@ -92,7 +92,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
                                               ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output = NvueGeneralCli.diff_config(TestToolkit.engines.dut)
-        assert not output, "config not dettached"
+        assert not output, "config not detached"
 
         ipoib_port.interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_HDR, apply=True,
                                                ask_for_confirmation=True).verify_result(False)
@@ -100,7 +100,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
                                                ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output = NvueGeneralCli.diff_config(TestToolkit.engines.dut)
-        assert not output, "config not dettached"
+        assert not output, "config not detached"
 
     with allure.step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
@@ -125,7 +125,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
                                                       ask_for_confirmation=True).verify_result(False)
             NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
-    with allure.step("Unset parrent port"):
+    with allure.step("Unset parent port"):
         child_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result(False)
 
 
@@ -133,13 +133,13 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
 def test_ib_split_port_default_values(engines, interfaces, start_sm):
     """
     Test flow:
-        1. Change profile to brekout enabled
+        1. Change profile to breakout enabled
         2. Check parent port default value
         3. Split port
         4. Check parent and child default value
         5. Change child port values
         6. Negative testing for child port
-        7. Unset parent porn
+        7. Unset parent port
         8. Check it returned to default values
     """
     system = System(None)
@@ -224,7 +224,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                                                    ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
-    with allure.step("Unset parrent port"):
+    with allure.step("Unset parent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
         parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
@@ -293,7 +293,7 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
             child_ports[0].ib_interface.link.stats.show_interface_link_stats()).get_returned_value()
         assert (output_dictionary['in-pkts'] == output_dictionary['out-pkts']) != 0
 
-    with allure.step("Unset parrent port"):
+    with allure.step("Unset parent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
 
     with allure.step("Start OpenSM and check traffic port up"):
@@ -330,7 +330,7 @@ def test_split_port_timings(engines, interfaces, start_sm):
     with allure.step("Check if child port will go up for less that 30 sec"):
         child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, timeout=30).verify_result()
 
-    with allure.step("Unset parrent port"):
+    with allure.step("Unset parent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
 
 
@@ -394,11 +394,11 @@ def test_split_all_ports(engines, interfaces, start_sm):
                                                                   expected_values=[{'breakout': '2x-ndr'}],
                                                                   output_dict=output_dictionary).verify_result()
 
-    with allure.step("Check if we can do show for splited interface"):
+    with allure.step("Check if we can do show for splitted interface"):
         Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
             port_up.show_interface()).get_returned_value()
 
-    with allure.step("Check if we can to get splited ports"):
+    with allure.step("Check if we can to get splitted ports"):
         _get_split_ports()
 
     with allure.step("Unset all ports"):
@@ -442,7 +442,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
             parent_port = split_ports[0]
             parent_port.ib_interface.link.breakout.set(value=IbInterfaceConsts.LINK_BREAKOUT_NDR, apply=True,
                                                        ask_for_confirmation=True).verify_result()
-        with allure.step("Unset parrent port"):
+        with allure.step("Unset parent port"):
             parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
 
 
@@ -485,7 +485,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
         Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             child_ports[0].ib_interface.link.show_interface_link()).get_returned_value()
 
-    with allure.step("Unset parrent port"):
+    with allure.step("Unset parent port"):
         parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
 
     with allure.step('Change system profile to default'):

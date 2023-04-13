@@ -34,10 +34,10 @@ class TestFdbBasic:
         self.port2 = self.interfaces.dut_ha_2
 
     @pytest.mark.parametrize("pkt_type", PKT_TYPE_LIST)
-    @allure.title('Test dynamic mac is learnt')
+    @allure.title('Test dynamic mac is learned')
     def test_dynamic_mac_learning(self, pkt_type):
         """
-        Verify that dynamic mac can be learnt for different packets.
+        Verify that dynamic mac can be learned for different packets.
         1. Clear fdb table
         2. Host A sends packet to Host B
         3. Verify source mac will be saved into fdb table

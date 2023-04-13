@@ -74,10 +74,10 @@ def acl_configuration(topology_obj, cli_objects, interfaces, acl_table_config_li
 
 def ping_from_host(engines):
     """
-    Do ping from the host to the DUT interface to make the ip address on the host can be learnt add added to
+    Do ping from the host to the DUT interface to make the ip address on the host can be learned and added to
     the ACL table. Else, the egress test will always have some pkt lost, For detail info can refer to
     [SONiC  Verification] Bug SW #2921562: [Functional] [ACL] | ACL egress rule can not hit all the pkts which
-    match the rule. | Assignee: Nana He | Status: Assigned
+    match the rule.
 
     :param engines: engines fixture object
     :return: None

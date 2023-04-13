@@ -52,7 +52,8 @@ class TestToolkit:
     @staticmethod
     def get_date_and_time_from_line(line):
         date_time = re.findall(NvosConst.DATE_TIME_REGEX, line)
-        assert len(date_time) > 0, "Didn\'t find date and time regex {} in line: {}".format(NvosConst.DATE_TIME_REGEX, line)
+        assert len(date_time) > 0, "Did not find date and time regex {} in line: {}".format(NvosConst.DATE_TIME_REGEX,
+                                                                                            line)
         return TestToolkit.date_time_string_to_datetime_obj(date_time[0].split(".")[0])
 
     @staticmethod

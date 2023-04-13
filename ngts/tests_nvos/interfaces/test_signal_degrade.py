@@ -284,7 +284,7 @@ def _start_signal_degrade_simulator(engines, mst_device):
 
         output = engines.server.run_cmd(cmd)
 
-        if "[ERROR]MST_DEVICE doesnt exist" in output:
+        if "[ERROR]MST_DEVICE does not exist" in output:
             logging.info("Start mst service")
             engines.server.run_cmd("sudo mst server start")
             output = engines.server.run_cmd(cmd)

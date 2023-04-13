@@ -110,8 +110,8 @@ class TestRouting:
         :param show_ip_bgp_neighbors_output: "show ip bgp neighbors" output
         """
         ip_bgp_neighbors_info = [neigh for neigh in show_ip_bgp_neighbors_output.split('BGP neighbor is') if neigh]
-        available_bgp_neigbors = len(ip_bgp_neighbors_info)
-        assert available_bgp_neigbors == 2, f'Available BGP peers: {available_bgp_neigbors}, expected: 2'
+        available_bgp_neighbors = len(ip_bgp_neighbors_info)
+        assert available_bgp_neighbors == 2, f'Available BGP peers: {available_bgp_neighbors}, expected: 2'
 
     def validate_ip_bgp_neighbor(self, show_ip_bgp_neighbors_output):
         """
@@ -119,11 +119,11 @@ class TestRouting:
         :param show_ip_bgp_neighbors_output: "show ip bgp neighbors 20.0.0.2" output
         """
         # BGP neighbor is 20.0.0.2, remote AS 501, local AS 500, external link
-        regexp_neigh = fr'.*BGP\sneighbor\sis\s{self.hb_dut_1_ip},\sremote\sAS\s501,\slocal\sAS\s500'
+        regexp_neigh = fr'.*BGP neighbor is {self.hb_dut_1_ip}, remote AS 501, local AS 500'
         #   BGP state = Established, up for 01:19:00
-        regexp_status = r'.*BGP\sstate\s=\sEstablished,\sup\sfor'
+        regexp_status = r'.*BGP state = Established, up for'
         #   2 accepted prefixes
-        regexp_prefixes = r'.*\d+\saccepted\sprefixes'
+        regexp_prefixes = r'.*\d+ accepted prefixes'
         # Foreign host: 20.0.0.2, Foreign port: 179
         regexp_peer_info = fr'.*Foreign\shost:\s{self.hb_dut_1_ip},\sForeign\sport:\s\d+'
         assert re.search(regexp_neigh, show_ip_bgp_neighbors_output), 'Not all info about BGP peer available, check log'
@@ -375,7 +375,7 @@ class TestRouting:
                                                           'dst': self.dut_ha_1_ip}}
             PingChecker(self.players, validation_ha_dut).run_validation()
 
-        # TODO: uncomment validation once will get response from developers(or DPU will support counters)
+        # TODO: restore validation once will get response from developers(or DPU will support counters)
         # with allure.step('Checking increased counters'):
         #     retry_call(self.validate_increased_counters, fargs=[1], tries=3, delay=5, logger=logger)
 
@@ -397,7 +397,7 @@ class TestRouting:
             parsed_ip_route_output = self.dut_cli.route.show_ip_route(is_json=True)
             self.validate_routes_on_dut(parsed_ip_route_output)
 
-        # TODO: uncomment validation once will get response from developers(or DPU will support BGP)
+        # TODO: restore validation once will get response from developers(or DPU will support BGP)
         # with allure.step('Traffic validation'):
         #     self.validate_traffic_via_bgp_routes(expected_pass=True)
         #     self.validate_traffic_via_static_routes()
@@ -406,7 +406,7 @@ class TestRouting:
             self.dut_cli.bgp.shutdown_bgp_all()
 
         try:
-            # TODO: uncomment validation once will get response from developers(or DPU will support BGP)
+            # TODO: restore validation once will get response from developers(or DPU will support BGP)
             # with allure.step('Traffic validation'):
             #     self.validate_traffic_via_bgp_routes(expected_pass=False)
             #     self.validate_traffic_via_static_routes()

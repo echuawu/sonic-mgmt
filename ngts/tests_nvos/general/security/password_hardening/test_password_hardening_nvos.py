@@ -97,7 +97,7 @@ def test_password_hardening_show_system_security(engines, system):
 
     with allure.step("Verify all fields exist in output"):
         logging.info("Verify all fields exist in output")
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(output, PwhConsts.FIELDS).verify_result()
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(output, PwhConsts.FIELDS).verify_result()
 
     with allure.step("Verify all initial values are set to default"):
         logging.info("Verify all initial values are set to default")

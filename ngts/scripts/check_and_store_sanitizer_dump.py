@@ -23,7 +23,7 @@ def test_name(request):
     """
     Method for getting the test name parameter for script check_and_store_sanitizer_dump.py,
     the script will check for sanitizer failures and store dump under test name
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: the test name, i.e, push_gate
     """
     return request.config.getoption('--test_name')
@@ -34,7 +34,7 @@ def send_mail(request):
     """
     Method for getting the send_mail boolean parameter for script check_and_store_sanitizer_dump.py,
     true, to send the report by mail
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: True/False, True to send mail.
     """
     value = request.config.getoption('--send_mail')

@@ -58,7 +58,7 @@ class Password_hardening(BaseComponent):
         :param password_hardening_output: nv show system security output
         :return:
         """
-        with allure.step('parssing nv show system security output'):
+        with allure.step('parse nv show system security output'):
             assert password_hardening_output, "cmd output is empty"
             output_dictionary = json.loads(password_hardening_output)
             rules = [key for key in SystemConsts.PASSWORD_HARDENING_DEFAULT if output_dictionary[key] == SystemConsts.USER_STATE_ENABLED]

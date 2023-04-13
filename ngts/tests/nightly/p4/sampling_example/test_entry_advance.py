@@ -371,7 +371,7 @@ class TestEntryTraffic:
         return engine.run_cmd_set(cmd_list)
 
     @staticmethod
-    def run_p4_smapling_basic_test(engines, table_params, topology_obj, interfaces):
+    def run_p4_sampling_basic_test(engines, table_params, topology_obj, interfaces):
         """
         run basic p4_sampling test
         :param engines: engines fixture object

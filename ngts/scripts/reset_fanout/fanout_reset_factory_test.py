@@ -56,7 +56,7 @@ def _prepare_image_name(onyx_img_url):
 
 
 def image_boot_next_fanout(dut_engine):
-    image_boot_next_log = "Confiuguring image boot next on the fanout"
+    image_boot_next_log = "Configuring image boot next on the fanout"
     with allure.step(image_boot_next_log):
         logger.info(image_boot_next_log)
         dut_engine.run_cmd('image boot next')

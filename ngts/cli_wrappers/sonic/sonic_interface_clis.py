@@ -291,7 +291,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
 
     def check_ports_status(self, ports_list, expected_status='up'):
         """
-        This method verifies that each iinterface is in expected oper state
+        This method verifies that each interface is in expected oper state
         :param ports_list: list with port names which should be in UP state
         :param expected_status: 'up' if expected UP, or 'down' if expected DOWN
         :return Assertion exception in case of failure
@@ -374,7 +374,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
     @staticmethod
     def parse_added_breakout_ports(breakout_cmd_output):
         """
-        extarcts from breakout command output the dictionary of created ports and returns it as dictionary.
+        Extracts from breakout command output the dictionary of created ports and returns it as dictionary.
         :param breakout_cmd_output: the breakout command output, i.e,
             Running Breakout Mode : 1x100G[50G,40G,25G,10G,1G]
             Target Breakout Mode : 2x50G[25G,10G,1G]

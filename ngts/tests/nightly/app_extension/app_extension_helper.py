@@ -56,7 +56,7 @@ def verify_add_app_to_repo(cli_obj, app_name, repo_name, desc="N/A", version="N/
     :param repo_name: app package repository
     :param desc: app package description
     :param version: app package version
-    :parm status: indicate if the app package is installed or not
+    :param status: indicate if the app package is installed or not
     :Return None, or raise exception  if app info not match all
 
     """

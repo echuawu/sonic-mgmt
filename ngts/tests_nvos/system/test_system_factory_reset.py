@@ -373,11 +373,3 @@ def test_error_flow_reset_factory_with_params(engines, devices, topology_obj):
 def test_error_flow_reset_factory_with_params_openapi(engines, devices, topology_obj):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_error_flow_reset_factory_with_params(engines, devices, topology_obj)
-
-
-"""@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.checklist
-def test_reset_factory_without_params_openapi(engines, devices, topology_obj):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_reset_factory_without_params(engines, devices, topology_obj)"""

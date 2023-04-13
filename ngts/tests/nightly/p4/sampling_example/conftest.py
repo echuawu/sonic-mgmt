@@ -35,7 +35,7 @@ def install_sampling_pipline(topology_obj):
 @pytest.fixture(scope="package", autouse=False)
 def skipping_p4_sampling_test_case_for_spc1(platform_params):
     """
-    If platform is SPC1, skip all testcases except test_p4_sampling_not_support_on_spc1
+    If platform is SPC1, skip all test cases except test_p4_sampling_not_support_on_spc1
     :param platform_params: platform_params fixture
     """
     fixture_helper.skipping_p4_sampling_test_case_for_spc1(platform_params)
@@ -112,16 +112,15 @@ def p4_sampling_entries(skipping_p4_sampling_test_case_for_spc1, topology_obj, i
 
 
 @pytest.fixture(scope='class')
-def table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
+def table_params(interfaces, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
     """
-    Fixture used to create the TableParams object which contains some params used in the testcases
+    Fixture used to create the TableParams object which contains some params used in the test cases
     :param interfaces: interfaces fixture
-    :param engines : engines fixture object
     :param topology_obj: topology_obj fixture object
     :param ha_dut_2_mac: ha_dut_2_mac fixture object
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     """
-    return fixture_helper.get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
+    return fixture_helper.get_table_params(interfaces, topology_obj, ha_dut_2_mac, hb_dut_1_mac)
 
 
 @pytest.fixture(scope='class')

@@ -76,7 +76,7 @@ class SonicCrmCli:
             neighbor  nexthop   route
 
         crm config thresholds ipv4 route type percentage
-        :param ip_ver: IP version 4 or 6 to choose beatween 'ipv4' or 'ipv6' CRM resources
+        :param ip_ver: IP version 4 or 6 to choose between 'ipv4' or 'ipv6' CRM resources
         :param resource: crm 'ipv4/6' available resources - 'neighbor', 'nexthop' or 'route'
         :param th_type: crm threshold type: 'percentage', 'used' or 'free'
         :param low: crm low threshold 0..100
@@ -148,9 +148,9 @@ class SonicCrmCli:
         Configure CRM thresholds for 'fdb' resource
         SONiC CLI command examples:
         crm config thresholds fdb --help
-            high  CRM high threshod configuration
-            low   CRM low threshod configuration
-            type  CRM threshod type configuration
+            high  CRM high threshold configuration
+            low   CRM low threshold configuration
+            type  CRM threshold type configuration
         :param th_type: crm threshold type: 'percentage', 'used' or 'free'
         :param low: crm low threshold 0..100
         :param high: crm high threshold 0..100

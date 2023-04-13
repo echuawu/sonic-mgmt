@@ -112,7 +112,7 @@ class SonicAppExtensionCli:
         """
         Upgrade app with specified version from tarball:
         :param tarball_name: app name
-        :parm validate: bool
+        :param validate: bool
         """
         self.engine.run_cmd("sudo spm upgrade -y --from-tarball {}".format(tarball_name))
 

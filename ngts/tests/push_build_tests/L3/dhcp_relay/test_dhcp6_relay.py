@@ -43,7 +43,7 @@ def get_ipv6_dhcp_relay_bpf_filter(d_port=547, upd_size=None, msg_type=None, msg
     :param relay_msg_option_offset: IPv6 packet offset for relay message option
     :param second_hop_count: in case of relay-fwd which have encapsulated relay-fwd packet - hop-count value - HEX value
     :param second_hop_count_offset: IPv6 packet offset for second hop-count
-    :return: string with tcdpump filter, example: 'udp src port 547 and dst port 547 and ip6[44:2] == 102'
+    :return: string with tcpdump filter, example: 'udp src port 547 and dst port 547 and ip6[44:2] == 102'
     """
 
     tcpdump_filter = 'udp dst port {d_port}'.format(d_port=d_port)
@@ -99,7 +99,7 @@ def verify_dhcp6_client_output(engine, dhclient_cmd, dhclient_iface, expected_ip
     that DHCP request failed and IP not obtained
     :param engine: dhcp client engine
     :param dhclient_cmd: dhcp client command for run dhclient
-    :param dhclient_iface: interface on whicc we run dhclient
+    :param dhclient_iface: interface on which we run dhclient
     :param expected_ip: expected ip address, if not provided - expected DHCP request fail
     """
     dhclient_output = engine.run_cmd(dhclient_cmd)

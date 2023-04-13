@@ -90,7 +90,7 @@ def uninstall_p4_sampling(engine_dut, cli_obj):
     with allure.step('Verify the app is uninstalled'):
         app_list = cli_obj.app_ext.parse_app_package_list_dict()
         assert APP_NAME not in app_list
-    logger.info('{} uninstallation completed'.format(APP_NAME))
+    logger.info('{} uninstall completed'.format(APP_NAME))
     logger.info("Check the sdk acl value after the p4-sampling is installed")
     logger.info(engine_dut.run_cmd("docker exec -i syncd bash -c 'sx_api_flex_acl_dump.py'"))
 
@@ -119,7 +119,7 @@ def recover_p4_sampling_entries(cli_obj, port_entries, flow_entries):
     recover the p4 sampling entries that have been removed
     :param cli_obj: cli_obj fixture object
     :param port_entries: port entry list which need to be add back
-    :param flow_entries:  flow etry list which need to be add back
+    :param flow_entries:  flow entry list which need to be add back
     :return: None
     """
     with allure.step('Add the entries back'):
@@ -192,12 +192,11 @@ def remove_p4_sampling_entries(topology_obj, interfaces, engines, table_params):
             count, 0)
 
 
-def get_table_params(interfaces, engines, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
+def get_table_params(interfaces, topology_obj, ha_dut_2_mac, hb_dut_1_mac):
     """
-    Fixture used to create the TableParams object which contains some params used in the testcases
+    Fixture used to create the TableParams object which contains some params used in the test cases
     :param interfaces: interfaces fixture
-    :param:engines : engines fixture object
-    :param: topology_obj: topology_obj fixture object
+    :param topology_obj: topology_obj fixture object
     :param ha_dut_2_mac: ha_dut_2_mac fixture object
     :param hb_dut_1_mac: hb_dut_1_mac fixture object
     """

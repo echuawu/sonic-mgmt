@@ -12,7 +12,7 @@ class NvueChassisCli(ChassisCliCommon):
     @staticmethod
     def show_platform_summary(engine):
         """
-        This method excute command "show platform summary" on dut
+        This method execute command "show platform summary" on dut
         :param engine: ssh engine object
         :return: the cmd output
         """

@@ -216,7 +216,7 @@ def run_traffic(cli_objects, players):
 def validate_buffer(cli_objects, interfaces, prio_group):
     stat_results = cli_objects.dut.watermark.show_and_parse_watermarkstat()
     assert stat_results[interfaces.dut_hb_2][prio_group] > WATERMARK_THRESHOLD, \
-        f'Unexpected watermarkstat value for ROCE traffic({prio_group}).' \
+        f'Unexpected watermark value for ROCE traffic({prio_group}).' \
         f' Current: {stat_results[interfaces.dut_hb_2][prio_group]}. Expected threshold: {WATERMARK_THRESHOLD}'
 
 

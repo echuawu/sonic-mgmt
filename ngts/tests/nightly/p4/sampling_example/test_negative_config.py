@@ -25,7 +25,7 @@ class TestNegativeConfig:
     @pytest.fixture(scope='class')
     def table_params(self, interfaces, engines, topology_obj, hb_dut_1_mac):
         """
-        Fixture used to create the TableParams object which contains some params used in the testcases
+        Fixture used to create the TableParams object which contains some params used in the test cases
         :param interfaces: interfaces fixture
         :param:engines : engines object fixture
         :param: topology_obj: topology_obj object fixture
@@ -353,9 +353,9 @@ class TestNegativeConfig:
                                                                          table_params.port_action_param),
                                             "key {} action {} {} priority".format(table_params.port_key, ACTION_NAME,
                                                                                   table_params.port_action_param),
-                                            "key {} action {} {} priorityy {}".format(table_params.port_key, ACTION_NAME,
-                                                                                      table_params.port_action_param,
-                                                                                      table_params.port_priority),
+                                            "key {} action {} {} prio_neg {}".format(table_params.port_key, ACTION_NAME,
+                                                                                     table_params.port_action_param,
+                                                                                     table_params.port_priority),
                                             "key {} action {} {} priority {}".format(table_params.port_key, ACTION_NAME,
                                                                                      table_params.port_action_param,
                                                                                      True)]
@@ -378,9 +378,9 @@ class TestNegativeConfig:
                                                                          table_params.flow_action_param),
                                             "key {} action {} {} priority".format(table_params.flow_key, ACTION_NAME,
                                                                                   table_params.flow_action_param),
-                                            "key {} action {} {} priorityy {}".format(table_params.flow_key, ACTION_NAME,
-                                                                                      table_params.flow_action_param,
-                                                                                      table_params.flow_priority),
+                                            "key {} action {} {} prio_neg {}".format(table_params.flow_key, ACTION_NAME,
+                                                                                     table_params.flow_action_param,
+                                                                                     table_params.flow_priority),
                                             "key {} action {} {} priority {}".format(table_params.flow_key, ACTION_NAME,
                                                                                      table_params.flow_action_param,
                                                                                      True)]

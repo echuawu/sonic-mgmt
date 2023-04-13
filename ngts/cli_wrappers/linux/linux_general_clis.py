@@ -15,7 +15,7 @@ class LinuxGeneralCli(GeneralCliCommon):
 
     def install_bfb_image(self, image_path, rshim_num):
         """
-        Instalation of BFB image on Bluefield from Server
+        Installation of BFB image on Bluefield from Server
         To use this method, the class must be created with hypervisor engine
         :param image_path: path to image
         :param rshim_num: the number of RSHIM on server

@@ -47,7 +47,7 @@ def non_secure_image_path(target_version):
 @pytest.fixture(scope='session')
 def non_secure_image_name(non_secure_image_path):
     '''
-    @summary: will extract the non secure image name from taget_version
+    @summary: will extract the non secure image name from target_version
     :return: given non secure image path
     '''
     img_name = non_secure_image_path.split('/')[-1]

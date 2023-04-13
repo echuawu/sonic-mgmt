@@ -74,7 +74,7 @@ pytest_plugins = ('ngts.tools.sysdumps',
 def pytest_addoption(parser):
     """
     Parse pytest options
-    :param parser: pytest buildin
+    :param parser: pytest builtin
     """
     logger.info('Parsing pytest options')
     parser.addoption('--setup_name', action='store', required=True, default=None,
@@ -115,7 +115,7 @@ def pytest_addoption(parser):
 def pytest_runtest_call(item):
     """
     Pytest hook which is executed at the calling of test case
-    :param item: pytest buildin
+    :param item: pytest builtin
     """
     topology_obj = item.funcargs.get('topology_obj')
     if topology_obj:
@@ -125,8 +125,8 @@ def pytest_runtest_call(item):
 def pytest_fixture_setup(fixturedef, request):
     """
     Pytest hook which is executed at the beginning of each fixture
-    :param fixturedef: pytest buildin
-    :param request: pytest buildin
+    :param fixturedef: pytest builtin
+    :param request: pytest builtin
     """
     func_name = request._pyfuncitem.name
     for func in request.session.items:
@@ -139,8 +139,8 @@ def pytest_fixture_setup(fixturedef, request):
 def pytest_fixture_post_finalizer(fixturedef, request):
     """
     Pytest hook which is executed at the beginning of each fixture
-    :param fixturedef: pytest buildin
-    :param request: pytest buildin
+    :param fixturedef: pytest builtin
+    :param request: pytest builtin
     """
     func_name = request._pyfuncitem.name
     for func in request.session.items:
@@ -186,7 +186,7 @@ def target_version(request):
 @pytest.fixture(scope="session")
 def wjh_deb_url(request):
     """
-    Method for getting what-just-happend deb file URL from pytest arguments
+    Method for getting what-just-happened deb file URL from pytest arguments
     :param request: pytest builtin
     :return: wjh_deb_url argument value
     """
@@ -197,7 +197,7 @@ def wjh_deb_url(request):
 def setup_name(request):
     """
     Method for get setup name from pytest arguments
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: setup name
     """
     return request.config.getoption('--setup_name')
@@ -208,7 +208,7 @@ def topology_obj(setup_name, request):
     """
     Fixture which create topology object before run tests and doing cleanup for ssh engines after test executed
     :param setup_name: example: sonic_tigris_r-tigris-06
-    :param request: pytest build-in
+    :param request: pytest builtin
     """
     logger.debug('Creating topology object')
     topology = get_topology_by_setup_name_and_aliases(setup_name, slow_cli=False)
@@ -294,8 +294,8 @@ def show_platform_summary(topology_obj):
 def pytest_runtest_makereport(item, call):
     """
     Pytest hook which are executed in all phases: Setup, Call, Teardown
-    :param item: pytest buildin
-    :param call: pytest buildin
+    :param item: pytest builtin
+    :param call: pytest builtin
     """
     # execute all other hooks to obtain the report object
     outcome = yield

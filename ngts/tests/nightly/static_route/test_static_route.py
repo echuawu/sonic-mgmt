@@ -35,8 +35,8 @@ def generate_test_config(interfaces, ipv4_list, ipv6_list):
     """
     Generate route scale test configuration
     :param interfaces: fixture interfaces
-    :param ipv4_list: list with IPv4 subnets(route destinations)
-    :param ipv6_list: list with IPv6 subnets(route destinations)
+    :param ipv4_list: list with IPv4 subnet(route destinations)
+    :param ipv6_list: list with IPv6 subnet(route destinations)
     :return: ip_config_dict
     """
     # IP config which will be used in test
@@ -62,10 +62,10 @@ def generate_test_config(interfaces, ipv4_list, ipv6_list):
 def prepare_data_for_route_app_config_generation(ipv4_list, ipv6_list, interface):
     """
 
-    :param ipv4_list: list with IPv4 subnets addresses
-    :param ipv6_list: list with IPv6 subnets addresses
+    :param ipv4_list: list with IPv4 subnet addresses
+    :param ipv6_list: list with IPv6 subnet addresses
     :param interface: interface which will be used in route app config as destination
-    :return: few lists: ip_list - list with IPs, list with masks for each IP route, n_hoplist - list with next-hops
+    :return: few lists: ip_list - list with IPs, list with masks for each IP route, next_hop_list - list with next-hops
     for each IP route, ifaces_list - list with ifaces for each IP route
     """
     ip_list = ipv4_list + ipv6_list

@@ -19,7 +19,7 @@ class P4SamplingUtils:
     @staticmethod
     def clear_statistics(cli_obj):
         """
-        clear the statistic datas
+        clear the statistic data
         :param cli_obj: cli_obj object
         :return: None
         """

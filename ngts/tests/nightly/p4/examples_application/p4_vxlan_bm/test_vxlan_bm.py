@@ -42,7 +42,7 @@ TUNNEL_SRC_IP = "1.1.1.1"
 @pytest.fixture(scope='module')
 def table_params(interfaces, engines, topology_obj):
     """
-    Fixture used to create the TableParams object which contains some params used in the testcases
+    Fixture used to create the TableParams object which contains some params used in the test cases
     :param interfaces: interfaces fixture
     :param engines : engines fixture object
     :param topology_obj: topology_obj fixture object

@@ -73,7 +73,7 @@ class SonicSflowCli:
 
     def enable_sflow_interface(self, interface_name):
         """
-        This method is used to enable slfow interface
+        This method is used to enable sflow interface
         :param interface_name: interface name
         :return: the output of cli command
         """

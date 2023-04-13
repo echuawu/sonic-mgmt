@@ -49,7 +49,7 @@ def init_parser():
                              'VME files also are expected to be located at this path.')
 
     parser.add_argument('--cplds', nargs='*', default=list(),
-                        help='Should be specified only in cases where image name doesnt '
+                        help='Should be specified only in cases where image name does not '
                         'indicate true cpld revision order.\n'
                         'see wiki: https://wikinox.mellanox.com/display/SW/How+to+update+a+tarball+for+fwutil+tests'
                         ' for more info.')

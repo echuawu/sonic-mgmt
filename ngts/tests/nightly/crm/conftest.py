@@ -184,11 +184,11 @@ def increase_arp_cache(env):
             LinuxARPCache(engine=env.dut_engine).set_gc_thresh(ip_ver, thresh_id, test_gc_thresh)
         # Store default net.ipv[4|6].route.gc_interval
         route_gc_interval[ip_ver] = LinuxARPCache(engine=env.dut_engine).get_route_gc_interval(ip_ver)
-        # Increase 'route.gc_interval' intervall to 600 seconds
+        # Increase 'route.gc_interval' interval to 600 seconds
         LinuxARPCache(engine=env.dut_engine).set_route_gc_interval(ip_ver, route_gc_interval[ip_ver])
         # Store default net.ipv[4|6].neigh.default.gc_interval
         neigh_gc_interval[ip_ver] = LinuxARPCache(engine=env.dut_engine).get_neigh_gc_interval(ip_ver)
-        # Increase 'neigh.default.gc_interval' intervall to 600 seconds
+        # Increase 'neigh.default.gc_interval' interval to 600 seconds
         LinuxARPCache(engine=env.dut_engine).set_neigh_gc_interval(ip_ver, neigh_gc_interval[ip_ver])
 
     yield

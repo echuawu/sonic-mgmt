@@ -240,7 +240,7 @@ def verify_thresholds(env, test_name, **kwargs):
     loganalyzer = LogAnalyzer(ansible_host=env.duthost, marker_prefix=test_name)
     crm_avail = kwargs['crm_avail']
 
-    # Used random selection of thresholds which shoudl be verified, as full thresholds verification takes much time to verify
+    # Used random selection of thresholds which should be verified, as full thresholds verification takes much time to verify
     th_buff = get_threshold_to_verify()
 
     if 'percentage' in th_buff[0][0] and 'nexthop group' in kwargs['crm_cli_res'] and 'mellanox' in env.platform_params.asic_type.lower():

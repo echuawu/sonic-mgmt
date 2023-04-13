@@ -196,22 +196,22 @@ def parse_show_interfaces_transceiver_eeprom(interfaces_transceiver_eeprom_outpu
     for line in interfaces_transceiver_eeprom_output.splitlines():
         if line:
             num_of_spaces_at_the_begining = len(line) - len(line.lstrip())
-            splited_line = line.split(': ')
+            split_line = line.split(': ')
 
             # if 0 spaces at the beginning - means that it's interface definition line - will get port name from it
             if num_of_spaces_at_the_begining == 0:
-                port, status = splited_line
+                port, status = split_line
                 result[port] = {'Status': status}
 
             # if number of spaces 8 - means that this line contain key: value
             if num_of_spaces_at_the_begining == 8:
-                # If splited_line len 2 - then we have key and value
-                if len(splited_line) == 2:
-                    dict_key, dict_data = splited_line
-                # if splited_line len not 2 - then we have only key and nested dict, which will have key: value below
+                # If split_line len 2 - then we have key and value
+                if len(split_line) == 2:
+                    dict_key, dict_data = split_line
+                # if split_line len not 2 - then we have only key and nested dict, which will have key: value below
                 else:
                     # get key of nested dict and put empty dict as data
-                    dict_key = splited_line[0]
+                    dict_key = split_line[0]
                     base_dict_key = dict_key.strip()
                     dict_data = {}
 
@@ -220,7 +220,7 @@ def parse_show_interfaces_transceiver_eeprom(interfaces_transceiver_eeprom_outpu
 
             # if number of spaces 8 - means that this line contain nested dict data
             if num_of_spaces_at_the_begining == 16:
-                dict_key, dict_data = splited_line
+                dict_key, dict_data = split_line
                 data_dict = {dict_key.strip(): dict_data}
                 result[port][base_dict_key].update(data_dict)
 

@@ -1,6 +1,6 @@
 
 
-class RadiusConstans:
+class RadiusConstants:
     '''
     constants for Radius suit case
     '''

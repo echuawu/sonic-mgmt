@@ -34,7 +34,7 @@ def test_show_ib_device(engines, devices):
     with allure.step('Run nv show ib device command and verify that each field has a value'):
         output = OutputParsingTool.parse_json_str_to_dictionary(ib.device.show()).get_returned_value()
 
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
             output, devices.dut.DEVICE_LIST).verify_result()
         assert len(devices.dut.DEVICE_LIST) == len(output), "Unexpected amount of ib devices.\n" \
                                                             "Expect {} devices:{} \n" \

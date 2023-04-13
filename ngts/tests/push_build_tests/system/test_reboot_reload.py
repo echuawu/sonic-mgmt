@@ -79,7 +79,7 @@ class RebootReload:
         """
         This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
         After reboot/reload finished - test doing functional validations(run PushGate tests)
-        Add 3 verification for app extesnion
+        Add 3 verification for app extension
         1. Verify shutdown oder same to bgp->app(cpu-report)->swss, after warm/fast reboot
         2. Verify warm_restarted status is reconciled, after warm-reboot
         3. Verify app status is up, after config reload -y
@@ -254,8 +254,8 @@ def prepare_pytest_args(pytest_args_list):
                       "test_startup_time_degradation"]
     pytest_args_list = add_to_pytest_args_skip_tests(pytest_args_list, skip_test_list)
     pytest_args_list = add_to_pytest_args_disable_loganalyzer(pytest_args_list)
-    # Disable export tests data to SQLm in case of failure after reboot, the desired behaviour is to list only
-    # the parent test in the failed results and not any subtest.
+    # Disable export tests data to SQLm in case of failure after reboot, the desired behavior is to list only
+    # the parent test in the failed results and not any sub test.
     pytest_args_list = add_to_pytest_args_disable_exporting_test_results_to_mars_db(pytest_args_list)
     pytest_args_list = remove_allure_server_project_id_arg(pytest_args_list)
     pytest_args_list = add_to_pytest_args_custom_cache_dir(pytest_args_list)

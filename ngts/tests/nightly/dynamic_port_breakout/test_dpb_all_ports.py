@@ -108,18 +108,18 @@ class TestDPBOnAllPorts:
         max_breakout_mode = max(breakout_modes, key=lambda breakout_mode: int(breakout_mode.split('x')[0]))
         return max_breakout_mode
 
-    def validate_split_all_splittable_ports(self, breakout_mode, splitable_ports_list, cleanup_list):
+    def validate_split_all_splittable_ports(self, breakout_mode, splittable_ports_list, cleanup_list):
         """
         executing breakout on all the ports and validating the ports state after the breakout.
         :param breakout_mode: i.e. '4x50G[40G,25G,10G,1G]'
-        :param splitable_ports_list: a list of ports, i.e. ['Ethernet8', 'Ethernet4', 'Ethernet36', 'Ethernet40']
+        :param splittable_ports_list: a list of ports, i.e. ['Ethernet8', 'Ethernet4', 'Ethernet36', 'Ethernet40']
         :param cleanup_list: a list of functions to execute to clean test configuration
         :return: none, raise exception in case validation of ports fail
         """
         breakout_ports_conf_for_all_tested_ports = {}
-        splittable_ports_connected_to_hosts = self.get_splittable_ports_connected_to_hosts(splitable_ports_list)
+        splittable_ports_connected_to_hosts = self.get_splittable_ports_connected_to_hosts(splittable_ports_list)
         splittable_ports_connected_as_lb = \
-            self.get_splittable_ports_connected_as_lb(splitable_ports_list, splittable_ports_connected_to_hosts)
+            self.get_splittable_ports_connected_as_lb(splittable_ports_list, splittable_ports_connected_to_hosts)
 
         breakout_ports_conf_for_all_tested_ports.update(
             self.set_dpb_on_ports_connected_to_hosts(splittable_ports_connected_to_hosts, breakout_mode, cleanup_list))
@@ -141,15 +141,15 @@ class TestDPBOnAllPorts:
         splittable_ports_connected_to_hosts = list(set(ports_list).intersection(ports_connected_to_hosts))
         return splittable_ports_connected_to_hosts
 
-    def get_splittable_ports_connected_as_lb(self, splitable_ports_list,
+    def get_splittable_ports_connected_as_lb(self, splittable_ports_list,
                                              splittable_ports_connected_to_hosts):
         """
-        :param splitable_ports_list: a list of ports that can be split
+        :param splittable_ports_list: a list of ports that can be split
         :param splittable_ports_connected_to_hosts: a list of ports that can be split and are connected to host
         :return: a list of ports that are connected as loopback and both loopback ports are on the list
         """
         splittable_ports_connected_as_lb = \
-            list(set(splitable_ports_list).difference(splittable_ports_connected_to_hosts))
+            list(set(splittable_ports_list).difference(splittable_ports_connected_to_hosts))
         for port in splittable_ports_connected_as_lb:
             port_lb_neighbor = self.dut_ports_interconnects[port]
             if port_lb_neighbor not in splittable_ports_connected_as_lb:

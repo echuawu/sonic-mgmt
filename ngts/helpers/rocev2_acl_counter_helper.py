@@ -112,7 +112,7 @@ def traffic_validation(players, send_pcap_info_dict, send_packet_count):
     This method will validate traffic
     :param players: players fixture
     :param send_packet_count: The number sending packet
-    :param send_pcap_info_dict: pacp file name set
+    :param send_pcap_info_dict: pcap file name set
     """
     for pcap_file_name, sender_and_send_port in send_pcap_info_dict.items():
         with allure.step(f'Send {send_packet_count} {pcap_file_name} from {sender_and_send_port["sender"]} on {sender_and_send_port["send_port"]}'):
@@ -161,7 +161,7 @@ def verify_acl_rule_counter(topology_obj, send_packet_count, rocev2_acl_rule_lis
 
 
 def is_support_rocev2_acl_counter_feature(cli_objects, is_simx, sonic_branch):
-    logger.info(f"sonic brnach: {sonic_branch}, is_simx:{is_simx}")
+    logger.info(f"sonic branch: {sonic_branch}, is_simx:{is_simx}")
     if sonic_branch in ["202211", "202205"]:
         return False
 

@@ -163,7 +163,7 @@ class ValidationTool:
         return result_obj
 
     @staticmethod
-    def verify_all_fileds_value_exist_in_output_dictionary(output_dictionary, expected_fields):
+    def verify_all_fields_value_exist_in_output_dictionary(output_dictionary, expected_fields):
         with allure.step('Verify all the fields values are not None and includes all expected fields'):
 
             result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)

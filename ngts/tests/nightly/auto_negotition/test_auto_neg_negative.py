@@ -220,7 +220,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         """
         return configuration with mismatch type and speed, like 'CR4' and '10G',
         and configuration is not applied because of SAI recognize it as invalid configuration.
-        so the expected spped, type and width should be the default values configured
+        so the expected speed, type and width should be the default values configured
         :param lb: a tuple of ports, i.e ('Ethernet4', 'Ethernet8')
         :param split_mode: the port split mode, i.e, 1/2/4
         :param tested_lb_dict: the tested lb dict, i.e, {1: [lb]}

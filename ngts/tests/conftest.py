@@ -215,7 +215,7 @@ def update_ram_usage_for_sanitizer_image(expected_cpu_or_ram_usage_file,
     the fix is to update the threshold for syncd if it's a sanitizer image.
     :param expected_cpu_or_ram_usage_file: i.e, "expected_ram_usage.yaml" or "expected_cpu_usage.yaml"
     :param is_sanitizer_image: True if dut has a sanitizer image, else False
-    :param expected_cpu_or_ram_usage_dict: a dictinart with expected ram usage/ cpu usage
+    :param expected_cpu_or_ram_usage_dict: a dictionary with expected ram usage/ cpu usage
     :return: none
     """
     if is_sanitizer_image and expected_cpu_or_ram_usage_file == "expected_ram_usage.yaml":
@@ -229,7 +229,7 @@ def update_cpu_usage_for_simx(expected_cpu_or_ram_usage_file, is_simx, chip_type
     :param expected_cpu_or_ram_usage_file: i.e, "expected_ram_usage.yaml" or "expected_cpu_usage.yaml"
     :param is_simx: True if dut is a simx switch, else False
     :param chip_type: dut chip type
-    :param expected_cpu_or_ram_usage_dict: a dictinart with expected ram usage/ cpu usage
+    :param expected_cpu_or_ram_usage_dict: a dictionary with expected ram usage/ cpu usage
     :return: none
     """
     if is_simx and expected_cpu_or_ram_usage_file == "expected_cpu_usage.yaml" and chip_type == 'SPC3':
@@ -273,7 +273,7 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
           ...
           'enp131s0f1': {1: {'100G', '40G', '50G', '10G', '1G', '25G'}}}
     """
-    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_doesnt_exist=False)
+    platform_json_info = json_file_helper.get_platform_json(engines.dut, cli_objects.dut, fail_if_does_not_exist=False)
     split_mode_supported_speeds = cli_objects.dut.general.parse_platform_json(topology_obj, platform_json_info)
 
     # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test

@@ -212,7 +212,7 @@ def set_dpb_conf(dut_engine, cli_object, ports_breakout_modes, cleanup_list, con
     :param conf: a dictionary of DPB configuration that need to be applied
     i.e,
     {'4x25G[10G,1G]': ['Ethernet192']}
-    breakout mode '4x25G[10G,1G]' should be aplied on ports ['Ethernet192']
+    breakout mode '4x25G[10G,1G]' should be applied to ports ['Ethernet192']
     :param original_speed_conf: original speed on ports that should be restored after DPB configuration has been removed
     :param force: True if DPB command should use -f flag, False otherwise
     :return: dictionary with ports status after DPB configuration had been applied
@@ -356,7 +356,7 @@ def send_ping_and_verify_results(topology_obj, dut_engine, cleanup_list, lb_list
     """
     Function is disabled due to open issue -
     https://github.com/Azure/sonic-buildimage/issues/5947
-    TODO: once issue https://github.com/Azure/sonic-buildimage/issues/5947 has been resolved - function can be uncomment
+    TODO: once issue https://github.com/Azure/sonic-buildimage/issues/5947 has been resolved - function can be restored
     :param lb_list: a dictionary of the tested configuration,
     i.e breakout mode and ports list which breakout mode will be applied on
     [('Ethernet212', 'Ethernet216'), ('Ethernet228', 'Ethernet232')]

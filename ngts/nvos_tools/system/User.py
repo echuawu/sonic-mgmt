@@ -28,11 +28,15 @@ class User(BaseComponent):
     def get_lslogins(self, engine, username):
         return OutputParsingTool.parse_lslogins_cmd(engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
 
-    def verify_user_label(self, username, label, new_fullname):
+    def verify_user_label(self, username, label, new_full_name):
         with allure.step('verify the user {username} {label} value'.format(username=username, label=label)):
             self.set_username(username)
             output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).verify_result()
-            assert output[label] == new_fullname, "the new user {username} full name is {fullname} not {new_fullname} as expected".format(username=username, fullname=output[SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME], new_fullname=new_fullname)
+            assert output[label] == new_full_name, "the new user {username} full name is {full_name} not " \
+                                                   "{new_full_name} as expected".format(
+                username=username,
+                full_name=output[SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME],
+                new_full_name=new_full_name)
 
     def action_disconnect(self, username):
         self.set_username(username)

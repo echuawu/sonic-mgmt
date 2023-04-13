@@ -470,7 +470,7 @@ def format_json(engines, sample_file):
 def analyze_time_stamp(time_stamp_list, polling_interval, sample_file):
     """
     This method is used to analyze time stamp
-    The typic time step in sflow sample is listed
+    The typical time step in sflow sample is listed
     "localtime":"2022-06-16T13:35:49+0000"
     Use "localtime" as time stamp
     :param time_stamp_list: time stamp list for a specific interface

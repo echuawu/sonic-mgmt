@@ -59,7 +59,7 @@ def test_app_upgrade_with_abnormal_package(cli_objects, pre_install_app, app_nam
     This test case is test app upgrade with abnormal package
     1. App with a invalid manifest
     2. App with missing dependency
-    3. App with package confict
+    3. App with package conflict
     After upgrade, need check
     1. There are corresponding error message
     2. Original version still works well
@@ -73,7 +73,7 @@ def test_app_upgrade_with_abnormal_package(cli_objects, pre_install_app, app_nam
             logger.info("Expected message is {}, actual message is {}".format(expected_error_msg, output))
             msg_pattern = re.compile(expected_error_msg)
             assert msg_pattern.match(output), "Error msg for upgrading abnormal app is not correct"
-        with allure.step("Verify original verison still works well"):
+        with allure.step("Verify original version still works well"):
             verify_app_container_up_and_repo_status_installed(cli_objects.dut, app_name, old_version)
     except Exception as err:
         raise AssertionError(err)

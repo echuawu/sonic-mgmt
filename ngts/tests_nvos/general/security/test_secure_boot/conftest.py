@@ -3,7 +3,7 @@ import pytest
 import logging
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
-from ngts.tests_nvos.general.security.test_secure_boot.constants import SecureBoootConsts
+from ngts.tests_nvos.general.security.test_secure_boot.constants import SecureBootConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
@@ -34,7 +34,7 @@ def kernel_module_path(request):
 @pytest.fixture(scope='function')
 def kernel_module_filename(kernel_module_path):
     '''
-    @summary: extracting the kernel module file name
+    @summary: extracting the kernel module filename
     :param kernel_module_path: the path
     :return: the filename
     '''
@@ -79,19 +79,19 @@ def upload_kernel_module(kernel_module_path, test_server_engine, serial_engine):
     :param kernel_module_path: kernel module path
     '''
     logger.info("Uploading the kernel module at {} to switch under {}".format(kernel_module_path,
-                                                                              SecureBoootConsts.TMP_FOLDER))
+                                                                              SecureBootConsts.TMP_FOLDER))
     # player engine will used to upload the kernel modules files
     test_server_engine.upload_file_using_scp(serial_engine.username, serial_engine.password, serial_engine.ip,
-                                             kernel_module_path, SecureBoootConsts.TMP_FOLDER)
+                                             kernel_module_path, SecureBootConsts.TMP_FOLDER)
     kernel_module_filename = kernel_module_path.split('/')[-1]
     logger.info("Validating file is successfully uploaded")
-    serial_engine.run_cmd_and_get_output('ls {} | grep {}'.format(SecureBoootConsts.TMP_FOLDER,
+    serial_engine.run_cmd_and_get_output('ls {} | grep {}'.format(SecureBootConsts.TMP_FOLDER,
                                                                   kernel_module_filename))
 
     yield kernel_module_filename
 
     logger.info("Deleting upload kernel file")
-    serial_engine.run_cmd('sudo rm -f {}/{}'.format(SecureBoootConsts.TMP_FOLDER, kernel_module_filename))
+    serial_engine.run_cmd('sudo rm -f {}/{}'.format(SecureBootConsts.TMP_FOLDER, kernel_module_filename))
 
 
 @pytest.fixture(scope='function')
@@ -100,9 +100,9 @@ def vmiluz_filepath(serial_engine):
     @summary: will return the filepath of vmlinuz
     :param serial_engine:
     '''
-    output = serial_engine.run_cmd_and_get_output('ls {}'.format(SecureBoootConsts.VMILUNZ_DIR))
-    path = re.findall(SecureBoootConsts.VMILUNZ_REGEX, output)[0]
-    return SecureBoootConsts.VMILUNZ_DIR + path
+    output = serial_engine.run_cmd_and_get_output('ls {}'.format(SecureBootConsts.VMLINUZ_DIR))
+    path = re.findall(SecureBootConsts.VMLINUZ_REGEX, output)[0]
+    return SecureBootConsts.VMLINUZ_DIR + path
 
 
 @pytest.fixture(scope='function')
@@ -111,14 +111,14 @@ def mount_uefi_disk_partition(serial_engine):
     @summary: will load the uefi disk partition
     :param serial_engine: serial connection
     '''
-    logger.info("mounting UEFI disk partition at {}".format(SecureBoootConsts.MOUNT_FOLDER))
-    serial_engine.run_cmd_and_get_output(SecureBoootConsts.ROOT_PRIVILAGE)
-    serial_engine.run_cmd_and_get_output("mkdir {}".format(SecureBoootConsts.MOUNT_FOLDER))
-    output = serial_engine.run_cmd(SecureBoootConsts.EFI_PARTITION_CMD,
-                                   SecureBoootConsts.LAST_OCCURENCE_REGEX.format('#'))[0]
+    logger.info("mounting UEFI disk partition at {}".format(SecureBootConsts.MOUNT_FOLDER))
+    serial_engine.run_cmd_and_get_output(SecureBootConsts.ROOT_PRIVILAGE)
+    serial_engine.run_cmd_and_get_output("mkdir {}".format(SecureBootConsts.MOUNT_FOLDER))
+    output = serial_engine.run_cmd(SecureBootConsts.EFI_PARTITION_CMD,
+                                   SecureBootConsts.LAST_OCCURENCE_REGEX.format('#'))[0]
     uefi_partition = re.findall('\\/dev\\/sda\\d', output)[0]
     serial_engine.run_cmd("mount -o rw,auto,user,fmask=0022,dmask=0000 {} {}".format(uefi_partition,
-                                                                                     SecureBoootConsts.MOUNT_FOLDER))
+                                                                                     SecureBootConsts.MOUNT_FOLDER))
 
 
 @pytest.fixture(scope='function')

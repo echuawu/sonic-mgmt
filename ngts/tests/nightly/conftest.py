@@ -14,7 +14,7 @@ logger = logging.getLogger()
 def disable_ssh_client_alive_interval(topology_obj):
     """
     Pytest fixture which are disabling ClientAliveInterval(set it to 0), for prevent SSH session disconnection
-    after 15 min without activity. After chagned sshd config, we do service ssh restart and reconnect ssh engine
+    after 15 min without activity. After changed sshd config, we do service ssh restart and reconnect ssh engine
     :param topology_obj: topology object fixture
     """
     engine = topology_obj.players['dut']['engine']

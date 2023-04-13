@@ -68,7 +68,7 @@ def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):
         number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
 
-    with allure.step('Validate that the tecsupport file contain one more SDK extended dump'):
+    with allure.step('Validate that the techsupport file contain one more SDK extended dump'):
         assert number_of_sdk_error_after == number_of_sdk_error_before + 1
 
 
@@ -155,11 +155,11 @@ def check_all_dumps_file_exsits(engine):
 
     # Check CR space dump:
     assert output_fw_dump.count('sdkdump_ext_cr_') == 3, 'Missing CR space dump'
-    assert output_fw_dump.count('sdkdump_ext_meta_001-') == 3, 'Missing CR space metafiles'
+    assert output_fw_dump.count('sdkdump_ext_meta_001-') == 3, 'Missing CR space meta files'
     # Check SDK dump:
     assert 'sai_sdk_dump.txt' in output_fw_dump, 'Missing SDK dump'
     # Check mlxtrace dump:
     assert '_pci_cr0_mlxtrace.trc' in output_fw_dump, 'Missing mlxtrace'
     # Check FW core dump:
-    # This should be uncomment when FW stuck event level would change to critical
+    # This should be uncommented when FW stuck event level would change to critical
     # assert 'ir_core_dump_' in output, 'Missing FW core dump'

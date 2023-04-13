@@ -18,7 +18,7 @@ from ngts.constants.constants import SonicConst
 from ngts.constants.constants import SflowConsts
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO, app_cleanup
 from ngts.constants.constants import P4SamplingEntryConsts
-from ngts.scripts.install_app_extension.install_app_extesions import install_all_supported_app_extensions
+from ngts.scripts.install_app_extension.install_app_extensions import install_all_supported_app_extensions
 from ngts.conftest import update_topology_with_cli_class
 import ngts.helpers.acl_helper as acl_helper
 from ngts.helpers.acl_helper import ACLConstants
@@ -335,7 +335,7 @@ def install_app(dut_engine, cli_obj, app_name, app_repository_name, version):
     try:
         with allure.step("Clean up app before install"):
             app_cleanup(dut_engine, cli_obj, app_name)
-        with allure.step("Install {}, verison={}".format(app_name, version)):
+        with allure.step("Install {}, version={}".format(app_name, version)):
             cli_obj.app_ext.add_repository(app_name, app_repository_name, version=version)
             cli_obj.app_ext.install_app(app_name)
         with allure.step("Enable app and save config"):
@@ -399,7 +399,7 @@ def basic_sflow_configuration_for_function(engines, cli_objects, interfaces, pus
         cli_obj.sflow.disable_all_sflow_interface()
     with allure.step(f"Enable sflow interface {interfaces.dut_ha_1}"):
         cli_obj.sflow.enable_sflow_interface(interfaces.dut_ha_1)
-    with allure.step(f"Eanble sflow interface {interfaces.dut_ha_2}"):
+    with allure.step(f"Enable sflow interface {interfaces.dut_ha_2}"):
         cli_obj.sflow.enable_sflow_interface(interfaces.dut_ha_2)
 
     yield

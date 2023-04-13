@@ -69,7 +69,7 @@ class SonicIpCli(IpCliCommon):
         This method generates config with specific amount of IP neighbors which can be applied via swss container
         :param amount: amount of ip neighbors to be created
         :param start_ip: neighbor IP address from which to start counting
-        :param iface: the interface to which neighbours are attached
+        :param iface: the interface to which neighbors are attached
         :param family: IPV4 or IPV6 family
         :param operation: "SET" to apply config. "DEL" to delete config.
         """
@@ -175,7 +175,7 @@ class SonicIpCli(IpCliCommon):
     def get_interface_ips(self, interface):
         """
         This method get ip address and mask on specified interface
-        :return: list of ip and mask of the interface, empty list will retrun if no ip address configured for the interface
+        :return: list of ip and mask of the interface, empty list will return if no ip address configured for the interface
                  example for [{'ip': '10.0.0.2', 'mask': 24},{'ip': '20.0.0.2', 'mask': 24}]
         """
 

@@ -69,19 +69,19 @@ def test_basic_static_route(is_simx, cli_objects, interfaces, players):
         # Test started here
         with allure.step('Check that static routes IPv4 on switch using CLI'):
             verify_show_cmd(cli_objects.dut.route.show_ip_route(route='20.0.0.10/32'),
-                            expected_output_list=[(r'\*\s69.0.0.2,\svia\sVlan69', True)])
+                            expected_output_list=[(r'\*\s69.0.0.2, via Vlan69', True)])
             verify_show_cmd(cli_objects.dut.route.show_ip_route(route='20.0.0.1'),
-                            expected_output_list=[(r'\*\s+directly\sconnected,\sPortChannel0001', True)])
+                            expected_output_list=[(r'\*\s+directly connected, PortChannel0001', True)])
             verify_show_cmd(cli_objects.dut.route.show_ip_route(route='20.0.0.0'),
-                            expected_output_list=[(r'\*\s30.0.0.2,\svia\sPortChannel0001', True)])
+                            expected_output_list=[(r'\*\s30.0.0.2, via PortChannel0001', True)])
 
         with allure.step('Check that static routes IPv6 on switch using CLI'):
             verify_show_cmd(cli_objects.dut.route.show_ip_route(route='2000::10/128', ipv6=True),
-                            expected_output_list=[(r'\*\s6900::2,\svia\sVlan69', True)])
+                            expected_output_list=[(r'\*\s6900::2, via Vlan69', True)])
             verify_show_cmd(cli_objects.dut.route.show_ip_route(route='2000::1', ipv6=True),
-                            expected_output_list=[(r'\*\sdirectly\sconnected,\sVlan69', True)])
+                            expected_output_list=[(r'\* directly connected, Vlan69', True)])
             verify_show_cmd(cli_objects.dut.route.show_ip_route(route='2000::', ipv6=True),
-                            expected_output_list=[(r'\*\s3000::2,\svia\sPortChannel0001', True)])
+                            expected_output_list=[(r'\*\s3000::2, via PortChannel0001', True)])
 
         dut_mac = cli_objects.dut.mac.get_mac_address_for_interface(interfaces.dut_ha_1)
         hadut2_mac = cli_objects.ha.mac.get_mac_address_for_interface(interfaces.ha_dut_2)

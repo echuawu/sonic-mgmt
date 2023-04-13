@@ -28,7 +28,7 @@ def parallel_config_runner(topology_obj, config):
 
 def convert_list_of_commands_to_string(commands_list):
     """
-    This method doing convertation for list object to string, later on it can be used for attach to allure report
+    This method converts for list object to a string, later on, it can be used to attach to an allure report
     :param commands_list: list with commands
     :return: string with commands
     """

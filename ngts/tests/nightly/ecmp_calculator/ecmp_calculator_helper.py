@@ -131,10 +131,10 @@ def calculate_ecmp_egress_port(engine_dut, ingress_port, packet_json_file, vrf="
     if vrf:
         vrf_cmd = f" --vrf {vrf}"
     cmd = f"docker exec syncd bash -c '/usr/bin/ecmp_calc.py -i {ingress_port} -p ./{packet_json_file} {vrf_cmd}'"
-    calc_reslt = engine_dut.run_cmd(cmd)
-    res = re.match(reg_egress_ports, calc_reslt)
+    calc_result = engine_dut.run_cmd(cmd)
+    res = re.match(reg_egress_ports, calc_result)
     if not res:
-        raise Exception(f"Failed to calculate ecmp egress port:{calc_reslt}")
+        raise Exception(f"Failed to calculate ecmp egress port:{calc_result}")
     ports = res.groupdict()['ports'].strip().split(" ")
     logger.info(f"Calculated egress ports are {ports}")
     return ports

@@ -12,7 +12,7 @@ class SonicChassisCli(ChassisCliCommon):
 
     def get_platform(self):
         """
-        This method excute command "show platform summary" and return the dut platform type
+        This method execute command "show platform summary" and return the dut platform type
         :return: the dut platform type
         """
         output = self.show_platform_summary()
@@ -25,14 +25,14 @@ class SonicChassisCli(ChassisCliCommon):
 
     def show_platform_summary(self):
         """
-        This method excute command "show platform summary" on dut
+        This method execute command "show platform summary" on dut
         :return: the cmd output
         """
         return self.engine.run_cmd("show platform summary")
 
     def show_platform_syseeprom(self):
         """
-        This method excute command "show platform syseeprom" on dut
+        This method execute command "show platform syseeprom" on dut
         :return: the cmd output
         """
         return self.engine.run_cmd("show platform syseeprom")

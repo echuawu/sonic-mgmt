@@ -14,7 +14,7 @@ SWID = 0
 DEVICE_ID = 1
 
 ERR_FILE_LOCATION = '/tmp/python_err_log.txt'
-parser = argparse.ArgumentParser(description='This example demonstrats how to register, \
+parser = argparse.ArgumentParser(description='This example demonstrates how to register, \
                                               activate and handle SDK health events',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--device_id', default=1, type=lambda x: int(x, 0), help='The device id on which the health example will run')

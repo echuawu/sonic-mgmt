@@ -186,9 +186,9 @@ def check_vtep_based_vxlan_counter(vxlan_counters, tx_rx_type, packet_num):
     :param packet_num: expected packet numbers
     """
     if tx_rx_type == 'tx':
-        matched = re.search(r"TX\:\n\s+(\d+)\spackets", vxlan_counters)
+        matched = re.search(r"TX\:\n\s+(\d+) packets", vxlan_counters)
     elif tx_rx_type == 'rx':
-        matched = re.search(r"RX\:\n\s+(\d+)\spackets", vxlan_counters)
+        matched = re.search(r"RX\:\n\s+(\d+) packets", vxlan_counters)
     if matched:
         matched_packet_num = matched.group(1)
         logger.info(f"{matched_packet_num} {tx_rx_type} packets parsed")

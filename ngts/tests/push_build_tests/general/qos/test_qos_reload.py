@@ -136,6 +136,6 @@ def compare_config_db_after_qos_reload_ports(cli_object, origin_config_db):
             with allure.step(f"Compare key {key} after CLI command to origin config_db.json"):
                 expected_dict = origin_config_db[key]
                 actual_dict = config_db_after_qos_reload_ports[key]
-                ddiff = DeepDiff(actual_dict, expected_dict)
-                assert not ddiff, f"Test expected QoS configuration to be restored with CLI, " \
-                                  f"but config_db.json for key: {key} is different: {pprint(ddiff)}"
+                diff = DeepDiff(actual_dict, expected_dict)
+                assert not diff, f"Test expected QoS configuration to be restored with CLI, " \
+                    f"but config_db.json for key: {key} is different: {pprint(diff)}"

@@ -58,12 +58,12 @@ def test_core_functionality_with_reboot(topology_obj, cli_objects, traffic_type,
                                                 dut
                                        ------------------------------
                      ha                |    Vlan50 50.0.0.1/24      |                                  hb
-              ------------------       |                            |duthb1 in lag               ------------------
-              |                |       |dutha1 vlan50 trunk         |----------------------------|                |
-              |     hadut1.50  |-------|                            |              hbdut1 in bond|  bond0.50      |
-              |     50.0.0.2/24|       |                            |              hbdut2 in bond|  50.0.0.3/24   |
+              ------------------       |                            |dut_hb1 in lag               ------------------
+              |                |       |dut_ha1 vlan50 trunk        |----------------------------|                |
+              |     ha_dut1.50 |-------|                            |             hb_dut1 in bond|  bond0.50      |
+              |     50.0.0.2/24|       |                            |             hb_dut2 in bond|  50.0.0.3/24   |
               |                |       |            PortChannel1111 |----------------------------|                |
-              ------------------       |              vlan 50 trunk |duthb2 in lag               ------------------
+              ------------------       |              vlan 50 trunk |dut_hb2 in lag              ------------------
                                        |                            |
                                        ------------------------------
     """
@@ -545,10 +545,10 @@ def check_dependency(topology_obj, dependency, cleanup_list):
     with allure.step('Validate the {} dependency'.format(dependency)):
         dut_engine = topology_obj.players['dut']['engine']
         dut_cli = topology_obj.players['dut']['cli']
-        duthb2 = topology_obj.ports['dut-hb-2']
+        dut_hb_2 = topology_obj.ports['dut-hb-2']
         eval('config_{}_dependency(topology_obj, cleanup_list)'.format(dependency))
-        err_msg = eval('get_{}_dependency_err_msg(duthb2)'.format(dependency))
-        verify_add_member_to_lag_failed_with_err(dut_engine, dut_cli, duthb2, err_msg)
+        err_msg = eval('get_{}_dependency_err_msg(dut_hb_2)'.format(dependency))
+        verify_add_member_to_lag_failed_with_err(dut_engine, dut_cli, dut_hb_2, err_msg)
         cleanup_last_config_in_stack(cleanup_list)
 
 
@@ -558,9 +558,9 @@ def config_ip_dependency(topology_obj, cleanup_list):
     :param topology_obj: topology object
     :param cleanup_list: list with functions to cleanup
     """
-    duthb2 = topology_obj.ports['dut-hb-2']
+    dut_hb_2 = topology_obj.ports['dut-hb-2']
     ip_config_dict = {
-        'dut': [{'iface': duthb2, 'ips': [('50.0.0.10', '24')]}]
+        'dut': [{'iface': dut_hb_2, 'ips': [('50.0.0.10', '24')]}]
     }
     add_ip_conf(topology_obj, ip_config_dict, cleanup_list)
 
@@ -592,12 +592,12 @@ def config_speed_dependency(topology_obj, cleanup_list):
     :param topology_obj: topology object
     :param cleanup_list: list with functions to cleanup
     """
-    duthb2 = topology_obj.ports['dut-hb-2']
+    dut_hb_2 = topology_obj.ports['dut-hb-2']
     cli_obj = topology_obj.players['dut']['cli']
-    dut_original_interfaces_speeds = cli_obj.interface.get_interfaces_speed([duthb2])
+    dut_original_interfaces_speeds = cli_obj.interface.get_interfaces_speed([dut_hb_2])
     interfaces_config_dict = {
-        'dut': [{'iface': duthb2, 'speed': '10G',
-                 'original_speed': dut_original_interfaces_speeds[duthb2]}]
+        'dut': [{'iface': dut_hb_2, 'speed': '10G',
+                 'original_speed': dut_original_interfaces_speeds[dut_hb_2]}]
     }
     add_interface_conf(topology_obj, interfaces_config_dict, cleanup_list)
 
@@ -630,9 +630,9 @@ def config_other_lag_dependency(topology_obj, cleanup_list):
     :param topology_obj: topology object
     :param cleanup_list: list with functions to cleanup
     """
-    duthb2 = topology_obj.ports['dut-hb-2']
+    dut_hb_2 = topology_obj.ports['dut-hb-2']
     lag_config_dict_second_lag = {
-        'dut': [{'type': 'lacp', 'name': 'PortChannel2222', 'members': [duthb2]}]
+        'dut': [{'type': 'lacp', 'name': 'PortChannel2222', 'members': [dut_hb_2]}]
     }
     add_lag_conf(topology_obj, lag_config_dict_second_lag, cleanup_list)
 
@@ -675,11 +675,11 @@ def config_vlan_dependency(topology_obj, cleanup_list):
     :param topology_obj: topology object
     :param cleanup_list: list with functions to cleanup
     """
-    duthb2 = topology_obj.ports['dut-hb-2']
+    dut_hb_2 = topology_obj.ports['dut-hb-2']
     engine = topology_obj.players['dut']['engine']
     dut_cli = topology_obj.players['dut']['cli']
     vlan_config_dict = {'vlan_id': 50,
-                        'vlan_member': duthb2
+                        'vlan_member': dut_hb_2
                         }
     add_vlan_conf(engine, dut_cli, vlan_config_dict, cleanup_list)
 
@@ -757,7 +757,7 @@ def verify_port_channel_status_with_retry(cli_object, dut_engine, lag_name, lag_
     :param dut_engine: dut engine
     :param lag_name: port channel name
     :param lag_status: port channel status
-    :param expected_ports_status_list: list of typles - (member port name, status)
+    :param expected_ports_status_list: list of tuples - (member port name, status)
     :param tries: number of attempts
     :param delay: delay time between attempts
     """

@@ -216,7 +216,7 @@ class SonicVxlanCli(VxlanCliCommon):
 
         :param vlan_mac_vtep_vni_check_list: list with VLAN, MAC, VTEP IP, VNI maps. Example: [("100", "2e:9e:14:94:98:77", "40.0.0.3", "500100")]
         :param type: mac type, now there is only one value "dynamic"
-        :param learned: a flag to determine wether or not the mac entry is supposed to be learned
+        :param learned: a flag to determine whether or not the mac entry is supposed to be learned
         :return: assertion error in case of mac does not exist with specific parameters
         """
         remotemac_output = self.show_vxlan_remotemac()
@@ -348,7 +348,7 @@ class SonicVxlanCli(VxlanCliCommon):
 
     def show_vxlan_interface(self):
         """
-        This method is used to get vxlan interface infos from "show vxlan interface"
+        This method is used to get vxlan interface info from "show vxlan interface"
 
         VTEP Information:
 
@@ -362,7 +362,7 @@ class SonicVxlanCli(VxlanCliCommon):
 
     def check_vxlan_interface_info(self, nvo_name, vtep_name, vtep_ip, vtep_interface):
         """
-        This method is used to check the vxlan interface infos from "show vxlan interface"
+        This method is used to check the vxlan interface info from "show vxlan interface"
         :param nvo_name: nvo name
         :param vtep_name:  vtep name
         :param vtep_ip: vtep ip address
@@ -373,4 +373,4 @@ class SonicVxlanCli(VxlanCliCommon):
         assert re.search(fr"NVO\sName\s+\:\s+{nvo_name},", vxlan_interface_info)
         assert re.search(fr"VTEP\sName\s\:\s{vtep_name},", vxlan_interface_info)
         assert re.search(fr"SIP\s+\:\s{vtep_ip}", vxlan_interface_info)
-        assert re.search(fr"Source\sinterface\s+\:\s{vtep_interface}", vxlan_interface_info)
+        assert re.search(fr"Source interface\s+\:\s{vtep_interface}", vxlan_interface_info)

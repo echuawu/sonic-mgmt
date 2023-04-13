@@ -335,7 +335,7 @@ def verify_send_traffic(topology_obj, interfaces, port_entries, flow_entries, pk
 def get_hit_entry_list(cli_obj, table_name, entries, expect_count):
     """
     Check the counter of the entries, return the index list of the entries that will hit.
-    This is use when the entries with same prio can match the traffic and need to find which entry should be hitted
+    This is used when the entries with same priority can match the traffic and need to find which entry should be hit.
     :param cli_obj: dut cli_obj object
     :param table_name: table name, flow table name or port table name in p4-sampling
     :param entries: the entries which are used to check the counters
@@ -356,7 +356,7 @@ def get_hit_entry_list(cli_obj, table_name, entries, expect_count):
             if packet_count >= expect_count:
                 hit_indices.append(i)
     assert len(hit_indices) != 0, "Expected to find one entry hit, but didn't find any traffic hit. " \
-                                  "Either none of the entries was hitted or the traffic was not sent"
+                                  "Either none of the entries was hit or the traffic was not sent"
     assert len(hit_indices) == 1, "Expected only one entry will hit."
     return hit_indices
 
@@ -367,7 +367,7 @@ def generate_port_entries_params(count, interfaces, dut_hb_2_mac, hb_dut_1_mac, 
     :param count: count of entries to be added or removed
     :param interfaces: interfaces fixture object
     :param dut_hb_2_mac: dut_hb_2_mac fixture object
-    :param hb_dut_1_mac: hb_dut_1_mac ixture object
+    :param hb_dut_1_mac: hb_dut_1_mac fixture object
     :param same_priority: True if want to generate entries with same priority, else False
     :return: dictionary of port entries key, action, priority.
     """

@@ -315,7 +315,7 @@ class TestDHCPRelay:
                                       dhcp_default_dport, self.chaddr)
 
         try:
-            with allure.step('Send bootp packet with invalid payload'):
+            with allure.step('Send BOOTP packet with invalid payload'):
                 validation_invalid_payload = {'sender': 'ha',
                                               'send_args': {'interface': self.dhclient_iface,
                                                             'packets': pkt_with_random_payload, 'count': 3},

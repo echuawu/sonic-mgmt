@@ -139,7 +139,7 @@ class SonicOnieCli:
                 logger.info(f"Got timeout on {num_retry} time..")
                 logger.info(f"Printing output: {self.engine.before}")
             else:
-                logger.info(f'Catched pexpect entry: {pexpect_entry}')
+                logger.info(f'Caught pexpect entry: {pexpect_entry}')
                 raise OnieInstallationError(f"Failed to install sonic image. {stdout}")
         else:
             logger.info(f"Did not installed image in {num_retry * timeout} seconds.")

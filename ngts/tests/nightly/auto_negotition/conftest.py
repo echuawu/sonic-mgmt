@@ -68,7 +68,7 @@ def update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested
     :param topology_obj: topology object fixture
     :param split_mode_supported_speeds: a dictionary with available speed options for each split mode on all setup ports
     :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
-    :return: Update loopback with split 4 configuration only in cases were there are mutaul speeds available,
+    :return: Update loopback with split 4 configuration only in cases were there are mutual speeds available,
     for example, parsing of platform.json file for panther will not return speeds option for port with split 4,
     because this breakout mode is not supported on panther
     """
@@ -96,7 +96,7 @@ def update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested
     :param topology_obj: topology object fixture
     :param split_mode_supported_speeds: a dictionary with available speed options for each split mode on all setup ports
     :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
-    :return: Update loopback with split 8 configuration only in cases were there are mutaul speeds available,
+    :return: Update loopback with split 8 configuration only in cases were there are mutual speeds available,
     for example, parsing of platform.json file for panther will not return speeds option for port with split 8,
     because this breakout mode is not supported on panther
     """

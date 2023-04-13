@@ -143,7 +143,7 @@ def generate_report(out, err):
     """
     This method generates report for functional validation step, it will attach allure url and logs to allure report
     :param out: pytest stdout
-    :param err: stderror
+    :param err: std error
     """
     allure.attach(out, 'stdout', allure.attachment_type.TEXT)
     allure.attach(err, 'stderr', allure.attachment_type.TEXT)

@@ -235,7 +235,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                                             password=att['Topology Conn.']['CONN_PASSWORD'],
                                             rcon_command=extended_rcon_command,
                                             timeout=120)
-        # we don't want to login to switch becuase we are doing remote reboot
+        # we don't want to login to switch because we are doing remote reboot
         serial_engine.create_serial_engine(login_to_switch=False)
         return serial_engine
 
@@ -247,7 +247,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             2.remote reboot
             3.wait till GRUB menu appears:
                 a. if the NVOS grub menu appears then select ONIE entry (pressing down 2 key arrows)
-                b. if the ONIE grun menu appears just do nothing (the install entry will be marked and after 5 secs it
+                b. if the ONIE grub menu appears just do nothing (the install entry will be marked and after 5 secs it
                 will enter the install mode)
         '''
         logger.info("Initializing serial connection to device")
@@ -273,7 +273,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
     def prepare_for_installation(self, topology_obj):
         '''
-        @summary: in this function we will enter onie install mode using remolte reboot
+        @summary: in this function we will enter onie install mode using remote reboot
         '''
         switch_in_onie = False
         try:

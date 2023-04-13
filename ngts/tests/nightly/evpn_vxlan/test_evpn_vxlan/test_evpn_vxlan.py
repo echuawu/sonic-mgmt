@@ -1155,25 +1155,25 @@ EOF
         This test will check configuration of all evpn vxlan commands
 
         Test will check below commands:
-            config vxlan add <vtepname> <src_ipv4>
-            config vxlan del <vtepname>
-            config vxlan evpn_nvo add <nvoname> <vtepname>
-            config vxlan evpn_nvo del <nvoname>
-            config vxlan map add <vtepname> <vlanid> <vnid>
-            config vxlan map_range add <vtepname> <vlanstart> <vlanend> <vnistart>
-            config vxlan map del <vtepname> <vlanid> <vnid>
-            config vxlan map_range del <vtepname> <vlanstart> <vlanend> <vnistart>
+            config vxlan add <vxlan_name> <src_ipv4>
+            config vxlan del <vxlan_name>
+            config vxlan evpn_nvo add <nvo_name> <vxlan_name>
+            config vxlan evpn_nvo del <nvo_name>
+            config vxlan map add <vxlan_name> <vlan_id> <vni>
+            config vxlan map_range add <vxlan_name> <vlan_start> <vlan_end> <vni_start>
+            config vxlan map del <vxlan_name> <vlan_id> <vni>
+            config vxlan map_range del <vxlan_name> <vlan_start> <vlan_end> <vni_start>
             config vrf add_vrf_vni_map <vrf-name> <vni>       # need to work with Type-5 route in the future
             config vrf del_vrf_vni_map <vrf-name>             # need to work with Type-5 route in the future
-            config neigh-suppress vlan <vlan-id> <"on"/"off"> # Both community and nvida did not implemented
+            config neigh-suppress vlan <vlan-id> <"on"/"off"> # Both community and nvidia did not implemented
                                                                 this function
             show vxlan interface
             show vxlan vlanvnimap
             show vxlan vrfvnimap       # need to work with Type-5 route in the future
             show vxlan tunnel
             show vxlan remotevtep      # nvidia implementation do not support to show this table
-            show vxlan remotemac <remoteip/all>
-            show vxlan remotevni <remoteip/all>
+            show vxlan remotemac <remote_vtep_ip/all>
+            show vxlan remotevni <remote_vtep_ip/all>
             show vxlan counters
             show vxlan counters <tunnel name>
         """
@@ -1190,10 +1190,10 @@ EOF
             cli_objects.dut.vxlan.add_vtep_mapping_range_to_vlan_vni(VxlanConstants.VTEP_NAME_DUT,
                                                                      VxlanConstants.VLAN_100, VxlanConstants.VLAN_101,
                                                                      VxlanConstants.VNI_500100)
-        with allure.step('Vadidate VXLAN interface information'):
+        with allure.step('Validate VXLAN interface information'):
             cli_objects.dut.vxlan.check_vxlan_interface_info(VxlanConstants.EVPN_NVO, VxlanConstants.VTEP_NAME_DUT,
                                                              self.dut_loopback_ip, VxlanConstants.VTEP_INTERFACE)
-        with allure.step('Vadidate VXLAN tunnel'):
+        with allure.step('Validate VXLAN tunnel'):
             self.validate_vxlan_tunnel(cli_objects)
         with allure.step('Validate VXLAN remote vni - using vtep ip option'):
             cli_objects.dut.vxlan.check_vxlan_remotevni(vlan_vtep_vni_check_list=[

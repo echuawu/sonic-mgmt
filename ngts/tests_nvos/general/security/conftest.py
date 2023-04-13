@@ -19,9 +19,9 @@ def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):
     'ssh {-o OPTIONS} -l {username} {dut_ip}'
     without entering password!
     :param dut_ip: device IP
-    :param username: username intiaiting the ssh connection
+    :param username: username initiating the ssh connection
     :param port: connection port, by default 22
-    :return: pexpect python module with ssh connection command executed as the spwan command
+    :return: pexpect python module with ssh connection command executed
     '''
     ssh_options = custom_ssh_options if custom_ssh_options is not None else DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS
     _ssh_command = 'ssh {} -p {} -l {} {}'.format(ssh_options,

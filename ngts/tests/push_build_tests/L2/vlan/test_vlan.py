@@ -111,7 +111,7 @@ class TestVLAN:
                                                                                                     self.vlan_30))
             ScapyChecker(self.players, validation).run_validation()
 
-        with allure.step('Vlan access mode: verify tagged traffic with wlan != to access vlan - is dropped'):
+        with allure.step('Vlan access mode: verify tagged traffic with vlan != to access vlan - is dropped'):
             validation = {'sender': 'ha', 'send_args': {'interface': 'bond0',
                                                         'packets': self.get_test_basic_packet(self.hb_dut_1_mac,
                                                                                               self.vlan_800),
@@ -387,7 +387,7 @@ class TestVLAN:
                                                                                                self.vlan_4094))
                 ScapyChecker(self.players, validation).run_validation()
 
-            with allure.step('Vlan access mode: verify tagged traffic with wlan != to access vlan - is dropped'):
+            with allure.step('Vlan access mode: verify tagged traffic with vlan != to access vlan - is dropped'):
                 validation = {'sender': 'ha',
                               'send_args': {'interface': 'bond0',
                                             'packets': self.get_test_basic_packet(self.hb_dut_1_mac, self.vlan_800),
@@ -418,7 +418,7 @@ class TestVLAN:
     @allure.title('BUILD VLAN test case')
     def test_vlan_access_with_trunk_mode(self):
         """
-        this test verify changing port vlan mode between access and trunk does not yield unexpected protocol behaviour.
+        this test verify changing port vlan mode between access and trunk does not yield unexpected protocol behavior.
         :return: raise assertion error if expected output is not matched
         """
         try:
@@ -559,7 +559,7 @@ class TestVLAN:
                     self.vlan_800, self.vlan_800))
                 ScapyChecker(self.players, validation).run_validation()
 
-            with allure.step('Vlan access mode: verify tagged traffic with wlan != to access vlan - is dropped'):
+            with allure.step('Vlan access mode: verify tagged traffic with vlan != to access vlan - is dropped'):
                 validation = {'sender': 'ha',
                               'send_args': {'interface': 'bond0',
                                             'packets': self.get_test_basic_packet(self.hb_dut_1_mac, self.vlan_30),
@@ -620,7 +620,7 @@ class TestVLAN:
                     self.vlan_30, self.vlan_30))
                 ScapyChecker(self.players, validation).run_validation()
 
-            with allure.step('Vlan access mode: verify tagged traffic with wlan != to access vlan - is dropped'):
+            with allure.step('Vlan access mode: verify tagged traffic with vlan != to access vlan - is dropped'):
                 validation = {'sender': 'ha',
                               'send_args': {'interface': 'bond0',
                                             'packets': self.get_test_basic_packet(self.hb_dut_1_mac, self.vlan_800),

@@ -34,7 +34,7 @@ def test_system(engines, devices, topology_obj):
         system = System()
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         system_output.pop(SystemConsts.VERSION)
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
             system_output, system.get_expected_fields(devices.dut)).verify_result()
 
     with allure.step('Run set system hostname command and verify that hostname is updated'):
@@ -95,7 +95,7 @@ def test_system_message(engines, devices):
     with allure.step('Run show system message command and verify that each field has a value'):
         system = System()
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
             message_output, system.message.get_expected_fields(devices.dut)).verify_result()
 
     with allure.step('Run set system message pre-login command and verify that pre-login is updated'):
@@ -147,7 +147,7 @@ def test_show_system_version(engines, devices):
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
         version_output = OutputParsingTool.parse_json_str_to_dictionary(system.version.show()).get_returned_value()
-        ValidationTool.verify_all_fileds_value_exist_in_output_dictionary(
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
             version_output, system.version.get_expected_fields(devices.dut)).verify_result()
 
 

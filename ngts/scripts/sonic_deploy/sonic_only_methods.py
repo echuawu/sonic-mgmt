@@ -242,7 +242,7 @@ class SonicInstallationSteps:
               " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir " \
               "--alluredir=/tmp/allure-results " \
               " --disable_loganalyzer {app_extension_path_str} " \
-              " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extesions.py". \
+              " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extensions.py". \
             format(ngts_pytest=MarsConstants.NGTS_PATH_PYTEST, sonic_mgmt_dir=MarsConstants.SONIC_MGMT_DIR,
                    setup_name=setup_name, app_extension_path_str=app_extension_path_str)
         logger.info("Running CMD: {}".format(cmd))
@@ -367,7 +367,7 @@ class SonicInstallationSteps:
         """
         dut_engine = None
         try:
-            # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutodwn bgp
+            # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutdown bgp
             # for sonic only (is_shutdown_bgp is False for NVOS)
             if is_shutdown_bgp:
                 with allure.step('Shutdown bgp'):
@@ -523,6 +523,6 @@ def get_cached_topology(dut_name):
         cached_topo = setup_cached_topo_file.read_text().strip()
         if cached_topo not in MarsConstants.TOPO_ARRAY:
             logger.info(f"There is a garbage in the cache file, {cached_topo} is not in {MarsConstants.TOPO_ARRAY}"
-                        " removing all topos")
+                        " removing all topologies")
             cached_topo = None
     return cached_topo

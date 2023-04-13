@@ -464,7 +464,7 @@ def parse_entry_in_one_table(engine, table_content):
 
 def get_key_value_from_json(key_items):
     """
-    get the key for entry from the p4enspect output
+    get the key for entry from the p4nspect output
     :param key_items: key items in list of dict format
     :return: the entire key
     Example for input:

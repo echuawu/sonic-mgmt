@@ -18,7 +18,7 @@ def test_show_lldp_table_output(topology_obj, engines):
     """
     Compare the LLDP info in the "show lldp table" to the topology expected connectivity
     :param topology_obj: topology object fixture
-    :return: None, raise error in case of unexpacted lldp result
+    :return: None, raise error in case of unexpected lldp result
     """
     with allure.step("Verifying the output of \"show lldp table\" command match the expected setup Noga topology"):
 
@@ -84,7 +84,7 @@ def verify_lldp_ports_match_topology_ports(dut_ports_interconnects, topology_obj
         logger.info("Verify topology ports list is same as lldp ports list")
         dut_ports = list(map(lambda x: topology_obj.ports[x], dut_ports_interconnects.keys()))
         lldp_ports = list(lldp_table_info.keys())
-        msg = "Topology ports list: {} doesnt match \n lldp ports list: {}".format(dut_ports, lldp_ports)
+        msg = "Topology ports list: {} does not match \n lldp ports list: {}".format(dut_ports, lldp_ports)
 
         def compare(x, y): return collections.Counter(x) == collections.Counter(y)
         assert compare(lldp_ports, dut_ports), msg
@@ -417,7 +417,7 @@ def test_lldp_after_disable_on_host(topology_obj, engines, interfaces):
 def test_lldp_change_transmit_delay(topology_obj, engines):
     """
     this test changes the lldp transmit interval and
-    verify lldp information update on neigbor host within the configuered interval.
+    verify lldp information update on neighbor host within the configured interval.
     :param topology_obj: topology object fixture
     :return: None, raise AssertionError in case of validation fails
     """

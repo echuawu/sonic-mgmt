@@ -63,13 +63,13 @@ class TestEntryScaling:
             self.do_cold_reboot(engines.dut, topology_obj)
 
     @staticmethod
-    def generate_port_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac):
+    def generate_port_entries_params(count, interfaces, dut_hb_1_mac, hb_dut_1_mac):
         """
         generate params for port entries
         :param count: count of entries to be added or removed
         :param interfaces: interfaces fixture object
-        :param duthb1_mac: duthb1_mac fixture object
-        :param hb_dut_1_mac: hb_dut_1_mac ixture object
+        :param dut_hb_1_mac: dut_hb_1_mac fixture object
+        :param hb_dut_1_mac: hb_dut_1_mac fixture object
         :return: dictionary of port entries key, action, priority.
                  example:
         """
@@ -80,7 +80,7 @@ class TestEntryScaling:
         l3_mirror_truc_size = 512
         for i in range(count):
             key = '{} {}/{}'.format(ingress_port, P4SamplingUtils.convert_int_to_hex((i + 1) * 4), CHKSUM_MASK)
-            action_params = '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, hb_dut_1_mac,
+            action_params = '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, dut_hb_1_mac, hb_dut_1_mac,
                                                              P4SamplingEntryConsts.duthb1_ip,
                                                              P4SamplingEntryConsts.hbdut1_ip, l3_mirror_vlan,
                                                              l3_mirror_is_truc, l3_mirror_truc_size)
@@ -93,13 +93,13 @@ class TestEntryScaling:
         return ret
 
     @staticmethod
-    def generate_flow_entries_params(count, interfaces, duthb1_mac, hb_dut_1_mac):
+    def generate_flow_entries_params(count, interfaces, dut_hb_1_mac, hb_dut_1_mac):
         """
         generate the params for the flow entries
         :param count: the count of flow entry to generate
         :param interfaces: interfaces fixture object
-        :param duthb1_mac: duthb1_mac fixture object
-        :param hb_dut_1_mac: hb_dut_1_mac ixture object
+        :param dut_hb_1_mac: dut_hb_1_mac fixture object
+        :param hb_dut_1_mac: hb_dut_1_mac fixture object
         :return: Dictionary of params of flow entries,
                  example:
         """
@@ -118,7 +118,7 @@ class TestEntryScaling:
                 src_port,
                 dst_port,
                 P4SamplingUtils.convert_int_to_hex((i + 1) * 4), CHKSUM_MASK)
-            action_params = '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, duthb1_mac, hb_dut_1_mac,
+            action_params = '{} {} {} {} {} {} {} {}'.format(interfaces.dut_hb_1, dut_hb_1_mac, hb_dut_1_mac,
                                                              P4SamplingEntryConsts.duthb1_ip,
                                                              P4SamplingEntryConsts.hbdut1_ip, l3_mirror_vlan,
                                                              l3_mirror_is_truc, l3_mirror_truc_size)

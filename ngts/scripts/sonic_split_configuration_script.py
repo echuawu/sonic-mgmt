@@ -222,7 +222,7 @@ def get_port_config_ini_ports_configuration(port_config_ini_path):
 
 def get_port_configuration_as_dict(port_configuration_list):
     """
-    :param port_configuration_list: a list of tupules representing the port_config.ini info,
+    :param port_configuration_list: a list of tuples representing the port_config.ini info,
     e.g. [ ("Ethernet0","etp1","0,1,2,3","10000"),...]
     :return: a dict representing the port_config.ini info, e.g.
     { "Ethernet0": {

@@ -138,7 +138,7 @@ def elapsed_time_between_first_to_last_one_pattern(check_type, first_pattern, se
     pattern_second_time_stamp = None
 
     # Exception for NEIGHBOR_ENTRIES_CREATION_TIME check, since neighbors can be created after fast-reboot already finished.
-    # In this case we would like to ignore these neighbors and avoid missleading results.
+    # In this case we would like to ignore these neighbors and avoid misleading results.
     # Each neighbor created after the directly connected neighbors can be ignored.
     if "NEIGHBOR_ENTRIES_CREATION_TIME" in test:
         first_neighbor_found = False
@@ -416,11 +416,11 @@ def test_run_log_profiler(topology_obj, test_files, syslog_start_line, sairedis_
         platform = dut.run_cmd("cat /sys/devices/virtual/dmi/id/product_name", validate=True, print_output=False)
 
     with allure.step('Parsing syslog files'):
-        # Parse syslog files into lines object from beggining of test
+        # Parse syslog files into lines object from beginning of test
         syslog_lines = get_log_lines("syslog", syslog_start_line, dut)
 
     with allure.step('Parsing sairedis files'):
-        # Parse sairedis files into lines object from beggining of test
+        # Parse sairedis files into lines object from beginning of test
         sairedis_lines = get_log_lines("sairedis.rec", sairedis_start_line, dut)
 
     with allure.step('Loading test files'):

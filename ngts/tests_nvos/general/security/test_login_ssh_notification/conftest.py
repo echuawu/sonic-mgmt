@@ -38,8 +38,8 @@ def disable_password_hardening_rules(engines):
 
     yield
 
-    with allure.step('Enbaling back password hardening rules'):
-        logger.info('Enbaling back password hardening rules')
+    with allure.step('Enabling back password hardening rules'):
+        logger.info('Enabling back password hardening rules')
         system.security.password_hardening.set(SystemConsts.USERNAME_PASSWORD_HARDENING_STATE, SystemConsts.USER_STATE_ENABLED)
         NvueGeneralCli.apply_config(engines.dut, True)
 

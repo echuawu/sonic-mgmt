@@ -47,7 +47,7 @@ def test_vxlan_decap(engines, players, cli_objects, upgrade_params):
     vni = '76543'
     loopback_ip = '10.1.0.32'
 
-    # TODO: temporary removed, once EVPN VXLAN support implemented - need to uncomment and fix
+    # TODO: temporary removed, once EVPN VXLAN support implemented - need to restore and fix
     # with allure.step('Checking that VXLAN tunnel configured'):
     #     expected_tunnel_info = {'vxlan tunnel name': 'vtep101032',
     #                             'source ip': loopback_ip,

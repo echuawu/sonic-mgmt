@@ -20,9 +20,9 @@ def pytest_addoption(parser):
     parser.addoption('--test_files', action='store', required=True,
                      help='Directory name contains test files')
     parser.addoption('--syslog_start_line', action='store', required=True,
-                     help='Pattern to search in syslog to reference the beggining of test log')
+                     help='Pattern to search in syslog to reference the beginning of test log')
     parser.addoption('--sairedis_start_line', action='store', required=True,
-                     help='Pattern to search in sairedis.rec to reference the beggining of test log')
+                     help='Pattern to search in sairedis.rec to reference the beginning of test log')
 
 
 @pytest.fixture(scope="module")

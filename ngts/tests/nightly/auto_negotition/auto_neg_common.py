@@ -470,7 +470,7 @@ class TestAutoNegBase:
          1) Configure the auto negotiation configuration on ports(speed, type, advertised speeds, advertised types)
          2) Enable auto negotiation mode on the first port of the loopbacks
          3) Check the speed type configuration didn't change
-         while auto negotiation is only enabled on one port in the loopabck.
+         while auto negotiation is only enabled on one port in the loopback.
          4) Enable auto negotiation mode on the second port of the loopbacks
          5) Verify the speed/type change to the expected result
          6) Verify with traffic

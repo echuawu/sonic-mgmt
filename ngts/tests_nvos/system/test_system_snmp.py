@@ -176,7 +176,7 @@ def test_system_snmp_functional(engines, topology_obj):
         1. Enable snmp
         2. Check system name with snmp get
         3. Check listening address ipv4, ipv6, all, allv6
-        4. Enable autorefresh
+        4. Enable auto refresh
         5. Set description on eth0 interface
         6. Check with snmpwalk description before autorefresh
         7. Check with snmpwalk description after autorefresh

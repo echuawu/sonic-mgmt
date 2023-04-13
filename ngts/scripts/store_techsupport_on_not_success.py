@@ -14,7 +14,7 @@ logger = logging.getLogger()
 def session_id_arg(request):
     """
     Method for get session id from pytest arguments
-    :param request: pytest buildin
+    :param request: pytest builtin
     :return: session id, i.e. 4973482
     """
     return request.config.getoption('--session_id')
@@ -23,8 +23,8 @@ def session_id_arg(request):
 @pytest.fixture(scope='function')
 def duration(request):
     """
-    Method for get techsupport duration from pytest arguments in secounds
-    :param request: pytest buildin
+    Method for get techsupport duration from pytest arguments in seconds
+    :param request: pytest builtin
     :return: techsupport duration, i.e. 7200
     """
     return request.config.getoption('--tech_support_duration')
