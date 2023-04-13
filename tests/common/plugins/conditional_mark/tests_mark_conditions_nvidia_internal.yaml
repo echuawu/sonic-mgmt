@@ -644,11 +644,9 @@ platform_tests:
 
 platform_tests/test_auto_negotiation.py:
   skip:
-    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3332324 or platform 3800"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to platform 3800"
     conditions:
       - "'3800' in platform"
-      - https://redmine.mellanox.com/issues/3332324
 
 ecmp/inner_hashing/test_wr_inner_hashing.py:
   skip:
@@ -715,12 +713,6 @@ sflow/test_sflow.py::TestReboot::testWarmreboot:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and platform sn5600"
     conditions:
       - "https://redmine.mellanox.com/issues/3429331 and 'sn5600' in platform"
-
-platform_tests/test_auto_negotiation.py::test_force_speed:
-  skip:
-    reason: "Missing adaptation of fanout code to this test. Community issue https://github.com/sonic-net/sonic-mgmt/issues/7271"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/7271
 
 pfc_asym/test_pfc_asym.py:
   skip:

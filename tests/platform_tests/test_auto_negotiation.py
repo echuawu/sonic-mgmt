@@ -33,6 +33,14 @@ ALL_PORT_WAIT_TIME = 60
 SINGLE_PORT_WAIT_TIME = 40
 PORT_STATUS_CHECK_INTERVAL = 10
 
+FEC_FOR_SPEED = {
+    25000: 'fc',
+    50000: 'fc',
+    100000: 'rs',
+    200000: 'rs',
+    400000: 'rs'
+}
+
 # To avoid getting candidate test ports again and again, use a global variable
 # to save all candidate test ports.
 # Key: dut host name, value: a dictionary of candidate ports tuple with dut port name as key
@@ -316,14 +324,6 @@ def test_force_speed(enum_speed_per_dutport_fixture):
         is_sfp_speed_supported(duthost, portname, speed),
         'Speed {} is not supported for given port/SFP'.format(speed)
     )
-
-    FEC_FOR_SPEED = {
-        25000: 'fc',
-        50000: 'fc',
-        100000: 'rs',
-        200000: 'rs',
-        400000: 'rs'
-    }
 
     fec_mode = FEC_FOR_SPEED.get(int(speed))
 
