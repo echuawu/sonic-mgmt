@@ -57,6 +57,14 @@ def pytest_addoption(parser):
         help="Max numbers of sub-ports for test_max_numbers_of_sub_ports test case",
     )
 
+##################################################################################
+# TODO: This is a temporary WA for bug 3421885 on SPC4, remove this after the issue is fixed
+@pytest.fixture(scope='function', autouse=True)
+def delay(duthost):
+    if "sn5" in duthost.facts['platform']:
+        time.sleep(60)
+##################################################################################
+
 @pytest.fixture(params=['port', 'port_in_lag'])
 def port_type(request):
     """Port type to test, could be either port or port-channel."""
