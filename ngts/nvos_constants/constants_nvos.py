@@ -78,6 +78,11 @@ class NvosConst:
 
     DATE_TIME_REGEX = "\\w{3}\\s{1,2}\\d{1,2} \\d\\d:\\d\\d:\\d\\d(?:.\\d+)?"
 
+    FW_DUMP_ME_SCRIPT_PATH = "/auto/sw_system_release/nos/nvos/security/fw_dump_me/sxd_api_crash_fw.py"
+    DESTINATION_FW_SCRIPT_PATH = "/var/tmp/"
+    SDK_DUMP_FOLDER = "/var/log/mellanox/sdk-dumps/"
+    MARS_RESULTS_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
+
 
 class ApiType:
     NVUE = "NVUE"

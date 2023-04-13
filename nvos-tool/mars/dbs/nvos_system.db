@@ -67,4 +67,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_document.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_fw_dump_me.cases </cases>
+	</test>
 </DBDEF>
