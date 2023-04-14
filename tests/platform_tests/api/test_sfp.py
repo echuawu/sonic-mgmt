@@ -97,7 +97,7 @@ class TestSfpApi(PlatformApiTestBase):
         'nominal_bit_rate',
     ]
 
-    # some new keys added for QSFP-DD in 202205 or later branch
+    # some new keys added for QSFP-DD and OSFP in 202205 or later branch
     EXPECTED_XCVR_NEW_QSFP_DD_OSFP_INFO_KEYS = ['active_firmware',
                                            'host_lane_count',
                                            'media_lane_count',
@@ -371,10 +371,9 @@ class TestSfpApi(PlatformApiTestBase):
 
                         if info_dict["type_abbrv_name"] in ["QSFP-DD", "OSFP-8X"]:
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS + \
-                                                           self.EXPECTED_XCVR_NEW_QSFP_DD_INFO_KEYS + \
-                                                           ["active_apsel_hostlane{}"
-                                                            .format(i) for i in
-                                                            range(1, info_dict['host_lane_count'] + 1)]
+                                                           self.EXPECTED_XCVR_NEW_QSFP_DD_OSFP_INFO_KEYS + \
+                                                           ["active_apsel_hostlane{}".format(n)
+                                                           for n in range(1, info_dict['host_lane_count'] + 1)]
                         else:
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS
                     missing_keys = set(UPDATED_EXPECTED_XCVR_INFO_KEYS) - set(actual_keys)
@@ -393,8 +392,8 @@ class TestSfpApi(PlatformApiTestBase):
                     unexpected_keys = set(actual_keys) - set(UPDATED_EXPECTED_XCVR_INFO_KEYS +
                                                              self.NEWLY_ADDED_XCVR_INFO_KEYS)
                     for key in unexpected_keys:
-                        # hardware_rev is applicable only for QSFP-DD
-                        if key == 'hardware_rev' and info_dict["type_abbrv_name"] == "QSFP-DD":
+                        # hardware_rev is applicable only for QSFP-DD or OSFP
+                        if key == 'hardware_rev' and info_dict["type_abbrv_name"] in ["QSFP-DD", "OSFP-8X"]:
                             continue
                         self.expect(False, "Transceiver {} info contains unexpected field '{}'".format(index, key))
         self.assert_expectations()
