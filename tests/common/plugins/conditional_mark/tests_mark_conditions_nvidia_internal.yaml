@@ -1522,7 +1522,7 @@ qos.test_buffer#test_change_speed_cable[10000-1500-40m]:
     conditions:
       - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
 
-platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause:
+platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause[cpu]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413737"
     conditions:
