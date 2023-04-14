@@ -24,7 +24,7 @@ import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
-from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, get_latest_onie_version
+from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
 from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
 from infra.tools.general_constants.constants import SonicSimxConstants, SonicHostsConstants
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
