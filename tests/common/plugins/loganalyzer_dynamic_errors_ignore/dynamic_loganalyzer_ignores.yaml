@@ -2387,3 +2387,15 @@
   Conditions:
     - Redmine:
       - 3434337
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[ROUTER.ERR\] cntr \(0\) err: Entry Not Found.'
+    - '.* ERR syncd#SDK: \[ROUTER.ERR\] counter get impl function failed with cmd=31 cntr 0, err=Entry Not Found'
+    - '.* ERR syncd#SDK: \[SAI_RIF.ERR\] mlnx_sai_rif.c\[\d+\]- mlnx_get_router_interface_stats_ext: Failed to READ sx counter 0 - Entry Not Found'
+    - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Rif Counter 0x48100000006: -7'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/fec/test_fec.py
+        - sub_port_interfaces/test_sub_port_interfaces.py
+      Redmine:
+        - 3430838
