@@ -10,7 +10,6 @@ from retry import retry
 from deepdiff import DeepDiff
 from ngts.constants.constants import InfraConst, SonicConst
 
-
 logger = logging.getLogger()
 
 BUFFER_PG = "BUFFER_PG"
@@ -106,18 +105,22 @@ def test_qos_reload_ports(topology_obj, engines, cli_objects, setup_name, tested
         dut_engine.copy_file(source_file=source_file, dest_file=SonicConst.CONFIG_DB_JSON, file_system='/tmp/',
                              overwrite_file=True, verify_file=False)
         dut_engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}', validate=True)
+    try:
+        with allure.step(f"Reload the configuration"):
+            logger.info(f"Reload the configuration")
+            cli_object.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
-    with allure.step(f"Reload the configuration"):
-        logger.info(f"Reload the configuration")
-        cli_object.general.reload_flow(topology_obj=topology_obj, reload_force=True)
+    except Exception:
+        raise AssertionError("DUT Reload failed. Restoring QOS and exiting.")
 
-    with allure.step(f"Configure QOS on ports: {tested_ports} with CLI command"):
-        logger.info(f"Configure QOS on ports: {tested_ports} with CLI command")
-        cli_object.qos.reload_qos(ports_list=tested_ports)
+    finally:
+        with allure.step(f"Configure QOS on ports: {tested_ports} with CLI command"):
+            logger.info(f"Configure QOS on ports: {tested_ports} with CLI command")
+            cli_object.qos.reload_qos(ports_list=tested_ports)
 
-    with allure.step(f"Save configuration on DUT"):
-        logger.info(f"Save configuration on DUT")
-        cli_object.general.save_configuration()
+        with allure.step(f"Save configuration on DUT"):
+            logger.info(f"Save configuration on DUT")
+            cli_object.general.save_configuration()
 
     compare_config_db_after_qos_reload_ports(cli_object, origin_config_db)
 
