@@ -204,7 +204,7 @@ def test_unsigned_grub_secure_boot(serial_engine, mount_uefi_disk_partition, tes
 
 @pytest.mark.checklist
 @pytest.mark.secure_boot
-def test_unsigned_vmlinuz_secure_boot(serial_engine, test_server_engine, restore_image_path, vmiluz_filepath,
+def test_unsigned_vmlinuz_secure_boot(serial_engine, test_server_engine, restore_image_path, vmlinuz_filepath,
                                       validate_all_dockers_are_up_after_nvos_boot):
     '''
     @summary: in this test case we want to simulate broken signature of vmiluz component

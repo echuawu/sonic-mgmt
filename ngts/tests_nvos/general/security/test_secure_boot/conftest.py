@@ -95,7 +95,7 @@ def upload_kernel_module(kernel_module_path, test_server_engine, serial_engine):
 
 
 @pytest.fixture(scope='function')
-def vmiluz_filepath(serial_engine):
+def vmlinuz_filepath(serial_engine):
     '''
     @summary: will return the filepath of vmlinuz
     :param serial_engine:
