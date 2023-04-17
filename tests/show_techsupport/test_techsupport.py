@@ -6,7 +6,6 @@ import time
 import logging
 import allure
 import tech_support_cmds as cmds
-
 from random import randint
 from collections import defaultdict
 from tests.common.helpers.assertions import pytest_assert, pytest_require
@@ -514,7 +513,7 @@ def test_techsupport_commands(
     cmd_not_found = defaultdict(list)
     duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
 
-    stdout = duthost.shell('sudo generate_dump -n | grep -v "^mkdir\|^rm\|^tar\|^gzip"')
+    stdout = duthost.shell(r'sudo generate_dump -n | grep -v "^mkdir\|^rm\|^tar\|^gzip"')
 
     pytest_assert(stdout['rc'] == 0, 'generate_dump command failed')
 
