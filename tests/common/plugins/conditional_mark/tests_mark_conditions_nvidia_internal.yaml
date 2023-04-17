@@ -93,7 +93,7 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_l3_dst_ip_is_loopback:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3434591 on SIMX platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3434591 and '202211' in release and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3434591 and 'simx' in platform"
 
 tests/push_build_tests/L3/sflow/test_sflow.py:
   skip:
