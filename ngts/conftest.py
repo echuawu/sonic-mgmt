@@ -464,3 +464,13 @@ def engines(topology_obj):
     for player in topology_obj.players:
         engines_data[player] = topology_obj.players[player]['engine']
     return engines_data
+
+
+@pytest.fixture(scope='function')
+def test_name(request):
+    """
+    Method for getting the test name parameter
+    :param request: pytest builtin
+    :return: the test name, i.e, push_gate
+    """
+    return request.node.name

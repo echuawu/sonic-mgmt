@@ -674,3 +674,16 @@ class HealthConsts:
     HEALTH_ISSUE_REGEX = "ERROR {time_regex} : {component}: (?:is )?{issue}"
     HEALTH_FIX_REGEX = "INFO {time_regex} : Cleared: {component}: (?:is )?{issue}"
     SYSTEM_LOG_HEALTH_REGEX = '.* Health DB change cache.* new data.*\'summary\': \'{}\''
+
+
+class OperationTimeConsts:
+    OPERATION_COL = 'operation'
+    PARAMS_COL = 'params'
+    DURATION_COL = 'duration'
+    SETUP_COL = 'setup_name'
+    VERSION_COL = 'version'
+    TYPE_COL = 'machine_type'
+    RELEASE_COL = 'release'
+    TEST_NAME_COL = 'test_name'
+    SESSION_ID_COL = 'session_id'
+    DATE_COL = 'date'

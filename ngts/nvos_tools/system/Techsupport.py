@@ -6,6 +6,7 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 logger = logging.getLogger()
 
@@ -31,7 +32,7 @@ class TechSupport(BaseComponent):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_delete, TestToolkit.engines.dut,
                                                    self.get_resource_path(), file_name)
 
-    def action_generate(self, engine="", option="", time=""):
+    def action_generate(self, engine="", option="", since_time="", test_name=''):
         """
         in the future the command will be nv action generate system tech-support (without files)
         changes to do :
@@ -42,9 +43,10 @@ class TechSupport(BaseComponent):
             if not engine:
                 engine = TestToolkit.engines.dut
 
-            cmd_out = SendCommandTool.execute_command(NvueSystemCli.action_generate_techsupport, engine, self.get_resource_path().replace('/files', ' '), option, time)
-            result = TechSupport.get_techsupport_folder_name(cmd_out)
-            return result
+            cmd_out = OperationTime.save_duration('generate tech-support', option, test_name, SendCommandTool.execute_command,
+                                                  NvueSystemCli.action_generate_techsupport, engine,
+                                                  self.get_resource_path().replace('/files', ' '), option, since_time)
+            return TechSupport.get_techsupport_folder_name(cmd_out)
 
     @staticmethod
     def get_techsupport_folder_name(techsupport_res):

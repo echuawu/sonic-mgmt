@@ -5,10 +5,11 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 
 @pytest.mark.system
-def test_reboot_command(engines, devices):
+def test_reboot_command(engines, devices, test_name):
     """
     Test flow:
         1. run nv action reboot system
@@ -19,7 +20,7 @@ def test_reboot_command(engines, devices):
     system = System(None)
 
     with allure.step('Run nv action reboot system'):
-        res_obj = system.reboot.action_reboot()
+        OperationTime.save_duration('reboot', '', test_name, system.reboot.action_reboot)
 
     with allure.step("Check system reboot output"):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
@@ -38,7 +39,7 @@ def test_reboot_command(engines, devices):
 
 
 @pytest.mark.system
-def test_reboot_command_immediate(engines, devices):
+def test_reboot_command_immediate(engines, devices, test_name):
     """
     Test flow:
         1. run nv action reboot system mode immediate
@@ -48,11 +49,11 @@ def test_reboot_command_immediate(engines, devices):
 
     system = System(None)
     with allure.step('Run nv action reboot system mode immediate'):
-        res_obj = system.reboot.action_reboot(params='immediate')
+        OperationTime.save_duration('reboot', 'immediate', test_name, system.reboot.action_reboot, params='immediate')
 
 
 @pytest.mark.system
-def test_reboot_command_force(engines, devices):
+def test_reboot_command_force(engines, devices, test_name):
     """
     Test flow:
         1. run nv action reboot system mode force
@@ -62,7 +63,7 @@ def test_reboot_command_force(engines, devices):
 
     system = System(None)
     with allure.step('Run nv action reboot system mode force'):
-        res_obj = system.reboot.action_reboot(params='force')
+        OperationTime.save_duration('reboot', 'force', test_name, system.reboot.action_reboot, params='force')
 
 
 @pytest.mark.system

@@ -1,0 +1,47 @@
+import logging
+import time
+import pytest
+from ngts.nvos_constants.constants_nvos import OperationTimeConsts
+
+
+logger = logging.getLogger()
+
+
+class OperationTime:
+
+    @staticmethod
+    def save_duration(operation, params, test_name, func, *args, **kargs):
+        """
+        save the duration of the command and add it to pytest.operation_list
+        just if the operation succeed and we have test_name in the duration_time_dict
+        :param duration_time_dict: dictionary with keys: operation, params, duration, test_name
+        :param func: the operation we want to measure, should return ResultObj
+        :param args: args for func
+        """
+        start_time = time.time()
+        result_obj = func(*args, **kargs)
+        if result_obj.result and test_name:
+            end_time = time.time()
+            duration = end_time - start_time
+            logger.info("{operation} took {dur} seconds".format(operation=operation, dur=duration))
+            duration_time_dict = OperationTime.create_duration_time_dict(operation, params, duration, test_name)
+            pytest.operation_list.append(duration_time_dict)
+        return result_obj
+
+    @staticmethod
+    def create_duration_time_dict(operation='', params='', duration='', test_name=''):
+        duration_time_dict = {OperationTimeConsts.OPERATION_COL: operation, OperationTimeConsts.PARAMS_COL: params,
+                              OperationTimeConsts.DURATION_COL: duration, OperationTimeConsts.TEST_NAME_COL: test_name}
+        return duration_time_dict
+
+    @staticmethod
+    def update_duration_time_dict(duration_time_dict, operation='', command='', duration='', test_name='', override=False):
+        # if override == false , will override just if empty.
+        if duration_time_dict[OperationTimeConsts.OPERATION_COL] == '' or override:
+            duration_time_dict[OperationTimeConsts.OPERATION_COL] = operation
+        if duration_time_dict[OperationTimeConsts.PARAMS_COL] == '' or override:
+            duration_time_dict[OperationTimeConsts.PARAMS_COL] = command
+        if duration_time_dict[OperationTimeConsts.DURATION_COL] == '' or override:
+            duration_time_dict[OperationTimeConsts.DURATION_COL] = duration
+        if duration_time_dict[OperationTimeConsts.TEST_NAME_COL] == '' or override:
+            duration_time_dict[OperationTimeConsts.TEST_NAME_COL] = test_name

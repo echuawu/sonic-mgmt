@@ -10,7 +10,7 @@ from ngts.nvos_constants.constants_nvos import ApiType
 
 
 @pytest.mark.system
-def test_techsupport_show(engines):
+def test_techsupport_show(engines, test_name):
     """
     Run nv show system tech-support files command and verify the required fields are exist
     command: nv show system tech-support files
@@ -25,7 +25,7 @@ def test_techsupport_show(engines):
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
         output_dictionary_before_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
-        system.techsupport.action_generate()
+        system.techsupport.action_generate(test_name=test_name)
         system.techsupport.action_generate()
         output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
@@ -41,7 +41,7 @@ def test_techsupport_show(engines):
 
 
 @pytest.mark.system
-def test_techsupport_since(engines):
+def test_techsupport_since(engines, test_name):
     """
     Run nv show system tech-support files command and verify the required fields are exist
     command: nv show system tech-support files
@@ -56,7 +56,7 @@ def test_techsupport_since(engines):
         yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
         yesterday_str = yesterday.strftime("%Y%m%d")
         tech_support_folder = system.techsupport.action_generate(engines.dut, SystemConsts.ACTIONS_GENERATE_SINCE,
-                                                                 yesterday_str)
+                                                                 yesterday_str, test_name=test_name)
         output_dictionary = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
 
@@ -78,14 +78,14 @@ def test_techsupport_since_invalid_date(engines):
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
         output_dictionary = system.techsupport.action_generate(option=SystemConsts.ACTIONS_GENERATE_SINCE,
-                                                               time=invalid_date_syntax)
+                                                               since_time=invalid_date_syntax)
         assert 'Command failed with the following output' in output_dictionary, ""
 
     invalid_date_syntax = 'aabbccdd'
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
         output_dictionary = system.techsupport.action_generate(option=SystemConsts.ACTIONS_GENERATE_SINCE,
-                                                               time=invalid_date_syntax)
+                                                               since_time=invalid_date_syntax)
         assert 'Command failed with the following output' in output_dictionary, ""
 
 

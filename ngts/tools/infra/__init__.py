@@ -16,12 +16,14 @@ CASES_SYSLOG_DIR = 'cases_syslog'
 
 
 @pytest.fixture(scope='session', autouse=True)
-def session_id():
+def session_id(request):
     """
     Get MARS session id from environment variables
     :return: session id
     """
-    session_id = os.environ.get(ENV_SESSION_ID, '')
+    session_id = request.config.getoption('--session_id')
+    if not session_id:
+        session_id = ''
     logger.info("SESSION_ID = '{}'".format(session_id))
     return session_id
 
