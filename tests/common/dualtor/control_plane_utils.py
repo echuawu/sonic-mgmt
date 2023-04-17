@@ -11,15 +11,18 @@ logger = logging.getLogger(__name__)
 
 APP_DB = 0
 STATE_DB = 6
+CONFIG_DB = 4
 
 DB_NAME_MAP = {
     APP_DB: "APP_DB",
-    STATE_DB: "STATE_DB"
+    STATE_DB: "STATE_DB",
+    CONFIG_DB: "CONFIG_DB"
 }
 
 DB_SEPARATOR_MAP = {
     APP_DB: ":",
-    STATE_DB: "|"
+    STATE_DB: "|",
+    CONFIG_DB: "|"
 }
 
 APP_DB_MUX_STATE_FIELDS = {
@@ -140,6 +143,78 @@ class DBChecker:
         self.mismatch_ports = mismatch_ports
 
         return not bool(mismatch_ports)
+    
+    def _get_nbr_data(self, intf_name, dest_name):
+        """Fetch neighbor data"""
+        ipaddress = self._get_ipaddr(intf_name, dest_name)
+        if ipaddress == "":
+            logger.debug("Failed to fetch {}'s {} address in config db. ".format(intf_name, dest_name))
+
+            return False
+
+        cmd = "/bin/ip neigh show " + ipaddress
+        nbr_data = self.duthost.shell(cmd)['stdout']
+
+        logger.debug("Fetched neighbor entry data for {} {}: {}".format(intf_name, dest_name, nbr_data))
+        return nbr_data and nbr_data.startswith(ipaddress.split("/")[0])
+
+    def _get_ipaddr(self, intf_name, dest_name):
+        """Get IP address from mux cable table in config db"""
+        tbl_name = "MUX_CABLE" + DB_SEPARATOR_MAP[CONFIG_DB] + intf_name
+        db_dump = self._dump_db(CONFIG_DB, tbl_name)
+
+        if tbl_name in db_dump:
+            return db_dump[tbl_name]['value'].get(dest_name, "")
+        
+        return ""
+
+    def _get_mux_tunnel_route(self):
+        """Get output of show muxcable tunnel-route. """
+        tunnel_route = json.loads(self.duthost.shell("show muxcable tunnel-route --json")['stdout'])
+        
+        logger.debug(json.dumps(tunnel_route, indent=4))
+        return tunnel_route
+
+    def get_tunnel_route_mismatched_ports(self, stand_alone):
+        """Check if tunnel routes are added/removed respectively for standby/active interfaces"""
+        logger.info("Verifying tunnel-route status on {}: expected state = {}".format(
+                        self.duthost, self.state))
+        
+        mismatch_ports = {}
+        tunnel_route = self._get_mux_tunnel_route()
+        expected = EXPECTED_TUNNEL_ROUTE_MAP[self.cable_type]["stand_alone" if stand_alone else self.state]
+
+        for intf in self.intf_names:
+            routes = tunnel_route["TUNNEL_ROUTE"].get(intf, {})
+            
+            if expected == {}: 
+                if routes != {}:
+                    mismatch_ports[intf] = routes
+            else:
+                for dest_name in expected.keys():
+                    if not self._get_nbr_data(intf, dest_name):
+                        logger.debug("Skipping tunnel_route check for {} {} due to non-existing neighbor entry. ".format(intf, dest_name))
+                        continue
+
+                    if dest_name in routes: 
+                        if not (int(routes[dest_name]["asic"]) == expected[dest_name]["asic"] 
+                                    and int(routes[dest_name]["kernel"]) == expected[dest_name]["kernel"]):
+                            mismatch_ports[intf] = routes
+                    else:
+                        mismatch_ports[intf] = routes
+        
+        self.tunnel_route_mismatched_ports = mismatch_ports
+        
+        return not bool(mismatch_ports)
+
+    def verify_tunnel_route(self, stand_alone=False):
+        pytest_assert(
+            wait_until(self.VERIFY_DB_TIMEOUT, 10, 0, self.get_tunnel_route_mismatched_ports, stand_alone),
+            "Tunnel route status doesn't match expected,"
+            "incorrect interfaces: {}"
+            .format(json.dumps(self.tunnel_route_mismatched_ports,
+                                         indent=4,
+                                         sort_keys=True)))
 
 
 def verify_tor_states(
