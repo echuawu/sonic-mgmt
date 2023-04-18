@@ -49,8 +49,10 @@ class NvosInstallationSteps:
             try:
                 logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
                 ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), dut_engine, apply=True).verify_result()
-                NvueGeneralCli.save_config(dut_engine)
-                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+                with allure.step('Save configuration'):
+                    NvueGeneralCli.save_config(dut_engine)
+                with allure.step('Set timezone using timedatectl command'):
+                    os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
             except BaseException as ex:
                 logger.warning('Failed to configure timezone')
 

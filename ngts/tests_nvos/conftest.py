@@ -9,7 +9,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.constants.constants import LinuxConsts
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
@@ -22,11 +22,6 @@ from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 logger = logging.getLogger()
 
-available_mts_devices = \
-    {"10.7.144.154": "/dev/mst/mt4123_pciconf3 2, /dev/mst/mt4123_pciconf2 2",
-     "10.7.144.153": "/dev/mst/mt4123_pciconf3 1, /dev/mst/mt4123_pciconf2 1",
-     "10.7.144.119": "/dev/mst/mt4123_pciconf1 1, /dev/mst/mt4123_pciconf0 1"}
-
 
 def pytest_addoption(parser):
     """
@@ -36,8 +31,6 @@ def pytest_addoption(parser):
     logger.info('Parsing NVOS pytest options')
     parser.addoption('--release_name', action='store',
                      help='The name of the release to be tested. For example: 25.01.0630')
-    parser.addoption('--mst_device', action='store',
-                     help='The name of the mst device. For example: /dev/mst/mt4123_pciconf0')
     parser.addoption("--restore_to_image",
                      action="store", default=None, help="restore image after error flow")
     parser.addoption("--traffic_available",
@@ -46,6 +39,7 @@ def pytest_addoption(parser):
                      action="store", default='False', help="True to test functionality of all password hardening "
                                                            "configurations; False otherwise (only several random "
                                                            "configurations will be picked to testing)")
+    parser.addoption("--disable_cli_coverage", action="store_true", default=False, help="Do not run cli coverage")
 
 
 @pytest.fixture(scope='session')
@@ -64,6 +58,11 @@ def engines(topology_obj):
 
     TestToolkit.update_engines(engines_data)
     return engines_data
+
+
+@pytest.fixture(scope="session")
+def mst_device(request, engines):
+    return ""
 
 
 @pytest.fixture(scope='session')
@@ -129,14 +128,6 @@ def release_name(request):
     return request.config.getoption('--release_name')
 
 
-@pytest.fixture(scope="session")
-def mst_device(request, engines):
-    mts_device = request.config.getoption('--mst_device')
-    if not mts_device and engines.dut.ip in available_mts_devices.keys():
-        mts_device = available_mts_devices[engines.dut.ip]
-    return mts_device
-
-
 @pytest.fixture(scope='session', autouse=True)
 def api_type(nvos_api_type):
     apitype = ApiType.NVUE
@@ -191,23 +182,27 @@ def clear_config(markers):
         show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
 
-        for comp in show_config_output:
-            if "set" in comp.keys() and "interface" in comp["set"].keys():
+        set_comp = {k: v for comp in show_config_output for k, v in comp.get("set", {}).items()}
+
+        if not(len(set_comp.keys()) == 1 and "system" in set_comp.keys() and
+               len(set_comp["system"].keys()) == 1 and "timezone" in set_comp["system"]):
+            if len(set_comp["system"].keys()) > 1:
+                NvueBaseCli.unset(TestToolkit.engines.dut, 'system')
+            if "ib" in set_comp.keys():
+                NvueBaseCli.unset(TestToolkit.engines.dut, 'ib')
+            active_port = None
+            if "interface" in set_comp.keys():
                 result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
-                active_port = None
                 if result.result:
                     active_port = result.returned_value[0]
-                NvueGeneralCli.apply_empty_config(TestToolkit.engines.dut)
-                if active_port:
-                    active_port.ib_interface.wait_for_port_state(state='up').verify_result()
-                break
-        else:
-            NvueSystemCli.unset(TestToolkit.engines.dut, 'system')
-            NvueSystemCli.unset(TestToolkit.engines.dut, 'ib')
-            NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
+                NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
+
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), TestToolkit.engines.dut,
+                                    apply=False)
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), TestToolkit.engines.dut, apply=True).verify_result()
-            NvueGeneralCli.save_config(TestToolkit.engines.dut)
+            if active_port:
+                active_port.ib_interface.wait_for_port_state(state='up').verify_result()
+
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
 
@@ -227,6 +222,7 @@ def clear_system_profile_config():
 def pytest_exception_interact(report):
     try:
         TestToolkit.engines.dut.run_cmd("docker ps -l")
+        TestToolkit.engines.dut.run_cmd("systemctl --type=service")
     except BaseException as err:
         logging.warning(err)
     save_results_and_clear_after_test(pytest.item)
@@ -242,10 +238,7 @@ def save_results_and_clear_after_test(item):
     markers = item.keywords._markers
     try:
         logging.info(' ---------------- The test completed successfully ---------------- ')
-        if TestToolkit.tested_api == ApiType.NVUE and os.path.exists('/auto/sw/tools/comet/nvos/') \
-                and 'no_cli_coverage_run' not in markers and not pytest.is_sanitizer and pytest.is_mars_run:
-            logging.info("API type is NVUE and is it not a sanitizer version, so CLI coverage script will run")
-            NVUECliCoverage.run(item, pytest.s_time)
+        run_cli_coverage(item, markers)
     except KeyboardInterrupt:
         raise
     except Exception as err:
@@ -253,3 +246,23 @@ def save_results_and_clear_after_test(item):
         raise AssertionError(err)
     finally:
         clear_config(markers)
+
+
+@pytest.fixture(autouse=True)
+def disable_cli_coverage(request):
+    """
+    Method for getting disable_cli_coverage from pytest arguments
+    :param request: pytest builtin
+    """
+    pytest.disable_cli_coverage = request.config.getoption('--disable_cli_coverage')
+
+
+def run_cli_coverage(item, markers):
+    if TestToolkit.tested_api == ApiType.NVUE and \
+            os.path.exists('/auto/sw/tools/comet/nvos/') and \
+            'no_cli_coverage_run' not in markers and \
+            not pytest.is_sanitizer and \
+            pytest.is_mars_run and \
+            not pytest.disable_cli_coverage:
+        logging.info("API type is NVUE and is it not a sanitizer version, so CLI coverage script will run")
+        NVUECliCoverage.run(item, pytest.s_time)

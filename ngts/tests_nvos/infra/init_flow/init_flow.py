@@ -7,17 +7,6 @@ logger = logging.getLogger()
 
 
 @pytest.mark.init_flow
-def test_bugs_status():
-    """
-    Run journal-ctl bugs command and verify there is no unknown bugs
-        TODO
-    Run sudo journalctl -b -p warning --no-pager and validate all bugs are either "known-bug" or "wont-fix/not-a-bug"
-    :return: None, open a ticket for any new bug
-    """
-    pass
-
-
-@pytest.mark.init_flow
 @pytest.mark.simx
 def test_system_services(engines, devices):
     """
