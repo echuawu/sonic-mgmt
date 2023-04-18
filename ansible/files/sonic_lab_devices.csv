@@ -28,3 +28,5 @@ dummy-fanout,1.1.1.1/22,ACS-MSN3700,FanoutLeaf
 r-leopard-20,10.210.25.114/22,ACS-MSN4700,FanoutLeaf
 r-leopard-71,10.210.24.133/22,ACS-MSN4700,FanoutLeaf
 r-leopard-70,10.210.24.88/22,ACS-MSN4700,DevSonic
+r-leopard-73,10.210.24.210/22,ACS-MSN4700,FanoutLeaf
+r-leopard-72,10.210.24.196/22,ACS-MSN4700,DevSonic

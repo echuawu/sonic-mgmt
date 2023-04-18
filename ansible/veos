@@ -82,6 +82,9 @@ R-R640-15 ansible_host=r-r640-15
 [vm_host_61]
 R-R640-16 ansible_host=r-r640-16
 
+[vm_host_62]
+DEV-R-VRT-249 ansible_host=dev-r-vrt-249
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -111,6 +114,7 @@ vm_host_58
 vm_host_59
 vm_host_60
 vm_host_61
+vm_host_62
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -878,6 +882,40 @@ VM2630 ansible_host=10.215.26.212
 VM2631 ansible_host=10.215.26.213
 VM2632 ansible_host=10.215.26.214
 
+[vms_62]
+VM2701 ansible_host=10.215.34.63
+VM2702 ansible_host=10.215.34.64
+VM2703 ansible_host=10.215.34.65
+VM2704 ansible_host=10.215.34.66
+VM2705 ansible_host=10.215.34.67
+VM2706 ansible_host=10.215.34.68
+VM2707 ansible_host=10.215.34.69
+VM2708 ansible_host=10.215.34.70
+VM2709 ansible_host=10.215.34.71
+VM2710 ansible_host=10.215.34.72
+VM2711 ansible_host=10.215.34.73
+VM2712 ansible_host=10.215.34.74
+VM2713 ansible_host=10.215.34.75
+VM2714 ansible_host=10.215.34.76
+VM2715 ansible_host=10.215.34.77
+VM2716 ansible_host=10.215.34.78
+VM2717 ansible_host=10.215.34.79
+VM2718 ansible_host=10.215.34.80
+VM2719 ansible_host=10.215.34.81
+VM2720 ansible_host=10.215.34.82
+VM2721 ansible_host=10.215.34.83
+VM2722 ansible_host=10.215.34.84
+VM2723 ansible_host=10.215.34.85
+VM2724 ansible_host=10.215.34.86
+VM2725 ansible_host=10.215.34.87
+VM2727 ansible_host=10.215.34.88
+VM2727 ansible_host=10.215.34.89
+VM2728 ansible_host=10.215.34.90
+VM2729 ansible_host=10.215.34.91
+VM2730 ansible_host=10.215.34.92
+VM2731 ansible_host=10.215.34.93
+VM2732 ansible_host=10.215.34.94
+
 [eos:children]
 vms_1
 vms_2
@@ -907,6 +945,7 @@ vms_58
 vms_59
 vms_60
 vms_61
+vms_62
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -1145,6 +1184,17 @@ host_var_file=host_vars/R-R640-16.yml
 host_var_file=host_vars/R-R640-16.yml
 mgmt_prefixlen=16
 
+[server_62:children]
+vm_host_62
+vms_62
+
+[server_62:vars]
+host_var_file=host_vars/DEV-R-VRT-249.yml
+
+[vms_62:vars]
+host_var_file=host_vars/DEV-R-VRT-249.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1174,6 +1224,7 @@ server_58
 server_59
 server_60
 server_61
+server_62
 
 [servers:vars]
 topologies=['dualtor', 't1', 't1-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', appliance]
