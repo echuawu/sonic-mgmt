@@ -110,7 +110,7 @@ class PwhConsts:
     LOWER_CHARS = 'abcdefghijklmnopqrstuvwxyz'
     UPPER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     DIGITS_CHARS = '1234567890'
-    SPECIAL_CHARS = "~@%^*-_=+[{}]:',/"
+    SPECIAL_CHARS = "~@%^*_=+[{}]:',/"
 
     # configurable parameter to the test
     NUM_SAMPLES = 6

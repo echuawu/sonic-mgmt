@@ -22,22 +22,6 @@ def system():
 
 
 @pytest.fixture(scope='function')
-def init_pwh(system):
-    """
-    Fixture that initializes pwh conf to default before test, and restores it to default after test.
-    """
-    with allure.step("Fixture: init_pwh - before test - Initializing pwh configuration to defaults"):
-        logging.info("Fixture: init_pwh - before test - Initializing pwh configuration to defaults")
-        system.security.password_hardening.unset(apply=True).verify_result()
-
-    yield
-
-    with allure.step("Fixture: init_pwh - after test - Restoring pwh configuration to defaults"):
-        logging.info("Fixture: init_pwh - after test - Restoring pwh configuration to defaults")
-        system.security.password_hardening.unset(apply=True).verify_result()
-
-
-@pytest.fixture(scope='function')
 def testing_users(engines, system):
     """
     Fixture that sets new users especially for test (and cleans them afterwards).

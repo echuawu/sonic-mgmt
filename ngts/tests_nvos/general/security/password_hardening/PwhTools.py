@@ -125,7 +125,8 @@ class PwhTools:
                     logging.info('{} is enabled. can finish'.format(PwhConsts.SPECIAL_CLASS))
                     pw += random.choice(PwhConsts.SPECIAL_CHARS)
                 elif pwh_conf[PwhConsts.REJECT_USER_PASSW_MATCH] == PwhConsts.ENABLED:
-                    logging.info('{} is enabled. set pw to be usrname: {}'.format(PwhConsts.REJECT_USER_PASSW_MATCH, usrname))
+                    logging.info(
+                        '{} is enabled. set pw to be usrname: {}'.format(PwhConsts.REJECT_USER_PASSW_MATCH, usrname))
                     pw = usrname
                 else:
                     k = int(pwh_conf[PwhConsts.HISTORY_CNT])  # k = history-cnt
@@ -268,16 +269,6 @@ class PwhTools:
         return connection_success
 
     @staticmethod
-    def set_pw_and_apply(user_obj, pw):
-        """
-        Encapsulate System.AAA.User.set(), to set a new pw
-        @param user_obj: User object
-        @param pw: password to set
-        @return: ResultObj returned from set()
-        """
-        return user_obj.set(PwhConsts.PW, '"' + pw + '"', apply=True)
-
-    @staticmethod
     def verify_pwh_setting_value_in_show(pwh_obj, setting, expected_value):
         """
         Verify that a given password hardening setting is set to the given value
@@ -304,6 +295,8 @@ class PwhTools:
         """
         with allure.step('Verify that op failed with error that contains "{}"'.format(error_should_contain)):
             logging.info('Verify that op failed with error that contains "{}"'.format(error_should_contain))
+            logging.info('Expected substring: {}\nResult: {}\nInfo: {}\n Returned value: {}'
+                         .format(error_should_contain, res_obj.result, res_obj.info, res_obj.returned_value))
             err_msg = 'Error: operation message is not as expected.\n' \
                       '\tExpected substring: "{}"' \
                       '\tActual ResultObject: "{}"\n'.format(error_should_contain, res_obj)
@@ -339,8 +332,6 @@ class PwhTools:
         @param engines: engines object
         @param prev_conf: original password hardening configuration (optional)
         """
-        PwhTools.assert_is_pwh_conf(pwh_conf)
-
         with allure.step('Getting orig password hardening configuration from show command'):
             logging.info('Getting orig password hardening configuration from show command')
             if prev_conf is None:
@@ -352,7 +343,7 @@ class PwhTools:
 
         with allure.step('Setting the desired password hardening configuration'):
             logging.info('Setting the desired password hardening configuration')
-            for field in PwhConsts.FIELDS:
+            for field in pwh_conf.keys():
                 with allure.step('Set field "{}" to "{}"'.format(field, pwh_conf[field])):
                     logging.info('Set field "{}" to "{}"'.format(field, pwh_conf[field]))
 
@@ -363,16 +354,19 @@ class PwhTools:
 
         with allure.step('Apply all changes'):
             logging.info('Apply all changes')
-            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
+                                            True)
 
         with allure.step('Verify desired configuration'):
             logging.info('Verify desired configuration')
             new_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
             logging.info('New password hardening configuration:\n{}'.format(new_pwh_conf))
+            new_conf_relevant_fields = {field: val for field, val in new_pwh_conf.items() if field in pwh_conf.keys()}
 
-            assert new_pwh_conf == pwh_conf, 'Error: new configuration is wrong for unknown reason.\n' \
-                                             'Expected configuration:\n{}\n' \
-                                             'Actual configuration:\n{}'.format(pwh_conf, new_pwh_conf)
+            assert new_conf_relevant_fields == pwh_conf, 'Error: new configuration is wrong for unknown reason.\n' \
+                                                         'Expected configuration:\n{}\n' \
+                                                         'Actual configuration:\n{}'.format(pwh_conf,
+                                                                                            new_conf_relevant_fields)
 
     @staticmethod
     def generate_configurations():
@@ -474,20 +468,16 @@ class PwhTools:
             # invalid values: 1.empty value; 2.just a random string; 3.another value which is not in valid values list
             invalid_values_to_test = ['']  # empty value
 
-            another_value = RandomizationTool.get_random_string(random.randint(1, 10),
-                                                                string.ascii_letters + string.digits)
+            another_value = RandomizationTool.get_random_string(10, string.ascii_letters + string.digits)
             while another_value in PwhConsts.VALID_VALUES[field]:
-                another_value = RandomizationTool.get_random_string(random.randint(1, 10),
-                                                                    string.ascii_letters + string.digits)
+                another_value = RandomizationTool.get_random_string(10, string.ascii_letters + string.digits)
             invalid_values_to_test.append(another_value)
 
             # random value outside the valid set of values
             if PwhConsts.VALID_VALUES[field] == [PwhConsts.ENABLED, PwhConsts.DISABLED]:
-                another_value = RandomizationTool.get_random_string(random.randint(1, 10),
-                                                                    string.ascii_letters + string.digits)
+                another_value = RandomizationTool.get_random_string(10, string.ascii_letters + string.digits)
                 while another_value in PwhConsts.VALID_VALUES[field]:
-                    another_value = RandomizationTool.get_random_string(random.randint(1, 10),
-                                                                        string.ascii_letters + string.digits)
+                    another_value = RandomizationTool.get_random_string(10, string.ascii_letters + string.digits)
             else:
                 invalid_vals = list(range(-999, PwhConsts.MIN[field])) + list(range(PwhConsts.MAX[field] + 1, 999))
                 another_value = random.choice(invalid_vals)
@@ -524,15 +514,17 @@ class PwhTools:
 
         with allure.step('Try to set password "{}" to user "{}"'.format(new_pw, user_obj.username)):
             logging.info('Try to set password "{}" to user "{}"'.format(new_pw, user_obj.username))
-            res_obj = PwhTools.set_pw_and_apply(user_obj, new_pw)
+            res_obj = user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True)
 
         logging.info('Password set is expected to {}'.format('succeed' if should_succeed else 'fail'))
 
         with allure.step('Verify {}'.format('success' if should_succeed else 'error')):
             logging.info('Verify {}'.format('success' if should_succeed else 'error'))
-            res_obj.verify_result(should_succeed=should_succeed)
             if not should_succeed:
-                ValidationTool.verify_sub_strings_in_str_output(res_obj.info, expected_errors)
+                for error in expected_errors:
+                    PwhTools.verify_error(res_obj, error)
+            else:
+                res_obj.verify_result(should_succeed=True)
 
     @staticmethod
     def get_expected_errors(pwh_conf, usr, pw, pw_history):
@@ -555,10 +547,12 @@ class PwhTools:
             if pwh_conf[PwhConsts.UPPER_CLASS] == PwhConsts.ENABLED and set(pw).isdisjoint(set(PwhConsts.UPPER_CHARS)):
                 expected_errors.append(PwhConsts.WEAK_PW_ERRORS[PwhConsts.UPPER_CLASS])
 
-            if pwh_conf[PwhConsts.DIGITS_CLASS] == PwhConsts.ENABLED and set(pw).isdisjoint(set(PwhConsts.DIGITS_CHARS)):
+            if pwh_conf[PwhConsts.DIGITS_CLASS] == PwhConsts.ENABLED and set(pw).isdisjoint(
+                    set(PwhConsts.DIGITS_CHARS)):
                 expected_errors.append(PwhConsts.WEAK_PW_ERRORS[PwhConsts.DIGITS_CLASS])
 
-            if pwh_conf[PwhConsts.SPECIAL_CLASS] == PwhConsts.ENABLED and set(pw).isdisjoint(set(PwhConsts.SPECIAL_CHARS)):
+            if pwh_conf[PwhConsts.SPECIAL_CLASS] == PwhConsts.ENABLED and set(pw).isdisjoint(
+                    set(PwhConsts.SPECIAL_CHARS)):
                 expected_errors.append(PwhConsts.WEAK_PW_ERRORS[PwhConsts.SPECIAL_CLASS])
 
             if pwh_conf[PwhConsts.REJECT_USER_PASSW_MATCH] == PwhConsts.ENABLED and usr == pw:
@@ -587,7 +581,7 @@ class PwhTools:
         @param should_succeed: True - the passwords should be set successfully; False - should fail
         @return: updated password history (list)
         """
-        assert isinstance(n, int) or isinstance(n, list), 'Error: PwhTools.set_n_passwords must receive n that can be '\
+        assert isinstance(n, int) or isinstance(n, list), 'Error: PwhTools.set_n_passwords must receive n that can be ' \
                                                           'either a number N of new passwords to generate, ' \
                                                           'or a list of passwords that the user wish to set'
 
@@ -609,7 +603,7 @@ class PwhTools:
 
                 with allure.step('Set user "{}" with password "{}"'.format(username, new_pw)):
                     logging.info('Set user "{}" with password "{}"'.format(username, new_pw))
-                    res_obj = PwhTools.set_pw_and_apply(user_obj, new_pw)
+                    res_obj = user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True)
 
                 with allure.step('Verify {}'.format('success' if should_succeed else 'error')):
                     logging.info('Verify {}'.format('success' if should_succeed else 'error'))
@@ -662,8 +656,10 @@ class PwhTools:
                 'Actual expiration_type received: {}' \
                 .format(PwhConsts.EXPIRATION, PwhConsts.EXPIRATION_WARNING, expiration_type)
 
-        with allure.step('Verify {} for ip: "{}" , user: "{}" , pw: "{}"'.format(expiration_type, ip, username, password)):
-            logging.info('Verify {} for ip: "{}" , user: "{}" , pw: "{}"'.format(expiration_type, ip, username, password))
+        with allure.step(
+                'Verify {} for ip: "{}" , user: "{}" , pw: "{}"'.format(expiration_type, ip, username, password)):
+            logging.info(
+                'Verify {} for ip: "{}" , user: "{}" , pw: "{}"'.format(expiration_type, ip, username, password))
             expected_msg = PwhConsts.MSG_PW_EXPIRED if expiration_type == PwhConsts.EXPIRATION \
                 else PwhConsts.MSG_EXPIRATION_WARNING
 
@@ -710,7 +706,8 @@ class PwhTools:
                 if expiration_type == PwhConsts.EXPIRATION:
                     logging.info('Verify that the prompted message is correct for the situation of expired password')
                     ValidationTool.verify_sub_strings_in_str_output(final_output, ['change your password',
-                                                                                   'password expired', 'Your password has expired']).verify_result()
+                                                                                   'password expired',
+                                                                                   'Your password has expired']).verify_result()
                 else:
                     logging.info('Verify that the prompted message is correct for the situation of expiration-warning')
                     ValidationTool.verify_sub_strings_in_str_output(final_output, [PwhConsts.MSG_EXPIRATION_WARNING]) \
