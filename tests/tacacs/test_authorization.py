@@ -1,6 +1,5 @@
 import logging
 import paramiko
-import time
 import pytest
 
 from tests.tacacs.utils import stop_tacacs_server, start_tacacs_server
