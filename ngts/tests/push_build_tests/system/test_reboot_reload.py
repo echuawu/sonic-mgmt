@@ -5,7 +5,6 @@ import random
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.constants.constants import SonicConst, RebootTestConstants
 from dateutil.parser import parse as time_parse
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed
@@ -28,8 +27,6 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
 @pytest.fixture()
 def validation_type(platform_params, is_simx):
     supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
-    if is_redmine_issue_active([3431712]):
-        supported_reboot_reload_list.remove('fast-reboot')
     validation_type = random.choice(supported_reboot_reload_list)
 
     if is_simx:

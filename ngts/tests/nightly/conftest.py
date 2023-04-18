@@ -126,8 +126,7 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
     supported_reboot_modes = ['reload', 'warm-reboot', 'fast-reboot', 'reboot']
     if simx:
         supported_reboot_modes = ['reload', 'reboot', 'fast-reboot']
-    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
-    if chip_type == "SPC2" or is_redmine_issue_active([3431712]):
+    if is_redmine_issue_active([3431712]):
         supported_reboot_modes.remove('fast-reboot')
 
     mode = random.choice(supported_reboot_modes)
