@@ -10,7 +10,7 @@ from tests.platform_tests.thermal_control_test_helper import start_thermal_contr
 ###################################################
 # TODO: Remove this after we transition to Python 3
 import sys
-if sys.version_info.major == 3:
+if sys.version_info.major >= 3:
     STRING_TYPE = str
 else:
     STRING_TYPE = basestring
