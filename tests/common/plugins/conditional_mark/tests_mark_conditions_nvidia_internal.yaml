@@ -646,9 +646,10 @@ platform_tests:
 
 platform_tests/test_auto_negotiation.py:
   skip:
-    reason: "Testcase ignored due to platform 3800"
+    reason: "Testcase ignored due to platform 3800 and the fanout of r-tigon-11 setup is 3800"
     conditions:
       - "'3800' in platform"
+      - "'r-tigon-11' in testbed"
 
 ecmp/inner_hashing/test_wr_inner_hashing.py:
   skip:
