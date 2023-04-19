@@ -395,6 +395,18 @@ def _extract_test_summary(test_cases):
                 "xfail_error" or case["result"] == "xfail_skipped" or case["result"] == "xfail_success"
 
     test_result_summary = {k: str(v) for k, v in test_result_summary.items()}
+    total = int(test_result_summary["failures"]) + int(test_result_summary["skipped"]) \
+        + int(test_result_summary["errors"]) + int(test_result_summary["xfails"])
+    passed = int(test_result_summary["tests"]) - int(total)
+    passed = max(0, passed)
+    if case is None:
+        return test_result_summary
+    name = case['file']
+    REPORT_LIST.append("{}, {}, {}, {}, {}, {}, {}, {}".
+                       format(name, test_result_summary["tests"],
+                              passed, test_result_summary["failures"],
+                              test_result_summary["skipped"], test_result_summary["errors"],
+                              test_result_summary["xfails"], test_result_summary["time"]))
     return test_result_summary
 
 
