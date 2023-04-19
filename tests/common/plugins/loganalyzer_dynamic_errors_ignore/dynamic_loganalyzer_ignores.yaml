@@ -2402,3 +2402,12 @@
         - sub_port_interfaces/test_sub_port_interfaces.py
       Redmine:
         - 3430838
+
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_OBJECT.ERR\] ./src/mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Resource availability for object type \d+ is not implemented'
+  Conditions:
+    - Redmine:
+        - 3440885
+      Platform:
+        - arm64-nvda_bf-mbf2h536c
+        - arm64-nvda_bf-9009d3b600cvaa
