@@ -19,14 +19,12 @@ class SendCommandTool:
             if expected_str and expected_str in cmd_output:
                 return ResultObj(True, "", str(cmd_output))
 
-            for err_msg in invalid_cmd_str:
-                if err_msg in str(cmd_output):
-                    return ResultObj(False, "Command failed with the following output: \n" + str(cmd_output), None,
-                                     IssueType.PossibleBug)
-            for timeout_msg in timeout_cmd_str:
-                if timeout_msg in str(cmd_output):
-                    return ResultObj(False, "Timeout occurred with the following output: \n" + str(cmd_output), None,
-                                     IssueType.TestIssue)
+            if any(err_msg in str(cmd_output) for err_msg in invalid_cmd_str):
+                return ResultObj(False, "Command failed with the following output: \n" + str(cmd_output), None,
+                                 IssueType.PossibleBug)
+            if any(timeout_msg in str(cmd_output) for timeout_msg in timeout_cmd_str):
+                return ResultObj(False, "Timeout occurred with the following output: \n" + str(cmd_output), None,
+                                 IssueType.TestIssue)
 
         return ResultObj(True, "", str(cmd_output))
 

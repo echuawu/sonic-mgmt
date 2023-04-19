@@ -539,8 +539,8 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         default_max_number = output_dictionary['max-number']
         system_log_obj.rotation.set('max-number', '0.001').verify_result(False)
-        output = system_log_obj.rotation.set('max-number', '9999999').get_returned_value()
-        assert "Valid range is" in output or 'Invalid Command' in output, "Set of invalid max-number should fail"
+        result_obj = system_log_obj.rotation.set('max-number', '9999999')
+        assert not result_obj.result and 'Valid range is' in result_obj.info, "Set of invalid max-number should fail"
 
     with allure.step("Validate set max-number 5"):
         logging.info("Validate set max-number 5")

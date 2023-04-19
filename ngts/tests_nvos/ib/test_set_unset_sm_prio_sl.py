@@ -93,13 +93,13 @@ def set_param_negative(param):
             random_val = random.randint(16, 100)
             logger.info('selected value = {val}'.format(val=random_val))
             with allure.step('Run nv set ib sm {param} {value}'.format(param=param, value=random_val)):
-                output = ib.sm.set(param, str(random_val))
-            assert 'Invalid Command' in output.returned_value or "Valid range is" in output.returned_value, \
+                output = ib.sm.set(param, str(random_val), apply=False)
+            assert not output.result and "Valid range is" in output.info, \
                 "{val} is invalid for {param}".format(val=random_val, param=param)
 
         with allure.step('select random value between -100 and -1'):
             random_val = random.randint(-100, -1)
             logger.info('selected value = {val}'.format(val=random_val))
             output = ib.sm.set(param, str(random_val))
-            assert 'Invalid Command' in output.returned_value or "Valid range is" in output.returned_value, \
+            assert not output.result and "Valid range is" in output.info, \
                 "{val} is invalid for {param}".format(val=random_val, param=param)

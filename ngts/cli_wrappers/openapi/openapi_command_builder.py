@@ -122,7 +122,10 @@ class OpenApiRequest:
                     return ResultObj(True, "Configuration applied successfully")
                 if str(obj["state"]) in INVALID_RESPONSE:
                     logging.info("Apply state: " + str(obj["state"]))
-                    msg = obj["transition"]["issue"]["0"]["message"]
+                    try:
+                        msg = obj["transition"]['issue']['00000']["message"]
+                    except BaseException:
+                        msg = ""
                     return ResultObj(False, "Error: Failed to apply configuration. Reason: " + msg)
                 else:
                     raise Exception("Waiting for configuration to be applied")
