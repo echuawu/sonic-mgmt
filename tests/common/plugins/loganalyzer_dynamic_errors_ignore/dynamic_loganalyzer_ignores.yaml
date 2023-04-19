@@ -68,6 +68,10 @@
     - '.* ERR pmon#python3: :- .*Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
     - '.* ERR pmon#xcvrd: sx_api_host_ifc_trap_id_register_set exited with error, rc 4.*'
     - '.* ERR pmon#xcvrd: sx_api_host_ifc_close exited with error, rc 3.*'
+    - '.* ERR syncd#SDK: \[ROUTER.ERR\] VRID \[\d+\] is in use.'
+    - '.* ERR syncd#SDK: \[ROUTER.ERR\] Cannot deinit - resources are in use. \[Resource is in use\]'
+    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: Router deinit failed.'
+    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: killall -w sx_sdk failed.'
   Conditions:
     - Affected_test_cases:
       # Canonical
@@ -2349,15 +2353,6 @@
         - 3428827
       Platform:
         - 5600
-
-- Errors_list:
-    - '.* ERR syncd#SDK: \[ROUTER.ERR\] VRID \[\d+\] is in use.'
-    - '.* ERR syncd#SDK: \[ROUTER.ERR\] Cannot deinit - resources are in use. \[Resource is in use\]'
-    - ' .* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: Router deinit failed.'
-    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: killall -w sx_sdk failed.'
-  Conditions:
-    - Redmine:
-        - 3428674
 
 - Errors_list:
     - '.* ERR what-just-happened#wjhd: :- parse_packet: Netlink message doesn''t have the NET_DM_ATTR_HW_TRAP_NAME'
