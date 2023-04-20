@@ -147,6 +147,8 @@
       <Device Hostname="r-panther-simx-18" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-23" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-02" HwSku="ACS-MSN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-simx-03" HwSku="ACS-MSN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-simx-09" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-125" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-06" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-simx-165" HwSku="ACS-MSN2700" Type="DevSonic"/>
