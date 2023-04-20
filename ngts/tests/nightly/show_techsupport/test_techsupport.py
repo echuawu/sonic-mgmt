@@ -17,12 +17,15 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SDK_DUMP_DIR = '/var/log/mellanox/sdk-dumps'
 
 
+@pytest.mark.disable_loganalyzer
 @allure.title('Tests that DumpMeNow dump contains all the expected dumps when fw stuck occurs')
 def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objects):
     duthost = engines.dut
     chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
 
     pre_stuck_dumps = duthost.run_cmd('ls -t {}/*.tar | wc -l'.format(SDK_DUMP_DIR))
+    if "No such file or directory" in pre_stuck_dumps:
+        pre_stuck_dumps = '0'
 
     try:
         with allure.step('Stop all iRISICs to halt FW'):
@@ -109,7 +112,7 @@ def generate_tech_support_and_count_sdk_dumps(engine):
 
 def verify_sdkdump_created(engine, before):
     after = engine.run_cmd('ls -t {}/*.tar | wc -l'.format(SDK_DUMP_DIR))
-    assert after > before, 'Did not create DumpMe dump'
+    assert "No such file or directory" not in after and after > before, 'Did not create DumpMe dump'
 
 
 def stop_irisics(chip_type, host):
