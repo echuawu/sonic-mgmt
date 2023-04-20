@@ -512,19 +512,14 @@ class PwhTools:
         should_succeed = expected_errors == []
         logging.info('expected_errors: {}\nshould_succeed: {}'.format(expected_errors, should_succeed))
 
-        with allure.step('Try to set password "{}" to user "{}"'.format(new_pw, user_obj.username)):
-            logging.info('Try to set password "{}" to user "{}"'.format(new_pw, user_obj.username))
-            res_obj = user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True)
-
-        logging.info('Password set is expected to {}'.format('succeed' if should_succeed else 'fail'))
-
-        with allure.step('Verify {}'.format('success' if should_succeed else 'error')):
-            logging.info('Verify {}'.format('success' if should_succeed else 'error'))
-            if not should_succeed:
-                for error in expected_errors:
-                    PwhTools.verify_error(res_obj, error)
-            else:
-                res_obj.verify_result(should_succeed=True)
+        if should_succeed:
+            with allure.step('Try to set password "{}" to user "{}" and expect success'.format(new_pw, user_obj.username)):
+                logging.info('Try to set password "{}" to user "{}" and expect success'.format(new_pw, user_obj.username))
+                user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True).verify_result()
+        else:
+            with allure.step('Try to set password "{}" to user "{}" and expect errors'.format(new_pw, user_obj.username)):
+                logging.info('Try to set password "{}" to user "{}" and expect errors'.format(new_pw, user_obj.username))
+                PwhTools.set_pw_expect_pwh_error(user_obj, new_pw, expected_errors)
 
     @staticmethod
     def get_expected_errors(pwh_conf, usr, pw, pw_history):
@@ -601,19 +596,16 @@ class PwhTools:
                         logging.info('Given password #{} to set is "{}"'.format(i, passwords[i]))
                         new_pw = passwords[i]
 
-                with allure.step('Set user "{}" with password "{}"'.format(username, new_pw)):
-                    logging.info('Set user "{}" with password "{}"'.format(username, new_pw))
-                    res_obj = user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True)
-
-                with allure.step('Verify {}'.format('success' if should_succeed else 'error')):
-                    logging.info('Verify {}'.format('success' if should_succeed else 'error'))
-                    if should_succeed:
-                        res_obj.verify_result()
-                    else:
-                        PwhTools.verify_error(res_obj, PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
-
-                    if should_succeed:
+                if should_succeed:
+                    with allure.step('Set user "{}" with password "{}" and expect success'.format(username, new_pw)):
+                        logging.info('Set user "{}" with password "{}" and expect success'.format(username, new_pw))
+                        user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True).verify_result()
                         pw_history.append(new_pw)
+                else:
+                    with allure.step('Set user "{}" with password "{}" and expect error'.format(username, new_pw)):
+                        logging.info('Set user "{}" with password "{}" and expect error'.format(username, new_pw))
+                        PwhTools.set_pw_expect_pwh_error(user_obj, new_pw,
+                                                         [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
 
         return pw_history
 
@@ -739,3 +731,20 @@ class PwhTools:
         with allure.step('Running command: "{}"'.format(cmd)):
             logging.info('Running command: "{}"'.format(cmd))
             return dut_obj.run_cmd(cmd)
+
+    @staticmethod
+    def set_pw_expect_pwh_error(user_obj, password, expected_errors):
+        """
+        Set a password to a user and expect for password hardening policies error/s.
+        @param user_obj: a User object for the user
+        @param password: the password to set
+        @param expected_errors: the expected password hardening policy error/s
+        """
+        with allure.step('Try to set the password "{}"'.format(password)):
+            logging.info('Try to set the password "{}"'.format(password))
+            res_obj = user_obj.set(PwhConsts.PW, '"' + password + '"', apply=False)
+
+        with allure.step('Expect errors'):
+            logging.info('Expect errors')
+            for error in expected_errors:
+                PwhTools.verify_error(res_obj, error)

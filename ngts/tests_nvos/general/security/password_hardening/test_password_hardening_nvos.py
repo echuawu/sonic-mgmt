@@ -62,15 +62,10 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
         PwhTools.verify_user(system, username)
         PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
 
-    with allure.step('Try to set the weak password'):
+    with allure.step('Try to set the weak password and expect errors'):
         logging.info('Try to set the weak password')
-        res_obj = user_obj.set(PwhConsts.PW, '"' + weak_pw + '"', apply=True)
-
-    with allure.step('Verify set fails'):
-        logging.info('Verify set fails')
         expected_errors = PwhTools.get_expected_errors(conf, username, weak_pw, [strong_pw])
-        for error in expected_errors:
-            PwhTools.verify_error(res_obj, error)
+        PwhTools.set_pw_expect_pwh_error(user_obj, weak_pw, expected_errors)
 
     with allure.step('Verify that login with weak password fails'):
         logging.info('Verify that login with weak password fails')
@@ -167,13 +162,11 @@ def test_password_hardening_enable_disable(engines, system, testing_users):
         cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
         ValidationTool.compare_dictionaries(cur_pwh_conf, orig_pwh_conf, True).verify_result()
 
-    with allure.step("Set weak pw which violates (some) pwh conf rules"):
-        logging.info("Set weak pw which violates (some) pwh conf rules")
+    with allure.step('Try to set the weak password and expect errors'):
+        logging.info('Try to set the weak password and expect errors')
         weak_pw2 = PwhTools.generate_weak_pw(cur_pwh_conf, usrname, weak_pw)
-        res_obj = user_obj.set(PwhConsts.PW, '"' + weak_pw2 + '"', apply=True)
         expected_errors = PwhTools.get_expected_errors(cur_pwh_conf, usrname, weak_pw2, pw_history)
-        for error in expected_errors:
-            PwhTools.verify_error(res_obj, error)
+        PwhTools.set_pw_expect_pwh_error(user_obj, weak_pw2, expected_errors)
 
     with allure.step("Set strong pw"):
         logging.info("Set strong pw")
@@ -627,7 +620,7 @@ def test_password_hardening_apply_new_password_and_expiration_settings_together(
 
             with allure.step('Set user "{}" with password "{}" (no apply)'.format(username, password)):
                 logging.info('Set user "{}" with password "{}" (no apply)'.format(username, password))
-                user_obj.set(PwhConsts.PW, '"' + password + '"', apply=True).verify_result()
+                user_obj.set(PwhConsts.PW, '"' + password + '"', apply=False).verify_result()
 
             with allure.step('Set expiration to {} (no apply)'.format(expiration)):
                 logging.info('Set expiration to {} (no apply)'.format(expiration))
@@ -755,13 +748,9 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
         user2_obj.set(PwhConsts.PW, '"' + pw2 + '"', apply=True).verify_result()
         pw_hist2.append(pw2)
 
-    with allure.step('Try to set user1 "{}" with password pw_1 "{}"'.format(user1, pw_hist1[1])):
-        logging.info('Try to set user1 "{}" with password pw_1 "{}"'.format(user1, pw_hist1[1]))
-        res_obj = user1_obj.set(PwhConsts.PW, '"' + pw_hist1[1] + '"', apply=True)
-
-    with allure.step('Expect failure'):
-        logging.info('Expect failure')
-        PwhTools.verify_error(res_obj, PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
+    with allure.step('Try to set user1 "{}" with password pw_1 "{}" and expect errors'.format(user1, pw_hist1[1])):
+        logging.info('Try to set user1 "{}" with password pw_1 "{}" and expect errors'.format(user1, pw_hist1[1]))
+        PwhTools.set_pw_expect_pwh_error(user1_obj, pw_hist1[1], [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
         if TestToolkit.tested_api == ApiType.NVUE:
             logging.info('Detaching the failed config')
             NvueGeneralCli.detach_config(engines.dut)
@@ -824,8 +813,7 @@ def test_password_hardening_history_increase(engines, system, testing_users):
         for i in range(1, hist_cnt + 1):
             pw_i = pw_history[i]
             logging.info('Round #{} - Set user "{}" with password pw_{} - "{}"'.format(i, username, i, pw_i))
-            res_obj = user_obj.set(PwhConsts.PW, '"' + pw_i + '"', apply=True)
-            PwhTools.verify_error(res_obj, PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
+            PwhTools.set_pw_expect_pwh_error(user_obj, pw_i, [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
 
 
 @pytest.mark.system
@@ -877,10 +865,6 @@ def test_password_hardening_history_when_feature_disabled(engines, system, testi
         logging.info('Try to set again the {} new passwords. Expect failure'.format(hist_cnt))
         for i in range(1, hist_cnt):
             pw_i = pw_history[i]
-            with allure.step('Set user "{}" with pw_{} - "{}"'.format(username, i, pw_i)):
-                logging.info('Round #{} - Set user "{}" with pw_{} - "{}"'.format(i, username, i, pw_i))
-                res_obj = user_obj.set(PwhConsts.PW, '"' + pw_i + '"', apply=True)
-
-            with allure.step('Verify error'):
-                logging.info('Verify error')
-                PwhTools.verify_error(res_obj, PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT])
+            with allure.step('Set user "{}" with pw_{} - "{}" and expect errors'.format(username, i, pw_i)):
+                logging.info('Round #{} - Set user "{}" with pw_{} - "{}" and expect errors'.format(i, username, i, pw_i))
+                PwhTools.set_pw_expect_pwh_error(user_obj, pw_i, [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
