@@ -152,7 +152,7 @@ def build_fib(duthosts, rand_one_dut_hostname, ptfhost, config_facts, tbinfo):
     po = config_facts.get('PORTCHANNEL', {})
     ports = config_facts.get('PORT', {})
 
-    tmp_fib_info = tempfile.NamedTemporaryFile()
+    tmp_fib_info = tempfile.NamedTemporaryFile(mode="w+")
     with open("/tmp/fib/{}/tmp/fib.{}.txt".format(duthost.hostname, timestamp)) as fp:
         fib = json.load(fp)
         logger.debug("redis-dump -d 0 -k 'ROUTE*' -y output: {0}".format(fib))
