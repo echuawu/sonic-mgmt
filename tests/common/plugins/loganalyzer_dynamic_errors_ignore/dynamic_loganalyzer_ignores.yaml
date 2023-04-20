@@ -72,6 +72,7 @@
     - '.* ERR syncd#SDK: \[ROUTER.ERR\] Cannot deinit - resources are in use. \[Resource is in use\]'
     - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: Router deinit failed.'
     - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: mlnx_sai_switch.c\[\d+\]- mlnx_shutdown_switch: killall -w sx_sdk failed.'
+    - '.* ERR bgp#bgpmon: \*ERROR\* Failed with rc:1 when execute: \[''vtysh'', ''-c'', ''show bgp summary json''\]'
   Conditions:
     - Affected_test_cases:
       # Canonical
