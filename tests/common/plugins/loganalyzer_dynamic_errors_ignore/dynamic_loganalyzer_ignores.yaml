@@ -2365,6 +2365,7 @@
   Conditions:
     - Affected_test_cases:
         - tests/nightly/sflow/test_sflow.py::test_sflow_agent_id
+        - tests/push_build_tests/general/qos/test_qos_reload.py
       Redmine:
         - 3431869
 
