@@ -17,12 +17,14 @@ community_develop_set_1_dbs = [
     'wjh.db',
     'fast_reboot.db',
     'warm_reboot.db',
-    'span.db'
+    'span.db',
+    'dualtor.db'
 ]
 
 community_develop_rpc_dbs = [
     'pre_rpc.db',
     'rpc_qos.db',
+    'rpc_qos_dualtor.db',
     'rpc_pfc_asym_and_copp.db',
     'post_rpc.db'
 ]
@@ -281,16 +283,12 @@ def print_mars_configs(branch):
     community_set_1_general_dbs = eval(f"community_{branch}_set_1_dbs") + \
                                   eval(f"community_{branch}_rpc_dbs")
 
-    community_set_1_full_dbs = eval(f"community_{branch}_set_1_dbs") + \
-                               eval(f"community_{branch}_set_2_dbs")[1:] + \
-                               eval(f"community_{branch}_rpc_dbs")
     if eval(f"community_{branch}_generic_dbs"):
-        community_set_1_full_add_generic_dbs = eval(f"community_{branch}_set_1_dbs") + \
-                                               eval(f"community_{branch}_set_2_dbs")[1:] + \
+        community_set_1_add_generic_dbs = eval(f"community_{branch}_set_1_dbs") + \
                                                eval(f"community_{branch}_generic_dbs") + \
                                                eval(f"community_{branch}_rpc_dbs")
     else:
-        community_set_1_full_add_generic_dbs = None
+        community_set_1_add_generic_dbs = None
 
     community_set_2_general_dbs = eval(f"community_{branch}_set_2_dbs")
 
@@ -307,15 +305,10 @@ def print_mars_configs(branch):
         f.write("################################general config#########################################\n")
         print_community_configs(f, community_set_1_general_dbs)
         f.write("################################full config############################################\n")
-        if branch == "201911":
-            f.write("########################## needed by r-leopard-01 and r-leopard-58#####################\n")
-        else:
-            f.write("########################## needed by r-leopard-01######################################\n")
-        print_community_configs(f, community_set_1_full_dbs)
-        if community_set_1_full_add_generic_dbs:
-            f.write("################################ full_and_generic######################################\n")
+        if community_set_1_add_generic_dbs:
+            f.write("################################ set_1_add_generic#####################################\n")
             f.write("########################## needed by r-leopard-58######################################\n")
-            print_community_configs(f, community_set_1_full_add_generic_dbs)
+            print_community_configs(f, community_set_1_add_generic_dbs)
         f.write("++++++++++++++++++++++++++++++++Community_Regression_Set_1 end+++++++++++++++++++++++++\n")
         f.write("++++++++++++++++++++++++++++++++Community_Regression_Set_2 start+++++++++++++++++++++++\n")
         print_community_configs(f, community_set_2_general_dbs)
