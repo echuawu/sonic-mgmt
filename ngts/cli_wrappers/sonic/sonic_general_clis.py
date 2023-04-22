@@ -930,6 +930,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def copy_from_docker(self, docker, dst_path_on_host, src_path_in_docker):
         return self.engine.run_cmd('sudo docker cp {}:{} {}'.format(docker, src_path_in_docker, dst_path_on_host))
 
+    def remove_from_docker(self, docker, src_path_in_docker):
+        return self.engine.run_cmd('sudo docker exec {} rm -rf {}'.format(docker, src_path_in_docker))
+
     def get_warm_reboot_status(self):
         return self.engine.run_cmd('systemctl is-active warmboot-finalizer')
 

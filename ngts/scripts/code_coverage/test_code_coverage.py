@@ -19,7 +19,7 @@ GCOV_CONTAINERS_NVOS = ['swss-ibv0', 'syncd-ibv0']
 
 @pytest.mark.disable_loganalyzer
 @allure.title('Extract Python Coverage')
-def test_extract_python_coverage(topology_obj, dest):
+def test_extract_python_coverage(topology_obj, dest, engines):
     """
     Extracts code coverage collected by the Coverage.py tool for Python scripts.
     Code coverage is extracted as .xml file, one for the main image and one for
@@ -40,8 +40,9 @@ def test_extract_python_coverage(topology_obj, dest):
             logger.info(f'Coverage file path: {coverage_file}')
 
         with allure.step('Restart all system services to get coverage for running services'):
-            cli_obj.general.systemctl_restart('sonic.target')
+            engines.dut.reload('sudo systemctl restart sonic.target')
             system_helpers.wait_for_all_jobs_done(engine)
+            engines.dut.run_cmd('sudo systemctl restart nvued.service')
 
         coverage_dir = os.path.dirname(coverage_file)
         hostname = cli_obj.general.hostname()
@@ -62,7 +63,7 @@ def test_extract_python_coverage(topology_obj, dest):
                 logger.info(f'Coverage xml files in {container} container: {coverage_xml_files}')
                 for file in coverage_xml_files:
                     cli_obj.general.copy_from_docker(container, file, file)
-                    cli_obj.general.rm(file, flags='-f')
+                    cli_obj.general.remove_from_docker(container, file)
 
         with allure.step(f'Copy coverage xml reports from the system to destination directory'):
             coverage_xml_files = system_helpers.list_files(engine, coverage_dir, pattern=coverage_xml_filename_prefix)
@@ -100,8 +101,9 @@ def test_extract_gcov_coverage(topology_obj, dest):
             cli_obj.general.ls(SOURCES_PATH, validate=True)
 
         with allure.step('Restart all system services to get coverage for running services'):
-            cli_obj.general.systemctl_restart('sonic.target')
+            engines.dut.reload('sudo systemctl restart sonic.target')
             system_helpers.wait_for_all_jobs_done(engine)
+            engines.dut.run_cmd('sudo systemctl restart nvued.service')
 
         sudo_engine = system_helpers.PrefixEngine(engine, 'sudo')
         sudo_cli_general = GeneralCliCommon(sudo_engine)
