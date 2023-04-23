@@ -83,8 +83,8 @@ def test_set_invalid_password_length(engines):
     with allure.step('try to set the invalid password and verify the output message'):
         system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
         result_obj = system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + invalid_password + '"', apply=False)
-        assert not result_obj.result and 'Password should contain at least' in result_obj.info, \
-            "length error message not as expected the output = {output} expected = {expected}".format(output=result_obj.info,
+        assert result_obj.result and 'Password should contain at least' in result_obj.returned_value, \
+            "length error message not as expected the output = {output} expected = {expected}".format(output=result_obj.returned_value,
                                                                                                       expected='Password should contain at least')
     NvueGeneralCli.detach_config(engines.dut)
 
