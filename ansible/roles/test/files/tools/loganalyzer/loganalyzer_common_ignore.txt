@@ -174,7 +174,6 @@ r, ".* ERR syncd#SDK: :- redisPutFdbEntryToAsicView: received a flush port fdb e
 r, ".* ERR swss#orchagent: :- update: FdbOrch notification: not supported flush port fdb action.*"
 r, ".* WARNING syncd#SDK:.*add_const_table_entries_control_out_rif_table_meta_tunnel:.*"
 r, ".* ERR radv#radvd.* Exiting, privsep_read_loop.*"
-r, ".* ERR pmon#sensord: Error getting sensor data: dps460.*Can't read.*"
 r, ".* WARNING syncd#SDK:.*Not supported attribute SAI_SWITCH_ATTR_AVAILABLE_IPMC_ENTRY.*"
 r, ".* ERR swss#orchagent: :- getResAvailableCounters: Failed to get switch attribute.*"
 r, ".* ERR pmon#xcvrd.* Receive PMPE error event on module \d+: status 3 error type 0"
