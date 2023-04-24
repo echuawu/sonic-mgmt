@@ -215,9 +215,11 @@ tests/push_build_tests/L2/vlan/test_vlan.py:
 
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
-    reason: "Testcase ignored due to SIMX platform "
+    reason: "Testcase ignored by bug 3431845 on r-leopard-56 or SIMX platform "
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3431845 and 'r-leopard-56' in testbed"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
@@ -227,11 +229,11 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored by bug 3331715 or simx in platform"
+    reason: "Testcase ignored by bug 3431845 on r-leopard-56 or simx in platform"
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - https://redmine.mellanox.com/issues/3331715
+      - "https://redmine.mellanox.com/issues/3431845 and 'r-leopard-56' in testbed"
 
 tests/nightly/fec:
   skip:
@@ -241,11 +243,17 @@ tests/nightly/fec:
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   skip:
-    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3431866 or platform SIMX"
+    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3442487 and platform SPC2/3 or simx"
     conditions_logical_operator: or
     conditions:
-      - https://redmine.mellanox.com/issues/3431866
+      - "https://redmine.mellanox.com/issues/3442487 and ('sn2' in platform or 'sn3' in platform)"
       - "'simx' in platform"
+
+tests/push_build_tests/L3/sflow/test_sflow.py::test_basic_sflow_function:
+  skip:
+    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3440608 on setups with upgrade test"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3440608 and ('r-leopard-56' in testbed or 'r-lionfish-07' in testbed or 'r-spider-05' in testbed)"
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   skip:
