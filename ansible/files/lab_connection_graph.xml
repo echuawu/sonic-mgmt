@@ -3532,7 +3532,8 @@
       <PowerControlLinkInfo EndDevice="str-acs-serv-01" EndPort="PSU1" StartDevice="pdu-2" StartPort="2"/>
       <PowerControlLinkInfo EndDevice="str-acs-serv-01" EndPort="PSU2" StartDevice="pdu-2" StartPort="4"/>
 
-      <PowerControlLinkInfo EndDevice="r-alligator-04" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.9"/>
+      <PowerControlLinkInfo EndDevice="r-alligator-04" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.4"/>
+      <PowerControlLinkInfo EndDevice="r-alligator-04" EndPort="PSU2" StartDevice="pdu-10-208-0-18" StartPort="1.9"/>
 
       <PowerControlLinkInfo EndDevice="r-tigris-26" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.14"/>
       <PowerControlLinkInfo EndDevice="r-tigris-26" EndPort="PSU2" StartDevice="pdu-10-208-0-18" StartPort="1.15"/>
