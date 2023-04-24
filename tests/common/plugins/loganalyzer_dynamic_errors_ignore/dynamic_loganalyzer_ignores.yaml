@@ -1056,11 +1056,13 @@
       - 3168487
 
 - Errors_list:
-    - '.* ERR .*rsyslogd: omfwd\/udp: socket 6: sendto\(\) error: Network is unreachable.*'
-    - '.* ERR .*rsyslogd: omfwd: socket 6: error 101 sending via udp: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd\/udp: socket \d+: sendto\(\) error: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd: socket \d+: error 101 sending via udp: Network is unreachable.*'
   Conditions:
     - Redmine:
       - 3168474
+      GitHub:
+      - https://github.com/sonic-net/sonic-buildimage/issues/6675
 
 - Errors_list:
     - '.* ERR .*#rsyslogd: imfile: error reading state file for .*'
@@ -2143,6 +2145,7 @@
       - platform_tests/test_platform_info.py::test_thermal_control_fan_status
       - tests/nightly/evpn_vxlan/tech_support/test_evpn_vxlan_tech_support.py::TestEvpnVxlanTechSupport::test_tech_support
       - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
+      - show_techsupport/test_auto_techsupport.py
       Redmine:
       - 3345290
 
@@ -2321,11 +2324,12 @@
       - 4600
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- mlnx_allocate_sx_bulk_buffer: Failed to create buffer: Driver.* Return Status is Non-Zero.*'
+    - '.* ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_(?:allocate|deallocate)_sx_bulk_buffer: Failed to (?:create|destroy) buffer: Driver.* Return Status is Non-Zero.*'
     - '.* ERR syncd#SDK: \[SAI_QUEUE.ERR\] mlnx_sai_queue.c\[\d+\]- mlnx_sai_bulk_queue_stats_get: Failed to prepare bulk counter for queue stats.*'
     - '.* WARNING kernel: \[.*\] syncd: page allocation failure: order:\d+, mode:.*\(GFP_KERNEL\|__GFP_COMP\), nodemask=\(null\),cpuset=.*,mems_allowed=\d+.*'
     - '.* WARNING kernel: .* Node 0 DMA.* free:.* min:.* low:.* high:.* reserved_highatomic:.* active_anon:.* inactive_anon:.* active_file:.* inactive_file:.* unevictable:.* writepending:.* present:.* managed:.* mlocked:.* pagetables:.* bounce:.* free_pcp:.* local_pcp:.* free_cma:.*'
     - '.* WARNING kernel: .* Node 0 Normal.* free:.* min:.* low:.* high:.* reserved_highatomic:.* active_anon:.* inactive_anon:.* active_file:.* inactive_file:.* unevictable:.* writepending:.* present:.* managed:.* mlocked:.* pagetables:.* bounce:.* free_pcp:.* local_pcp:.* free_cma:.*'
+    - '.* ERR syncd#SDK: \[SAI_BUFFER\.ERR\] mlnx_sai_buffer\.c\[\d+\]- mlnx_sai_bulk_ingress_priority_group_stats_get: Failed to .*: -1.*'
   Conditions:
     - Affected_test_cases:
       - show_techsupport/test_auto_techsupport.py
@@ -2392,7 +2396,7 @@
     - '.* ERR syncd#SDK: \[ROUTER.ERR\] cntr \(0\) err: Entry Not Found.'
     - '.* ERR syncd#SDK: \[ROUTER.ERR\] counter get impl function failed with cmd=31 cntr 0, err=Entry Not Found'
     - '.* ERR syncd#SDK: \[SAI_RIF.ERR\] mlnx_sai_rif.c\[\d+\]- mlnx_get_router_interface_stats_ext: Failed to READ sx counter 0 - Entry Not Found'
-    - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Rif Counter 0x\d+: -7'
+    - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Rif Counter 0x[a-f0-9]+: -7.*'
   Conditions:
     - Affected_test_cases:
         - tests/nightly/fec/test_fec.py
