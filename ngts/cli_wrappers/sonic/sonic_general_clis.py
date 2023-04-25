@@ -276,6 +276,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 success = False
         assert(success, 'Not all expected processes in RUNNING status')
 
+    @retry(Exception, tries=5, delay=30)
     def generate_techsupport(self, duration=60):
         """
         Generate sysdump for a given time frame in seconds
@@ -283,7 +284,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :return: dump path
         """
         with allure.step('Generate Techsupport of last {} seconds'.format(duration)):
-            output = self.engine.run_cmd('sudo generate_dump -s \"-{} seconds\"'.format(duration))
+            output = self.engine.run_cmd('sudo generate_dump -s \"-{} seconds\"'.format(duration), validate=True)
             return output.splitlines()[-1]
 
     def do_installation(self, topology_obj, image_path, deploy_type, fw_pkg_path, platform_params):
