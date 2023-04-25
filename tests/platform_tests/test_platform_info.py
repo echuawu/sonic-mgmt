@@ -14,12 +14,10 @@ from tests.common.helpers.assertions import pytest_assert, pytest_require
 from tests.common.plugins.loganalyzer.loganalyzer import LogAnalyzer
 from tests.common.utilities import wait_until
 from tests.common.platform.device_utils import get_dut_psu_line_pattern
-<<<<<<< f6e95f81c3fbbee4c7d9f4b9edd1923ea31f133b
-from thermal_control_test_helper import *
-=======
 from .thermal_control_test_helper import ThermalPolicyFileContext,\
     check_cli_output_with_mocker, restart_thermal_control_daemon, check_thermal_algorithm_status
->>>>>>> [pre-commit] Fix style issues in test scripts under `tests/p*` folder (#7968)
+    check_cli_output_with_mocker, restart_thermal_control_daemon, check_thermal_algorithm_status,\
+    mocker_factory, disable_thermal_policy  # noqa F401
 
 pytestmark = [
     pytest.mark.topology('any')
@@ -270,12 +268,8 @@ def test_turn_on_off_psu_and_check_psustatus(duthosts, enum_rand_one_per_hwsku_h
     pytest_require(check_all_psu_on(duthost, psu_test_results),
                    "Some PSU are still down, skip rest of the testing in this case")
 
-<<<<<<< f6e95f81c3fbbee4c7d9f4b9edd1923ea31f133b
-    pytest_assert(len(psu_test_results.keys()) == psu_num, \
-=======
     pytest_assert(
         len(list(psu_test_results.keys())) == psu_num,
->>>>>>> [pre-commit] Fix style issues in test scripts under `tests/p*` folder (#7968)
         "In consistent PSU number output by '%s' and '%s'" % (CMD_PLATFORM_PSUSTATUS, "sudo psuutil numpsus"))
 
     logging.info("Start testing turn off/on PSUs")
@@ -324,7 +318,7 @@ def test_turn_on_off_psu_and_check_psustatus(duthosts, enum_rand_one_per_hwsku_h
 
 @pytest.mark.disable_loganalyzer
 def test_show_platform_fanstatus_mocked(duthosts, enum_rand_one_per_hwsku_hostname,
-                                        mocker_factory, disable_thermal_policy):
+                                        mocker_factory, disable_thermal_policy):  # noqa F811
     """
     @summary: Check output of 'show platform fan'.
     """
@@ -348,7 +342,7 @@ def test_show_platform_fanstatus_mocked(duthosts, enum_rand_one_per_hwsku_hostna
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize('ignore_particular_error_log', [SKIP_ERROR_LOG_SHOW_PLATFORM_TEMP], indirect=True)
 def test_show_platform_temperature_mocked(duthosts, enum_rand_one_per_hwsku_hostname,
-                                          mocker_factory, ignore_particular_error_log):
+                                          mocker_factory, ignore_particular_error_log):  # noqa F811
     """
     @summary: Check output of 'show platform temperature'
     """
@@ -410,7 +404,7 @@ def check_thermal_control_load_invalid_file(duthost, file_name):
 
 
 @pytest.mark.disable_loganalyzer
-def test_thermal_control_fan_status(duthosts, enum_rand_one_per_hwsku_hostname, mocker_factory):
+def test_thermal_control_fan_status(duthosts, enum_rand_one_per_hwsku_hostname, mocker_factory):  # noqa F811
     """
     @summary: Make FAN absence, over speed and under speed, check logs and LED color.
     """
