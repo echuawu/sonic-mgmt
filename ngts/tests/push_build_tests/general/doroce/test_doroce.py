@@ -113,7 +113,10 @@ def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, in
                      'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
                     ]
         }
+    cli_objects.dut.interface.disable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
     InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
+    cli_objects.dut.interface.enable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
+    cli_objects.dut.interface.check_link_state([interfaces.dut_ha_2, interfaces.dut_hb_2])
 
     yield
 

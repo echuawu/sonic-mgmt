@@ -181,8 +181,11 @@ def wjh_buffer_configuration(topology_obj, cli_objects, engines, interfaces):
         }
 
     logger.info('Starting WJH Buffer configuration')
+    cli_objects.dut.interface.disable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
     InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
     WjhBufferConfigTemplate.configuration(topology_obj, thresholds_config_dict)
+    cli_objects.dut.interface.enable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
+    cli_objects.dut.interface.check_link_state([interfaces.dut_ha_2, interfaces.dut_hb_2])
     logger.info('WJH Buffer configuration completed')
 
     with allure.step('Doing config save'):
