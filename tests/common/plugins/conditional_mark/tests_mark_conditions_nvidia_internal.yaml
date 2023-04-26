@@ -246,7 +246,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
     reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3442487 and platform SPC2/3 or simx"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3442487 and ('sn2' in platform or 'sn3' in platform)"
+      - "https://redmine.mellanox.com/issues/3442487 and ('sn3' in platform or 'sn4' in platform)"
       - "'simx' in platform"
 
 tests/push_build_tests/L3/sflow/test_sflow.py::test_basic_sflow_function:
