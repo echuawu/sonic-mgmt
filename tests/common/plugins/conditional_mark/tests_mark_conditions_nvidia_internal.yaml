@@ -442,12 +442,9 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_cli_cmds_check:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX or https://redmine.mellanox.com/issues/3334720 on SPC1 and SPC2"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3446176"
     conditions:
-      - "https://redmine.mellanox.com/issues/3318217 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3334720 and 'sn2' in platform"
-      - "https://redmine.mellanox.com/issues/3334720 and 'sn3' in platform"
+      - "https://redmine.mellanox.com/issues/3446176"
 
 
 tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVrf::test_ecmp_calculator_interface_vrf[outer_dip-outer_inner]:
