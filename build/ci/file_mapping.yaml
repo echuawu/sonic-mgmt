@@ -1,6 +1,7 @@
 COMMON_BAT_ONLY:
   - tests/platform_tests
   - ngts
+  - sonic-tool/mars
 
 NVOS_BAT_ONLY:
   - nvos-tool
