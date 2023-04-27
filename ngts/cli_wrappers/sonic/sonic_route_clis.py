@@ -137,6 +137,19 @@ class SonicRouteCli(RouteCliCommon):
 
         return routes_dict
 
+    def get_next_hops(self, routes):
+        """
+        This method is to get next hops for routes
+        :param routes: list of routes
+        :return: list of next hops
+        """
+        next_hops = {'intf': [], 'ip': []}
+        for route in routes:
+            for next_hop in route['nexthops']:
+                next_hops['intf'].append(next_hop['interfaceName'])
+                next_hops['ip'].append(next_hop['ip'])
+        return next_hops
+
 
 def prapare_route_entries_list(routes_data):
     """
