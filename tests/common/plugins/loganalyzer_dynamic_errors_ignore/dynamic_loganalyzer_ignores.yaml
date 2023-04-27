@@ -1787,8 +1787,23 @@
     - Affected_test_cases:
       - tests/show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit
       - platform_tests/sfp/test_sfputil.py
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
       Redmine:
       - 3283464
+
+- Errors_list:
+    - '.*ERR kernel: \[.*\] mlxreg-hotplug mlxreg-hotplug: Failed to request irq: -22.*'
+    - '.*WARNING kernel: \[.*\] mlxreg-hotplug: probe of mlxreg-hotplug failed with error -22.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports
+      - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/push_build_tests/system/test_startup_time_degradation.py
+      Redmine:
+      - 3446516
+      Platform:
+      - simx
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_DEBUG_COUNTER\.ERR\] mlnx_sai_debug_counter\.c\[\d+\]- mlnx_debug_counter_db_idx_to_data: Debug counter at index \d+ is removed or not created yet.*'
