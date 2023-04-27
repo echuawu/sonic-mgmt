@@ -3,6 +3,8 @@ import pytest
 import logging
 import time
 import os
+import re
+import math
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -252,7 +254,7 @@ def save_results_and_clear_after_test(item):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def insert_operation_time_to_db(setup_name, session_id, release_name, platform_params):
+def insert_operation_time_to_db(setup_name, session_id, platform_params):
     '''
     @summary:   insert operation times to operation_time table DB.
     during the tests we will add to pytest.operation_list the operations that we want to measure,
@@ -260,10 +262,11 @@ def insert_operation_time_to_db(setup_name, session_id, release_name, platform_p
     '''
     pytest.operation_list = []
     yield
-    try:
-        if not pytest.is_sanitizer and pytest.is_mars_run:
-            type = platform_params['filtered_platform']
-            version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
+    type = platform_params['filtered_platform']
+    version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
+    release_name = version_to_release(version)
+    if not pytest.is_sanitizer and pytest.is_mars_run and release_name:
+        try:
             connections_params = DbConstants.CREDENTIALS[CliType.NVUE]
             mssql_connection_obj = ConnectMSSQL(connections_params['server'], connections_params['database'],
                                                 connections_params['username'], connections_params['password'])
@@ -294,8 +297,33 @@ def insert_operation_time_to_db(setup_name, session_id, release_name, platform_p
                 mssql_connection_obj.query_insert(query)
             finally:
                 mssql_connection_obj.disconnect_db()
-    except BaseException as ex:
-        logging.info("--------- insert to operation time DB table failed ---------\n" + str(ex))
+        except BaseException as ex:
+            logging.info("--------- insert to operation time DB table failed ---------\n" + str(ex))
+
+
+def version_to_release(version):
+    """
+    return the relevant release according to the version param.
+    if its private version or unknown will return ''
+    examples:
+        from  'nvos-25.02.2000'  to '25.02.2000'
+        from 'nvos-25.02.1910-014' to  '25.02.2000'
+        from 'nvos-25.02.1320-014' to  '25.02.1400'
+    """
+    pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
+    if not re.match(pattern, version):
+        return ''
+    pattern = r'(\d+)-(\d+)$'
+    match = re.search(pattern, version)
+    if match:
+        num_str = match.group(1)    # extract the number string '0930' from 'nvos-25.02.0930-011'
+        rounded_num = math.ceil(int(num_str) / 100) * 100   # round up to the nearest hundred
+        rounded_num_str = str(rounded_num).zfill(len(num_str))     # convert the rounded number back to string with leading zeros
+        result = re.sub(pattern, f'{rounded_num_str}', version)
+    else:
+        result = version
+    result = result.replace('nvos-', '')
+    return result
 
 
 @pytest.fixture(autouse=True)
