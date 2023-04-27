@@ -283,7 +283,7 @@ def test_interface_eth0_ip_address(engines, topology_obj):
     2. Negative testing for ipv4 and prefix, instead of ip only “dhcp”
     3. Disable ipv4 dhcp, verify it’s disabled, we can’t ping
     4. Configure static ip for this switch, check it by show command, ping
-        5. Unset ipv4, dhcp, validate in show command and ping
+    5. Unset ipv4, dhcp, validate in show command and ping
     """
     mgmt_port = MgmtPort('eth0')
     switch_ip = engines.dut.ip
@@ -312,7 +312,6 @@ def test_interface_eth0_ip_address(engines, topology_obj):
                                            apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(2)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.show(dut_engine=serial_engine)).get_returned_value()
         validate_interface_ip_address(ip_address, output_dictionary, True)
@@ -322,7 +321,6 @@ def test_interface_eth0_ip_address(engines, topology_obj):
             .verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(1)
         mgmt_port.interface.ip.address.unset(dut_engine=serial_engine,
                                              apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
@@ -360,11 +358,11 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
     Verify switch receive hostname by dhcp
 
     flow:
-        1. Check hostname received by dhcp, validate it’s same in show system and iblinkinfo command, field lease yes
-        2. Disable dhcp, unset hostname, verify it’s nvos, is running no, no lease field
-        3. Disable dhcp set-hostname, verify changed for ipv4 and ipv6 dhcp
-        4. Enable dhcp, check we didn’t receive hostname
-        5. Unset set-hostname and check we received hostname as we have on start of the test, configuration for ipv4 and ipv6 dhcp same, can ping
+    1. Check hostname received by dhcp, validate it’s same in show system and iblinkinfo command, field lease yes
+    2. Disable dhcp, unset hostname, verify it’s nvos, is running no, no lease field
+    3. Disable dhcp set-hostname, verify changed for ipv4 and ipv6 dhcp
+    4. Enable dhcp, check we didn’t receive hostname
+    5. Unset set-hostname and check we received hostname as we have on start of the test, configuration for ipv4 and ipv6 dhcp same, can ping
     """
     mgmt_port = MgmtPort('eth0')
     system = System()
@@ -416,11 +414,9 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        time.sleep(1)
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
-        time.sleep(1)
         dhcp6_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.dhcp_client6.show(dut_engine=serial_engine)).get_returned_value()
 

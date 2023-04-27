@@ -352,7 +352,7 @@ def test_split_port_n_times(engines, interfaces, start_sm):
             parent_port.ib_interface.link.breakout.unset(apply=True, ask_for_confirmation=True).verify_result()
 
     with allure.step("Check if we can do show for splitted interface"):
-        output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+        Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
             parent_port.show_interface()).get_returned_value()
 
 
