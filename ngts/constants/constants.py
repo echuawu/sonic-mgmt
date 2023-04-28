@@ -962,7 +962,9 @@ class BluefieldConstants:
     BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
     BMC_USER = os.getenv("BMC_USER")
     BMC_PASS = os.getenv("BMC_PASSWORD")
-    BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-9009d3b600CVAA']
+    BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-MBF2H536C-C2',
+                             'Nvidia-9009d3b600CVAA', 'Nvidia-9009d3b600CVAA-C2']
+    BLUEFIELD_PORTS_LIST = ['Ethernet0', 'Ethernet4']
 
 
 class SonicDeployConstants:

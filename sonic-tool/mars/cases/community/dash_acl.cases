@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CASEDEF>
+    <global>
+        <Test>
+            <info> DASH ACL Test </info>
+            <name> dash_acl_test </name>
+            <owner> </owner>
+            <pre>
+                <type> reg_exec_cmd </type>
+                <name> work around: Change HwSKU to -C2 </name>
+                <tout> 600 </tout>
+                <run_posts_after_pre_failed> True </run_posts_after_pre_failed>
+                <ignore_pre_fail> True </ignore_pre_fail>
+                <players_selection>
+                    <ep_targets> SONIC_MGMT </ep_targets>
+                </players_selection>
+                <params>
+                    <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/test_dpu_change_hwsku.py --setup_name=[[conf:extra_info.setup_name]] --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini  --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+                </params>
+            </pre>
+            <post>
+                <type> reg_exec_cmd </type>
+                <name> work around: Change HwSKU to default </name>
+                <tout> 600 </tout>
+                <players_selection>
+                    <ep_targets> SONIC_MGMT </ep_targets>
+                </players_selection>
+                <params>
+                    <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/test_dpu_change_hwsku.py --setup_name=[[conf:extra_info.setup_name]] --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini  --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+                </params>
+            </post>
+        </Test>
+        <Case>
+            <tags> ACL </tags>
+            <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
+            <tout> 1200 </tout>
+        </Case>
+    </global>
+
+    <case>
+        <info> DASH ACL test </info>
+        <name> test_dash </name>
+        <tout> 600 </tout>
+        <cmd>
+             <params>
+                 <static_args> --is_python3_test True --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts dash/test_dash_acl.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+</CASEDEF>
