@@ -84,7 +84,7 @@ def test_extract_python_coverage(topology_obj, dest, engines):
 
 @pytest.mark.disable_loganalyzer
 @allure.title('Extract GCOV Coverage')
-def test_extract_gcov_coverage(topology_obj, dest):
+def test_extract_gcov_coverage(topology_obj, dest, engines):
     """
     Extracts code coverage collected by GCOV for C/C++ binaries that were
     compiled with GCOV flags.
