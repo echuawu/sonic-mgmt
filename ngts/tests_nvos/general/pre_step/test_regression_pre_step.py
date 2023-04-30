@@ -22,9 +22,11 @@ def test_regression_pre_step(engines, topology_obj):
     """
     res = True
     info = ""
+    server_engine = None
     vms_to_check = [SONIC_MGMT_HYPERVISOR]
 
     if "server" in topology_obj.players:
+        server_engine = topology_obj.players['server']['engine']
         vms_to_check.append(topology_obj.players['server']['attributes'].noga_query_data['attributes']['Common']['Name'])
 
     with allure.step(f"Verify DUT {engines.dut.ip} is reachable and functional"):
@@ -37,14 +39,25 @@ def test_regression_pre_step(engines, topology_obj):
                     res = ping_device(engines.dut.ip)
                     info = f"dut {engines.dut.ip} is unreachable"
 
+    info = ""
     for vm in vms_to_check:
         with allure.step(f"Make sure {vm} is up"):
             if not ping_device(vm):
                 reboot_server(vm)
                 res = ping_device(vm)
-                info += f"Hypervisor {vm} is unreachable"
+                if not res:
+                    info += f"Hypervisor {vm} is unreachable\n"
 
     assert res, info
+
+    if server_engine:
+        with allure.step("Configure traffic server"):
+            output = server_engine.run_cmd("docker ps")
+            if "Is the docker daemon running?" in output:
+                server_engine.run_cmd("sudo service docker start")
+            server_engine.run_cmd("sudo groupadd docker")
+            server_engine.run_cmd("sudo usermod -aG docker $USER")
+            server_engine.run_cmd("sudo chgrp docker /var/run/docker.sock")
 
 
 def ping_device(ip_add):
