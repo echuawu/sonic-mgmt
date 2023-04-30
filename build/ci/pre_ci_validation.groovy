@@ -135,8 +135,7 @@ def run_step(name) {
             NGCITools().ciTools.run_sh("cp -r build/. ${env.nfs_dir}/build/")
             //Copy bat properties from sonic_devops shared location (used by bat.groovy)
             NGCITools().ciTools.run_sh("cp /auto/sw_system_release/ci/sonic_devops/build/ci/bat_properties_file.txt ${env.nfs_dir}/build/ci/")
-            NGCITools().ciTools.run_sh("cp /auto/sw_system_release/ci/nos/nvos/build/common/bat_properties_file.txt " +
-                    "/auto/sw_system_release/ci/sonic_devops/build/common/sonic_tools.groovy ${env.nfs_dir}/build/common/")
+            NGCITools().ciTools.run_sh("cp /auto/sw_system_release/ci/nos/nvos/build/common/bat_properties_file.txt ${env.nfs_dir}/build/common/")
         }
 
         //copy sonic_devops build
