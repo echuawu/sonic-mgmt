@@ -39,15 +39,11 @@
 	</global>
 
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/ib/nvos_ib_ibdiagnet.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/traffic/nvos_traffic_loganalyzer.cases </cases>
 	</test>
 
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/ib/nvos_ib_ibdiagnet_loganalyzer.cases </cases>
-	</test>
-
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/ib/nvos_ib_opensm.cases </cases>
+    <test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/general/nvos_general_config_commands_loganalyzer.cases </cases>
 	</test>
 
 	<test>
@@ -55,20 +51,51 @@
 	</test>
 
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_mgmt_interface.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/ib/nvos_ib_ibdiagnet_loganalyzer.cases </cases>
+	</test>
+
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_show_commands_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_fw_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_reboot_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_log_commands_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_username_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_rsyslog_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_health_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_ntp_loganalyzer.cases </cases>
+    </test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_snmp_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_document_loganalyzer.cases </cases>
 	</test>
 
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_mgmt_interface_loganalyzer.cases </cases>
 	</test>
-
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ipoib_interface.cases </cases>
-	</test>
-
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ipoib_interface_loganalyzer.cases </cases>
 	</test>
-
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_ib_interface_configuration_loganalyzer.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_eth0_dhcp_loganalyzer.cases </cases>
+	</test>
 
 </DBDEF>

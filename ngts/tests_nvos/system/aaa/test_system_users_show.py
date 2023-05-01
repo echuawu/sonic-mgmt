@@ -1,6 +1,7 @@
 import logging
 import allure
 import pytest
+import random
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.system.Password_hardening import Password_hardening
@@ -81,12 +82,22 @@ def test_invalid_username(engines):
             2. nv set system aaa user <invalid_username>
             3. run nv config diff
             4. verify it's empty
+            5. generate valid username with length > max save as <invalid_length_username>
+            6. nv set system aaa user <invalid_length_username>
+            7. run nv config diff
+            8. verify it's empty
     """
     system = System(None, '')
-    invalid_username = User.generate_username(is_valid=False)
-    output = system.aaa.user.set(invalid_username, '').returned_value
-    assert "'{invalid_username}' is not a 'user-name'".format(invalid_username=invalid_username) in output, \
-        'succeeded to set invalid username - not as expected'
+    with allure.step('verify we can not user invalid user name - user name is up to 32 letters, digits and start with letter or _ '):
+        invalid_username = User.generate_username(is_valid=False)
+        output = system.aaa.user.set(invalid_username, '').returned_value
+        assert "'{invalid_username}' is not a 'user-name'".format(invalid_username=invalid_username) in output, 'succeeded to set invalid username - not as expected'
+
+    with allure.step('verify we can not user invalid user name - user name is up to 32 letters, digits and start with letter or _ '):
+        random_length = random.randint(SystemConsts.USERNAME_MAX_LEN + 1, 100)
+        invalid_username = User.generate_username(random_length=False, length=random_length)
+        output = system.aaa.user.set(invalid_username, '').returned_value
+        assert "'{invalid_username}' is not a 'user-name'".format(invalid_username=invalid_username) in output, 'succeeded to set invalid username - not as expected'
 
 
 @pytest.mark.system
