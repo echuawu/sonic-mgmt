@@ -155,6 +155,7 @@ def build_fib(duthosts, rand_one_dut_hostname, ptfhost, config_facts, tbinfo):
     tmp_fib_info = tempfile.NamedTemporaryFile()
     with open("/tmp/fib/{}/tmp/fib.{}.txt".format(duthost.hostname, timestamp)) as fp:
         fib = json.load(fp)
+        logger.debug("redis-dump -d 0 -k 'ROUTE*' -y output: {0}".format(fib))
         for k, v in fib.items():
             skip = False
             prefix = k.split(':', 1)[1]
