@@ -1,45 +1,13 @@
+import logging
+from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
 from .openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OutputFormat, OpenApiReqType
 
 
-class OpenApiIbInterfaceCli:
+class OpenApiIbInterfaceCli(OpenApiBaseCli):
 
-    @staticmethod
-    def set_interface(engine, port_name, interface, field_name, value):
-        """
-        Execute set interface command
-        cmd: nv set interface <port_name> <interface> <value>
-        :param engine: ssh engine object
-        :param value: value to set
-        :param port_name: the name of the port/ports
-        :param interface: interface to set (ib-speed, speed, lanes, state, opvls, mtu)
-        """
-        resource_path = interface.replace(' ', '/')
-        return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, OpenApiReqType.PATCH,
-                                                   engine.ip,
-                                                   '/interface/{interface_id}{resource_path}'.format(
-                                                       interface_id=port_name,
-                                                       resource_path="/" + resource_path if resource_path else ''),
-                                                   field_name, value)
-
-    @staticmethod
-    def unset_interface(engine, port_name, interface):
-        """
-        Execute unset interface command
-        cmd: nv unset interface <port_name> <interface> <value>
-        :param engine: ssh engine object
-        :param port_name: the name of the port/ports
-        :param interface: interface to set (ib-speed, speed, lanes, state, opvls, mtu)
-        """
-        resource_path = interface.replace(' ', '/')
-        split_path = list(filter(None, resource_path.split('/')))
-
-        return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
-                                                   OpenApiReqType.DELETE, engine.ip,
-                                                   '/interface/{interface_id}{resource_path}'.format(
-                                                       interface_id=port_name,
-                                                       resource_path="/" + resource_path if resource_path else ''),
-                                                   split_path[-1], None)
+    def __init__(self):
+        self.cli_name = "interface"
 
     @staticmethod
     def clear_stats(engine, port_name):

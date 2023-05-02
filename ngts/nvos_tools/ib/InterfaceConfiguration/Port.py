@@ -1,12 +1,11 @@
-import logging
-from .IbInterface import IbInterface
+from .MgmtInterface import MgmtInterface
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
-from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
+from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
-from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 import allure
@@ -52,18 +51,20 @@ class PortRequirements:
         self.port_requirements[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE] = req_type
 
 
-class Port:
+class Port(BaseComponent):
     name = ""
     show_output_dictionary = {}
     name_in_redis = ""
-    ib_interface = None
     api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
 
     def __init__(self, name, show_output_dictionary, name_in_redis):
         self.name = name
         self.show_output_dictionary = show_output_dictionary
         self.name_in_redis = name_in_redis
-        self.ib_interface = IbInterface(self)
+        self.ib_interface = MgmtInterface(self, name)
+        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
+        self._resource_path = ''
+        self.parent_obj = None
 
     @staticmethod
     def get_list_of_active_ports(dut_engine=None):

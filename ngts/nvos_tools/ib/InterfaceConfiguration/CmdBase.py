@@ -39,7 +39,7 @@ class CmdBase:
                                                          field_name if TestToolkit.tested_api == ApiType.OPENAPI else "", value)
 
         if result_obj.result and apply:
-            with allure.step("Applying configuration"):
+            with allure.step("Applying set configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, engine, ask_for_confirmation)
 
@@ -51,11 +51,21 @@ class CmdBase:
             field_name=field_name, api=TestToolkit.tested_api, port_name=port_obj.name))
         with allure.step("un-setting '{field_name}' for '{port_name}'".format(field_name=field_name,
                                                                               port_name=port_obj.name)):
-            result_obj = SendCommandTool.execute_command(port_obj.api_obj[TestToolkit.tested_api].unset_interface,
-                                                         engine, port_obj.name, output_hierarchy)
+            # result_obj = SendCommandTool.execute_command(port_obj.api_obj[TestToolkit.tested_api].unset_interface,
+            #                                              engine, port_obj.name, output_hierarchy)
+
+            resource_path = output_hierarchy.replace(' ', '/')
+            full_resource_path = '/interface/' + port_obj.name
+            if resource_path:
+                full_resource_path += '/' + resource_path
+            split_path = list(filter(None, resource_path.split('/')))
+
+            result_obj = SendCommandTool.execute_command_expected_str(port_obj.api_obj[TestToolkit.tested_api].unset,
+                                                                      '', engine,
+                                                                      full_resource_path, split_path[-1])
 
         if result_obj.result and apply:
-            with allure.step("Applying configuration"):
+            with allure.step("Applying unset configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, engine, ask_for_confirmation)
 

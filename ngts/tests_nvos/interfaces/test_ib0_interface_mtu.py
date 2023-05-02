@@ -31,24 +31,27 @@ def test_interface_ib0_mtu_disabled_sm(engines, stop_sm):
         random_mtu = random.choice(possible_values)
         logger.info('the random mtu is {val}'.format(val=random_mtu))
 
-    with allure.step('Run show command on ib0 and verify mtu default value is {value}'.format(value=IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)):
+    with allure.step('Run show command on ib0 and verify mtu default value is {value}'.format(
+            value=IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)):
         ipoib_port.interface.wait_for_mtu_changed(IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)
 
     with allure.step('Set validation with supported for ib0 mtu {random}'.format(random=random_mtu)):
-        ipoib_port.interface.link.mtu.set(value=random_mtu, apply=True, ask_for_confirmation=True).verify_result()
+        ipoib_port.interface.link.set(op_param_name='mtu', op_param_value=random_mtu, apply=True,
+                                      ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         ipoib_port.interface.wait_for_mtu_changed(random_mtu)
 
     with allure.step('Negative validation - not supported ib0 mtu value: 500'):
-        ipoib_port.interface.link.mtu.set(value='500', apply=True, ask_for_confirmation=True).verify_result(False)
+        ipoib_port.interface.link.set(op_param_name='mtu', op_param_value=500, apply=True,
+                                      ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         ipoib_port.interface.wait_for_mtu_changed(random_mtu)
 
     with allure.step('Unset mtu validation'):
-        ipoib_port.interface.link.mtu.unset(apply=True, ask_for_confirmation=True).verify_result()
+        ipoib_port.interface.link.unset(op_param='mtu', apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         ipoib_port.interface.wait_for_mtu_changed(IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)
@@ -78,46 +81,57 @@ def test_interface_ib0_arp_timeout_disabled_sm(stop_sm):
             val=random_valid_timeout, invalid=random_invalid_timeout, invalid_negative=random_invalid_timeout_neg,
             invalid_max=random_invalid_timeout_max))
 
-    with allure.step('verify the default ib0 arp-timeout value is {value}'.format(value=IbInterfaceConsts.IB0_IP_ARP_DEFAULT_VALUE)):
+    with allure.step('verify the default ib0 arp-timeout value is {value}'.format(
+            value=IbInterfaceConsts.IB0_IP_ARP_DEFAULT_VALUE)):
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(IbInterfaceConsts.IB0_IP_ARP_DEFAULT_VALUE)).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(
+            ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(IbInterfaceConsts.IB0_IP_ARP_DEFAULT_VALUE)).verify_result()
 
     with allure.step('Set random arp-timeout - {random}'.format(random=random_valid_timeout)):
-        ipoib_port.interface.ip.arp_timeout.set(value=random_valid_timeout, apply=True, ask_for_confirmation=True)
+        ipoib_port.interface.ip.set(op_param_name='arp-timeout', op_param_value=random_valid_timeout,
+                                    apply=True, ask_for_confirmation=True)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT,
+                                                          str(random_valid_timeout)).verify_result()
 
-    with allure.step('try a random not supported ib0 arp-timeout {value} - between 0 and 60'.format(value=random_invalid_timeout)):
-        result = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout,
-                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI)
+    with allure.step('try a random not supported ib0 arp-timeout {value} - between 0 and 60'.format(
+            value=random_invalid_timeout)):
+        result = ipoib_port.interface.ip.set(op_param_name='arp-timeout', op_param_value=random_invalid_timeout,
+                                             apply=TestToolkit.tested_api == ApiType.OPENAPI)
         assert not result.result or "Valid range is" in result.info or \
             'Invalid Command' in result.info, "Set of an invalid arp-timeout should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT,
+                                                          str(random_valid_timeout)).verify_result()
 
-    with allure.step('try a random not supported ib0 arp-timeout {value} - less than 0'.format(value=random_invalid_timeout_neg)):
-        result = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout_neg,
-                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI)
+    with allure.step('try a random not supported ib0 arp-timeout {value} - less than 0'.format(
+            value=random_invalid_timeout_neg)):
+        result = ipoib_port.interface.ip.set(op_param_name='arp-timeout', op_param_value=random_invalid_timeout_neg,
+                                             apply=TestToolkit.tested_api == ApiType.OPENAPI)
         assert not result.result or "Valid range is" in result.info or \
             'Invalid Command' in result.info, "Set of an invalid arp-timeout should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT,
+                                                          str(random_valid_timeout)).verify_result()
 
-    with allure.step('try a random not supported ib0 arp-timeout {value} - more than 28800'.format(value=random_invalid_timeout_max)):
-        result = ipoib_port.interface.ip.arp_timeout.set(value=random_invalid_timeout_max,
-                                                         apply=TestToolkit.tested_api == ApiType.OPENAPI)
+    with allure.step('try a random not supported ib0 arp-timeout {value} - more than 28800'.format(
+            value=random_invalid_timeout_max)):
+        result = ipoib_port.interface.ip.set(op_param_name='arp-timeout', op_param_value=random_invalid_timeout_max,
+                                             apply=TestToolkit.tested_api == ApiType.OPENAPI)
         assert not result.result or "Valid range is" in result.info or \
             'Invalid Command' in result.info, "Set of an invalid arp-timeout should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(random_valid_timeout)).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT,
+                                                          str(random_valid_timeout)).verify_result()
 
     with allure.step('Unset arp-timeout for ib0'):
-        ipoib_port.interface.ip.arp_timeout.unset(apply=True, ask_for_confirmation=True)
+        ipoib_port.interface.ip.unset(op_param='arp-timeout', apply=True, ask_for_confirmation=True)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
-        Tools.ValidationTool.verify_field_value_in_output(ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(IbInterfaceConsts.IB0_IP_ARP_DEFAULT_VALUE)).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(
+            ip_dict, IbInterfaceConsts.ARPTIMEOUT, str(IbInterfaceConsts.IB0_IP_ARP_DEFAULT_VALUE)).verify_result()
 
 
 # ------------ Open API tests -----------------

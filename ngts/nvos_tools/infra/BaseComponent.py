@@ -30,7 +30,7 @@ class BaseComponent:
                                                                   expected_str, TestToolkit.engines.dut,
                                                                   self.get_resource_path(), param_name, param_value)
         if result_obj.result and apply:
-            with allure.step("Applying unset configuration"):
+            with allure.step("Applying set configuration"):
                 result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                              apply_config, TestToolkit.engines.dut,
                                                              ask_for_confirmation)
@@ -41,11 +41,16 @@ class BaseComponent:
 
             if op_param_name:
                 if TestToolkit.tested_api == ApiType.OPENAPI:
+                    if isinstance(op_param_value, str):
+                        op_param_value = op_param_value.replace('"', '')
                     value = {op_param_name: op_param_value}
-                    return self._set(self._resource_path.replace("/", ""), value, expected_str, apply,
-                                     ask_for_confirmation)
+                    return self._set('', value, expected_str, apply, ask_for_confirmation)
                 else:
-                    if isinstance(op_param_value, dict):
+                    if op_param_value == {}:
+                        op_param_value = op_param_name
+                        op_param_name = ''
+                        return self._set(op_param_name, op_param_value, expected_str, apply, ask_for_confirmation)
+                    elif isinstance(op_param_value, dict):
                         output = ''
                         for param_name, param_value in op_param_value.items():
                             res = self._set(param_name, param_value, expected_str, apply, ask_for_confirmation)

@@ -5,7 +5,6 @@ from retry import retry
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
@@ -16,7 +15,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
-def test_intereface_eth0_enable_disable(engines, topology_obj):
+def test_interface_eth0_enable_disable(engines, topology_obj):
     """
     Connect via serial port, verify eth0 enable by default, can be disabled and enable it back
 
@@ -28,17 +27,16 @@ def test_intereface_eth0_enable_disable(engines, topology_obj):
     """
 
     mgmt_port = MgmtPort('eth0')
-    serial_engine = topology_obj.players['dut_serial']['engine']
     with allure.step('Run show command on mgmt port and verify that each field has an appropriate value'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.state.label,
+                                                          field_name=IbInterfaceConsts.LINK_STATE,
                                                           expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
     with allure.step('Negative validation'):
-        mgmt_port.interface.link.state.set(value='invalid_value', apply=False).verify_result(False)
+        mgmt_port.interface.link.state.set(op_param_name='invalid_value', apply=False).verify_result(False)
 
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
@@ -46,25 +44,24 @@ def test_intereface_eth0_enable_disable(engines, topology_obj):
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.state.label,
+                                                          field_name=IbInterfaceConsts.LINK_STATE,
                                                           expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
     with allure.step('Set mgmt port down and check the state updated accordingly'):
-        mgmt_port.interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, dut_engine=serial_engine,
+        mgmt_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN,
                                            apply=True, ask_for_confirmation=True).verify_result()
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            mgmt_port.interface.link.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.state.label,
+                                                          field_name=IbInterfaceConsts.LINK_STATE,
                                                           expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
     with allure.step('Unset mgmt port and make sure the port state is up and reachable'):
-        mgmt_port.interface.link.state.unset(dut_engine=serial_engine, apply=True,
-                                             ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
@@ -72,7 +69,7 @@ def test_intereface_eth0_enable_disable(engines, topology_obj):
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.state.label,
+                                                          field_name=IbInterfaceConsts.LINK_STATE,
                                                           expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
 
@@ -99,27 +96,28 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.speed.label,
+                                                          field_name=IbInterfaceConsts.LINK_SPEED,
                                                           expected_value="1G")
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.duplex.label,
+                                                          field_name=IbInterfaceConsts.LINK_DUPLEX,
                                                           expected_value="full")
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.auto_negotiate.label,
+                                                          field_name=IbInterfaceConsts.LINK_AUTO_NEGOTIATE,
                                                           expected_value="on")
 
     with allure.step('Negative validation with auto neg, auto-neg must be on with default 1G speed'):
-        mgmt_port.interface.link.auto_negotiate.set(value='off', apply=True).verify_result(False)
+        mgmt_port.interface.link.set(op_param_name='auto_negotiate', op_param_value='off',
+                                     apply=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step('Negative validation with invalid value for duplex'):
-        mgmt_port.interface.link.duplex.set(value='a', apply=False).verify_result(False)
+        mgmt_port.interface.link.set(op_param_name='duplex', op_param_value='a', apply=False).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step('Negative validation with invalid value speed'):
-        mgmt_port.interface.link.speed.set(value='50F', apply=False).verify_result(False)
+        mgmt_port.interface.link.set(op_param_name='speed', op_param_value='50F', apply=False).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     '''with allure.step('Negative validation with half duplex and default speed 1G'):
@@ -131,9 +129,11 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
         list_supported_duplex = ["full", "half"]
         for speed in list_supported_speeds:
             for duplex in list_supported_duplex:
-                mgmt_port.interface.link.speed.set(value=speed, apply=True, ask_for_confirmation=True).verify_result()
+                mgmt_port.interface.link.set(op_param_name='speed', op_param_value=speed, apply=True,
+                                             ask_for_confirmation=True).verify_result()
 
-                result = mgmt_port.interface.link.duplex.set(value=duplex, apply=True, ask_for_confirmation=True)
+                result = mgmt_port.interface.link.set(op_param_name='duplex', op_param_value=duplex,
+                                                      apply=True, ask_for_confirmation=True)
                 if not result:
                     SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                                     apply_config, engines.dut, True).verify_result()
@@ -141,42 +141,43 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
                 output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                     mgmt_port.interface.link.show()).get_returned_value()
                 Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                                  field_name=mgmt_port.interface.link.speed.label,
+                                                                  field_name=IbInterfaceConsts.LINK_SPEED,
                                                                   expected_value=speed)
                 Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                                  field_name=mgmt_port.interface.link.duplex.label,
+                                                                  field_name=IbInterfaceConsts.LINK_DUPLEX,
                                                                   expected_value=duplex)
 
     with allure.step('Set autoneg to off'):
-        mgmt_port.interface.link.auto_negotiate.set(value='off', apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.set(op_param_name='auto-negotiate', op_param_value='off', apply=True,
+                                     ask_for_confirmation=True).verify_result()
         time.sleep(5)
 
     with allure.step('Run show command on mgmt port and verify default values after unset'):
-        mgmt_port.interface.link.auto_negotiate.unset(apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.unset(op_param='auto-negotiate', apply=True, ask_for_confirmation=True).verify_result()
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.auto_negotiate.label,
+                                                          field_name=IbInterfaceConsts.LINK_AUTO_NEGOTIATE,
                                                           expected_value="on")
 
-        mgmt_port.interface.link.duplex.unset(apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.unset(op_param='duplex', apply=True, ask_for_confirmation=True).verify_result()
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.duplex.label,
+                                                          field_name=IbInterfaceConsts.LINK_DUPLEX,
                                                           expected_value="full")
 
-        mgmt_port.interface.link.speed.unset(apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.unset(op_param='speed', apply=True, ask_for_confirmation=True).verify_result()
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.link.speed.label,
+                                                          field_name=IbInterfaceConsts.LINK_SPEED,
                                                           expected_value="1G")
 
 
@@ -199,25 +200,27 @@ def test_interface_eth0_mtu(engines, topology_obj):
         wait_for_mtu_changed(mgmt_port, 1500)
 
     with allure.step('Negative validation with not supported for eth mtu 256'):
-        mgmt_port.interface.link.mtu.set(value='256', apply=True, ask_for_confirmation=True).verify_result(False)
+        mgmt_port.interface.link.set(op_param_name='mtu', op_param_value='256',
+                                     apply=True, ask_for_confirmation=True).verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
     with allure.step('Negative validation with not supported for eth mtu 9218'):
-        result_obj = mgmt_port.interface.link.mtu.set(value='9218', apply=False)
+        result_obj = mgmt_port.interface.link.set(op_param_name='mtu', op_param_value='9218', apply=False)
         assert not result_obj.result and "Valid range is" in result_obj.info, "Set of invalid mtu should fail"
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         wait_for_mtu_changed(mgmt_port, 1500)
     with allure.step('Set validation with supported for eth mtu 9000'):
-        mgmt_port.interface.link.mtu.set(value='9000', apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.set(op_param_name='mtu', op_param_value='9000',
+                                     apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         wait_for_mtu_changed(mgmt_port, 9000)
 
     with allure.step('Unset mtu validation'):
-        mgmt_port.interface.link.mtu.unset(apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.unset(op_param='mtu', apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         wait_for_mtu_changed(mgmt_port, 1500)
@@ -238,38 +241,40 @@ def test_interface_eth0_description(engines):
     mgmt_port = MgmtPort('eth0')
     with allure.step('Run show command on mgmt port and verify default description'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            mgmt_port.show()).get_returned_value()
+            mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='').verify_result()
 
     with allure.step('Set description with spaces on mgmt port'):
-        mgmt_port.interface.description.set(value='eth0 description', apply=True).verify_result()
+        mgmt_port.interface.set(op_param_name='description', op_param_value='"eth0 description"',
+                                apply=True).verify_result()
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            mgmt_port.show()).get_returned_value()
+            mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='')
 
     with allure.step('Set possible description on mgmt port'):
-        mgmt_port.interface.description.set(value='nvosdescription', apply=True).verify_result()
+        mgmt_port.interface.set(op_param_name='description', op_param_value='"nvosdescription"',
+                                apply=True).verify_result()
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            mgmt_port.show()).get_returned_value()
+            mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='nvosdescription')
 
     with allure.step('Unset possible description on mgmt port'):
-        mgmt_port.interface.description.unset(apply=True).verify_result()
+        mgmt_port.interface.unset(op_param='description', apply=True).verify_result()
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            mgmt_port.show()).get_returned_value()
+            mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='')
 
 
@@ -295,34 +300,33 @@ def test_interface_eth0_ip_address(engines, topology_obj):
         validate_interface_ip_address(switch_ip, output_dictionary, True)
 
     with allure.step('Negative validation for eth0 ip'):
-        res = mgmt_port.interface.ip.address.set(value='aa', apply=False, ask_for_confirmation=True)
+        res = mgmt_port.interface.ip.address.set(op_param_name='aa', apply=False, ask_for_confirmation=True)
         assert not res.result or "is not a" in res.returned_value, \
             "The operation succeeded while it is expected to fail"
 
     with allure.step('Disable dhcp, check mgmt port unreachable'):
-        mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state disabled', apply=True,
-                                               ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled',
+                                               apply=True, ask_for_confirmation=True).verify_result()
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Select random ipv4 and set it'):
         ip_address = Tools.IpTool.select_random_ipv4_address().verify_result()
-        mgmt_port.interface.ip.address.set(dut_engine=serial_engine, value=ip_address,
-                                           apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.address.set(op_param_name=ip_address, apply=True,
+                                           ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.ip.show()).get_returned_value()
         validate_interface_ip_address(ip_address, output_dictionary, True)
 
     with allure.step('Unset ipv4 and dhcp and check port reachable'):
-        mgmt_port.interface.ip.dhcp_client.unset(dut_engine=serial_engine, apply=True, ask_for_confirmation=True) \
+        mgmt_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True) \
             .verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        mgmt_port.interface.ip.address.unset(dut_engine=serial_engine,
-                                             apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.address.unset(apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
@@ -394,13 +398,13 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         assert dhcp_hostname == system_output['hostname']
 
     with allure.step('Disable dhcp and unset hostname, check port down and not reachable'):
-        mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state disabled', apply=True,
-                                               ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled',
+                                               apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary, field_name='state',
                                                           expected_value='disabled').verify_result()
@@ -409,16 +413,16 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
                                                           expected_value='no').verify_result()
 
     with allure.step('Disable dhcp set-hostname, check port down and not reachable'):
-        mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='set-hostname disabled', apply=True,
-                                               ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='set-hostname', op_param_value='disabled',
+                                               apply=True, ask_for_confirmation=True).verify_result()
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
 
         dhcp6_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client6.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client6.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='set-hostname',
                                                           expected_value='disabled').verify_result()
@@ -427,16 +431,16 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
                                                           expected_value='disabled').verify_result()
 
     with allure.step('Set hostname and enable dhcp, check hostname not changed, check port up'):
-        system.set(value='nvos', engine=serial_engine, field_name=SystemConsts.HOSTNAME)
+        system.set(op_param_name=SystemConsts.HOSTNAME, op_param_value='nvos', apply=True)
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        mgmt_port.interface.ip.dhcp_client.set(dut_engine=serial_engine, value='state enabled', apply=True,
-                                               ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='enabled',
+                                               apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='state',
                                                           expected_value='enabled').verify_result()
@@ -460,7 +464,7 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
                                                           expected_value='enabled').verify_result()
 
     with allure.step('Check hostname received by dhcp'):
-        system.unset(engines.dut, SystemConsts.HOSTNAME)
+        system.unset(op_param=SystemConsts.HOSTNAME, apply=True)
         wait_for_hostname_changed(system, dhcp_hostname)
 
 
@@ -484,7 +488,7 @@ def wait_for_mtu_changed(port_obj, mtu_to_verify):
     with allure.step("Waiting for mgmt port mtu changed to {}".format(mtu_to_verify)):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             port_obj.interface.link.show()).get_returned_value()
-        current_mtu = output_dictionary[port_obj.interface.link.mtu.label]
+        current_mtu = output_dictionary[IbInterfaceConsts.LINK_MTU]
         assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".format(current_mtu, mtu_to_verify)
 
 

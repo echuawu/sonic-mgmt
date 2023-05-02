@@ -112,7 +112,7 @@ def test_interface_link_diagnostics_basic(engines):
         with allure.step('Validate code to message'):
             for port in all_switch_ports:
                 diagnostics_per_port = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                    port.ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+                    port.ib_interface.link.diagnostics.show()).get_returned_value()
                 status_dict = output_dictionary[port.name]['link']['diagnostics']
                 logging.info("Check each port status in all ports status")
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
@@ -121,14 +121,14 @@ def test_interface_link_diagnostics_basic(engines):
 
     with allure.step('Run nv show interface for port in up state'):
         up_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            any_port.ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+            any_port.ib_interface.link.diagnostics.show()).get_returned_value()
         assert up_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT, "Status code isn't 0"
 
     with allure.step('Run nv show interface for unplugged port'):
         for port in selected_down_ports:
             if port.name == 'sw32p1':
                 unplugged_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                    port.ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+                    port.ib_interface.link.diagnostics.show()).get_returned_value()
                 assert unplugged_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_UNPLUGGED_PORT, \
                     "Status code isn't 1024"
 
@@ -165,17 +165,17 @@ def test_interface_link_diagnostics_functional(engines):
 
     with allure.step('Check default code and status, should be the same'):
         first_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[0].ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+            ports_connected[0].ib_interface.link.diagnostics.show()).get_returned_value()
         second_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[-1].ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+            ports_connected[-1].ib_interface.link.diagnostics.show()).get_returned_value()
         assert first_port_status == second_port_status, "Status code isn't 1"
 
     with allure.step('Shutdown first port and check code and status on both'):
         ports_connected[0].ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN).verify_result()
         first_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[0].ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+            ports_connected[0].ib_interface.link.diagnostics.show()).get_returned_value()
         second_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[-1].ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+            ports_connected[-1].ib_interface.link.diagnostics.show()).get_returned_value()
         assert first_port_status == IbInterfaceConsts.LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT, \
             "Status code isn't 1"
         assert second_port_status == IbInterfaceConsts.LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT, \
@@ -195,7 +195,7 @@ def test_interface_link_diagnostics_functional(engines):
             assert redis_cli_output != 0, "Redis command failed"
 
         with allure.step('Check output'):
-            first_port_status = ports_connected[0].ib_interface.link.diagnostics.show_interface_link_diagnostics()
+            first_port_status = ports_connected[0].ib_interface.link.diagnostics.show()
             assert first_port_status == '{}', "Transceiver diagnostic isn't empty"
 
     with allure.step("Rewrite redis link diagnostics opcode back to 0 and check output, system is stable"):
@@ -206,5 +206,5 @@ def test_interface_link_diagnostics_functional(engines):
 
         with allure.step('Check output'):
             first_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                ports_connected[0].ib_interface.link.diagnostics.show_interface_link_diagnostics()).get_returned_value()
+                ports_connected[0].ib_interface.link.diagnostics.show()).get_returned_value()
             assert first_port_status == IbInterfaceConsts.LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT, "Status code isn't 0"

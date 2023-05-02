@@ -25,14 +25,18 @@ def test_interface_ib0_dhcp_default_values(engines, topology_obj):
     with allure.step('verify the default values for ib0 ip dhcp-client and dhcp-client6'):
         expected_keys = [IbInterfaceConsts.DHCP_SET_HOSTNAME, 'state', 'has-lease', 'is-running']
         default_values = ['enabled', 'disabled', 'no', 'no']
-        dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.dhcp_client.show()).verify_result()
-        dhcp_client6_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.dhcp_client6.show()).verify_result()
+        dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(
+            ipoib_port.interface.ip.dhcp_client.show()).verify_result()
+        dhcp_client6_dict = OutputParsingTool.parse_json_str_to_dictionary(
+            ipoib_port.interface.ip.dhcp_client6.show()).verify_result()
 
         with allure.step('verify the default values for ib0 ip dhcp-client'):
-            Tools.ValidationTool.validate_fields_values_in_output(expected_keys, default_values, dhcp_client_dict).verify_result()
+            Tools.ValidationTool.validate_fields_values_in_output(
+                expected_keys, default_values, dhcp_client_dict).verify_result()
 
         with allure.step('verify the default values for ib0 ip dhcp-client6'):
-            Tools.ValidationTool.validate_fields_values_in_output(expected_keys, default_values, dhcp_client6_dict).verify_result()
+            Tools.ValidationTool.validate_fields_values_in_output(
+                expected_keys, default_values, dhcp_client6_dict).verify_result()
 
 
 @pytest.mark.ib
@@ -55,7 +59,8 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
     ipoib_port = MgmtPort('ib0')
     with allure.step('check that we can configure the set-hostname value for dhcp-client'):
         with allure.step('config the set-hostname value to disabled'):
-            ipoib_port.interface.ip.dhcp_client.hostname.set(dut_engine=engines.dut, value='disabled', apply=True, ask_for_confirmation=True).verify_result()
+            ipoib_port.interface.ip.dhcp_client.set(op_param_name='set-hostname', op_param_value='disabled',
+                                                    apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step('verify the dhcp-client after the change'):
             dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(
@@ -70,7 +75,7 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
                                                               'disabled').verify_result()
 
         with allure.step('check that we can unset the configuration'):
-            ipoib_port.interface.ip.dhcp_client.unset(dut_engine=engines.dut, apply=True, ask_for_confirmation=True)
+            ipoib_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True)
             dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 ipoib_port.interface.ip.dhcp_client.show()).verify_result()
             Tools.ValidationTool.verify_field_value_in_output(dhcp_client_dict, IbInterfaceConsts.DHCP_SET_HOSTNAME,
@@ -83,8 +88,8 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
                                                               'enabled').verify_result()
     with allure.step('check that we can not configure the set-hostname value for dhcp-client6'):
         with allure.step('config the set-hostname value to disabled'):
-            ipoib_port.interface.ip.dhcp_client6.hostname.set(dut_engine=engines.dut, value='disabled', apply=True,
-                                                              ask_for_confirmation=True).verify_result()
+            ipoib_port.interface.ip.dhcp_client6.set(op_param_name='set-hostname', op_param_value='disabled',
+                                                     apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step('verify the value after the change'):
             dhcp_client6_dict = OutputParsingTool.parse_json_str_to_dictionary(
@@ -110,19 +115,22 @@ def test_interface_ib0_set_dhcp_state(engines, topology_obj):
     new_value = 'enabled'
     with allure.step('check that we can configure the state value for dhcp-client'):
         with allure.step('config the state value to disabled'):
-            ipoib_port.interface.ip.dhcp_client.state.set(dut_engine=engines.dut, value='{val}'.format(val=new_value), apply=True, ask_for_confirmation=True).verify_result()
+            ipoib_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value=new_value,
+                                                    apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step('verify the dhcp-client state after the change'):
             dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 ipoib_port.interface.ip.dhcp_client.show()).verify_result()
-            Tools.ValidationTool.verify_field_value_in_output(dhcp_client_dict, IbInterfaceConsts.DHCP_STATE, new_value).verify_result()
+            Tools.ValidationTool.verify_field_value_in_output(
+                dhcp_client_dict, IbInterfaceConsts.DHCP_STATE, new_value).verify_result()
 
         with allure.step('check that we can unset the configuration'):
-            ipoib_port.interface.ip.dhcp_client.unset(dut_engine=engines.dut, apply=True, ask_for_confirmation=True)
+            ipoib_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True)
             dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 ipoib_port.interface.ip.dhcp_client.show()).verify_result()
-            Tools.ValidationTool.verify_field_value_in_output(dhcp_client_dict, IbInterfaceConsts.DHCP_STATE,
-                                                              IbInterfaceConsts.IB0_DHCP_STATE_DEFAULT_VALUE).verify_result()
+            Tools.ValidationTool.verify_field_value_in_output(
+                dhcp_client_dict, IbInterfaceConsts.DHCP_STATE,
+                IbInterfaceConsts.IB0_DHCP_STATE_DEFAULT_VALUE).verify_result()
 
 
 # ------------ Open API tests -----------------

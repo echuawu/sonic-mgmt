@@ -25,7 +25,7 @@ def _ib0_interface_ip_address(is_ipv6):
         ip_address = Tools.IpTool.select_random_ipv6_address().verify_result()
     else:
         ip_address = Tools.IpTool.select_random_ipv4_address().verify_result()
-    ib0_port.interface.ip.address.set(value=ip_address, apply=True, ask_for_confirmation=True).verify_result()
+    ib0_port.interface.ip.address.set(op_param_name=ip_address, apply=True, ask_for_confirmation=True).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
         ib0_port.interface.ip.show()).get_returned_value()

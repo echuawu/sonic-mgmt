@@ -1,13 +1,8 @@
 import logging
 import allure
-from ngts.cli_wrappers.nvue.nvue_interface_show_clis import NvueInterfaceShowClis
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-import json
-import time
 import shutil
 import os
-import subprocess
-import shlex
 from ngts.constants.constants import LinuxConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.nvos_tools.system.System import System

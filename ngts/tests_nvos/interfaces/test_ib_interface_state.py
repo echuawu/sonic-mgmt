@@ -4,7 +4,7 @@ import pytest
 
 from timeit import default_timer as timer
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 
@@ -38,24 +38,25 @@ def test_ib_interface_state(engines):
     toggle_port_state(selected_port, NvosConsts.LINK_STATE_DOWN)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show_interface_link()).get_returned_value()
+        selected_port.ib_interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=selected_port.ib_interface.link.state.label,
+                                                      field_name=IbInterfaceConsts.LINK_STATE,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
     toggle_port_state(selected_port, NvosConsts.LINK_STATE_UP)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show_interface_link()).get_returned_value()
+        selected_port.ib_interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=selected_port.ib_interface.link.state.label,
+                                                      field_name=IbInterfaceConsts.LINK_STATE,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
 
 def toggle_port_state(selected_port, port_state):
-    selected_port.ib_interface.link.state.set(value=port_state, apply=True, ask_for_confirmation=True).verify_result()
+    selected_port.ib_interface.link.state.set(op_param_name=port_state, apply=True,
+                                              ask_for_confirmation=True).verify_result()
     start = timer()
     with allure.step("Wait till port {} is {}".format(selected_port, port_state)):
         selected_port.ib_interface.wait_for_port_state(port_state, sleep_time=0.2).verify_result()
@@ -82,14 +83,14 @@ def test_ib_interface_state_invalid(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value='invalid_value', apply=True,
+    selected_port.ib_interface.link.state.set(op_param_name='invalid_value', apply=True,
                                               ask_for_confirmation=True).verify_result(False)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show_interface_link()).get_returned_value()
+        selected_port.ib_interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=selected_port.ib_interface.link.state.label,
+                                                      field_name=IbInterfaceConsts.LINK_STATE,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
 
@@ -115,7 +116,7 @@ def test_ib_interface_state_unset(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN, apply=True,
+    selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
                                               ask_for_confirmation=True).verify_result()
 
     selected_port.ib_interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
@@ -123,10 +124,10 @@ def test_ib_interface_state_unset(engines):
     selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show_interface_link()).get_returned_value()
+        selected_port.ib_interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=selected_port.ib_interface.link.state.label,
+                                                      field_name=IbInterfaceConsts.LINK_STATE,
                                                       expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
 

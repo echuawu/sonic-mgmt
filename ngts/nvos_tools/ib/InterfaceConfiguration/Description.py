@@ -1,5 +1,7 @@
 from .ConfigurationBase import ConfigurationBase
-from .CmdBase import CmdBase
+from ngts.nvos_tools.infra.BaseComponent import BaseComponent
+from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
+from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
 from .nvos_consts import IbInterfaceConsts
 from .IbInterfaceDecorators import *
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -9,7 +11,7 @@ import allure
 logger = logging.getLogger()
 
 
-class Description(ConfigurationBase, CmdBase):
+class Description(ConfigurationBase, BaseComponent):
     def __init__(self, port_obj):
         ConfigurationBase.__init__(self,
                                    port_obj=port_obj,
@@ -17,23 +19,6 @@ class Description(ConfigurationBase, CmdBase):
                                    description="Details about the interface",
                                    field_name_in_db={},
                                    output_hierarchy=IbInterfaceConsts.DESCRIPTION)
-
-    def set(self, value, dut_engine=None, apply=True):
-        with allure.step('Set `description` to {value} for {port_name}'.format(value=value,
-                                                                               port_name=self.port_obj.name)):
-            if not dut_engine:
-                dut_engine = TestToolkit.engines.dut
-
-            value = f'"{value}"' if TestToolkit.tested_api == ApiType.NVUE else value
-            return CmdBase.set_interface(engine=dut_engine, field_name=IbInterfaceConsts.DESCRIPTION,
-                                         port_obj=self.port_obj,
-                                         output_hierarchy=self.output_hierarchy, value=value, apply=apply,
-                                         ask_for_confirmation=True)
-
-    def unset(self, dut_engine=None, apply=True):
-        with allure.step('Unset `description` for {port_name}'.format(port_name=self.port_obj.name)):
-            if not dut_engine:
-                dut_engine = TestToolkit.engines.dut
-            return CmdBase.unset_interface(engine=dut_engine, field_name=IbInterfaceConsts.DESCRIPTION,
-                                           port_obj=self.port_obj, output_hierarchy=self.output_hierarchy, apply=apply,
-                                           ask_for_confirmation=True)
+        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
+        self._resource_path = '/description'
+        self.parent_obj = port_obj

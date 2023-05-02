@@ -1,9 +1,6 @@
-import logging
-import allure
 import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -30,23 +27,24 @@ def test_ib0_interface_description(engines):
         ib0_port = MgmtPort('ib0')
 
     with allure.step("Set description and verify"):
-        ib0_port.interface.description.set(value='ib0 description', apply=True).verify_result()
+        ib0_port.interface.set(op_param_name='description', op_param_value='"ib0 description"',
+                               apply=True).verify_result()
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            ib0_port.show()).get_returned_value()
+            ib0_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=ib0_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='ib0 description').verify_result()
 
     with allure.step("Set description and verify"):
-        ib0_port.interface.description.unset(apply=True).verify_result()
+        ib0_port.interface.unset(op_param='description', apply=True).verify_result()
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            ib0_port.show()).get_returned_value()
+            ib0_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=ib0_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='').verify_result()
 
 

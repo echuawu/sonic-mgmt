@@ -10,18 +10,20 @@ import allure
 logger = logging.getLogger()
 
 
-class MgmtPort:
+class MgmtPort(BaseComponent):
     name = ""
     show_output_dictionary = {}
     name_in_redis = ""
     interface = None
-    api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
 
     def __init__(self, name='eth0'):
         self.name = name
         self.show_output_dictionary = None
         self.name_in_redis = ''
-        self.interface = MgmtInterface(self)
+        self.interface = MgmtInterface(self, name)
+        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
+        self._resource_path = ''
+        self.parent_obj = None
 
     def update_output_dictionary(self):
         """
@@ -35,8 +37,3 @@ class MgmtPort:
                 SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show_interface,
                                                 TestToolkit.engines.dut,
                                                 self.name).get_returned_value()).get_returned_value()
-
-    def show(self):
-        with allure.step('Execute show for {}'.format(self.name)):
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show_interface,
-                                                   TestToolkit.engines.dut, self.name).get_returned_value()

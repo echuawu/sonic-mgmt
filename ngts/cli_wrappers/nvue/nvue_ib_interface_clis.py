@@ -1,10 +1,14 @@
 import logging
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 
 logger = logging.getLogger()
 
 
-class NvueIbInterfaceCli:
+class NvueIbInterfaceCli(NvueBaseCli):
+
+    def __init__(self):
+        self.cli_name = "interface"
 
     @staticmethod
     def set_interface(engine, port_name, interface, field_name="", value=""):

@@ -1,8 +1,6 @@
-
 import logging
 import allure
 import pytest
-import os
 
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
@@ -12,8 +10,7 @@ from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 logger = logging.getLogger()
 
@@ -122,7 +119,8 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
                     assert "cannot access" in output, file_name + " was not deleted"
 
 
-def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_name, inactive_ssh_engine, selected_port):
+def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_name,
+                            inactive_ssh_engine, selected_port):
     with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.name,
                                                                                active_ssh_engine.username)):
         selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine).verify_result()
@@ -135,16 +133,18 @@ def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_n
 
 def check_port_counters(selected_port, should_be_zero, ssh_engine):
     logging.info("--- Counters for user: {}".format(ssh_engine.username))
-    counters = selected_port.ib_interface.link.stats.in_bytes.get_operational(engine=ssh_engine)
-    counters += selected_port.ib_interface.link.stats.in_drops.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.in_errors.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.in_symbol_errors.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.in_pkts.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.out_bytes.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.out_drops.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.out_errors.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.out_pkts.get_operational(renew_show_cmd_output=False)
-    counters += selected_port.ib_interface.link.stats.out_wait.get_operational(renew_show_cmd_output=False)
+    link_stats_dict = OutputParsingTool.parse_json_str_to_dictionary(
+        selected_port.ib_interface.link.stats.show()).get_returned_value()
+    counters = link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_BYTES]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_DROPS]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_ERRORS]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_SYMBOL]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_PKTS]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_BYTES]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_DROPS]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_ERRORS]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_PKTS]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_WAIT]
     return ResultObj((should_be_zero and not counters) or (counters and not should_be_zero), "")
 
 

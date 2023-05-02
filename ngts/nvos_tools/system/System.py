@@ -81,7 +81,6 @@ class System(BaseComponent):
         self.profile = Profile(self)
         self.health = Health(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        # self.timezone = Timezone(self)
         self.datetime = DateTime(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
@@ -127,30 +126,6 @@ class System(BaseComponent):
             self.aaa.user.set_username(curr_username)
             logging.info("User created: \nuser_name: {} \npassword: {}".format(username, password))
             return username, password
-
-    def set(self, value, engine, field_name="", apply=True):
-        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
-                                                     engine, self._resource_path, field_name, value)
-        if result_obj.result and apply:
-            with allure.step("Applying configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                             apply_config, engine, True)
-        return result_obj
-
-    def unset(self, engine, field_name="", apply=True):
-        if TestToolkit.tested_api == ApiType.NVUE:
-            op_param_value = ""
-        else:
-            op_param_value = field_name
-
-        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                                     engine, self._resource_path + "/" + field_name,
-                                                     op_param_value)
-        if result_obj.result and apply:
-            with allure.step("Applying configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                             apply_config, engine, True)
-        return result_obj
 
     def get_expected_fields(self, device):
         return device.constants.system['system']
@@ -219,6 +194,7 @@ class Version(BaseComponent):
 
 
 class Documentation(BaseComponent):
+
     def __init__(self, parent_obj):
         BaseComponent.__init__(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}

@@ -23,9 +23,9 @@ def test_mgmt_show_interface(engines):
     mgmt_port = MgmtPort()
     with allure.step('Run show command on mgmt port and verify that each field has an appropriate value'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            mgmt_port.show()).get_returned_value()
+            mgmt_port.interface.show()).get_returned_value()
 
-        validate_interface_fields(mgmt_port, output_dictionary)
+        validate_interface_fields(output_dictionary)
 
 
 @pytest.mark.ib
@@ -46,7 +46,7 @@ def test_mgmt_show_interface_link(engines):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
 
-        validate_link_fields(mgmt_port, output_dictionary)
+        validate_link_fields(output_dictionary)
 
 
 @pytest.mark.ib
@@ -61,9 +61,9 @@ def test_ib_show_interface_stats(engines):
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-            mgmt_port.interface.link.stats.show_interface_link_stats()).get_returned_value()
+            mgmt_port.interface.link.stats.show()).get_returned_value()
 
-        validate_stats_fields(mgmt_port, output_dictionary)
+        validate_stats_fields(output_dictionary)
 
 
 @pytest.mark.ib
@@ -85,7 +85,7 @@ def test_ib_show_interface_ip(engines):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.show()).get_returned_value()
 
-        validate_ip_fields(mgmt_port, output_dictionary)
+        validate_ip_fields(output_dictionary)
 
 
 def check_dhcp(mgmt_port, ipv4=True):
@@ -127,52 +127,52 @@ def test_show_interface_ip_dhcp(engines):
     check_dhcp(mgmt_port=mgmt_port, ipv4=False)     # same test on ipv6
 
 
-def validate_interface_fields(selected_port, output_dictionary):
+def validate_interface_fields(output_dictionary):
     with allure.step('Check that the following fields exist in the output: type, description, link, ip, ifindex'):
         logging.info('Check that the following fields exist in the output: type, description, link, ip, ifindex')
-        field_to_check = [selected_port.interface.type.label,
-                          selected_port.interface.description.label,
-                          selected_port.interface.link.label,
-                          selected_port.interface.ifindex.label,
-                          selected_port.interface.ip.label]
+        field_to_check = [IbInterfaceConsts.TYPE,
+                          IbInterfaceConsts.DESCRIPTION,
+                          IbInterfaceConsts.LINK,
+                          IbInterfaceConsts.IFINDEX,
+                          IbInterfaceConsts.IP]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
-def validate_link_fields(selected_port, output_dictionary):
+def validate_link_fields(output_dictionary):
     with allure.step('Check that all expected fields under link field exist in the output'):
         logging.info('Check that all expected fields under link field exist in the output')
-        field_to_check = [selected_port.interface.link.mtu.label,
-                          selected_port.interface.link.speed.label,
-                          selected_port.interface.link.mac.label,
-                          selected_port.interface.link.duplex.label,
-                          selected_port.interface.link.state.label]
+        field_to_check = [IbInterfaceConsts.LINK_MTU,
+                          IbInterfaceConsts.LINK_SPEED,
+                          IbInterfaceConsts.LINK_MAC,
+                          IbInterfaceConsts.LINK_DUPLEX,
+                          IbInterfaceConsts.LINK_STATE]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
-def validate_stats_fields(selected_port, output_dictionary):
+def validate_stats_fields(output_dictionary):
     with allure.step('Check that all expected fields under link-stats field exist in the output'):
         logging.info('Check that all expected fields under link-stats field exist in the output')
-        field_to_check = [selected_port.interface.link.stats.carrier_transition.label,
-                          selected_port.interface.link.stats.in_bytes.label,
-                          selected_port.interface.link.stats.in_drops.label,
-                          selected_port.interface.link.stats.in_errors.label,
-                          selected_port.interface.link.stats.in_pkts.label,
-                          selected_port.interface.link.stats.out_bytes.label,
-                          selected_port.interface.link.stats.out_drops.label,
-                          selected_port.interface.link.stats.out_errors.label,
-                          selected_port.interface.link.stats.out_pkts.label]
+        field_to_check = [IbInterfaceConsts.LINK_STATS_CARRIER_TRANSITION,
+                          IbInterfaceConsts.LINK_STATS_IN_BYTES,
+                          IbInterfaceConsts.LINK_STATS_IN_DROPS,
+                          IbInterfaceConsts.LINK_STATS_IN_ERRORS,
+                          IbInterfaceConsts.LINK_STATS_IN_PKTS,
+                          IbInterfaceConsts.LINK_STATS_OUT_BYTES,
+                          IbInterfaceConsts.LINK_STATS_OUT_DROPS,
+                          IbInterfaceConsts.LINK_STATS_OUT_ERRORS,
+                          IbInterfaceConsts.LINK_STATS_OUT_PKTS]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
-def validate_ip_fields(selected_port, output_dictionary):
+def validate_ip_fields(output_dictionary):
     with allure.step('Check that all expected fields under eth ip field exist in the output'):
         logging.info('Check that all expected fields under eth ip field exist in the output')
-        port_ip = selected_port.interface.ip
-        field_to_check = [port_ip.vrf.label,
-                          port_ip.address.label,
-                          port_ip.dhcp_client.label,
-                          port_ip.dhcp_client6.label,
-                          IpConsts.ARP_TIMEOUT, IpConsts.AUTOCONF]
+        field_to_check = [IbInterfaceConsts.IP_VRF,
+                          IbInterfaceConsts.IP_ADDRESS,
+                          IbInterfaceConsts.IP_DHCP,
+                          IbInterfaceConsts.IP_DHCP6,
+                          IpConsts.ARP_TIMEOUT,
+                          IpConsts.AUTOCONF]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
