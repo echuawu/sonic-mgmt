@@ -4,6 +4,7 @@ from ngts.cli_wrappers.openapi.openapi_general_clis import OpenApiGeneralCli
 import logging
 import allure
 import re
+import pytest
 from datetime import datetime
 
 logger = logging.getLogger()
@@ -72,3 +73,13 @@ class TestToolkit:
             if since_date_time < line_date_time:
                 res.append(line)
         return res
+
+    @staticmethod
+    def is_special_run(topology_obj):
+        """
+        check if this run is special run (sanitizer /code coverage)
+        :param topology_obj:
+        :return: True is this is a special run , else False
+        """
+        is_code_coverage_run = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
+        return pytest.is_sanitizer or is_code_coverage_run
