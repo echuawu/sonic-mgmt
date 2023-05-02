@@ -10,11 +10,13 @@ logger = logging.getLogger()
 class OperationTime:
 
     @staticmethod
-    def save_duration(operation, params, test_name, func, *args, **kargs):
+    def save_duration(operation, oper_params, test_name, func, *args, **kargs):
         """
         save the duration of the command and add it to pytest.operation_list
         just if the operation succeed and we have test_name in the duration_time_dict
-        :param duration_time_dict: dictionary with keys: operation, params, duration, test_name
+        :param operation: string that describe the operation
+        :param oper_params: string that describe the parameter the operation use
+        :param test_name: name of the test that call the operation
         :param func: the operation we want to measure, should return ResultObj
         :param args: args for func
         """
@@ -24,7 +26,7 @@ class OperationTime:
             end_time = time.time()
             duration = end_time - start_time
             logger.info("{operation} took {dur} seconds".format(operation=operation, dur=duration))
-            duration_time_dict = OperationTime.create_duration_time_dict(operation, params, duration, test_name)
+            duration_time_dict = OperationTime.create_duration_time_dict(operation, oper_params, duration, test_name)
             pytest.operation_list.append(duration_time_dict)
         return result_obj
 
