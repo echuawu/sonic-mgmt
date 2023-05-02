@@ -1,6 +1,7 @@
 import pytest
 import sys
 
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 sys.path.append('/devts/tests/skynet')
 from system.test_cpu_ram_hdd_usage import do_cpu_usage_test, do_ram_usage_test, do_hdd_usage_test  # noqa
 
@@ -30,6 +31,10 @@ class TestCpuRamHddUsage:
         Test doing "df {partition}" and then check usage and compare with expected usage from test parameters
         :param partition_usage: dictionary with partition name and expected usage: {'partition': '/', 'max_usage': 6000}
         """
+        if is_redmine_issue_active([3454585]):
+            if partition_usage['partition'] == '/var/log/':
+                partition_usage['max_usage'] = 1000
+
         do_hdd_usage_test(self.dut_engine, partition_usage)
 
     @pytest.mark.build
