@@ -282,6 +282,46 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
 
 @pytest.mark.system
 @pytest.mark.health
+def test_simulate_fan_speed_fault(devices, engines):
+    """
+    Validate health monitoring when having a fan speed fault.
+        Test flow:
+            1. Simulate fan speed fault
+            2. validate health status changed to "Not OK"
+            3. validate devices appear in the detailed health report as not OK
+            5. validate status has changed in the log
+            6. fix the health issue
+            7. validate health status changed to "OK"
+            8. validate devices appear in the detailed health report as OK
+    """
+    system = System()
+    system.log.rotate_logs()
+    date_time = datetime.now()
+    system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
+    time.sleep(1)
+    verify_health_status_and_led(system, OK)
+    fan_id = random.randrange(1, len(devices.dut.fan_list) + 1)
+    logger.info("Chosen fan : {}  - {}".format(fan_id, get_fan_display_name(fan_id)))
+
+    try:
+        real_speed = HWSimulator.simulate_fan_speed_fault(engines.dut, fan_id)
+        fan_display_name = get_fan_display_name(fan_id)
+        health_issue_dict = {fan_display_name: "speed is out of range"}
+        validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
+
+    finally:
+        date_time = datetime.now()
+        time.sleep(1)
+        with allure.step("Fix the health issues"):
+            logger.info("Fix the health issues")
+            HWSimulator.simulate_fix_fan_speed_fault(engines.dut, fan_id, real_speed)
+            logger.info("Sleep 10 second")
+            time.sleep(10)
+            validate_health_fix_or_issue(system, health_issue_dict, date_time, True)
+
+
+@pytest.mark.system
+@pytest.mark.health
 def test_simulate_health_problem_with_user_config_file(devices, engines):
     """
     Validate health monitoring.
@@ -448,7 +488,7 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                     assert component not in health_issues
                 else:
                     assert component in health_issues
-                    assert issue == health_issues[component]["issue"]
+                    assert issue in health_issues[component]["issue"]
 
         if expected_in_monitor_list:
             with allure.step("Validate detailed health report"):
@@ -462,7 +502,7 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                         assert component not in monitor_dict[NOT_OK]
                     else:
                         assert component in monitor_dict[NOT_OK]
-                        assert issue == detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
+                        assert issue in detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
 
         with allure.step("Validate health history file"):
             logger.info("Validate health history file")
