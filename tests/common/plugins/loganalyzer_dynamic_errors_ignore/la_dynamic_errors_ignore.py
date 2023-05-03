@@ -335,12 +335,9 @@ class RedmineDynamicErrorsIgnore(LaDynamicErrorsIgnore):
         if self.conditions_dict.get(self.validation_name):
             is_errors_ignore_required = False
             rm_issues_list = self.conditions_dict[self.validation_name]
-            try:
-                is_issue_active, issue_id = is_redmine_issue_active(rm_issues_list)
-                if is_issue_active:
-                    is_errors_ignore_required = True
-            except Exception as err:
-                logger.error('Got error: {} during getting info about RM issues: {} status'.format(err, rm_issues_list))
+            is_issue_active, issue_id = is_redmine_issue_active(rm_issues_list)
+            if is_issue_active:
+                is_errors_ignore_required = True
 
         return is_errors_ignore_required
 
