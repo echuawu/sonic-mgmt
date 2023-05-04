@@ -263,14 +263,15 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
     '''
     pytest.operation_list = []
     yield
-    try:
-        type = platform_params['filtered_platform']
-        version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
-        release_name = version_to_release(version)
-        if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name:
-            insert_operation_duration_to_db(setup_name, type, version, session_id)
-    except Exception as err:
-        logger.warning("Failed to save operation duration data, because: {}".format(err))
+    if len(pytest.operation_list) > 0:
+        try:
+            type = platform_params['filtered_platform']
+            version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
+            release_name = version_to_release(version)
+            if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name:
+                insert_operation_duration_to_db(setup_name, type, version, session_id)
+        except Exception as err:
+            logger.warning("Failed to save operation duration data, because: {}".format(err))
 
 
 @retry(Exception, tries=3, delay=3)

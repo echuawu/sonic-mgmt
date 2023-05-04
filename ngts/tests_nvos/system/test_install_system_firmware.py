@@ -7,13 +7,14 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 logger = logging.getLogger()
 
 
 @pytest.mark.checklist
 @pytest.mark.system
-def test_install_system_firmware(engines):
+def test_install_system_firmware(engines, test_name):
     """
     Install system firmware test
 
@@ -26,6 +27,7 @@ def test_install_system_firmware(engines):
     """
     system = System()
     fae = Fae()
+    fw_has_changed = False
     fw_file = "/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/fw-QTM2-rel-31_2010_4026-EVB.mfa"
     new_fw_name = "31.2010.4026"
     new_fw_to_install = fw_file.split("/")[-1]
@@ -53,34 +55,50 @@ def test_install_system_firmware(engines):
                                                     dest_ip=engines.dut.ip,
                                                     local_file_path=fw_file)
 
-            system.firmware.action_install_fw("/tmp/{}".format(new_fw_to_install))
-            system.firmware.set("default", "user", apply=True)
-
-        with allure.step("Verify installed file can be found in show output"):
-            verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, actual_firmware)
-            validate_all_asics_have_same_info()
-            NvueGeneralCli.save_config(engines.dut)
-
-        with allure.step('Rebooting the dut after image installation'):
-            logging.info("Rebooting dut")
-            system.reboot.action_reboot()
+                OperationTime.save_duration('install user FW', 'include reboot', test_name, install_new_user_fw,
+                                            system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name)
 
         with allure.step('Verify the firmware installed successfully'):
             verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, new_fw_name)
             validate_all_asics_have_same_info()
+            fw_has_changed = True
 
     finally:
-        with allure.step("Install original system firmware file"):
-            system.firmware.set("default", "image", apply=True)
-            NvueGeneralCli.save_config(engines.dut)
-
-        with allure.step('Rebooting the dut after image installation'):
-            logging.info("Rebooting dut")
-            system.reboot.action_reboot()
+        if fw_has_changed:
+            OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
+                                        system, engines, test_name, fw_has_changed)
+        else:
+            install_image_fw(system, engines, test_name, fw_has_changed)
 
         with allure.step('Verify the firmware installed successfully'):
             verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
             validate_all_asics_have_same_info()
+
+
+def install_image_fw(system, engines, test_name, fw_has_changed):
+    with allure.step("Install original system firmware file"):
+        system.firmware.set("default", "image", apply=True)
+        NvueGeneralCli.save_config(engines.dut)
+
+    with allure.step('Rebooting the dut after image installation'):
+        logging.info("Rebooting dut")
+        res = OperationTime.save_duration('reboot with default FW installation', '', test_name, system.reboot.action_reboot) if fw_has_changed else system.reboot.action_reboot()
+        return res
+
+
+def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
+    system.firmware.action_install_fw("/tmp/{}".format(new_fw_to_install))
+    system.firmware.set("default", "user", apply=True)
+
+    with allure.step("Verify installed file can be found in show output"):
+        verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, actual_firmware)
+        validate_all_asics_have_same_info()
+        NvueGeneralCli.save_config(engines.dut)
+
+    with allure.step('Rebooting the dut after image installation'):
+        logging.info("Rebooting dut")
+        res = OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)
+        return res
 
 
 def get_original_fw_path(engines, original_fw):
