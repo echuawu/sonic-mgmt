@@ -76,4 +76,16 @@ tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interf
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3424265"
     conditions:
       - https://redmine.mellanox.com/issues/3424265
+
+tests_nvos/interfaces/test_port_split.py::test_split_all_ports:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3458839"
+    conditions:
+      - https://redmine.mellanox.com/issues/3458839
+
+tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3458839"
+    conditions:
+      - https://redmine.mellanox.com/issues/3458839
 ########################## NVOS IGNORE END ##########################
