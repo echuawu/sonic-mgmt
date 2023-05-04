@@ -2427,3 +2427,10 @@
       Platform:
         - arm64-nvda_bf-mbf2h536c
         - arm64-nvda_bf-9009d3b600cvaa
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\] mlnx_sai_interfacequery_eth\.c\[\d+\]- sai_dbg_run_mlxtrace: Failed running.*mlxtrace_ext.*'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\] mlnx_sai_interfacequery_eth\.c\[\d+\]- sai_dbg_do_dump: Failed to run mlxtrace.*'
+  Conditions:
+    - Platform:
+        - simx
