@@ -5,6 +5,7 @@ import time
 import os
 import re
 import math
+from retry import retry
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -267,42 +268,45 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
         version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
         release_name = version_to_release(version)
         if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name:
-            try:
-                connections_params = DbConstants.CREDENTIALS[CliType.NVUE]
-                mssql_connection_obj = ConnectMSSQL(connections_params['server'], connections_params['database'],
-                                                    connections_params['username'], connections_params['password'])
-                mssql_connection_obj.connect_db()
-                logger.info("Insert {} operations info to operation_time DB".format(len(pytest.operation_list)))
-                try:
-                    values = ""
-                    for operation in pytest.operation_list:
-                        value = "('{operation}', '{command}', '{duration}', '{setup_name}', '{type}', '{version}', " \
-                                "'{release}', '{session_id}', '{test_name}', '{date}')".format(
-                                    operation=operation[OperationTimeConsts.OPERATION_COL], command=operation[OperationTimeConsts.PARAMS_COL],
-                                    duration=operation[OperationTimeConsts.DURATION_COL], setup_name=setup_name, type=type,
-                                    version=version, release=release_name, session_id=session_id,
-                                    test_name=operation[OperationTimeConsts.TEST_NAME_COL], date=datetime.date.today())
-
-                        values = values + ', ' + value if values else value
-
-                    if values:
-                        columns = "({operation_col}, {params_col}, {duration_col}, {setup_name_col}, {type_col}, {version_col}," \
-                                  " {release_col}, {session_id_col}, {test_name_col}, {date_col})".format(
-                                      operation_col=OperationTimeConsts.OPERATION_COL, params_col=OperationTimeConsts.PARAMS_COL,
-                                      duration_col=OperationTimeConsts.DURATION_COL, setup_name_col=OperationTimeConsts.SETUP_COL,
-                                      type_col=OperationTimeConsts.TYPE_COL, version_col=OperationTimeConsts.VERSION_COL,
-                                      release_col=OperationTimeConsts.RELEASE_COL, session_id_col=OperationTimeConsts.SESSION_ID_COL,
-                                      test_name_col=OperationTimeConsts.TEST_NAME_COL, date_col=OperationTimeConsts.DATE_COL)
-                        query = "INSERT operation_time {columns} values {values};".format(columns=columns, values=values)
-
-                    mssql_connection_obj.query_insert(query)
-                    logger.info("--------- insert to operation time DB table successfully ---------\n")
-                finally:
-                    mssql_connection_obj.disconnect_db()
-            except BaseException as ex:
-                logger.info("--------- insert to operation time DB table failed ---------\n" + str(ex))
+            insert_operation_duration_to_db(setup_name, type, version, session_id)
     except Exception as err:
-        logger.info("Failed to save operation duration data, because: {}".format(err))
+        logger.warning("Failed to save operation duration data, because: {}".format(err))
+
+
+@retry(Exception, tries=3, delay=3)
+def insert_operation_duration_to_db(setup_name, type, version, session_id):
+    connections_params = DbConstants.CREDENTIALS[CliType.NVUE]
+    mssql_connection_obj = ConnectMSSQL(connections_params['server'], connections_params['database'],
+                                        connections_params['username'], connections_params['password'])
+    mssql_connection_obj.connect_db()
+    logger.info("Insert {} operations info to operation_time DB".format(len(pytest.operation_list)))
+    try:
+        values = ""
+        for operation in pytest.operation_list:
+            value = "('{operation}', '{command}', '{duration}', '{setup_name}', '{type}', '{version}', " \
+                    "'{release}', '{session_id}', '{test_name}', '{date}')".format(
+                        operation=operation[OperationTimeConsts.OPERATION_COL],
+                        command=operation[OperationTimeConsts.PARAMS_COL],
+                        duration=operation[OperationTimeConsts.DURATION_COL], setup_name=setup_name, type=type,
+                        version=version, release=release_name, session_id=session_id,
+                        test_name=operation[OperationTimeConsts.TEST_NAME_COL], date=datetime.date.today())
+
+            values = values + ', ' + value if values else value
+
+        if values:
+            columns = "({operation_col}, {params_col}, {duration_col}, {setup_name_col}, {type_col}, {version_col}," \
+                      " {release_col}, {session_id_col}, {test_name_col}, {date_col})".format(
+                          operation_col=OperationTimeConsts.OPERATION_COL, params_col=OperationTimeConsts.PARAMS_COL,
+                          duration_col=OperationTimeConsts.DURATION_COL, setup_name_col=OperationTimeConsts.SETUP_COL,
+                          type_col=OperationTimeConsts.TYPE_COL, version_col=OperationTimeConsts.VERSION_COL,
+                          release_col=OperationTimeConsts.RELEASE_COL, session_id_col=OperationTimeConsts.SESSION_ID_COL,
+                          test_name_col=OperationTimeConsts.TEST_NAME_COL, date_col=OperationTimeConsts.DATE_COL)
+            query = "INSERT operation_time {columns} values {values};".format(columns=columns, values=values)
+
+        mssql_connection_obj.query_insert(query)
+        logger.info("--------- insert to operation time DB table successfully ---------\n")
+    finally:
+        mssql_connection_obj.disconnect_db()
 
 
 def version_to_release(version):
