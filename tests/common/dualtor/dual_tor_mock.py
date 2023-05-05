@@ -292,7 +292,7 @@ def apply_dual_tor_neigh_entries(cleanup_mocked_configs, rand_selected_dut, tbin
         # If there are no pre-existing entries, equivalent to `ip neigh add`
         cmds.append('ip -4 neigh replace {} lladdr {} dev {}'.format(ip, mac, vlan))
 
-    for ipv6, mac in mock_server_ipv6_mac_map.items():
+    for ipv6, mac in list(mock_server_ipv6_mac_map.items()):
         cmds.append('ip -6 neigh replace {} lladdr {} dev {}'.format(ipv6, mac, vlan))
     dut.shell_cmds(cmds=cmds)
 
