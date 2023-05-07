@@ -33,11 +33,6 @@ tests/nightly/auto_negotition:
     conditions:
       - "'simx' in platform or '3800' in platform"
 
-tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/2832005"
-    conditions:
-      - https://redmine.mellanox.com/issues/2832005
 
 tests/nightly/dynamic_port_breakout:
   skip:
@@ -188,6 +183,12 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3357378"
     conditions:
       - https://redmine.mellanox.com/issues/3357378
+
+tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3440734 on spc1 and simx that run ASAN image"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3440734 and 'ASAN' in build_version and ('spc1' in asic_gen or 'simx' in platform)"
 
 tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
   skip:

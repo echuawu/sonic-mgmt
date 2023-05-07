@@ -4,12 +4,14 @@ import pytest
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
 from ngts.tests.conftest import get_dut_loopbacks
+from ngts.tests.nightly.auto_negotition.conftest import update_split_2_if_possible,\
+    update_split_4_if_possible, update_split_8_if_possible
 
 logger = logging.getLogger()
 
 
 @pytest.fixture()
-def tested_lb_all_dict(topology_obj, engines, interfaces):
+def tested_lb_all_dict(topology_obj, engines, interfaces, split_mode_supported_speeds):
     """
     This function return a dictionary with all the switch ports for each split mode.
     :param topology_obj: topology fixture object
@@ -27,9 +29,9 @@ def tested_lb_all_dict(topology_obj, engines, interfaces):
         1: []
     }
     if 'simx' not in engines.dut.run_cmd("hostname"):
-        tested_lb_dict.update({2: [(topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])],
-                               4: [(topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])]
-                               })
+        update_split_2_if_possible(topology_obj, tested_lb_dict)
+        update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
+        update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
     for lb in get_dut_loopbacks(topology_obj):
         tested_lb_dict[1].append(lb)
     tested_lb_dict[1].append((interfaces.dut_ha_1, interfaces.ha_dut_1))
@@ -52,7 +54,7 @@ class TestAutoNegScale(TestAutoNegBase):
         :param cleanup_list: a list of cleanup functions that should be called in the end of the test
         :return: raise assertion error in case of failure
         """
-        conf = self.generate_default_conf(tested_lb_all_dict)
+        conf = self.generate_default_conf(tested_lb_all_dict, use_min_speed=True)
         ports = self.topology_obj.players_all_ports['dut']
         dut_conf = dict()
         for port in ports:
@@ -66,11 +68,15 @@ class TestAutoNegScale(TestAutoNegBase):
         base_interfaces_speeds = self.cli_objects.dut.interface.get_interfaces_speed(ports)
         logger.info("configure the smallest speed/type and configure all advertised speeds/types on all interfaces")
         self.configure_ports(self.engines.dut, self.cli_objects.dut, dut_conf, base_interfaces_speeds, cleanup_list)
+        for port, port_conf_dict in dut_conf.items():
+            conf[port]['expected_mlxlink_autoneg'] = "Force"
         logger.info("Check auto negotiation was configured correctly")
         self.verify_auto_neg_configuration(dut_conf, check_adv_parm=False)
         logger.info("Set auto negotiation mode to enabled on all ports")
         self.configure_port_auto_neg(self.cli_objects.dut, ports, dut_conf,
                                      cleanup_list, mode='enabled')
+        self.cli_objects.dut.interface.disable_interfaces(dut_conf.keys())
+        self.cli_objects.dut.interface.enable_interfaces(dut_conf.keys())
         for port, port_conf_dict in dut_conf.items():
             port_conf_dict[AutonegCommandConstants.SPEED] = dut_conf[port]['expected_speed']
             port_conf_dict[AutonegCommandConstants.TYPE] = dut_conf[port]['expected_type']
