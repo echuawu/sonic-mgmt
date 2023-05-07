@@ -52,7 +52,7 @@ class HWSimulator:
 
     @staticmethod
     def simulate_fix_psu_fault(engine, psu_id):
-        with allure.step("Simulate psu {} fault".format(psu_id)):
-            logger.info("Simulate psu {} fault".format(psu_id))
+        with allure.step("Simulate fix psu {} fault".format(psu_id)):
+            logger.info("Simulate fix psu {} fault".format(psu_id))
             file = "psu{}_status".format(psu_id)
             HWSimulator.simulate_health_issue_change_fw_file(engine, 1, file)
