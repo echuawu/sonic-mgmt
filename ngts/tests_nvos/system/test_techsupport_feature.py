@@ -39,15 +39,20 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
         2. run nv action generate system tech-support
         3. validate it's working as expected
     """
-    with allure.step('Run nv action generate system tech-support while at least one docker is down'):
-        system = System(None)
-        for docker in dockers_list:
-            engines.dut.run_cmd('sudo systemctl stop {docker}'.format(docker=docker))
-        tech_support_folder = system.techsupport.action_generate()
-    with allure.step('validate commands works as expected'):
-        assert '/host/dump/nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
+    try:
+        with allure.step('Run nv action generate system tech-support while at least one docker is down'):
+            system = System(None)
+            for docker in dockers_list:
+                engines.dut.run_cmd('sudo systemctl stop {docker}'.format(docker=docker))
+            tech_support_folder = system.techsupport.action_generate()
+        with allure.step('validate commands works as expected'):
+            assert '/host/dump/nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
 
-    cleanup_techsupport(engines.dut, [], [tech_support_folder])
+        cleanup_techsupport(engines.dut, [], [tech_support_folder])
+
+    finally:
+        for docker in dockers_list:
+            engines.dut.run_cmd('sudo systemctl start {docker}'.format(docker=docker))
 
 
 @pytest.mark.general

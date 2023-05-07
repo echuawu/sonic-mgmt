@@ -1,8 +1,12 @@
 import logging
+import os
+
 import allure
 import pytest
 import time
 from datetime import datetime
+
+from ngts.constants.constants import LinuxConsts
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
@@ -11,6 +15,7 @@ from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 logger = logging.getLogger()
 
@@ -64,12 +69,15 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         apply_and_save_port.ib_interface.description.set(value=description, apply=True).verify_result()
         TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
         NvueGeneralCli.save_config(engines.dut)
+
     with allure.step('Set and apply description to ib port'):
         logger.info("Set and apply description to ib port")
         just_apply_port.ib_interface.description.set(value=description, apply=True).verify_result()
+
     with allure.step('Set description to ib port'):
         logger.info("Set description to ib port")
         not_apply_port.ib_interface.description.set(value=description, apply=False).verify_result()
+
     with allure.step('Validate ports description'):
         logger.info("Validate ports description")
         _validate_port_description(engines.dut, apply_and_save_port, description)
@@ -87,6 +95,14 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
     with allure.step("Wait while the system initializing"):
         NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
+
+    with allure.step('Configure timezone'):
+        logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+        ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
+        with allure.step('Save configuration'):
+            NvueGeneralCli.save_config(engines.dut)
+        with allure.step('Set timezone using timedatectl command'):
+            os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
 
     with allure.step("Validate health status and report"):
         start_time = time.time()

@@ -195,20 +195,20 @@ def validate_techsupport_since(output_dictionary, substring):
 
 @pytest.mark.system
 @pytest.mark.openapi
-def test_techsupport_show_openapi(engines):
+def test_techsupport_show_openapi(engines, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_show(engines)
+    test_techsupport_show(engines, test_name)
 
 
 @pytest.mark.system
 @pytest.mark.openapi
-def test_techsupport_since_openapi(engines):
+def test_techsupport_since_openapi(engines, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_since(engines)
+    test_techsupport_since(engines, test_name)
 
 
 @pytest.mark.system
 @pytest.mark.openapi
-def test_techsupport_since_invalid_date_openapi(engines):
+def test_techsupport_since_invalid_date_openapi(engines, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_since_invalid_date(engines)
+    test_techsupport_since_invalid_date(engines, test_name)

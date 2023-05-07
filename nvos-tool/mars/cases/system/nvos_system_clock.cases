@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name>System Show Commands</name>
+      <name>System Clock Commands</name>
       <info></info>
       <owner> Alon N. </owner>
     </Test>
