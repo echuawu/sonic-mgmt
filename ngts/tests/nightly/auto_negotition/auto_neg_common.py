@@ -50,6 +50,10 @@ class TestAutoNegBase:
         self.ports_aliases_dict = self.cli_objects.dut.interface.parse_ports_aliases_on_sonic()
         self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf()
         self.hwsku = platform_params.hwsku
+        self.dut_host_connections = [(self.interfaces.dut_ha_1, self.interfaces.ha_dut_1),
+                                     (self.interfaces.dut_ha_2, self.interfaces.ha_dut_2),
+                                     (self.interfaces.dut_hb_1, self.interfaces.hb_dut_1),
+                                     (self.interfaces.dut_hb_2, self.interfaces.hb_dut_2)]
 
     def generate_subset_conf(self, tested_lb_dict):
         """
@@ -192,7 +196,8 @@ class TestAutoNegBase:
         expected_width = get_interface_cable_width(expected_interface_type, expected_speed)
         return expected_speed, expected_interface_type, expected_width
 
-    def build_default_conf(self, port, min_speed, min_type, width, expected_speed, expected_type, expected_width):
+    def build_default_conf(self, port, min_speed, min_type, width, expected_speed, expected_type, expected_width,
+                           connected_to_host=False):
         port_default_conf = {
             AutonegCommandConstants.AUTONEG_MODE: 'disabled',
             AutonegCommandConstants.SPEED: min_speed,
@@ -204,7 +209,8 @@ class TestAutoNegBase:
             AutonegCommandConstants.ADMIN: "up",
             'expected_speed': expected_speed,
             'expected_type': expected_type,
-            'expected_width': expected_width
+            'expected_width': expected_width,
+            'connected_to_host': connected_to_host
         }
         return port_default_conf
 
@@ -324,6 +330,11 @@ class TestAutoNegBase:
                         else:
                             # value in this scenario would be 1, then modify it to 2 according to physical support limitation
                             compare_actual_and_expected(key, value + 1, actual_conf_value)
+                    elif key == AutonegCommandConstants.SPEED and expected_conf['connected_to_host']:
+                        assert str(value) <= str(actual_conf_value), \
+                            "Compared {} result failed: actual speed {} >= expected speed {}".format(key,
+                                                                                                     actual_conf_value,
+                                                                                                     value)
                     elif key not in [AutonegCommandConstants.ADV_SPEED, AutonegCommandConstants.ADV_TYPES]:
                         compare_actual_and_expected(key, value, actual_conf_value)
 
@@ -620,6 +631,14 @@ class TestAutoNegBase:
                                                                                                        lb_mutual_speeds)
                     for port in lb:
                         conf[port] = self.build_default_conf(lb[0], random_non_max_speed, min_type, width,
-                                                             expected_speed, expected_type, expected_width)
+                                                             expected_speed, expected_type, expected_width,
+                                                             connected_to_host=self.is_dut_host_connection(lb))
             logger.debug("Generated default configuration is: {}".format(conf))
             return conf
+
+    def is_dut_host_connection(self, connection):
+        """
+        :param connection: i.e, (Ethernet0, enp131s0f1) or (Ethernet4, Ethernet8)
+        :return: True if connection is DUT <-> Host connection, False otherwise
+        """
+        return connection in self.dut_host_connections

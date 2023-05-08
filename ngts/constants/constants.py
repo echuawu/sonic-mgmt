@@ -202,8 +202,8 @@ class AutonegCommandConstants:
         SPEED: (r"Speed\s*:\s*(?:BaseT|BaseTx)?(\d*M|\d*G)", None, None, None, None),
         WIDTH: (r"Width\s*:\s*(\d+)x", None, None, None, None),
         FEC: (r"FEC\s*:\s*(.*)", "No FEC", "none", None, None),
-        AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*\s*-*\s*\d*G_*\d*X*|ON)",
-                       r"FORCE\s+-\s+\d+G_*\d*X*|ON", "enabled", "disabled", "Force")
+        AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*\s*-*\s*\d*\w_*\d*X*|ON)",
+                       r"FORCE\s+-\s+\d+\w_*\d*X*|ON", "enabled", "disabled", "Force")
     }
 
 
