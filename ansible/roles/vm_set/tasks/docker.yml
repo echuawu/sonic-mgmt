@@ -81,3 +81,9 @@
   pip: name=docker version=4.1.0 state=forcereinstall executable={{ pip_executable }}
   become: yes
   environment: "{{ proxy_env | default({}) }}"
+
+- name: Install python requests=2.29.0 package
+  pip: name=requests version=2.29.0 state=forcereinstall executable={{ pip_executable }}
+  become: yes
+  environment: "{{ proxy_env | default({}) }}"
+  when: host_distribution_version.stdout == "20.04"
