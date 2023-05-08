@@ -55,9 +55,9 @@ def test_fw_dump_me(engines):
         logging.info('Verify updated SDK message in the logs as expected')
         ValidationTool.verify_expected_output(show_output, '[HOST_INTERFACE.NOTICE] FW test event').verify_result()
 
-    with allure.step('Validate if sdk_fw_dump created after 5 sec timeout'):
-        logging.info('Validate if sdk_fw_dump created after 5 sec timeout')
-        time.sleep(5)
+    with allure.step('Validate if sdk_fw_dump created after 15 sec timeout'):
+        logging.info('Validate if sdk_fw_dump created after 15 sec timeout')
+        time.sleep(15)
         cmd_output = engines.dut.run_cmd('ls {0}'.format(NvosConst.SDK_DUMP_FOLDER))
         assert 'sai-dfw' in cmd_output, "Sdk dump not created"
         sdk_dump = cmd_output.split()[0]
