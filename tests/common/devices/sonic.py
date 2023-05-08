@@ -1696,7 +1696,7 @@ Totals               6450                 6449
     def get_running_config_facts(self):
         return self.config_facts(host=self.hostname, source='running', verbose=False)['ansible_facts']
 
-    def get_vlan_intfs(self):
+    def get_vlan_intfs(self, exclude_po=False):
         '''
         Get any interfaces belonging to a VLAN
         '''
@@ -1705,6 +1705,8 @@ Totals               6450                 6449
 
         for vlan in vlan_members_facts:
             for intf in vlan_members_facts[vlan]:
+                if exclude_po and "PortChannel" in intf:
+                    continue
                 vlan_intfs.append(intf)
 
         return vlan_intfs

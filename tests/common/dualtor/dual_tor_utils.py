@@ -47,10 +47,10 @@ OPT_DIR = "/opt"
 
 
 def get_tor_mux_intfs(duthost):
-    return sorted(duthost.get_vlan_intfs(), key=lambda intf: int(intf.replace('Ethernet', '')))
+    return sorted(duthost.get_vlan_intfs(exclude_po=True), key=lambda intf: int(intf.replace('Ethernet', '')))
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def tor_mux_intfs(duthosts):
     '''
     Returns the server-facing interfaces on the ToR to be used for testing
@@ -59,7 +59,7 @@ def tor_mux_intfs(duthosts):
     return get_tor_mux_intfs(duthosts[0])
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def tor_mux_intf(tor_mux_intfs):
     '''
     Returns the first server-facing interface on the ToR to be used for testing
@@ -68,7 +68,7 @@ def tor_mux_intf(tor_mux_intfs):
     return tor_mux_intfs[0]
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def ptf_server_intf(duthosts, tor_mux_intf, tbinfo):
     '''
     Returns the ToR-facing interface on the PTF to be used for testing
