@@ -269,13 +269,13 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
             version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
             release_name = version_to_release(version)
             if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name:
-                insert_operation_duration_to_db(setup_name, type, version, session_id)
+                insert_operation_duration_to_db(setup_name, type, version, session_id, release_name)
         except Exception as err:
             logger.warning("Failed to save operation duration data, because: {}".format(err))
 
 
 @retry(Exception, tries=3, delay=3)
-def insert_operation_duration_to_db(setup_name, type, version, session_id):
+def insert_operation_duration_to_db(setup_name, type, version, session_id, release_name):
     connections_params = DbConstants.CREDENTIALS[CliType.NVUE]
     mssql_connection_obj = ConnectMSSQL(connections_params['server'], connections_params['database'],
                                         connections_params['username'], connections_params['password'])
