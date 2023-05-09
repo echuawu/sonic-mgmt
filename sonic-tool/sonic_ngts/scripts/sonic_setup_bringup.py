@@ -13,6 +13,7 @@ sys.path.append(str(os.path.join(str(pathlib.Path(__file__).parent.absolute()), 
 
 from infra.topology_entities.topology_manager import TopologyManager
 from infra.constants.constants import LinuxConsts
+from infra.engines.ssh.ssh_engine import SSH
 logger = logging.getLogger("sonic_setup_bringup")
 
 STM_IP = "10.209.104.53"
@@ -101,10 +102,11 @@ def import_aliases_to_noga(noga_json_file_path):
 
     # Update Noga according to JSON topology
     remote_cmd = "python2.7 /tmp/import_aliases_to_noga.py --json {}".format(noga_json_file_path)
-    cmd = f"sshpass -p {stm_password} ssh -o 'StrictHostKeyChecking no' -t {stm_user}@{STM_IP} '{remote_cmd}'"
-    logger.info("CMD: %s" % cmd)
+    stm_engine = SSH(ip=STM_IP, username=stm_user, password=stm_password)
+
+    logger.info("CMD: %s" % remote_cmd)
     try:
-        subprocess.check_output(cmd, shell=True)
+        stm_engine.run_cmd(remote_cmd, validate=True)
     except Exception as e:
         raise Exception("Import aliases to Noga has failed.\n please verify in Noga all setup entities "
                         "were named correctly,\n and try to run: \"{}\" on stm {} again.\n Script Error: {}"
