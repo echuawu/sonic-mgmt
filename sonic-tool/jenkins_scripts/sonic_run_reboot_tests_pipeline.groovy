@@ -2,11 +2,20 @@ SESSION_IDS = [:]
 
 
 def get_vault_creds() {
-    def vault_config = [vaultUrl: 'https://prod.vault.nvidia.com', vaultNamespace: "nbu-sws-devops", vaultCredentialId: 'vault-ngci-approle-prod', engineVersion: 1]
-    def vault_path_prefix = "nvidia/nbu/sws/ngci/kv"
+    def vault_config = [vaultUrl: 'https://prod.vault.nvidia.com',
+    vaultNamespace: "nbu-system-sw-sonic",
+    vaultCredentialId: 'vault-sonic-approle-prod',
+    engineVersion: 1]
+    def vault_path_prefix = "nvidia/nbu/mars/sonic/kv"
     def secrets = [
-        [path: "${vault_path_prefix}/server/common", engineVersion: 1, secretValues: [[envVar: 'STM_USER', vaultKey: 'username'],[envVar: 'STM_PASSWORD', vaultKey: 'password']]],
-        [path: "${vault_path_prefix}/sonic-sql-db", engineVersion: 1, secretValues: [[envVar: 'SONIC_SERVER_USER', vaultKey: 'username'],[envVar: 'SONIC_SERVER_PASSWORD', vaultKey: 'password']]]
+        [path: "${vault_path_prefix}/stm_server",
+        engineVersion: 1,
+        secretValues: [[envVar: 'STM_USER', vaultKey: 'user'],
+        [envVar: 'STM_PASSWORD', vaultKey: 'password']]],
+        [path: "${vault_path_prefix}/sonic_server",
+        engineVersion: 1,
+        secretValues: [[envVar: 'SONIC_SERVER_USER', vaultKey: 'user'],
+        [envVar: 'SONIC_SERVER_PASSWORD', vaultKey: 'password']]]
     ]
 
     return [vault_config, secrets]
