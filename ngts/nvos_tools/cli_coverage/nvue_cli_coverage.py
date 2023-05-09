@@ -50,7 +50,23 @@ class NVUECliCoverage:
                        'nv set system log rotation', 'nv set system debug-log',
                        'nv set system debug-log rotation', 'nv set system firmware',
                        'nv set system factory-default', 'nv set ib',
-                       'nv set ib sm', 'nv unset system factory-default'}
+                       'nv set ib sm', 'nv unset system factory-default',
+                       'nv set interface sw11p1 ip',
+                       'nv set interface <interface-id> ip',
+                       'nv set interface <interface-id> ip dhcp-client',
+                       'nv set interface <interface-id> ip dhcp-client6',
+                       'nv set interface <interface-id> link',
+                       'nv set system aaa authentication',
+                       'nv set system aaa ldap',
+                       'nv set system aaa radius',
+                       'nv set system config',
+                       'nv set system config auto-save',
+                       'nv set system security password-hardening',
+                       'nv set system snmp-server',
+                       'nv set system ssh-server',
+                       'nv set system syslog',
+                       'nv set system syslog format'
+                       }
 
     @classmethod
     def get_full_command_list(cls, engine, project, swversion):
