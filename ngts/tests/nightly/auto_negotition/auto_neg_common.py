@@ -330,7 +330,7 @@ class TestAutoNegBase:
                         else:
                             # value in this scenario would be 1, then modify it to 2 according to physical support limitation
                             compare_actual_and_expected(key, value + 1, actual_conf_value)
-                    elif key == AutonegCommandConstants.SPEED and expected_conf['connected_to_host']:
+                    elif key == AutonegCommandConstants.SPEED and expected_conf.get('connected_to_host'):
                         assert str(value) <= str(actual_conf_value), \
                             "Compared {} result failed: actual speed {} >= expected speed {}".format(key,
                                                                                                      actual_conf_value,
