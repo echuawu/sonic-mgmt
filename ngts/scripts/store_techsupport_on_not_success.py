@@ -77,6 +77,12 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
     if not telnet_port:
         raise Exception(f"Can not get telnet port. telnet_port_info is :{telnet_port_info}")
 
+    if "no telnet" in hyper_engine.run_cmd("which telnet"):
+        install_telnet_cmd = "sudo yum -y install telnet"
+        logger.info("Telnet is not available on the hypervisor server, so install it with the command {}".format(
+            install_telnet_cmd))
+        hyper_engine.run_cmd(install_telnet_cmd)
+
     # Get syslog file name list from switch
     syslog_folder = f'{dut_name}_{name_postfix}'
     hyper_engine.run_cmd(f'mkdir /tmp/{syslog_folder}')
@@ -153,9 +159,12 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
                 fetch_syslog(start_line, end_line)
                 start_line = end_line + 1
                 end_line = total_line_number if end_line + READ_LINE_STEP > total_line_number else end_line + READ_LINE_STEP
-    hyper_engine.run_cmd(f'cp  -r /tmp/{syslog_folder} {dumps_folder}')
 
-    logger.info(f'Simx syslog file location: {dumps_folder}/{syslog_folder}')
+    dest_folder = os.path.join(dumps_folder, syslog_folder)
+    with allure.step(f'Simx syslog file location: {dest_folder}'):
+        os.chmod(dumps_folder, 0o777)
+        hyper_engine.run_cmd(f'sudo cp  -r /tmp/{syslog_folder} {dumps_folder}')
+        logger.info(f'Simx syslog file location: {dest_folder}')
 
 
 def get_file_line_number(hyper_engine, get_file_line_number_cmd):
