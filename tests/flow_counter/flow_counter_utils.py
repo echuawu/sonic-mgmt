@@ -3,8 +3,7 @@ import logging
 import pytest
 import random
 from tests.common.helpers.assertions import pytest_assert
-from tests.common.utilities import wait_until, check_skip_release
-
+from tests.common.utilities import wait_until, check_skip_release, run_until
 logger = logging.getLogger(__name__)
 
 skip_versions = ['201811', '201911', '202012', '202106', '202111']
@@ -72,7 +71,7 @@ class RouteFlowCounterTestContext:
         """
         logger.info('Checking route flow counter stats')
         with allure.step('Checking route flow counter stats'):
-            actual_stats = parse_route_flow_counter_stats(self.dut)
+            actual_stats = run_until(1, 5, self.route_pattern_list, parse_route_flow_counter_stats, self.dut)
             result, message = verify_route_flow_counter_stats(self.expected_stats, actual_stats)
             if not result:
                 return result, message
@@ -99,8 +98,7 @@ class RouteFlowCounterTestContext:
             for prefix, value in self.expected_stats.items():
                 for key in value:
                     self.expected_stats[prefix][key] = '0'
-
-            actual_stats = parse_route_flow_counter_stats(self.dut)
+            actual_stats = run_until(1, 5, {}, parse_route_flow_counter_stats, self.dut)
             return verify_route_flow_counter_stats(self.expected_stats, actual_stats)
 
 

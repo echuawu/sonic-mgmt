@@ -69,15 +69,12 @@ def prepare_ptf(ptfhost, mg_facts, dut_facts, vnet_config):
     """
 
     logger.info("Preparing PTF host")
-
     arp_responder_conf = safe_open_template("templates/arp_responder.conf.j2") \
                             .render(arp_responder_args="--conf /tmp/vnet_arpresponder.conf")
 
     ptfhost.copy(content=arp_responder_conf, dest="/etc/supervisor/conf.d/arp_responder.conf")
-
     ptfhost.shell("supervisorctl reread")
     ptfhost.shell("supervisorctl update")
-
     logger.debug("VNet config is: " + str(vnet_config))
     vnet_json = {
         "minigraph_port_indices": mg_facts["minigraph_port_indices"],
@@ -142,8 +139,8 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
     attached_vlan = mg_facts["minigraph_vlan_interfaces"][0]['attachto']
     vlan_member = mg_facts["minigraph_vlans"][attached_vlan]['members'][0]
     global vlan_tagging_mode
-
     num_routes = request.config.option.num_routes
+    num_routes_before_add = count_routes_from_asic_db(duthost)
     vxlan_enabled = False
     if request.param == "Disabled":
         vxlan_enabled = False
@@ -153,7 +150,6 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
         if result["stdout_lines"] is not None:
             vlan_tagging_mode = result["stdout_lines"][0]
             duthost.shell("redis-cli -n 4 del \"VLAN_MEMBER|{}|{}\"".format(attached_vlan, vlan_member))
-
         apply_dut_config_files(duthost, vnet_test_params, num_routes)
         # Check arp table status in a loop with delay.
         pytest_assert(wait_until(120, 20, 10, is_neigh_reachable, duthost, vnet_config), "Neighbor is unreachable")
@@ -181,7 +177,7 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname, ptfhost, vnet_
         finally:
             testWrArp.Teardown(duthost)
 
-    return vxlan_enabled, request.param
+    return vxlan_enabled, request.param, num_routes, num_routes_before_add
 
 
 def is_neigh_reachable(duthost, vnet_config):
@@ -214,8 +210,7 @@ def test_vnet_vxlan(setup, vxlan_status, duthosts, rand_one_dut_hostname, ptfhos
         vnet_test_params: Dictionary containing vnet test parameters
     """
     duthost = duthosts[rand_one_dut_hostname]
-
-    vxlan_enabled, scenario = vxlan_status
+    vxlan_enabled, scenario, expected_added_num_routes, num_routes_before_add = vxlan_status
     _, vnet_json_data = setup
 
     logger.info("vxlan_enabled={}, scenario={}".format(vxlan_enabled, scenario))
@@ -241,6 +236,8 @@ def test_vnet_vxlan(setup, vxlan_status, duthosts, rand_one_dut_hostname, ptfhos
     logger.debug("Starting PTF runner")
     if scenario == 'Enabled' and vxlan_enabled:
         route_pattern = 'Vnet1|100.1.1.1/32'
+        pytest_assert(wait_until(60, 20, 10, verify_routes_applied, duthost, expected_added_num_routes,
+                                 num_routes_before_add))
         expected_route_flow_packets = get_expected_flow_counter_packets_number(vnet_json_data)
         with RouteFlowCounterTestContext(is_route_flow_counter_supported, duthost, [route_pattern], {route_pattern: {'packets': expected_route_flow_packets}}):
             ptf_runner(ptfhost,
@@ -259,6 +256,19 @@ def test_vnet_vxlan(setup, vxlan_status, duthosts, rand_one_dut_hostname, ptfhos
                 qlen=1000,
                 log_file=log_file)
 
+
+def count_routes_from_asic_db(duthost):
+    num_routes = int(duthost.shell("redis-cli -n 1 keys *ROUTE_ENTRY* | wc -l")['stdout_lines'][0])
+    return num_routes
+
+
+def verify_routes_applied(duthost, expected_added_routes, routes_num_before_add):
+    routes_num_after_add = count_routes_from_asic_db(duthost)
+    actual_routes_added = routes_num_after_add - routes_num_before_add
+    if not (actual_routes_added >= expected_added_routes):
+        logger.info("Expected {} routes to be added, but got only {}".format(expected_added_routes, actual_routes_added))
+        return False
+    return True
 
 def get_expected_flow_counter_packets_number(vnet_json_data):
     total_routes = 0
