@@ -65,11 +65,10 @@ def test_fw_dump_me(engines):
     with allure.step('Validate upload sdkdump to sonic-mgmt'):
         logging.info('Validate upload sdkdump to sonic-mgmt')
         player_engine = engines['sonic_mgmt']
-        player_engine.run_cmd('sshpass -p "{0}" scp {1}@{2}:{3}{4} {5}'.format(engines.dut.password,
-                                                                               engines.dut.username,
-                                                                               engines.dut.ip,
-                                                                               NvosConst.SDK_DUMP_FOLDER,
-                                                                               sdk_dump, NvosConst.MARS_RESULTS_FOLDER))
+        player_engine.run_cmd(
+            'sshpass -p {0} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {1}@{2}:{3}{4} {5}'.
+            format(engines.dut.password, engines.dut.username, engines.dut.ip, NvosConst.SDK_DUMP_FOLDER,
+                   sdk_dump, NvosConst.MARS_RESULTS_FOLDER))
 
         cmd_output = player_engine.run_cmd('ls {0} | grep {1}'.format(NvosConst.MARS_RESULTS_FOLDER, sdk_dump))
         assert sdk_dump in cmd_output, 'sdk dump not in results folder'
