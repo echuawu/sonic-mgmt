@@ -2,6 +2,8 @@ import pexpect
 import logging
 import time
 import re
+import pytest
+import six
 
 from tests.common.helpers.assertions import pytest_assert
 
@@ -14,5 +16,5 @@ def test_console_escape(duthost_console, duthost):
     time.sleep(5)
     child.sendcontrol('C')
     child.expect(r"\^C")
-    match = re.search(r'(\d) packets transmitted', child.read())
+    match = re.search(r'(\d) packets transmitted', six.ensure_text(child.read()))
     pytest_assert(int(match.group(1)) < TOTAL_PACKETS, "Escape Character does not work.")
