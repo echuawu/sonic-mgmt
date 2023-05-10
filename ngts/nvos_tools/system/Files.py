@@ -102,7 +102,7 @@ class File(Files):
             logging.info("Trying to install {resource_path} '{file}'".format(resource_path=resource_path, file=self.file_name))
             return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
                                                                 expected_str, TestToolkit.engines.dut, 'install',
-                                                                resource_path).get_returned_value()
+                                                                resource_path)
 
     def rename_and_verify(self, new_name):
         original_name = self.file_name

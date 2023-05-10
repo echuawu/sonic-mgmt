@@ -12,6 +12,7 @@ from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 from infra.tools.redmine.redmine_api import *
 
@@ -286,7 +287,7 @@ def test_system_image_bad_flow(engines, release_name):
 @pytest.mark.checklist
 @pytest.mark.image
 @pytest.mark.system
-def test_image_install(release_name):
+def test_image_install(release_name, test_name):
     """
     Install system image test
 
@@ -336,7 +337,7 @@ def test_image_install(release_name):
     try:
         with allure.step("Install the first image"):
             logging.info("Install the first image")
-            install_image_and_verify(image_files[0], partition_id_for_new_image, original_images, system)
+            install_image_and_verify(image_files[0], partition_id_for_new_image, original_images, system, test_name)
 
         with allure.step("Install the second image"):
             logging.info("Install the second image")
@@ -427,10 +428,10 @@ def normalize_image_name(image_name):
     return image_name.replace("-amd64", "").replace(".bin", "")
 
 
-def install_image_and_verify(image_name, partition_id, original_images, system):
+def install_image_and_verify(image_name, partition_id, original_images, system, test_name=''):
     with allure.step("Installing image {}".format(image_name)):
         logging.info("Installing image '{}'".format(image_name))
-        File(system.image.files, image_name).action_file_install()
+        OperationTime.save_duration('image install', '', test_name, File(system.image.files, image_name).action_file_install)
     with allure.step("Verify installed image"):
         expected_show_images_output = original_images.copy()
         expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(image_name)
