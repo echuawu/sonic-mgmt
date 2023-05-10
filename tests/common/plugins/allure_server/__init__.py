@@ -63,12 +63,16 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    logger.info('Pytest terminal summary started')
     if config.option.allure_server_addr:
+        logger.info('Allure server address option exists')
         report_url = config.cache.get(ALLURE_REPORT_URL, None)
         if report_url:
             logger.info('Allure report URL: {}'.format(report_url))
         else:
             logger.info('Can not get Allure report URL. Please check logs')
+    else:
+        logger.info('Allure server address option does not exist')
 
 
 def get_setup_session_info(session):
@@ -229,6 +233,7 @@ class AllureServer:
         self.create_project_on_allure_server()
         self.upload_results_to_allure_server()
         report_url = self.generate_report_on_allure_server()
+        logger.info('Allure report URL: {}'.format(report_url))
         self.clean_results_on_allure_server()
         return report_url
 
@@ -295,6 +300,7 @@ class AllureServer:
             logger.error('Failed to generate report on allure server, error: {}'.format(response.content))
         else:
             report_url = response.json()['data']['report_url']
+            logger.info('Allure report URL: {}'.format(report_url))
             return report_url
 
     def clean_results_on_allure_server(self):
