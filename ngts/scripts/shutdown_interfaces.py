@@ -32,6 +32,6 @@ def test_shutdown_interfaces_on_dut(topology_obj, setup_name, preset):
             dut_engine.run_cmd('sudo curl {}/{} -o {}'.format(shared_path, config_db_file,
                                                               SonicConst.CONFIG_DB_JSON_PATH))
 
-        with allure.step("Reboot the switch with the new configuration and check ports status"):
-            cli_object.general.reload_flow(ports_list=ports_expected_to_be_up, topology_obj=topology_obj)
+        with allure.step("Force reload the switch with the new configuration and check ports status"):
+            cli_object.general.reload_flow(ports_list=ports_expected_to_be_up, topology_obj=topology_obj, reload_force=True)
             cli_object.interface.check_link_state(ifaces=shutdown_ifaces, expected_status="down")
