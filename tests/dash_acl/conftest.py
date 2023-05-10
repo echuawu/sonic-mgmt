@@ -1,12 +1,13 @@
 import logging
+import time
 import pytest
 
 from ipaddress import ip_interface
 from constants import ENI, VM_VNI, VNET1_VNI, VNET2_VNI, REMOTE_CA_IP, LOCAL_CA_IP, REMOTE_ENI_MAC,\
     LOCAL_ENI_MAC, REMOTE_CA_PREFIX, LOOPBACK_IP, DUT_MAC, LOCAL_PA_IP, LOCAL_PTF_INTF, LOCAL_PTF_MAC,\
-    REMOTE_PA_IP, REMOTE_PTF_INTF, REMOTE_PTF_MAC, REMOTE_PA_PREFIX, VNET1_NAME, VNET2_NAME, ROUTING_ACTION, \
-    ROUTING_ACTION_TYPE, LOOKUP_OVERLAY_IP
+    REMOTE_PA_IP, REMOTE_PTF_INTF, REMOTE_PTF_MAC, REMOTE_PA_PREFIX, ACL_GROUP, ACL_STAGE
 from dash_utils import render_template_to_host, apply_swssconfig_file
+from dash_acl import acl_test_conf  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -19,19 +20,13 @@ def pytest_addoption(parser):
     parser.addoption(
         "--skip_config",
         action="store_true",
-        help="Don't apply configurations on DUT"
+        help="Apply new configurations on DUT"
     )
 
     parser.addoption(
         "--config_only",
         action="store_true",
-        help="Apply new configurations on DUT without running tests"
-    )
-
-    parser.addoption(
-        "--skip_cleanup",
-        action="store_true",
-        help="Skip config cleanup after test"
+        help="Apply new configurations on DUT"
     )
 
 
@@ -43,11 +38,6 @@ def config_only(request):
 @pytest.fixture(scope="module")
 def skip_config(request):
     return request.config.getoption("--skip_config")
-
-
-@pytest.fixture(scope="module")
-def skip_cleanup(request):
-    return request.config.getoption("--skip_cleanup")
 
 
 @pytest.fixture(scope="module")
@@ -79,30 +69,20 @@ def get_intf_from_ip(local_ip, config_facts):
                 return intf, intf_ip
 
 
-@pytest.fixture(params=["no-underlay-route", "with-underlay-route"])
-def use_underlay_route(request):
-    return request.param == "with-underlay-route"
-
-
-@pytest.fixture(params=["use-overlay-ip", "use-pkt-ca-ip"])
-def use_overlay_ip(request):
-    return request.param == "use-overlay-ip"
-
-
-@pytest.fixture(scope="function")
-def dash_config_info(duthost, config_facts, minigraph_facts, use_underlay_route):
+@pytest.fixture(scope="module")
+def dash_config_info(duthost, config_facts, minigraph_facts):
     dash_info = {
         ENI: "F4939FEFC47E",
         VM_VNI: 4321,
         VNET1_VNI: 1000,
-        VNET1_NAME: "Vnet1",
         VNET2_VNI: 2000,
-        VNET2_NAME: "Vnet2",
         REMOTE_CA_IP: "20.2.2.2",
         LOCAL_CA_IP: "11.1.1.1",
         REMOTE_ENI_MAC: "F9:22:83:99:22:A2",
         LOCAL_ENI_MAC: "F4:93:9F:EF:C4:7E",
         REMOTE_CA_PREFIX: "20.2.2.0/24",
+        ACL_GROUP: "group1",
+        ACL_STAGE: 5
     }
     loopback_intf_ip = ip_interface(list(list(config_facts["LOOPBACK_INTERFACE"].values())[0].keys())[0])
     dash_info[LOOPBACK_IP] = str(loopback_intf_ip.ip)
@@ -125,62 +105,20 @@ def dash_config_info(duthost, config_facts, minigraph_facts, use_underlay_route)
                 dash_info[REMOTE_PA_PREFIX] = str(intf_ip.network)
                 break
 
-    if use_underlay_route:
-        dash_info[REMOTE_PA_IP] = u"30.30.30.30"
-        dash_info[REMOTE_PA_PREFIX] = "30.30.30.30/32"
-
     logger.info("Testing with config {}".format(dash_info))
     return dash_info
 
 
-@pytest.fixture(scope="function")
-def apply_config(duthost, skip_config, skip_cleanup, use_underlay_route):
-    if not use_underlay_route:
-        duthost.shell("config bgp shutdown all")
+@pytest.fixture(scope="module")
+def apply_vnet_configs(skip_config, duthost, dash_config_info, acl_test_conf):  # noqa: F811
+    config_list = ["dash_basic_config"]
+    if skip_config:
+        return
 
-    configs = []
-    op = "SET"
-
-    def _apply_config(config_info):
-        if skip_config:
-            return
-        if config_info not in configs:
-            configs.append(config_info)
-
-        config = "dash_basic_config"
+    for config in config_list:
         template_name = "{}.j2".format(config)
         dest_path = "/tmp/{}.json".format(config)
-        render_template_to_host(template_name, duthost, dest_path, config_info, op=op)
+        render_template_to_host(template_name, duthost, dest_path, dash_config_info, op="SET")
         apply_swssconfig_file(duthost, dest_path)
 
-    yield _apply_config
-
-    op = "DEL"
-    if not skip_cleanup:
-        for config_info in reversed(configs):
-            _apply_config(config_info)
-
-    if not use_underlay_route:
-        duthost.shell("config bgp startup all")
-
-
-@pytest.fixture(scope="function")
-def apply_vnet_configs(dash_config_info, apply_config):
-    dash_config_info[ROUTING_ACTION] = "vnet"
-    apply_config(dash_config_info)
-
-
-@pytest.fixture(scope="function")
-def apply_vnet_direct_configs(dash_config_info, apply_config, use_overlay_ip):
-    dash_config_info[ROUTING_ACTION] = "vnet_direct"
-    dash_config_info[ROUTING_ACTION_TYPE] = "maprouting"
-    if use_overlay_ip:
-        dash_config_info[LOOKUP_OVERLAY_IP] = "1.1.1.1"
-    apply_config(dash_config_info)
-
-
-@pytest.fixture(scope="function")
-def apply_direct_configs(dash_config_info, apply_config):
-    dash_config_info[ROUTING_ACTION] = "direct"
-    del dash_config_info[VNET2_NAME]
-    apply_config(dash_config_info)
+    time.sleep(10)
