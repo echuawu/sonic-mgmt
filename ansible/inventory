@@ -74,6 +74,22 @@ r-moose-simx-34 ansible_host=r-moose-simx-34  sonic_version=v2  sonic_hwsku=ACS-
 r-moose-simx-38-ptf-any ansible_host=r-moose-simx-38  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 19000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-moose-simx-38 ansible_host=r-moose-simx-38  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-01 19000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
+# MTR canonical testbed r-moose-simx-53 topologies
+r-moose-simx-53-ptf-any ansible_host=r-moose-simx-53  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 22000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-53 ansible_host=r-moose-simx-53  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 22000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-moose-simx-57 topologies
+r-moose-simx-57-ptf-any ansible_host=r-moose-simx-57  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 23000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-57 ansible_host=r-moose-simx-57  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 23000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-moose-simx-242 topologies
+r-moose-simx-242-ptf-any ansible_host=r-moose-simx-242  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 24000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-242 ansible_host=r-moose-simx-242  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 24000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-moose-simx-246 topologies
+r-moose-simx-246-ptf-any ansible_host=r-moose-simx-246  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 25000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-moose-simx-246 ansible_host=r-moose-simx-246  sonic_version=v2  sonic_hwsku=ACS-MSN5600             serial_console="telnet r-r6515-02 25000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
 # MTR canonical testbed r-panther-simx-23 topologies
 r-panther-simx-23-ptf-any ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-panther-simx-23 ansible_host=r-panther-simx-23  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-sonic-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
@@ -101,6 +117,14 @@ r-panther-simx-09 ansible_host=r-panther-simx-09  sonic_version=v2  sonic_hwsku=
 # MTR canonical testbed r-panther-simx-06 topologies
 r-panther-simx-06-ptf-any ansible_host=r-panther-simx-06  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r6515-01 11000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-panther-simx-06 ansible_host=r-panther-simx-06  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r6515-01 11000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-panther-simx-15 topologies
+r-panther-simx-15-ptf-any ansible_host=r-panther-simx-15  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r6515-02 12000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-panther-simx-15 ansible_host=r-panther-simx-15  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r6515-02 12000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-panther-simx-17 topologies
+r-panther-simx-17-ptf-any ansible_host=r-panther-simx-17  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r6515-02 13000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-panther-simx-17 ansible_host=r-panther-simx-17  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r6515-02 13000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
 # MTR canonical testbed r-panther-simx-125 topologies
 r-panther-simx-125-ptf-any ansible_host=r-panther-simx-125  sonic_version=v2  sonic_hwsku=ACS-MSN2700             serial_console="telnet r-r640-06 12000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
@@ -137,6 +161,22 @@ r-leopard-simx-137 ansible_host=r-leopard-simx-137  sonic_version=v2  sonic_hwsk
 # MTR canonical testbed r-leopard-simx-14 topologies
 r-leopard-simx-14-ptf-any ansible_host=r-leopard-simx-14 sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-01 13000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-leopard-simx-14 ansible_host=r-leopard-simx-14  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-01 13000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-leopard-simx-21 topologies
+r-leopard-simx-21-ptf-any ansible_host=r-leopard-simx-21 sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-leopard-simx-21 ansible_host=r-leopard-simx-21  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 14000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-leopard-simx-25 topologies
+r-leopard-simx-25-ptf-any ansible_host=r-leopard-simx-25 sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-leopard-simx-25 ansible_host=r-leopard-simx-25  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-leopard-simx-29 topologies
+r-leopard-simx-29-ptf-any ansible_host=r-leopard-simx-29 sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 16000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-leopard-simx-29 ansible_host=r-leopard-simx-29  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 16000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-leopard-simx-33 topologies
+r-leopard-simx-33-ptf-any ansible_host=r-leopard-simx-33 sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 17000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-leopard-simx-33 ansible_host=r-leopard-simx-33  sonic_version=v2  sonic_hwsku=ACS-MSN4700             serial_console="telnet r-r6515-02 17000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
 # MTR canonical testbed r-buffalo-simx-28 topologies
 r-buffalo-simx-28-ptf-any ansible_host=r-buffalo-simx-28  sonic_version=v2  sonic_hwsku=ACS-MSN4800             serial_console="telnet r-sonic-02 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
@@ -177,6 +217,22 @@ r-anaconda-simx-141 ansible_host=r-anaconda-simx-141  sonic_version=v2  sonic_hw
 # MTR canonical testbed r-anaconda-simx-169 topologies
 r-anaconda-simx-169-ptf-any ansible_host=r-anaconda-simx-169  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r640-06 13000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-anaconda-simx-169 ansible_host=r-anaconda-simx-169  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r640-06 13000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-anaconda-simx-37 topologies
+r-anaconda-simx-37-ptf-any ansible_host=r-anaconda-simx-37  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 18000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-anaconda-simx-37 ansible_host=r-anaconda-simx-37  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 18000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-anaconda-simx-41 topologies
+r-anaconda-simx-41-ptf-any ansible_host=r-anaconda-simx-41  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 19000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-anaconda-simx-41 ansible_host=r-anaconda-simx-41  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 19000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-anaconda-simx-45 topologies
+r-anaconda-simx-45-ptf-any ansible_host=r-anaconda-simx-45  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 20000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-anaconda-simx-45 ansible_host=r-anaconda-simx-45  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 20000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+
+# MTR canonical testbed r-anaconda-simx-49 topologies
+r-anaconda-simx-49-ptf-any ansible_host=r-anaconda-simx-49  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 21000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
+r-anaconda-simx-49 ansible_host=r-anaconda-simx-49  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="telnet r-r6515-02 21000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 
 # MTR canonical testbed r-panther-23 topologies
 r-panther-23-ptf-any ansible_host=r-panther-23  sonic_version=v2  sonic_hwsku=Mellanox-SN2700             serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-137 base_mac=98:03:9B:F6:00:00 serial=MT1849X08806 model=MSN2700-CS2FOS syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2020.11-5.2.0022-9600', '0x22': u'MSN2700-CS2FOS', '0x23': u'MT1849X08806', '0x21': u'MSN2700', '0x26': u'16', '0x24': u'98:03:9B:F6:00:00', '0x25': u'12/10/2018 21:55:47', '0xfe': u'0xEB8871E5', '0x2b': u'Mellanox', '0x2a': u'128'}"
@@ -1159,6 +1215,18 @@ r-moose-simx-34
 r-moose-simx-38-ptf-any
 r-moose-simx-38
 
+-moose-simx-53-ptf-any
+r-moose-simx-53
+
+-moose-simx-57-ptf-any
+r-moose-simx-57
+
+-moose-simx-242-ptf-any
+r-moose-simx-242
+
+-moose-simx-246-ptf-any
+r-moose-simx-246
+
 r-panther-simx-18-ptf-any
 r-panther-simx-18
 
@@ -1176,6 +1244,12 @@ r-panther-simx-09
 
 r-panther-simx-06-ptf-any
 r-panther-simx-06
+
+r-panther-simx-15-ptf-any
+r-panther-simx-15
+
+r-panther-simx-17-ptf-any
+r-panther-simx-17
 
 r-panther-simx-125-ptf-any
 r-panther-simx-125
@@ -1203,6 +1277,18 @@ r-leopard-simx-173
 
 r-leopard-simx-14-ptf-any
 r-leopard-simx-14
+
+r-leopard-simx-21-ptf-any
+r-leopard-simx-21
+
+r-leopard-simx-25-ptf-any
+r-leopard-simx-25
+
+r-leopard-simx-29-ptf-any
+r-leopard-simx-29
+
+r-leopard-simx-33-ptf-any
+r-leopard-simx-33
 
 r-buffalo-simx-28-ptf-any
 r-buffalo-simx-28
@@ -1233,6 +1319,18 @@ r-anaconda-simx-10
 
 r-anaconda-simx-169-ptf-any
 r-anaconda-simx-169
+
+r-anaconda-simx-37-ptf-any
+r-anaconda-simx-37
+
+r-anaconda-simx-41-ptf-any
+r-anaconda-simx-41
+
+r-anaconda-simx-45-ptf-any
+r-anaconda-simx-45
+
+r-anaconda-simx-49-ptf-any
+r-anaconda-simx-49
 
 r-panther-23-ptf-any
 r-panther-23
