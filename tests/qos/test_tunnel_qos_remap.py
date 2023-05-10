@@ -4,15 +4,13 @@ import sys
 import time
 from ptf.mask import Mask
 import ptf.packet as scapy
-
-from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory     # noqa F401
-from tests.common.fixtures.ptfhost_utils import copy_saitests_directory     # noqa F401
-from tests.common.fixtures.ptfhost_utils import change_mac_addresses        # noqa F401
-from tests.common.fixtures.ptfhost_utils import run_icmp_responder          # noqa F401
-from tests.common.fixtures.ptfhost_utils import run_garp_service            # noqa F401
-from tests.common.fixtures.ptfhost_utils import set_ptf_port_mapping_mode   # noqa F401
-from tests.common.fixtures.ptfhost_utils import ptf_portmap_file_module     # noqa F401
-from tests.common.fixtures.duthost_utils import dut_qos_maps                # noqa F401
+from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory   # noqa F401
+from tests.common.fixtures.ptfhost_utils import copy_saitests_directory   # noqa F401
+from tests.common.fixtures.ptfhost_utils import change_mac_addresses      # noqa F401
+from tests.common.fixtures.ptfhost_utils import run_icmp_responder        # noqa F401
+from tests.common.fixtures.ptfhost_utils import run_garp_service          # noqa F401
+from tests.common.fixtures.ptfhost_utils import set_ptf_port_mapping_mode  # noqa F401
+from tests.common.fixtures.ptfhost_utils import ptf_portmap_file_module   # noqa F401
 from tests.common.fixtures.duthost_utils import separated_dscp_to_tc_map_on_uplink
 from tests.common.helpers.assertions import pytest_require, pytest_assert
 
@@ -24,7 +22,8 @@ from tests.common.dualtor.dual_tor_utils import upper_tor_host, lower_tor_host, 
 from .tunnel_qos_remap_base import build_testing_packet, check_queue_counter,\
     dut_config, qos_config, load_tunnel_qos_map, run_ptf_test, toggle_mux_to_host,\
     setup_module, update_docker_services, swap_syncd, counter_poll_config                               # noqa F401
-from .tunnel_qos_remap_base import leaf_fanout_peer_info, start_pfc_storm, stop_pfc_storm, get_queue_counter
+from .tunnel_qos_remap_base import leaf_fanout_peer_info, start_pfc_storm, \
+    stop_pfc_storm, get_queue_counter, disable_packet_aging                                             # noqa F401
 from ptf import testutils
 from ptf.testutils import simple_tcp_packet
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts, fanout_graph_facts     # noqa F401
@@ -486,7 +485,7 @@ def test_pfc_pause_extra_lossless_active(ptfhost, fanouthosts, rand_selected_dut
 
 
 @pytest.mark.disable_loganalyzer
-def test_tunnel_decap_dscp_to_pg_mapping(rand_selected_dut, ptfhost, dut_config, setup_module):     # noqa F811
+def test_tunnel_decap_dscp_to_pg_mapping(rand_selected_dut, ptfhost, dut_config, setup_module, creds):     # noqa F811
     """
     Test steps:
     1. Toggle all ports to active on randomly selected ToR
@@ -520,7 +519,9 @@ def test_tunnel_decap_dscp_to_pg_mapping(rand_selected_dut, ptfhost, dut_config,
         "port_map_file": dut_config["port_map_file"],
         "sonic_asic_type": dut_config["asic_type"],
         "platform_asic": dut_config["platform_asic"],
-        "cell_size": cell_size
+        "cell_size": cell_size,
+        "dut_username": creds['sonicadmin_user'],
+        "dut_password": creds['sonicadmin_password']
     })
 
     run_ptf_test(
@@ -532,7 +533,8 @@ def test_tunnel_decap_dscp_to_pg_mapping(rand_selected_dut, ptfhost, dut_config,
 
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("xoff_profile", ["pcbb_xoff_1", "pcbb_xoff_2", "pcbb_xoff_3", "pcbb_xoff_4"])
-def test_xoff_for_pcbb(rand_selected_dut, ptfhost, dut_config, qos_config, xoff_profile, setup_module):     # noqa F811
+def test_xoff_for_pcbb(
+        rand_selected_dut, ptfhost, dut_config, qos_config, xoff_profile, setup_module, creds):     # noqa F811
     """
     The test is to verify xoff threshold for PCBB (Priority Control for Bounced Back traffic)
     Test steps
@@ -547,18 +549,21 @@ def test_xoff_for_pcbb(rand_selected_dut, ptfhost, dut_config, qos_config, xoff_
     time.sleep(5)
     test_params = dict()
     test_params.update({
-        "src_port_id": dut_config["lag_port_ptf_id"],
-        "dst_port_id": dut_config["server_port_ptf_id"],
-        "dst_port_ip": dut_config["server_ip"],
-        "active_tor_mac": dut_config["selected_tor_mac"],
-        "active_tor_ip": dut_config["selected_tor_loopback"],
-        "standby_tor_mac": dut_config["unselected_tor_mac"],
-        "standby_tor_ip": dut_config["unselected_tor_loopback"],
-        "server": dut_config["selected_tor_mgmt"],
-        "port_map_file": dut_config["port_map_file"],
-        "platform_asic": dut_config["platform_asic"],
-        "sonic_asic_type": dut_config["asic_type"],
-    })
+            "src_port_id": dut_config["lag_port_ptf_id"],
+            "dst_port_id": dut_config["server_port_ptf_id"],
+            "dst_port_ip": dut_config["server_ip"],
+            "active_tor_mac": dut_config["selected_tor_mac"],
+            "active_tor_ip": dut_config["selected_tor_loopback"],
+            "standby_tor_mac": dut_config["unselected_tor_mac"],
+            "standby_tor_ip": dut_config["unselected_tor_loopback"],
+            "server": dut_config["selected_tor_mgmt"],
+            "port_map_file": dut_config["port_map_file"],
+            "sonic_asic_type": dut_config["asic_type"],
+            "dut_username": creds['sonicadmin_user'],
+            "dut_password": creds['sonicadmin_password']
+        })
+    if dut_config["asic_type"] == 'mellanox':
+        test_params.update({'cell_size': 144, 'packet_size': 300})
     # Update qos config into test_params
     test_params.update(qos_config[xoff_profile])
     # Run test on ptfhost
