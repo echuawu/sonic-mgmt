@@ -2374,7 +2374,7 @@
     - '.* ERR kernel: \[.*\] sx_core: lag_id \d+ is invalid.*'
   Conditions:
     - Redmine:
-      - 3432786
+      - 3437201
       Platform:
         - simx
 
@@ -2467,3 +2467,12 @@
         - tests/push_build_tests/general/qos/test_qos_reload.py
       Redmine:
         - 3472796
+
+- Errors_list:
+    - '.* ERR swss#buffermgrd: :- isHeadroomResourceValid: Unable to update profile for port Ethernet\d+. Accumulative headroom size exceeds limit.*'
+    - '.* ERR swss#buffermgrd: :- doUpdateBufferProfileForSize: BUFFER_PROFILE headroom-override cannot be updated because Ethernet.* referencing it violates the resource limitation.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/qos/test_buffer.py::test_headroom_override
+      Redmine:
+        - 3466071
