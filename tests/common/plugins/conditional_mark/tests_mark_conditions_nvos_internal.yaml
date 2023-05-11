@@ -81,4 +81,15 @@ tests_nvos/system/test_system_health.py::test_ignore_health_issue:
     conditions:
       - https://redmine.mellanox.com/issues/3462130
 
+tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3462130"
+    conditions:
+      - https://redmine.mellanox.com/issues/3462130
+
+tests_nvos/system/test_system_health.py::test_reboot_test:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3409698"
+    conditions:
+      - https://redmine.mellanox.com/issues/3409698
 ########################## NVOS IGNORE END ##########################
