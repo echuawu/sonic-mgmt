@@ -9,6 +9,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.HostMethods import HostMethods
@@ -228,12 +229,13 @@ def test_system_snmp_functional(engines, topology_obj):
         NvueGeneralCli.apply_config(engines.dut)
 
     with allure.step('Set possible description on mgmt port'):
-        mgmt_port.interface.description.set(value='nvosdescription', apply=True).verify_result()
+        mgmt_port.interface.set(op_param_name='description', op_param_value='"eth0 description"',
+                                apply=True).verify_result()
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            mgmt_port.show()).get_returned_value()
+            mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=mgmt_port.interface.description.label,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
                                                           expected_value='nvosdescription')
 
         with allure.step("Snmpwalk after autorefresh"):
