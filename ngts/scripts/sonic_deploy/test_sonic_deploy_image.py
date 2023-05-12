@@ -5,14 +5,16 @@ import logging
 from retry.api import retry_call
 from ngts.scripts.sonic_deploy.test_deploy_and_upgrade import get_info_from_topology
 from ngts.scripts.sonic_deploy.community_only_methods import config_y_cable_simulator, add_host_for_y_cable_simulator
+from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps, is_community
 
 
 logger = logging.getLogger()
 
 
 @allure.title('Deploy sonic image')
-def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_version, deploy_type, apply_base_config,
-                            reboot_after_install, is_shutdown_bgp, fw_pkg_path, workspace_path):
+def test_deploy_sonic_image(topology_obj, setup_name, sonic_topo, platform_params, base_version, deploy_type,
+                            apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path, workspace_path,
+                            post_installation_validation):
     """
     This script will deploy sonic image on the dut.
     :param topology_obj: topology object fixture
@@ -42,15 +44,17 @@ def test_deploy_sonic_image(topology_obj, setup_name, platform_params, base_vers
                                         setup_name=setup_name, platform_params=platform_params,
                                         deploy_type=deploy_type, reboot_after_install=reboot_after_install,
                                         fw_pkg_path=fw_pkg_path, configure_dns=True)
-            if 'dual-tor' in setup_name:
-                config_y_cable_simulator(
-                    ansible_path=setup_info['ansible_path'], setup_name=setup_name, sonic_topo='dualtor')
-                add_host_for_y_cable_simulator(dut, setup_info)
         except Exception as err:
             raise AssertionError(err)
         finally:
             if is_shutdown_bgp:
                 dut['engine'].run_cmd('sudo config bgp startup all', validate=True)
+    if sonic_topo and is_community(sonic_topo) and post_installation_validation:
+        SonicInstallationSteps.post_installation_steps(
+            topology_obj=topology_obj, sonic_topo=sonic_topo, recover_by_reboot=True, setup_name=setup_name,
+            platform_params=platform_params, apply_base_config=apply_base_config, target_version="",
+            is_shutdown_bgp=False, reboot_after_install=False, deploy_only_target=False, fw_pkg_path="",
+            reboot="reboot", additional_apps="", setup_info=setup_info)
 
 
 def check_bgp_is_shutdown(dut_engine):

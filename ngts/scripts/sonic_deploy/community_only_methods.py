@@ -119,9 +119,6 @@ def reboot_validation(ansible_path, reboot, dut_name, sonic_topo):
               "-e testbed_type={TOPO} -e testcase_name=reboot -e reboot_type={REBOOT_TYPE} " \
               "-vvv".format(SWITCH=dut_name, TOPO=sonic_topo, REBOOT_TYPE=reboot_type)
         exec_result = execute_script(cmd, ansible_path)
-        logger.warning("reboot type: {} failed".format(reboot_type))
-        logger.debug("reboot type {} failure results: {}".format(reboot_type, exec_result))
-        logger.info("Running reboot type: {} after {} failed".format(MarsConstants.REBOOT_TYPES["reboot"], reboot_type))
         if not exec_result and reboot != MarsConstants.REBOOT_TYPES["reboot"]:
             cmd = "ansible-playbook test_sonic.yml -i inventory --limit {SWITCH} -e testbed_name={SWITCH}-{TOPO} " \
                   "-e testbed_type={TOPO} -e testcase_name=reboot " \

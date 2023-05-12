@@ -84,6 +84,9 @@ def pytest_addoption(parser):
     logger.info('Parsing workspace-path')
     parser.addoption("--workspace-path", help="Specify workspace path",
                      default="/root/mars/workspace/", action="store")
+    logger.info('Parsing post_validation')
+    parser.addoption("--post_validation", help="Specify whether do post installation validation",
+                     default=False, action="store")
 
 
 @pytest.fixture(scope="module")
@@ -157,6 +160,16 @@ def sonic_topo(request):
     :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
     """
     return request.config.getoption('--sonic-topo')
+
+
+@pytest.fixture(scope="module")
+def post_installation_validation(request):
+    """
+    Method for getting post-validation from pytest arguments
+    :param request: pytest builtin
+    :return: post_validation (True or False)
+    """
+    return request.config.getoption('--post_validation')
 
 
 @pytest.fixture(scope="module")
