@@ -131,9 +131,9 @@ def test_ib_interface_state_unset(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib_interfaces
-def test_ib_interface_state_openapi(engines):
+def test_ib_interface_state_openapi(test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_interface_state(engines)
+    test_ib_interface_state(test_name)
 
 
 @pytest.mark.openapi
