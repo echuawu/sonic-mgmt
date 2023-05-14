@@ -68,6 +68,16 @@ class ClockTools:
             .get_returned_value()[ClockConsts.DATETIME]
 
     @staticmethod
+    def get_datetime_object_from_show_system_output(show_system_output):
+        """
+        @summary:
+            Extract date-time value from 'nv show system' raw output
+        @return: datetime object
+        """
+        orig_datetime = ClockTools.get_datetime_from_show_system_output(show_system_output)
+        return datetime.strptime(orig_datetime, "%Y-%m-%d %H:%M:%S")
+
+    @staticmethod
     def datetime_difference_in_seconds(dt1, dt2):
         """
         @summary:

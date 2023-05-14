@@ -15,6 +15,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.tests_nvos.general.security.conftest import ssh_to_device_and_retrieve_raw_login_ssh_notification, create_ssh_login_engine
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 
 logger = logging.getLogger(__name__)
@@ -231,7 +232,7 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
     '''
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
-        successful_login_time = get_current_time_in_secs()
+        successful_login_time = ClockTools.get_datetime_object_from_show_system_output(System().show())
         ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                               username=DefaultConnectionValues.ADMIN,
                                                               password=DefaultConnectionValues.DEFAULT_PASSWORD)
@@ -253,7 +254,7 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
-        successful_login_time = get_current_time_in_secs()
+        successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                               username=DefaultConnectionValues.ADMIN,
                                                               password=DefaultConnectionValues.DEFAULT_PASSWORD)
@@ -294,7 +295,7 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
 
         with allure.step("Connecting to switch with the new user for first time"):
             logger.info("Connecting to switch with the new user for first time")
-            successful_login_time = get_current_time_in_secs()
+            successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
             ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
 
         with allure.step("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER)):
@@ -331,7 +332,7 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
-        successful_login_time = get_current_time_in_secs()
+        successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                               username=DefaultConnectionValues.ADMIN,
                                                               password=DefaultConnectionValues.DEFAULT_PASSWORD)

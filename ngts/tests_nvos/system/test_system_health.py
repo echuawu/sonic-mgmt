@@ -5,7 +5,6 @@ import allure
 import pytest
 import random
 import math
-from datetime import datetime
 
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.Fae import Fae
@@ -14,6 +13,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.Simulator import HWSimulator
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, NvosConst
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
 logger = logging.getLogger()
 
@@ -256,7 +256,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
 
     system = System()
     system.log.rotate_logs()
-    date_time = datetime.now()
+    date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
     verify_health_status_and_led(system, OK)
@@ -271,7 +271,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:
-        date_time = datetime.now()
+        date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         time.sleep(1)
         with allure.step("Fix the health issues"):
             logger.info("Fix the health issues")
@@ -296,7 +296,7 @@ def test_simulate_fan_speed_fault(devices, engines):
     """
     system = System()
     system.log.rotate_logs()
-    date_time = datetime.now()
+    date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
     verify_health_status_and_led(system, OK)
@@ -310,7 +310,7 @@ def test_simulate_fan_speed_fault(devices, engines):
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:
-        date_time = datetime.now()
+        date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         time.sleep(1)
         with allure.step("Fix the health issues"):
             logger.info("Fix the health issues")
@@ -338,7 +338,7 @@ def test_simulate_health_problem_with_user_config_file(devices, engines):
 
     system = System()
     system.log.rotate_logs()
-    date_time = datetime.now()
+    date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
     system.validate_health_status(OK)
@@ -348,7 +348,7 @@ def test_simulate_health_problem_with_user_config_file(devices, engines):
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:
-        date_time = datetime.now()
+        date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         time.sleep(1)
         with allure.step("Fix the health issue - remove user config file"):
             logger.info("Fix the health issue - remove user config file")
@@ -374,7 +374,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
 
     system = System()
     system.log.rotate_logs()
-    date_time = datetime.now()
+    date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
     system.validate_health_status(OK)
@@ -387,7 +387,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False, expected_in_monitor_list=False)
 
     finally:
-        date_time = datetime.now()
+        date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         time.sleep(1)
         with allure.step("Fix the health issue "):
             logger.info("Fix the health issue ")
