@@ -1069,41 +1069,17 @@ vlan/test_vlan_ping.py:
 #######################################
 #####             voq             #####
 #######################################
-voq:
+voq/test_fabric_reach.py:
   skip:
-    reason: Skip all HW SKUs that are not VOQ based (No Inband interface present) from running VOQ test cases
+    reason: "Skip test_fabric_reach on unsupported testbed."
     conditions:
-      - "len(VOQ_INBAND_INTERFACE) == 0"
+      - "('t2' not in topo_name) or (asic_subtype not in ['broadcom-dnx']) or ('arista_7800' not in platform)"
 
-voq/test_voq_ipfwd.py:
+voq/test_voq_fabric_status_all.py:
   skip:
-    reason: "Did not find any asic in the DUTs (linecards) that are connected to T1 VM's."
+    reason: "Skip test_voq_fabric_status_all on unsupported testbed."
     conditions:
-      - "not any('T1' in value['name'] for key, value in minigraph_neighbors.items())"
-
-voq/test_voq_ipfwd.py::test_host_route_table_bgp:
-  skip:
-    reason: "Has no inband interfaces, so must not be connected to fabric"
-    conditions:
-      - "len(BGP_VOQ_CHASSIS_NEIGHBOR) == 0"
-
-voq/test_voq_ipfwd.py::test_host_route_table_inband_addr:
-  skip:
-    reason: "Has no inband interfaces, so must not be connected to fabric."
-    conditions:
-      - "len(VOQ_INBAND_INTERFACE) == 0"
-
-voq/test_voq_nbr.py::TestGratArp::test_gratarp_macchange:
-  skip:
-    reason: "Can't run this test without any IP interfaces on ethernet ports."
-    conditions:
-      - "len(INTERFACE) == 0"
-
-voq/test_voq_nbr.py::test_neighbor_hw_mac_change:
-  skip:
-    reason: "Can't run this test without any IP interfaces on ethernet ports."
-    conditions:
-      - "len(INTERFACE) == 0"
+      - "('t2' not in topo_name) or (asic_subtype not in ['broadcom-dnx']) or ('arista_7800' not in platform)"
 
 #######################################
 #####             vrf             #####
