@@ -20,6 +20,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         # Client arguments
         self.add_cmd_argument("--setup_name", required=True, dest="setup_name",
                               help="Specify setup name, for example: SONiC_tigris_r-tigris-06")
+        self.add_cmd_argument("--sonic-topo", required=False, dest="sonic_topo",
+                              help="Topology for SONiC testing, for example: t0, t1, t1-lag, ptf32, etc.")
         self.add_cmd_argument("--test_script", required=True, dest="test_script",
                               help="Path to the test script, example: /workspace/tests/")
         self.add_cmd_argument("--raw_options", nargs="?", default="", dest="raw_options",
@@ -29,9 +31,14 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         allure_project = get_allure_project_id(self.setup_name, self.test_script)
-        cmd_template = '/ngts_venv/bin/pytest --setup_name={}  --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
-        cmd = cmd_template.format(self.setup_name, self.session_id, self.mars_key_id,
-                                  self.raw_options, allure_project, self.test_script)
+        if self.sonic_topo:
+            cmd_template = '/ngts_venv/bin/pytest --setup_name={} --sonic-topo={} --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
+            cmd = cmd_template.format(self.setup_name, self.sonic_topo, self.session_id, self.mars_key_id,
+                                      self.raw_options, allure_project, self.test_script)
+        else:
+            cmd_template = '/ngts_venv/bin/pytest --setup_name={} --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
+            cmd = cmd_template.format(self.setup_name, self.session_id, self.mars_key_id,
+                                      self.raw_options, allure_project, self.test_script)
 
         for epoint in self.EPoints:
             dic_args = self._get_dic_args_by_running_stage(RunningStage.RUN)
