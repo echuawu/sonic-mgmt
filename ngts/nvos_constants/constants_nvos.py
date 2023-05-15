@@ -53,6 +53,7 @@ class DatabaseConst:
 
 
 class NvosConst:
+    DESCRIPTION = 'description'
     PORT_STATUS_UP = 'up'
     PORT_STATUS_DOWN = 'down'
 

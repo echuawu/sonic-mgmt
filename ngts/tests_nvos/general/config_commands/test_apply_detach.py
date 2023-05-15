@@ -25,7 +25,7 @@ def test_detach(engines):
         system = System()
         new_hostname_value = 'TestingConfigCmds'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
             TestToolkit.GeneralApi[TestToolkit.tested_api].detach_config(engines.dut)
 
@@ -57,7 +57,7 @@ def test_apply_assume(engines):
     new_hostname = 'TESTINGAPPLY'
     with allure.step('set system hostname to {hostname} - without apply'.format(
             hostname=new_hostname)):
-        system.set(new_hostname, engines.dut, SystemConsts.HOSTNAME, False)
+        system.set(SystemConsts.HOSTNAME, new_hostname, apply=False)
 
     with allure.step('apple system hostname change using {opt}'.format(opt=ConfigConsts.APPLY_ASSUME_YES)):
         apply_output = NvueGeneralCli.apply_config(engines.dut, False, ConfigConsts.APPLY_ASSUME_YES)
@@ -68,7 +68,7 @@ def test_apply_assume(engines):
         ConfigTool.verify_show_after_apply(show_after_apply, 'set', 'system/hostname', new_hostname).get_returned_value()
 
     with allure.step('unset system hostname - without apply'):
-        system.unset(engines.dut, SystemConsts.HOSTNAME, False)
+        system.unset(SystemConsts.HOSTNAME, False)
 
     with allure.step('apple system hostname change using {opt}'.format(opt=ConfigConsts.APPLY_ASSUME_NO)):
         apply_output = NvueGeneralCli.apply_config(engines.dut, False, ConfigConsts.APPLY_ASSUME_NO)

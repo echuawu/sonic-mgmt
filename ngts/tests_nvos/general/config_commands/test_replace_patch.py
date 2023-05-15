@@ -1,13 +1,11 @@
 import time
-
 import pytest
 import allure
-import os
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts, OutputFormat
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, OutputFormat
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 
@@ -27,7 +25,7 @@ def test_replace_empty_file(engines):
         system = System()
         new_hostname_value = 'TestingConfigCmds1'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         file_name = 'replace'
         file_type = 'yaml'
@@ -65,22 +63,22 @@ def test_replace_positive(engines):
 
         first_hostname = 'TestingConfigCmds2'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=first_hostname)):
-            system.set(first_hostname, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, first_hostname, apply=False)
 
-            diff_after_hostname_change = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
+            diff_after_hostname_change = NvueGeneralCli.diff_config(engines.dut)
 
         new_hostname_value = 'TestingConfigReplace'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         ib0_port = MgmtPort('ib0')
         output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-            ib0_port.show()).get_returned_value()
+            ib0_port.interface.show()).get_returned_value()
         current_description = output_dictionary['description']
         new_ib0_description = '"ib0description"'
         with allure.step('set ib0 description to be {description} - with apply'.format(
                 description=new_ib0_description)):
-            ib0_port.interface.description.set(value=new_ib0_description, apply=False).verify_result()
+            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step("Replace config"):
             file = create_file_with_content(engines.dut, 'replace', 'yaml', diff_after_hostname_change)
@@ -101,12 +99,13 @@ def test_replace_positive(engines):
                                                         first_hostname).verify_result()
 
             output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-                ib0_port.show()).get_returned_value()
+                ib0_port.interface.show()).get_returned_value()
 
             ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                        field_name=ib0_port.interface.description.label,
+                                                        field_name=NvosConst.DESCRIPTION,
                                                         expected_value=current_description).verify_result()
-            system.unset(engines.dut).verify_result()
+            ib0_port.interface.unset(NvosConst.DESCRIPTION, apply=False).verify_result()
+            system.unset(apply=True, ask_for_confirmation=True).verify_result()
 
 
 @pytest.mark.general
@@ -132,7 +131,7 @@ def test_replace_negative(engines):
 
     new_hostname_value = 'TestingConfigCmds3'
     with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-        system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+        system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         content = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
 
@@ -163,7 +162,7 @@ def test_patch_empty_file(engines):
         system = System()
         new_hostname_value = 'TestingConfigPatchCmds4'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         diff_after_hostname_change = OutputParsingTool.parse_json_str_to_dictionary(
             NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
@@ -206,19 +205,19 @@ def test_patch_positive(engines):
 
         first_hostname = 'TestingConfigCmds5'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=first_hostname)):
-            system.set(first_hostname, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, first_hostname, apply=False)
 
-        diff_after_hostname_change = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
+        diff_after_hostname_change = NvueGeneralCli.diff_config(engines.dut)
 
         new_hostname_value = 'TestingConfigPatch'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         ib0_port = MgmtPort('ib0')
         new_ib0_description = 'TEST'
         with allure.step('set ib0 description to be {description} - with apply'.format(
                 description=new_ib0_description)):
-            ib0_port.interface.description.set(value=new_ib0_description, apply=False).verify_result()
+            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True, ask_for_confirmation=True).verify_result()
 
         file_name = 'patch'
         file_type = 'yaml'
@@ -234,12 +233,13 @@ def test_patch_positive(engines):
                                                         first_hostname).verify_result()
 
             output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-                ib0_port.show()).get_returned_value()
+                ib0_port.interface.show()).get_returned_value()
 
             ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                        field_name=ib0_port.interface.description.label,
+                                                        field_name=NvosConst.DESCRIPTION,
                                                         expected_value=new_ib0_description).verify_result()
-            ib0_port.interface.description.unset().verify_result()
+            ib0_port.interface.unset(NvosConst.DESCRIPTION, apply=False).verify_result()
+            system.unset(SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True).verify_result()
 
 
 @pytest.mark.general
@@ -265,7 +265,7 @@ def test_patch_negative(engines):
 
     new_hostname_value = 'TestingConfigPatchCmds6'
     with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-        system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+        system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         content = NvueGeneralCli.diff_config(engines.dut, output_type=OutputFormat.yaml)
 

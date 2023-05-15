@@ -5,7 +5,6 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
-from tests.common.helpers.assertions import pytest_assert
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 
@@ -51,14 +50,14 @@ def test_system(engines, devices, topology_obj):
                 ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                             dhcp_hostname).verify_result()
 
-        system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME).verify_result()
+        system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True).verify_result()
         time.sleep(3)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                     new_hostname_value).verify_result()
 
     with allure.step('Run unset system hostname command and verify that hostname is updated'):
-        system.unset(engines.dut, SystemConsts.HOSTNAME).verify_result()
+        system.unset(SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True).verify_result()
         if dhcp_enabled:
             logging.info("Wait till the management interface will be reloaded to get a hostname from DHCP")
             time.sleep(20)

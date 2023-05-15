@@ -98,4 +98,10 @@ tests_nvos/system/test_system_snmp.py::test_system_snmp_functional:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3466894"
     conditions:
       - https://redmine.mellanox.com/issues/3466894
+
+tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3459180"
+    conditions:
+      - https://redmine.mellanox.com/issues/3459180
 ########################## NVOS IGNORE END ##########################

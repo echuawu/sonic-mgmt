@@ -4,7 +4,7 @@ import allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ConfigTool import ConfigTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts, NvosConst
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -44,7 +44,7 @@ def test_show_diff_history(engines):
 
         new_hostname_value = 'TestingConfigCmds'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME, False)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
         with allure.step('saving the diff, history and show outputs after set hostname without apply'):
             show_after_set, diff_after_set, history_after_set = save_diff_hisoty_show_outputs(engines.dut)
@@ -56,7 +56,7 @@ def test_show_diff_history(engines):
             show_after_apply, diff_after_apply, history_after_apply = save_diff_hisoty_show_outputs(engines.dut)
 
         with allure.step('unset hostname - without apply'.format(hostname=new_hostname_value)):
-            system.unset(engines.dut, SystemConsts.HOSTNAME, False)
+            system.unset(SystemConsts.HOSTNAME, apply=False)
 
         with allure.step('saving the diff, history and show outputs after unset hostname without apply'):
             show_after_unset, diff_after_unset, history_after_unset = save_diff_hisoty_show_outputs(engines.dut)
@@ -121,18 +121,18 @@ def test_diff_history_revision_ids(engines):
         system = System()
         new_hostname_value = 'TestingConfigCmds'
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True)
 
         ib0_port = MgmtPort('ib0')
         new_ib0_description = '"ib0description"'
         with allure.step('set ib0 description to be {description} - with apply'.format(
                 description=new_ib0_description)):
-            ib0_port.interface.description.set(value=new_ib0_description, apply=True).verify_result()
+            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
 
         new_ib0_description = '"testing_second"'
         with allure.step('set ib0 description to be {description} - with apply'.format(
                 description=new_ib0_description)):
-            ib0_port.interface.description.set(value=new_ib0_description, apply=True).verify_result()
+            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
 
         with allure.step('get the last revision ids - all test applies'):
             history_output = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut))\
@@ -158,7 +158,7 @@ def test_diff_history_revision_ids(engines):
                                'should include the first configuration we applied'
 
         with allure.step('unset system - with apply'):
-            system.unset(engines.dut)
+            system.unset(apply=True, ask_for_confirmation=True)
             engines.dut.run_cmd('nv unset interface')
             NvueGeneralCli.apply_config(engines.dut)
     with allure.step('validate the test results'):

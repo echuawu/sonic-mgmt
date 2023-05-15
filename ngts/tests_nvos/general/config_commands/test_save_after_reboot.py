@@ -1,15 +1,11 @@
 import pytest
 import allure
 import logging
-import os
-import time
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.ConfigTool import ConfigTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts, OutputFormat
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
@@ -40,7 +36,7 @@ def test_save_reboot(engines, devices):
         new_hostname_value = 'TestingConfigCmds'
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
             logger.info('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value))
-            system.set(new_hostname_value, engines.dut, SystemConsts.HOSTNAME)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True)
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
 
         try:
@@ -48,7 +44,7 @@ def test_save_reboot(engines, devices):
             new_ib0_description = '"ib0description"'
             with allure.step('set ib0 description to be {description} - with apply'.format(description=new_ib0_description)):
                 logger.info('set ib0 description to be {description} - with apply'.format(description=new_ib0_description))
-                ib0_port.interface.description.set(value=new_ib0_description, apply=True).verify_result()
+                ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
 
             with allure.step('Run nv action reboot system'):
                 logger.info('Run nv action reboot system')
@@ -60,16 +56,17 @@ def test_save_reboot(engines, devices):
                 ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                             new_hostname_value).verify_result()
 
+            with allure.step('verify the ib0 description is empty'):
+                logger.info('verify the ib0 description is empty')
                 output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-                    ib0_port.show()).get_returned_value()
-
+                    ib0_port.interface.show()).get_returned_value()
                 ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                            field_name=ib0_port.interface.description.label,
+                                                            field_name=NvosConst.DESCRIPTION,
                                                             expected_value='').verify_result()
         finally:
             with allure.step('Cleanup - set hostname to be {hostname} - with apply'.format(hostname=old_hostname)):
                 logger.info('Cleanup - set hostname to be {hostname} - with apply'.format(hostname=old_hostname))
-                system.unset(engines.dut)
+                system.unset(SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True)
                 TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
                 with allure.step('Run nv action reboot system'):
                     logger.info('Run nv action reboot system')
