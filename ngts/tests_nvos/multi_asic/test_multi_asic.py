@@ -35,7 +35,7 @@ def test_multi_asic(engines, devices):
     finally:
         with allure.step("Cleanup: unset system"):
             logger.info("Cleanup: unset system")
-            system.unset(engines.dut, apply=True)
+            system.unset(SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True)
 
 
 def validate_hostname_in_redis_database(engine, device, expected_hostname):
