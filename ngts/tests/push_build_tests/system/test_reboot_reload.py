@@ -39,7 +39,7 @@ def validation_type(platform_params, is_simx):
 
 @pytest.mark.reboot_reload
 @pytest.mark.disable_loganalyzer
-def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, validation_type):
+def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, shared_params, validation_type, is_simx):
     """
     This tests checks reboot according to test parameter. Test checks data and control plane traffic loss time.
     After reboot/reload finished - test doing functional validations(run PushGate tests)
@@ -50,7 +50,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, sh
     :param request: pytest build-in
     """
     try:
-        test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params)
+        test_reboot_reload = RebootReload(topology_obj, interfaces, engines, shared_params, is_simx)
         test_reboot_reload.push_gate_reboot_test_runner(request, validation_type)
     except Exception as err:
         raise AssertionError(err)
@@ -58,7 +58,7 @@ def test_push_gate_reboot_policer(request, topology_obj, interfaces, engines, sh
 
 class RebootReload:
 
-    def __init__(self, topology_obj, interfaces, engines, shared_params):
+    def __init__(self, topology_obj, interfaces, engines, shared_params, is_simx):
         self.topology_obj = topology_obj
         self.dut_engine = engines.dut
         self.cli_object = self.topology_obj.players['dut']['cli']
@@ -73,6 +73,7 @@ class RebootReload:
         self.is_support_app_ext = shared_params.app_ext_is_app_ext_supported
         self.app_name = shared_params.app_ext_app_name
         self.version = shared_params.app_ext_version
+        self.is_simx = is_simx
 
     @pytest.mark.disable_loganalyzer
     def push_gate_reboot_test_runner(self, request, validation_type):
@@ -168,13 +169,19 @@ class RebootReload:
         return control_plane_checker
 
     def start_data_plane_validation(self, validation_type, allowed_data_loss_time):
-        # Here we will send 1k pps - it allow to check traffic loss less than 1 second
+        # Here we will send 1k PPS - it allow to check traffic loss less than 1 second
+        count = 200000
+        interval = 0.001
+        if self.is_simx:
+            # On SIMX we will send only 10 PPS, due to performance limitation, see RM issue: 3402682
+            count = 2000
+            interval = 0.1
         validation_data_plane = {'sender': 'ha',
                                  'name': 'data_plane_{}'.format(validation_type),
                                  'background': 'start',
                                  'args': {'interface': self.ping_sender_iface,
-                                          'count': 200000, 'dst': self.hb_vlan40_ip,
-                                          'interval': 0.001,
+                                          'count': count, 'dst': self.hb_vlan40_ip,
+                                          'interval': interval,
                                           'allowed_traffic_loss_time': allowed_data_loss_time,
                                           'result_file': RebootTestConstants.DATAPLANE_TRAFFIC_RESULTS_FILE},
                                  }
