@@ -28,32 +28,36 @@ def pytest_runtest_makereport(item, call):
         if item.rep_setup.passed and (item.rep_call.failed or is_teardown_failed) and \
                 os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) == "True":
             if session_id:
-                topology_obj = item.funcargs['topology_obj']
-                dumps_folder = item.funcargs['dumps_folder']
-                with allure.step('The test case has failed, generating a sysdump'):
-                    dut_cli_object = topology_obj.players['dut']['cli']
-                    dut_engine = topology_obj.players['dut']['engine']
-                    duration = get_test_duration(item)
-                    collect_stored_cmds_then_attach_to_allure_report(topology_obj)
-                    remote_dump_path = dut_cli_object.general.generate_techsupport(duration)
+                try:
+                    topology_obj = item.funcargs['topology_obj']
+                    dumps_folder = item.funcargs['dumps_folder']
+                    with allure.step('The test case has failed, generating a sysdump'):
+                        dut_cli_object = topology_obj.players['dut']['cli']
+                        dut_engine = topology_obj.players['dut']['engine']
+                        duration = get_test_duration(item)
+                        collect_stored_cmds_then_attach_to_allure_report(topology_obj)
+                        remote_dump_path = dut_cli_object.general.generate_techsupport(duration)
 
-                dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
-                copy_msg = 'Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder)
-                with allure.step(copy_msg):
-                    logger.info(copy_msg)
-                    dut_engine.copy_file(source_file=remote_dump_path,
-                                         dest_file=dest_file,
-                                         file_system='/',
-                                         direction='get',
-                                         overwrite_file=True,
-                                         verify_file=False)
-                    os.chmod(dest_file, 0o777)
-                is_simx = item.funcargs.get('is_simx')
-                is_air = item.funcargs.get('is_air')
-                if is_simx and not is_air:
-                    with allure.step('Dump SIMX VM logs'):
-                        dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name)
-                store_dest_file_path(dest_file, item.name)
+                    dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
+                    copy_msg = 'Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder)
+                    with allure.step(copy_msg):
+                        logger.info(copy_msg)
+                        dut_engine.copy_file(source_file=remote_dump_path,
+                                             dest_file=dest_file,
+                                             file_system='/',
+                                             direction='get',
+                                             overwrite_file=True,
+                                             verify_file=False)
+                        os.chmod(dest_file, 0o777)
+                    is_simx = item.funcargs.get('is_simx')
+                    is_air = item.funcargs.get('is_air')
+                    if is_simx and not is_air:
+                        with allure.step('Dump SIMX VM logs'):
+                            dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name)
+                    store_dest_file_path(dest_file, item.name)
+                except BaseException as err:
+                    error_message = f'Failed to generate/store techsupport dump.\nGot error: {err}'
+                    logger.error(error_message)
             else:
                 logger.info('###  Session ID was not provided, assuming this is manual run,'
                             ' sysdump will not be created  ###')
