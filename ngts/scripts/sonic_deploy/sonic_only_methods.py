@@ -298,6 +298,22 @@ class SonicInstallationSteps:
         :param setup_info: dictionary with setup info
         """
         ansible_path = setup_info['ansible_path']
+        # For Port Init testing
+        logger.info("Prepare sai.xml files for Port Init feature testing")
+        cli = setup_info['duts'][0]['cli_obj']
+        # Get DUT name
+        dut_name = setup_info['setup_name'].split('_')[0]
+        # List with DUT where global flag will be set to True
+        setups_with_set_global_flag = ['arc-switch1004', 'arc-switch1025', 'r-moose-01', 'mtvr-moose-02', 'r-tigon-04',
+                                       'r-tigon-11', 'r-leopard-01', 'r-leopard-58', 'r-tigris-04', 'r-tigris-13',
+                                       'r-alligator-04', 'r-lionfish-16', 'r-anaconda-15', 'r-moose-02', 'r-tigon-15',
+                                       'r-leopard-56', 'r-tigris-22', 'r-liger-02', 'r-panther-13', 'r-spider-05']
+
+        global_flag = True if dut_name in setups_with_set_global_flag else False
+        local_flags = True if dut_name not in setups_with_set_global_flag else False
+        # Modify sai.xml
+        cli.update_sai_xml_file(platform_params['platform'], platform_params['hwsku'], global_flag=global_flag,
+                                local_flags=local_flags)
 
         # Community only steps
         if is_community(sonic_topo):

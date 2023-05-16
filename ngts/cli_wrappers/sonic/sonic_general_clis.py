@@ -8,6 +8,7 @@ import traceback
 import os
 from retry import retry
 from retry.api import retry_call
+import xml.etree.ElementTree as ET
 
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
@@ -708,6 +709,59 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                               dest_file=sai_file_name, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{sai_file_name} {switch_sai_xml_path}')
+
+    def update_sai_xml_file(self, platform, hwsku, global_flag=False, local_flags=False):
+        switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
+        default_sai_xml_file_name = 'sai.profile'
+
+        logger.info(f'Get SAI init config file path')
+        output = self.engine.run_cmd(
+            f"sudo cat {switch_sai_xml_path}/{default_sai_xml_file_name} | grep \"SAI_INIT_CONFIG_FILE\"")
+
+        logger.info(f'Get SAI init config file name {output}')
+        # Match output of SAI_INIT_CONFIG_FILE=/usr/share/sonic/hwsku/sai_platform_name.xml
+        actual_sai_xml_file_name = output.split("=")[1].split("/")[-1]
+
+        logger.info(f'Get SAI actual config file name {actual_sai_xml_file_name}')
+        actual_switch_sai_xml_path = switch_sai_xml_path + '/' + actual_sai_xml_file_name
+
+        logger.info(f'Copy actual SAI config file to sonic-mgmt')
+        self.engine.copy_file(source_file=f"{actual_switch_sai_xml_path}",
+                              dest_file=f'/tmp/{actual_sai_xml_file_name}', file_system='/tmp/', direction='get')
+        logger.info(f'Add appropriate flags to actual sai.xml {actual_switch_sai_xml_path}')
+        self.modify_xml(f"/tmp/{actual_sai_xml_file_name}", global_flag=global_flag, local_flags=local_flags)
+
+        logger.info(f'Copy modified file to DUT /tmp/ folder')
+        self.engine.copy_file(source_file=f"/tmp/{actual_sai_xml_file_name}",
+                              dest_file=actual_sai_xml_file_name, file_system='/tmp/',
+                              overwrite_file=True, verify_file=False)
+
+        logger.info(f'Move file {actual_sai_xml_file_name} from /tmp/ to {actual_switch_sai_xml_path}')
+        self.engine.run_cmd(f'sudo mv /tmp/{actual_sai_xml_file_name} {actual_switch_sai_xml_path}')
+
+    def modify_xml(self, filepath, global_flag=False, local_flags=False):
+        doc = ET.parse(filepath)
+        root_node = doc.getroot()
+        child_node = root_node.find('platform_info')
+        if global_flag:
+            # Add global flag to child node
+            logger.info(f'Add global flag to child node')
+            global_flag = ET.Element("late-create-all-ports")
+            global_flag.text = "1"
+            child_node.append(global_flag)
+
+        if local_flags:
+            logger.info(f'Add local flag to child node')
+            # Add local flag to all ports
+            local_flag = ET.Element("late-create")
+            local_flag.text = "true"
+            for child in child_node:
+                for element in child:
+                    if element.tag == 'port-info':
+                        element.append(local_flag)
+        tree = ET.ElementTree(root_node)
+        # ET.indent(tree, space="\t", level=0)
+        tree.write(filepath, encoding="utf-8")
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku):
         config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
