@@ -1310,11 +1310,6 @@
       - 3067340
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[COMMAND_IFC.ERR\] sxd_open_device error: \[No such device or address\].*'
-    - '.* ERR syncd#SDK: \[ACCESS_REG_INIT.ERR\] Failed initializing command ifc lib.*'
-    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c.*- mlnx_resource_mng_stage: mlnx_sai_switch.c.*- mlnx_resource_mng_stage: Failed to init access reg - DEVICE OPEN ERROR.*'
-    - '.* ERR syncd#SDK: :- onSwitchCreateInInitViewMode: failed to create switch in init view mode: SAI_STATUS_FAILURE.*'
-    - '.* ERR syncd#SDK: :- run: Runtime error: :- onSwitchCreateInInitViewMode: failed to create switch in init view mode: SAI_STATUS_FAILURE.*'
     - '.* ERR swss#orchagent: :- wait: SELECT operation result: TIMEOUT on getresponse.*'
     - '.* ERR swss#orchagent: :- wait: failed to get response for getresponse.*'
     - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
@@ -1323,7 +1318,7 @@
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
-      - 3162498
+      - 3440734
 
 - Errors_list:
     - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\).*'
@@ -2424,3 +2419,9 @@
   Conditions:
     - Platform:
         - simx
+
+- Errors_list:
+    - '.*ERR pmon#sensord: Error getting sensor data: dps460.*'
+  Conditions:
+    - Redmine:
+        - 3447925
