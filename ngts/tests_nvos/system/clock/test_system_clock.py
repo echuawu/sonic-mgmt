@@ -82,7 +82,7 @@ def test_set_unset_timezone_ntp_off(engines, system, valid_timezones, orig_timez
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
         logging.info("Set the new timezone with 'nv set system timezone'")
-        ClockTools.set_timezone(new_timezone, system, engines.dut, apply=True).verify_result()
+        ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
 
     with allure.step("Verify new timezone in 'nv show system' and in 'timedatectl'"):
         logging.info("Verify new timezone in 'nv show system' and in 'timedatectl'")
@@ -90,7 +90,7 @@ def test_set_unset_timezone_ntp_off(engines, system, valid_timezones, orig_timez
 
     with allure.step("Unset the timezone with 'nv unset system timezone'"):
         logging.info("Unset the timezone with 'nv unset system timezone'")
-        ClockTools.unset_timezone(system, engines.dut, apply=True).verify_result()
+        ClockTools.unset_timezone(system, apply=True).verify_result()
 
     with allure.step("Verify default timezone in 'nv show system' and in 'timedatectl'"):
         logging.info("Verify default timezone in 'nv show system' and in 'timedatectl'")
@@ -117,7 +117,7 @@ def test_set_unset_timezone_ntp_on(engines, system, valid_timezones, orig_timezo
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
         logging.info("Set the new timezone with 'nv set system timezone'")
-        ClockTools.set_timezone(new_timezone, system, engines.dut, apply=True).verify_result()
+        ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
 
     with allure.step("Verify new timezone in 'nv show system' and in 'timedatectl'"):
         logging.info("Verify new timezone in 'nv show system' and in 'timedatectl'")
@@ -125,7 +125,7 @@ def test_set_unset_timezone_ntp_on(engines, system, valid_timezones, orig_timezo
 
     with allure.step("Unset the timezone with 'nv unset system timezone'"):
         logging.info("Unset the timezone with 'nv unset system timezone'")
-        ClockTools.unset_timezone(system, engines.dut, apply=True).verify_result()
+        ClockTools.unset_timezone(system, apply=True).verify_result()
 
     with allure.step("Verify default timezone in 'nv show system' and in 'timedatectl'"):
         logging.info("Verify default timezone in 'nv show system' and in 'timedatectl'")
@@ -400,7 +400,7 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
     """
     with allure.step('Verify show date-time same as last log timestamp'):
         logging.info('Verify show date-time same as last log timestamp')
-        ClockTools.verify_show_and_log_times(system, engines)
+        ClockTools.verify_show_and_log_times(system)
 
     with allure.step('Set a random timezone'):
         logging.info('Set a random timezone')
@@ -409,19 +409,19 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
         logging.info('Random timezone: "{}"'.format(new_timezone))
 
         logging.info("Set the new timezone")
-        ClockTools.set_timezone(new_timezone, system, engines.dut, apply=True).verify_result()
+        ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
 
     with allure.step('Verify show date-time same as last log timestamp'):
         logging.info('Verify show date-time same as last log timestamp')
-        ClockTools.verify_show_and_log_times(system, engines)
+        ClockTools.verify_show_and_log_times(system)
 
     with allure.step("Unset the timezone"):
         logging.info("Unset the timezone")
-        ClockTools.unset_timezone(system, engines.dut, apply=True).verify_result()
+        ClockTools.unset_timezone(system, apply=True).verify_result()
 
     with allure.step('Verify show date-time same as last log timestamp'):
         logging.info('Verify show date-time same as last log timestamp')
-        ClockTools.verify_show_and_log_times(system, engines)
+        ClockTools.verify_show_and_log_times(system)
 
     with allure.step("Change date-time"):
         logging.info("Pick random new date-time to set")
@@ -438,7 +438,7 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
 
     with allure.step('Verify show date-time same as last log timestamp'):
         logging.info('Verify show date-time same as last log timestamp')
-        ClockTools.verify_show_and_log_times(system, engines)
+        ClockTools.verify_show_and_log_times(system)
 
 
 # --------------------- OpenApi --------------------- #

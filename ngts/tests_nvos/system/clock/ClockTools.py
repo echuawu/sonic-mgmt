@@ -327,7 +327,7 @@ class ClockTools:
         """
         with allure.step("Set the bad timezone"):
             logging.info('Set the bad timezone "{btz}"'.format(btz=bad_timezone))
-            res_obj = ClockTools.set_timezone(bad_timezone, system_obj, engines.dut, apply=True)
+            res_obj = ClockTools.set_timezone(bad_timezone, system_obj, apply=True)
 
         with allure.step("Verify error occurred"):
             logging.info('Verify error occurred for the bad timezone "{btz}"'.format(btz=bad_timezone))
@@ -409,36 +409,33 @@ class ClockTools:
             ClockTools.verify_same_datetimes(orig_datetime, timedatectl_datetime)
 
     @staticmethod
-    def set_timezone(new_tz, system_obj, engine_obj, apply=True):
+    def set_timezone(new_tz, system_obj, apply=True):
         """Set a given timezone
 
         :param new_tz: timezone to set (str)
         :param system_obj: System object
-        :param engine_obj: dut engine object, defaults to TestToolkit.engines.dut
         :param apply: whether to apply the set or not, defaults to True
         :return: ResultObj from the set command
         """
-        return system_obj.set(value=new_tz, engine=engine_obj, field_name=ClockConsts.TIMEZONE, apply=apply)
+        return system_obj.set(op_param_name=ClockConsts.TIMEZONE, op_param_value=new_tz, apply=apply)
 
     @staticmethod
-    def unset_timezone(system_obj, engine_obj, apply=True):
+    def unset_timezone(system_obj, apply=True):
         """Unset timezone
 
         :param system_obj: System object
-        :param engine_obj: dut engine object, defaults to TestToolkit.engines.dut
         :param apply: whether to apply the unset or not, defaults to True
         :return: ResultObj from the unset command
         """
-        return system_obj.unset(engine=engine_obj, field_name=ClockConsts.TIMEZONE, apply=apply)
+        return system_obj.unset(op_param=ClockConsts.TIMEZONE, apply=apply)
 
     @staticmethod
-    def verify_show_and_log_times(system, engines):
+    def verify_show_and_log_times(system):
         """
         @summary:
             Verify that date-time in show system and timestamp of last system log line
             are the same time
         @param system: System object
-        @param engines: engines object
         """
         with allure.step('Take date-time from show and from last log timestamp'):
             logging.info('Take date-time from show and from last log timestamp')

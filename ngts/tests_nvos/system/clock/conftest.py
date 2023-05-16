@@ -52,7 +52,7 @@ def orig_timezone(system, engines):
 
     with allure.step("Restore timezone to original (after test)"):
         logging.info("Restore timezone to original (after test)\torig timezone: {tz}".format(tz=original_timezone))
-        ClockTools.set_timezone(original_timezone, system, engines.dut).verify_result()
+        ClockTools.set_timezone(original_timezone, system).verify_result()
 
 
 # @pytest.fixture(scope='function')
