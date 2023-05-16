@@ -1347,12 +1347,6 @@ platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_opt
     conditions:
       - "https://redmine.mellanox.com/issues/3331528"
 
-ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3208701"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3208701"
-
 platform_tests/mellanox/test_reboot_cause.py:
   skip:
     reason: "Testcase ignored due to not supported platform: Mellanox/Nvidia SPC1"
