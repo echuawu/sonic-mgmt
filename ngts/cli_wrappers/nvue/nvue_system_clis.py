@@ -64,6 +64,14 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def action_generate_files(engine, resource_path, file_name=""):
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action generate {path} {file_name}".format(path=path, option=file_name)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def action_reboot(engine, resource_path, op_param=""):
         """
         Rebooting the switch
@@ -153,6 +161,14 @@ class NvueSystemCli(NvueBaseCli):
     def action_change(engine, resource_path, op_params=""):
         path = resource_path.replace('/', ' ')
         cmd = "nv action change {path} {params}".format(path=path, params=op_params)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_clear(engine, resource_path, op_params=""):
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action clear {path} {params}".format(path=path, params=op_params)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)

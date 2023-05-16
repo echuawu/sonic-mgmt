@@ -945,6 +945,7 @@ def test_ntp_log():
             system.ntp.set(op_param_name=NtpConsts.DHCP, op_param_value=NtpConsts.Dhcp.DISABLED.value).verify_result()
             system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.DISABLED.value,
                            apply=True).verify_result()
+            time.sleep(2)
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_UNSET_NTP).verify_result()
 
@@ -954,6 +955,7 @@ def test_ntp_log():
             system.ntp.servers.set_resource(NtpConsts.SERVER1_IPV4).verify_result()
             system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.ENABLED.value,
                            apply=True).verify_result()
+            time.sleep(2)
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG).verify_result()
             time.sleep(NtpConsts.SYNCHRONIZATION_MAX_TIME)
@@ -969,6 +971,7 @@ def test_ntp_log():
                 op_param_name=NtpConsts.TRUSTED, op_param_value=NtpConsts.Trusted.YES.value).verify_result()
             system.ntp.servers.resources_dict[server_name].set(
                 op_param_name=NtpConsts.KEY, op_param_value=NtpConsts.KEY_1, apply=True).verify_result()
+            time.sleep(2)
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG_UPDATE).verify_result()
 
@@ -982,6 +985,7 @@ def test_ntp_log():
                 op_param_name=NtpConsts.TYPE, op_param_value=NtpConsts.KeyType.SHA1.value).verify_result()
             system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
                 op_param_name=NtpConsts.TRUSTED, op_param_value=NtpConsts.Trusted.YES.value, apply=True).verify_result()
+            time.sleep(2)
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG_KEY).verify_result()
 

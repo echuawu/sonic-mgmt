@@ -521,7 +521,7 @@ class NtpConsts:
     INVALID_SERVER_VERSION = '5'
 
     LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'disabled', " \
-                        "'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
+                        "'server_role': 'disabled', 'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
     LOG_MSG_SERVER_CONFIG = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
                             "'resolve_as': '10.7.77.134', 'state': 'enabled', 'trusted': 'no', 'version': '4'}}"
     LOG_MSG_SERVER_CONFIG_UPDATE = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
@@ -688,3 +688,51 @@ class OperationTimeConsts:
     TEST_NAME_COL = 'test_name'
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
+
+
+class StatsConsts:
+    class State(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    SLEEP_1_MINUTE = 60  # [sec]
+    SLEEP_2_MINUTES = 120  # [sec]
+    SLEEP_3_MINUTES = 180  # [sec]
+    STATE = 'state'
+    STATE_DEFAULT = State.ENABLED.value
+    INTERVAL = 'interval'
+    INTERVAL_DEFAULT = '5'  # [min]
+    INTERVAL_MIN = '1'  # [min]
+    HISTORY_DURATION = 'history-duration'
+    HISTORY_DURATION_DEFAULT = '365'  # [days]
+    HISTORY_DURATION_MIN = '1'  # [days]
+    GENERATE_ALL_TIME_MAX = '2'  # [sec]
+    CATEGORY_STATE_DISABLED = {STATE: State.DISABLED.value}
+    CATEGORY_DEFAULT_DICT = {
+        HISTORY_DURATION: HISTORY_DURATION_DEFAULT,
+        INTERVAL: INTERVAL_DEFAULT,
+        STATE: STATE_DEFAULT
+    }
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        HISTORY_DURATION: HISTORY_DURATION_DEFAULT,
+        INTERVAL: INTERVAL_DEFAULT,
+        STATE: State.DISABLED.value
+    }
+    CATEGORY_MIN_DICT = {
+        STATE: STATE_DEFAULT,
+        INTERVAL: INTERVAL_MIN,
+        HISTORY_DURATION: HISTORY_DURATION_MIN
+    }
+
+    LOG_MSG_UNSET_STATS = "..."  # TODO: Update message...
+    LOG_MSG_SET_CATEGORY_STATS = "..."  # TODO: Update message...
+    LOG_MSG_ERROR_DB = "..."  # TODO: Update message (parameter not found in redis DB)...
+
+    INVALID_CATEGORY_NAME = 'invalid_category_name'
+    INVALID_STATE = 'invalid_state'
+    INVALID_INTERVAL_LOW = 0
+    INVALID_INTERVAL_HIGH = 1441
+    INVALID_HISTORY_DURATION_LOW = 0
+    INVALID_HISTORY_DURATION_HIGH = 366
+    INVALID_FILE_NAME = 'file_not_exists.csv'
+    INVALID_REMOTE_URL = 'invalid_remote_url'

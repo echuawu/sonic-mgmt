@@ -11,6 +11,7 @@ from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ntp import Ntp
+from ngts.nvos_tools.system.Stats import Stats
 from ngts.nvos_tools.system.Ssh_server import SshServer
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
@@ -71,6 +72,7 @@ class System(BaseComponent):
         self.ssh_server = SshServer(self)
         self.syslog = Syslog(self)
         self.ntp = Ntp(self)
+        self.stats = Stats(self)
         self.techsupport = TechSupport(self)
         self.image = Image(self)
         self.firmware = Firmware(self)

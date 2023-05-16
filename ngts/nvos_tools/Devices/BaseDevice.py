@@ -2,7 +2,7 @@ import re
 import logging
 from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 import time
@@ -376,6 +376,15 @@ class GorillaSwitch(BaseSwitch):
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum2'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_DISABLED_DICT = {
+        'temperature': StatsConsts.CATEGORY_STATE_DISABLED,
+        'cpu': StatsConsts.CATEGORY_STATE_DISABLED,
+        'disk': StatsConsts.CATEGORY_STATE_DISABLED,
+        'power': StatsConsts.CATEGORY_STATE_DISABLED,
+        'fan': StatsConsts.CATEGORY_STATE_DISABLED,
+        'mgmt-interface': StatsConsts.CATEGORY_STATE_DISABLED
+    }
 
     def __init__(self):
         BaseSwitch.__init__(self)
