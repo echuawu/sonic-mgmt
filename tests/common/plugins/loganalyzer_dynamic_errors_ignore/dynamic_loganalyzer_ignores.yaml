@@ -2425,3 +2425,34 @@
   Conditions:
     - Redmine:
         - 3447925
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:94 Failed verify eth interface configuration'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_mtu
+        - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_speed_duplex_autoneg
+
+# NVOS
+- Errors_list:
+    - '.* INFO ib-utils#OpenSM[11008]:  Loading Cached Option:enable_crashd = FALSE#012'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib_interface_configuration.py
+
+# NVOS : Errors which should be ignored in tests which doing reboot/reload
+- Errors_list:
+    - '.* ERR statsd#health_history: Containers: is not Status ok'
+    - '.* ERR statsd#health_history: Disk check: is not Status ok'
+    - '.* ERR statsd#health_history: memory_check: is not Status ok'
+    - '.* ERR statsd#health_history: Summary: Not OK'
+    - '.* ERR statsd#health_history: pmon: Container'
+    - '.* ERR systemd[1]: Failed to start LSB: LDAP connection daemon.'
+    - '.* ERR watchdogutil: Failed to get watchdog module'
+    - '.* ERR systemd[1]: Failed to start LSB: LDAP connection daemon.'
+    - '.* ERR watchdogutil: Failed to get watchdog module'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_reboot.py
+        - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
