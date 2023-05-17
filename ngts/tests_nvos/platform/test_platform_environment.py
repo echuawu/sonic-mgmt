@@ -14,7 +14,8 @@ logger = logging.getLogger()
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
-def test_show_platform_environment(engines):
+@pytest.mark.cumulus
+def test_show_platform_environment(engines, devices):
     """
     Show platform environment test
     """
@@ -22,10 +23,11 @@ def test_show_platform_environment(engines):
         platform = Platform()
 
     with allure.step("Execute show platform environment and make sure all the components exist"):
-        _verify_output(platform, "", PlatformConsts.ENV_COMP)
+        _verify_output(platform, "", devices.dut.platform_environment_list)
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 def test_show_platform_environment_fan(engines, devices):
     """
     Show platform environment fan test
@@ -39,16 +41,17 @@ def test_show_platform_environment_fan(engines, devices):
     with allure.step("Check that all required properties for each fan"):
         logging.info("Check that all required properties for each fan")
         for fan, fan_prop in output.items():
-            _verify_fan_prop(fan, fan_prop.keys())
+            _verify_fan_prop(fan, fan_prop.keys(), devices)
 
     with allure.step("Check output of a specific Fan"):
         fan_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.show(op_param="fan {}".format(fan_to_check))).verify_result()
-        _verify_fan_prop(fan_to_check, output.keys())
+        _verify_fan_prop(fan_to_check, output.keys(), devices)
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 def test_show_platform_environment_led(engines, devices):
     """
     Show platform environment led test
@@ -57,7 +60,7 @@ def test_show_platform_environment_led(engines, devices):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_led_list + PlatformConsts.ENV_LED_COMP)
+        output = _verify_output(platform, "led", devices.dut.fan_led_list)
 
     with allure.step("Check that all required properties for each led"):
         logging.info("Check that all required properties for each led")
@@ -67,7 +70,7 @@ def test_show_platform_environment_led(engines, devices):
     with allure.step("Check output of a specific Led"):
         led_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show(op_param="led {}".format(led_to_check))).verify_result()
+            platform.environment.show(op_param="led '{}'".format(led_to_check))).verify_result()
         _verify_led_prop(led_to_check, output)
 
 
@@ -132,6 +135,7 @@ def test_set_platform_environment_led(engines, devices):
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 def test_show_platform_environment_psu(engines, devices):
     """
     Show platform environment psu test
@@ -145,13 +149,13 @@ def test_show_platform_environment_psu(engines, devices):
     with allure.step("Check that all required properties for each psu"):
         logging.info("Check that all required properties for each psu")
         for psu, psu_prop in output.items():
-            _verify_psu_prop(psu, psu_prop)
+            _verify_psu_prop(psu, psu_prop, devices)
 
     with allure.step("Check output of a specific PSU"):
         psu_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.show(op_param="psu {}".format(psu_to_check))).verify_result()
-        _verify_psu_prop(psu_to_check, output)
+        _verify_psu_prop(psu_to_check, output, devices)
 
 
 @pytest.mark.platform
@@ -213,9 +217,9 @@ def _verify_output(platform, comp_name, req_fields):
     return output
 
 
-def _verify_fan_prop(fan, fan_prop):
+def _verify_fan_prop(fan, fan_prop, devices):
     logging.info("fan {}".format(fan))
-    assert not any(comp not in fan_prop for comp in PlatformConsts.ENV_FAN_COMP), \
+    assert not any(comp not in fan_prop for comp in devices.dut.fan_prop), \
         "Not all required component were found"
 
 
@@ -237,9 +241,9 @@ def _verify_led_color(led, led_prop):
             PlatformConsts.ENV_LED_COLOR_GREEN + " not found for " + led
 
 
-def _verify_psu_prop(psu, psu_prop):
+def _verify_psu_prop(psu, psu_prop, devices):
     logging.info("psu {}".format(psu))
-    Tools.ValidationTool.verify_field_exist_in_json_output(psu_prop, PlatformConsts.ENV_PSU_PROP).verify_result()
+    Tools.ValidationTool.verify_field_exist_in_json_output(psu_prop, devices.dut.platform_env_psu_prop).verify_result()
 
 
 # ------------ Open API tests -----------------

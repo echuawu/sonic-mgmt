@@ -1,5 +1,5 @@
 import logging
-from ngts.nvos_tools.Devices.BaseDevice import JaguarSwitch, GorillaSwitch, MarlinSwitch
+from ngts.nvos_tools.Devices.BaseDevice import JaguarSwitch, GorillaSwitch, MarlinSwitch, AnacondaSwitch
 
 logger = logging.getLogger()
 
@@ -12,7 +12,9 @@ class DeviceFactory:
             'MQM9700 - Gorilla Blackbird': GorillaSwitch,
             'MQM9700': GorillaSwitch,
             'MQM9520 - marlin': MarlinSwitch,
-            'MQM9520': MarlinSwitch
+            'MQM9520': MarlinSwitch,
+            'MSN3700': AnacondaSwitch,
+            'MSN3700 - Anaconda': AnacondaSwitch
         }
 
     @staticmethod

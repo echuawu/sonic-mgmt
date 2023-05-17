@@ -46,6 +46,10 @@ def duthosts(ansible_adhoc, topology_obj):
                 dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname)
             except AnsibleConnectionFailure as err:
                 logger.error(f'DUT not reachable. Can not create DUT ansible engine. Error: {err}')
+            except BaseException as err:
+                if dut_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] not in \
+                        NvosCliTypes.NvueCliTypes:
+                    raise err
             ansible_engines_list.append(dut_ansible_engine)
 
     return ansible_engines_list

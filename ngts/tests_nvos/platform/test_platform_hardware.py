@@ -13,6 +13,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 # TODO need to add pytest.mark.nvos_ci
 def test_show_platform_hardware(devices):
     """
@@ -22,22 +23,25 @@ def test_show_platform_hardware(devices):
         platform = Platform()
 
     with allure.step("Check show hardware output"):
-        expected_fields = PlatformConsts.HW_COMP
+        expected_fields = devices.dut.platform_hw_list
         if isinstance(devices.dut, MarlinSwitch):
             expected_fields.remove("manufacturer")
             expected_fields.remove("hw-revision")
         output = _verify_output(platform, "", expected_fields)
 
     with allure.step("Check hardware fields values"):
-        assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1,\
-            "Unexpected value in {}\n Expect to have {}, but got {}"\
-            .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.DEVICE_LIST) - 1, output[PlatformConsts.HW_ASIC_COUNT])
-        assert "mqm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
+        if PlatformConsts.HW_ASIC_COUNT in output.keys():
+            assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1,\
+                "Unexpected value in {}\n Expect to have {}, but got {}"\
+                .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.DEVICE_LIST) - 1,
+                        output[PlatformConsts.HW_ASIC_COUNT])
+            assert "mqm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
         mac = output[PlatformConsts.HW_MAC].split(":")
         assert len(mac) == 6, "Invalid mac format"
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 def test_show_platform_hardware_component(engines, devices):
     """
     Show platform hardware component test
@@ -46,22 +50,21 @@ def test_show_platform_hardware_component(engines, devices):
         platform = Platform()
 
     with allure.step("Check show hardware component output"):
-        hw_comp_list = devices.dut.fan_list + devices.dut.psu_list
-        hw_comp_list.append(PlatformConsts.HW_COMP_SWITCH)
+        hw_comp_list = devices.dut.hw_comp_list
         output = _verify_output(platform, "component", hw_comp_list)
 
     if TestToolkit.tested_api == ApiType.NVUE:
         with allure.step("Check hardware components values"):
             for comp, comp_values in output.items():
-                _verify_comp_fields(platform, comp, comp_values)
+                _verify_comp_fields(platform, comp, comp_values, devices)
 
 
-def _verify_comp_fields(platform, comp, comp_values):
+def _verify_comp_fields(platform, comp, comp_values, devices):
     logging.info("comp {}".format(comp))
-    assert not any(field not in comp_values.keys() for field in PlatformConsts.HW_COMP_LIST), "Not all fields were found"
+    assert not any(field not in comp_values.keys() for field in devices.dut.hw_comp_prop), "Not all fields were found"
 
     with allure.step("Check comp output"):
-        _verify_output(platform, "component " + comp, PlatformConsts.HW_COMP_LIST)
+        _verify_output(platform, "component " + comp, devices.dut.hw_comp_prop)
 
 
 def _verify_output(platform, comp_name, req_fields):

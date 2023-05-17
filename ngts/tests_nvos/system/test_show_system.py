@@ -151,6 +151,7 @@ def test_show_system_version(engines, devices):
 
 
 @pytest.mark.system
+@pytest.mark.cumulus
 def test_show_system_reboot(engines, devices):
     """
     Run show system reboot command and verify the reboot history and reason values

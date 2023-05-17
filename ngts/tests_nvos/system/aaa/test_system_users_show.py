@@ -16,7 +16,8 @@ logger = logging.getLogger()
 
 @pytest.mark.system
 @pytest.mark.simx
-def test_show_user(engines):
+@pytest.mark.cumulus
+def test_show_user(engines, devices):
     """
     Run show system message command and verify the required message
         Test flow:
@@ -29,19 +30,21 @@ def test_show_user(engines):
     """
     system = System(None, '')
     users_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show()).get_returned_value()
-    verify_users_default_values(users_output)
-    admin_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(SystemConsts.DEFAULT_USER_ADMIN)).get_returned_value()
-    monitor_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(SystemConsts.DEFAULT_USER_MONITOR)).get_returned_value()
+    verify_users_default_values(users_output, devices.dut.user_fields)
 
-    labels = [SystemConsts.USER_FULL_NAME, SystemConsts.USER_ROLE, SystemConsts.USER_STATE, SystemConsts.USER_HASHED_PASSWORD, SystemConsts.USER_PASSWORD]
+    if SystemConsts.DEFAULT_USER_ADMIN in users_output.keys():
+        admin_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(SystemConsts.DEFAULT_USER_ADMIN)).get_returned_value()
+        monitor_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(SystemConsts.DEFAULT_USER_MONITOR)).get_returned_value()
 
-    admin_values = [SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME, SystemConsts.ROLE_CONFIGURATOR, SystemConsts.USER_STATE_ENABLED, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE]
+        labels = [SystemConsts.USER_FULL_NAME, SystemConsts.USER_ROLE, SystemConsts.USER_STATE, SystemConsts.USER_HASHED_PASSWORD, SystemConsts.USER_PASSWORD]
 
-    monitor_values = [SystemConsts.USER_MONITOR_DEFAULT_FULL_NAME, SystemConsts.ROLE_VIEWER, SystemConsts.USER_STATE_ENABLED, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE]
+        admin_values = [SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME, SystemConsts.ROLE_CONFIGURATOR, SystemConsts.USER_STATE_ENABLED, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE]
 
-    verify_labels_values(SystemConsts.DEFAULT_USER_ADMIN, admin_output, labels, admin_values)
+        monitor_values = [SystemConsts.USER_MONITOR_DEFAULT_FULL_NAME, SystemConsts.ROLE_VIEWER, SystemConsts.USER_STATE_ENABLED, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE, SystemConsts.USER_PASSWORDS_DEFAULT_VALUE]
 
-    verify_labels_values(SystemConsts.DEFAULT_USER_MONITOR, monitor_output, labels, monitor_values)
+        verify_labels_values(SystemConsts.DEFAULT_USER_ADMIN, admin_output, labels, admin_values)
+
+        verify_labels_values(SystemConsts.DEFAULT_USER_MONITOR, monitor_output, labels, monitor_values)
 
 
 @pytest.mark.system
@@ -148,17 +151,17 @@ def verify_roles_default_values(roles_output):
         verify_labels_values(SystemConsts.ROLE_VIEWER, roles_output[SystemConsts.ROLE_VIEWER], labels, viewer_values)
 
 
-def verify_users_default_values(users_output):
+def verify_users_default_values(users_output, field_to_check):
     with allure.step('Check that default users are exist admin and monitor'):
         logging.info('Check that default users are exist admin and monitor')
-        field_to_check = [SystemConsts.DEFAULT_USER_ADMIN, SystemConsts.DEFAULT_USER_MONITOR]
         ValidationTool.verify_field_exist_in_json_output(users_output, field_to_check).verify_result()
 
-        labels = [SystemConsts.USER_FULL_NAME, SystemConsts.USER_ROLE, SystemConsts.USER_STATE]
-        admin_values = [SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME, SystemConsts.ROLE_CONFIGURATOR, SystemConsts.USER_STATE_ENABLED]
-        monitor_values = [SystemConsts.USER_MONITOR_DEFAULT_FULL_NAME, SystemConsts.ROLE_VIEWER, SystemConsts.USER_STATE_ENABLED]
-        verify_labels_values(SystemConsts.DEFAULT_USER_ADMIN, users_output[SystemConsts.DEFAULT_USER_ADMIN], labels, admin_values)
-        verify_labels_values(SystemConsts.DEFAULT_USER_MONITOR, users_output[SystemConsts.DEFAULT_USER_MONITOR], labels, monitor_values)
+        if SystemConsts.DEFAULT_USER_ADMIN in users_output.keys():
+            labels = [SystemConsts.USER_FULL_NAME, SystemConsts.USER_ROLE, SystemConsts.USER_STATE]
+            admin_values = [SystemConsts.USER_ADMIN_DEFAULT_FULL_NAME, SystemConsts.ROLE_CONFIGURATOR, SystemConsts.USER_STATE_ENABLED]
+            monitor_values = [SystemConsts.USER_MONITOR_DEFAULT_FULL_NAME, SystemConsts.ROLE_VIEWER, SystemConsts.USER_STATE_ENABLED]
+            verify_labels_values(SystemConsts.DEFAULT_USER_ADMIN, users_output[SystemConsts.DEFAULT_USER_ADMIN], labels, admin_values)
+            verify_labels_values(SystemConsts.DEFAULT_USER_MONITOR, users_output[SystemConsts.DEFAULT_USER_MONITOR], labels, monitor_values)
 
 
 def verify_labels_values(user, user_output, labels, values):

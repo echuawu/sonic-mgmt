@@ -22,12 +22,18 @@ class BaseDevice:
         self.constants = None
         self.supported_ib_speeds = {}
         self.invalid_ib_speeds = {}
-        self.fan_list = {}
-        self.psu_list = {}
-        self.psu_fan_list = {}
-        self.fan_led_list = {}
-        self.temperature_list = {}
+        self.fan_list = []
+        self.psu_list = []
+        self.psu_fan_list = []
+        self.fan_led_list = []
+        self.temperature_list = []
         self.health_components = []
+        self.platform_hw_list = []
+        self.platform_list = []
+        self.system_list = []
+        self.platform_environment_list = []
+        self.platform_env_psu_prop = []
+        self.hw_comp_prop = []
 
         self._init_available_databases()
         self._init_services()
@@ -40,6 +46,8 @@ class BaseDevice:
         self._init_psu_list()
         self._init_temperature()
         self._init_health_components()
+        self._init_platform_lists()
+        self._init_system_lists()
 
     @abstractmethod
     def _init_available_databases(self):
@@ -87,6 +95,14 @@ class BaseDevice:
 
     @abstractmethod
     def _init_health_components(self):
+        pass
+
+    @abstractmethod
+    def _init_platform_lists(self):
+        pass
+
+    @abstractmethod
+    def _init_system_lists(self):
         pass
 
     def verify_databases(self, dut_engine):
@@ -324,11 +340,12 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_fan_list(self):
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
-        self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6']
+        self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
         self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
+        self.platform_env_psu_prop = ["capacity", "current", "power", "state", "voltage"]
 
     def _init_temperature(self):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
@@ -337,6 +354,20 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_health_components(self):
         self.health_components = self.fan_list + self.psu_list + self.psu_fan_list + \
             ["ASIC Temperature", "Containers", "CPU utilization", "Disk check", "Disk space", "Disk space log"]
+
+    def _init_platform_lists(self):
+        self.platform_hw_list = ["asic-count", "cpu", "cpu-load-averages", "disk-size", "hw-revision", "manufacturer",
+                                 "memory", "model", "onie-version", "part-number", "product-name", "serial-number",
+                                 "system-mac", "system-uuid"]
+        self.platform_list = ["fan", "led", "psu", "temperature", "component", "hardware", "environment"]
+        self.platform_environment_list = ["fan", "led", "psu", "temperature"]
+        self.fan_prop = ["max-speed", "min-speed", "current-speed", "state"]
+        self.hw_comp_list = self.fan_list + self.psu_list + ["SWITCH"]
+        self.hw_comp_prop = ["hardware-version", "model", "serial", "state", "type"]
+
+    def _init_system_lists(self):
+        self.system_list = []
+        self.user_fields = ['admin', 'monitor']
 
 
 # -------------------------- Gorilla Switch ----------------------------
@@ -529,3 +560,45 @@ class MarlinSwitch(MultiAsicSwitch):
 
     def ib_ports_num(self):
         return self.MARLIN_IB_PORT_NUM
+
+
+# -------------------------- Cumulus Switch ----------------------------
+class AnacondaSwitch(BaseSwitch):
+    SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'GEN2'
+
+    def __init__(self):
+        BaseSwitch.__init__(self)
+
+    def ib_ports_num(self):
+        return 0
+
+    def _init_fan_list(self):
+        BaseSwitch._init_fan_list(self)
+        self.fan_list = ["Fan1", "Fan2", "Fan3", "Fan4", "Fan5", "Fan6", "Fan7", "Fan8", "Fan9", "Fan10", "Fan11",
+                         "Fan12"]
+        self.psu_fan_list = ["PSU1Fan1", "PSU2Fan1"]
+        self.fan_led_list = ["Fan Tray 1", "Fan Tray 2", "Fan Tray 3", "Fan Tray 4", "Fan Tray 5", "Fan Tray 6",
+                             "Psu", "System"]
+        self.fan_prop = ["max-speed", "min-speed", "speed", "state"]
+
+    def _init_temperature(self):
+        BaseSwitch._init_temperature(self)
+        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
+        self.platform_environment_list = self.fan_list + self.fan_led_list + ["PSU1", "PSU2"] \
+            + self.psu_fan_list
+
+    def _init_platform_lists(self):
+        self.platform_hw_list = ["base-mac", "cpu", "disk-size", "manufacturer", "memory", "model", "onie-version",
+                                 "part-number", "platform-name", "port-layout", "product-name", "serial-number",
+                                 "system-mac", "asic-model", "asic-vendor"]
+        self.hw_comp_list = ["device"]
+        self.hw_comp_prop = ["model", "type"]
+
+    def _init_system_lists(self):
+        self.system_list = []
+        self.user_fields = ['root', 'cumulus']
+
+    def _init_psu_list(self):
+        self.psu_list = ["PSU1", "PSU2"]
+        self.platform_env_psu_prop = ["state"]
