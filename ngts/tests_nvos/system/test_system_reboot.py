@@ -14,9 +14,6 @@ def test_reboot_command(engines, devices, test_name):
     Test flow:
         1. run nv action reboot system
     """
-    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
-        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
-
     system = System(None)
 
     with allure.step('Run nv action reboot system'):
@@ -44,9 +41,6 @@ def test_reboot_command_immediate(engines, devices, test_name):
     Test flow:
         1. run nv action reboot system mode immediate
     """
-    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
-        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
-
     system = System(None)
     with allure.step('Run nv action reboot system mode immediate'):
         OperationTime.save_duration('reboot', 'immediate', test_name, system.reboot.action_reboot, params='immediate')
@@ -58,9 +52,6 @@ def test_reboot_command_force(engines, devices, test_name):
     Test flow:
         1. run nv action reboot system mode force
     """
-    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
-        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
-
     system = System(None)
     with allure.step('Run nv action reboot system mode force'):
         OperationTime.save_duration('reboot', 'force', test_name, system.reboot.action_reboot, params='force')
@@ -75,9 +66,6 @@ def test_reboot_command_type(engines, devices):
         3. run nv action reboot system --type warm
         4. expected message: not supported for IB
     """
-    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179]):
-        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
-
     substring = 'NVOS cant perform it'
     err_message = 'User requested a fast reboot, but NVOS cant perform it'
 
