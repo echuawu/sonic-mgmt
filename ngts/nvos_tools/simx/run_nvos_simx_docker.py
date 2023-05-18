@@ -28,7 +28,7 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
 
 @retry(Exception, tries=3, delay=10)
 def start_simx_docker(base_version, dut_engine, server_engine):
-    output = server_engine.run_cmd("{path_to_repo}/run_nvos_vm_in_docker.py --user nvos_reg --ip {ip} "
+    output = server_engine.run_cmd("sudo {path_to_repo}/run_nvos_vm_in_docker.py --user nvos_reg --ip {ip} "
                                    "--nos-image {path_to_image}".format(path_to_repo=path_to_source_code,
                                                                         ip=dut_engine.ip,
                                                                         path_to_image=base_version))
@@ -48,7 +48,7 @@ def wait_till_the_switch_is_ready(dut_name, server_engine):
 
 @retry(Exception, tries=15, delay=60)
 def check_docker_status(server_engine, dut_name):
-    output = server_engine.run_cmd(f'docker exec nvos_reg-{dut_name} systemctl status chipsim fw simx')
+    output = server_engine.run_cmd(f'sudo docker exec nvos_reg-{dut_name} systemctl status chipsim fw simx')
     if "Started SimX VM." in output:
         return True
     elif "Failed to start SimX VM." in output:
