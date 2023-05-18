@@ -672,6 +672,12 @@
         - simx
 
 - Errors_list:
+    - ".*ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/\\d+-\\d+/raw due to IndexError\\('list index out of range'\\)"
+  Conditions:
+    - Platform:
+      - simx
+
+- Errors_list:
     - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- .* Bulk read event status is not OK.*'
     - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- .* Failed to prepare bulk counter for port stats.'
     - '.*ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
