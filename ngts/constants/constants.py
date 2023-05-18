@@ -113,6 +113,7 @@ class DbConstants:
 
 
 class InfraConst:
+    NVIDIA_MAIL_SERVER = 'mail.nvidia.com'
     HTTP_SERVER = 'http://fit69'
     HTTTP_SERVER_FIT16 = 'http://r-fit16-clone.mtr.labs.mlnx'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
@@ -135,6 +136,10 @@ class InfraConst:
     ALLURE_SERVER_PORT = '5050'
     ALLURE_SERVER_URL = 'http://{}:{}'.format(ALLURE_SERVER_IP, ALLURE_SERVER_PORT)
     ALLURE_REPORT_DIR = '/tmp/allure-results'
+    ENV_SESSION_ID = 'SESSION_ID'
+    ENV_LOG_FOLDER = 'LOG_FOLDER'
+    CASES_DUMPS_DIR = 'cases_dumps'
+    CASES_SYSLOG_DIR = 'cases_syslog'
 
 
 class LinuxConsts:
@@ -1054,3 +1059,29 @@ class VxlanConstants:
     BROADCAST_MAC = 'ff:ff:ff:ff:ff:ff'
     BROADCAST_IP = '255.255.255.255'
     ECMP_TRAFFIC_SRC_IP_LIST = ['3.3.3.3', '3.3.3.4', '3.3.3.5', '3.3.3.6']
+
+
+class SanitizerConst:
+    SENDER_MAIL = 'noreply@sanitizer.com'
+    ASAN_APPS = ["what-just-happened"]
+
+    NVOS_MAIL = 'nbu-system-sw-mlnxos20-ext@exchange.nvidia.com'
+    SONIC_MAIL = "nbu-system-sw-sonic-ver@exchange.nvidia.com"
+    CLI_TYPE_MAIL = \
+        {"MLNX_OS": NVOS_MAIL,
+         "NVUE": NVOS_MAIL,
+         "Sonic": SONIC_MAIL}
+
+
+class BugHandlerConst:
+    NGTS_PATH, path_suffix = os.path.abspath(__file__).split('constants/')
+    CLI_TYPE_REDMINE_PROJECT = \
+        {"MLNX_OS": "mlnxOS-Eth",
+         "NVUE": "NVOS",
+         "Sonic": "SONiC-Design"}
+    BUG_HANDLER_CONF_FILE = {"SONiC-Design": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf"),
+                             "NVOS": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf")}
+    BUG_HANDLER_PYTHON_PATH = "/mswg/projects/swvt/MARS/scripts/python37_wrapper.sh"
+    BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/bin/handle_bug.py"
+    BUG_HANDLER_SANITIZER_USER = "asan"
+    SANITIZER_PARSED_DUMPS_FOLDER = "/tmp/parsed_sanitizer_dumps/"

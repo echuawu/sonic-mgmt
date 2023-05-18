@@ -28,7 +28,7 @@ from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallati
 from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
 from infra.tools.general_constants.constants import SonicSimxConstants, SonicHostsConstants
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
-from ngts.tools.infra import ENV_LOG_FOLDER
+from ngts.constants.constants import InfraConst
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 
@@ -175,7 +175,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         sanitizer = topology_obj.players['dut']['sanitizer']
         if sanitizer:
             test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
-            dumps_folder = os.environ.get(ENV_LOG_FOLDER)
+            dumps_folder = os.environ.get(InfraConst.ENV_LOG_FOLDER)
             check_sanitizer_and_store_dump(self.engine, dumps_folder, test_name)
 
     def reload_flow(self, ports_list=None, topology_obj=None, reload_force=False):

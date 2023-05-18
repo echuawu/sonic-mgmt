@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Bug Handler Summary Report | Session ID: {{ session_id }} | Setup name: {{setup_name}} </title>
+    </head>
+    <body>
+        <h1>Bug Handler Summary Report</h1>
+
+        <p> <strong>Dumps folder:</strong> {{dumps_folder}}</p>
+        <ol type="1">
+        {% for dump_info in sanitizer_dumps_info -%}
+        <li>
+            <p><strong>{{dump_info["dump_name"]}}</strong><br>
+            <strong>Test name:</strong> {{dump_info["test_name"]}}</p>
+            <h4>Bug handler results:</h4>
+            <ol type="a">
+            {% for bug_handler_result in dump_info["results"] -%}
+            <li>
+                </p>{{bug_handler_result["file_name"]}}<br>
+                bug handler messages:</p>
+                <p>
+                {% for message in bug_handler_result["messages"] -%}
+                    {{message}}<br>
+                {% endfor %}
+                </p>
+                <p><strong>rc:</strong> {{bug_handler_result["rc"]}}<br>
+                <strong>decision:</strong> {{bug_handler_result["decision"]}}</p>
+            </li>
+            {% endfor %}
+        </li>
+        {% endfor %}
+    </body>
+</html>

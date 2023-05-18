@@ -9,11 +9,6 @@ from ngts.constants.constants import InfraConst, PytestConst
 
 logger = logging.getLogger()
 
-ENV_SESSION_ID = 'SESSION_ID'
-ENV_LOG_FOLDER = 'LOG_FOLDER'
-CASES_DUMPS_DIR = 'cases_dumps'
-CASES_SYSLOG_DIR = 'cases_syslog'
-
 
 @pytest.fixture(scope='session', autouse=True)
 def session_id(request):
@@ -25,6 +20,7 @@ def session_id(request):
     if not session_id:
         session_id = ''
     logger.info("SESSION_ID = '{}'".format(session_id))
+    os.environ[InfraConst.ENV_SESSION_ID] = session_id
     return session_id
 
 
@@ -35,10 +31,10 @@ def dumps_folder(setup_name, session_id, topology_obj):
     Relies on 'session_id' fixture.
     :return: dumps folder
     """
-    env_log_folder = os.environ.get(ENV_LOG_FOLDER)
+    env_log_folder = os.environ.get(InfraConst.ENV_LOG_FOLDER)
     if not env_log_folder:  # default value is empty string, defined in steps file
-        env_log_folder = create_result_dir(setup_name, session_id, CASES_DUMPS_DIR, topology_obj)
-        os.environ[ENV_LOG_FOLDER] = env_log_folder
+        env_log_folder = create_result_dir(setup_name, session_id, InfraConst.CASES_DUMPS_DIR, topology_obj)
+        os.environ[InfraConst.ENV_LOG_FOLDER] = env_log_folder
     return env_log_folder
 
 
@@ -49,9 +45,9 @@ def log_folder(setup_name, session_id, topology_obj):
     Relies on 'session_id' fixture.
     :return: log folder
     """
-    env_log_folder = os.environ.get(ENV_LOG_FOLDER)
+    env_log_folder = os.environ.get(InfraConst.ENV_LOG_FOLDER)
     if not env_log_folder:  # default value is empty string, defined in steps file
-        env_log_folder = create_result_dir(setup_name, session_id, CASES_SYSLOG_DIR, topology_obj)
+        env_log_folder = create_result_dir(setup_name, session_id, InfraConst.CASES_SYSLOG_DIR, topology_obj)
     return env_log_folder
 
 

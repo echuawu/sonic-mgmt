@@ -1,4 +1,5 @@
 import logging
+import json
 from ngts.cli_wrappers.interfaces.interface_general_clis import GeneralCliInterface
 
 logger = logging.getLogger()
@@ -172,3 +173,15 @@ class GeneralCliCommon(GeneralCliInterface):
         extract key from a module
         """
         return self.engine.run_cmd(f"sudo strip -g {module}")
+
+    def get_version(self, cli_type):
+        version = None
+        if cli_type == "NVUE":
+            nv_version_json_str = self.engine.run_cmd("nv show system version -o json", validate=True)
+            json_output = json.loads(nv_version_json_str)
+            version = json_output.get("image")
+        elif cli_type == "Sonic":
+            sonic_version_output = self.engine.run_cmd('sudo sonic-cfggen -y /etc/sonic/sonic_version.yml'
+                                                       ' -v build_version', validate=True)
+            version = sonic_version_output.strip()
+        return version

@@ -12,7 +12,7 @@ if your methods only apply for canonical setups please add them in ngts/tests/co
 import pytest
 import logging
 import re
-import sys
+import os
 import json
 from dotted_dict import DottedDict
 
@@ -252,6 +252,7 @@ def export_cli_type_to_cache(topology, request):
     """
     cli_type = topology[0]['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE']
     request.session.config.cache.set('CLI_TYPE', cli_type)
+    os.environ['CLI_TYPE'] = cli_type
 
 
 def update_topology_with_cli_class(topology):

@@ -15,9 +15,6 @@ def pytest_runtest_makereport(item, call):
     """
     Techsupport creator. Will be executed as part of teardown.
     """
-
-    os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "True"
-
     outcome = yield
     rep = outcome.get_result()
 
@@ -64,6 +61,7 @@ def pytest_runtest_makereport(item, call):
         topology_obj = item.funcargs.get('topology_obj')
         if topology_obj:
             clean_stored_cmds_with_fixture_scope_list(topology_obj)
+        os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "True"
 
 
 def get_test_duration(item):
