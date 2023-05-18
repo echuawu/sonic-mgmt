@@ -762,6 +762,12 @@ everflow/test_everflow_testbed.py:
 # All router interfaces has attribute "sx_interface_attributes_t.loopback_enable" - enabled.
 # To enable loop-back filter drops - need to disable that attribute when create RIF.
 # To do this can be used SAI attribute SAI_ROUTER_INTERFACE_ATTR_LOOPBACK_PACKET_ACTION, which is not exposed to SONiC
+drop_packets/test_wjh.py:
+  skip:
+    reason: "WJH test doesn't support dualtor topology"
+    conditions:
+      - "'dualtor' in topo_name"
+
 drop_packets/test_wjh.py::test_loopback_filter:
   skip:
     reason: "Testcase ignored due to platform x86_64-mlnx_msn/x86_64-nvidia"
