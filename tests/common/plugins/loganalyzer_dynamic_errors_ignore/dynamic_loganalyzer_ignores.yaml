@@ -2457,3 +2457,13 @@
     - Affected_test_cases:
         - tests_nvos/system/test_system_reboot.py
         - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SX_API_PORT.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future. Please use sx_api_port_parser_attr_set in its place.*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- sai_get_attributes: Failed to get attribute.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+        - tests/push_build_tests/general/qos/test_qos_reload.py
+      Redmine:
+        - 3472796
