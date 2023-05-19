@@ -2476,3 +2476,13 @@
         - tests/qos/test_buffer.py::test_headroom_override
       Redmine:
         - 3466071
+
+# The issue of https://redmine.mellanox.com/issues/3266868 is won't fix, ignore below errors statically
+- Errors_list:
+    - '.* ERR kernel: \[.*\] Fails to access \(\d+\) register MCIA \(module:\d+, page:\d+, device_addr:\d+, size:\d+, i2c_addr:.*, slot:\d+, status:\d+\), err: -16 .*'
+    - '.* ERR kernel: \[.*\] Fails to get module type, err: -16.*'
+    - '.* ERR kernel: \[ .*\] Fails to read module eeprom, status: -16.*'
+    - '.* ERR kernel: \[.*\] Fails to access .* module eeprom, status: -16.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/auto_negotition/test_auto_neg_scale.py
