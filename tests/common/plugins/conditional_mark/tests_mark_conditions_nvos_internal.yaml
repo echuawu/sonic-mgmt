@@ -104,4 +104,10 @@ tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3459180"
     conditions:
       - https://redmine.mellanox.com/issues/3459180
+
+tests_nvos/system/test_system_health.py::
+  skip:
+    reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
+    conditions:
+      - "'marlin' in testbed"
 ########################## NVOS IGNORE END ##########################
