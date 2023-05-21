@@ -1059,9 +1059,9 @@ def get_partition_usage_info(duthost, partition='/'):
     with allure.step('Getting HDD partition {} usage'.format(partition)):
         output = duthost.shell('sudo df {}'.format(partition))['stdout_lines']
         _, total, used, avail, used_percent, _ = output[-1].split()
-        total_mb = int(total) // KB_SIZE
-        used_mb = int(used) // KB_SIZE
-        avail_mb = int(avail) // KB_SIZE
+        total_mb = int(total) / KB_SIZE
+        used_mb = int(used) / KB_SIZE
+        avail_mb = int(avail) / KB_SIZE
         used_percent = int(used_percent.strip('%'))
 
     return total_mb, used_mb, avail_mb, used_percent
