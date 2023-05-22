@@ -209,6 +209,6 @@ def test_techsupport_since_openapi(engines, test_name):
 
 @pytest.mark.system
 @pytest.mark.openapi
-def test_techsupport_since_invalid_date_openapi(engines, test_name):
+def test_techsupport_since_invalid_date_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_since_invalid_date(engines, test_name)
+    test_techsupport_since_invalid_date(engines)

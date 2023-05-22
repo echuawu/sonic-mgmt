@@ -54,9 +54,15 @@ def run_cmd(test_server_conn, cmd):
 def configure_server(server_name, test_server_conn):
     try:
         logger.info(f"Configuring server {server_name}")
-        run_cmd(test_server_conn, 'sudo groupadd docker')
-        run_cmd(test_server_conn, 'sudo usermod -aG docker $USER')
-        run_cmd(test_server_conn, 'sudo chgrp docker /var/run/docker.sock')
+        cmd = "sudo groupadd docker"
+        logger.info(f"Run cmd: {cmd}")
+        run_cmd(test_server_conn, cmd)
+        cmd = "sudo usermod -aG docker $USER"
+        logger.info(f"Run cmd: {cmd}")
+        run_cmd(test_server_conn, cmd)
+        cmd = "sudo chgrp docker /var/run/docker.sock"
+        logger.info(f"Run cmd: {cmd}")
+        run_cmd(test_server_conn, cmd)
     except BaseException as exc:
         logger.error(f"Failed to configure server {server_name}:\n {exc}")
 

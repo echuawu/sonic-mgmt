@@ -280,6 +280,6 @@ def test_show_platform_environment_fan_openapi(engines, devices):
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
-def test_show_platform_environment_openapi(engines):
+def test_show_platform_environment_openapi(engines, devices):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_environment(engines)
+    test_show_platform_environment(engines, devices)

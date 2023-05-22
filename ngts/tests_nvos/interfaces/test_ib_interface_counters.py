@@ -138,7 +138,7 @@ def check_port_counters(selected_port, should_be_zero, ssh_engine):
     counters = link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_BYTES]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_DROPS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_ERRORS]
-    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_SYMBOL]
+    counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_SYMBOL_ERRORS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_PKTS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_BYTES]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_DROPS]

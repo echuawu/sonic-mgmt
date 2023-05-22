@@ -33,7 +33,7 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
     8. Send traffic -> Verify the traffic passes successfully
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        selected_port = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -105,7 +105,7 @@ def test_ib_interface_speed(engines, players, interfaces, devices, start_sm):
     10.Send traffic -> Verify the traffic passes successfully
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        selected_port = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -221,7 +221,7 @@ def test_ib_interface_lanes(engines, players, interfaces, devices, start_sm):
     8. Send traffic -> Verify the traffic passes successfully
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        selected_port = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -311,7 +311,7 @@ def test_ib_interface_vls(engines, players, interfaces, start_sm):
     8. Send traffic -> Verify the traffic passes successfully
     """
     with allure.step("Get a random active port"):
-        selected_port = Tools.RandomizationTool.get_random_active_port().get_returned_value()[0]
+        selected_port = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()[0]
 
     TestToolkit.update_tested_ports([selected_port])
 

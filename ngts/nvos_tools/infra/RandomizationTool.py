@@ -118,6 +118,12 @@ class RandomizationTool:
         return RandomizationTool.select_random_values(list_of_ports, None, number_of_values_to_select)
 
     @staticmethod
+    def get_random_traffic_port():
+        list_of_ports = Port.get_list_of_active_ports()
+        list_of_ports = list(port for port in list_of_ports if port.name.startswith("sw1p"))
+        return RandomizationTool.select_random_values(list_of_ports, None, 1)
+
+    @staticmethod
     def select_random_value(list_of_values, forbidden_values=None):
         """
         Select a random value from provided list of values.
