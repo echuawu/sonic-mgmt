@@ -12,7 +12,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
@@ -71,15 +71,15 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
 
         with allure.step('Set and apply description to ib port, save config after it'):
             logger.info("Set and apply description to ib port, save config after it")
-            apply_and_save_port.ib_interface.description.set(value=description, apply=True).verify_result()
+            apply_and_save_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
             NvueGeneralCli.save_config(engines.dut)
         with allure.step('Set and apply description to ib port'):
             logger.info("Set and apply description to ib port")
-            just_apply_port.ib_interface.description.set(value=description, apply=True).verify_result()
+            just_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
         with allure.step('Set description to ib port'):
             logger.info("Set description to ib port")
-            not_apply_port.ib_interface.description.set(value=description, apply=False).verify_result()
+            not_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
         with allure.step('Validate ports description'):
             logger.info("Validate ports description")
             _validate_port_description(engines.dut, apply_and_save_port, description)
@@ -101,28 +101,14 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
         with allure.step('Configure timezone'):
             logger.info(
                 "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
             with allure.step('Save configuration'):
                 NvueGeneralCli.save_config(engines.dut)
             with allure.step('Set timezone using timedatectl command'):
                 os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
 
         with allure.step("Validate health status and report"):
-            start_time = time.time()
-            system.health.wait_until_health_status_change_after_reboot(HealthConsts.OK)
-            end_time = time.time()
-            duration = end_time - start_time
-
-            logger.info("Took {} seconds until health status changed to OK after reset factory".format(duration))
-
-            with allure.step("Validate new health file"):
-                logger.info("Validate new health file")
-                health_history_output = system.health.history.show()
-                assert len(system.health.history.search_line(last_status_line, health_history_output)) == 0, \
-                    "Health file has not changed after reset factory"
-                assert len(system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK,
-                                                             health_history_output)) > 0, \
-                    "Didn't print new summary line after reset factory"
+            _validate_health_status_report(system, last_status_line)
 
         with allure.step("Verify description has been deleted"):
             _validate_port_description(engines.dut, apply_and_save_port, "")
@@ -173,12 +159,12 @@ def test_reset_factory_keep_basic(engines):
         with allure.step('Set description to eth0 port'):
             logger.info("Set description to eth0 port")
             mgmt_port = MgmtPort('eth0')
-            mgmt_port.interface.description.set(value='nvosdescription', apply=True).verify_result()
+            mgmt_port.interface.set(NvosConst.DESCRIPTION, 'nvosdescription', apply=True).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-                mgmt_port.show()).get_returned_value()
+                mgmt_port.interface.show()).get_returned_value()
 
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                              field_name=mgmt_port.interface.description.label,
+                                                              field_name=NvosConst.DESCRIPTION,
                                                               expected_value='nvosdescription')
 
         with allure.step("Add data before reset factory"):
@@ -197,7 +183,7 @@ def test_reset_factory_keep_basic(engines):
         with allure.step('Configure timezone'):
             logger.info(
                 "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
             with allure.step('Save configuration'):
                 NvueGeneralCli.save_config(engines.dut)
             with allure.step('Set timezone using timedatectl command'):
@@ -210,9 +196,9 @@ def test_reset_factory_keep_basic(engines):
         with allure.step("Verify the cleanup done successfully"):
             _verify_cleanup_done(engines.dut, current_time, system, username, param=KEEP_BASIC)
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                              field_name=mgmt_port.interface.description.label,
+                                                              field_name=NvosConst.DESCRIPTION,
                                                               expected_value='nvosdescription')
-            mgmt_port.interface.description.unset(apply=True).verify_result()
+            mgmt_port.interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
 
         with allure.step("Verify the setup is functional"):
             _verify_the_setup_is_functional(system, engines)
@@ -259,15 +245,15 @@ def test_reset_factory_keep_all_config(engines):
 
         with allure.step('Set and apply description to ib port, save config after it'):
             logger.info("Set and apply description to ib port, save config after it")
-            apply_and_save_port.ib_interface.description.set(value=description, apply=True).verify_result()
+            apply_and_save_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
             NvueGeneralCli.save_config(engines.dut)
         with allure.step('Set and apply description to ib port'):
             logger.info("Set and apply description to ib port")
-            just_apply_port.ib_interface.description.set(value=description, apply=True).verify_result()
+            just_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
         with allure.step('Set description to ib port'):
             logger.info("Set description to ib port")
-            not_apply_port.ib_interface.description.set(value=description, apply=False).verify_result()
+            not_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
         with allure.step('Validate ports description'):
             logger.info("Validate ports description")
             _validate_port_description(engines.dut, apply_and_save_port, description)
@@ -289,7 +275,7 @@ def test_reset_factory_keep_all_config(engines):
         with allure.step('Configure timezone'):
             logger.info(
                 "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
             with allure.step('Save configuration'):
                 NvueGeneralCli.save_config(engines.dut)
             with allure.step('Set timezone using timedatectl command'):
@@ -298,7 +284,7 @@ def test_reset_factory_keep_all_config(engines):
         with allure.step('Validate ports description after reset factory'):
             logger.info("Validate ports description after reset factory")
             _validate_port_description(engines.dut, apply_and_save_port, description)
-            _validate_port_description(engines.dut, just_apply_port, description)
+            _validate_port_description(engines.dut, just_apply_port, "")
             _validate_port_description(engines.dut, not_apply_port, "")
 
         with allure.step("Validate health status and report"):
@@ -353,15 +339,15 @@ def test_reset_factory_keep_only_files(engines):
 
         with allure.step('Set and apply description to ib port, save config after it'):
             logger.info("Set and apply description to ib port, save config after it")
-            apply_and_save_port.ib_interface.description.set(value=description, apply=True).verify_result()
+            apply_and_save_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
             NvueGeneralCli.save_config(engines.dut)
         with allure.step('Set and apply description to ib port'):
             logger.info("Set and apply description to ib port")
-            just_apply_port.ib_interface.description.set(value=description, apply=True).verify_result()
+            just_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
         with allure.step('Set description to ib port'):
             logger.info("Set description to ib port")
-            not_apply_port.ib_interface.description.set(value=description, apply=False).verify_result()
+            not_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
         with allure.step('Validate ports description'):
             logger.info("Validate ports description")
             _validate_port_description(engines.dut, apply_and_save_port, description)
@@ -383,7 +369,7 @@ def test_reset_factory_keep_only_files(engines):
         with allure.step('Configure timezone'):
             logger.info(
                 "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), engines.dut, apply=True).verify_result()
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
             with allure.step('Save configuration'):
                 NvueGeneralCli.save_config(engines.dut)
             with allure.step('Set timezone using timedatectl command'):
@@ -410,19 +396,16 @@ def _validate_health_status_report(system, last_status_line):
 
     with allure.step("Validate new health file"):
         logger.info("Validate new health file")
-        health_history_output = system.health.history.show()
-        assert len(system.health.history.search_line(
-            last_status_line, health_history_output)) == 0, "Health file has not changed after reset factory"
-        assert len(system.health.history.search_line(
-            HealthConsts.SUMMARY_REGEX_OK, health_history_output)) > 0, \
-            "Didn't print new summary line after reset factory"
+        system.health.history.validate_new_summary_line_in_history_file_after_boot(last_status_line)
+        assert len(system.health.history.search_line(last_status_line, system.health.history.show())) == 0, \
+            "Health file has not changed after reset factory"
 
 
 def _validate_port_description(engine, port, expected_description):
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
         port.show_interface(engine, port.name)).get_returned_value()
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=port.ib_interface.description.label,
+                                                      field_name=NvosConst.DESCRIPTION,
                                                       expected_value=expected_description).verify_result()
 
 
@@ -566,7 +549,7 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
                 errors += "\n/host/warmboot was not cleared"
 
     with allure.step("Verify history was deleted"):
-        if param != KEEP_BASIC or param != KEEP_ONLY_FILES:
+        if param not in [KEEP_BASIC, KEEP_ONLY_FILES]:
             output = engine.run_cmd("ls /home/.bash_history")
             if "No such file or directory" not in output:
                 errors += "\n*.bash_history files were not deleted"

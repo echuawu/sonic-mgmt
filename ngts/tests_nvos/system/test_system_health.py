@@ -59,7 +59,7 @@ def test_reboot_test():
 
     with allure.step("Validate health history file indicates reboot occurred and print the status again"):
         logger.info("Validate health history file indicates reboot occurred and print the status again")
-        validate_new_summary_line_in_history_file_after_boot(system, last_status_line)
+        system.health.history.validate_new_summary_line_in_history_file_after_boot(last_status_line)
 
 
 @pytest.mark.system
@@ -409,14 +409,6 @@ def verify_health_status_and_led(system, expected_status, output=None):
     verify_expected_health_status(output, HealthConsts.STATUS, expected_status)
     expected_led = HealthConsts.LED_OK_STATUS if expected_status == HealthConsts.OK else HealthConsts.LED_NOT_OK_STATUS
     verify_expected_health_status(output, HealthConsts.STATUS_LED, expected_led)
-
-
-@retry(Exception, tries=12, delay=30)
-def validate_new_summary_line_in_history_file_after_boot(system, last_summary_line):
-    health_history_output = system.health.history.show()
-    assert system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[
-        -1] != last_summary_line, "Didn't print new summary line after boot"
-    assert "Monitoring service reboot, clearing issues history." in health_history_output
 
 
 def verify_devices_health_status_in_monitor_list(device_status_dict, monitor_list=None):

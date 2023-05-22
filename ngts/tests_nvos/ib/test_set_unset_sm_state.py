@@ -98,6 +98,6 @@ def set_all_ports_state(ports, state):
     port = None
     for port in ports:
         TestToolkit.update_tested_ports([port])
-        port.ib_interface.link.state.set(value=state, apply=True).verify_result()
+        port.ib_interface.link.state.set(state, apply=True).verify_result()
     if port:
         port.ib_interface.wait_for_port_state(state=state).verify_result()

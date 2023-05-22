@@ -78,3 +78,10 @@ class History(Health):
     def wait_until_health_history_file_rotation(self):
         line = self.search_line("health_history file deleted, creating new file")
         assert len(line) > 0
+
+    @retry(Exception, tries=12, delay=30)
+    def validate_new_summary_line_in_history_file_after_boot(self, last_summary_line):
+        health_history_output = self.show()
+        assert self.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[
+            -1] != last_summary_line, "Didn't print new summary line after boot"
+        assert "Monitoring service reboot, clearing issues history." in health_history_output
