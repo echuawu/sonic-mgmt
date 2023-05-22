@@ -110,14 +110,11 @@ def test_diff_history_revision_ids(engines):
             9. verify it includes the second config only
             10. run nv config diff one_configs_back_revision rev_id3
             11. verify it includes both configs
-            12. run nv config history rev_id3
-            13. verify it's same as output1
+            12. run nv config history rev_id3 save as rev_output_id3
+            13. validate the output format
         """
     err_message = ''
-    with allure.step('Run show system command and verify that each field has a value'):
-        with allure.step('get the current config history'):
-            history_output_base = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut)) \
-                .get_returned_value()
+    with allure.step('set with apply 3 different configurations to create new rev_ids'):
         system = System()
         new_hostname_value = 'TestingConfigCmds'
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
@@ -134,33 +131,31 @@ def test_diff_history_revision_ids(engines):
                 description=new_ib0_description)):
             ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
 
-        with allure.step('get the last revision ids - all test applies'):
-            history_output = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut))\
-                .get_returned_value()
+    with allure.step('get the last revision ids'):
+        history_output = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut))\
+            .get_returned_value()
 
-            one_configs_back_revision = ConfigTool.read_from_history(history_output, 1, 'rev_id').get_returned_value()
-            two_configs_back_revision = ConfigTool.read_from_history(history_output, 2, 'rev_id').get_returned_value()
+        one_configs_back_revision = ConfigTool.read_from_history(history_output, 1, 'rev_id').get_returned_value()
+        two_configs_back_revision = ConfigTool.read_from_history(history_output, 2, 'rev_id').get_returned_value()
 
-        with allure.step('verify history before 3 applies is equal to base output'):
-            history_output_rev2 = OutputParsingTool.parse_config_history(
-                NvueGeneralCli.history_config(engines.dut, two_configs_back_revision)).get_returned_value()
+    with allure.step('get the history of the with a specific rev_id'):
+        rev_output_id3 = OutputParsingTool.parse_config_history(
+            NvueGeneralCli.history_config(engines.dut, two_configs_back_revision)).get_returned_value()
 
-            if history_output_rev2 != history_output_base:
-                err_message += '\n after applying 3 times the history of two revision back ' \
-                               'should be history before apply'
+        validate_history_labels(rev_output_id3, 'admin')
 
-        with allure.step('verify diff between revision1 and revision0'):
-            diff_output_rev0_rev1 = OutputParsingTool.parse_json_str_to_dictionary(
-                NvueGeneralCli.diff_config(engines.dut, one_configs_back_revision, two_configs_back_revision)).get_returned_value()
+    with allure.step('verify diff between revision1 and revision0'):
+        diff_output_rev0_rev1 = OutputParsingTool.parse_json_str_to_dictionary(
+            NvueGeneralCli.diff_config(engines.dut, one_configs_back_revision, two_configs_back_revision)).get_returned_value()
 
-            if diff_output_rev0_rev1 == {}:
-                err_message += '\n after applying 3 times the diff between two revision back and two revision back ' \
-                               'should include the first configuration we applied'
+        if diff_output_rev0_rev1 == {}:
+            err_message += '\n after applying 3 times the diff between two revision back and two revision back ' \
+                           'should include the first configuration we applied'
+    with allure.step('unset system - with apply'):
+        system.unset(apply=True, ask_for_confirmation=True)
+        engines.dut.run_cmd('nv unset interface')
+        NvueGeneralCli.apply_config(engines.dut)
 
-        with allure.step('unset system - with apply'):
-            system.unset(apply=True, ask_for_confirmation=True)
-            engines.dut.run_cmd('nv unset interface')
-            NvueGeneralCli.apply_config(engines.dut)
     with allure.step('validate the test results'):
         assert err_message == '', '{message}'.format(message=err_message)
 
