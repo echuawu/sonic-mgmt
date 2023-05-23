@@ -71,6 +71,8 @@ def test_ibdiagnet_run_multiple_times(engines):
     """
     ib = Ib(None)
     tries_number = 5
+    engines.dut.run_cmd('nv action run ib cmd ibdiagnet --get_phy_info')
+
     with allure.step('try to generate ibdiagnet file {tries} times'.format(tries=tries_number)):
         for i in range(0, tries_number):
             ib.ibdiagnet.action_run(command=IbConsts.IBDIAGNET_COMMAND, option=IbConsts.IBDIAGNET_PHY_INFO, expected_str=IbConsts.IBDIAGNET_EXPECTED_MESSAGE)
