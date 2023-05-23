@@ -109,12 +109,6 @@ tests_nvos/system/test_system_snmp.py::test_system_snmp_functional:
     conditions:
       - https://redmine.mellanox.com/issues/3466894
 
-tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3459180"
-    conditions:
-      - https://redmine.mellanox.com/issues/3459180
-
 tests_nvos/system/test_system_health.py::
   skip:
     reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
