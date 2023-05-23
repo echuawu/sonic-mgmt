@@ -3,9 +3,9 @@ import subprocess
 import logging
 import shlex
 import concurrent.futures
+from ngts.constants.constants import InfraConst
 
 logger = logging.getLogger()
-SUCCESS = 0
 
 
 def run_process_on_host(cmd, timeout=60, exec_path=None, validate=False):
@@ -28,7 +28,7 @@ def run_process_on_host(cmd, timeout=60, exec_path=None, validate=False):
 
     logger.info('Command: {} finished execution'.format(cmd))
 
-    if validate and rc != SUCCESS:
+    if validate and rc != InfraConst.RC_SUCCESS:
         logger.error('process:%s\n'
                      'rc:%s,\n'
                      'std_out:%s\n'

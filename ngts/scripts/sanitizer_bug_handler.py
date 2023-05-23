@@ -19,19 +19,22 @@ def test_sanitizer_bug_handler(topology_obj, setup_name, engines, cli_objects, d
     cli_type = os.environ.get('CLI_TYPE')
     version = GeneralCliCommon(dut_engine).get_version(cli_type)
     session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
-    if topology_obj.players['dut']['sanitizer'] or asan_apps:
-        os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
-        with allure.step(f'Check if sanitizer has failed in previous reboots or disable the apps'):
-            sanitizer_dumps_paths = get_sanitizer_dumps(dumps_folder)
-            if sanitizer_dumps_paths:
-                with allure.step("Call bug handler on found sanitizer dumps"):
-                    bug_handler_dumps_results = handle_sanitizer_dumps(sanitizer_dumps_paths,
-                                                                       cli_type, branch, version, setup_name)
-                    bug_handler_summary = create_summary_html_report(session_id, setup_name, dumps_folder,
-                                                                     bug_handler_dumps_results)
-                    allure.attach.file(bug_handler_summary,
-                                       attachment_type=allure.attachment_type.HTML,
-                                       name="bug_handler_summary_report.html")
-                    review_bug_handler_results(bug_handler_dumps_results)
+    sanitizer_dumps_paths = get_sanitizer_dumps(dumps_folder)
+    os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
+    if sanitizer_dumps_paths:
+        with allure.step("Call bug handler on found sanitizer dumps"):
+            bug_handler_dumps_results = handle_sanitizer_dumps(sanitizer_dumps_paths,
+                                                               cli_type, branch, version, setup_name)
+            bug_handler_summary = create_summary_html_report(session_id, setup_name, dumps_folder,
+                                                             bug_handler_dumps_results)
+            allure.attach.file(bug_handler_summary,
+                               attachment_type=allure.attachment_type.HTML,
+                               name="bug_handler_summary_report.html")
+            review_bug_handler_results(bug_handler_dumps_results)
     else:
-        logger.info("Image doesn't include sanitizer - script is not checking for sanitizer dumps")
+        if topology_obj.players['dut']['sanitizer'] or asan_apps:
+            with allure.step("No sanitizer leaks were detected in previous reboots or disable the apps"):
+                return InfraConst.RC_SUCCESS
+        else:
+            with allure.step("Image doesn't include sanitizer"):
+                return InfraConst.RC_SUCCESS
