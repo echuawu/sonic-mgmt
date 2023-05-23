@@ -518,12 +518,12 @@ def get_lags_scale_configuration(number_of_lags):
         lag_expected_info.append((r'{PORTCHANNEL}.*{PORTCHANNEL_STATUS}.*(N/A|.*)'
                                   .format(PORTCHANNEL=lag_name,
                                           PORTCHANNEL_STATUS='Dw'), True))
-        lag_ipv4_address = base_ipv4 + index
-        lag_ipv6_address = base_ipv6 + index
-        ip_config_list.append({'iface': lag_name, 'ips': [(lag_ipv4_address, '24'), (lag_ipv6_address, '57')]})
+        lag_ipv4_address = base_ipv4 + index * 256    # increase the 10.0.X.1
+        lag_ipv6_address = base_ipv6 + index * 65536  # increase the 2000:2001::X:1
+        ip_config_list.append({'iface': lag_name, 'ips': [(lag_ipv4_address, '24'), (lag_ipv6_address, '112')]})
         ip_expected_info['ipv4'].append((r'{PORTCHANNEL}\s+{IP}/24'
                                          .format(PORTCHANNEL=lag_name, IP=lag_ipv4_address), True))
-        ip_expected_info['ipv6'].append((r'{PORTCHANNEL}\s+{IP}/57'
+        ip_expected_info['ipv6'].append((r'{PORTCHANNEL}\s+{IP}/112'
                                          .format(PORTCHANNEL=lag_name, IP=lag_ipv6_address), True))
 
     lag_config_dict = {
