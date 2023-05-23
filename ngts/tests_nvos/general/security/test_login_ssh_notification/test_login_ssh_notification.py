@@ -376,7 +376,7 @@ def test_login_ssh_notification_performance(engines, login_source_ip_address, re
         logger.info("Setting max value for login record period")
         system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD,
                               LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL,
-                              apply=True, ask_for_confirmation=False)
+                              apply=True, ask_for_confirmation=False).verify_result()
 
     with allure.step("populating auth. logs by uploading from previously created files"):
         logger.info("populating auth. logs by uploading from previously created files")

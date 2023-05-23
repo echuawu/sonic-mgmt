@@ -85,7 +85,7 @@ def test_non_secure_boot_upgrade_failure(non_secure_image_path, keep_same_versio
     with allure.step("Fetching the image"):
         logger.info("Fetching the image")
         remote_image_path = ImageConsts.SCP_PATH + non_secure_image_path
-        system.image.action_fetch(remote_image_path)
+        system.image.action_fetch(remote_image_path).verify_result()
 
     with allure.step("Attempting installing non secure image"):
         logger.info("Attempting installing non secure image")

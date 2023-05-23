@@ -14,7 +14,7 @@ def test_multi_asic(engines, devices):
     """
     This test should run only on multi asic system!
     configure hostname and validate it is written in all the redis-dbs over all the asic and system
-    (in database, database0 and database1)
+    (in database, database0 and database1).
     """
     system = System()
     new_hostname_value = "temp-hostname"
