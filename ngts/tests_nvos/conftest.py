@@ -203,8 +203,7 @@ def clear_config(markers):
                     active_port = result.returned_value[0]
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
 
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), TestToolkit.engines.dut,
-                                    apply=False)
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=False)
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
             if active_port:
                 active_port.ib_interface.wait_for_port_state(state='up').verify_result()

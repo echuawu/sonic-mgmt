@@ -43,7 +43,7 @@ class NvosInstallationSteps:
         with allure.step('Configure timezone'):
             try:
                 logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-                ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), dut_engine, apply=True).verify_result()
+                ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
                 with allure.step('Save configuration'):
                     NvueGeneralCli.save_config(dut_engine)
                 with allure.step('Set timezone using timedatectl command'):
