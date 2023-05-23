@@ -423,6 +423,14 @@ class SonicHost(AnsibleHostBase):
         except Exception:
             return False
 
+    def get_running_containers(self):
+        """
+        Get the running containers names
+        :param duthost:  DUT host object
+        :return: Running container name list
+        """
+        return self.shell('docker ps --format \{\{.Names\}\}')['stdout_lines']
+
     def is_container_running(self, service):
         """
         Checks where a container exits.
@@ -444,6 +452,17 @@ class SonicHost(AnsibleHostBase):
             logging.info("container {} is not running".format(service))
 
         return len(status["stdout_lines"]) > 1
+
+    def is_host_service_running(self, service):
+        """
+        Check if the specified service is running or not
+        :param duthost: DUT host object
+        :return: True if specified service is running, else False
+        """
+        service_status = self.shell("sudo systemctl status {} | grep 'Active'".format(service))
+        if "active (running)" in service_status['stdout']:
+            return True
+        return False
 
     def critical_services_status(self):
         # Initialize service status
@@ -2244,6 +2263,22 @@ Totals               6450                 6449
                 self.command("config interface ip remove {} {}".format(port, ip))
         elif ip:
             self.command("config interface ip remove {} {}".format(port, ip))
+
+    def remove_ip_addr_from_port(self, port, ip):
+        """
+        Remove ip addr from the port.
+        :param port: port name
+        :param ip: IP address
+        """
+        self.command("config interface ip remove {} {}".format(port, ip))
+
+    def add_ip_addr_to_port(self, port, ip, gwaddr):
+        """
+        Add ip addr on the port.
+        :param port: port name
+        :param ip: IP address
+        """
+        self.command("config interface ip add {} {} {}".format(port, ip, gwaddr))
 
     def remove_vlan(self, vlan_id):
         """

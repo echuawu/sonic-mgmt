@@ -239,21 +239,38 @@ class SonicIpCli(IpCliCommon):
         """
         Set into /etc/resolv.conf Nvidia LAB DNS servers
         """
-        tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
-        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_FIRST}" > {tmp_resolv_conf_path}')
-        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_SECOND}" >> {tmp_resolv_conf_path}')
-        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_THIRD}" >> {tmp_resolv_conf_path}')
-        self.engine.run_cmd(f'sudo echo "search {SonicConst.NVIDIA_LAB_DNS_SEARCH}" >> {tmp_resolv_conf_path}')
-        self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
+        if self.is_static_dns_supported():
+            nameservers = [SonicConst.NVIDIA_LAB_DNS_FIRST, SonicConst.NVIDIA_LAB_DNS_SECOND,
+                           SonicConst.NVIDIA_LAB_DNS_THIRD]
+            self.add_dns_nameservers(nameservers)
+        else:
+            tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
+            self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_FIRST}" > {tmp_resolv_conf_path}')
+            self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_SECOND}" >> {tmp_resolv_conf_path}')
+            self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_THIRD}" >> {tmp_resolv_conf_path}')
+            self.engine.run_cmd(f'sudo echo "search {SonicConst.NVIDIA_LAB_DNS_SEARCH}" >> {tmp_resolv_conf_path}')
+            self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
 
     def apply_nvidia_air_dns_servers_resolv_conf(self):
         """
         Set into /etc/resolv.conf NvidiaAir DNS servers
         """
-        tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
-        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_FIRST}" > {tmp_resolv_conf_path}')
-        self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_SECOND}" >> {tmp_resolv_conf_path}')
-        self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
+        if self.is_static_dns_supported():
+            nameservers = [SonicConst.NVIDIA_AIR_DNS_FIRST, SonicConst.NVIDIA_AIR_DNS_SECOND]
+            self.add_dns_nameservers(nameservers)
+        else:
+            tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
+            self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_FIRST}" > {tmp_resolv_conf_path}')
+            self.engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_AIR_DNS_SECOND}" >> {tmp_resolv_conf_path}')
+            self.engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
+
+    def is_static_dns_supported(self):
+        res = self.engine.run_cmd("show dns nameserver")
+        return 'Error: No such command "dns"' not in res
+
+    def add_dns_nameservers(self, nameservers):
+        for nameserver in nameservers:
+            self.engine.run_cmd("sudo config dns nameserver add {}".format(nameserver))
 
     def get_mgmt_interface_ipv4_address(self):
         """
