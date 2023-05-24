@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime, timedelta
 
 import requests
 import yaml
@@ -13,6 +14,7 @@ from enum import Enum
 __metaclass__ = type
 PR_TEST_SCRIPTS_FILE = "pr_test_scripts.yaml"
 TOLERATE_HTTP_EXCEPTION_TIMES = 20
+TOKEN_EXPIRE_HOURS = 6
 
 
 class TestPlanStatus(Enum):
@@ -123,10 +125,21 @@ class TestPlanManager(object):
         self.tenant_id = tenant_id
         self.client_id = client_id
         self.client_secret = client_secret
+        self.with_auth = False
+        self._token = None
+        self._token_generate_time = None
         if self.tenant_id and self.client_id and self.client_secret:
-            self._get_token(url)
+            self.with_auth = True
+            self.get_token()
 
-    def _get_token(self, testbed_tools_url):
+    def get_token(self):
+        token_generate_time_valid = \
+            self._token_generate_time is not None and \
+            (datetime.utcnow() - self._token_generate_time) < timedelta(hours=TOKEN_EXPIRE_HOURS)
+
+        if self._token is not None and token_generate_time_valid:
+            return self._token
+
         token_url = "https://login.microsoftonline.com/{}/oauth2/v2.0/token".format(self.tenant_id)
         headers = {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -135,13 +148,15 @@ class TestPlanManager(object):
             "grant_type": "client_credentials",
             "client_id": self.client_id,
             "client_secret": self.client_secret,
-            "scope": "api://sonic-testbed-tools-prod/.default" if testbed_tools_url == "http://sonic-testbed2-scheduler-backend.azurewebsites.net" else "api://sonic-testbed-tools-dev/.default"
+            "scope": get_scope(self.url)
         }
         try:
             resp = requests.post(token_url, headers=headers, data=payload, timeout=10).json()
-            self.token = resp["access_token"]
-        except Exception as e:
-            raise Exception("Get token failed with exception: {}".format(repr(e)))
+            self._token = resp["access_token"]
+            self._token_generate_time = datetime.utcnow()
+            return self._token
+        except Exception as exception:
+            raise Exception("Get token failed with exception: {}".format(repr(exception)))
 
     def create(self, topology, test_plan_name="my_test_plan", deploy_mg_extra_params="", kvm_build_id="",
                min_worker=1, max_worker=2, pr_id="unknown", scripts=[], output=None,
@@ -198,7 +213,7 @@ class TestPlanManager(object):
         })
         print('Creating test plan with payload: {}'.format(payload))
         headers = {
-            "Authorization": "Bearer {}".format(self.token),
+            "Authorization": "Bearer {}".format(self.get_token()),
             "scheduler-site": "PRTest",
             "Content-Type": "application/json"
         }
@@ -232,7 +247,7 @@ class TestPlanManager(object):
 
         payload = json.dumps({})
         headers = {
-            "Authorization": "Bearer {}".format(self.token),
+            "Authorization": "Bearer {}".format(self.get_token()),
             "scheduler-site": "PRTest",
             "Content-Type": "application/json"
         }
@@ -259,6 +274,8 @@ class TestPlanManager(object):
         headers = {
             "Content-Type": "application/json"
         }
+        if self.with_auth:
+            headers["Authorization"] = "Bearer {}".format(self.get_token())
         start_time = time.time()
         http_exception_times = 0
         while (timeout < 0 or (time.time() - start_time) < timeout):
