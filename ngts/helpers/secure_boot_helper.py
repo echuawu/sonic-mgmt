@@ -2,8 +2,12 @@ import os
 import re
 import string
 import random
+import pytest
 import logging
 
+from ngts.constants.constants import MarsConstants
+from ngts.helpers.json_file_helper import extract_fw_data
+from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.general_constants.constants import DockerBringupConstants
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
@@ -25,11 +29,7 @@ class SecureBootHelper:
     @staticmethod
     def pytest_addoption(parser):
         parser.addoption("--restore_to_image",
-                         action="store", required=True, default=None, help="restore image after error flow")
-        parser.addoption("--sig_mismatch_image",
-                         action="store", required=True, default=None, help="signature mismatched image path")
-        parser.addoption("--non_signed_image",
-                         action="store", required=True, default=None, help="non signed image path")
+                         action="store", required=False, default=None, help="restore SONiC image after error flow")
 
     @staticmethod
     def get_serial_engine(topology_obj):
@@ -46,11 +46,16 @@ class SecureBootHelper:
         serial_engine.create_serial_engine()
         return serial_engine
 
-    def get_non_secure_image_path(self, request):
-        non_signed_image = request.config.getoption('non_signed_image')
-        return non_signed_image
+    @staticmethod
+    def get_non_secure_image_path():
+        return SecureBootConsts.NON_SECURE_IMAGE_PATH
 
-    def get_restore_to_image_path(self, request):
+    @staticmethod
+    def get_sig_mismatch_image_path():
+        return SecureBootConsts.SIG_MISMATCH_IMAGE_PATH
+
+    @staticmethod
+    def get_restore_to_image_path(request):
         restore_to_image = request.config.getoption('restore_to_image')
         return restore_to_image
 
@@ -75,10 +80,6 @@ class SecureBootHelper:
 
 
 class SonicSecureBootHelper(SecureBootHelper):
-
-    def get_sig_mismatch_image_path(self, request):
-        sig_mismatch_image = request.config.getoption('sig_mismatch_image')
-        return sig_mismatch_image
 
     def is_sonic_mode(self):
         _, respond = self.serial_engine.run_cmd('\r', ["/home/admin#",
@@ -143,27 +144,30 @@ class SonicSecureBootHelper(SecureBootHelper):
             logger.info(f"Restore kernel module {SonicSecureBootConsts.KERNEL_MODULE_NAME} original status")
             self.cli_objects.dut.general.install_module(kernel_module_path)
 
-    def onie_install_wait_boot_up(self, restore_image_path):
+    def boot_from_onie(self, restore_image_path=None):
         """
-        This function will install restore image in onie mode then wait switch up
+        This function will boot the switch from ONIE to SONiC. If the restore_image_path is provided, it will install
+        the image before the boot.
         """
         logger.info("Disconnect engine connection")
         self.cli_objects.dut.general.engine.disconnect()
 
-        with allure.step("Installing restore image {} on the switch".format(restore_image_path)):
-            logger.info("Installing restore image {} on the switch".format(restore_image_path))
-            self.serial_engine.run_cmd('onie-nos-install {}{}'.format(DockerBringupConstants.HTTP_SERVER,
-                                                                      restore_image_path),
-                                       'Installed.*base image.*successfully',
-                                       SonicSecureBootConsts.SWITCH_RECOVER_TIMEOUT)
+        if restore_image_path:
+            with allure.step("Installing restore image {} on the switch".format(restore_image_path)):
+                self.serial_engine.run_cmd('onie-nos-install {}{}'.format(DockerBringupConstants.HTTP_SERVER,
+                                                                          restore_image_path),
+                                           'Installed.*base image.*successfully',
+                                           SonicSecureBootConsts.SWITCH_RECOVER_TIMEOUT)
+        else:
+            with allure.step("Reboot the switch in ONIE"):
+                self.serial_engine.run_cmd('reboot')
 
-        with allure.step("ping till down after ONIE install"):
+        with allure.step("ping till down after reboot from ONIE"):
             ping_till_alive(should_be_alive=False, destination_host=self.serial_engine.ip)
         with allure.step("ping till alive after system is down"):
             ping_till_alive(should_be_alive=True, destination_host=self.serial_engine.ip)
 
-        with allure.step('Doing conf save'):
-            logger.info('Doing config save')
+        with allure.step('Save the initial configuration'):
             self.cli_objects.dut.general.save_configuration()
 
         with allure.step("Login from serial port"):
@@ -213,34 +217,30 @@ class SonicSecureBootHelper(SecureBootHelper):
             self.serial_engine.run_cmd('cp -f {} {}/{}'.format(filepath, SecureBootConsts.TMP_FOLDER,
                                                                filename + SonicSecureBootConsts.ORIGIN_TAG))
 
-        with allure.step(f"Uploading {filename} to {SonicSecureBootConsts.LOCAL_SECURE_BOOT_DIR} "
+        with allure.step(f"Uploading {filename} to {SecureBootConsts.TMP_FOLDER} "
                          f"directory on the local device in order to manipulate it locally"):
-            logger.info(f"Uploading {filename} to {SonicSecureBootConsts.LOCAL_SECURE_BOOT_DIR} "
-                        f"directory on the local device in order to manipulate it locally")
             self.serial_engine.upload_file_using_scp(test_server_engine.username,
                                                      test_server_engine.password,
                                                      test_server_engine.ip,
                                                      filepath,
-                                                     SonicSecureBootConsts.LOCAL_SECURE_BOOT_DIR)
+                                                     SecureBootConsts.TMP_FOLDER)
 
         # manipulate file sig
         with allure.step("manipulating signature to file {}".format(filename)):
-            logger.info("manipulating signature to file {}".format(filename))
             test_server_engine.run_cmd('sudo chmod 777 {}/{}'.
-                                       format(SonicSecureBootConsts.LOCAL_SECURE_BOOT_DIR, filename))
+                                       format(SecureBootConsts.TMP_FOLDER, filename))
             random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=random.randint(5, 10)))
-            fileObject = open(SonicSecureBootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.format(filename), "ab")
+            fileObject = open(SecureBootConsts.TMP_FOLDER + '/{}'.format(filename), "ab")
             # manipulate sig in the [SIG_START,SIG_END] range
             fileObject.seek(random.randint(SecureBootConsts.SIG_START, SecureBootConsts.SIG_END), os.SEEK_END)
             fileObject.write(random_string.encode())
             fileObject.close()
 
         with allure.step("Uploading back {} to switch".format(filename)):
-            logger.info("Uploading back {} to switch".format(filename))
             test_server_engine.upload_file_using_scp(self.serial_engine.username,
                                                      self.serial_engine.password,
                                                      self.serial_engine.ip,
-                                                     SonicSecureBootConsts.LOCAL_SECURE_BOOT_DIR + '/{}'.
+                                                     SecureBootConsts.TMP_FOLDER + '/{}'.
                                                      format(filename),
                                                      SecureBootConsts.TMP_FOLDER)
             self.serial_engine.run_cmd(SecureBootConsts.ROOT_PRIVILAGE)
@@ -336,6 +336,84 @@ class SonicSecureBootHelper(SecureBootHelper):
             self.serial_engine.run_cmd(f'onie-nos-install {http_image_path}', SonicSecureBootConsts.INVALID_SIGNATURE,
                                        SonicSecureBootConsts.SWITCH_RECOVER_TIMEOUT)
 
+    @staticmethod
+    def get_unsigned_mismatched_component_info(component, signed_type, dut_secure_type, platform_params):
+        """
+        This function will return the component url and version
+        """
+        path_to_current_folder = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+        fw_pkg_path = f'{path_to_current_folder}/../../{MarsConstants.UPDATED_FW_TAR_PATH}'
+        fw_data = extract_fw_data(fw_pkg_path)
+        current_platform = platform_params.filtered_platform.upper()
+        hw_type = platform_params.filtered_platform.upper()
+        url = ""
+        version = ""
+        try:
+            if signed_type == 'unsigned':
+                url = fw_data[signed_type][hw_type]["component"][component][0]["firmware"]
+            elif signed_type == 'key_mismatched_signed':
+                for component_item in fw_data[signed_type][hw_type]["component"][component]:
+                    if component_item['type'] != dut_secure_type:
+                        url = component_item["firmware"]
+                        version = component_item["version"]
+            assert url
+            return url, version
+        except Exception as err:
+            err_mgs = f'Can not find component for platform: {current_platform} - sign type: {signed_type} - ' \
+                      f'component: {component}. Got err: {err}'
+            logger.info(err_mgs)
+            raise err
+
+    def fwutil_install_secure_boot_negative(self, component, signed_type, dut_secure_type, platform_params,
+                                            expected_message, timeout, topology_obj=None):
+        """
+        This function will perform as the test body of fwutil secure boot test
+        It will perform the following:
+            1. do fwutil install
+            2. validate invalid signature message appears
+        """
+
+        with allure.step('Get component url'):
+            component_url, component_version = self.get_unsigned_mismatched_component_info(
+                component, signed_type, dut_secure_type, platform_params)
+        with allure.step(f"Install {component_url}"):
+            self.serial_engine.run_cmd(f'sudo fwutil install chassis component {component} fw {component_url} -y',
+                                       expected_message, timeout)
+        if component == SonicSecureBootConsts.CPLD_COMPONENT:
+            # Power cycle is required for CPLD burning
+            with allure.step("Power cycle after CPLD installation"):
+                self.cli_objects.dut.general.remote_reboot(topology_obj)
+            with allure.step("Check the CPLD version is the fail safe CPLD version"):
+                # The fail safe CPLD image(KGI image) is burnt in the factory
+                # in case the in-use image(CI image) is corrupted or unauthenticated
+                current_cpld_version = self.get_fw_components_versions()[SonicSecureBootConsts.CPLD_COMPONENT]
+                fail_safe_cpld_version = self.get_fail_safe_cpld_version(platform_params)
+                assert current_cpld_version == fail_safe_cpld_version, \
+                    "The CPLD should fall back to the fail safe version."
+
+    @staticmethod
+    def is_secure_boot_supported(boot_config):
+        return 'Not booted with EFI' not in boot_config
+
+    @staticmethod
+    def is_secure_boot_enabled(boot_config):
+        return 'Secure Boot: enabled' in boot_config
+
+    def check_secure_boot_status(self):
+        """
+        This function will check
+            1. whether secure boot is supported at current switch, if not, skip the test
+            2. whether secure boot is enabled at current switch, if not, skip the test
+        """
+        boot_config_status = self.cli_objects.dut.general.get_bootctl_status()
+        with allure.step('Check if Secure Boot is supported'):
+            if not SonicSecureBootHelper.is_secure_boot_supported(boot_config_status):
+                pytest.skip(SonicSecureBootConsts.SECURE_BOOT_NOT_SUPPORTED_MESSAGE)
+
+        with allure.step('Check if Secure Boot is enabled'):
+            if not SonicSecureBootHelper.is_secure_boot_enabled(boot_config_status):
+                pytest.skip(SonicSecureBootConsts.SECURE_BOOT_NOT_ENABLED_MESSAGE)
+
     def copy_kernel_module_to_ngts_docker(self, kernel_module_file_path):
         """
         This function will copy kernel module file from dut to ngts docker
@@ -392,27 +470,22 @@ class SonicSecureBootHelper(SecureBootHelper):
         with allure.step("Download extracted kernel module file to dut"):
             self.copy_kernel_module_to_dut(SonicSecureBootConsts.KERNEL_MODULE_TEMP_FILE_PATH)
 
-    def recover_switch_after_secure_boot(self, restore_image_path):
+    def remove_staged_onie_pkg(self):
         """
-        This function will recover the switch after receiving a secure boot violation message appear
+        This function will remove the staged onie pkg after onie update failure
         """
-        if not self.restore_vmlinuz_signature():
-            with allure.step("Recovering the switch"):
-                logger.info("Disconnect engine connection")
-                self.cli_objects.dut.general.engine.disconnect()
-                self.login_into_onie_mode()
+        self.serial_engine.run_cmd('onie-fwpkg remove 00-onie-updater-x86_64-mlnx_x86-r0')
 
-            with allure.step("ONIE install restore image and wait switch boot up"):
-                self.onie_install_wait_boot_up(restore_image_path)
-
-    def restore_basic_config(self, topology_obj, setup_name, platform_params):
+    @staticmethod
+    def restore_basic_config(topology_obj, setup_name, platform_params):
         """
         This function will restore basic configuration
         """
-        with allure.step("Recovery basic config"):
+        with allure.step("Recover basic config"):
             dut_cli = topology_obj.players['dut']['cli']
             with allure.step("Set dut NTP timezone to {} time.".format('Israel')):
                 dut_engine = topology_obj.players['dut']['engine']
+                dut_engine.disconnect()
                 dut_engine.run_cmd('sudo timedatectl set-timezone {}'.format('Israel'), validate=True)
 
             with allure.step("Init telemetry keys"):
@@ -420,3 +493,100 @@ class SonicSecureBootHelper(SecureBootHelper):
 
             with allure.step("Apply basic config"):
                 dut_cli.general.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=True)
+
+    def get_fw_components_versions(self):
+        """
+        Get dictionary with component name as key and version as value
+        :param engine: dut engine
+        :return: dictionary with component name as key and version as value
+        """
+        self.engines.dut.disconnect()
+        fwutil_show_status_output = self.engines.dut.run_cmd('sudo fwutil show status')
+        fwutil_show_status_dict = generic_sonic_output_parser(fwutil_show_status_output)
+        component_names_list = fwutil_show_status_dict[0]['Component']
+        component_versions_list = fwutil_show_status_dict[0]['Version']
+        component_versions_dict = {}
+        for component, version in zip(component_names_list, component_versions_list):
+            component_versions_dict[component] = version
+        return component_versions_dict
+
+    def restore_cpld(self, topology_obj, platform_params):
+        """
+        Restore the CPLD to the expected latest one defined in firmware.json
+        """
+        cpld = SonicSecureBootConsts.CPLD_COMPONENT
+        cpld_component_data = self.get_component_data(platform_params, cpld)
+        url, latest_cpld_version = self.get_latest_expected_cpld(cpld_component_data, cpld)
+        with allure.step(f"Restore the cpld back to {url}"):
+            serial_engine = self.get_serial_engine(topology_obj)
+            serial_engine.run_cmd(
+                f'sudo fwutil install chassis component {cpld} fw {url} -y',
+                SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[cpld],
+                SonicSecureBootConsts.CPLD_BRUNING_RECOVER_TIMEOUT)
+        with allure.step("Power cycle after CPLD installation"):
+            self.cli_objects.dut.general.remote_reboot(topology_obj)
+        with allure.step("Check the CPLD version is restored to the latest one"):
+            current_cpld_version = self.get_fw_components_versions()[cpld]
+            assert current_cpld_version == latest_cpld_version, "The CPLD is not restored to the latest version."
+
+    @staticmethod
+    def get_component_data(platform_params, component):
+        """
+        Get the component data from the firmware.json file.
+        """
+        path_to_current_folder = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+        fw_pkg_path = f'{path_to_current_folder}/../../{MarsConstants.UPDATED_FW_TAR_PATH}'
+        fw_data = extract_fw_data(fw_pkg_path)
+        hw_type = platform_params.filtered_platform.upper()
+        dut_name = platform_params['setup_name'].strip('_setup').split('_')[-1]
+        component_data = None
+        try:
+            if 'host' in fw_data:
+                for defined_dut_name in fw_data['host'].keys():
+                    if defined_dut_name == dut_name:
+                        component_data = fw_data['host'][dut_name]["component"][component]
+                        break
+            if not component_data:
+                component_data = fw_data["chassis"][hw_type]["component"][component]
+        except KeyError:
+            assert False, f"The component {component} of dut {dut_name} is not found in firmware.json"
+        return component_data
+
+    @staticmethod
+    def get_latest_expected_cpld(cpld_component_data, cpld):
+        """
+        Get the expected latest CPLD url and version defined in firmware.json
+        """
+        with allure.step(f'Getting list of versions for {cpld} from firmware.json'):
+            cplds_list = []
+            for cpld_data in cpld_component_data:
+                cplds_list.append(cpld_data['version'])
+
+        with allure.step(f'Getting latest version for: {cpld} from firmware.json'):
+            result_dict = {}
+            for cpld in cplds_list:
+                cpld_main_version = int(cpld.split('_')[0].strip('CPLD'))
+                cpld_minor_version = int(cpld.split('_')[1].strip('REV'))
+                cpld_int_value = cpld_main_version + cpld_minor_version
+                result_dict[cpld_int_value] = cpld
+            latest_cpld_version_int = sorted(result_dict, reverse=True)[0]
+            latest_cpld_version = result_dict[latest_cpld_version_int]
+
+        with allure.step(f"Get the latest CPLD url"):
+            for cpld_item in cpld_component_data:
+                if cpld_item['version'] == latest_cpld_version:
+                    url = cpld_item['firmware']
+        return url, latest_cpld_version
+
+    @staticmethod
+    def get_fail_safe_cpld_version(platform_params):
+        """
+        Get the fail safe cpld version of a specific setup
+        Currently the version is pre-defined in the constants.
+        It'd be better to dynamically get it from the dut after we get the method.
+        """
+        try:
+            return SonicSecureBootConsts.FAIL_SAFE_CPLD_VERSION[platform_params.setup_name]
+        except KeyError:
+            raise Exception("The fail safe CPLD version is not defined for setup {}, need to add it.".format(
+                platform_params.setup_name))

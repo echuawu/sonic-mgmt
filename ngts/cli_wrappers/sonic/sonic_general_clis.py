@@ -1262,6 +1262,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         logger.info(f'sai version:{sai_version}')
         return sai_version
 
+    def get_bootctl_status(self):
+        """
+        This method is to get the output of bootctl command
+        :return: bootctl output
+        """
+        return self.engine.run_cmd('bootctl')
+
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
 

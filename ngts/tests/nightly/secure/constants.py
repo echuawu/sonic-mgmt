@@ -12,6 +12,9 @@ class SecureBootConsts:
     TMP_FOLDER = '/tmp'
     MOUNT_FOLDER = '/UEFI'
     IMAGE_PATH = ["non_secure_image_path", "sig_mismatch_image_path"]
+    NON_SECURE_IMAGE_PATH = "/auto/sw_regression/system/SONIC/security/secure_boot/non_signed_image/sonic-mellanox.bin"
+    SIG_MISMATCH_IMAGE_PATH = \
+        "/auto/sw_regression/system/SONIC/security/secure_boot/sig_mismatch_image/sonic-mellanox.bin"
     EFI_PARTITION_CMD = "fdisk -l | grep \"EFI System\" | awk \'{print $1}\'"
     LAST_OCCURENCE_REGEX = "({})(?!.*\1)"
     VMILUNZ_REGEX = '(vmlinuz-.*-amd64)'
@@ -19,6 +22,8 @@ class SecureBootConsts:
     INVALID_SIGNATURE = ["Invalid signature detected",
                          "Malformed binary after Attribute Certificate Table",
                          "bad.*signature"]
+    SECURE_BOOT_NOT_ENABLED_MESSAGE = 'Secure Boot function is not enabled in UEFI'
+    SECURE_BOOT_NOT_SUPPORTED_MESSAGE = 'Secure Boot function is not supported at this switch'
     REBOOT = "sudo reboot -f"
 
     # numerical expressions
@@ -37,7 +42,13 @@ class SonicSecureBootConsts(SecureBootConsts):
     GRUB = 'grub'
     VMLINUZ = 'vmlinuz'
     ORIGIN_TAG = '_origin'
-    LOCAL_SECURE_BOOT_DIR = '/auto/sw_system_release/sonic/security/secure_boot'
+    ONIE_COMPONENT = 'ONIE'
+    BIOS_COMPONENT = 'BIOS'
+    CPLD_COMPONENT = 'CPLD2'
+    FWUTIL_UNSIGNED = 'unsigned'
+    FWUTIL_KEY_MISMATCHED_SIGNED = 'key_mismatched_signed'
+    FWUTIL_ONIE_TEST_NAME = 'test_fwutil_install_onie_key_check_fail'
+    LOCAL_SECURE_BOOT_DIR = '/auto/sw_regression/system/SONIC/security/secure_boot'
     EFI_SECURE_COMPONENT = '{}/EFI/SONiC-OS/{}'
     SHIM_FILEPATH = EFI_SECURE_COMPONENT.format(SecureBootConsts.MOUNT_FOLDER, 'shimx64.efi')
     GRUB_FILEPATH = EFI_SECURE_COMPONENT.format(SecureBootConsts.MOUNT_FOLDER, 'grubx64.efi')
@@ -46,17 +57,26 @@ class SonicSecureBootConsts(SecureBootConsts):
     KERNEL_MODULE_TEMP_FILE_PATH = SecureBootConsts.TMP_FOLDER + '/' + KERNEL_MODULE_FILE
     USR_LIB_MODULES_PATH = '/usr/lib/modules'
     KERNEL_MODULE_BLOCK_MESSAGE = 'Key was rejected by service'
-    INVALID_SIGNATURE = ["Invalid signature detected",
-                         "Malformed binary after Attribute Certificate Table",
-                         "bad.*signature",
-                         "Key was rejected by service",
-                         "CMS signature verification failed"]
+    INVALID_SIGNATURE_EXPECTED_MESSAGE = {
+        ONIE_COMPONENT:
+            ["Invalid signature detected",
+             "Malformed binary after Attribute Certificate Table",
+             "bad.*signature",
+             "Key was rejected by service",
+             "CMS signature verification failed"],
+        BIOS_COMPONENT:
+            ["ONIE: ERROR: bios_update firmware update: /mnt/onie-boot/onie/update/pending/0ACQF.cab, attempt: 3"],
+        CPLD_COMPONENT:
+            [".*PASS!.*"]}
     REBOOT = "sudo reboot -f"
     FAST_REBOOT = "sudo fast-reboot -f -d"
     WARM_REBOOT = "sudo warm-reboot -f -d"
     COLD_FAST_WARM_REBOOT_LIST = [REBOOT, FAST_REBOOT, WARM_REBOOT]
+    FAIL_SAFE_CPLD_VERSION = {"sonic_moose_r-moose-02": "CPLD000330_REV0500",
+                              "CI_sonic_SPC4_1": "CPLD000330_REV0500"}
 
     SWITCH_RECOVER_TIMEOUT = 300
+    CPLD_BRUNING_RECOVER_TIMEOUT = 1200
     ONIE_TIMEOUT = 120
 
 

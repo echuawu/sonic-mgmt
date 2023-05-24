@@ -29,6 +29,7 @@ from ngts.cli_wrappers.sonic.sonic_ztp import SonicZtpCli
 from ngts.cli_wrappers.sonic.sonic_sflow_clis import SonicSflowCli
 from ngts.cli_wrappers.sonic.sonic_doroce_clis import SonicDoroceCli
 from ngts.cli_wrappers.sonic.sonic_watermark_clis import SonicWatermarkCli
+from ngts.cli_wrappers.sonic.sonic_fwutil_clis import SonicFwutilCli
 from ngts.cli_util.stub_engine import StubEngine
 from dotted_dict import DottedDict
 from ngts.cli_wrappers.sonic.sonic_hw_mgmt_cli import SonicHwMgmtCli
@@ -266,6 +267,12 @@ class SonicCli:
         if self._hw_mgmt is None:
             self._hw_mgmt = SonicHwMgmtCli(engine=self.engine)
         return self._hw_mgmt
+
+    @property
+    def fwutil(self):
+        if self._fwutil is None:
+            self._fwutil = SonicFwutilCli(engine=self.engine)
+        return self._fwutil
 
 
 class SonicCliStub(SonicCli):

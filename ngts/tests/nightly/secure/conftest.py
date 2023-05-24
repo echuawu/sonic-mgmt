@@ -26,6 +26,14 @@ def secure_boot_consts():
     return SonicSecureBootConsts()
 
 
+@pytest.fixture(scope='session', autouse=True)
+def check_if_secure_boot_need_to_be_skip(secure_boot_helper):
+    """
+    This fixture will check whether secure boot is enabled
+    """
+    secure_boot_helper.check_secure_boot_status()
+
+
 def pytest_addoption(parser):
     """
     secure boot and upgrade pytest options
@@ -42,11 +50,11 @@ def serial_engine(topology_obj):
 
 
 @pytest.fixture(scope='session')
-def non_secure_image_path(request, secure_boot_helper):
+def non_secure_image_path(secure_boot_helper):
     """
     This fixture will extract the non secure image path from --non_signed_image parameter
     """
-    return secure_boot_helper.get_non_secure_image_path(request)
+    return SecureBootHelper.get_non_secure_image_path()
 
 
 @pytest.fixture(scope='session')
@@ -67,15 +75,19 @@ def restore_image_path(request, secure_boot_helper):
     """
     This fixture returns the path to restore image
     """
-    return secure_boot_helper.get_restore_to_image_path(request)
+    path = secure_boot_helper.get_restore_to_image_path(request)
+    if not path:
+        pytest.skip("Skip the test case for the restore image path is not provided.")
+    else:
+        return path
 
 
 @pytest.fixture(scope='function')
-def sig_mismatch_image_path(secure_boot_helper, request):
+def sig_mismatch_image_path(secure_boot_helper):
     """
     This fixture returns the path to restore image
     """
-    return secure_boot_helper.get_sig_mismatch_image_path(request)
+    return SecureBootHelper.get_sig_mismatch_image_path()
 
 
 @pytest.fixture(scope='function')
@@ -113,20 +125,45 @@ def restore_kernel_module(secure_boot_helper):
 
 
 @pytest.fixture(scope='function')
-def onie_install_and_wait_boot_up(secure_boot_helper, restore_image_path):
+def restore_to_sonic(secure_boot_helper, restore_image_path):
     """
     This function will install image in onie mode and wait until it boot up
     """
     yield
 
-    secure_boot_helper.onie_install_wait_boot_up(restore_image_path)
+    secure_boot_helper.boot_from_onie(restore_image_path)
 
 
 @pytest.fixture(scope='function')
-def recover_switch_after_secure_boot_violation_message(secure_boot_helper, restore_image_path):
+def recover_switch_after_secure_boot_violation_message(secure_boot_helper, restore_image_path, request):
     """
     This function will recover the switch after receiving a secure boot violation message appear
     """
     yield
+    if not secure_boot_helper.restore_vmlinuz_signature():
+        with allure.step("Recovering the switch"):
+            logger.info("Disconnect engine connection")
+            secure_boot_helper.cli_objects.dut.general.engine.disconnect()
+            secure_boot_helper.login_into_onie_mode()
 
-    secure_boot_helper.recover_switch_after_secure_boot(restore_image_path)
+        if SonicSecureBootConsts.FWUTIL_ONIE_TEST_NAME in request.node.name:
+            secure_boot_helper.remove_staged_onie_pkg()
+            restore_image_path = None
+
+        with allure.step("ONIE reboot and wait switch boot up"):
+            secure_boot_helper.boot_from_onie(restore_image_path)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def dut_secure_type(platform_params, engines):
+    logger.info("Check the secure boot is dev or prod")
+    device = engines.dut.run_cmd('ls /dev/mst/ | egrep mt.*_pciconf0')
+    if not device:
+        pytest.fail(f"The mst device is not found.")
+    mst_info = engines.dut.run_cmd(f'sudo flint -d /dev/mst/{device} q full')
+    if "Security Attributes:   secure-fw, dev" in mst_info:
+        return 'dev'
+    elif "Security Attributes:   secure-fw, prod" in mst_info:
+        return 'prod'
+    else:
+        pytest.fail("Failed to get the secure type of the device.")

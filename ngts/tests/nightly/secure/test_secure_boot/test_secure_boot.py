@@ -13,13 +13,15 @@ https://confluence.nvidia.com/pages/viewpage.action?spaceKey=SW&title=SONiC+NGTS
 import logging
 import pytest
 
+from retry.api import retry_call
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
-from ngts.tests.nightly.secure.constants import SecureBootConsts
+from ngts.tests.nightly.secure.constants import SecureBootConsts, SonicSecureBootConsts
 
 logger = logging.getLogger()
 allure.logger = logger
 
 
+@pytest.mark.disable_loganalyzer
 def test_unsigned_shim_secure_boot(secure_boot_helper, secure_boot_consts, mount_uefi_disk_partition,
                                    test_server_engine, recover_switch_after_secure_boot_violation_message):
     """
@@ -32,6 +34,7 @@ def test_unsigned_shim_secure_boot(secure_boot_helper, secure_boot_consts, mount
                                                      secure_boot_consts.SHIM)
 
 
+@pytest.mark.disable_loganalyzer
 def test_unsigned_grub_secure_boot(secure_boot_helper, secure_boot_consts, mount_uefi_disk_partition,
                                    test_server_engine, recover_switch_after_secure_boot_violation_message):
     """
@@ -44,6 +47,7 @@ def test_unsigned_grub_secure_boot(secure_boot_helper, secure_boot_consts, mount
                                                      secure_boot_consts.GRUB)
 
 
+@pytest.mark.disable_loganalyzer
 def test_unsgined_vmlinuz_secure_boot(secure_boot_helper, secure_boot_consts, test_server_engine,
                                       vmiluz_filepath, recover_switch_after_secure_boot_violation_message):
     """
@@ -54,6 +58,7 @@ def test_unsgined_vmlinuz_secure_boot(secure_boot_helper, secure_boot_consts, te
         secure_boot_helper.unsigned_file_secure_boot(vmiluz_filepath, test_server_engine, secure_boot_consts.VMLINUZ)
 
 
+@pytest.mark.disable_loganalyzer
 def test_signed_kernel_module_load(secure_boot_helper):
     """
     In this test case we want to validate successful
@@ -63,6 +68,7 @@ def test_signed_kernel_module_load(secure_boot_helper):
         secure_boot_helper.signed_kernel_module_secure_boot()
 
 
+@pytest.mark.disable_loganalyzer
 def test_non_signed_kernel_module_load(secure_boot_helper, restore_kernel_module):
     """
     In this test case we want to validate unsuccessful load
@@ -72,10 +78,59 @@ def test_non_signed_kernel_module_load(secure_boot_helper, restore_kernel_module
         secure_boot_helper.un_signed_kernel_module_secure_boot()
 
 
+@pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize("image_path", SecureBootConsts.IMAGE_PATH)
-def test_secure_boot_onie(secure_boot_helper, request, image_path, topology_obj, onie_install_and_wait_boot_up):
+def test_sonic_secure_boot_from_onie(secure_boot_helper, request, image_path, topology_obj, restore_to_sonic):
     """
     In this test case we want to validate unsuccessful load of unsigned image from onie
     """
     with allure.step("Test secure boot in onie mode"):
         secure_boot_helper.onie_secure_boot(request, image_path, topology_obj)
+
+
+@pytest.mark.disable_loganalyzer
+@pytest.mark.parametrize("signed_type", [SonicSecureBootConsts.FWUTIL_KEY_MISMATCHED_SIGNED])
+def test_fwutil_install_onie_key_check_fail(secure_boot_helper, platform_params, signed_type, dut_secure_type,
+                                            recover_switch_after_secure_boot_violation_message):
+    """
+    In this test case we want to validate unsuccessful upgrade of unsigned onie by fwutil
+    """
+    with allure.step("Test secure boot of fwutil - onie upgrade"):
+        secure_boot_helper.fwutil_install_secure_boot_negative(
+            SonicSecureBootConsts.ONIE_COMPONENT, signed_type, dut_secure_type, platform_params,
+            SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[SonicSecureBootConsts.ONIE_COMPONENT],
+            SonicSecureBootConsts.SWITCH_RECOVER_TIMEOUT)
+
+
+@pytest.mark.disable_loganalyzer
+@pytest.mark.parametrize("signed_type", [SonicSecureBootConsts.FWUTIL_KEY_MISMATCHED_SIGNED])
+def test_fwutil_install_bios_key_check_fail(secure_boot_helper, platform_params, signed_type, dut_secure_type):
+    """
+    In this test case we want to validate unsuccessful upgrade of key mismatched bios by fwutil
+    """
+    with allure.step("Test secure boot of fwutil - bios upgrade"):
+        secure_boot_helper.fwutil_install_secure_boot_negative(
+            SonicSecureBootConsts.BIOS_COMPONENT, signed_type, dut_secure_type, platform_params,
+            SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[SonicSecureBootConsts.BIOS_COMPONENT],
+            SonicSecureBootConsts.SWITCH_RECOVER_TIMEOUT)
+    with allure.step("Wait for the switch auto boot to SONiC"):
+        retry_call(secure_boot_helper.is_sonic_mode, tries=5, delay=10, logger=logger)
+
+
+@pytest.mark.disable_loganalyzer
+@pytest.mark.parametrize("signed_type", [SonicSecureBootConsts.FWUTIL_UNSIGNED,
+                                         SonicSecureBootConsts.FWUTIL_KEY_MISMATCHED_SIGNED])
+def test_fwutil_install_cpld_key_check_fail(topology_obj, cli_objects, secure_boot_helper, platform_params, signed_type,
+                                            dut_secure_type):
+    """
+    In this test case we want to validate unsuccessful upgrade of key mismatched CPLD by fwutil
+    """
+    try:
+        with allure.step("Test secure boot of fwutil - CPLD upgrade"):
+            secure_boot_helper.fwutil_install_secure_boot_negative(
+                SonicSecureBootConsts.CPLD_COMPONENT, signed_type, dut_secure_type, platform_params,
+                SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[SonicSecureBootConsts.CPLD_COMPONENT],
+                SonicSecureBootConsts.CPLD_BRUNING_RECOVER_TIMEOUT, topology_obj=topology_obj)
+    finally:
+        with allure.step("Restore the CPLD to the latest version in firmware.json"):
+            secure_boot_helper.restore_cpld(topology_obj, platform_params)
