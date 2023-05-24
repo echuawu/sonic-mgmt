@@ -15,7 +15,7 @@
     </Case>
   </global>
   <case>
-    <name> PushGate with upgrade </name>
+    <name> PushGate without reboot </name>
     <info> </info>
     <cmd>
       <params>
@@ -24,7 +24,7 @@
     </cmd>
   </case>
   <case>
-    <name> push_gate_with_upgrade_sanitizer_checker </name>
+    <name> push_gate_without_reboot_sanitizer_checker </name>
     <info> </info>
     <cmd>
       <params>
