@@ -7,6 +7,7 @@ import pytest
 from ngts.helpers import system_helpers
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
+from ngts.constants.constants import NvosCliTypes
 
 logger = logging.getLogger()
 
@@ -40,9 +41,12 @@ def test_extract_python_coverage(topology_obj, dest, engines):
             logger.info(f'Coverage file path: {coverage_file}')
 
         with allure.step('Restart all system services to get coverage for running services'):
-            engines.dut.reload('sudo systemctl restart sonic.target')
-            system_helpers.wait_for_all_jobs_done(engine)
-            engines.dut.run_cmd('sudo systemctl restart nvued.service')
+            if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
+                    NvosCliTypes.NvueCliTypes:
+                engines.dut.run_cmd('sudo systemctl restart nvued.service')
+            else:
+                engines.dut.reload('sudo systemctl restart sonic.target')
+                system_helpers.wait_for_all_jobs_done(engine)
 
         coverage_dir = os.path.dirname(coverage_file)
         hostname = cli_obj.general.hostname()
@@ -101,9 +105,12 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
             cli_obj.general.ls(SOURCES_PATH, validate=True)
 
         with allure.step('Restart all system services to get coverage for running services'):
-            engines.dut.reload('sudo systemctl restart sonic.target')
-            system_helpers.wait_for_all_jobs_done(engine)
-            engines.dut.run_cmd('sudo systemctl restart nvued.service')
+            if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
+                    NvosCliTypes.NvueCliTypes:
+                engines.dut.run_cmd('sudo systemctl restart swss-ibv0.service')
+            else:
+                engines.dut.reload('sudo systemctl restart sonic.target')
+                system_helpers.wait_for_all_jobs_done(engine)
 
         sudo_engine = system_helpers.PrefixEngine(engine, 'sudo')
         sudo_cli_general = GeneralCliCommon(sudo_engine)
