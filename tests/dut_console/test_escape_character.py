@@ -11,7 +11,7 @@ TOTAL_PACKETS = 100
 logger = logging.getLogger(__name__)
 
 
-def test_console_escape(duthost_console, duthost):
+def test_console_escape():
     child = pexpect.spawn("ping 127.0.0.1 -c {} -i 1".format(TOTAL_PACKETS))
     time.sleep(5)
     child.sendcontrol('C')
