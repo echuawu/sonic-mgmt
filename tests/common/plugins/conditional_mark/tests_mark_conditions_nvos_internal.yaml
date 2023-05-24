@@ -114,4 +114,11 @@ tests_nvos/system/test_system_health.py::
     reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
     conditions:
       - "'marlin' in testbed"
+
+tests_nvos/general/security/test_login_ssh_notification/test_login_ssh_notification.py::test_login_ssh_notification_performance:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3342779"
+    conditions:
+      - https://redmine.mellanox.com/issues/3342779
+
 ########################## NVOS IGNORE END ##########################
