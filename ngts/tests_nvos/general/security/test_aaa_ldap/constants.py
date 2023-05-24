@@ -1,24 +1,62 @@
 
 
 class LDAPConsts:
+    # keys
     HOSTNAME = 'hostname'
     PRIORITY = 'priority'
     SCOPE = 'scope'
-    BASE_DN = 'base-dn'
-    BIND_DN = 'bind-dn'
-    BIND_PASSWORD = 'password'
-    TIMEOUT_BIND = 'timeout-bind'
-    TIMEOUT = 'timeout-search'
-    PORT = 'auth-port'
-    VERSION = 'version'
-    LOGIN_ATTR = 'login-attribute'
-    GROUP_ATTR = 'group-attribute'
-    LDAP_STATE_ENABLED = 'enabled'
-    LDAP_STATE_DISABLED = 'disabled'
     USERS = 'users'
     NESTED_USERS = "nested-users"
     USERNAME = 'username'
     PASSWORD = 'password'
+    # show cmd fields
+    PORT = 'auth-port'
+    BASE_DN = 'base-dn'
+    BIND_DN = 'bind-dn'
+    GROUP_ATTR = 'group-attribute'
+    LOGIN_ATTR = 'login-attribute'
+    BIND_PASSWORD = 'password'
+    TIMEOUT_BIND = 'timeout-bind'
+    TIMEOUT = 'timeout-search'
+    VERSION = 'version'
+    # phase 2 show cmd fields
+    SSL_MODE = 'ssl-mode'
+    SSL_CERT_VERIFY = 'ssl-cert-verify'
+    SSL_CA_LIST = 'ssl-ca-list'
+    SSL_CIPHERS = 'ssl-ciphers'
+    TLS_CRL_CHECK_FILE = 'tls-crl-check-file'
+    TLS_CRL_CHECK_STATE = 'tls-crl-check-state'
+    SSL_PORT = 'ssl-port'  # under open question
+
+    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, LOGIN_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT,
+                   SSL_MODE, SSL_CERT_VERIFY, SSL_CA_LIST, SSL_CIPHERS, TLS_CRL_CHECK_FILE, TLS_CRL_CHECK_STATE,
+                   SSL_PORT]
+
+    # possible values
+    NONE = 'none'
+    DISABLED = 'disabled'
+    ENABLED = 'enabled'
+    START_TLS = 'start-tls'
+    SSL = 'ssl'
+    DEFAULT_CA_LIST = 'default-ca-list'
+    TLS_1_2 = 'TLS1.2'
+    TLS_1_3 = 'TLS1.3'
+    DEFAULT_CRL = 'default-crl'
+    PORT_389 = '389'
+    PORT_636 = '636'
+    PORT_TLS = PORT_389
+    PORTS_SSL = [PORT_389, PORT_636]
+
+    # default values
+    DEFAULTS = {
+        SSL_MODE: NONE,
+        SSL_CERT_VERIFY: DISABLED,
+        SSL_CA_LIST: NONE,
+        SSL_CIPHERS: TLS_1_2,
+        TLS_CRL_CHECK_FILE: NONE,
+        TLS_CRL_CHECK_STATE: DISABLED,
+        SSL_PORT: PORT_389
+    }
 
     PHYSICAL_LDAP_SERVER = {
         "hostname": "10.7.34.20",
