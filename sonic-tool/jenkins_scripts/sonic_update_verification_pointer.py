@@ -59,8 +59,8 @@ def get_apps_info_from_build_params(wjh_ver, lcm_ver):
     """
     response = {}
     try:
-        print('Getting WJH/LCM versions info from orignal build job "sonic_build" build id {}'.format(build_id))
-        api_url = 'http://jenkins-fit81-sws.mellanox.com/job/sonic_build/{}/api/json'.format(build_id)
+        print('Getting WJH/LCM versions info from original build job "sonic_main" build id {}'.format(build_id))
+        api_url = 'http://jenkins-fit81-sws.mellanox.com/job/sonic_main/{}/api/json'.format(build_id)
         if requests_imported:
             response = requests.get(api_url).json()
         else:

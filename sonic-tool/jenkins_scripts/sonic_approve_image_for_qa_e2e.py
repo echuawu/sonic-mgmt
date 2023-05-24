@@ -50,8 +50,8 @@ def get_apps_info_from_build_params(wjh_ver, wjh_included_in_image, doroce_ver, 
     :param doroce_included_in_image: True/False
     :return: wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image
     """
-    print('Getting WJH/DoRoCe versions info from orignal build job "sonic_build" build id {}'.format(build_id))
-    api_url = 'http://jenkins-fit81-sws.mellanox.com/job/sonic_build/{}/api/json'.format(build_id)
+    print('Getting WJH/DoRoCe versions info from original build job "sonic_main" build id {}'.format(build_id))
+    api_url = 'http://jenkins-fit81-sws.mellanox.com/job/sonic_main/{}/api/json'.format(build_id)
     response = {}
     if requests_imported:
         response = requests.get(api_url).json()
