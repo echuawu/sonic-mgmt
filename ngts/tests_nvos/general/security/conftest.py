@@ -103,3 +103,16 @@ def post_test_remote_reboot(topology_obj):
     TestToolkit.engines.dut.disconnect()
     nvue_cli = NvueGeneralCli(TestToolkit.engines.dut)
     nvue_cli.verify_dockers_are_up()
+
+
+@pytest.fixture(scope='function')
+def is_secure_boot_enabled(engines):
+    res = "0"
+    try:
+        res = engines.dut.run_cmd('bootctl status 2>/dev/null | grep -c "Secure Boot: enabled"')
+    except BaseException as err:
+        logging.info(err)
+
+    if res != "1":
+        logging.info("The test is skipped - secure boot is disabled")
+        pytest.skip("The test is skipped - secure boot is disabled")

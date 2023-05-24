@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.checklist
 @pytest.mark.secure_boot
-def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_kernel_module, kernel_module_filename):
+def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_kernel_module, kernel_module_filename,
+                                   is_secure_boot_enabled):
     '''
     @summary: in this test case we want to validate successful
     load of secured kernel module
@@ -39,7 +40,7 @@ def test_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_k
 @pytest.mark.checklist
 @pytest.mark.secure_boot
 def test_non_signed_kernel_module_load(serial_engine, remove_kernel_module, upload_kernel_module,
-                                       kernel_module_filename):
+                                       kernel_module_filename, is_secure_boot_enabled):
     '''
     @summary: in this test case we want to validate unsuccessful load
     of unsigned kernel module
@@ -175,7 +176,7 @@ def unsigned_file_secure_boot(serial_engine, secure_component, test_server_engin
 @pytest.mark.checklist
 @pytest.mark.secure_boot
 def test_unsigned_shim_secure_boot(serial_engine, mount_uefi_disk_partition, test_server_engine, restore_image_path,
-                                   validate_all_dockers_are_up_after_nvos_boot):
+                                   validate_all_dockers_are_up_after_nvos_boot, is_secure_boot_enabled):
     '''
     @summary: in this test case we want to simulate broken signature of shim
     by manually changing it and then do reboot and see that it does not boot successfully
@@ -190,7 +191,7 @@ def test_unsigned_shim_secure_boot(serial_engine, mount_uefi_disk_partition, tes
 @pytest.mark.checklist
 @pytest.mark.secure_boot
 def test_unsigned_grub_secure_boot(serial_engine, mount_uefi_disk_partition, test_server_engine, restore_image_path,
-                                   validate_all_dockers_are_up_after_nvos_boot):
+                                   validate_all_dockers_are_up_after_nvos_boot, is_secure_boot_enabled):
     '''
     @summary: in this test case we want to simulate broken signature of grub
     by manually changing it and then do reboot and see that it does not boot successfully
@@ -205,7 +206,7 @@ def test_unsigned_grub_secure_boot(serial_engine, mount_uefi_disk_partition, tes
 @pytest.mark.checklist
 @pytest.mark.secure_boot
 def test_unsigned_vmlinuz_secure_boot(serial_engine, test_server_engine, restore_image_path, vmlinuz_filepath,
-                                      validate_all_dockers_are_up_after_nvos_boot):
+                                      validate_all_dockers_are_up_after_nvos_boot, is_secure_boot_enabled):
     '''
     @summary: in this test case we want to simulate broken signature of vmiluz component
     by manually changing it and then do reboot and see that it does not boot successfully

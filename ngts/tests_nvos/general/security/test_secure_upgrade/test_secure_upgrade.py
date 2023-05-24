@@ -71,7 +71,7 @@ def delete_fetched_image(non_secure_image_name):
 @pytest.mark.secure_boot
 @pytest.mark.checklist
 def test_non_secure_boot_upgrade_failure(non_secure_image_path, keep_same_version_installed, non_secure_image_name,
-                                         delete_fetched_image):
+                                         delete_fetched_image, is_secure_boot_enabled):
     """
     @summary: This test case validates non successful upgrade of a given non secure image
     """

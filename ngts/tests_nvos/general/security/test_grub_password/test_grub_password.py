@@ -1,10 +1,11 @@
 import logging
 import random
 import allure
+import pytest
 from infra.tools.general_constants.constants import DefaultConnectionValues
 
 
-def test_grub_password(serial_engine, post_test_remote_reboot):
+def test_grub_password(serial_engine, post_test_remote_reboot, is_secure_boot_enabled):
     '''
     @summary:
         This test case will check that entering grub command line will requires
