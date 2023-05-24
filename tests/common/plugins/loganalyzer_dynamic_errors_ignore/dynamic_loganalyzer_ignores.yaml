@@ -2468,7 +2468,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* INFO ib-utils#OpenSM\[1008\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
+    - '.* INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py
@@ -2497,13 +2497,24 @@
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
 
+# NVOS
+- Errors_list:
+    - '.* ERR nslcd\[\d+\]: .* no available LDAP server found: .*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_in_password_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
+
 # NVOS : Errors which should be ignored in tests which doing reboot/reload
 - Errors_list:
-    - '.* ERR statsd#health_history: Containers: is not Status ok.*'
-    - '.* ERR statsd#health_history: Disk check: is not Status ok.*'
-    - '.* ERR statsd#health_history: memory_check: is not Status ok.*'
-    - '.* ERR statsd#health_history: Summary: Not OK'
-    - '.* ERR statsd#health_history: pmon: Container'
+    - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: memory_check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.* ERR health-statsd#health_history: pmon: Container.*'
     - '.* ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
     - '.* ERR watchdogutil: Failed to get watchdog module'
     - '.* ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
@@ -2516,22 +2527,25 @@
 
 # NVOS : Errors - Bug 3474336 related
 - Errors_list:
-    - '.* ERR statsd#health_history: Containers: is not Status ok.*'
-    - '.* ERR statsd#health_history: Disk check: is not Status ok.*'
-    - '.* ERR statsd#health_history: memory_check: is not Status ok.*'
-    - '.* ERR statsd#health_history: Summary: Not OK'
+    - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: memory_check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/config_commands/test_apply_detach.py::test_apply_assume
         - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive
         - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
         - tests_nvos/general/config_commands/test_show_diff_history.py
+        - tests_nvos/system/test_show_system.py::test_system
+        - tests_nvos/system/test_show_system.py::test_system_openapi
       Redmine:
         - 3474336
 
 
 # NVOS : Errors which should be ignored in tests using invalid url
 - Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:185 File not found.*'
     - '.* ERR nvued:   ERROR: format_checkers.py:246.*'
     - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:246.*'
     - '.* ERR nvued:   ERROR: format_checkers.py:246 Instance ffff:.*'
