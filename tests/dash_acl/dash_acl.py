@@ -145,7 +145,6 @@ class AclPriorityTest(AclRuleTest):
         self.add_rule({
             ACL_GROUP: self.acl_group,
             ACL_RULE: "deny_10",
-            # TODO. This priority should be lower than rule2's (2)
             ACL_PRIORITY: 10,
             ACL_ACTION: "deny",
             ACL_TERMINATING: "true",
@@ -155,8 +154,8 @@ class AclPriorityTest(AclRuleTest):
         })
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow_2",
-            ACL_PRIORITY: 2,
+            ACL_RULE: "allow_20",
+            ACL_PRIORITY: 20,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: 17,
@@ -171,7 +170,6 @@ class AclPriorityTest(AclRuleTest):
         self.add_rule({
             ACL_GROUP: self.acl_group,
             ACL_RULE: "allow_30",
-            # TODO. This priority should be lower than rule4's (4)
             ACL_PRIORITY: 30,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
@@ -181,8 +179,8 @@ class AclPriorityTest(AclRuleTest):
         })
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "deny_4",
-            ACL_PRIORITY: 4,
+            ACL_RULE: "deny_40",
+            ACL_PRIORITY: 40,
             ACL_ACTION: "deny",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: 17,
@@ -207,7 +205,6 @@ class AclActionTest(AclRuleTest):
         self.add_rule({
             ACL_GROUP: self.acl_group,
             ACL_RULE: "allow_10",
-            # TODO. This priority should be lower than rule2's (2)
             ACL_PRIORITY: 10,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "false",
@@ -217,8 +214,8 @@ class AclActionTest(AclRuleTest):
         })
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "deny_2",
-            ACL_PRIORITY: 2,
+            ACL_RULE: "deny_20",
+            ACL_PRIORITY: 20,
             ACL_ACTION: "deny",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: 17,
