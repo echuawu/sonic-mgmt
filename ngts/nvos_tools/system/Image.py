@@ -39,7 +39,7 @@ class Image(BaseComponent):
             logging.info("Uninstall {params} system image".format(params=params))
             return self._action(ActionConsts.UNINSTALL, params, expected_str)
 
-    def action_fetch(self, url="", expected_str=""):
+    def action_fetch(self, url="", expected_str="Action succeeded"):
         with allure.step("Image fetch {url} ".format(url=url)):
             logging.info("Image fetch {url} system image".format(url=url))
             return self._action(ActionConsts.FETCH, url, expected_str)
