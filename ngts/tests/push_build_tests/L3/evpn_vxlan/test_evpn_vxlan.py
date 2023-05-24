@@ -37,6 +37,13 @@ def mac_addresses(engines, cli_objects):
     return dut_mac, ha_br_500100_mac, ha_br_500101_mac, hb_br_500100_mac, hb_bond0_101_mac
 
 
+@pytest.fixture(scope='class')
+def skip_if_upgrade(base_version, target_version):
+    if base_version and target_version and '202012' in base_version:
+        pytest.skip("If case of upgrade flow from 202012 - "
+                    "202012 doesn't support VxLAN and this test will not be supported")
+
+
 class TestEvpnVxlan:
 
     @pytest.fixture(autouse=True)
@@ -189,7 +196,7 @@ class TestEvpnVxlan:
     @pytest.mark.build
     @pytest.mark.physical_coverage
     @pytest.mark.push_gate
-    def test_evpn_vxlan_basic(self, cli_objects, interfaces):
+    def test_evpn_vxlan_basic(self, cli_objects, interfaces, skip_if_upgrade):
         """
         This test will check basic EVPN VXLAN functionality.
 
