@@ -5,7 +5,7 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.system.System import System
-from ngts.tools.test_utils.allure_utils import allure_step
+from ngts.tools.test_utils import allure_utils as allure
 
 
 def connect_to_switch_and_validate_role(engines, username, password, role=SystemConsts.ROLE_VIEWER):
@@ -14,19 +14,19 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
         in this helper function, we will connect to switch using username, password & port
         and validate user role configurations
     """
-    with allure_step("Using username: {}, role: {}".format(username, role)):
+    with allure.step("Using username: {}, role: {}".format(username, role)):
         engines.dut.update_credentials(username=username, password=password)
 
     SLEEP_BEFORE_EXECUTING_CMDS = 5
-    with allure_step("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS)):
+    with allure.step("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS)):
         time.sleep(SLEEP_BEFORE_EXECUTING_CMDS)
 
     system = System(None)
     SHOW_SYSTEM_VERSION_CMD = 'nv show system version'
-    with allure_step("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD)):
+    with allure.step("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD)):
         system.version.show()
 
-    with allure_step("Validating role permissions are as expected"):
+    with allure.step("Validating role permissions are as expected"):
         if role == SystemConsts.DEFAULT_USER_ADMIN:
             logging.info("User has admin permissions and can set configurations")
             system.message.set("NVOS TESTS", engines.dut, field_name='pre-login').verify_result(should_succeed=True)
@@ -70,6 +70,6 @@ def validate_authentication_fail_with_credentials(engines, username, password):
     @summary: in this helper function we want to validate authentication failure while using
     username and password credentials
     """
-    with allure_step("Validating failed authentication with new credentials, username: {}".format(username)):
+    with allure.step("Validating failed authentication with new credentials, username: {}".format(username)):
         ConnectionTool.create_ssh_conn(engines.dut.ip, username=username, password=password).verify_result(
             should_succeed=False)

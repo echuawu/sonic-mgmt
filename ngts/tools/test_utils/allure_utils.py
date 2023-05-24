@@ -5,7 +5,7 @@ import logging
 
 
 @contextmanager
-def allure_step(step_msg):
+def step(step_msg):
     """
     @summary:
         Context manager that wraps allure step context and a log with the same message

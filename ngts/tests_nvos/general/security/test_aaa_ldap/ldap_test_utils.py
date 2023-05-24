@@ -7,7 +7,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
 from ngts.tests_nvos.infra.init_flow.init_flow import test_system_dockers, test_system_services
-from ngts.tools.test_utils.allure_utils import allure_step
+from ngts.tools.test_utils import allure_utils as allure
 
 
 def configure_ldap(ldap_server_info):
@@ -31,7 +31,7 @@ def configure_ldap(ldap_server_info):
     """
     system = System(None)
 
-    with allure_step("Configuring ldap server"):
+    with allure.step("Configuring ldap server"):
         if ldap_server_info.get(LDAPConsts.SCOPE):
             system.aaa.ldap.set_scope(scope=ldap_server_info[LDAPConsts.SCOPE])
         if ldap_server_info.get(LDAPConsts.BASE_DN):
@@ -78,7 +78,7 @@ def validate_ldap_configurations(ldap_server_info):
     """
     system = System(None)
 
-    with allure_step("Validating the configuration of ldap to be the same as {}".format(ldap_server_info)):
+    with allure.step("Validating the configuration of ldap to be the same as {}".format(ldap_server_info)):
         output = system.aaa.ldap.show()
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
         expected_field = [LDAPConsts.PORT, LDAPConsts.BASE_DN, LDAPConsts.BIND_DN,
@@ -107,13 +107,13 @@ def enable_ldap_feature(dut_engine):
         in the current implementation we use sonic commands, once the nv commands
         are available we will change this function
     """
-    with allure_step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
+    with allure.step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
         dut_engine.run_cmd("nv set system aaa authentication order ldap,local")
         dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
         dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
         dut_engine.run_cmd("nv config apply -y")
         NVUED_SLEEP_FOR_RESTART = 4
-        with allure_step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
+        with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
             time.sleep(NVUED_SLEEP_FOR_RESTART)
         NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
 
@@ -122,7 +122,7 @@ def validate_services_and_dockers_availability(engines, devices):
     """
     @summary: validate all services and dockers are up configuring ldap
     """
-    with allure_step("validating all services and dockers are up"):
+    with allure.step("validating all services and dockers are up"):
         test_system_dockers(engines, devices)
         test_system_services(engines, devices)
 
@@ -135,10 +135,10 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices):
     enable_ldap_feature(engines.dut)
 
     for ldap_server_info in ldap_server_list:
-        with allure_step("Configuring ldap server {}".format(ldap_server_info)):
+        with allure.step("Configuring ldap server {}".format(ldap_server_info)):
             configure_ldap(ldap_server_info)
 
-        with allure_step("Validating ldap server configurations"):
+        with allure.step("Validating ldap server configurations"):
             validate_ldap_configurations(ldap_server_info)
 
     validate_services_and_dockers_availability(engines, devices)
