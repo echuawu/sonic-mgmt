@@ -346,27 +346,35 @@ dut_console:
 #######################################
 ecmp/inner_hashing/test_inner_hashing.py:
   skip:
-    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform"
+    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform. Test does not support dualtor topology."
+    conditions_logical_operator: or
     conditions:
       - "branch in ['201811', '201911', '202012', '202106'] or platform in ['x86_64-mlnx_msn2700-r0']"
+      - "'dualtor' in topo_name"
 
 ecmp/inner_hashing/test_inner_hashing_lag.py:
   skip:
-    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform"
+    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform. Test does not support dualtor topology."
+    conditions_logical_operator: or
     conditions:
       - "branch in ['201811', '201911', '202012', '202106'] or platform in ['x86_64-mlnx_msn2700-r0']"
+      - "'dualtor' in topo_name"
 
 ecmp/inner_hashing/test_wr_inner_hashing.py:
   skip:
-    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform"
+    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform. Test does not support dualtor topology."
+    conditions_logical_operator: or
     conditions:
       - "branch in ['201811', '201911', '202012', '202106'] or platform in ['x86_64-mlnx_msn2700-r0']"
+      - "'dualtor' in topo_name"
 
 ecmp/inner_hashing/test_wr_inner_hashing_lag.py:
   skip:
-    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform"
+    reason: "PBH introduced in 202111 and skip this test on Mellanox 2700 platform. Test does not support dualtor topology."
+    conditions_logical_operator: or
     conditions:
       - "branch in ['201811', '201911', '202012', '202106'] or platform in ['x86_64-mlnx_msn2700-r0']"
+      - "'dualtor' in topo_name"
 
 ecmp/test_fgnhg.py:
   xfail:
@@ -462,10 +470,11 @@ http/test_http_copy.py:
 #######################################
 iface_loopback_action/test_iface_loopback_action.py:
   skip:
-    reason: "Not working on non-mellanox platform"
+    reason: "Not working on non-mellanox platform. Does not support dualtor topology."
+    conditions_logical_operator: or
     conditions:
-      - "asic_type not in ['mellanox']"
-      - https://github.com/sonic-net/sonic-mgmt/issues/7704
+      - "asic_type not in ['mellanox'] and https://github.com/sonic-net/sonic-mgmt/issues/7704"
+      - "'dualtor' in topo_name"
 
 #######################################
 #####      iface_namingmode       #####
@@ -853,6 +862,12 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiSharedReservationSize:
     reason: "Shared reservation size test is not supported."
     conditions:
       - "asic_type not in ['cisco-8000']"
+
+qos/test_lossless_bum_traffic_drop.py:
+  skip:
+    reason: "Test does not support dualtor topology."
+    conditions:
+      - "'dualtor' in topo_name"
 
 #######################################
 #####         restapi             #####
