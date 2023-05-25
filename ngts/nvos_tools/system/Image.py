@@ -42,6 +42,8 @@ class Image(BaseComponent):
     def action_fetch(self, url="", expected_str="Action succeeded"):
         with allure.step("Image fetch {url} ".format(url=url)):
             logging.info("Image fetch {url} system image".format(url=url))
+            if TestToolkit.tested_api == ApiType.OPENAPI:
+                expected_str = 'File fetched successfully'
             return self._action(ActionConsts.FETCH, url, expected_str)
 
     def action_boot_next(self, partition_id, expected_str=''):
