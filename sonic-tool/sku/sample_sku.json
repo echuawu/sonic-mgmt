@@ -1,36 +1,24 @@
 {
     "SKU_BREAKOUT_INFO": {
-        "platform": "MSN2740",
-        "reference_sku": "ACS-MSN2740",
+        "platform": "MSN4700",
+        "reference_sku": "Mellanox-SN4700-C128",
         "links": [
             {
-                "num_physical": 6,
-                "def_breakout": "2x50G[25G,10G]",
-                "num_lanes_to_use": 4,
+                "num_physical": 12,
+                "def_breakout": "2x100G[200G,50G,40G,25G,10G,1G]",
+                "num_lanes_to_use": 8,
                 "direction": "down"
             },
             {
-                "num_physical": 4,
-                "def_breakout": "1x100G[50G,40G,25G,10G]",
-                "num_lanes_to_use": 4,
+                "num_physical": 8,
+                "def_breakout": "1x400G[200G,100G,50G,40G,25G,10G,1G]",
+                "num_lanes_to_use": 8,
                 "direction": "up"
             },
             {
                 "num_physical": 12,
-                "def_breakout": "2x50G[25G,10G]",
-                "num_lanes_to_use": 4,
-                "direction": "down"
-            },
-            {
-                "num_physical": 4,
-                "def_breakout": "1x100G[50G,40G,25G,10G]",
-                "num_lanes_to_use": 4,
-                "direction": "up"
-            },
-            {
-                "num_physical": 6,
-                "def_breakout": "2x50G[25G,10G]",
-                "num_lanes_to_use": 4,
+                "def_breakout": "2x100G[200G,50G,40G,25G,10G,1G]",
+                "num_lanes_to_use": 8,
                 "direction": "down"
             }
         ]
@@ -42,12 +30,12 @@
             "default_cable": "1500m"
         },
         "t1": {
-            "up": "300m",
+            "up": "2000m",
             "down": "40m",
             "default_cable": "300m"
         },
         "t0": {
-            "up": "40m",
+            "up": "2000m",
             "down": "5m",
             "default_cable": "5m"
         }
@@ -55,7 +43,12 @@
     "VXLAN_SRC_PORT": false,
     "INCLUDE_FEC": false,
     "MGMT_POOL": 256,
-    "LOSSY_PG_MIN_HEADROOM": 19,
+    "LOSSY_PG_MIN_HEADROOM": {
+        "8": 38,
+        "4": 19,
+        "2": 19,
+        "1": 19
+    },
     "LOSSY_PG_FACTOR": 1,
     "LOSSLESS_PG_FACTOR": {
         "down": 2,
@@ -67,6 +60,6 @@
     "EGRESS_MIRRORING_HEADROOM": 10,
     "MIN_PORT_HEADROOM": 10,
     "EPOOL": 9,
-    "DEF_TOPO": "t0",
+    "DEF_TOPO": "t1",
     "IMAGE_BRANCH": "master"
 }

@@ -72,7 +72,7 @@ PLATFORM_DATA = {
             "physical_lanes": 8,
             "sai_lanes": 8,
             "port_count": 32,
-            "speed_map": {1:2, 10:16, 25:100, 40:32, 50:384, 100:1536, 200:4096},
+            "speed_map": {1:2, 10:16, 25:100, 40:32, 50:384, 100:1536, 200:4096, 400:32768},
             "mmu_size": 59392
     },
     "msn2700": {
@@ -91,7 +91,7 @@ PLATFORM_DATA = {
     }
 }
 
-SPEED_ALPHA = {10 : "S", 25: "A", 50 : "D", 100 : "C", 200 : "V" }
+SPEED_ALPHA = {10 : "S", 25: "A", 50 : "D", 100 : "C", 200 : "V" , 400: "O"}
 
 COPYRIGHT = """\
 {#
@@ -226,7 +226,7 @@ class SKUGenerator():
         lane_offset = PLATFORM_DATA[platform]["physical_lanes"]
         sai_lanes = PLATFORM_DATA[platform]["sai_lanes"]
         lines = []
-        lines += ["# name         lanes              alias     index    speed" + ("     fec" if self.SKU["INCLUDE_FEC"] else "")]
+        lines += ["# name         lanes                                  alias     index    speed" + ("     fec" if self.SKU["INCLUDE_FEC"] else "")]
 
         for p, d in sorted(port_data.items()):
             for i in range(d["split"]):
@@ -241,7 +241,7 @@ class SKUGenerator():
                 fec = "none" # TODO: Add support here
 
                 out += eth + " "*(15 - len(eth))
-                out += lanes + " "*(19 - len(lanes))
+                out += lanes + " "*(39 - len(lanes))
                 out += al + " "*(10 - len(al))
                 out += idx + " "*(9 - len(idx))
                 out += speed
@@ -298,7 +298,7 @@ class SKUGenerator():
         for p, d in port_data.items():
             counts[d["speed"]] = counts.get(d["speed"], 0) + d["split"]
 
-        counts = OrderedDict(sorted(counts.items()))
+        counts = OrderedDict(sorted(counts.items(), reverse=True))
 
         sai_file = "sai_{}_{}.xml".format(platform.replace("msn",""), "_".join(["{}x{}g".format(c, s) for s, c in counts.items()]))
 
@@ -336,34 +336,37 @@ class SKUGenerator():
         file = "buffers_defaults_{}.j2".format(sku_type)
 
         for p, d in port_data.items():
-            k = "{}_{}".format(d["speed"], d["direction"])
+            k = "{}_{}_{}".format(d["speed"], d["direction"], int(d["lanes"]/d["split"]))
             counts[k] = counts.get(k, 0) + d["split"]
 
         config_headroom = 0
         open_private_headroom = 0
+        user_reserved = 0
 
         for s, c in counts.items():
             speed = int(s.split("_")[0])*1000
             direction = s.split("_")[1]
+            lanes = s.split("_")[2]
             length = self.SKU["CABLE_LENGTH"][sku_type][direction]
             headroom =  self.get_cable_data(sku_files, speed, length)
 
-            oper_headroom_size = self.SKU["LOSSY_PG_MIN_HEADROOM"] if self.SKU["SHARED_HEADROOM_ENABLED"] else headroom
+            oper_headroom_size = self.SKU["LOSSY_PG_MIN_HEADROOM"][str(lanes)] if self.SKU["SHARED_HEADROOM_ENABLED"] else headroom
             config_headroom += c * headroom * self.SKU["LOSSLESS_PG_FACTOR"][direction]
+            user_reserved += c*self.SKU["LOSSY_PG_MIN_HEADROOM"][str(lanes)]*self.SKU["LOSSY_PG_FACTOR"]
             open_private_headroom += c * oper_headroom_size * self.SKU["LOSSLESS_PG_FACTOR"][direction]
-            print(c, speed, direction, length, headroom, self.SKU["LOSSLESS_PG_FACTOR"][direction], oper_headroom_size, config_headroom, open_private_headroom)
+            print(c, speed, direction, length, headroom, self.SKU["LOSSLESS_PG_FACTOR"][direction], oper_headroom_size, config_headroom, user_reserved, open_private_headroom)
 
-        # print("Final config_headroom: {}, open_private_headroom: {}".format(config_headroom, open_private_headroom))
         port_count = sum(counts.values())
 
         IPOOL = self.SKU["MIN_PORT_HEADROOM"] if self.SKU["SHARED_HEADROOM_ENABLED"] else 0
         open_private_headroom += port_count*IPOOL
         headroom_pool_size = (config_headroom - open_private_headroom) / self.SKU["SHARED_HEADROOM_FACTOR"]
         oper_headroom = open_private_headroom + headroom_pool_size
-        user_reserved = port_count * (self.SKU["LOSSY_PG_MIN_HEADROOM"]*self.SKU["LOSSY_PG_FACTOR"] + self.SKU["EPOOL"])
+        user_reserved += self.SKU["EPOOL"] * port_count
         system_reserved = port_count * (self.SKU["MGMT_PG_HEADROOM"] + self.SKU["EGRESS_MIRRORING_HEADROOM"]) + self.SKU["MGMT_POOL"]
         mmu_size = PLATFORM_DATA[platform]["mmu_size"]
-
+        print("Final config_headroom: {}, open_private_headroom: {}".format(config_headroom, open_private_headroom))
+        print("Oper headroom: {} User reserved: {} System reserved: {}".format(oper_headroom, user_reserved, system_reserved))
         ingress_lossless_pool_size = (mmu_size - oper_headroom - user_reserved - system_reserved) * 1024
         egress_lossy_pool_size = ingress_lossless_pool_size
         ingress_lossless_xoff = headroom_pool_size * 1024
