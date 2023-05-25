@@ -2581,9 +2581,11 @@
     - '.* ERR kernel: \[.*\] Fails to get module type, err: -16.*'
     - '.* ERR kernel: \[ .*\] Fails to read module eeprom, status: -16.*'
     - '.* ERR kernel: \[.*\] Fails to access .* module eeprom, status: -16.*'
+    - '.* ERR pmon#xcvrd:.*Failed to get SFP type, index=\d+, error=\[Errno \d+\] Device or resource busy.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/auto_negotition/test_auto_neg_scale.py
+      - tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration
 
 - Errors_list:
     - ".*ERR sonic-ztp\\[\\d+\\]: Exception \\[Expecting ',' delimiter: line \\d+ column \\d+ \\(char \\d+\\)] encountered while verifying '\\/etc\\/sonic\\/config_db\\.json'.*"
