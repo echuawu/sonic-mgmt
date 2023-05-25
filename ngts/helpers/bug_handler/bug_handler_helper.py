@@ -172,7 +172,7 @@ def scp_file_to_stm(file_path):
     file_base_dir, file_name = os.path.split(file_path)
     with allure.step(f"Copy file: {file_name} to STM"):
         file_path_at_stm = os.path.join("/tmp", file_name)
-        cmd = f'sshpass -p "{DefaultSTMCred.DEFAULT_PASS}" scp {file_path} ' \
+        cmd = f'sudo sshpass -p "{DefaultSTMCred.DEFAULT_PASS}" scp {file_path} ' \
               f'{DefaultSTMCred.DEFAULT_USERNAME}@{STM_IP}:{file_path_at_stm}'
         logger.info("Copy to STM. CMD: %s" % cmd)
         os.system(cmd)
