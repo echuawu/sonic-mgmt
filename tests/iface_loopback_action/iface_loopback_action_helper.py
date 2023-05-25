@@ -48,7 +48,7 @@ def generate_and_verify_traffic(duthost, ptfadapter, rif_interface, src_port_ind
     eth_dst = duthost.facts["router_mac"]
     eth_src = ptfadapter.dataplane.get_mac(0, src_port_index)
     duthost.shell("sudo ip neigh replace {} lladdr {} dev {}".format(ip_dst, eth_src, rif_interface))
-    pytest_assert(wait_until(5, 1, 0, check_neighbor, duthost, ip_dst, eth_src, rif_interface),
+    pytest_assert(wait_until(60, 3, 0, check_neighbor, duthost, ip_dst, eth_src, rif_interface),
                   "Failed to add neighbor for {}.".format(ip_dst))
     logger.info("Traffic info is: eth_dst- {}, eth_src- {}, ip_src- {}, ip_dst- {}, vlan_vid- {}".format(eth_dst, eth_src, ip_src, ip_dst, vlan_vid))
     pkt = testutils.simple_ip_packet(
@@ -85,10 +85,24 @@ def check_neighbor(duthost, ip_address, mac_address, interface):
     :param mac_address: Neighbor mac address
     :param interface: Neighbor interface
     """
+    asic_db_output = duthost.shell("redis-cli -n 1 keys *NEIGHBOR_ENTRY* | grep {}".format(ip_address))['stdout_lines']
+    if len(asic_db_output) < 1:
+        logger.error('No neighbor entry or extra neighbor entries of {} in ASIC db.'.format(ip_address))
+        return False
+
+    asic_db_neighbor_entry = asic_db_output[0]
+    mac_in_asic_db = duthost.shell("redis-cli -n 1 hget '{}' '{}'".format(
+        asic_db_neighbor_entry, "SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS"))['stdout_lines']
+
+    if len(mac_in_asic_db) < 1 or mac_in_asic_db[0].upper() != mac_address.upper():
+        logger.error('The neighbor entry of {} in ASIC db is not correct.'.format(ip_address))
+        return False
+
     output = duthost.shell("ip neigh | grep {}".format(ip_address))['stdout'].splitlines()
     if len(output) != 1:
         logger.error('No neighbor entry or extra neighbor entries of {}.'.format(ip_address))
         return False
+
     fields = output[0].split(' ')
     if fields[0] != ip_address or fields[2] != interface or fields[4] != mac_address or fields[5] != 'PERMANENT':
         logger.error('The neighbor entry of {} is not correct.'.format(ip_address))
