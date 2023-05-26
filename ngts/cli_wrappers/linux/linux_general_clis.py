@@ -49,7 +49,7 @@ class LinuxGeneralCli(GeneralCliCommon):
         To use this method, the class must be created with BMC engine
         :return: command output
         """
-        return self.engine.run_cmd("ipmitool chassis power cycle")
+        return self.engine.run_cmd("ipmitool chassis power reset")
 
     def get_history(self):
         """

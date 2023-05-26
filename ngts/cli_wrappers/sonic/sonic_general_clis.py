@@ -31,6 +31,7 @@ from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
 from ngts.constants.constants import InfraConst
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
+from infra.tools.general_constants.constants import DefaultTestServerCred
 
 
 logger = logging.getLogger()
@@ -445,7 +446,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Installing image by PXE'):
             logger.info('Installing image by PXE')
 
-        self.update_bf_slinks_to_files(image_path, topology_obj)
+        self.update_pxe_grub_config(image_path, topology_obj, hwsku)
 
         bmc_cli_obj = self.get_bf_bmc_cli_obj(topology_obj)
         with allure.step('Set next boot to PXE'):
@@ -461,7 +462,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             logger.info('Start to check if CLI connection is available')
             retry_call(self.check_bf_cli_connection,
                        fargs=[],
-                       tries=12,
+                       tries=24,  # temporary workaround due to bad PXE performance, original value was 12
                        delay=60,
                        logger=logger)
 
@@ -476,33 +477,39 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.engine.disconnect()
         self.engine.run_cmd(DUMMY_COMMAND, validate=True)
 
-    def update_bf_slinks_to_files(self, image_path, topology_obj):
+    @staticmethod
+    def update_pxe_grub_config(image_path, topology_obj, hwsku):
         """
-        This function updating the symbolic links to Image and initramfs files
-          for Bluefield device to required version.
-        These links used by grub file via PXE boot.
+        This function updating the grub cfg config on LAB-PXE server for Image and initramfs files for Bluefield
+        device to required version.
+        These files used for PXE boot.
         """
-        with allure.step('Update soft links to Image and initramfs files'):
-            logger.info('Update soft links to Image and initramfs files')
-
         image_path = os.path.realpath(image_path)  # in case provided image as symbolic link(for example the latest)
 
-        pxe_dir_path = image_path[:image_path.rfind('/')] + '/pxe'
-        switch_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+        pxe_dir_path = '/'.join(image_path.split('/')[:-2]) + '/Nvidia-bluefield/pxe'
+        pxe_server_dir_path = '/sonic/sonic_dpu{}'.format(pxe_dir_path.split('/sonic/sonic_dpu')[1])
 
-        slink_image = BluefieldConstants.BASE_SLINK_BF_IMAGE.format(switch_name)
-        slink_initramfs = BluefieldConstants.BASE_SLINK_BF_INITRAMFS.format(switch_name)
+        dut_mgmt_mac_addr = \
+            topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['mac_address']
+        pxe_server_config_path = f'{BluefieldConstants.PXE_SERVER_CONFIGS_PATH}grub.cfg-bf-{dut_mgmt_mac_addr}'
 
-        self.update_bf_slink(slink_image, pxe_dir_path, 'Image')
-        self.update_bf_slink(slink_initramfs, pxe_dir_path, 'initramfs')
+        pxe_server_engine = LinuxSshEngine(ip=BluefieldConstants.PXE_SERVER,
+                                           username=DefaultTestServerCred.DEFAULT_USERNAME,
+                                           password=DefaultTestServerCred.DEFAULT_PASS)
 
-    @staticmethod
-    def update_bf_slink(slink, pxe_dir_path, file):
-        logger.info(f'Update symbolic link {slink} to the file {pxe_dir_path}/{file}')
-        if os.path.exists(slink):
-            os.remove(slink)
-        create_slink_cmd = f'ln -s {pxe_dir_path}/{file} {slink}'
-        os.system(create_slink_cmd)
+        orig_grub_cfg_file = BluefieldConstants.GRUB_CFG_FILE_MAP[hwsku]
+        image_str = '(tftp)/<update the location>/Image'
+        initramfs_str = '(tftp)/<update the location>/initramfs'
+
+        with open(os.path.join(pxe_dir_path, orig_grub_cfg_file)) as cfg_file_obj:
+            pxe_server_engine.run_cmd(f'echo "" > {pxe_server_config_path}')
+            for line in cfg_file_obj.readlines():
+                if image_str in line:
+                    line = line.replace(image_str, f'{pxe_server_dir_path}/Image')
+                elif initramfs_str in line:
+                    line = line.replace(initramfs_str, f'{pxe_server_dir_path}/initramfs')
+
+                pxe_server_engine.run_cmd(f"echo '{line}' >> {pxe_server_config_path}")
 
     @staticmethod
     def get_bf_bmc_cli_obj(topology_obj):

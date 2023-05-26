@@ -966,12 +966,19 @@ class NvosCliTypes:
 
 
 class BluefieldConstants:
-    BASE_SLINK_BF_IMAGE = '/auto/sw_system_release/sonic/sonic_dpu_config/images/{}/Image'
-    BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
     BMC_USER = os.getenv("BMC_USER")
     BMC_PASS = os.getenv("BMC_PASSWORD")
-    BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-MBF2H536C-C2',
-                             'Nvidia-9009d3b600CVAA', 'Nvidia-9009d3b600CVAA-C2']
+
+    PXE_SERVER = 'r-fit16-clone'
+    PXE_SERVER_CONFIGS_PATH = '/tftpboot/uefiboot/grub/'
+    BF2_HWSKU = 'Nvidia-MBF2H536C'
+    BF3_HWSKU = 'Nvidia-9009d3b600CVAA'
+    BF2_GRUB_CFG = 'bluefield-2.grub.cfg'
+    BF3_GRUB_CFG = 'bluefield-3.grub.cfg'
+    GRUB_CFG_FILE_MAP = {BF2_HWSKU: BF2_GRUB_CFG, BF3_HWSKU: BF3_GRUB_CFG}
+
+    BLUEFIELD_HWSKUS_LIST = [BF2_HWSKU, '{}-C2'.format(BF2_HWSKU),
+                             BF3_HWSKU, '{}-C2'.format(BF3_HWSKU)]
     BLUEFIELD_PORTS_LIST = ['Ethernet0', 'Ethernet4']
 
 
