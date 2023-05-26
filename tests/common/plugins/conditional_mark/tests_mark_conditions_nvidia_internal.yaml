@@ -1727,6 +1727,12 @@ bgp/test_bgp_speaker.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3420524"
 
+bgp/test_bgp_suppress_fib.py:
+  skip:
+    reason: "BGP suppress fib pending function is only supported at master branch"
+    conditions:
+      - "release not in ['master']"
+
 iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_port_flap:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
