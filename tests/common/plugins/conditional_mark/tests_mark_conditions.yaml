@@ -863,12 +863,6 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiSharedReservationSize:
     conditions:
       - "asic_type not in ['cisco-8000']"
 
-qos/test_lossless_bum_traffic_drop.py:
-  skip:
-    reason: "Test does not support dualtor topology."
-    conditions:
-      - "'dualtor' in topo_name"
-
 #######################################
 #####         restapi             #####
 #######################################
