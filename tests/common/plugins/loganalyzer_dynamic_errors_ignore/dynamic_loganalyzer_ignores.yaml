@@ -2476,6 +2476,13 @@
         - tests_nvos/ib/test_set_unset_sm_state.py
         - tests_nvos/ib/test_unset_ib.py
 
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:100 Failed verify ib interface configuration.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed_invalid
+
 # NVOS Errors which should be ignored in tests which doing reset service
 - Errors_list:
     - '.*ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
@@ -2499,6 +2506,20 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:289 User requested a .* reboot, but NVOS cant perform it.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_reboot.py::test_reboot_command_type
+
+# NVOS
+- Errors_list:
+    - '.* ERR kernel: \[ \d+.\d+\] ib_core: Method 1 already in use'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state_openapi
 
 # NVOS
 - Errors_list:
