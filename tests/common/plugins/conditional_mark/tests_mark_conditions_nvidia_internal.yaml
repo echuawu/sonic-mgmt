@@ -512,6 +512,12 @@ tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb
     conditions:
       - https://redmine.mellanox.com/issues/3421305
 
+tests/nightly/evpn_vxlan/underlay_ecmp/test_evpn_vxlan_underlay_ecmp.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3481969 on x86_64-mlnx_msn2700_simx-r0 platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3481969 and 'x86_64-mlnx_msn2700_simx-r0' in platform"
+
 ########################## NGTS IGNORE END ##########################
 
 
