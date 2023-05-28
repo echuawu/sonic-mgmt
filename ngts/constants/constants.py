@@ -1092,3 +1092,8 @@ class BugHandlerConst:
     BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/bin/handle_bug.py"
     BUG_HANDLER_SANITIZER_USER = "asan"
     SANITIZER_PARSED_DUMPS_FOLDER = "/tmp/parsed_sanitizer_dumps/"
+    BUG_HANDLER_DECISION_UPDATE = "update"
+    BUG_HANDLER_DECISION_CREATE = "create"
+    BUG_HANDLER_DECISION_ABORT = "abort"
+    BUG_HANDLER_DECISION_REOPEN = "reopen"
+    RC_ABORT = 2
