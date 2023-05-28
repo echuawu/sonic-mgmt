@@ -21,7 +21,7 @@ class Ibdiagnet(BaseComponent):
         with allure.step("Create ibdiagnet files"):
             logging.info("Create ibdiagnet files")
             return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_run, expected_str,
-                                                                TestToolkit.engines.dut, command, option).get_returned_value()
+                                                                TestToolkit.engines.dut, '"' + command, option + '"').get_returned_value()
 
     def action_upload(self, upload_path, file_name=IbConsts.IBDIAGNET_FILE_NAME):
         with allure.step("Upload ibdiagnet to '{path}".format(path=upload_path)):
