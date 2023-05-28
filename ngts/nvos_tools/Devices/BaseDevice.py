@@ -377,13 +377,18 @@ class GorillaSwitch(BaseSwitch):
     ASIC_TYPE = 'Quantum2'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
     CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
     CATEGORY_DISABLED_DICT = {
-        'temperature': StatsConsts.CATEGORY_STATE_DISABLED,
-        'cpu': StatsConsts.CATEGORY_STATE_DISABLED,
-        'disk': StatsConsts.CATEGORY_STATE_DISABLED,
-        'power': StatsConsts.CATEGORY_STATE_DISABLED,
-        'fan': StatsConsts.CATEGORY_STATE_DISABLED,
-        'mgmt-interface': StatsConsts.CATEGORY_STATE_DISABLED
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
     }
 
     def __init__(self):

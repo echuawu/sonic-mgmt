@@ -716,16 +716,12 @@ class StatsConsts:
         INTERVAL: INTERVAL_DEFAULT,
         STATE: STATE_DEFAULT
     }
-    CATEGORY_DEFAULT_DISABLED_DICT = {
-        HISTORY_DURATION: HISTORY_DURATION_DEFAULT,
-        INTERVAL: INTERVAL_DEFAULT,
-        STATE: State.DISABLED.value
-    }
     CATEGORY_MIN_DICT = {
         STATE: STATE_DEFAULT,
         INTERVAL: INTERVAL_MIN,
         HISTORY_DURATION: HISTORY_DURATION_MIN
     }
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']  # TODO: Use from BaseDevice
 
     LOG_MSG_UNSET_STATS = "..."  # TODO: Update message...
     LOG_MSG_SET_CATEGORY_STATS = "..."  # TODO: Update message...

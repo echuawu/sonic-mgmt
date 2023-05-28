@@ -28,7 +28,7 @@ class StatsCategory(BaseComponent):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/category'
         self.parent_obj = parent_obj
-        # for name in TestToolkit.engines.dut.CATEGORY_LIST:
+        # for name in devices.dut.CATEGORY_LIST:
         for name in StatsConsts.CATEGORY_LIST:
             self.categoryName.update({name: StatsCategoryName(self, name)})
         self.categoryName.update(
