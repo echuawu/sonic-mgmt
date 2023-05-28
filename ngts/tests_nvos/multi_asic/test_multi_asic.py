@@ -21,7 +21,7 @@ def test_multi_asic(engines, devices):
     try:
         with allure.step("Configure new hostname: {}".format(new_hostname_value)):
             logger.info("Configure new hostname: {}".format(new_hostname_value))
-            system.set(SystemConsts.HOSTNAME, new_hostname_value, engines.dut, apply=True, ask_for_confirmation=True)
+            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True)
 
         with allure.step("Validate new hostname with show command"):
             logger.info("Validate new hostname with show command")

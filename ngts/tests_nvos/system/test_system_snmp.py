@@ -8,7 +8,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -113,6 +113,7 @@ def test_system_snmp_negative(engines, players, topology_obj):
         6. Check snmpget with wrong port and community
         7. Unset
     """
+    skip_if_engines_does_not_exist_in_setup([NvosConst.HOST_HA], engines)
     system = System(None)
     host_engine = engines.ha
     with allure.step("Check apply without listening address"):
@@ -182,6 +183,7 @@ def test_system_snmp_functional(engines, topology_obj):
         6. Check with snmpwalk description before autorefresh
         7. Check with snmpwalk description after autorefresh
     """
+    skip_if_engines_does_not_exist_in_setup([NvosConst.HOST_HA], engines)
     system = System(None)
     mgmt_port = MgmtPort('eth0')
     host_engine = engines.ha
@@ -255,6 +257,7 @@ def test_system_snmp_redis_crash(engines, topology_obj):
         4. Check that we can do snmpget with new community
         5. Unset
     """
+    skip_if_engines_does_not_exist_in_setup([NvosConst.HOST_HA], engines)
     system = System(None)
     host_engine = engines.ha
     with allure.step("Enable snmp"):
@@ -289,6 +292,7 @@ def test_system_snmp_load_test(engines, topology_obj):
         2. Stress switch with snmpwalk command
         3. Check snmp work after snmpwalk
     """
+    skip_if_engines_does_not_exist_in_setup([NvosConst.HOST_HA, NvosConst.HOST_HB], engines)
     system = System(None)
     host_a_engine = engines.ha
     host_b_engine = engines.hb
@@ -328,3 +332,12 @@ def _wait_for_snmp_is_running(system, state='yes', tries=5, timeout=2):
             continue
         else:
             assert 'SNMP not in {} is-running state'.format(state)
+
+
+def skip_if_engines_does_not_exist_in_setup(required_engines_list, engines):
+    not_existed_engines = []
+    for engine_name in required_engines_list:
+        if engine_name not in engines:
+            not_existed_engines.append(engine_name)
+    if not_existed_engines:
+        pytest.skip("Skip this test cause don't have the required engines {}".format(not_existed_engines))

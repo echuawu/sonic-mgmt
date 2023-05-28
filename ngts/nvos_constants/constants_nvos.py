@@ -84,6 +84,9 @@ class NvosConst:
     SDK_DUMP_FOLDER = "/var/log/mellanox/sdk-dumps/"
     MARS_RESULTS_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
 
+    HOST_HA = 'ha'
+    HOST_HB = 'hb'
+
 
 class ApiType:
     NVUE = "NVUE"
