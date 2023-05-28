@@ -19,12 +19,14 @@ def test_ldap_basic_configurations_ipv4(engines, remove_ldap_configurations, dev
     @summary: in this test case we want to validate default ldap configurations.
     We will configure the default configurations and connect to device.
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating ldap credentials"):
         logging.info("Validating ldap credentials")
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_basic_configurations_ipv4_openapi(engines, remove_ldap_configurations, devices):
@@ -41,12 +43,14 @@ def test_ldap_basic_configurations_ipv6(engines, remove_ldap_configurations, dev
     @summary: in this test case we want to validate default ldap configurations.
     We will configure the default configurations and connect to device.
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.DOCKER_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating ldap credentials"):
         logging.info("Validating ldap credentials")
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_basic_configurations_hostname(engines, remove_ldap_configurations, devices):
@@ -54,12 +58,14 @@ def test_ldap_basic_configurations_hostname(engines, remove_ldap_configurations,
     @summary: in this test case we want to validate default ldap configurations.
     We will configure the default configurations and connect to device.
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.DOCKER_LDAP_SERVER_DNS
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
     with allure.step("Validating ldap credentials"):
         logging.info("Validating ldap credentials")
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LDAPConsts.USERS])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
@@ -69,6 +75,7 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
     found only in the first server and connect through credentials in the second server only
     and we are testing the local credentials
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     first_real_ldap_server = LDAPConsts.PHYSICAL_LDAP_SERVER.copy()
     first_real_ldap_server[LDAPConsts.PRIORITY] = '2'
     second_real_ldap_server = LDAPConsts.DOCKER_LDAP_SERVER_DNS.copy()
@@ -93,6 +100,7 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
         validate_authentication_fail_with_credentials(engines,
                                                       username=second_ldap_server_user[LDAPConsts.USERNAME],
                                                       password=second_ldap_server_user[LDAPConsts.PASSWORD])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
@@ -100,6 +108,7 @@ def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devic
     @summary: in this test case we want to validate timeout functionality:
     there are two cases of timeout: bind-in timeout and search timeout functionalities
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER.copy()
 
     with allure.step("Configuring LDAP server with low bind-in timeout value: {}".format(LDAPConsts.LDAP_LOW_TIMOEUT)):
@@ -130,6 +139,7 @@ def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devic
         validate_authentication_fail_with_credentials(engines=engines,
                                                       username=ldap_server_users[0][LDAPConsts.USERNAME],
                                                       password=ldap_server_users[0][LDAPConsts.PASSWORD])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, devices):
@@ -138,6 +148,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
     we want to configure invalid port value and then see that we are not able to connect
     to switch
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -158,6 +169,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
                                                           LDAPConsts.USERNAME],
                                                       password=ldap_server_info[LDAPConsts.USERS][0][
                                                           LDAPConsts.PASSWORD])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configurations, devices):
@@ -166,6 +178,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
     we want to configure invalid bind in password value and then see that we are not able to connect
     to switch
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -184,6 +197,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
                                                           LDAPConsts.USERNAME],
                                                       password=ldap_server_info[LDAPConsts.USERS][0][
                                                           LDAPConsts.PASSWORD])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, devices):
@@ -192,6 +206,7 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
     we want to configure invalid bind dn value and then see that we are not able to connect
     to switch
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -210,6 +225,7 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
                                                           LDAPConsts.USERNAME],
                                                       password=ldap_server_info[LDAPConsts.USERS][0][
                                                           LDAPConsts.PASSWORD])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, devices):
@@ -218,6 +234,7 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
     we want to configure invalid bind dn value and then see that we are not able to connect
     to switch
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -236,6 +253,7 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
                                                           LDAPConsts.USERNAME],
                                                       password=ldap_server_info[LDAPConsts.USERS][0][
                                                           LDAPConsts.PASSWORD])
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations, devices):
@@ -243,6 +261,7 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
     @summary: in this test case we want to check that with non existing credentials we are not able to
     connect to switch
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LDAPConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -253,6 +272,7 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
         validate_authentication_fail_with_credentials(engines,
                                                       username=random_user,
                                                       password=random_password)
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_set_show_unset(engines, remove_ldap_configurations):
@@ -262,6 +282,7 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
         2. show
         3. unset
     """
+    engines.dut.run_cmd('stat /var/log/audit.log')
     configured_ldap_servers_hostname = []
 
     with allure.step("Configuring LDAP Server"):
@@ -293,6 +314,7 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
         for hostname in configured_ldap_servers_hostname:
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
                 hostname)
+    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_set_show_unset_openapi(engines, remove_ldap_configurations):
