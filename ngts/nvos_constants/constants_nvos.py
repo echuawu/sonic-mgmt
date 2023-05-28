@@ -155,6 +155,7 @@ class SystemConsts:
 
     PRE_LOGIN_MESSAGE = 'pre-login'
     POST_LOGIN_MESSAGE = 'post-login'
+    POST_LOGOUT_MESSAGE = 'post-logout'
 
     REBOOT_HISTORY = 'history'
     REBOOT_REASON = 'reason'
@@ -216,6 +217,7 @@ class SystemConsts:
                                        "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d" \
                                        "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
                                        " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"
+    POST_LOGOUT_MESSAGE_DEFAULT_VALUE = ""
     ACTIONS_GENERATE_SINCE = 'since'
 
     DEFAULT_USER_ADMIN = 'admin'
