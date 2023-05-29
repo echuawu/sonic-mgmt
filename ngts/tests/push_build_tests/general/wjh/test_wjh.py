@@ -100,22 +100,6 @@ def get_channel_configuration(engines, check_feature_enabled):
     pytest.CHANNEL_CONF = generic_sonic_output_parser(channels_config, output_key="Channel")
 
 
-@pytest.fixture(scope='module', autouse=True)
-def change_loglevel_to_debug(engines):
-    """
-    An autouse fixture to enable debug logs before test starts
-    and get it back to "info" loglevel once test is done.
-    This will help us debug WJH in case of failure.
-    :param engines: engines fixture
-    """
-
-    engines.dut.run_cmd('swssloglevel -l DEBUG -a')
-
-    yield
-
-    engines.dut.run_cmd('swssloglevel -l INFO -a')
-
-
 @pytest.fixture(scope='module')
 def check_feature_enabled(cli_objects):
     """
