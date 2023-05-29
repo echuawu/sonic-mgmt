@@ -1,5 +1,8 @@
 import logging
-import allure
+import datetime as dt
+from ngts.constants.constants import LinuxConsts
+from ngts.helpers.secure_boot_helper import SecureBootHelper
+from ngts.tools.test_utils import allure_utils as allure
 import subprocess
 import shlex
 import os
@@ -37,7 +40,23 @@ def test_regression_pre_step(engines, topology_obj):
                     logging.info("Try to ping dut after remote reboot")
                     wait_till_dut_is_up(engines)
                     res = ping_device(engines.dut.ip)
-                    info = f"dut {engines.dut.ip} is unreachable"
+
+            if not res:
+                logging.info(f"dut {engines.dut.ip} is unreachable")
+
+                with allure.step('Generate techsupport to investigate the problem'):
+                    serial_engine = SecureBootHelper.get_serial_engine(topology_obj)
+                    serial_engine.run_cmd('nv action generate system tech-support')
+
+                # with allure.step('Try to resolve issue by fixing system time'):
+                #     serial_engine = SecureBootHelper.get_serial_engine(topology_obj)
+                #     serial_engine.run_cmd('nv unset system ; nv config apply -y')
+                #     serial_engine.run_cmd('nv unset interface ; nv config apply -y')
+                #     serial_engine.run_cmd(f'sudo timedatectl set-timezone {LinuxConsts.JERUSALEM_TIMEZONE}')
+                #     serial_engine.run_cmd(
+                #         f'sudo timedatectl set-time "{dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"')
+                #     res = ping_device(engines.dut.ip)
+                #     logging.info(f'dut {engines.dut.ip} is {"still un" if res else "now "}reachable')
 
     info = ""
     for vm in vms_to_check:
