@@ -102,7 +102,7 @@ def test_system_image_rename(release_name):
     try:
         with allure.step("Install new image name"):
             logging.info("Install new image name: {}".format(new_name))
-            fetched_image_file.action_file_install()
+            fetched_image_file.action_file_install().verify_result()
 
         with allure.step("Verify installed image"):
             logging.info("Verify installed image, we should see the origin name and not the new name,"
@@ -241,9 +241,9 @@ def test_system_image_bad_flow(engines, release_name):
         with allure.step("Install the same image twice"):
             try:
                 with allure.step("First installation"):
-                    image_file.action_file_install()
+                    image_file.action_file_install().verify_result()
                 with allure.step("Second installation"):
-                    image_file.action_file_install()
+                    image_file.action_file_install().verify_result()
             finally:
                 with allure.step("uninstall"):
                     system.image.action_uninstall(params='force')

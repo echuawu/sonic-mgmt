@@ -3,12 +3,9 @@ import allure
 import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from ngts.cli_wrappers.nvue.nvue_interface_show_clis import OutputFormat
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -44,12 +41,12 @@ def test_ib_set_interface_description(engines):
         validate_interface_description_field(selected_port, DESCRIPTION_EMPTY, True)
 
     with allure.step('Run show command on selected port and verify that description field is set'):
-        selected_port.ib_interface.description.set(DESCRIPTION_ABCD, apply=True).verify_result()
+        selected_port.ib_interface.set(NvosConst.DESCRIPTION, DESCRIPTION_ABCD, apply=True).verify_result()
         selected_port.update_output_dictionary()
         validate_interface_description_field(selected_port, DESCRIPTION_ABCD, True)
 
     with allure.step('Run show command on selected port and verify that description field is cleared back'):
-        selected_port.ib_interface.description.unset(apply=True).verify_result()
+        selected_port.ib_interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
         selected_port.update_output_dictionary()
         validate_interface_description_field(selected_port, DESCRIPTION_EMPTY, True)
 
@@ -58,7 +55,7 @@ def validate_interface_description_field(selected_port, description_value, shoul
     with allure.step('Check that interface description field matches the expected value'):
         logging.info('Check that interface description field matches the expected value')
         output_dictionary = selected_port.show_output_dictionary
-        field_name = selected_port.ib_interface.description.label
+        field_name = NvosConst.DESCRIPTION
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary,
                                                           field_name, description_value).verify_result()
 

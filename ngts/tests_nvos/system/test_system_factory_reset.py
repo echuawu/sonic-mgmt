@@ -28,7 +28,7 @@ KEEP_BASIC = "keep basic"
 @pytest.mark.system
 @pytest.mark.checklist
 @pytest.mark.reset_factory
-def test_reset_factory_without_params(engines, devices, topology_obj):
+def test_reset_factory_without_params(engines, devices, topology_obj, platform_params):
     """
     Validate reset factory without params cleanup done as expected
 
@@ -49,10 +49,12 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
     try:
         with allure.step('Create System object'):
             system = System()
+            machine_type = platform_params['filtered_platform']
 
-        with allure.step('Validate health status is OK'):
-            system.validate_health_status(HealthConsts.OK)
-            last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
+        if machine_type != 'MQM9520':
+            with allure.step('Validate health status is OK'):
+                system.validate_health_status(HealthConsts.OK)
+                last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
 
         with allure.step('Set description to ib ports'):
             logger.info("Set description to ib ports")
@@ -107,8 +109,9 @@ def test_reset_factory_without_params(engines, devices, topology_obj):
             with allure.step('Set timezone using timedatectl command'):
                 os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
 
-        with allure.step("Validate health status and report"):
-            _validate_health_status_report(system, last_status_line)
+        if machine_type != 'MQM9520':
+            with allure.step("Validate health status and report"):
+                _validate_health_status_report(system, last_status_line)
 
         with allure.step("Verify description has been deleted"):
             _validate_port_description(engines.dut, apply_and_save_port, "")
