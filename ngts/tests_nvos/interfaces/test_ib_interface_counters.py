@@ -134,7 +134,7 @@ def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_n
 def check_port_counters(selected_port, should_be_zero, ssh_engine):
     logging.info("--- Counters for user: {}".format(ssh_engine.username))
     link_stats_dict = OutputParsingTool.parse_json_str_to_dictionary(
-        selected_port.ib_interface.link.stats.show()).get_returned_value()
+        selected_port.ib_interface.link.stats.show(engine=ssh_engine)).get_returned_value()
     counters = link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_BYTES]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_DROPS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_ERRORS]

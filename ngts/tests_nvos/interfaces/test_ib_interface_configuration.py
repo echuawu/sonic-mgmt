@@ -129,7 +129,7 @@ def test_ib_interface_speed(engines, players, interfaces, devices, start_sm):
 
     with allure.step("Select a random ib-speed value for port {}".format(selected_port.name)):
         selected_ib_speed_value = Tools.RandomizationTool.select_random_value(
-            list(devices.dut.supported_ib_speeds.keys()), [origin_ib_speed_value]).get_returned_value()
+            list(devices.dut.supported_ib_speeds.keys()), [origin_ib_speed_value, 'ndr']).get_returned_value()
         logging.info("Selected ib-speed: " + selected_ib_speed_value)
 
     with allure.step("Set ib-speed '{}' for port '{}".format(selected_ib_speed_value, selected_port.name)):
