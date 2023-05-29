@@ -89,6 +89,7 @@
   ptf: ptf-1038
   ptf_ip: 10.213.84.41/16
   ptf_ipv6:
+  ptf_extra_mgmt_ip: []
   server: server_1
   vm_base: VM0101
   dut:
