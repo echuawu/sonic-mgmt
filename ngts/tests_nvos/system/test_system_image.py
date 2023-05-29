@@ -461,15 +461,16 @@ def get_list_of_directories(current_installed_img, starts_with=None):
 
 
 def get_images_to_fetch(release_name, current_installed_img, images_amount=1):
-    images_to_fetch = []
+    images_to_fetch = [('nvos-amd64-25.01.1002.bin', '/auto/sw_system_release/nos/nvos/25.01.1002/amd64/nvos-amd64-25.01.1002.bin')]
     with allure.step("Get list of images"):
         logging.info("Get list of images")
         relevant_directories = get_list_of_directories(current_installed_img, release_name)
         for directory, images_list in relevant_directories.items():
-            images_to_fetch.append((images_list[0], directory + images_list[0]))
-            logging.info("Selected image: " + directory + images_list[0])
             if len(images_to_fetch) == images_amount:
                 break
+            images_to_fetch.append((images_list[0], directory + images_list[0]))
+            logging.info("Selected image: " + directory + images_list[0])
+
     return images_to_fetch
 
 
