@@ -341,11 +341,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             sai_profile = "/usr/share/sonic/device/x86_64-nvidia_sn5600-r0/ACS-SN5600/sai.profile"
             self.engine.run_cmd("sudo sed -i 's/SAI_DUMP_STORE_PATH/#&/g' {}".format(sai_profile))
             self.engine.run_cmd("sudo sed -i 's/SAI_DUMP_STORE_AMOUNT/#&/g' {}".format(sai_profile))
+            self.engine.run_cmd("sync;sync")
+            self.engine.run_cmd("cat {}".format(sai_profile))
             # ************************************************************************************#
             self.engine.disconnect()
             self.remote_reboot(topology_obj)
             logger.info('Sleeping %s seconds to handle ssh flapping' % InfraConst.SLEEP_AFTER_RRBOOT)
             time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
+            self.engine.run_cmd("cat {}".format(sai_profile))
 
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
