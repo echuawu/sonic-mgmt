@@ -47,7 +47,7 @@
         </ignore>
         <info> Sub Port Interfaces Weekend Cases </info>
         <name> sub_port_interfaces_weekend_cases </name>
-        <tout> 10800 </tout>
+        <tout> 18000 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--max_numbers_of_sub_ports 256 --log-cli-level debug --show-capture=no -ra --showlocals -k=\"not test_packet_routed_with_valid_vlan and not test_packet_routed_with_invalid_vlan and not test_untagged_packet_not_routed and not test_balancing_sub_ports\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts sub_port_interfaces/test_sub_port_interfaces.py </static_args>
