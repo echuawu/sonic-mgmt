@@ -27,6 +27,7 @@ def test_interface_eth0_enable_disable(engines, topology_obj):
     """
 
     mgmt_port = MgmtPort('eth0')
+    serial_engine = topology_obj.players['dut_serial']['engine']
     with allure.step('Run show command on mgmt port and verify that each field has an appropriate value'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             mgmt_port.interface.link.show()).get_returned_value()
@@ -48,20 +49,21 @@ def test_interface_eth0_enable_disable(engines, topology_obj):
                                                           expected_value=NvosConsts.LINK_STATE_UP).verify_result()
 
     with allure.step('Set mgmt port down and check the state updated accordingly'):
-        mgmt_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN,
-                                           apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                           ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            mgmt_port.interface.link.show()).get_returned_value()
+            mgmt_port.interface.link.show(dut_engine=serial_engine)).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=IbInterfaceConsts.LINK_STATE,
                                                           expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
     with allure.step('Unset mgmt port and make sure the port state is up and reachable'):
-        mgmt_port.interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.link.state.unset(apply=True, ask_for_confirmation=True,
+                                             dut_engine=serial_engine).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
@@ -305,28 +307,29 @@ def test_interface_eth0_ip_address(engines, topology_obj):
             "The operation succeeded while it is expected to fail"
 
     with allure.step('Disable dhcp, check mgmt port unreachable'):
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled',
-                                               apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled', apply=True,
+                                               ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Select random ipv4 and set it'):
         ip_address = Tools.IpTool.select_random_ipv4_address().verify_result()
-        mgmt_port.interface.ip.address.set(op_param_name=ip_address, apply=True,
-                                           ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.address.set(op_param_name=ip_address, apply=True, ask_for_confirmation=True,
+                                           dut_engine=serial_engine).verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.show()).get_returned_value()
+            mgmt_port.interface.ip.show(dut_engine=serial_engine)).get_returned_value()
         validate_interface_ip_address(ip_address, output_dictionary, True)
 
     with allure.step('Unset ipv4 and dhcp and check port reachable'):
-        mgmt_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True) \
-            .verify_result()
+        mgmt_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True,
+                                                 dut_engine=serial_engine).verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        mgmt_port.interface.ip.address.unset(apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.address.unset(apply=True, ask_for_confirmation=True,
+                                             dut_engine=serial_engine).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
@@ -399,12 +402,13 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
     with allure.step('Disable dhcp and unset hostname, check port down and not reachable'):
         mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled',
-                                               apply=True, ask_for_confirmation=True).verify_result()
+                                               apply=True, ask_for_confirmation=True,
+                                               dut_engine=serial_engine).verify_result()
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary, field_name='state',
                                                           expected_value='disabled').verify_result()
@@ -413,16 +417,16 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
                                                           expected_value='no').verify_result()
 
     with allure.step('Disable dhcp set-hostname, check port down and not reachable'):
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='set-hostname', op_param_value='disabled',
-                                               apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='set-hostname', op_param_value='disabled', apply=True,
+                                               ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
         dhcp6_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client6.show()).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client6.show(dut_engine=serial_engine)).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='set-hostname',
                                                           expected_value='disabled').verify_result()
@@ -434,13 +438,13 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         system.set(op_param_name=SystemConsts.HOSTNAME, op_param_value='nvos', apply=True)
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='enabled',
-                                               apply=True, ask_for_confirmation=True).verify_result()
+        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='enabled', apply=True,
+                                               ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='state',
                                                           expected_value='enabled').verify_result()
