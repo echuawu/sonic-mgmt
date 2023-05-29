@@ -2,10 +2,12 @@ import pytest
 import allure
 import json
 import logging
+import time
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import IbConsts
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -71,6 +73,8 @@ def test_ibdiagnet_run_multiple_times(engines):
     """
     ib = Ib(None)
     tries_number = 5
+    if is_redmine_issue_active([3482696]):
+        time.sleep(40)
 
     with allure.step('try to generate ibdiagnet file {tries} times'.format(tries=tries_number)):
         for i in range(0, tries_number):

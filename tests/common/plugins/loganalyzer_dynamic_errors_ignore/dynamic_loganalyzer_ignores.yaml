@@ -2504,10 +2504,19 @@
 
 # NVOS
 - Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:261 Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow_openapi
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi
+
+# NVOS
+- Errors_list:
     - '.* .* ERR nvued:   ERROR: lifecycle.py:146 File not found.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_upload
 
 # NVOS
 - Errors_list:
@@ -2563,6 +2572,7 @@
         - tests_nvos/general/config_commands/test_apply_detach.py::test_apply_assume
         - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive
         - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+        - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_negative
         - tests_nvos/general/config_commands/test_show_diff_history.py
         - tests_nvos/system/test_show_system.py::test_system
         - tests_nvos/system/test_show_system.py::test_system_openapi
