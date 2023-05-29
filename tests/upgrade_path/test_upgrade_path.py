@@ -4,7 +4,8 @@ from tests.common.helpers.assertions import pytest_assert
 from tests.common import reboot
 from tests.common.reboot import get_reboot_cause
 from tests.common.reboot import REBOOT_TYPE_COLD
-from tests.upgrade_path.upgrade_helpers import check_services, install_sonic, check_sonic_version, get_reboot_command
+from tests.upgrade_path.upgrade_helpers import check_services, install_sonic, check_sonic_version,\
+    get_reboot_command, check_copp_config
 from tests.upgrade_path.upgrade_helpers import restore_image
 from tests.common.fixtures.advanced_reboot import get_advanced_reboot
 from tests.platform_tests.verify_dut_health import verify_dut_health
@@ -77,6 +78,7 @@ def test_upgrade_path(localhost, duthosts, ptfhost, rand_one_dut_hostname, nbrho
             logger.info("Check reboot cause. Expected cause {}".format(upgrade_type))
             pytest_assert(reboot_cause == upgrade_type, "Reboot cause {} did not match the trigger - {}".format(reboot_cause, upgrade_type))
             check_services(duthost)
+            check_copp_config(duthost)
 
 
 @pytest.mark.device_type('vs')
