@@ -5,6 +5,7 @@ import pytest
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
@@ -268,6 +269,31 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
     with allure.step('Validate show command output'):
         show_output = OutputParsingTool.parse_json_str_to_dictionary(ldap_obj.show()).get_returned_value()
         ValidationTool.verify_all_fields_value_exist_in_output_dictionary(show_output, LDAPConsts.LDAP_FIELDS)
+
+    with allure.step('Validate set and unset of general fields of the feature'):
+        for field in LDAPConsts.LDAP_FIELDS:
+            logging.info(f'Current field: {field}')
+            if field == LDAPConsts.PASSWORD:
+                continue
+
+            if LDAPConsts.VALID_VALUES[field] == str:
+                new_val = RandomizationTool.get_random_string(length=10)
+            else:
+                new_val = RandomizationTool.select_random_value(LDAPConsts.VALID_VALUES[field], [show_output[field]])\
+                    .get_returned_value()
+            logging.info(f'Set field "{field}" to "{new_val}"')
+            ldap_obj.set(field, new_val, apply=True).verify_result()
+
+            logging.info('Verify new value in show')
+            show_output = OutputParsingTool.parse_json_str_to_dictionary(ldap_obj.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(show_output, field, new_val).verify_result()
+
+            logging.info(f'Unset field {field}')
+            ldap_obj.unset(field, apply=True).verify_result()
+
+            logging.info('Verify default value in show')
+            show_output = OutputParsingTool.parse_json_str_to_dictionary(ldap_obj.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(show_output, field, LDAPConsts.DEFAULTS[field]).verify_result()
 
     with allure.step("Configuring LDAP Server"):
         for ldap_server_info in LDAPConsts.LDAP_SERVERS_LIST:
