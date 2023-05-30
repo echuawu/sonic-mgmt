@@ -155,6 +155,16 @@ def cli_objects(topology_obj):
     return cli_obj_data
 
 
+def check_switch_capacity(engine):
+    try:
+        logger.info("Check used capacity for /var/lib/python/coverage")
+        engine.run_cmd("df -h /var/lib/python/coverage/")
+        engine.run_cmd("du -h /var/lib/python/coverage")
+        engine.run_cmd("du -h /sonic")
+    except BaseException as ex:
+        logger.warning(str(ex))
+
+
 @pytest.fixture(scope='function', autouse=True)
 def log_test_wrapper(request, engines):
     pytest.item = request.node
@@ -164,8 +174,9 @@ def log_test_wrapper(request, engines):
     if 'no_log_test_wrapper' in request.keywords:
         return
     try:
+        check_switch_capacity(engines.dut)
         SendCommandTool.execute_command(LinuxGeneralCli(engines.dut).clear_history)
-    except Exception as exc:
+    except BaseException as exc:
         logger.error(" the command 'history -c' failed and this is the exception info : {}".format(exc))
         # should not fail the test
         pass
@@ -243,6 +254,7 @@ def save_results_and_clear_after_test(item):
     markers = item.keywords._markers
     try:
         logging.info(' ---------------- The test completed successfully ---------------- ')
+        check_switch_capacity(TestToolkit.engines.dut)
         run_cli_coverage(item, markers)
     except KeyboardInterrupt:
         raise

@@ -94,8 +94,9 @@ def test_extract_python_coverage(topology_obj, dest, engines):
 def check_used_capacity(engine):
     try:
         logger.info("Check used capacity for /var/lib/python/coverage")
-        logger.info(engine.run_cmd("df -h /var/lib/python/coverage/"))
-        logger.info(engine.run_cmd("du -sh /var/lib/python/coverage"))
+        engine.run_cmd("df -h /var/lib/python/coverage/")
+        engine.run_cmd("du -sh /var/lib/python/coverage")
+        engine.run_cmd("du -h /sonic")
     except BaseException as ex:
         logger.warning(str(ex))
 
