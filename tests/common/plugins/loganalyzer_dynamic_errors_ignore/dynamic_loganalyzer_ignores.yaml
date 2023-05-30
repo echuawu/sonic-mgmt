@@ -2497,11 +2497,29 @@
 
 # NVOS Errors which should be ignored in tests which doing reset service
 - Errors_list:
+    - '.* ERR health-statsd#health_history: ib-utils: Container .* is not running.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_with_dockers_down
+
+# NVOS
+- Errors_list:
     - '.*ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
     - '.*ERR hostcfgd: \[.*\] - failed: return code - 1, output:#012b''.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+
+- Errors_list:
+    - '.* ERR auditd\[376\]: queue to plugins is full - dropping event.*'
+    - '.* ERR auditd\[376\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
+    - '.* ERR auditd\[376\]: auditd queue full reporting limit reached \- ending dropped event.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+    - Redmine:
+        - 3482718
 
 - Errors_list:
     - '.*ERR hostcfgd: ldap server ip=.* is not a valid IP address.*'
@@ -2511,6 +2529,13 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_priority_and_fallback_functionality
     - Redmine:
         - 3480907
+
+# NVOS
+- Errors_list:
+    - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
 
 # NVOS
 - Errors_list:
