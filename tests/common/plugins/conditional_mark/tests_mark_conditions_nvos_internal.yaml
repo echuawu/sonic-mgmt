@@ -121,12 +121,20 @@ tests_nvos/general/security/test_login_ssh_notification/test_login_ssh_notificat
     conditions:
       - https://redmine.mellanox.com/issues/3342779
 
-tests_nvos/system/test_system_factory_reset.py::
+tests_nvos/system/test_system_factory_reset.py:
   skip:
     reason: "Testcase skipped on marlin systems due to RM issue: https://redmine.mellanox.com/issues/3484447"
     conditions_logical_operator: and
     conditions:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3484447
+
+tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_dhcp_hostname:
+  skip:
+    reason: "Testcase skipped due to serial engine issue"
+
+tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_ip_address:
+  skip:
+    reason: "Testcase skipped due to serial engine issue"
 
 ########################## NVOS IGNORE END ##########################
