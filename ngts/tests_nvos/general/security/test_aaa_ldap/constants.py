@@ -28,7 +28,7 @@ class LDAPConsts:
     TLS_CRL_CHECK_STATE = 'tls-crl-check-state'
     SSL_PORT = 'ssl-port'  # under open question
 
-    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, LOGIN_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT,
+    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, LOGIN_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT, VERSION,
                    SSL_MODE, SSL_CERT_VERIFY, SSL_CA_LIST, SSL_CIPHERS, TLS_CRL_CHECK_FILE, TLS_CRL_CHECK_STATE,
                    SSL_PORT]
 
@@ -47,8 +47,39 @@ class LDAPConsts:
     PORT_TLS = PORT_389
     PORTS_SSL = [PORT_389, PORT_636]
 
+    POSSIBLE_PORTS = list(range(1, 65535 + 1))
+    TEST_PORTS = list(range(1001, 65535 + 1))  # don't use system ports so the test won't be blocked
+
+    VALID_VALUES = {
+        PORT: TEST_PORTS,
+        BASE_DN: str,
+        BIND_DN: str,
+        GROUP_ATTR: str,
+        LOGIN_ATTR: str,
+        BIND_PASSWORD: str,
+        TIMEOUT_BIND: list(range(1, 60 + 1)),
+        TIMEOUT: list(range(1, 60 + 1)),
+        VERSION: [2, 3],
+        SSL_MODE: [NONE, START_TLS, SSL],
+        SSL_CERT_VERIFY: [ENABLED, DISABLED],
+        SSL_CA_LIST: [NONE, DEFAULT_CA_LIST],
+        SSL_CIPHERS: [TLS_1_2, TLS_1_3],
+        TLS_CRL_CHECK_FILE: [NONE, DEFAULT_CRL],
+        TLS_CRL_CHECK_STATE: [ENABLED, DISABLED],
+        SSL_PORT: TEST_PORTS
+    }
+
     # default values
     DEFAULTS = {
+        PORT: 389,
+        BASE_DN: 'ou=users,dc=example,dc=com',
+        BIND_DN: '',
+        GROUP_ATTR: 'member',
+        LOGIN_ATTR: 'cn',
+        BIND_PASSWORD: '*',
+        TIMEOUT_BIND: 5,
+        TIMEOUT: 5,
+        VERSION: 3,
         SSL_MODE: NONE,
         SSL_CERT_VERIFY: DISABLED,
         SSL_CA_LIST: NONE,
