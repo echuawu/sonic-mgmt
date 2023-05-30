@@ -2645,3 +2645,9 @@
   Conditions:
     - Redmine:
         - 3473183
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_PORT\.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future\. Please use sx_api_port_parser_attr_set in its place.*'
+  Conditions:
+    - Redmine:
+        - 3482636
