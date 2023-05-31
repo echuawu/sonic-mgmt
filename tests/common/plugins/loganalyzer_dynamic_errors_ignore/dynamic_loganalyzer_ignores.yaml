@@ -2676,3 +2676,9 @@
   Conditions:
     - Redmine:
         - 3482636
+
+- Errors_list:
+    - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
+  Conditions:
+    - Redmine:
+        - 3487047
