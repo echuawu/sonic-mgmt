@@ -17,6 +17,7 @@ from tests.common.utilities import skip_release
 from tests.common.helpers.port_utils import is_sfp_speed_supported
 from tests.conftest import get_autoneg_tests_data
 from tests.common.mellanox_data import is_mellanox_device
+from tests.drop_packets.drop_packets import get_fanout_obj
 
 pytestmark = [
     pytest.mark.topology('any'),
@@ -46,6 +47,20 @@ FEC_FOR_SPEED = {
 # Key: dut host name, value: a dictionary of candidate ports tuple with dut port name as key
 all_ports_by_dut = {}
 fanout_original_port_states = {}
+
+
+@pytest.fixture(scope="module")
+def skip_if_fanout_is_leopard_a0(duthost, fanouthosts, conn_graph_facts):
+    """
+    Skip test case in case of fanout device MSN4700 and ASIC revision is 0
+    """
+    fanout = get_fanout_obj(conn_graph_facts, duthost, fanouthosts)
+    fanout_system_type = fanout.get_system_type()
+
+    if "MSN4700" in fanout_system_type:
+        asic_rev = fanout.get_asic_revision()
+        if asic_rev == "0":
+            pytest.skip('Test not supported on 4700 ASIC rev. A0 fanout device')
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -96,7 +111,7 @@ def enum_speed_per_dutport_fixture(request):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def recover_ports(duthosts, fanouthosts):
+def recover_ports(duthosts, fanouthosts, skip_if_fanout_is_leopard_a0):
     """Module level fixture that automatically do following job:
         1. Build global candidate test ports
         2. Save fanout port state before the test
