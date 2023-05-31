@@ -89,6 +89,10 @@ def test_set_psu_fan_speed(duthosts, rand_one_dut_hostname, mocker_factory):
     platform_data = get_platform_data(duthost)
     psu_num = platform_data['psus']['number']
     hot_swappable = platform_data['psus']['hot_swappable']
+
+    # TODO: this code will be removed once the tests related to new hw tc are updated
+    skip_on_new_hw_tc_enable(duthost)
+
     if not hot_swappable:
         pytest.skip('The platform {} does not support this test case.'.format(duthost.facts["platform"]))
 
@@ -141,6 +145,10 @@ def test_set_psu_fan_speed(duthosts, rand_one_dut_hostname, mocker_factory):
 def test_psu_absence_policy(duthosts, rand_one_dut_hostname, mocker_factory):
     duthost = duthosts[rand_one_dut_hostname]
     platform_data = get_platform_data(duthost)
+
+    # TODO: this code will be removed once the tests related to new hw tc are updated
+    skip_on_new_hw_tc_enable(duthost)
+
     hot_swappable = platform_data['psus']['hot_swappable']
     if not hot_swappable:
         pytest.skip('The platform {} does not support this test case.'.format(duthost.facts["platform"]))
@@ -310,3 +318,12 @@ def check_cpu_cooling_state(mocker, expect_value):
     actual_value = mocker.get_cpu_cooling_state()
     logging.debug('Expect cpu cooling value is {}, actual value is {}'.format(expect_value, actual_value))
     return actual_value == expect_value
+
+
+# TODO: This function will be removed once the tests related to new hw tc are updated
+def skip_on_new_hw_tc_enable(duthost):
+    import re
+    hw_tc_status = duthost.command('sudo service hw-management-tc status', module_ignore_errors=True)['stdout']
+    hw_tc_running_reg = r'.*Active: active \(running\).*'
+    if re.findall(hw_tc_running_reg, hw_tc_status, flags=re.DOTALL):
+        pytest.skip("SKipping the test due to new hw tc being enabled")
