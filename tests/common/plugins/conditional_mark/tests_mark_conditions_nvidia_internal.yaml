@@ -611,6 +611,13 @@ tests/nightly/lag/test_lag.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3538586"
     conditions:
       - "https://redmine.mellanox.com/issues/3538586"
+
+
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_cpld_key_check_fail[unsigned]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3556777"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3556777"
 ########################## NGTS IGNORE END ##########################
 
 

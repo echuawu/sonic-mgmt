@@ -2797,6 +2797,12 @@
       - qos/test_buffer.py::test_port_admin_down
 
 - Errors_list:
+    - '.* ERR sonic-installer: Error: Failed verify image signature'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/secure/test_secure_upgrade/test_secure_upgrade.py
+
+- Errors_list:
     - ".*ERR sonic-ztp\\[\\d+\\]: Exception \\[Expecting ',' delimiter: line \\d+ column \\d+ \\(char \\d+\\)] encountered while verifying '\\/etc\\/sonic\\/config_db\\.json'.*"
   Conditions:
     - Redmine:
