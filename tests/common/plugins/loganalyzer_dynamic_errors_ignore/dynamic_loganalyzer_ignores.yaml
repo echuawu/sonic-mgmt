@@ -2688,3 +2688,36 @@
   Conditions:
     - Redmine:
         - 3487047
+
+- Errors_list:
+    - '.*ERR hw-management-tc: ERROR - Missing max tachos config.*'
+  Conditions:
+    - Redmine:
+        - 3465864
+
+- Errors_list:
+    - '.*ERR kernel: .* mlxsw_minimal 2-0048: Failed to write PWM.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/fec/test_fec.py
+      Redmine:
+        - 3488995
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL Detected with cause : FW health issue \[id = 1\].*'
+    - '.*ERR kernel: .* sx_core: SDK health event, device:.*'
+    - '.*ERR kernel: .* SXD_HEALTH_FATAL:On device 1 cause =''FW health issue'' \[id = 1\]- Stopping further device monitoring!.*'
+    - '.*ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+    - '.*ERR hw-management-tc: ERROR - Read PWM error. Possible hw-management is not running.*'
+    - '.*ERR hw-management-tc: message repeated .* times: \[ ERROR - Read PWM error. Possible hw-management is not running\].*'
+  Conditions:
+    - Redmine:
+        - 3488969
+
+- Errors_list:
+    - '.*ERR syncd#SDK: .*- sai_set_attribute: Failed to set the attribute..*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch
+      Redmine:
+        - 3488512
