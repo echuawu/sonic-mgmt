@@ -5,6 +5,7 @@ import random
 import pytest
 import logging
 
+from retry import retry
 from ngts.constants.constants import MarsConstants
 from ngts.helpers.json_file_helper import extract_fw_data
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -64,7 +65,7 @@ class SecureBootHelper:
         return player
 
     def get_vmiluz_file_path(self):
-        output = self.serial_engine.run_cmd_and_get_output('ls {}'.format(SecureBootConsts.VMILUNZ_DIR))
+        output = self.engines.dut.run_cmd('ls {}'.format(SecureBootConsts.VMILUNZ_DIR))
         path = re.findall(SecureBootConsts.VMILUNZ_REGEX, output)[0]
         return SecureBootConsts.VMILUNZ_DIR + path
 
@@ -85,7 +86,9 @@ class SonicSecureBootHelper(SecureBootHelper):
         _, respond = self.serial_engine.run_cmd('\r', ["/home/admin#",
                                                        "Please press Enter to activate this console",
                                                        DefaultConnectionValues.LOGIN_REGEX,
-                                                       DefaultConnectionValues.DEFAULT_PROMPTS[0]])
+                                                       DefaultConnectionValues.DEFAULT_PROMPTS[0],
+                                                       "Malformed binary after Attribute Certificate Table"],
+                                                timeout=SonicSecureBootConsts.ONIE_TIMEOUT)
         if respond == 0:
             logger.info("It is in sonic")
             return True
@@ -151,6 +154,7 @@ class SonicSecureBootHelper(SecureBootHelper):
         """
         logger.info("Disconnect engine connection")
         self.cli_objects.dut.general.engine.disconnect()
+        self.remove_staged_fw_pkg()
 
         if restore_image_path:
             with allure.step("Installing restore image {} on the switch".format(restore_image_path)):
@@ -214,16 +218,16 @@ class SonicSecureBootHelper(SecureBootHelper):
         # extract file name
         filename = os.path.split(filepath)[1]
         with allure.step("Backup original signature: {} ".format(filename)):
-            self.serial_engine.run_cmd('cp -f {} {}/{}'.format(filepath, SecureBootConsts.TMP_FOLDER,
-                                                               filename + SonicSecureBootConsts.ORIGIN_TAG))
+            self.engines.dut.run_cmd('cp -f {} {}/{}'.format(filepath, SecureBootConsts.TMP_FOLDER,
+                                                             filename + SonicSecureBootConsts.ORIGIN_TAG))
 
         with allure.step(f"Uploading {filename} to {SecureBootConsts.TMP_FOLDER} "
                          f"directory on the local device in order to manipulate it locally"):
-            self.serial_engine.upload_file_using_scp(test_server_engine.username,
-                                                     test_server_engine.password,
-                                                     test_server_engine.ip,
-                                                     filepath,
-                                                     SecureBootConsts.TMP_FOLDER)
+            self.engines.dut.upload_file_using_scp(test_server_engine.username,
+                                                   test_server_engine.password,
+                                                   test_server_engine.ip,
+                                                   filepath,
+                                                   SecureBootConsts.TMP_FOLDER)
 
         # manipulate file sig
         with allure.step("manipulating signature to file {}".format(filename)):
@@ -360,22 +364,39 @@ class SonicSecureBootHelper(SecureBootHelper):
             return url, version
         except Exception as err:
             err_mgs = f'Can not find component for platform: {current_platform} - sign type: {signed_type} - ' \
-                      f'component: {component}. Got err: {err}'
+                f'component: {component}. Got err: {err}'
             logger.info(err_mgs)
             raise err
+
+    @retry(Exception, tries=5, delay=3)
+    def validate_http_reachable(self, url):
+        _, respond = self.serial_engine.run_cmd(f'sudo curl -I {url}', ["OK"])
+        assert respond == 0
+
+    @retry(Exception, tries=5, delay=3)
+    def validate_file_exist(self, file_path):
+        file_status = self.cli_objects.dut.general.stat(file_path)
+        assert file_status["exists"] is True
 
     def fwutil_install_secure_boot_negative(self, component, signed_type, dut_secure_type, platform_params,
                                             expected_message, timeout, topology_obj=None):
         """
         This function will perform as the test body of fwutil secure boot test
         It will perform the following:
-            1. do fwutil install
-            2. validate invalid signature message appears
+            1. Validate url is reachable
+            2. do fwutil install
+            3. validate invalid signature message appears
         """
 
         with allure.step('Get component url'):
             component_url, component_version = self.get_unsigned_mismatched_component_info(
                 component, signed_type, dut_secure_type, platform_params)
+        with allure.step(f"Validate {SonicSecureBootConsts.GRUB_ENV} file is created"):
+            self.validate_file_exist(SonicSecureBootConsts.GRUB_ENV)
+        with allure.step(f"Validate {component_url} is reachable"):
+            self.validate_http_reachable(component_url)
+        with allure.step(f"Check firmware status"):
+            self.serial_engine.run_cmd(f'sudo fwutil show status')
         with allure.step(f"Install {component_url}"):
             self.serial_engine.run_cmd(f'sudo fwutil install chassis component {component} fw {component_url} -y',
                                        expected_message, timeout)
@@ -470,11 +491,13 @@ class SonicSecureBootHelper(SecureBootHelper):
         with allure.step("Download extracted kernel module file to dut"):
             self.copy_kernel_module_to_dut(SonicSecureBootConsts.KERNEL_MODULE_TEMP_FILE_PATH)
 
-    def remove_staged_onie_pkg(self):
+    def remove_staged_fw_pkg(self):
         """
         This function will remove the staged onie pkg after onie update failure
         """
-        self.serial_engine.run_cmd('onie-fwpkg remove 00-onie-updater-x86_64-mlnx_x86-r0')
+        _, respond = self.serial_engine.run_cmd('onie-fwpkg purge', ["Removing all pending firmware updates (y/N)?"])
+        if respond == 0:
+            self.serial_engine.run_cmd('y')
 
     @staticmethod
     def restore_basic_config(topology_obj, setup_name, platform_params):

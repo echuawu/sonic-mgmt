@@ -21,7 +21,10 @@ class SecureBootConsts:
     VMILUNZ_DIR = '/boot/'
     INVALID_SIGNATURE = ["Invalid signature detected",
                          "Malformed binary after Attribute Certificate Table",
-                         "bad.*signature"]
+                         "bad.*signature",
+                         "CMS Verification Failure",
+                         "Failure: CMS signature verification failed",
+                         "kexec_file_load failed: Key was rejected by service"]
     SECURE_BOOT_NOT_ENABLED_MESSAGE = 'Secure Boot function is not enabled in UEFI'
     SECURE_BOOT_NOT_SUPPORTED_MESSAGE = 'Secure Boot function is not supported at this switch'
     REBOOT = "sudo reboot -f"
@@ -40,6 +43,7 @@ class SonicSecureBootConsts(SecureBootConsts):
     '''
     SHIM = 'shim'
     GRUB = 'grub'
+    GRUB_ENV = '/host/grub/grubenv'
     VMLINUZ = 'vmlinuz'
     ORIGIN_TAG = '_origin'
     ONIE_COMPONENT = 'ONIE'

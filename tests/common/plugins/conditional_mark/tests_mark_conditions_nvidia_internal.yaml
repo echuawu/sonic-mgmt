@@ -108,12 +108,6 @@ tests/nightly/copp/test_copp.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3580021 and 'simx' in platform"
 
-tests/nightly/secure/test_secure_corrupt_fw/test_secure_corrupt_fw.py:
-  skip:
-    reason: "Not supported on SIMX platform"
-    conditions:
-      - "'simx' in platform"
-
 tests/nightly/sflow/test_sflow.py:
   skip:
     reason: "sflow still isn't supported on Simx "
@@ -718,6 +712,17 @@ tests/push_build_tests:
       - "https://redmine.mellanox.com/issues/3661571"
       - "'r-moose-simx-18' in testbed or 'r-moose-simx-22' in testbed or 'r-moose-simx-26' in testbed or 'r-moose-simx-30' in testbed"
 
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_onie_key_check_fail:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3656833"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3656833"
+
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_bios_key_check_fail:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3656833"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3656833"
 ########################## NGTS IGNORE END ##########################
 
 

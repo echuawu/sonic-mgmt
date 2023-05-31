@@ -146,9 +146,9 @@ def recover_switch_after_secure_boot_violation_message(secure_boot_helper, resto
             logger.info("Disconnect engine connection")
             secure_boot_helper.cli_objects.dut.general.engine.disconnect()
             secure_boot_helper.login_into_onie_mode()
+            secure_boot_helper.remove_staged_fw_pkg()
 
         if SonicSecureBootConsts.FWUTIL_ONIE_TEST_NAME in request.node.name:
-            secure_boot_helper.remove_staged_onie_pkg()
             restore_image_path = None
 
         with allure.step("ONIE reboot and wait switch boot up"):

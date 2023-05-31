@@ -23,6 +23,12 @@
 
 # Errors which should be ignored in tests which doing reboot/reload
 - Errors_list:
+    - '.* ERR sonic-installer: Error: Failed verify image signature'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/secure/test_secure_upgrade/test_secure_upgrade.py
+
+- Errors_list:
     - '.* ERR mlxfwmanager: LIBMVPD: MVPD_READ4 failed on offset:.*'
     - '.* ERR container: docker cmd: kill for .* failed .*'
     - '.* ERR pmon#thermalctld: Caught exception while running thermal policy .*'

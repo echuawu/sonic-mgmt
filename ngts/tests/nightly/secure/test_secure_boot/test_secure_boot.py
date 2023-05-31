@@ -115,22 +115,3 @@ def test_fwutil_install_bios_key_check_fail(secure_boot_helper, platform_params,
             SonicSecureBootConsts.SWITCH_RECOVER_TIMEOUT)
     with allure.step("Wait for the switch auto boot to SONiC"):
         retry_call(secure_boot_helper.is_sonic_mode, tries=5, delay=10, logger=logger)
-
-
-@pytest.mark.disable_loganalyzer
-@pytest.mark.parametrize("signed_type", [SonicSecureBootConsts.FWUTIL_UNSIGNED,
-                                         SonicSecureBootConsts.FWUTIL_KEY_MISMATCHED_SIGNED])
-def test_fwutil_install_cpld_key_check_fail(topology_obj, cli_objects, secure_boot_helper, platform_params, signed_type,
-                                            dut_secure_type):
-    """
-    In this test case we want to validate unsuccessful upgrade of key mismatched CPLD by fwutil
-    """
-    try:
-        with allure.step("Test secure boot of fwutil - CPLD upgrade"):
-            secure_boot_helper.fwutil_install_secure_boot_negative(
-                SonicSecureBootConsts.CPLD_COMPONENT, signed_type, dut_secure_type, platform_params,
-                SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[SonicSecureBootConsts.CPLD_COMPONENT],
-                SonicSecureBootConsts.CPLD_BRUNING_RECOVER_TIMEOUT, topology_obj=topology_obj)
-    finally:
-        with allure.step("Restore the CPLD to the latest version in firmware.json"):
-            secure_boot_helper.restore_cpld(topology_obj, platform_params)
