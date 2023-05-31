@@ -22,7 +22,7 @@ def pytest_runtest_makereport(item, call):
         os.environ.pop(item.name, None)
         session_id = item.funcargs.get('session_id', '')
         if (item.rep_setup.failed or (item.rep_setup.passed and (item.rep_call.failed or item.rep_teardown.failed))) \
-                and os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) == "True":
+                and os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) != "False":
             if session_id:
                 try:
                     topology_obj = item.funcargs['topology_obj']
