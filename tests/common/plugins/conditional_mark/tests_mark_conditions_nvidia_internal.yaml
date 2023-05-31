@@ -1348,6 +1348,12 @@ pc/test_lag_2.py::test_lag:
     conditions:
       - "https://redmine.mellanox.com/issues/3195312 and 't0-56-po2vlan' in topo_name"
 
+ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3477790"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3477790"
+
 platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_option_dom:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3331528"
