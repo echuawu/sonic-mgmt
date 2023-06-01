@@ -37,6 +37,10 @@ MAX_COOLING_LEVEL = 10
 @pytest.mark.disable_loganalyzer
 def test_dynamic_minimum_table(duthosts, rand_one_dut_hostname, mocker_factory):
     duthost = duthosts[rand_one_dut_hostname]
+
+    # TODO: this code will be removed once the tests related to new hw tc are updated
+    skip_on_new_hw_tc_enable(duthost)
+
     minimum_table = get_min_table(duthost)
     if minimum_table:
         max_temperature = 45000 # 45 C
