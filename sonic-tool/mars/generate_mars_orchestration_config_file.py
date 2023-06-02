@@ -1,5 +1,6 @@
 """
-Run this script, and will help you to generate all the config used in the mars configuration for 201911, 202012, develop branch
+Run this script, and will help you to generate all the config used in the mars configuration for 201911, 202012,
+develop branch
 When there is new db added to the regression, need to update this file
 How to run: python sonic-tool/mars/generate_mars_orchestration_config_file.py
 """
@@ -46,6 +47,7 @@ community_develop_set_2_dbs = [
     'system_health.db',
     'sflow.db',
     'bgp.db',
+    'bgp_with_suppress_fib.db',
     'pbh.db',
     'generic_config_updater.db',
     'cold_reboot.db',
@@ -194,7 +196,7 @@ canonical_keys = ["additional_apps", "base_version", "custom_tarball_name", "sen
 canonical_upgrade_keys = ["base_version", "target_version", "execution_block_generator"]
 
 canonical_weekend_keys = ["additional_apps", "base_version", "custom_tarball_name", "send_takeover_notification",
-                  "skip_weekend_cases", "execution_block_generator"]
+                          "skip_weekend_cases", "execution_block_generator"]
 canonical_weekend_upgrade_keys = ["base_version", "target_version"]
 
 
@@ -212,7 +214,8 @@ def print_configs(f, config_key_list, config_dict):
 
 def gen_community_config(dbs):
     community_config = {
-        "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/main_branch_app_verification_pointer",
+        "additional_apps": "/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/"
+                           "main_branch_app_verification_pointer",
         "custom_tarball_name": "main_branch_verification_pointer.db.1.tgz",
         "base_version": "/auto/sw_system_release/sonic/main_branch_verification_pointer.bin",
         "rpc_image": "/auto/sw_system_release/sonic/main_branch_verification_pointer-rpc.bin",
@@ -230,7 +233,8 @@ def gen_community_config(dbs):
 def gen_canonical_config(mars_branch, dbs, upgrade, is_weekend):
     skip_weekend_cases = "no" if is_weekend else "yes"
     caonical_config = {
-        "additional_apps": f"/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/verification_app_pointers/{mars_branch}_app_verification_pointer",
+        "additional_apps": f"/auto/sw_regression/system/SONIC/MARS/conf/deploy_configs/"
+        f"verification_app_pointers/{mars_branch}_app_verification_pointer",
         "base_version": f"/auto/sw_system_release/sonic/{mars_branch}_verification_pointer.bin",
         "custom_tarball_name": f"{mars_branch}_verification_pointer.db.1.tgz",
         "send_takeover_notification": "yes",
@@ -280,8 +284,7 @@ def print_cononical_configs(f, mars_branch, dbs, upgrade, is_weekend):
 def print_mars_configs(branch):
     path = os.path.dirname(os.path.abspath(__file__))
     file_name = f"mars_config_{branch}.txt"
-    community_set_1_general_dbs = eval(f"community_{branch}_set_1_dbs") + \
-                                  eval(f"community_{branch}_rpc_dbs")
+    community_set_1_general_dbs = eval(f"community_{branch}_set_1_dbs") + eval(f"community_{branch}_rpc_dbs")
 
     if eval(f"community_{branch}_generic_dbs"):
         community_set_1_add_generic_dbs = eval(f"community_{branch}_set_1_dbs") + \
@@ -342,7 +345,6 @@ def print_mars_configs(branch):
             f.write("## sonic_lionfish_r-lionfish-07, sonic_spider_r-spider-05, sonic_leopard_r-leopard-56##\n")
             print_cononical_configs(f, "main_branch", canonical_upgrade_dbs, True, True)
         f.write("***************************************************************************************\n")
-
 
 
 if __name__ == "__main__":
