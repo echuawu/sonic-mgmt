@@ -53,7 +53,7 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
             cli_objects.dut.general.reboot_reload_flow(topology_obj=topology_obj)
 
 
-def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
+def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer):
     duthost = engines.dut
 
     with allure.step('Copy to dut a script that triggers SDK health event'):
@@ -73,6 +73,9 @@ def test_techsupport_mellanox_sdk_dump(engines, loganalyzer):
 
     with allure.step('Validate that the techsupport file contain one more SDK extended dump'):
         assert number_of_sdk_error_after == number_of_sdk_error_before + 1
+
+    with allure.step('Validate dockers status'):
+        cli_objects.dut.general.verify_dockers_are_up()
 
 
 def cp_sdk_event_trigger_script_to_dut_syncd(engine):
