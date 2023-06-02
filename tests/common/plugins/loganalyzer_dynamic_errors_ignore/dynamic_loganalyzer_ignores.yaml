@@ -434,7 +434,7 @@
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
 
 - Errors_list:
-    - '.*ERR kernel: \[ \d+\.\d+\] Register access failed \(reg_id=0x9014, status=0x1\).*'
+    - '.*ERR kernel: \[.*\d+\.\d+\] Register access failed \(reg_id=0x9014, status=0x1\).*'
   Conditions:
     - Redmine:
         - 3486142
