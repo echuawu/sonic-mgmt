@@ -109,7 +109,7 @@ def parse_asic_external_link(link, asic_name, hostname):
             neighbors[port_alias_asic_map[startport]] = {
                 'name': enddevice, 'port': endport}
             if bandwidth:
-                port_speeds[port_name_to_alias_map[startport]] = bandwidth
+                port_speeds[port_alias_asic_map[startport]] = bandwidth
 
     return neighbors, port_speeds
 
@@ -671,12 +671,19 @@ def parse_xml(filename, hostname, asic_name=None):
     global port_alias_to_name_map
     global port_name_to_alias_map
     global port_alias_asic_map
+    global port_alias_to_port_asic_alias_map
+    global port_name_to_index_map
 
     port_alias_to_name_map, port_alias_asic_map, port_name_to_index_map = get_port_alias_to_name_map(
-        hwsku, asic_name)
+        hostname, hwsku, asic_name)
 
     # Create inverse mapping between port name and alias
     port_name_to_alias_map = {v: k for k, v in port_alias_to_name_map.items()}
+
+    for k, v in port_alias_to_name_map.items():
+        for i, j in port_alias_asic_map.items():
+            if v == j:
+                port_alias_to_port_asic_alias_map[k] = i
 
     for child in root:
         if asic_name is None:
@@ -845,6 +852,8 @@ ports = {}
 port_alias_to_name_map = {}
 port_name_to_alias_map = {}
 port_alias_asic_map = {}
+port_name_to_index_map = {}
+port_alias_to_port_asic_alias_map = {}
 
 
 def main():
