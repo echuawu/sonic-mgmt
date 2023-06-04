@@ -45,7 +45,7 @@ def dump_simx_data(topology_obj, dumps_folder, name_prefix=None):
     hyper_engine = topology_obj.players['hypervisor']['engine']
     hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
     hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
-    hyper_engine.run_cmd('docker cp {}:{} {}'.format(dut_name, src_file_path, dst_file_path))
+    hyper_engine.run_cmd('sudo docker cp {}:{} {}'.format(dut_name, src_file_path, dst_file_path))
 
     logger.info('SIMX VM log file location: {}'.format(dst_file_path))
 
@@ -63,17 +63,7 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
     if not name_postfix:
         name_postfix = time.strftime('%Y_%b_%d_%H_%M_%S')
 
-    # Get telnet port from simx vm
-    cmd_get_telnet_port = f"docker exec -it {dut_name} bash -c 'cat /etc/libvirt/qemu/d-switch-001.xml " \
-                          f"| grep source | grep host |grep service'"
-    telnet_port_info = hyper_engine.run_cmd(cmd_get_telnet_port)
-    reg_telnet_port = r".*source mode='bind' host='0.0.0.0' service='(?P<port>\d+)'.*"
-    telnet_port = None
-    for port_info in telnet_port_info.split("\n"):
-        port_res = re.search(reg_telnet_port, port_info)
-        if port_res:
-            telnet_port = port_res.groupdict()["port"].strip()
-            break
+    telnet_port = get_telnet_port(topology_obj)
     if not telnet_port:
         raise Exception(f"Can not get telnet port. telnet_port_info is :{telnet_port_info}")
 
@@ -165,6 +155,13 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
         os.chmod(dumps_folder, 0o777)
         hyper_engine.run_cmd(f'sudo cp  -r /tmp/{syslog_folder} {dumps_folder}')
         logger.info(f'Simx syslog file location: {dest_folder}')
+
+
+def get_telnet_port(topology_obj):
+    serial_cmd = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['serial_conn_cmd']
+    serial_cmd_arr = serial_cmd.split(' ')
+    serial_port = serial_cmd_arr[len(serial_cmd_arr) - 1]
+    return serial_port
 
 
 def get_file_line_number(hyper_engine, get_file_line_number_cmd):
