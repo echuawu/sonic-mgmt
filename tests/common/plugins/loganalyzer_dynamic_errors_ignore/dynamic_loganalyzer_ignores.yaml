@@ -143,6 +143,7 @@
     # After issuing reboot command, if we get the above error log we can ignore them. Please note,
     # this can be observed for any service that was issued to be enable but reboot command was give.
     - '.*ERR hostcfgd: sudo systemctl start syncd.service - failed: return code - 1.*'
+    - '.*sonic ERR hostcfgd: \[.*\] - failed: return code - \d+, output:.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
@@ -2742,3 +2743,14 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/general/traffic/test_basic_traffic.py
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
+    - '.*ERR kernel: \[.*\] SX_BULK_CNTR: operation TLV is missing in buffer.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] mlnx_sai_port\.c\[\d+\]- mlnx_get_port_stats_ext: Failed to prepare bulk counter for port stats.*'
+    - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
+  Conditions:
+    - Affected_test_cases:
+        - platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs
+      Redmine:
+        - 3492750
