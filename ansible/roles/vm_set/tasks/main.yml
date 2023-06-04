@@ -243,9 +243,11 @@
 
 - block:
     - name: Ensure {{ root_path }} exists
+      become: true
       file: path={{ root_path }} state=directory
 
     - name: Install cleanup script
+      become: true
       template: src=cleanup.sh.j2
                 dest={{ root_path }}/cleanup.sh
 

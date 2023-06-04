@@ -257,7 +257,7 @@ function add_topo
         -e testbed_name="$testbed_name" -e duts_name="$duts" -e VM_base="$vm_base" \
         -e ptf_ip="$ptf_ip" -e topo="$topo" -e vm_set_name="$vm_set_name" \
         -e ptf_imagename="$ptf_imagename" -e vm_type="$vm_type" -e ptf_ipv6="$ptf_ipv6" \
-	-e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" \
+        -e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" \
         $ansible_options $@
 
   #if [[ "$ptf_imagename" != "docker-keysight-api-server" ]]; then
@@ -304,7 +304,7 @@ function remove_topo
       -e ptf_ip="$ptf_ip" -e topo="$topo" -e vm_set_name="$vm_set_name" \
       -e ptf_imagename="$ptf_imagename" -e vm_type="$vm_type" -e ptf_ipv6="$ptf_ipv6" \
       -e remove_keysight_api_server="$remove_keysight_api_server" \
-	-e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" \
+      -e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" \
       $ansible_options $@
 
   echo Done
@@ -326,7 +326,7 @@ function connect_topo
                      -e duts_name="$duts" \
                      -e VM_base="$vm_base" -e ptf_ip="$ptf_ip" \
                      -e topo="$topo" -e vm_set_name="$vm_set_name" \
-		     -e ptf_imagename="$ptf_imagename" -e vm_type="$vm_type" \
+                     -e ptf_imagename="$ptf_imagename" -e vm_type="$vm_type" \
                      -e ptf_ipv6="$ptf_ipv6" -e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" $@
 
   ansible-playbook fanout_connect.yml -i $vmfile --limit "$server" --vault-password-file="${passwd}" -e "dut=$duts" $@
@@ -391,7 +391,7 @@ function refresh_dut
         -e testbed_name="$testbed_name" -e duts_name="$duts" -e VM_base="$vm_base" \
         -e ptf_ip="$ptf_ip" -e topo="$topo" -e vm_set_name="$vm_set_name" \
         -e ptf_imagename="$ptf_imagename" -e vm_type="$vm_type" -e ptf_ipv6="$ptf_ipv6" \
-	-e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" -e force_stop_sonic_vm="yes" \
+        -e ptf_extra_mgmt_ip="$ptf_extra_mgmt_ip" -e force_stop_sonic_vm="yes" \
         $ansible_options $@
 
   echo Done
