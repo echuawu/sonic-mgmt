@@ -474,4 +474,5 @@ def test_name(request):
     :param request: pytest builtin
     :return: the test name, i.e, push_gate
     """
-    return request.node.name
+    pytest.test_name = request.node.name
+    return pytest.test_name

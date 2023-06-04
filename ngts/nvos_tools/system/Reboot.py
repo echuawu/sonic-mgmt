@@ -1,13 +1,17 @@
 import allure
 import logging
 import time
+import pytest
+import os
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 
 logger = logging.getLogger()
 
@@ -43,4 +47,9 @@ class Reboot(BaseComponent):
             duration = end_time - start_time
             with allure.step("Reboot till system is functional takes: {} seconds".format(duration)):
                 logger.info("Reboot till system is functional takes: {} seconds".format(duration))
+
+            if pytest.is_sanitizer:
+                dumps_folder = os.environ.get(InfraConst.ENV_LOG_FOLDER)
+                check_sanitizer_and_store_dump(engine, dumps_folder, pytest.test_name)
+
             return res_obj
