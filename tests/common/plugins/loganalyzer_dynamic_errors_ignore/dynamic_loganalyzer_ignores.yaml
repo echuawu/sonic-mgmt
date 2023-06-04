@@ -2726,3 +2726,19 @@
         - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch
       Redmine:
         - 3488512
+
+# NVOS : Errors - Bug 3493347 related
+- Errors_list:
+    - '.*ERR dhclient\[\d+\]: send_packet: Network is unreachable.*'
+    - '.*ERR dhclient\[\d+\]: send_packet: please consult README file regarding broadcast address.*'
+    - '.*ERR dhclient\[\d+\]: dhclient.c:2879: Failed to send 300 byte long packet over fallback interface.*'
+  Conditions:
+    - Redmine:
+        - 3493347
+
+# NVOS
+- Errors_list:
+    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/traffic/test_basic_traffic.py
