@@ -1,6 +1,6 @@
 
 
-class LDAPConsts:
+class LdapConsts:
     # keys
     HOSTNAME = 'hostname'
     PRIORITY = 'priority'
@@ -20,7 +20,7 @@ class LDAPConsts:
     TIMEOUT = 'timeout-search'
     VERSION = 'version'
     # phase 2 show cmd fields
-    SSL_MODE = 'ssl-mode'
+    SSL_MODE = 'mode'
     SSL_CERT_VERIFY = 'ssl-cert-verify'
     SSL_CA_LIST = 'ssl-ca-list'
     SSL_CIPHERS = 'ssl-ciphers'
@@ -80,7 +80,7 @@ class LDAPConsts:
         TIMEOUT_BIND: 5,
         TIMEOUT: 5,
         VERSION: 3,
-        SSL_MODE: NONE,
+        SSL_MODE: NONE,  # todo: verify phase 2 defaults
         SSL_CERT_VERIFY: DISABLED,
         SSL_CA_LIST: NONE,
         SSL_CIPHERS: TLS_1_2,
@@ -192,3 +192,17 @@ class LDAPConsts:
     LDAP_HIGH_TIMEOUT = '60'
     MAX_PRIORITY = '8'
     LDAP_SLEEP_TO_APPLY_CONFIGURATIONS = 10
+
+    # connection modes
+    IPV4 = 'ipv4'
+    IPV6 = 'ipv6'
+    DNS = 'dns'
+
+    SERVER_INFO = {
+        IPV4: PHYSICAL_LDAP_SERVER,
+        IPV6: DOCKER_LDAP_SERVER,
+        DNS: DOCKER_LDAP_SERVER_DNS
+    }
+
+    # encryption modes
+    TLS = 'tls'

@@ -2,7 +2,7 @@ import logging
 import allure
 import pytest
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 
 
 def disable_ldap_feature(dut_engine):

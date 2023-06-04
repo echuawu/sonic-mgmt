@@ -1,11 +1,16 @@
 import random
 import time
+import logging
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
+from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.infra.init_flow.init_flow import test_system_dockers, test_system_services
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -32,27 +37,27 @@ def configure_ldap(ldap_server_info):
     system = System(None)
 
     with allure.step("Configuring ldap server"):
-        if ldap_server_info.get(LDAPConsts.SCOPE):
-            system.aaa.ldap.set_scope(scope=ldap_server_info[LDAPConsts.SCOPE])
-        if ldap_server_info.get(LDAPConsts.BASE_DN):
-            system.aaa.ldap.set_base_dn(base=ldap_server_info[LDAPConsts.BASE_DN])
-        if ldap_server_info.get(LDAPConsts.BIND_DN):
-            system.aaa.ldap.set_bind_dn(user=ldap_server_info[LDAPConsts.BIND_DN])
-        if ldap_server_info.get(LDAPConsts.BIND_PASSWORD):
-            system.aaa.ldap.set_bind_password(password=ldap_server_info[LDAPConsts.BIND_PASSWORD])
-        if ldap_server_info.get(LDAPConsts.PORT):
-            system.aaa.ldap.set_port(port=ldap_server_info[LDAPConsts.PORT])
-        if ldap_server_info.get(LDAPConsts.TIMEOUT):
-            system.aaa.ldap.set_timeout_search(timeout=ldap_server_info[LDAPConsts.TIMEOUT])
-        if ldap_server_info.get(LDAPConsts.TIMEOUT_BIND):
-            system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LDAPConsts.TIMEOUT_BIND])
-        if ldap_server_info.get(LDAPConsts.VERSION):
-            system.aaa.ldap.set_version(version=ldap_server_info[LDAPConsts.VERSION])
-        if ldap_server_info.get(LDAPConsts.PRIORITY):
-            priority = int(ldap_server_info[LDAPConsts.PRIORITY])
+        if ldap_server_info.get(LdapConsts.SCOPE):
+            system.aaa.ldap.set_scope(scope=ldap_server_info[LdapConsts.SCOPE])
+        if ldap_server_info.get(LdapConsts.BASE_DN):
+            system.aaa.ldap.set_base_dn(base=ldap_server_info[LdapConsts.BASE_DN])
+        if ldap_server_info.get(LdapConsts.BIND_DN):
+            system.aaa.ldap.set_bind_dn(user=ldap_server_info[LdapConsts.BIND_DN])
+        if ldap_server_info.get(LdapConsts.BIND_PASSWORD):
+            system.aaa.ldap.set_bind_password(password=ldap_server_info[LdapConsts.BIND_PASSWORD])
+        if ldap_server_info.get(LdapConsts.PORT):
+            system.aaa.ldap.set_port(port=ldap_server_info[LdapConsts.PORT])
+        if ldap_server_info.get(LdapConsts.TIMEOUT):
+            system.aaa.ldap.set_timeout_search(timeout=ldap_server_info[LdapConsts.TIMEOUT])
+        if ldap_server_info.get(LdapConsts.TIMEOUT_BIND):
+            system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LdapConsts.TIMEOUT_BIND])
+        if ldap_server_info.get(LdapConsts.VERSION):
+            system.aaa.ldap.set_version(version=ldap_server_info[LdapConsts.VERSION])
+        if ldap_server_info.get(LdapConsts.PRIORITY):
+            priority = int(ldap_server_info[LdapConsts.PRIORITY])
         else:
-            priority = LDAPConsts.DEFAULT_PRIORTIY
-        system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LDAPConsts.HOSTNAME],
+            priority = LdapConsts.DEFAULT_PRIORTIY
+        system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME],
                                               priority=priority,
                                               apply=True).verify_result()
 
@@ -81,20 +86,20 @@ def validate_ldap_configurations(ldap_server_info):
     with allure.step("Validating the configuration of ldap to be the same as {}".format(ldap_server_info)):
         output = system.aaa.ldap.show()
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
-        expected_field = [LDAPConsts.PORT, LDAPConsts.BASE_DN, LDAPConsts.BIND_DN,
-                          LDAPConsts.LOGIN_ATTR,
-                          LDAPConsts.TIMEOUT_BIND, LDAPConsts.TIMEOUT]
-        expected_values = [ldap_server_info[LDAPConsts.PORT], ldap_server_info[LDAPConsts.BASE_DN],
-                           ldap_server_info[LDAPConsts.BIND_DN], ldap_server_info[LDAPConsts.LOGIN_ATTR],
-                           ldap_server_info[LDAPConsts.TIMEOUT_BIND], ldap_server_info[LDAPConsts.TIMEOUT],
-                           ldap_server_info[LDAPConsts.VERSION]]
+        expected_field = [LdapConsts.PORT, LdapConsts.BASE_DN, LdapConsts.BIND_DN,
+                          LdapConsts.LOGIN_ATTR,
+                          LdapConsts.TIMEOUT_BIND, LdapConsts.TIMEOUT]
+        expected_values = [ldap_server_info[LdapConsts.PORT], ldap_server_info[LdapConsts.BASE_DN],
+                           ldap_server_info[LdapConsts.BIND_DN], ldap_server_info[LdapConsts.LOGIN_ATTR],
+                           ldap_server_info[LdapConsts.TIMEOUT_BIND], ldap_server_info[LdapConsts.TIMEOUT],
+                           ldap_server_info[LdapConsts.VERSION]]
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
                                                         expected_values=expected_values,
                                                         output_dict=output).verify_result()
-        output = system.aaa.ldap.hostname.show_hostname(hostname=ldap_server_info[LDAPConsts.HOSTNAME])
+        output = system.aaa.ldap.hostname.show_hostname(hostname=ldap_server_info[LdapConsts.HOSTNAME])
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
-        expected_field = [LDAPConsts.PRIORITY]
-        expected_values = [ldap_server_info[LDAPConsts.PRIORITY]]
+        expected_field = [LdapConsts.PRIORITY]
+        expected_values = [ldap_server_info[LdapConsts.PRIORITY]]
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
                                                         expected_values=expected_values,
                                                         output_dict=output).verify_result()
@@ -127,7 +132,7 @@ def validate_services_and_dockers_availability(engines, devices):
         test_system_services(engines, devices)
 
 
-def configure_ldap_and_validate(engines, ldap_server_list, devices):
+def configure_ldap_and_validate(engines, ldap_server_list, devices, should_validate_conf=True):
     """
     @summary: in this function we will configure ldap servers in he ldap server list
     and validate the ldap configurations per server
@@ -138,12 +143,13 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices):
         with allure.step("Configuring ldap server {}".format(ldap_server_info)):
             configure_ldap(ldap_server_info)
 
+        if should_validate_conf:
+            with allure.step("Validating ldap server configurations"):
+                validate_ldap_configurations(ldap_server_info)
+
         if not ldap_is_enabled:
             enable_ldap_feature(engines.dut)
             ldap_is_enabled = True
-
-        with allure.step("Validating ldap server configurations"):
-            validate_ldap_configurations(ldap_server_info)
 
     validate_services_and_dockers_availability(engines, devices)
 
@@ -161,3 +167,151 @@ def randomize_ldap_server():
         "hostname": f"1.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
     }
     return randomized_ldap_server_info
+
+
+def functionality_testing(engines, devices, connection_method=LdapConsts.IPV4, encryption_mode=LdapConsts.NONE):
+    """
+    @summary:
+        Centralizing ldap functionality (authentication) tests with different setups
+        * Test setup - { connection_method: <ipv4, ipv6, dns> , encryption_mode: <none, tls, ssl> }
+
+        Steps:
+        1. Configure ldap server with the given connection method
+        2. Configure the given encryption mode for the ldap communication
+        3. Enable ldap and set it as main authentication method
+        4. Verify authentication with the result setup
+    @param ldap_obj: Ldap object (under System.Aaa object)
+    @param engines: engines object
+    @param devices: devices object
+    @param connection_method: in [IPV4, IPV6, DNS]
+    @param encryption_mode: in [NONE, START_TLS, SSL]
+    """
+    with allure.step(f'Configure ldap server with connection method: {connection_method}'):
+        ldap_obj = System().aaa.ldap
+        ldap_server_info = LdapConsts.SERVER_INFO[connection_method]
+        configure_ldap_server(engines, ldap_obj, ldap_server_info)
+
+    with allure.step(f'Configure encryption mode: {encryption_mode}'):
+        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
+
+    with allure.step('Enable and set ldap as main authentication method'):
+        enable_ldap_feature(engines.dut)
+        validate_services_and_dockers_availability(engines, devices)
+
+    with allure.step(f'Verify authentication with the current setup'):
+        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
+
+
+def configure_ldap_server(engines, ldap_obj, ldap_server_info):
+    """
+    @summary: Configure ldap server according to the given server information
+    @param engines: engines object
+    @param ldap_obj: Ldap object (under System.Aaa object)
+    @param ldap_server_info: dictionary that holds information about the given server
+    """
+    with allure.step(f'Configure ldap server: {ldap_server_info[LdapConsts.HOSTNAME]}'):
+        logging.info(f'Server details:\n{ldap_server_info}')
+
+        with allure.step('Configure general settings to match the given server'):
+            conf_to_set = {
+                LdapConsts.PORT: ldap_server_info[LdapConsts.PORT],
+                LdapConsts.BASE_DN: ldap_server_info[LdapConsts.BASE_DN],
+                LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
+                LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
+                LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],
+                LdapConsts.BIND_PASSWORD: ldap_server_info[LdapConsts.BIND_PASSWORD],
+                LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],
+                LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],
+                LdapConsts.VERSION: ldap_server_info[LdapConsts.VERSION]
+            }
+            configure_ldap_settings(engines, ldap_obj, conf_to_set)
+
+        with allure.step('Configure the given server with its priority'):
+            priority = int(ldap_server_info[LdapConsts.PRIORITY])
+            ldap_obj.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME], priority=priority,
+                                           apply=True).verify_result()
+
+
+def configure_ldap_encryption(engines, ldap_obj, encryption_mode):
+    """
+    @summary: Configure ldap settings according to the given encryption mode
+    @param engines: engines object
+    @param ldap_obj: Ldap object (under System.Aaa object)
+    @param encryption_mode: in [NONE, START_TLS, SSL]
+    """
+    with allure.step(f'Configure ldap encryption: {encryption_mode}'):
+        # todo: understand what conf needed for each encryption mode
+        if encryption_mode == LdapConsts.TLS:
+            configure_ldap_settings(engines, ldap_obj, ldap_conf={
+                LdapConsts.SSL: {
+                    LdapConsts.SSL_MODE: LdapConsts.START_TLS,
+                    LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED
+                }
+            })
+        elif encryption_mode == LdapConsts.SSL:
+            configure_ldap_settings(engines, ldap_obj, ldap_conf={
+                LdapConsts.SSL: {
+                    LdapConsts.SSL_MODE: LdapConsts.SSL,
+                    LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED,
+                    LdapConsts.SSL_PORT: 636
+                }
+            })
+        elif encryption_mode == LdapConsts.NONE:
+            configure_ldap_settings(engines, ldap_obj, ldap_conf={
+                LdapConsts.SSL: {
+                    LdapConsts.SSL_MODE: LdapConsts.NONE,  # todo: verify phase 2 defaults
+                    LdapConsts.SSL_CERT_VERIFY: LdapConsts.DEFAULTS[LdapConsts.SSL_CERT_VERIFY],
+                    LdapConsts.SSL_CA_LIST: LdapConsts.DEFAULTS[LdapConsts.SSL_CA_LIST],
+                    LdapConsts.SSL_CIPHERS: LdapConsts.DEFAULTS[LdapConsts.SSL_CIPHERS],
+                    LdapConsts.TLS_CRL_CHECK_FILE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_FILE],
+                    LdapConsts.TLS_CRL_CHECK_STATE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_STATE],
+                    LdapConsts.SSL_PORT: LdapConsts.DEFAULTS[LdapConsts.SSL_PORT]
+                }
+            })
+
+
+def configure_ldap_settings(engines, ldap_obj, ldap_conf):
+    """
+    @summary: Configure ldap settings according to the given desired configuration
+        * Configuration example:
+            if we want:
+                - bind-dn = abc
+                - auth-port = 123
+                - ssl ssl-port = 456
+                - tls mode = start-tls
+            then configuration dictionary should be:
+            {
+                bind-dn: abc,
+                auth-port: 123,
+                ssl:    {
+                            ssl-port: 456
+                        },
+                tls:    {
+                            mode: start-tls
+                        }
+            }
+    @param engines: engines object
+    @param ldap_obj: ldap object
+    @param ldap_conf: the desired ldap configuration (dictionary)
+    """
+    if not ldap_conf:
+        return
+
+    with allure.step('Set ldap configuration'):
+        logging.info(f'Given configuration to set:\n{ldap_conf}')
+
+        for key, value in ldap_conf.items():
+            if key == LdapConsts.SSL:
+                ssl_conf = ldap_conf[LdapConsts.SSL]
+                for ssl_key, ssl_value in ssl_conf.items():
+                    ldap_obj.ssl.set(ssl_key, ssl_value, apply=False).verify_result()
+            elif key == LdapConsts.TLS:
+                tls_conf = ldap_conf[LdapConsts.TLS]
+                for tls_key, tls_value in tls_conf.items():
+                    ldap_obj.tls.set(tls_key, tls_value, apply=False).verify_result()
+            else:
+                ldap_obj.set(key, value, apply=False).verify_result()
+
+        logging.info('Apply all changes')
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)\
+            .verify_result()
