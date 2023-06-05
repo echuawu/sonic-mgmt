@@ -16,6 +16,8 @@ from util import parse_output
 from util import get_dev_conn
 from tests.common.utilities import skip_release
 from tests.common.fixtures.duthost_utils import shutdown_ebgp   # noqa F401
+from tests.common.mellanox_data import is_mellanox_device
+from tests.common.utilities import wait_until
 
 cmd_sfp_presence = "sudo sfputil show presence"
 cmd_sfp_eeprom = "sudo sfputil show eeprom"

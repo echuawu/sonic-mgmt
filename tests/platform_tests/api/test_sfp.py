@@ -10,6 +10,7 @@ from tests.common.platform.interface_utils import get_physical_port_indices
 from tests.common.utilities import wait_until
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts     # noqa F401
 from tests.common.fixtures.duthost_utils import shutdown_ebgp           # noqa F401
+from tests.common.mellanox_data import is_mellanox_device
 
 from platform_api_test_base import PlatformApiTestBase
 
@@ -363,7 +364,6 @@ class TestSfpApi(PlatformApiTestBase):
     #
     # Functions to test methods defined in SfpBase class
     #
-
     def test_get_transceiver_info(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
         # TODO: Do more sanity checking on transceiver info values
         for index in self.sfp_setup["sfp_test_port_indices"]:
@@ -396,10 +396,10 @@ class TestSfpApi(PlatformApiTestBase):
                     for key in self.NEWLY_ADDED_XCVR_INFO_KEYS:
                         if key not in actual_keys:
                             logger.warning("test_get_transceiver_info: Transceiver {} info missing field '{}'. "
-                                           "Vendor needs to add support.".format(i, key))
+                                           "Vendor needs to add support.".format(index, key))
                         elif info_dict[key] == "N/A":
                             logger.warning("test_get_transceiver_info: Transceiver {} info value for '{}' is 'N/A'. "
-                                           "Vendor needs to add support.".format(i, key))
+                                           "Vendor needs to add support.".format(index, key))
 
                     unexpected_keys = set(actual_keys) - set(UPDATED_EXPECTED_XCVR_INFO_KEYS +
                                                              self.NEWLY_ADDED_XCVR_INFO_KEYS)
@@ -775,34 +775,17 @@ class TestSfpApi(PlatformApiTestBase):
 
             if not self.is_xcvr_support_lpmode(info_dict):
                 logger.warning(
-                    "test_lpmode: Skipping transceiver {} (not applicable for this transceiver type)"
-                    .format(i))
+                    "test_lpmode: Skipping transceiver {} (not applicable for this transceiver type)".format(
+                        test_port_index))
                 continue
-
-            lpmode_state_pretest = sfp.get_lpmode(platform_api_conn, i)
-            if lpmode_state_pretest is None:
-                logger.warning("test_lpmode: Skipping transceiver {} (not supported on this platform)".format(i))
-                break
-            # This order makes sure lpmode will get restored to pretest value after test
-            lpmode_states_to_be_tested = [not lpmode_state_pretest, lpmode_state_pretest]
-
-            # Enable and disable low-power mode on each transceiver
-            for state in lpmode_states_to_be_tested:
-                ret = sfp.set_lpmode(platform_api_conn, i, state)
-                if ret is None:
-                    logger.warning("test_lpmode: Skipping transceiver {} (not supported on this platform)".format(i))
-                    break
-                if state is True:
-                    delay = self.lp_mode_assert_delay(info_dict)
-                else:
-                    delay = self.lp_mode_deassert_delay(info_dict)
-                self.expect(ret is True, "Failed to {} low-power mode for transceiver {}"
-                            .format("enable" if state is True else "disable", i))
-                self.expect(wait_until(5, 1, delay,
-                                       self._check_lpmode_status, sfp, platform_api_conn, i, state),
-                            "Transceiver {} expected low-power state {} is not aligned with the real state"
-                            .format(i, "enable" if state is True else "disable"))
-        self.assert_expectations()
+            for port, port_index in self.sfp_setup["sfp_physical_port_index_map"].items():
+                if port_index == test_port_index:
+                    physical_port = port
+                    support_lpmode_physical_port_index_map[physical_port] = test_port_index
+                    if physical_port in original_interface_status and \
+                            original_interface_status[physical_port]['admin'].lower() == 'up':
+                        support_lpmode_physical_port_with_admin_up.append(physical_port)
+        return support_lpmode_physical_port_index_map, support_lpmode_physical_port_with_admin_up
 
     def test_power_override(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
         """This function tests both the get_power_override() and set_power_override() APIs"""

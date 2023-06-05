@@ -15,7 +15,6 @@ from tests.common.plugins.loganalyzer.loganalyzer import LogAnalyzer
 from tests.common.utilities import wait_until
 from tests.common.platform.device_utils import get_dut_psu_line_pattern
 from .thermal_control_test_helper import ThermalPolicyFileContext,\
-    check_cli_output_with_mocker, restart_thermal_control_daemon, check_thermal_algorithm_status
     check_cli_output_with_mocker, restart_thermal_control_daemon, check_thermal_algorithm_status,\
     mocker_factory, disable_thermal_policy  # noqa F401
 
