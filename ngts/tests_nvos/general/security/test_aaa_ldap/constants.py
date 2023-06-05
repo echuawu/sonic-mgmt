@@ -204,5 +204,6 @@ class LdapConsts:
         DNS: DOCKER_LDAP_SERVER_DNS
     }
 
-    # encryption modes
     TLS = 'tls'
+    CONNECTION_METHODS = [IPV4, IPV6, DNS]
+    ENCRYPTION_MODES = [NONE, TLS, SSL]

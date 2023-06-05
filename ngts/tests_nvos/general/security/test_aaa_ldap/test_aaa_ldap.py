@@ -1,5 +1,7 @@
 import logging
 import time
+from itertools import product
+
 import pytest
 
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -12,61 +14,9 @@ from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
     validate_authentication_fail_with_credentials
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
-from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import configure_ldap_and_validate, configure_ldap, \
-    randomize_ldap_server
+from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 from ngts.tools.test_utils import allure_utils as allure
-
-
-def test_ldap_basic_configurations_ipv4(engines, remove_ldap_configurations, devices):
-    """
-    @summary: in this test case we want to validate default ldap configurations.
-    We will configure the default configurations and connect to device.
-    """
-    engines.dut.run_cmd('stat /var/log/audit.log')
-    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    with allure.step("Validating ldap credentials"):
-        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
-    engines.dut.run_cmd('stat /var/log/audit.log')
-
-
-def test_ldap_basic_configurations_ipv4_openapi(engines, remove_ldap_configurations, devices):
-    """
-    @summary: in this test case we want to validate default ldap configurations.
-    We will configure the default configurations and connect to device.
-    """
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ldap_basic_configurations_ipv4(engines, remove_ldap_configurations, devices)
-
-
-def test_ldap_basic_configurations_ipv6(engines, remove_ldap_configurations, devices):
-    """
-    @summary: in this test case we want to validate default ldap configurations.
-    We will configure the default configurations and connect to device.
-    """
-    engines.dut.run_cmd('stat /var/log/audit.log')
-    ldap_server_info = LdapConsts.DOCKER_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    with allure.step("Validating ldap credentials"):
-        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
-    engines.dut.run_cmd('stat /var/log/audit.log')
-
-
-def test_ldap_basic_configurations_hostname(engines, remove_ldap_configurations, devices):
-    """
-    @summary: in this test case we want to validate default ldap configurations.
-    We will configure the default configurations and connect to device.
-    """
-    engines.dut.run_cmd('stat /var/log/audit.log')
-    ldap_server_info = LdapConsts.DOCKER_LDAP_SERVER_DNS
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    with allure.step("Validating ldap credentials"):
-        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
@@ -254,13 +204,16 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
     engines.dut.run_cmd('stat /var/log/audit.log')
 
 
-def test_ldap_set_show_unset(engines, remove_ldap_configurations):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_set_show_unset(engines, remove_ldap_configurations, test_api):
     """
     @summary: in this test case we want to validate ldap commands:
         1. set
         2. show
         3. unset
     """
+    TestToolkit.tested_api = test_api
+
     engines.dut.run_cmd('stat /var/log/audit.log')
     configured_ldap_servers_hostname = []
     system = System()
@@ -321,10 +274,39 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
     engines.dut.run_cmd('stat /var/log/audit.log')
 
 
-def test_ldap_set_show_unset_openapi(engines, remove_ldap_configurations):
+@pytest.mark.parametrize('connection_method, encryption_mode, test_api', list(product(LdapConsts.CONNECTION_METHODS,
+                                                                                      LdapConsts.ENCRYPTION_MODES,
+                                                                                      ApiType.ALL_TYPES)))
+def test_ldap_authentication(connection_method, encryption_mode, test_api, engines, devices,
+                             remove_ldap_configurations):
     """
-    @summary: in this test case we want to validate default ldap configurations.
-    We will configure the default configurations and connect to device.
+    @summary:
+        Test basic functionality - verify authentication through the ldap server.
+
+        Steps:
+        1. Configure ldap server with the given connection method
+        2. Configure the given encryption mode for the ldap communication
+        3. Enable ldap and set it as main authentication method
+        4. Verify authentication with the result setup
     """
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ldap_set_show_unset(engines, remove_ldap_configurations)
+    logging.info(f'Test setup: {connection_method}, {encryption_mode}, {test_api}')
+    TestToolkit.tested_api = test_api
+
+    engines.dut.run_cmd('stat /var/log/audit.log')  # todo: ask azmy - what is that?
+
+    with allure.step(f'Configure ldap server with connection method: {connection_method}'):
+        ldap_obj = System().aaa.ldap
+        ldap_server_info = LdapConsts.SERVER_INFO[connection_method]
+        configure_ldap_server(engines, ldap_obj, ldap_server_info)
+
+    with allure.step(f'Configure encryption mode: {encryption_mode}'):
+        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
+
+    with allure.step('Enable and set ldap as main authentication method'):
+        enable_ldap_feature(engines.dut)
+        validate_services_and_dockers_availability(engines, devices)
+
+    with allure.step(f'Verify authentication with the current setup'):
+        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
+
+    engines.dut.run_cmd('stat /var/log/audit.log')
