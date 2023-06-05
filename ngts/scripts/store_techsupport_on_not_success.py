@@ -192,7 +192,9 @@ def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, 
         if isinstance(dut_cli_object, NvueCli):
             system = System(None)
             tar_file = system.techsupport.action_generate(dut_engine)
-            tarball_file_name = str(tar_file.replace('/host/dump/', ''))
+            session_id = dumps_folder.rpartition('/')[-1]
+            tarball_file_name = str(tar_file.replace('/var/dump/', str(session_id)))
+            dumps_folder = dumps_folder.rpartition('/')[:-1][0]
         else:
             tar_file = dut_cli_object.general.generate_techsupport(duration)
             tarball_file_name = str(tar_file.replace('/var/dump/', ''))
