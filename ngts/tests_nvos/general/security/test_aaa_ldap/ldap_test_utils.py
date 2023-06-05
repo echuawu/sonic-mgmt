@@ -36,21 +36,21 @@ def configure_ldap(ldap_server_info):
 
     with allure.step("Configuring ldap server"):
         if ldap_server_info.get(LdapConsts.SCOPE):
-            system.aaa.ldap.set_scope(scope=ldap_server_info[LdapConsts.SCOPE])
+            system.aaa.ldap.set(LdapConsts.SCOPE, ldap_server_info[LdapConsts.SCOPE])
         if ldap_server_info.get(LdapConsts.BASE_DN):
-            system.aaa.ldap.set_base_dn(base=ldap_server_info[LdapConsts.BASE_DN])
+            system.aaa.ldap.set(LdapConsts.BASE_DN, ldap_server_info[LdapConsts.BASE_DN])
         if ldap_server_info.get(LdapConsts.BIND_DN):
-            system.aaa.ldap.set_bind_dn(user=ldap_server_info[LdapConsts.BIND_DN])
+            system.aaa.ldap.set(LdapConsts.BIND_DN, ldap_server_info[LdapConsts.BIND_DN])
         if ldap_server_info.get(LdapConsts.BIND_PASSWORD):
-            system.aaa.ldap.set_bind_password(password=ldap_server_info[LdapConsts.BIND_PASSWORD])
+            system.aaa.ldap.set(LdapConsts.BIND_PASSWORD, ldap_server_info[LdapConsts.BIND_PASSWORD])
         if ldap_server_info.get(LdapConsts.PORT):
-            system.aaa.ldap.set_port(port=ldap_server_info[LdapConsts.PORT])
+            system.aaa.ldap.set(LdapConsts.PORT, ldap_server_info[LdapConsts.PORT])
         if ldap_server_info.get(LdapConsts.TIMEOUT):
-            system.aaa.ldap.set_timeout_search(timeout=ldap_server_info[LdapConsts.TIMEOUT])
+            system.aaa.ldap.set(LdapConsts.TIMEOUT, ldap_server_info[LdapConsts.TIMEOUT])
         if ldap_server_info.get(LdapConsts.TIMEOUT_BIND):
-            system.aaa.ldap.set_timeout_bind(timeout=ldap_server_info[LdapConsts.TIMEOUT_BIND])
+            system.aaa.ldap.set(LdapConsts.TIMEOUT_BIND, ldap_server_info[LdapConsts.TIMEOUT_BIND])
         if ldap_server_info.get(LdapConsts.VERSION):
-            system.aaa.ldap.set_version(version=ldap_server_info[LdapConsts.VERSION])
+            system.aaa.ldap.set(LdapConsts.VERSION, ldap_server_info[LdapConsts.VERSION])
         if ldap_server_info.get(LdapConsts.PRIORITY):
             priority = int(ldap_server_info[LdapConsts.PRIORITY])
         else:

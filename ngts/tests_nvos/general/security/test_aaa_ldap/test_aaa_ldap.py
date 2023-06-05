@@ -149,7 +149,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
         [i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
         [int(ldap_server_info[LdapConsts.PORT])]).get_returned_value()
     with allure.step("Setting invalid auth-port: {}".format(str(invalid_port))):
-        system.aaa.ldap.set_port(port=str(invalid_port), apply=True)
+        system.aaa.ldap.set(LdapConsts.PORT, str(invalid_port), apply=True)
         with allure.step(
                 "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
             time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
@@ -174,7 +174,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
     with allure.step("Configuring invalid password: {}".format(random_string)):
-        system.aaa.ldap.set_bind_password(password=random_string, apply=True)
+        system.aaa.ldap.set(LdapConsts.BIND_PASSWORD, random_string, apply=True)
         with allure.step(
                 "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
             time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
@@ -199,7 +199,7 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
     with allure.step("Configuring invalid bind-dn: {}".format(random_string)):
-        system.aaa.ldap.set_bind_dn(user=random_string, apply=True)
+        system.aaa.ldap.set(LdapConsts.BIND_DN, random_string, apply=True)
         with allure.step(
                 "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
             time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
@@ -224,7 +224,7 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
     with allure.step("Configuring invalid base-dn: {}".format(random_string)):
-        system.aaa.ldap.set_base_dn(base=random_string, apply=True)
+        system.aaa.ldap.set(LdapConsts.BASE_DN, random_string, apply=True)
         with allure.step(
                 "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
             time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
