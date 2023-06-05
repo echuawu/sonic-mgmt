@@ -467,7 +467,7 @@ def engines(topology_obj):
     return engines_data
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', autouse=True)
 def test_name(request):
     """
     Method for getting the test name parameter

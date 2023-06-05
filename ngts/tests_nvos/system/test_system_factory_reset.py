@@ -16,6 +16,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 logger = logging.getLogger()
 
@@ -95,7 +96,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
             current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
             logging.info("Current time: " + str(current_time))
-            system.factory_default.action_reset().verify_result()
+            OperationTime.save_duration('reset factory', '', pytest.test_name, system.factory_default.action_reset).verify_result()
 
         with allure.step("Wait while the system initializing"):
             NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
@@ -178,7 +179,8 @@ def test_reset_factory_keep_basic(engines):
             current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
             logging.info("Current time: " + str(current_time))
             NvueGeneralCli.save_config(engines.dut)
-            system.factory_default.action_reset(param="keep basic").verify_result()
+            OperationTime.save_duration('reset factory', "keep basic", pytest.test_name,
+                                        system.factory_default.action_reset, param="keep basic").verify_result()
 
         with allure.step("Wait while the system initializing"):
             NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
@@ -270,7 +272,8 @@ def test_reset_factory_keep_all_config(engines):
             date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
             current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
             logging.info("Current time: " + str(current_time))
-            system.factory_default.action_reset(param="keep all-config").verify_result()
+            OperationTime.save_duration('reset factory', "keep all-config", pytest.test_name,
+                                        system.factory_default.action_reset, param="keep all-config").verify_result()
 
         with allure.step("Wait while the system initializing"):
             NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
@@ -364,7 +367,8 @@ def test_reset_factory_keep_only_files(engines):
             date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
             current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
             logging.info("Current time: " + str(current_time))
-            system.factory_default.action_reset(param="keep only-files").verify_result()
+            OperationTime.save_duration('reset factory', "keep only-files", pytest.test_name,
+                                        system.factory_default.action_reset, param="keep only-files").verify_result()
 
         with allure.step("Wait while the system initializing"):
             NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
