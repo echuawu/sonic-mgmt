@@ -353,4 +353,3 @@ wan/lacp/test_wan_lag_member.py
 wan/lacp/test_wan_lag_min_link.py
 wan/lldp/test_wan_lldp.py
 wan/traffic_test/test_traffic.py
->>>>>>> [Python3 migration]Re-organize python3_test_files.txt (#8138)
