@@ -169,39 +169,6 @@ def randomize_ldap_server():
     return randomized_ldap_server_info
 
 
-def functionality_testing(engines, devices, connection_method=LdapConsts.IPV4, encryption_mode=LdapConsts.NONE):
-    """
-    @summary:
-        Centralizing ldap functionality (authentication) tests with different setups
-        * Test setup - { connection_method: <ipv4, ipv6, dns> , encryption_mode: <none, tls, ssl> }
-
-        Steps:
-        1. Configure ldap server with the given connection method
-        2. Configure the given encryption mode for the ldap communication
-        3. Enable ldap and set it as main authentication method
-        4. Verify authentication with the result setup
-    @param ldap_obj: Ldap object (under System.Aaa object)
-    @param engines: engines object
-    @param devices: devices object
-    @param connection_method: in [IPV4, IPV6, DNS]
-    @param encryption_mode: in [NONE, START_TLS, SSL]
-    """
-    with allure.step(f'Configure ldap server with connection method: {connection_method}'):
-        ldap_obj = System().aaa.ldap
-        ldap_server_info = LdapConsts.SERVER_INFO[connection_method]
-        configure_ldap_server(engines, ldap_obj, ldap_server_info)
-
-    with allure.step(f'Configure encryption mode: {encryption_mode}'):
-        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
-
-    with allure.step('Enable and set ldap as main authentication method'):
-        enable_ldap_feature(engines.dut)
-        validate_services_and_dockers_availability(engines, devices)
-
-    with allure.step(f'Verify authentication with the current setup'):
-        validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
-
-
 def configure_ldap_server(engines, ldap_obj, ldap_server_info):
     """
     @summary: Configure ldap server according to the given server information
@@ -304,12 +271,15 @@ def configure_ldap_settings(engines, ldap_obj, ldap_conf):
             if key == LdapConsts.SSL:
                 ssl_conf = ldap_conf[LdapConsts.SSL]
                 for ssl_key, ssl_value in ssl_conf.items():
+                    ssl_value = int(ssl_value) if ssl_value.isnumeric() else ssl_value
                     ldap_obj.ssl.set(ssl_key, ssl_value, apply=False).verify_result()
             elif key == LdapConsts.TLS:
                 tls_conf = ldap_conf[LdapConsts.TLS]
                 for tls_key, tls_value in tls_conf.items():
+                    tls_value = int(tls_value) if tls_value.isnumeric() else tls_value
                     ldap_obj.tls.set(tls_key, tls_value, apply=False).verify_result()
             else:
+                value = int(value) if value.isnumeric() else value
                 ldap_obj.set(key, value, apply=False).verify_result()
 
         logging.info('Apply all changes')
