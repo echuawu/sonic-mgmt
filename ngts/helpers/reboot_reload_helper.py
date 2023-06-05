@@ -15,9 +15,6 @@ class SupportedRebootReloadTypes:
         self.fast_reboot = 'fast-reboot'
         self.warm_reboot = 'warm-reboot'
         self.config_reload = 'config reload -y'
-        # TODO: This is the WA for Bug SW #3395060, remove it when the bug is fixed.
-        if PlatformTypesConstants.PLATFORM_MOOSE == platform and is_redmine_issue_active([3420124]):
-            del self.warm_reboot
         if platform == PlatformTypesConstants.PLATFORM_BOXER or is_redmine_issue_active([3431712]):
             del self.fast_reboot
 
