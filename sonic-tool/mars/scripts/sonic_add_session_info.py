@@ -17,6 +17,10 @@
     xinw@mellanox.com
 
 @changed:
+    on June 4, 2023 by slutati@nvidia.com
+
+@Location:
+   /.autodirect/sw_regression/system/SONIC/MARS/bin/cmds/sonic_add_session_info.py
 
 """
 #######################################################################
@@ -35,7 +39,6 @@ from mlxlib.common import trace
 
 logger = trace.set_logger()
 
-SONIC_MGMT_WORKSPACE = '/root/mars/workspace/'
 
 class SonicAddSessionInfo(SessionAddInfo):
     """
@@ -56,17 +59,20 @@ class SonicAddSessionInfo(SessionAddInfo):
         """
         SessionAddInfo.__init__(self, conf_obj, extra_info, session_info)
 
-    def _parse_sonic_version(self, output):
+    def _parse_sonic_version(self, output, topology):
         version = re.compile(r"sonic software version: +([^\s]+)\s", re.IGNORECASE)
-        platform = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
+        platform_re = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
         hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
         asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
-
+        platform = platform_re.findall(output)[0] if platform_re.search(output) else ""
+        chip_type = int(str(re.search("(\d{4})",platform).group(1))[0])-1 if platform else ""
         res = {
             "version": version.findall(output)[0] if version.search(output) else "",
-            "platform": platform.findall(output)[0] if platform.search(output) else "",
+            "platform": platform,
             "hwsku": hwsku.findall(output)[0] if hwsku.search(output) else "",
-            "asic": asic.findall(output)[0] if asic.search(output) else ""
+            "asic": asic.findall(output)[0] if asic.search(output) else "",
+            "topology": topology,
+            "chip_type": "SPC{}".format(chip_type) if chip_type else ""
         }
 
         return res
@@ -94,7 +100,7 @@ class SonicAddSessionInfo(SessionAddInfo):
             machine = machines_players
         print "machine=" + str(machine)
 
-        remote_workspace = SONIC_MGMT_WORKSPACE
+        remote_workspace = '/root/mars/workspace'
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
             return (1, {})
@@ -124,8 +130,8 @@ class SonicAddSessionInfo(SessionAddInfo):
             if rc != 0:
                 print "Execute command failed!"
                 return (1, {})
-
-            return (0, self._parse_sonic_version(output))
+            res = self._parse_sonic_version(output, topology)
+            return (0, res)
         except Exception, e:
             logger.error("Failed to execute command: %s" % cmd)
             logger.error("Exception error: %s" % repr(e))
