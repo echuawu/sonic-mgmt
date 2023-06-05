@@ -109,6 +109,7 @@ def _ping_device(ip_add):
 def remote_reboot_dut(topology_obj):
     with allure.step("Remote reboot DUT"):
         cmd = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
+        cmd.replace('/auto', '/.autodirect')
         logging.info(f"Running cmd: {cmd}")
         p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:

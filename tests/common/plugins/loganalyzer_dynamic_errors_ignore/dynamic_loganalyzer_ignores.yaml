@@ -2754,3 +2754,10 @@
         - platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs
       Redmine:
         - 3492750
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
