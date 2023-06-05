@@ -8,7 +8,7 @@ import logging
 import json
 import pytest
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts     # noqa F401
-from tests.common.mellanox_data import SPC3_HWSKUS
+from tests.common.mellanox_data import SPC3_HWSKUS, SPC4_HWSKUS
 from .check_hw_mgmt_service import check_hw_management_service
 
 pytestmark = [
