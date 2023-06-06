@@ -121,7 +121,7 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
 
 def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_name,
                             inactive_ssh_engine, selected_port):
-    with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.name,
+    with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.parent_obj.name,
                                                                                active_ssh_engine.username)):
         selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine).verify_result()
         with allure.step('Check selected port counters for user ' + active_user_name):
