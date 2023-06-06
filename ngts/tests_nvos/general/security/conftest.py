@@ -8,6 +8,7 @@ from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngi
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger(__name__)
 
@@ -116,3 +117,16 @@ def is_secure_boot_enabled(engines):
     if res != "1":
         logging.info("The test is skipped - secure boot is disabled")
         pytest.skip("The test is skipped - secure boot is disabled")
+
+
+@pytest.fixture(scope='function')
+def reset_aaa():
+    """
+    @summary: fixture to reset aaa configuration after test
+    """
+    aaa_obj = System().aaa
+
+    yield
+
+    with allure.step('Reset aaa configuration after test'):
+        aaa_obj.unset(apply=True)

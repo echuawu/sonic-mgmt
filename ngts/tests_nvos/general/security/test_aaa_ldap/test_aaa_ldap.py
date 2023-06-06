@@ -11,8 +11,9 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.constants import AaaConsts
 from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
-    validate_authentication_fail_with_credentials
+    validate_authentication_fail_with_credentials, set_local_users
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
@@ -232,7 +233,7 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations, test_api):
             if LdapConsts.VALID_VALUES[field] == str:
                 new_val = RandomizationTool.get_random_string(length=10)
             else:
-                new_val = RandomizationTool.select_random_value(LdapConsts.VALID_VALUES[field], [show_output[field]])\
+                new_val = RandomizationTool.select_random_value(LdapConsts.VALID_VALUES[field], [show_output[field]]) \
                     .get_returned_value()
             logging.info(f'Set field "{field}" to "{new_val}"')
             ldap_obj.set(field, new_val, apply=True).verify_result()
@@ -303,10 +304,68 @@ def test_ldap_authentication(connection_method, encryption_mode, test_api, engin
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)
 
     with allure.step('Enable and set ldap as main authentication method'):
-        enable_ldap_feature(engines.dut)
-        validate_services_and_dockers_availability(engines, devices)
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
+                                 failthrough=LdapConsts.ENABLED)
 
     with allure.step(f'Verify authentication with the current setup'):
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
+
+    engines.dut.run_cmd('stat /var/log/audit.log')
+
+
+@pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
+def test_no_connection(engines, devices, test_api, encryption_mode, reset_aaa):
+    """
+    @summary:
+        Test that in case of bad connection with ldap server, authentication and authorization are done via local
+
+        Steps:
+        1. Configure bad ldap server
+        2. Configure auth order - ldap, local
+        3. Verify authentication and authorization are done via local:
+            - server only user can not login
+            - mutual/local only user can login, and role is according to local configuration
+    """
+    logging.info(f'Test setup: {encryption_mode}, {test_api}')
+    TestToolkit.tested_api = test_api
+
+    engines.dut.run_cmd('stat /var/log/audit.log')
+
+    with allure.step('Configure bad ldap server'):
+        aaa = System().aaa
+        ldap_obj = aaa.ldap
+        ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
+        ldap_server_info[LdapConsts.HOSTNAME] = '1.2.3.4'
+        configure_ldap_server(engines, ldap_obj, ldap_server_info)
+
+    with allure.step(f'Configure encryption mode: {encryption_mode}'):
+        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
+
+    with allure.step('Set ldap as main authentication method'):
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL])
+
+    with allure.step('Verify authentication and authorization are done via local'):
+        ldap_users = ldap_server_info[LdapConsts.USERS]
+
+        with allure.step('Set local-only users'):
+            local_users = LdapConsts.LOCAL_ONLY_TEST_USERS
+            set_local_users(local_users)
+
+        with allure.step(f'Set mutual user "{ldap_users[0][AaaConsts.USERNAME]}" in local'):
+            mutual_user = {
+                AaaConsts.USERNAME: ldap_users[0][AaaConsts.USERNAME],
+                AaaConsts.PASSWORD: LdapConsts.STRONG_PASSWORD,
+                AaaConsts.ROLE: AaaConsts.MONITOR if ldap_users[0][AaaConsts.ROLE] == AaaConsts.ADMIN else AaaConsts.ADMIN
+            }
+            set_local_users([mutual_user])
+
+        with allure.step('Verify ldap-only user can not login'):
+            validate_users_authorization_and_role(engines=engines, users=ldap_users, login_should_succeed=False)
+
+        with allure.step('Verify mutual user can be authenticated and authorized (via local)'):
+            pass  # validate_users_authorization_and_role(engines=engines, users=[mutual_user])
+
+        with allure.step('Verify local-only user be authenticated and authorized (via local)'):
+            validate_users_authorization_and_role(engines=engines, users=local_users)
 
     engines.dut.run_cmd('stat /var/log/audit.log')

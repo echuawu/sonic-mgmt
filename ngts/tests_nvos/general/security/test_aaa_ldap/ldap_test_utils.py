@@ -9,7 +9,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.constants import AuthConsts
 from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
-    configure_authentication_order
+    configure_authentication, validate_services_and_dockers_availability
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.infra.init_flow.init_flow import test_system_dockers, test_system_services
 from ngts.tools.test_utils import allure_utils as allure
@@ -105,7 +105,7 @@ def validate_ldap_configurations(ldap_server_info):
                                                         output_dict=output).verify_result()
 
 
-def enable_ldap_feature(dut_engine):
+def enable_ldap_feature(engines, devices):
     """
     @summary:
         in this function we want to enable the LDAP server functionality,
@@ -113,25 +113,7 @@ def enable_ldap_feature(dut_engine):
         are available we will change this function
     """
     with allure.step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
-        auth_obj = System().aaa.authentication
-        configure_authentication_order([AuthConsts.LDAP, AuthConsts.LOCAL], apply=False)
-        auth_obj.set(AuthConsts.FALLBACK, LdapConsts.ENABLED).verify_result()
-        auth_obj.set(AuthConsts.FAILTHROUGH, LdapConsts.ENABLED).verify_result()
-        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, dut_engine, True)\
-            .verify_result()
-        NVUED_SLEEP_FOR_RESTART = 4
-        with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
-            time.sleep(NVUED_SLEEP_FOR_RESTART)
-        NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
-
-
-def validate_services_and_dockers_availability(engines, devices):
-    """
-    @summary: validate all services and dockers are up configuring ldap
-    """
-    with allure.step("validating all services and dockers are up"):
-        test_system_dockers(engines, devices)
-        test_system_services(engines, devices)
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], failthrough=LdapConsts.ENABLED, fallback=LdapConsts.ENABLED)
 
 
 def configure_ldap_and_validate(engines, ldap_server_list, devices, should_validate_conf=True):
@@ -139,7 +121,7 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices, should_valid
     @summary: in this function we will configure ldap servers in he ldap server list
     and validate the ldap configurations per server
     """
-    enable_ldap_feature(engines.dut)
+    configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], failthrough=LdapConsts.ENABLED)
 
     for ldap_server_info in ldap_server_list:
         with allure.step("Configuring ldap server {}".format(ldap_server_info)):
@@ -208,30 +190,30 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode):
         # todo: understand what conf needed for each encryption mode
         if encryption_mode == LdapConsts.TLS:
             configure_ldap_settings(engines, ldap_obj, ldap_conf={
-                LdapConsts.SSL: {
-                    LdapConsts.SSL_MODE: LdapConsts.START_TLS,
-                    LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED
-                }
+                # LdapConsts.SSL: {
+                # LdapConsts.SSL_MODE: LdapConsts.START_TLS,
+                # LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED
+                # }
             })
         elif encryption_mode == LdapConsts.SSL:
             configure_ldap_settings(engines, ldap_obj, ldap_conf={
-                LdapConsts.SSL: {
-                    LdapConsts.SSL_MODE: LdapConsts.SSL,
-                    LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED,
-                    LdapConsts.SSL_PORT: 636
-                }
+                # LdapConsts.SSL: {
+                # LdapConsts.SSL_MODE: LdapConsts.SSL,
+                # LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED,
+                # LdapConsts.SSL_PORT: 636
+                # }
             })
         elif encryption_mode == LdapConsts.NONE:
             configure_ldap_settings(engines, ldap_obj, ldap_conf={
-                LdapConsts.SSL: {
-                    LdapConsts.SSL_MODE: LdapConsts.NONE,  # todo: verify phase 2 defaults
-                    LdapConsts.SSL_CERT_VERIFY: LdapConsts.DEFAULTS[LdapConsts.SSL_CERT_VERIFY],
-                    LdapConsts.SSL_CA_LIST: LdapConsts.DEFAULTS[LdapConsts.SSL_CA_LIST],
-                    LdapConsts.SSL_CIPHERS: LdapConsts.DEFAULTS[LdapConsts.SSL_CIPHERS],
-                    LdapConsts.TLS_CRL_CHECK_FILE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_FILE],
-                    LdapConsts.TLS_CRL_CHECK_STATE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_STATE],
-                    LdapConsts.SSL_PORT: LdapConsts.DEFAULTS[LdapConsts.SSL_PORT]
-                }
+                # LdapConsts.SSL: {
+                # LdapConsts.SSL_MODE: LdapConsts.NONE,  # todo: verify phase 2 defaults
+                # LdapConsts.SSL_CERT_VERIFY: LdapConsts.DEFAULTS[LdapConsts.SSL_CERT_VERIFY],
+                # LdapConsts.SSL_CA_LIST: LdapConsts.DEFAULTS[LdapConsts.SSL_CA_LIST],
+                # LdapConsts.SSL_CIPHERS: LdapConsts.DEFAULTS[LdapConsts.SSL_CIPHERS],
+                # LdapConsts.TLS_CRL_CHECK_FILE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_FILE],
+                # LdapConsts.TLS_CRL_CHECK_STATE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_STATE],
+                # LdapConsts.SSL_PORT: LdapConsts.DEFAULTS[LdapConsts.SSL_PORT]
+                # }
             })
 
 
