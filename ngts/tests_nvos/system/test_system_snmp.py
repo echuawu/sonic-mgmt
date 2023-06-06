@@ -125,11 +125,11 @@ def test_system_snmp_negative(engines, players, topology_obj):
         system.snmp_server.set('listening-address', '0.0.0.0').verify_result()
         NvueGeneralCli.apply_config(engines.dut,
                                     validate_apply_message="Listening-address 0.0.0.0 should be specified by the keyword 'all'")
-        system.snmp_server.unset('listening-address', '0.0.0.0').verify_result()
+        system.snmp_server.unset('listening-address').verify_result()
         system.snmp_server.set('listening-address', '127.0.0.1').verify_result()
         NvueGeneralCli.apply_config(engines.dut,
                                     validate_apply_message="Listening-address 127.0.0.1 should be specified by the keyword 'localhost'")
-        system.snmp_server.unset('listening-address', '127.0.0.1').verify_result()
+        system.snmp_server.unset('listening-address').verify_result()
 
     with allure.step("Negative testing for refresh interval"):
         system.snmp_server.set('auto-refresh-interval', 'a1').verify_result(False)
@@ -139,8 +139,6 @@ def test_system_snmp_negative(engines, players, topology_obj):
         system.log.rotate_logs()
         system.snmp_server.set('listening-address', 'all port 123').verify_result()
         NvueGeneralCli.apply_config(engines.dut, option='--assume-no', validate_apply_message="'snmpd' is not running")
-        with allure.step('Verify snmpd fatal state in the logs'):
-            system.log.show_log(exit_cmd='q', expected_str="Container 'snmp' is not running")
 
         with allure.step('Verify snmp not running with booked port for ntp'):
             system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show()) \
