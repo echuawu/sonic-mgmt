@@ -45,7 +45,7 @@ import sys
 import random
 import logging
 import json
-
+import six
 import ipaddress
 import itertools
 import fib
@@ -282,7 +282,7 @@ class DecapPacketTest(BaseTest):
             print("ERROR: unexpected ttl_mode is configured")
             exit()
 
-        if ipaddress.ip_address(unicode(dst_ip)).version == 6:
+        if ipaddress.ip_address(six.text_type(dst_ip)).version == 6:
             inner_src_ip = self.DEFAULT_INNER_V6_PKT_SRC_IP
             # build inner packet, if triple_encap is True inner_pkt would be double encapsulated
             inner_pkt = self.create_ipv6_inner_pkt_only(
@@ -353,7 +353,7 @@ class DecapPacketTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "dst")
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
         if self.ignore_ttl:
-            if ipaddress.ip_address(unicode(dst_ip)).version == 4:
+            if ipaddress.ip_address(six.text_type(dst_ip)).version == 4:
                 masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "ttl")
                 masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "chksum")
             else:
