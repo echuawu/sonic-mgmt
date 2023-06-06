@@ -1,5 +1,4 @@
 
-
 class LdapConsts:
     # keys
     HOSTNAME = 'hostname'
@@ -88,6 +87,8 @@ class LdapConsts:
         TLS_CRL_CHECK_STATE: DISABLED,
         SSL_PORT: PORT_389
     }
+
+    STRONG_PASSWORD = 'x%]AZf[K_Ualon6'
 
     PHYSICAL_LDAP_SERVER = {
         "hostname": "10.7.34.20",
@@ -182,6 +183,19 @@ class LdapConsts:
         ]
     }
 
+    LOCAL_ONLY_TEST_USERS = [
+        {
+            'username': 'localadmin',
+            'password': STRONG_PASSWORD,
+            'role': 'admin'
+        },
+        {
+            'username': 'localmonitor',
+            'password': STRONG_PASSWORD,
+            'role': 'monitor'
+        }
+    ]
+
     LDAP_SERVERS_LIST = [
         PHYSICAL_LDAP_SERVER,
         DOCKER_LDAP_SERVER
@@ -206,4 +220,4 @@ class LdapConsts:
 
     TLS = 'tls'
     CONNECTION_METHODS = [IPV4, IPV6, DNS]
-    ENCRYPTION_MODES = [NONE, TLS, SSL]
+    ENCRYPTION_MODES = [NONE]  # [NONE, TLS, SSL]
