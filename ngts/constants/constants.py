@@ -613,7 +613,7 @@ class FecConstants:
                                               '100G': ['CR'],
                                               '200G': ['CR4'],
                                               '400G': ['CR4'],
-                                              '800G': ['CR4']
+                                              '800G': ['CR8'],
                                               },
                 SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
                                               '50G': ['CR2'],
