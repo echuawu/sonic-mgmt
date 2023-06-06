@@ -5,6 +5,7 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.constants import AuthConsts
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -73,3 +74,14 @@ def validate_authentication_fail_with_credentials(engines, username, password):
     with allure.step("Validating failed authentication with new credentials, username: {}".format(username)):
         ConnectionTool.create_ssh_conn(engines.dut.ip, username=username, password=password).verify_result(
             should_succeed=False)
+
+
+def configure_authentication_order(order, apply=True):
+    """
+    @summary:
+        Configure order with given authentication types
+    @param order: ordered list with authentication types
+    """
+    with allure.step(f'Set authentication order: {order}'):
+        order = ','.join(order)
+        System().aaa.authentication.set(AuthConsts.ORDER, order, apply=apply).verify_result()
