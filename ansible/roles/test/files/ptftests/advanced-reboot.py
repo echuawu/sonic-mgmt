@@ -394,7 +394,7 @@ class ReloadTest(BaseTest):
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with self.log_lock:
             if verbose and self.test_params['verbose'] or not verbose:
-                print "%s : %s" % (current_time, message)
+                print("%s : %s" % (current_time, message))
             self.log_fp.write("%s : %s\n" % (current_time, message))
             self.log_fp.flush()
 
@@ -422,7 +422,7 @@ class ReloadTest(BaseTest):
             _, mask = prefix.split('/')
             n_hosts = min(2**(32 - int(mask)) - 3, self.max_nr_vl_pkts)
 
-            for counter, i in enumerate(xrange(2, n_hosts + 2)):
+            for counter, i in enumerate(range(2, n_hosts + 2)):
                 mac = self.VLAN_BASE_MAC_PATTERN.format(counter)
                 port = self.ports_per_vlan[vlan][i %
                                                  len(self.ports_per_vlan[vlan])]
@@ -909,7 +909,7 @@ class ReloadTest(BaseTest):
         from_t1_iter = itertools.cycle(self.from_t1)
         sent_count_vlan_to_t1 = 0
         sent_count_t1_to_vlan = 0
-        for i in xrange(self.packets_to_send):
+        for i in range(self.packets_to_send):
             payload = '0' * 60 + str(i)
             if (i % 5) == 0:   # From vlan to T1.
                 packet = scapyall.Ether(self.from_vlan_packet)
@@ -2296,7 +2296,7 @@ class ReloadTest(BaseTest):
                 testutils.send_packet(self, self.random_port(
                     self.vlan_ports), self.ping_dut_macjump_packet)
         else:
-            for i in xrange(self.ping_dut_pkts):
+            for i in range(self.ping_dut_pkts):
                 src_port, packet = random.choice(self.ping_dut_packets)
                 testutils.send_packet(self, src_port, packet)
 
@@ -2314,7 +2314,7 @@ class ReloadTest(BaseTest):
         return total_rcv_pkt_cnt
 
     def arpPing(self):
-        for i in xrange(self.arp_ping_pkts):
+        for i in range(self.arp_ping_pkts):
             testutils.send_packet(self, self.arp_src_port, self.arp_ping)
         total_rcv_pkt_cnt = testutils.count_matched_packets_all_ports(
             self, self.arp_resp, [self.arp_src_port], timeout=self.PKT_TOUT)

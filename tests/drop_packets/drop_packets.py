@@ -13,7 +13,7 @@ from tests.common.errors import RunAnsibleModuleFail
 from tests.common.helpers.assertions import pytest_assert, pytest_require
 from tests.common.platform.device_utils import fanout_switch_port_lookup
 from tests.common.helpers.constants import DEFAULT_NAMESPACE
-from tests.common.plugins.loganalyzer.loganalyzer import LogAnalyzerError
+from tests.common.plugins.loganalyzer.loganalyzer import LogAnalyzer, LogAnalyzerError
 from tests.common import config_reload
 
 RX_DRP = "RX_DRP"
