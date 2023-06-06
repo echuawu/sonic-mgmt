@@ -30,8 +30,10 @@ tests/nightly/runtime/test_runtime.py:
 tests/nightly/auto_negotition:
   skip:
     reason: "Testcase not supported on current platform"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform or '3800' in platform"
+      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform "
 
 
 tests/nightly/dynamic_port_breakout:
