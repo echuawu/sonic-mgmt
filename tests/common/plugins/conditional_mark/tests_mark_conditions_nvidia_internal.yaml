@@ -1422,9 +1422,9 @@ platform_tests/test_reload_config.py::test_reload_configuration:
 
 platform_tests/test_reload_config.py::test_reload_configuration_checks:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    reason: "Test ignored due to RM issue: https://redmine.mellanox.com/issues/3495644"
     conditions:
-      - "https://redmine.mellanox.com/issues/3273006"
+      - "https://redmine.mellanox.com/issues/3495644 and '202211' in release"
 
 snmp/test_snmp_phy_entity.py::test_turn_off_psu_and_check_psu_info:
   skip:
@@ -1795,5 +1795,4 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct[use-pkt-ca-ip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3479347"
     conditions:
       - "https://redmine.mellanox.com/issues/3479347 and 'nvda_bf' in platform"
-
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
