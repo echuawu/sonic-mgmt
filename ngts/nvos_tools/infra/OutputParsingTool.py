@@ -220,9 +220,6 @@ class OutputParsingTool:
                     return ResultObj(False, "state field can't be found in the output")
                 if IbInterfaceConsts.TYPE not in output_dictionary[port_name].keys():
                     return ResultObj(False, "type field can't be found in the output")
-                if output_dictionary[port_name][IbInterfaceConsts.TYPE] == IbInterfaceConsts.IB_PORT_TYPE and \
-                   IbInterfaceConsts.DESCRIPTION not in output_dictionary[port_name].keys():
-                    return ResultObj(False, "description field can't be found in the output")
 
                 dictionary_to_return[port_name] = {}
 
@@ -239,7 +236,8 @@ class OutputParsingTool:
                 dictionary_to_return[port_name][IbInterfaceConsts.TYPE] = \
                     output_dictionary[port_name][IbInterfaceConsts.TYPE]
 
-                if output_dictionary[port_name][IbInterfaceConsts.TYPE] == IbInterfaceConsts.IB_PORT_TYPE:
+                if output_dictionary[port_name][IbInterfaceConsts.TYPE] == IbInterfaceConsts.IB_PORT_TYPE and \
+                        IbInterfaceConsts.DESCRIPTION in output_dictionary[port_name].keys():
                     dictionary_to_return[port_name][IbInterfaceConsts.DESCRIPTION] = \
                         output_dictionary[port_name][IbInterfaceConsts.DESCRIPTION]
 
