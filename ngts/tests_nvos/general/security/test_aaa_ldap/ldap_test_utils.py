@@ -7,7 +7,9 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role
+from ngts.tests_nvos.general.security.constants import AuthConsts
+from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
+    configure_authentication_order
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.infra.init_flow.init_flow import test_system_dockers, test_system_services
 from ngts.tools.test_utils import allure_utils as allure
@@ -111,10 +113,12 @@ def enable_ldap_feature(dut_engine):
         are available we will change this function
     """
     with allure.step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
-        dut_engine.run_cmd("nv set system aaa authentication order ldap,local")
-        dut_engine.run_cmd("nv set system aaa authentication fallback enabled")
-        dut_engine.run_cmd("nv set system aaa authentication failthrough enabled")
-        dut_engine.run_cmd("nv config apply -y")
+        auth_obj = System().aaa.authentication
+        configure_authentication_order([AuthConsts.LDAP, AuthConsts.LOCAL], apply=False)
+        auth_obj.set(AuthConsts.FALLBACK, LdapConsts.ENABLED).verify_result()
+        auth_obj.set(AuthConsts.FAILTHROUGH, LdapConsts.ENABLED).verify_result()
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, dut_engine, True)\
+            .verify_result()
         NVUED_SLEEP_FOR_RESTART = 4
         with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
             time.sleep(NVUED_SLEEP_FOR_RESTART)
