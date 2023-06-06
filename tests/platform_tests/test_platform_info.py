@@ -178,7 +178,7 @@ def get_healthy_psu_num(duthost):
     psus_status = psuutil_status_output["stdout_lines"][2:]
     for iter in psus_status:
         fields = iter.split()
-        if fields[-2] == 'OK':
+        if fields[2] == 'OK':
             healthy_psus += 1
 
     return healthy_psus
@@ -502,7 +502,7 @@ def test_thermal_control_fan_status(duthosts, enum_rand_one_per_hwsku_hostname, 
         with loganalyzer:
             logging.info('Make the under speed FAN back to normal...')
             single_fan_mocker.mock_normal_speed()
-	    check_cli_output_with_mocker(
+            check_cli_output_with_mocker(
                 duthost, single_fan_mocker, CMD_PLATFORM_FANSTATUS, THERMAL_CONTROL_TEST_WAIT_TIME, 2)
 
 
@@ -513,4 +513,3 @@ def skip_on_new_hw_tc_enable(duthost):
     hw_tc_running_reg = r'.*Active: active \(running\).*'
     if re.findall(hw_tc_running_reg, hw_tc_status, flags=re.DOTALL):
         pytest.skip("SKipping the test due to new hw tc being enabled")
-
