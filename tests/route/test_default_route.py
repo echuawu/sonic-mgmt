@@ -33,7 +33,7 @@ def get_upstream_neigh(tb, device_neigh_metadata):
     if topo_cfg_facts is None:
         return upstream_neighbors
 
-    for neigh_name, neigh_cfg in topo_cfg_facts.iteritems():
+    for neigh_name, neigh_cfg in list(topo_cfg_facts.items()):
         if neigh_type not in neigh_name:
             continue
         if neigh_type == 'T3' and device_neigh_metadata[neigh_name]['type'] == 'AZNGHub':
@@ -41,7 +41,7 @@ def get_upstream_neigh(tb, device_neigh_metadata):
         interfaces = neigh_cfg.get('interfaces', {})
         ipv4_addr = None
         ipv6_addr = None
-        for intf, intf_cfg in interfaces.iteritems():
+        for intf, intf_cfg in list(interfaces.items()):
             if 'Port-Channel' in intf:
                 if 'ipv4' in intf_cfg:
                     ipv4_addr = interfaces[intf]['ipv4'].split('/')[0]
@@ -62,7 +62,7 @@ def get_upstream_neigh(tb, device_neigh_metadata):
 def get_uplink_ns(tbinfo, bgp_name_to_ns_mapping, device_neigh_metadata):
     neigh_type = get_upstream_neigh_type(tbinfo['topo']['type'])
     asics = set()
-    for name, asic in bgp_name_to_ns_mapping.items():
+    for name, asic in list(bgp_name_to_ns_mapping.items()):
         if neigh_type not in name:
             continue
         if neigh_type == 'T3' and device_neigh_metadata[name]['type'] == 'AZNGHub':
@@ -88,7 +88,7 @@ def verify_default_route_in_app_db(duthost, tbinfo, af, uplink_ns, device_neigh_
                 0]['value']['nexthop'].split(',')
             nexthops.update(set(nexthop_list))
     else:
-        key = default_route.keys()[0]
+        key = list(default_route.keys())[0]
         nexthop_list = default_route[key].get('value', {}).get('nexthop', None)
         nexthops.update(set(nexthop_list.split(',')))
 
@@ -127,9 +127,9 @@ def test_default_route_set_src(duthosts, tbinfo):
     lo_ipv6 = None
     los = config_facts.get("LOOPBACK_INTERFACE", {})
     logger.info("Loopback IPs: {}".format(los))
-    for k, v in los.items():
+    for k, v in list(los.items()):
         if k == "Loopback0":
-            for ipstr in v.keys():
+            for ipstr in list(v.keys()):
                 ip = ipaddress.ip_interface(ipstr)
                 if ip.version == 4:
                     lo_ipv4 = ip
@@ -213,5 +213,5 @@ def test_default_route_with_bgp_flap(duthosts, tbinfo):
                 'Default route is not removed from APP_DB')
     finally:
         duthost.command("sudo config bgp startup all")
-        if not wait_until(300, 10, 0, duthost.check_bgp_session_state, bgp_neighbors.keys()):
+        if not wait_until(300, 10, 0, duthost.check_bgp_session_state, list(bgp_neighbors.keys())):
             pytest.fail("not all bgp sessions are up after config reload")

@@ -830,10 +830,10 @@ class TestPfcwdFunc(SetupPfcwdFunc):
         self.fake_storm = fake_storm
         self.storm_hndle = None
         logger.info("---- Testing on port {} ----".format(port))
-        self.setup_test_params(port, setup_info['vlan'], init=True, mmu_params=True)
         self.rx_action = None
         self.tx_action = None
         self.is_dualtor = setup_dut_info['basicParams']['is_dualtor']
+        self.setup_test_params(port, setup_info['vlan'], init=True, mmu_params=True)
         self.set_traffic_action(duthost, "drop")
         self.stats = PfcPktCntrs(self.dut, self.rx_action, self.tx_action)
 

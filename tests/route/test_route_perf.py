@@ -11,6 +11,7 @@ from tests.common.dualtor.dual_tor_utils import get_t1_ptf_ports  # noqa F811
 from datetime import datetime
 from tests.common import config_reload
 from tests.common.helpers.assertions import pytest_assert
+from tests.common.helpers.generators import generate_ips
 
 CRM_POLL_INTERVAL = 1
 CRM_DEFAULT_POLL_INTERVAL = 300
@@ -114,6 +115,7 @@ def set_polling_interval(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
     duthost.command("crm config polling interval {}".format(CRM_DEFAULT_POLL_INTERVAL))
     logger.info("Waiting {} sec for CRM counters to become updated".format(wait_time))
     time.sleep(wait_time)
+
 
 def prepare_dut(asichost, intf_neighs):
     for intf_neigh in intf_neighs:
@@ -303,7 +305,7 @@ def exec_routes(
                 )
             )
 
-    # Retuen time used for set/del routes
+    # Return time used for set/del routes
     return (end_time - start_time).total_seconds()
 
 
@@ -357,6 +359,8 @@ def test_perf_add_remove_routes(
         )
     )
 
+    ipv4_prefix_set = [101, 41, 200, 9]
+    ipv6_prefix_set = [0x3000, 0x1000, 0x00FF, 0x0123]
     # Generate ip prefixes of routes
     if ip_versions == 4:
         random_oct = random.choice(ipv4_prefix_set)

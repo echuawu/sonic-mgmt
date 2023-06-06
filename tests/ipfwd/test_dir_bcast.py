@@ -2,11 +2,12 @@ import pytest
 import json
 import logging
 
-from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory   # lgtm[py/unused-import]
+from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory   # noqa F401
 from tests.ptf_runner import ptf_runner
 from datetime import datetime
-from tests.common.dualtor.mux_simulator_control import toggle_all_simulator_ports_to_rand_selected_tor_m    # lgtm[py/unused-import]
-
+from tests.common.dualtor.mux_simulator_control import toggle_all_simulator_ports_to_rand_selected_tor_m    # noqa F401
+from tests.common.utilities import get_neighbor_ptf_port_list
+from tests.common.helpers.constants import UPSTREAM_NEIGHBOR_MAP
 pytestmark = [
     pytest.mark.topology('t0', 'm0', 'mx')
 ]
@@ -21,6 +22,7 @@ def get_ptf_src_ports(tbinfo, duthost):
     upstream_neightbor_name = UPSTREAM_NEIGHBOR_MAP[tbinfo["topo"]["type"]]
     ptf_src_ports = get_neighbor_ptf_port_list(duthost, upstream_neightbor_name, tbinfo)
     return ptf_src_ports
+
 
 def get_ptf_dst_ports(duthost, mg_facts, testbed_type):
     if "dualtor" in testbed_type:
@@ -49,7 +51,8 @@ def get_ptf_dst_ports(duthost, mg_facts, testbed_type):
 
     return vlan_ip_port_pair
 
-def ptf_test_port_map(duthost, ptfhost, mg_facts, testbed_type):
+
+def ptf_test_port_map(duthost, ptfhost, mg_facts, testbed_type, tbinfo):
     ptf_test_port_map = {}
     ptf_src_ports = get_ptf_src_ports(tbinfo, duthost)
     vlan_ip_port_pair = get_ptf_dst_ports(duthost, mg_facts, testbed_type)
@@ -61,14 +64,15 @@ def ptf_test_port_map(duthost, ptfhost, mg_facts, testbed_type):
     ptfhost.copy(content=json.dumps(ptf_test_port_map), dest=PTF_TEST_PORT_MAP)
 
 
-def test_dir_bcast(duthosts, rand_one_dut_hostname, ptfhost, tbinfo, toggle_all_simulator_ports_to_rand_selected_tor_m):
+def test_dir_bcast(duthosts, rand_one_dut_hostname, ptfhost, tbinfo,
+                   toggle_all_simulator_ports_to_rand_selected_tor_m):      # noqa F811
     duthost = duthosts[rand_one_dut_hostname]
     testbed_type = tbinfo['topo']['name']
 
     # Copy VLAN information file to PTF-docker
     mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
 
-    ptf_test_port_map(duthost, ptfhost, mg_facts, testbed_type)
+    ptf_test_port_map(duthost, ptfhost, mg_facts, testbed_type, tbinfo)
 
     # Start PTF runner
     params = {
