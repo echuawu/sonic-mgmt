@@ -193,7 +193,7 @@ def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, 
             system = System(None)
             tar_file = system.techsupport.action_generate(dut_engine)
             session_id = dumps_folder.rpartition('/')[-1]
-            tarball_file_name = str(tar_file.replace('/var/dump/', str(session_id)))
+            tarball_file_name = str(session_id) + '_' + tar_file.rpartition('/')[-1]
             dumps_folder = dumps_folder.rpartition('/')[:-1][0]
         else:
             tar_file = dut_cli_object.general.generate_techsupport(duration)
