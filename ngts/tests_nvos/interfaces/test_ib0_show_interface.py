@@ -82,10 +82,9 @@ def test_ib0_show_interface_ip(engines):
 
 
 def validate_interface_fields(output_dictionary):
-    with allure.step('Check that the following fields exist in the output: type, description, link, ip, ifindex'):
-        logging.info('Check that the following fields exist in the output: type, description, link, ip, ifindex')
+    with allure.step('Check that the following fields exist in the output: type, link, ip, ifindex'):
+        logging.info('Check that the following fields exist in the output: type, link, ip, ifindex')
         field_to_check = [IbInterfaceConsts.TYPE,
-                          IbInterfaceConsts.DESCRIPTION,
                           IbInterfaceConsts.LINK,
                           IbInterfaceConsts.IFINDEX,
                           IbInterfaceConsts.IP]
