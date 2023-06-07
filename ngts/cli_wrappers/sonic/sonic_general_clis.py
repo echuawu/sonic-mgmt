@@ -28,7 +28,6 @@ from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallati
 from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
 from infra.tools.general_constants.constants import SonicSimxConstants, SonicHostsConstants
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
-from ngts.constants.constants import InfraConst
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 from infra.tools.general_constants.constants import DefaultTestServerCred
@@ -357,6 +356,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         if apply_base_config:
             with allure.step("Apply basic config"):
                 self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp)
+        else:
+            self.disable_ztp(disable_ztp)
 
         if configure_dns:
             with allure.step('Apply DNS servers configuration into /etc/resolv.conf'):
@@ -626,6 +627,16 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         return switch_in_onie
 
+    def disable_ztp(self, disable_ztp=False):
+        if disable_ztp:
+            with allure.step('Disable ZTP'):
+                retry_call(self.cli_obj.ztp.disable_ztp,
+                           fargs=[],
+                           tries=3,
+                           delay=10,
+                           logger=logger)
+                self.save_configuration()
+
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
                            disable_ztp=False):
         with allure.step("Upload port_config.ini and config_db.json with reboot of dut"):
@@ -635,14 +646,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                        delay=10,
                        logger=logger)
 
-        if disable_ztp:
-            with allure.step('Disable ZTP'):
-                retry_call(self.cli_obj.ztp.disable_ztp,
-                           fargs=[],
-                           tries=3,
-                           delay=10,
-                           logger=logger)
-                self.save_configuration()
+        self.disable_ztp(disable_ztp)
 
         with allure.step('Remove FRR configuration(which may contain default BGP config)'):
             self.cli_obj.frr.remove_frr_config_files()
