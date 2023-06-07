@@ -184,17 +184,47 @@ def get_file_line_number(hyper_engine, get_file_line_number_cmd):
     return READ_LINE_STEP
 
 
+def get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine):
+    """
+    :param dut_cli_object:
+    :param duration:
+    :param dumps_folder:
+    :return: dumps_folder: NVOS dump folders will be on a separated folder (not in the logs folder)
+             tar_file: NVOS file name will include the session id
+             tarball_file_name: the full path for dest + file name
+    """
+    with allure.step('get session_id and dumps folder name'):
+        dump_folder = dumps_folder.split('/')[-1]
+        session_id = dumps_folder.split('/')[-2]
+        logger.info('session_id = {}, dump folder name = {}'.format(session_id, dump_folder))
+
+    with allure.step('generate tarball file name'):
+        dumps_folder = dumps_folder.rpartition('/')[:-2][0]
+        dumps_folder = dumps_folder.rpartition('/')[:-2][0]
+        dumps_folder = dumps_folder + '/' + dump_folder
+        logger.info('NVOS dump folder path {}'.format(dumps_folder))
+
+    with allure.step('generate the file name'):
+        tar_file = dut_cli_object.general.generate_techsupport(duration)
+        logger.info('NVOS tar_file {}'.format(tar_file))
+        tarball_file_name = str(session_id) + '_' + tar_file.rpartition('/')[-1]
+        logger.info('NVOS tarball_file_name {}'.format(tarball_file_name))
+
+    with allure.step('testing the flow of NVOS commands'):
+        system = System(None)
+        temp_tar_file = system.techsupport.action_generate(engine=dut_engine)
+        logger.info('NVOS temp_tarball_file_name {}'.format(temp_tar_file))
+
+    return dumps_folder, tar_file, tarball_file_name
+
+
 @pytest.mark.disable_loganalyzer
 def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, is_simx, is_air):
     with allure.step('Generating a sysdump'):
         dut_cli_object = topology_obj.players['dut']['cli']
         dut_engine = topology_obj.players['dut']['engine']
         if isinstance(dut_cli_object, NvueCli):
-            system = System(None)
-            tar_file = system.techsupport.action_generate(dut_engine)
-            session_id = dumps_folder.rpartition('/')[-1]
-            tarball_file_name = str(session_id) + '_' + tar_file.rpartition('/')[-1]
-            dumps_folder = dumps_folder.rpartition('/')[:-1][0]
+            dumps_folder, tar_file, tarball_file_name = get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine)
         else:
             tar_file = dut_cli_object.general.generate_techsupport(duration)
             tarball_file_name = str(tar_file.replace('/var/dump/', ''))
