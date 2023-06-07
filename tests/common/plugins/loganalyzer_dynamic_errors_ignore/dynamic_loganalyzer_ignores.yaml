@@ -2453,7 +2453,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:94 Failed verify eth interface configuration.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_mtu
@@ -2497,7 +2497,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:100 Failed verify ib interface configuration.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify ib interface configuration.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed_invalid
@@ -2546,7 +2546,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:261 Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
     - '.*ERR systemd-timedated\[\d+\]: Failed to set local time: Invalid argument.*'
   Conditions:
     - Affected_test_cases:
@@ -2555,7 +2555,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* .* ERR nvued:   ERROR: lifecycle.py:146 File not found.*'
+    - '.* .* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
@@ -2563,7 +2563,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:289 User requested a .* reboot, but NVOS cant perform it.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ User requested a .* reboot, but NVOS cant perform it.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_reboot.py::test_reboot_command_type
@@ -2617,6 +2617,7 @@
         - tests_nvos/general/config_commands/test_show_diff_history.py
         - tests_nvos/system/test_show_system.py::test_system
         - tests_nvos/system/test_show_system.py::test_system_openapi
+        - tests_nvos/system/test_show_system.py::test_show_system_cpu_openapi
       Redmine:
         - 3474336
 
@@ -2629,7 +2630,7 @@
 
 # NVOS : Errors which should be ignored in tests using invalid url
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:185 File not found.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
     - '.* ERR nvued:   ERROR: format_checkers.py:246.*'
     - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:246.*'
     - '.* ERR nvued:   ERROR: format_checkers.py:246 Instance ffff:.*'
