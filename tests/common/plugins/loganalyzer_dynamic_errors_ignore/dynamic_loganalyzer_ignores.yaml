@@ -2627,6 +2627,9 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run_multiple_times
+        - tests_nvos/system/test_system_reboot.py
+      Redmine:
+        - 3494875
 
 # NVOS : Errors which should be ignored in tests using invalid url
 - Errors_list:
