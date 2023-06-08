@@ -282,14 +282,12 @@ class TestSfpApi(PlatformApiTestBase):
         xcvr_type = xcvr_info_dict.get("type_abbrv_name")
         return xcvr_type not in not_resettable_xcvr_type
 
-    def lp_mode_assert_delay(self, xcvr_info_dict):
-        xcvr_type = xcvr_info_dict["type_abbrv_name"]
+    def lp_mode_assert_delay(self, xcvr_type):
         if "QSFP" in xcvr_type and xcvr_type != "QSFP-DD":
             return 0.1
         return 0
 
-    def lp_mode_deassert_delay(self, xcvr_info_dict):
-        xcvr_type = xcvr_info_dict["type_abbrv_name"]
+    def lp_mode_deassert_delay(self, xcvr_type):
         if "QSFP" in xcvr_type and xcvr_type != "QSFP-DD":
             return 0.3
         return 0
@@ -737,8 +735,8 @@ class TestSfpApi(PlatformApiTestBase):
     def test_lpmode(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
         """This function tests both the get_lpmode() and set_lpmode() APIs"""
         duthost = duthosts[enum_rand_one_per_hwsku_hostname]
-        support_lpmode_physical_port_index_map, support_lpmode_physical_port_with_admin_up = \
-            self._get_support_lpmode_physical_port_index_map(duthost, platform_api_conn)
+        support_lpmode_physical_port_index_map, support_lpmode_physical_port_with_admin_up, port_indx_to_xcvr_type_map \
+            = self._get_support_lpmode_physical_port_index_map(duthost, platform_api_conn)
         if not support_lpmode_physical_port_index_map:
             pytest.skip("No interface supports lpmode")
 
@@ -750,22 +748,36 @@ class TestSfpApi(PlatformApiTestBase):
                         "Failed to shutdown {}".format(support_lpmode_physical_port_with_admin_up))
 
         for port_index in set(support_lpmode_physical_port_index_map.values()):
-            for state in [True, False]:
+
+            lpmode_state_pretest = sfp.get_lpmode(platform_api_conn, port_index)
+            if lpmode_state_pretest is None:
+                logger.warning(
+                    "test_lpmode: Skipping transceiver {} (not supported on this platform)".format(port_index))
+                break
+            # This order makes sure lpmode will get restored to pretest value after test
+            lpmode_states_to_be_tested = [not lpmode_state_pretest, lpmode_state_pretest]
+
+            for state in lpmode_states_to_be_tested:
                 ret = sfp.set_lpmode(platform_api_conn, port_index, state)
                 if ret is None:
                     logger.warning("test_lpmode: Skipping transceiver {} (not supported on this platform)".format(
                         port_index))
                     break
+                if state is True:
+                    delay = self.lp_mode_assert_delay(port_indx_to_xcvr_type_map[port_index])
+                else:
+                    delay = self.lp_mode_deassert_delay(port_indx_to_xcvr_type_map[port_index])
                 self.expect(ret is True, "Failed to {} low-power mode for transceiver {}".format(
                     "enable" if state is True else "disable", port_index))
-                self.expect(wait_until(5, 1, 0, self._check_lpmode_status, sfp, platform_api_conn, port_index, state),
-                            "Transceiver {} expected low-power state {} is not aligned with the real state".format(
-                                port_index, "enable" if state is True else "disable"))
+                self.expect(
+                    wait_until(5, 1, delay, self._check_lpmode_status, sfp, platform_api_conn, port_index, state),
+                    "Transceiver {} expected low-power state {} is not aligned with the real state".format(
+                        port_index, "enable" if state is True else "disable"))
 
         if is_mellanox_device(duthost) and len(support_lpmode_physical_port_with_admin_up) > 0:
-            logger.info("After setting the ports to disabled lpm mode,"
-                        " verify that the ports:{} are still in down state".format(
-                support_lpmode_physical_port_with_admin_up))
+            logger.info(
+                "After setting the ports to disabled lpm mode, verify that the ports:{} are still in down state".format(
+                    support_lpmode_physical_port_with_admin_up))
             self.expect(wait_until(60, 1, 0, duthost.links_status_down, support_lpmode_physical_port_with_admin_up),
                         "Disable lpm, ports doesn't keep down {}".format(support_lpmode_physical_port_with_admin_up))
             logger.info("Startup ports:{}".format(support_lpmode_physical_port_with_admin_up))
@@ -779,6 +791,7 @@ class TestSfpApi(PlatformApiTestBase):
         original_interface_status = duthost.get_interfaces_status()
         support_lpmode_physical_port_index_map = {}
         support_lpmode_physical_port_with_admin_up = []
+        port_indx_to_xcvr_type_map = {}
         for test_port_index in self.sfp_setup["sfp_test_port_indices"]:
             info_dict = sfp.get_transceiver_info(platform_api_conn, test_port_index)
             # Ensure that the transceiver type supports low-power mode
@@ -795,10 +808,12 @@ class TestSfpApi(PlatformApiTestBase):
                 if port_index == test_port_index:
                     physical_port = port
                     support_lpmode_physical_port_index_map[physical_port] = test_port_index
+                    port_indx_to_xcvr_type_map[test_port_index] = info_dict["type_abbrv_name"]
                     if physical_port in original_interface_status and \
                             original_interface_status[physical_port]['admin'].lower() == 'up':
                         support_lpmode_physical_port_with_admin_up.append(physical_port)
-        return support_lpmode_physical_port_index_map, support_lpmode_physical_port_with_admin_up
+        return (support_lpmode_physical_port_index_map,
+                support_lpmode_physical_port_with_admin_up, port_indx_to_xcvr_type_map)
 
     def test_power_override(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
         """This function tests both the get_power_override() and set_power_override() APIs"""
