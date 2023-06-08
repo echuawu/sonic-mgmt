@@ -588,6 +588,12 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
       - "https://redmine.mellanox.com/issues/3097795 and '202111' in release"
       - "https://redmine.mellanox.com/issues/3139078 and '202205' in release"
 
+qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499219 and branch 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3499219 and '202211' in release"
+
 platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
