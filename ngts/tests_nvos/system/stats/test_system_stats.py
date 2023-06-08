@@ -1,5 +1,7 @@
 import pytest
 import time
+# import csv
+# from infra.tools.linux_tools import linux_tools
 
 from ngts.nvos_constants.constants_nvos import ApiType, StatsConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -14,8 +16,9 @@ from ngts.tools.test_utils.allure_utils import step
 
 @pytest.mark.system
 @pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_configuration(engines, devices):
+@pytest.mark.simxl
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system_stats_configuration(engines, devices, test_api):
     """
     validate:
     - Enable/Disable stats feature
@@ -45,12 +48,18 @@ def test_system_stats_configuration(engines, devices):
     17.	Wait another 1 minute
     18.	Check internal and external files
     """
-    system = System()
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
     engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
     category_disabled_dict = devices.dut.CATEGORY_DISABLED_DICT
+    category_list_default = devices.dut.CATEGORY_LIST_DEFAULT_DICT
 
     try:
+        with step("Set system stats feature to default"):
+            system.stats.unset(apply=True).verify_result()
+
         with step("Disable system stats feature"):
             system.stats.set(op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value,
                              apply=True).verify_result()
@@ -64,35 +73,26 @@ def test_system_stats_configuration(engines, devices):
                     op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value).verify_result()
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
-            stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.category.show()).\
+            stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.category.show()). \
                 get_returned_value()
             ValidationTool.compare_dictionary_content(stats_category_show, category_disabled_dict).verify_result()
 
         with step("Clear all system stats and delete stats files"):
-            for name in category_list:
-                system.stats.category.categoryName[name].action_clear().verify_result()
-            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
-                get_returned_value()
-            if stats_files_show != {}:
-                for file in stats_files_show.keys():
-                    system.stats.files.action_delete(file).verify_result()
+            clear_all_internal_and_external_files(system, category_list)
 
         with step("Check both internal and external paths"):
             output = engine.run_cmd("ls /var/stats")
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
-            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
+            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
             assert stats_files_show == {}, "External stats files should not exist"
 
         with step("Select a random category and unset its configuration"):
-            name = RandomizationTool.select_random_value(list(category_disabled_dict.keys())).\
-                get_returned_value()
-            system.stats.category.categoryName[name].unset(op_param=StatsConsts.INTERVAL).verify_result()
-            system.stats.category.categoryName[name].unset(op_param=StatsConsts.HISTORY_DURATION).verify_result()
-            system.stats.category.categoryName[name].unset(op_param=StatsConsts.STATE, apply=True).verify_result()
+            name = RandomizationTool.select_random_value(category_list).get_returned_value()
+            system.stats.category.categoryName[name].unset(apply=True).verify_result()
             stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
                 system.stats.category.categoryName[name].show()).get_returned_value()
-            ValidationTool.compare_dictionary_content(stats_category_show, StatsConsts.CATEGORY_DEFAULT_DICT).\
+            ValidationTool.compare_dictionary_content(stats_category_show, category_list_default[name]). \
                 verify_result()
 
         with step("Update cache duration to 1 minute"):
@@ -100,30 +100,33 @@ def test_system_stats_configuration(engines, devices):
 
         with step("Update category configuration"):
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=StatsConsts.HISTORY_DURATION_MIN).\
+                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=int(StatsConsts.HISTORY_DURATION_MIN)).\
                 verify_result()
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.INTERVAL, op_param_value=StatsConsts.INTERVAL_MIN, apply=True).verify_result()
+                op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN), apply=True).\
+                verify_result()
             stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
                 system.stats.category.categoryName[name].show()).get_returned_value()
             ValidationTool.compare_dictionary_content(stats_category_show, StatsConsts.CATEGORY_MIN_DICT).\
                 verify_result()
 
-        with step("Wait 1 minute..."):
-            time.sleep(StatsConsts.SLEEP_1_MINUTE)
+        with step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+        # with step("Wait 1 minute..."):
+        #     time.sleep(StatsConsts.SLEEP_1_MINUTE)
 
         with step("Check no files created when feature state is disabled"):
             output = engine.run_cmd("ls /var/stats")
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
-            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
+            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
             assert stats_files_show == {}, "External stats files should not exist"
 
         with step("Enable feature and disable category"):
-            system.stats.set(op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).\
+            system.stats.set(op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value). \
                 verify_result()
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value, apply=True).\
+                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value, apply=True). \
                 verify_result()
             stats_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.show()).get_returned_value()
             stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
@@ -133,46 +136,49 @@ def test_system_stats_configuration(engines, devices):
             assert stats_category_show[StatsConsts.STATE] == StatsConsts.State.DISABLED.value, \
                 "stats state parameter is expected to be 'disabled'"
 
-        with step("Wait 1 minute..."):
-            time.sleep(StatsConsts.SLEEP_1_MINUTE)
+        with step("Wait 15 seconds..."):
+            time.sleep(StatsConsts.SLEEP_15_SECONDS)
 
         with step("Check no files created when category state is disabled"):
             output = engine.run_cmd("ls /var/stats")
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
-            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
+            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
             assert stats_files_show == {}, "External stats files should not exist"
 
-        with step("Update cache duration to 3 minutes"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 3)
+        # with step("Update cache duration to 3 minutes"):
+        #     RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 3)
 
         with step("Enable category"):
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value, apply=True).\
+                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value, apply=True). \
                 verify_result()
             stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
                 system.stats.category.categoryName[name].show()).get_returned_value()
             assert stats_category_show[StatsConsts.STATE] == StatsConsts.State.ENABLED.value, \
                 "stats state parameter is expected to be 'enabled'"
 
-        with step("Wait another 3 minutes..."):
-            time.sleep(StatsConsts.SLEEP_3_MINUTES)
+        # with step("Wait another 3 minutes..."):
+        #     time.sleep(StatsConsts.SLEEP_3_MINUTES)
+        with step("Wait another 1 minute..."):
+            time.sleep(StatsConsts.SLEEP_1_MINUTE)
 
         with step("Check both internal and external paths"):
             output = engine.run_cmd("ls /var/stats")
-            assert not output or name in output, "Category internal file not exists"
-            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
+            assert output == name + '.csv', "Category internal file does not exist, or not the only one that exists"
+            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
             assert stats_files_show == {}, "External stats files should not exist"
 
     finally:
-        set_system_stats_to_default(system, category_list)
+        set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-def test_system_stats_generation(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system_stats_generation(engines, devices, test_api):
     """
     validate:
     - Enable/Disable stats feature
@@ -195,12 +201,18 @@ def test_system_stats_generation(engines, devices):
     11.	Check internal and external files
     12.	Validate sample timestamps
     """
-    system = System()
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
     engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
-    category_disabled_dict = devices.dut.CATEGORY_DISABLED_DICT
 
     try:
+        system.log.rotate_logs()
+
+        with step("Clear all system stats and delete stats files"):
+            clear_all_internal_and_external_files(system, category_list)
+
         with step("Set Stats feature to default"):
             system.stats.unset(op_param=StatsConsts.STATE, apply=True).verify_result()
             stats_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.show()).get_returned_value()
@@ -210,32 +222,43 @@ def test_system_stats_generation(engines, devices):
         with step("Update cache duration to 3 minutes"):
             RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 3)
 
-        with step("Update all categories stats states"):
+        with step("Update all categories interval values to minimum and states to enable"):
             for name in category_list:
                 system.stats.category.categoryName[name].set(
-                    op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).verify_result()
+                    op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
                 system.stats.category.categoryName[name].set(
-                    op_param_name=StatsConsts.INTERVAL, op_param_value=StatsConsts.INTERVAL_MIN).verify_result()
+                    op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).verify_result()
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
 
-        with step("Wait 3 minutes and check internal path"):
-            time.sleep(StatsConsts.SLEEP_3_MINUTES)
+        with step("Restart process and check internal path"):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
             output = engine.run_cmd("ls /var/stats")
-            # TODO: update comparison (all 6 categories internal files should be exist).
-            ValidationTool.compare_dictionary_content(output, category_list).verify_result()
+            check_category_internal_files_exist(engine, category_list)
+            # output_list = list(filter(None, output.split(' ')))
+            # assert len(output_list) == len(category_list), "Categories number of files is not as expected"
+            # for cat in category_list:
+            #     assert cat in output, f"{cat} internal file is missing"
 
         with step("Generate system stats category"):
-            name = RandomizationTool.select_random_value(list(category_disabled_dict.keys())). \
-                get_returned_value()
-            system.stats.files.action_generate(name + '.csv').verify_result()
+            name = RandomizationTool.select_random_value(category_list).get_returned_value()
+            system.stats.category.categoryName[name].action_general(StatsConsts.GENERATE).verify_result()
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
-            assert stats_files_show != {}, "External stats file should be exists"
+            file_name = list(stats_files_show)[0]
+            assert len(stats_files_show) == 1, "Expected only 1 file"
+            assert name in file_name, "Expected category file does not exist"
 
         with step("Validate file content"):
-            stats_file_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show('<file_name>')).\
-                get_returned_value()
+            # file_content = system.stats.files.show(file_name)
+            show_output = system.stats.files.show_file(file=file_name, exit_cmd='q')
+            # file2 = '/host/stats/' + file_name
+            # with open(file2, 'r') as csv_file:
+            #     reader = csv.reader(csv_file)
+            #     for row in reader:
+            #         print(row)
+            # ValidationTool.verify_expected_output(show_output, StatsConsts.LOG_MSG_ERROR_DB).verify_result()
+            # stats_file_show = OutputParsingTool.parse_json_str_to_dictionary(file_content).get_returned_value()
             # TODO: Validate file content as expected:
             #  Host name: switch name
             #  Stats group: selected category
@@ -245,56 +268,53 @@ def test_system_stats_generation(engines, devices):
             #  Timestamp diff = 1 min
 
         with step("Upload stats file to URL"):
-            system.stats.files.action_upload('<file_name>', '<remote_url>').verify_result()
+            system.stats.files.action_file(StatsConsts.UPLOAD, file_name, StatsConsts.VALID_REMOTE_URL).verify_result()
             # TODO: check if file exists in <remote_url>, assert if not
             #  output = engine.run_cmd("ls <remote_url>/<file>")
             #  assert not output or name in output, "Category internal file not exists"
 
         with step("Delete stats external file"):
-            system.stats.files.action_delete('<file_name>').verify_result()
-            # TODO: check if file "stats_<selected_category>_<switch_name>_date_time" exist in the internal path:
-            #  "/var/stats", assert if not (should be exists).
-            #  output = engine.run_cmd("ls /var/stats/stats_<selected_category>_<switch_name>_date_time")
-            #  assert not output or name in output, "Category internal file not exists"
-
+            system.stats.files.action_file(StatsConsts.DELETE, file_name).verify_result()
+            output = engine.run_cmd("ls /var/stats")
+            assert name in output, "Category internal file not exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
             assert stats_files_show == {}, "External stats files should not exist"
 
         with step("Clear system stats specific category"):
             clear_time = time.time()
-            system.stats.category.categoryName['<category_name>'].action_clear().verify_result()
-            # TODO: check if file "stats_<selected_category>_<switch_name>_date_time" exist in the internal path:
-            #  "/var/stats", assert if so (should not be exists).
-            #  output = engine.run_cmd("ls /var/stats/stats_<selected_category>_<switch_name>_date_time")
-            #  assert not output or name in output, "Category internal file not exists"
+            system.stats.category.categoryName[name].action_general(StatsConsts.CLEAR).verify_result()
+            output = engine.run_cmd("ls /var/stats")
+            assert not output or name not in output, "Category internal file was not cleared"
 
         with step("Wait another 3 minutes..."):
             time.sleep(StatsConsts.SLEEP_3_MINUTES)
 
         with step("Check both internal and external paths"):
-            # TODO: check if file "stats_<selected_category>_<switch_name>_date_time" exist in the internal path:
-            #  "/var/stats", assert if not (should be exists).
-            #  output = engine.run_cmd("ls /var/stats/stats_<selected_category>_<switch_name>_date_time")
-            #  assert not output or name in output, "Category internal file not exists"
+            output = engine.run_cmd("ls /var/stats")
+            assert name in output, "Category internal file does not exist, or not the only one that exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
             assert stats_files_show == {}, "External stats files should not exist"
 
         with step("Validate sample timestamps"):
-            stats_file_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show('<file_name>')).\
+            system.stats.category.categoryName[name].action_general(StatsConsts.GENERATE).verify_result()
+            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
+            file_name = list(stats_files_show)[0]
+            show_output = system.stats.files.show_file(file=file_name, exit_cmd='q')
             # TODO: verify samples timestamps should be higher than clear command timestamp (clear_time),
             #  assert otherwise.
 
     finally:
-        set_system_stats_to_default(system, category_list)
+        set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-def test_system_stats_performance(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system_stats_performance(engines, devices, test_api):
     """
     validate:
     - Generate all system stats command
@@ -317,14 +337,16 @@ def test_system_stats_performance(engines, devices):
     13.	Upload stats file to URL
     14.	Validate file content
     """
-    system = System()
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
     engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
     category_disabled_dict = devices.dut.CATEGORY_DISABLED_DICT
 
     try:
         with step("Set Stats feature to default"):
-            system.stats.unset(op_param=StatsConsts.STATE, apply=True).verify_result()
+            system.stats.unset(apply=True).verify_result()
             stats_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.show()).get_returned_value()
             assert stats_show[StatsConsts.STATE] == StatsConsts.State.ENABLED.value, \
                 "stats state parameter is expected to be 'enabled'"
@@ -338,39 +360,38 @@ def test_system_stats_performance(engines, devices):
 
         with step("Update selected category stats config"):
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.INTERVAL, op_param_value=StatsConsts.INTERVAL_MIN).verify_result()
+                op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=StatsConsts.HISTORY_DURATION_DEFAULT).\
+                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=int(StatsConsts.HISTORY_DURATION_DEFAULT)).\
                 verify_result()
             system.stats.category.categoryName[name].set(
                 op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value, apply=True).\
                 verify_result()
 
         with step("Clear selected category stats"):
-            system.stats.category.categoryName[name].action_clear().verify_result()
+            system.stats.category.categoryName[name].action_general(StatsConsts.CLEAR).verify_result()
 
 #        with step("Create category internal file with old samples"):
             # TODO: copy csv file for <selected> category with old samples (timestamp more than a year ago)
             #  to “/var/stats” path
 
-#        with step("Restart stats process"):
-            # TODO: Restart stats process command
+        with step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
 
-        with step("Wait 1 minute..."):
-            time.sleep(StatsConsts.SLEEP_1_MINUTE)
+        with step("Wait 15 seconds..."):
+            time.sleep(StatsConsts.SLEEP_15_SECONDS)
+
+        with step("Check internal files were created"):
+            output = engine.run_cmd("ls /var/stats")
+            check_category_internal_files_exist(engine, category_list)
 
 #        with step("Verify cleanup after restart process"):
             # TODO: verify <selected> internal file and expect old samples have been removed from file.
 
-        with step("Wait 1 minute and check internal file"):
-            time.sleep(StatsConsts.SLEEP_1_MINUTE)
-            output = engine.run_cmd("ls /var/stats")
-            # TODO: update comparison (all 6 categories internal files should be exist).
-            ValidationTool.compare_dictionary_content(output, category_list).verify_result()
-
         with step("Generate all system files and verify action time"):
             start_time = time.time()
-            system.stats.files.action_generate('all').verify_result()
+            system.stats.category.categoryName[StatsConsts.ALL_CATEGORIES].action_general(StatsConsts.GENERATE).\
+                verify_result()
             end_time = time.time()
             diff_time = end_time - start_time
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
@@ -378,8 +399,9 @@ def test_system_stats_performance(engines, devices):
             # TODO: verify stats_files_show contain only single TAR file
             assert diff_time < StatsConsts.GENERATE_ALL_TIME_MAX, "Generate all time is higher than allowed"
 
-        with step("Upload stats file to URL"):
-            system.stats.files.action_upload('<file_name>', '<remote_url>').verify_result()
+        # with step("Upload stats file to URL"):
+            # system.stats.files.action_file(StatsConsts.UPLOAD, '<file_name>', StatsConsts.VALID_REMOTE_URL).\
+            #     verify_result()
             # TODO: check if file exists in <remote_url>, assert if not
             #  output = engine.run_cmd("ls <remote_url>/<file>")
             #  assert not output or name in output, "Category internal file not exists"
@@ -388,13 +410,14 @@ def test_system_stats_performance(engines, devices):
             # TODO: Extract the file and check that all 6 categories file exist
 
     finally:
-        set_system_stats_to_default(system, category_list)
+        set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-def test_stats_reliability(engines, devices):
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_stats_reliability(engines, devices, test_api):
     """
     validate:
     - Configuration of the feature persists through upgrade and reboot
@@ -414,12 +437,14 @@ def test_stats_reliability(engines, devices):
     9. Configuring the feature to default in the loop
     10.	Remove sampled data from DB
     """
-    system = System()
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
     engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
     try:
         with step("Set Stats feature to default"):
-            system.stats.unset(op_param=StatsConsts.STATE, apply=True).verify_result()
+            system.stats.unset(apply=True).verify_result()
 
         with step("Update cache duration to 1 minute"):
             RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
@@ -429,19 +454,18 @@ def test_stats_reliability(engines, devices):
                 system.stats.category.categoryName[name].set(
                     op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).verify_result()
                 system.stats.category.categoryName[name].set(
-                    op_param_name=StatsConsts.INTERVAL, op_param_value=StatsConsts.INTERVAL_MIN).verify_result()
+                    op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
                 system.stats.category.categoryName[name].set(
-                    op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=StatsConsts.HISTORY_DURATION_MIN).\
+                    op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=int(StatsConsts.HISTORY_DURATION_MIN)).\
                     verify_result()
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
-            # TODO: run command: nv config save
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                            save_config, TestToolkit.engines.dut).verify_result()
 
-        with step("Wait 1 minute and check internal path"):
-            time.sleep(StatsConsts.SLEEP_1_MINUTE)
-            output = engine.run_cmd("ls /var/stats")
-            # TODO: update comparison (all 6 categories internal files should be exist).
-            ValidationTool.compare_dictionary_content(output, category_list).verify_result()
+        with step("restart stats service and check internal path"):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+            check_category_internal_files_exist(engine, category_list)
 
         with step("Perform system reboot"):
             system.reboot.action_reboot(params='force').verify_result()
@@ -457,9 +481,7 @@ def test_stats_reliability(engines, devices):
                     verify_result()
 
         with step("Check internal path"):
-            output = engine.run_cmd("ls /var/stats")
-            # TODO: update comparison (all 6 categories internal files should be exist).
-            ValidationTool.compare_dictionary_content(output, category_list).verify_result()
+            check_category_internal_files_exist(engine, category_list)
 
         with step("Configuring the feature to default in the loop"):
             for x in range(10):
@@ -475,16 +497,18 @@ def test_stats_reliability(engines, devices):
                 "stats state parameter is expected to be 'enabled'"
             system.log.rotate_logs()
             show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, StatsConsts.LOG_MSG_ERROR_DB).verify_result()
+            # TODO: update StatsConsts.LOG_MSG_ERROR_DB
+            # ValidationTool.verify_expected_output(show_output, StatsConsts.LOG_MSG_ERROR_DB).verify_result()
 
     finally:
-        set_system_stats_to_default(system, category_list)
+        set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-def test_system_stats_log(devices):
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_system_stats_log(engines, devices, test_api):
     """
     validate:
     - Configuring commands are logged to system log
@@ -493,7 +517,10 @@ def test_system_stats_log(devices):
     1. Unset stats feature state and check log file
     2. Set category stats configuration and check log file
     """
-    system = System()
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
+    engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
 
     try:
@@ -505,26 +532,29 @@ def test_system_stats_log(devices):
 
         with step("Set category stats configuration and check log file"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
+            log_msg = StatsConsts.LOG_MSG_PATCH_CATEGORY + name
             system.log.rotate_logs()
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.INTERVAL, op_param_value=StatsConsts.INTERVAL_MIN).verify_result()
+                op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=StatsConsts.HISTORY_DURATION_DEFAULT).\
+                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=int(StatsConsts.HISTORY_DURATION_DEFAULT)).\
                 verify_result()
             system.stats.category.categoryName[name].set(
-                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value, apply=True).\
-                verify_result()
+                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).verify_result()
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                            apply_config, TestToolkit.engines.dut, False).verify_result()
             show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, StatsConsts.LOG_MSG_SET_CATEGORY_STATS).verify_result()
+            ValidationTool.verify_expected_output(show_output, log_msg).verify_result()
 
     finally:
-        set_system_stats_to_default(system, category_list)
+        set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-def test_system_stats_invalid_values(devices):
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_system_stats_invalid_values(engines, devices, test_api):
     """
     validate:
     - Check all the commands that get param with invalid values
@@ -543,13 +573,16 @@ def test_system_stats_invalid_values(devices):
     11. nv action upload system stats files <file-name> <invalid remote-url>
     12. nv action generate system stats <invalid category-name>
     """
-    system = System()
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
+    engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
 
     try:
         with step("Validate set system stats unknown category"):
             system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].set(
-                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value).\
+                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value, apply=True).\
                 verify_result(should_succeed=False)
 
         with step("Validate set system stats category invalid state"):
@@ -579,37 +612,41 @@ def test_system_stats_invalid_values(devices):
                 verify_result(should_succeed=False)
 
         with step("Validate show system stats invalid category"):
-            system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].show().\
-                verify_result(should_succeed=False)
+            stats_show = system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].show()
+            assert StatsConsts.INVALID_SHOW_CATEGORY in stats_show, "Expected error msg: requested item does not exist"
 
         with step("Validate clear system stats invalid category"):
-            system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_clear().\
+            system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_general(StatsConsts.CLEAR).\
                 verify_result(should_succeed=False)
 
         with step("Validate delete system stats file not exists"):
-            system.stats.files.action_delete(StatsConsts.INVALID_FILE_NAME).verify_result(should_succeed=False)
+            system.stats.files.action_file(StatsConsts.DELETE, StatsConsts.INVALID_FILE_NAME).\
+                verify_result(should_succeed=False)
 
         with step("Validate upload system stats file not exists"):
-            # TODO: update <remote-url>
-            system.stats.files.action_upload(StatsConsts.INVALID_FILE_NAME, '<remote_url>').\
-                verify_result(should_succeed=False)
+            system.stats.files.action_file(StatsConsts.UPLOAD, StatsConsts.INVALID_FILE_NAME,
+                                           StatsConsts.VALID_REMOTE_URL).verify_result(should_succeed=False)
 
-        with step("Validate upload system stats file to invalid URL"):
-            # TODO: update <file_name>
-            system.stats.files.action_upload('<file_name>', StatsConsts.INVALID_REMOTE_URL).\
-                verify_result(should_succeed=False)
+        # with step("Validate upload system stats file to invalid URL"):
+        #     # TODO: update <file_name>
+        #     system.stats.files.action_file(StatsConsts.UPLOAD,'<file_name>',
+        #                                    StatsConsts.VALID_REMOTE_URL).verify_result(should_succeed=False)
 
         with step("Validate generate system stats invalid category"):
-            system.stats.files.action_generate(StatsConsts.INVALID_CATEGORY_NAME).verify_result(should_succeed=False)
+            system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_general(StatsConsts.GENERATE).\
+                verify_result(should_succeed=False)
 
     finally:
-        set_system_stats_to_default(system, category_list)
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                        detach_config, TestToolkit.engines.dut).verify_result()
+        set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-def test_system_stats_on_skynet():
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system_stats_on_skynet(test_api):
     """
     (Dedicated test will be added later to skynet to check some of the functionalities once a month)
 
@@ -617,78 +654,32 @@ def test_system_stats_on_skynet():
     1. ...
     """
 
-
-# ------------ Open API tests -----------------
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_configuration_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_stats_configuration(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_generation_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_stats_generation(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_performance_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_stats_performance(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_stats_reliability_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_stats_reliability(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_log_openapi(devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_stats_log(devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_invalid_values_openapi(devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_stats_invalid_values(devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.stats
-@pytest.mark.simx
-def test_system_stats_on_skynet_openapi():
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_stats_on_skynet()
+    TestToolkit.tested_api = test_api
 
 
 # ---------------------------------------------
-def set_system_stats_to_default(system, category_list):
-    with step("Set Stats feature to default"):
-        system.stats.unset(op_param=StatsConsts.STATE).verify_result()
-        for name in category_list:
-            system.stats.category.categoryName[name].unset(op_param=StatsConsts.INTERVAL).verify_result()
-            system.stats.category.categoryName[name].unset(op_param=StatsConsts.HISTORY_DURATION).verify_result()
-            system.stats.category.categoryName[name].unset(op_param=StatsConsts.STATE, apply=True).verify_result()
-        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                        apply_config, TestToolkit.engines.dut, False).verify_result()
+def set_system_stats_to_default(engine, system):
+    with step("Update Stats feature to default"):
+        system.stats.unset(apply=True).verify_result()
+
+    with step("Update cache general configuration to default"):
+        RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 10)
+        RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cleanup_interval", 1)
+
+
+def clear_all_internal_and_external_files(system, category_list):
+    for name in category_list:
+        system.stats.category.categoryName[name].action_general(StatsConsts.CLEAR).verify_result()
+    stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
+        get_returned_value()
+    if stats_files_show != {}:
+        for file in stats_files_show.keys():
+            system.stats.files.action_file(StatsConsts.DELETE, file).verify_result()
+
+
+def check_category_internal_files_exist(engine, category_list):
+    output = engine.run_cmd("ls /var/stats")
+    output_list = list(filter(None, output.split(' ')))
+    assert len(output_list) == len(category_list), "Categories number of files is not as expected"
+    for cat in category_list:
+        assert cat in output, f"{cat} internal file is missing"

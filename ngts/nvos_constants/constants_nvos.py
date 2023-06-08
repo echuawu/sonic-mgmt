@@ -700,8 +700,8 @@ class StatsConsts:
         ENABLED = 'enabled'
         DISABLED = 'disabled'
 
+    SLEEP_15_SECONDS = 15  # [sec]
     SLEEP_1_MINUTE = 60  # [sec]
-    SLEEP_2_MINUTES = 120  # [sec]
     SLEEP_3_MINUTES = 180  # [sec]
     STATE = 'state'
     STATE_DEFAULT = State.ENABLED.value
@@ -711,7 +711,7 @@ class StatsConsts:
     HISTORY_DURATION = 'history-duration'
     HISTORY_DURATION_DEFAULT = '365'  # [days]
     HISTORY_DURATION_MIN = '1'  # [days]
-    GENERATE_ALL_TIME_MAX = '2'  # [sec]
+    GENERATE_ALL_TIME_MAX = 2  # [sec]
     CATEGORY_STATE_DISABLED = {STATE: State.DISABLED.value}
     CATEGORY_DEFAULT_DICT = {
         HISTORY_DURATION: HISTORY_DURATION_DEFAULT,
@@ -723,13 +723,16 @@ class StatsConsts:
         INTERVAL: INTERVAL_MIN,
         HISTORY_DURATION: HISTORY_DURATION_MIN
     }
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']  # TODO: Use from BaseDevice
 
-    LOG_MSG_UNSET_STATS = "..."  # TODO: Update message...
-    LOG_MSG_SET_CATEGORY_STATS = "..."  # TODO: Update message...
+    LOG_MSG_UNSET_STATS = "PATCH /nvue_v1/system/stats"
+    LOG_MSG_SET_CATEGORY1 = "INFO stats-reportd: got config change "
+    LOG_MSG_SET_CATEGORY2 = ": {'enabled': 'true', 'history_duration': '365', 'interval': '1'}"
+    LOG_MSG_PATCH_CATEGORY = "PATCH /nvue_v1/system/stats/category/"
+
     LOG_MSG_ERROR_DB = "..."  # TODO: Update message (parameter not found in redis DB)...
 
     INVALID_CATEGORY_NAME = 'invalid_category_name'
+    ALL_CATEGORIES = 'all'
     INVALID_STATE = 'invalid_state'
     INVALID_INTERVAL_LOW = 0
     INVALID_INTERVAL_HIGH = 1441
@@ -737,3 +740,12 @@ class StatsConsts:
     INVALID_HISTORY_DURATION_HIGH = 366
     INVALID_FILE_NAME = 'file_not_exists.csv'
     INVALID_REMOTE_URL = 'invalid_remote_url'
+    INVALID_SHOW_CATEGORY = 'The requested item does not exist.'
+    VALID_REMOTE_URL = 'scp://iavraham:iavraham11@fit74/sysgwork/iavraham/tmp/'  # TODO: Update URL
+
+    TEMP_PATH = '/auto/rdmzsysgwork/shared/test_utilities/tmp/5b5931e6aac04bd39499372ef73fbf31'
+
+    GENERATE = 'generate'
+    DELETE = 'delete'
+    UPLOAD = 'upload'
+    CLEAR = 'clear'

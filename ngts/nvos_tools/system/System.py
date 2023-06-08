@@ -56,7 +56,7 @@ class System(BaseComponent):
     ssh_server = None
     health = None
 
-    def __init__(self, parent_obj=None, username='admin'):
+    def __init__(self, parent_obj=None, username='admin', devices_dut=None):
         self._resource_path = '/system'
         self.parent_obj = parent_obj
         self.documentation = Documentation(self)
@@ -72,7 +72,7 @@ class System(BaseComponent):
         self.ssh_server = SshServer(self)
         self.syslog = Syslog(self)
         self.ntp = Ntp(self)
-        self.stats = Stats(self)
+        self.stats = Stats(self, devices_dut)
         self.techsupport = TechSupport(self)
         self.image = Image(self)
         self.firmware = Firmware(self)

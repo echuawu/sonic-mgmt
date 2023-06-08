@@ -26,9 +26,11 @@ class Log(BaseComponent):
         self.parent_obj = parent_obj
 
     def show_log(self, log_type='', param='', exit_cmd='', expected_str=''):
-        with allure.step('Execute nv show system {type}log {param} and exit cmd {exit_cmd}'.format(type=log_type, param=param, exit_cmd=exit_cmd)):
-            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].show_log, expected_str,
-                                                                TestToolkit.engines.dut, log_type, param, exit_cmd).get_returned_value()
+        with allure.step('Execute nv show system {type}log {param} and exit cmd {exit_cmd}'.
+                         format(type=log_type, param=param, exit_cmd=exit_cmd)):
+            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].show_log,
+                                                                expected_str, TestToolkit.engines.dut, log_type,
+                                                                param, exit_cmd).get_returned_value()
 
     def write_to_log(self):
         with allure.step('Write content to logs'):

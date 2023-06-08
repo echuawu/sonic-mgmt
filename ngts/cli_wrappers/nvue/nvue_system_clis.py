@@ -35,6 +35,16 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_files(engine, action_str, resource_path, op_param=""):
+        resource_path = resource_path.replace('/', ' ')
+        cmd = "nv action {action_type} {resource_path} {param}" \
+            .format(action_type=action_str, resource_path=resource_path, param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_general(engine, action_str, resource_path, op_param=""):
+        resource_path = resource_path.replace('/', ' ')
         cmd = "nv action {action_type} {resource_path} {param}" \
             .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
@@ -59,14 +69,6 @@ class NvueSystemCli(NvueBaseCli):
     def action_generate_techsupport(engine, resource_path, option="", time=""):
         path = resource_path.replace('/', ' ')
         cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
-        cmd = " ".join(cmd.split())
-        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_generate_files(engine, resource_path, file_name=""):
-        path = resource_path.replace('/', ' ')
-        cmd = "nv action generate {path} {file_name}".format(path=path, option=file_name)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
@@ -166,9 +168,7 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_clear(engine, resource_path, op_params=""):
-        path = resource_path.replace('/', ' ')
-        cmd = "nv action clear {path} {params}".format(path=path, params=op_params)
-        cmd = " ".join(cmd.split())
+    def show_file(engine, file='', exit_cmd=''):
+        cmd = "nv show system stats files {file}".format(file=file)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
+        return engine.run_cmd_after_cmd([cmd, exit_cmd])
