@@ -27,6 +27,12 @@ tests/nightly/runtime/test_runtime.py:
     conditions:
       - "'simx' in platform"
 
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3499268"
+    conditions:
+      - https://redmine.mellanox.com/issues/3499268
+
 tests/nightly/auto_negotition:
   skip:
     reason: "Testcase not supported on current platform"
@@ -34,7 +40,6 @@ tests/nightly/auto_negotition:
     conditions:
       - "'simx' in platform or '3800' in platform"
       - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform "
-
 
 tests/nightly/dynamic_port_breakout:
   skip:
