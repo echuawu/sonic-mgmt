@@ -60,7 +60,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_upgrade/test_secure_upgrade.py --raw_options "\' -k test_non_secure_boot_upgrade_failure --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results  --target_version=/auto/sw_system_release/nos/nvos/security/secure_upgrade/nvos_not_signed.bin  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_upgrade/test_secure_upgrade.py --raw_options "\' -k test_non_secure_boot_upgrade_failure --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results  --target_version=/auto/sw_system_project/NVOS_INFRA/security/verification/secure_upgrade/nvos_not_signed.bin --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -80,7 +80,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_signed_kernel_module_load --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --kernel_module_path=/auto/sw_system_release/nos/nvos/security/secure_boot/signed_kernel_module/leds_mlxreg.ko --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_signed_kernel_module_load --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --kernel_module_path=/auto/sw_system_project/NVOS_INFRA/security/verification/secure_boot/signed_kernel_module/leds_mlxreg.ko --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>

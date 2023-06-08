@@ -13,7 +13,7 @@ class SecureBootConsts:
     MOUNT_FOLDER = '/UEFI'
     EFI_PARTITION_CMD = "fdisk -l | grep \"EFI System\" | awk \'{print $1}\'"
     LAST_OCCURENCE_REGEX = "({})(?!.*\1)"
-    LOCAL_SECURE_BOOT_DIR = '/auto/sw_system_release/nos/nvos/security/secure_boot'
+    LOCAL_SECURE_BOOT_DIR = '/auto/sw_system_project/NVOS_INFRA/security/verification/secure_boot'
     EFI_SECURE_COMPONENT = '{}/EFI/nvos/{}'
     SHIM_FILEPATH = EFI_SECURE_COMPONENT.format(MOUNT_FOLDER, 'shimx64.efi')
     GRUB_FILEPATH = EFI_SECURE_COMPONENT.format(MOUNT_FOLDER, 'grubx64.efi')
