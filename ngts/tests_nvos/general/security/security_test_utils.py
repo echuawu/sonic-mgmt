@@ -149,3 +149,24 @@ def set_local_users(users):
                 user_obj.set(AaaConsts.PASSWORD, password, apply=True).verify_result()
                 logging.info(f'Set user: {username} , role: {role}')
                 user_obj.set(AaaConsts.ROLE, role, apply=True).verify_result()
+
+
+def user_lists_difference(users_a, users_b):
+    """
+    @summary: Get the difference of the two given user lists.
+        * Difference (like sets difference): A - B = all elements of A that are not in B.
+        * Here, the elements are users (dictionaries {username: str, password: str, role: <admin, monitor>}),
+            then the result will be all users of A, that don't have the same username as any user of B.
+    @param users_a: users list A
+    @param users_b: users list B
+    @return: list of the difference.
+    """
+    with allure.step('Get users lists difference'):
+        a_usernames = [user[AaaConsts.USERNAME] for user in users_a]
+        b_usernames = [user[AaaConsts.USERNAME] for user in users_b]
+        logging.info(f'A: {a_usernames}\nB: {b_usernames}')
+
+        usernames_diff = list(set(a_usernames) - set(b_usernames))
+        logging.info(f'Diff: {usernames_diff}')
+
+        return [user for user in users_a if user[AaaConsts.USERNAME] in usernames_diff]
