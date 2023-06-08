@@ -88,8 +88,6 @@ class LdapConsts:
         SSL_PORT: PORT_389
     }
 
-    STRONG_PASSWORD = 'x%]AZf[K_Ualon6'
-
     PHYSICAL_LDAP_SERVER = {
         "hostname": "10.7.34.20",
         "base-dn": "dc=itzgeek,dc=local",
@@ -182,19 +180,6 @@ class LdapConsts:
             }
         ]
     }
-
-    LOCAL_ONLY_TEST_USERS = [
-        {
-            'username': 'localadmin',
-            'password': STRONG_PASSWORD,
-            'role': 'admin'
-        },
-        {
-            'username': 'localmonitor',
-            'password': STRONG_PASSWORD,
-            'role': 'monitor'
-        }
-    ]
 
     LDAP_SERVERS_LIST = [
         PHYSICAL_LDAP_SERVER,
