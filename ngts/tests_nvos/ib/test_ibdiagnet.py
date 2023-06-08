@@ -164,11 +164,11 @@ def test_ibdiagnet_upload(engines):
 
     with allure.step('try to upload ibdiagnet to invalid url - url is not in the right format'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_1)
-        assert "Invalid Command:" in output.info, "URL was not in the right format"
+        assert "is not a" in output.info, "URL was not in the right format"
 
     with allure.step('try to upload ibdiagnet to invalid url - using non supported transfer protocol'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_2)
-        assert "Invalid Command:" in output.info, "URL used non supported transfer protocol"
+        assert "is not a" in output.info, "URL used non supported transfer protocol"
 
 
 @pytest.mark.ib

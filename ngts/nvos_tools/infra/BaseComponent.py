@@ -19,13 +19,13 @@ class BaseComponent:
         return "{parent_path}{self_path}".format(
             parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
 
-    def show(self, op_param="", output_format=OutputFormat.json, dut_engine=None):
+    def show(self, op_param="", output_format=OutputFormat.json, dut_engine=None, should_succeed=True):
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show, dut_engine,
                                                    self.get_resource_path(), op_param,
-                                                   output_format).get_returned_value()
+                                                   output_format).get_returned_value(should_succeed=should_succeed)
 
     def _set(self, param_name, param_value, expected_str='', apply=False, ask_for_confirmation=False, dut_engine=None):
         if not dut_engine:

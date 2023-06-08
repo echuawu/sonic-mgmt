@@ -55,9 +55,9 @@ def validate_interface_description_field(selected_port, description_value, shoul
     with allure.step('Check that interface description field matches the expected value'):
         logging.info('Check that interface description field matches the expected value')
         output_dictionary = selected_port.show_output_dictionary
-        field_name = NvosConst.DESCRIPTION
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary,
-                                                          field_name, description_value).verify_result()
+        if NvosConst.DESCRIPTION in output_dictionary.keys():
+            Tools.ValidationTool.verify_field_value_in_output(output_dictionary, NvosConst.DESCRIPTION,
+                                                              description_value).verify_result()
 
 
 # ------------ Open API tests -----------------

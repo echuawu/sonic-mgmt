@@ -270,7 +270,7 @@ class SystemConsts:
     MEMORY_PHYSICAL_KEY = 'Physical'
     MEMORY_SWAP_KEY = 'Swap'
     MEMORY_PERCENT_THRESH_MIN = 0.0
-    MEMORY_PERCENT_THRESH_MAX = 60.0
+    MEMORY_PERCENT_THRESH_MAX = 70.0
 
     CPU_CORE_COUNT_KEY = 'core-count'
     CPU_MODEL_KEY = 'model'

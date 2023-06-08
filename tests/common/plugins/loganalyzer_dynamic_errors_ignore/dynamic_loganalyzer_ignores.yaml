@@ -2756,6 +2756,7 @@
     - Affected_test_cases:
       - tests_nvos/general/traffic/test_basic_traffic.py
       - tests_nvos/interfaces/test_ib_interface_counters.py
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_timings
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
@@ -2796,23 +2797,38 @@
     - ".*ERR health-statsd#health_history: snmp: Container 'snmp' is not running.*"
   Conditions:
     - Affected_test_cases:
-      - tests_nvos/system.test_system_snmp.py::test_system_snmp_load_test
-      - tests_nvos/system.test_system_snmp.py::test_system_snmp_redis_crash
-      - tests_nvos/system.test_system_snmp.py::test_snmp_default_values_fields
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+      - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
 
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: Summary: Not OK.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/system.test_system_snmp.py::test_system_snmp_load_test
-        - tests_nvos/system.test_system_snmp.py::test_system_snmp_redis_crash
-        - tests_nvos/system.test_system_snmp.py::test_snmp_default_values_fields
-        - tests_nvos/system.test_system_snmp.py::test_system_snmp_load_test
-        - tests_nvos/system.test_system_snmp.py::test_system_snmp_redis_crash
-        - tests_nvos/system.test_system_snmp.py::test_snmp_default_values_fields
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+        - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+        - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file
         - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
         - tests_nvos/system/test_system_health.py::test_system_health_files
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop
         - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+
+# NVOS
+- Errors_list:
+    - '.*ERROR: native.py:\d+ Port internal name for interface .* is empty.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid supported_speeds None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid supported_speeds \[\], returning max None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid speed_admin None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* admin_speed is None speed should be configured first.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_timings
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_counters
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_n_times
+      Redmine:
+        - 3498811
