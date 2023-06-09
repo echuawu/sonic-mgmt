@@ -29,12 +29,13 @@ class StatsCategory(BaseComponent):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/category'
         self.parent_obj = parent_obj
-        for name in devices_dut.CATEGORY_LIST:
-            self.categoryName.update({name: StatsCategoryName(self, name)})
-        self.categoryName.update(
-            {StatsConsts.INVALID_CATEGORY_NAME: StatsCategoryName(self, StatsConsts.INVALID_CATEGORY_NAME)})
-        self.categoryName.update(
-            {StatsConsts.ALL_CATEGORIES: StatsCategoryName(self, StatsConsts.ALL_CATEGORIES)})
+        if devices_dut:
+            for name in devices_dut.CATEGORY_LIST:
+                self.categoryName.update({name: StatsCategoryName(self, name)})
+            self.categoryName.update(
+                {StatsConsts.INVALID_CATEGORY_NAME: StatsCategoryName(self, StatsConsts.INVALID_CATEGORY_NAME)})
+            self.categoryName.update(
+                {StatsConsts.ALL_CATEGORIES: StatsCategoryName(self, StatsConsts.ALL_CATEGORIES)})
 
 
 class StatsCategoryName(BaseComponent):
