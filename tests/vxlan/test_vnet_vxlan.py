@@ -34,8 +34,8 @@ pytestmark = [
 vlan_tagging_mode = ""
 
 
-@pytest.fixture(scope='module', autouse=True)
-def load_minigraph_after_test(rand_selected_dut):
+@allure.step
+def skip_unsupported_for_scaled_test(duthost, request):
     """
         default: --num_vnet=8 --num_routes=16000 --num_endpoints=4000, see conftest.py
         3k test: --num_vnet=32 --num_routes=3000 --num_endpoints=512
@@ -61,7 +61,6 @@ def load_minigraph_after_test(rand_selected_dut):
     return is_supported
 
 
-
 def prepare_ptf(ptfhost, mg_facts, dut_facts, vnet_config):
     """
     Prepares the PTF container for testing
@@ -76,6 +75,7 @@ def prepare_ptf(ptfhost, mg_facts, dut_facts, vnet_config):
     """
 
     logger.info("Preparing PTF host")
+
     arp_responder_conf = safe_open_template("templates/arp_responder.conf.j2") \
         .render(arp_responder_args="--conf /tmp/vnet_arpresponder.conf")
 
@@ -84,6 +84,7 @@ def prepare_ptf(ptfhost, mg_facts, dut_facts, vnet_config):
 
     ptfhost.shell("supervisorctl reread")
     ptfhost.shell("supervisorctl update")
+
     logger.debug("VNet config is: " + str(vnet_config))
     vnet_json = {
         "minigraph_port_indices": mg_facts["minigraph_port_indices"],
@@ -154,8 +155,8 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname,
     attached_vlan = mg_facts["minigraph_vlan_interfaces"][0]['attachto']
     vlan_member = mg_facts["minigraph_vlans"][attached_vlan]['members'][0]
     global vlan_tagging_mode
+
     num_routes = request.config.option.num_routes
-    num_routes_before_add = count_routes_from_asic_db(duthost)
     vxlan_enabled = False
     if request.param == "Disabled":
         vxlan_enabled = False
@@ -198,7 +199,7 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname,
         finally:
             testWrArp.Teardown(duthost)
 
-    return vxlan_enabled, request.param, num_routes, num_routes_before_add
+    return vxlan_enabled, request.param
 
 
 def is_neigh_reachable(duthost, vnet_config):
@@ -237,7 +238,8 @@ def test_vnet_vxlan(setup, vxlan_status, duthosts, rand_one_dut_hostname, ptfhos
         vnet_test_params: Dictionary containing vnet test parameters
     """
     duthost = duthosts[rand_one_dut_hostname]
-    vxlan_enabled, scenario, expected_added_num_routes, num_routes_before_add = vxlan_status
+
+    vxlan_enabled, scenario = vxlan_status
     _, vnet_json_data = setup
 
     logger.info("vxlan_enabled={}, scenario={}".format(
@@ -287,30 +289,17 @@ def test_vnet_vxlan(setup, vxlan_status, duthosts, rand_one_dut_hostname, ptfhos
                    log_file=log_file)
 
 
-def count_routes_from_asic_db(duthost):
-    num_routes = int(duthost.shell("redis-cli -n 1 keys *ROUTE_ENTRY* | wc -l")['stdout_lines'][0])
-    return num_routes
-
-
-def verify_routes_applied(duthost, expected_added_routes, routes_num_before_add):
-    routes_num_after_add = count_routes_from_asic_db(duthost)
-    actual_routes_added = routes_num_after_add - routes_num_before_add
-    if not (actual_routes_added >= expected_added_routes):
-        logger.info("Expected {} routes to be added, but got only {}".format(expected_added_routes, actual_routes_added))
-        return False
-    return True
-
 def get_expected_flow_counter_packets_number(vnet_json_data):
     total_routes = 0
     for routes in vnet_json_data['vnet_routes']:
-        for name, rt_list in routes.items():
+        for name, rt_list in list(routes.items()):
             total_routes += len(rt_list)
             for peers in vnet_json_data['vnet_peers']:
-                for key, peer in peers.items():
+                for key, peer in list(peers.items()):
                     if name.split('_')[0] == key:
                         total_routes += len(rt_list)
             for l_routes in vnet_json_data['vnet_local_routes']:
-                for l_name, l_rt_list in l_routes.items():
+                for l_name, l_rt_list in list(l_routes.items()):
                     if name == l_name:
                         total_routes += len(l_rt_list)
 

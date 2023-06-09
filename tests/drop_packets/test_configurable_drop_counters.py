@@ -20,7 +20,7 @@ import pytest
 import ptf.testutils as testutils
 from netaddr import IPNetwork, EUI
 
-import configurable_drop_counters as cdc
+from . import configurable_drop_counters as cdc
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.utilities import wait_until
 from tests.common.platform.device_utils import fanout_switch_port_lookup
@@ -50,7 +50,7 @@ LINK_LOCAL_IP = "169.254.0.1"
 def vlan_mac(duthost):
     config_facts = duthost.config_facts(host=duthost.hostname, source='running')['ansible_facts']
     dut_vlan_mac = None
-    for vlan in config_facts.get('VLAN', {}).values():
+    for vlan in list(config_facts.get('VLAN', {}).values()):
         if 'mac' in vlan:
             logging.debug('Found VLAN mac')
             dut_vlan_mac = vlan['mac']
@@ -102,7 +102,7 @@ def apply_fdb_config(duthost, vlan_id, iface, mac_address, op, type):
                       }
     fdb_config_json.append(fdb_entry_json)
 
-    with tempfile.NamedTemporaryFile(suffix=".json", prefix="fdb_config") as fp:
+    with tempfile.NamedTemporaryFile(suffix=".json", prefix="fdb_config", mode="w") as fp:
         logging.info("Generating FDB config: {}".format(fdb_config_json))
         json.dump(fdb_config_json, fp)
         fp.flush()
@@ -163,7 +163,7 @@ def test_neighbor_link_down(testbed_params, setup_counters, duthosts, rand_one_d
     counter_type = setup_counters([drop_reason])
 
     rx_port = random.choice([port
-                             for port in testbed_params["physical_port_map"].keys()
+                             for port in list(testbed_params["physical_port_map"].keys())
                              if port != mock_server["server_dst_port"]])
     logging.info("Selected port %s to send traffic", rx_port)
 
@@ -206,7 +206,7 @@ def test_dip_link_local(testbed_params, setup_counters, duthosts, rand_one_dut_h
     duthost = duthosts[rand_one_dut_hostname]
     counter_type = setup_counters([drop_reason])
 
-    rx_port = random.choice(testbed_params["physical_port_map"].keys())
+    rx_port = random.choice(list(testbed_params["physical_port_map"].keys()))
     logging.info("Selected port %s to send traffic", rx_port)
 
     src_ip = "10.10.10.10"
@@ -231,7 +231,7 @@ def test_sip_link_local(testbed_params, setup_counters, duthosts, rand_one_dut_h
     duthost = duthosts[rand_one_dut_hostname]
     counter_type = setup_counters([drop_reason])
 
-    rx_port = random.choice(testbed_params["physical_port_map"].keys())
+    rx_port = random.choice(list(testbed_params["physical_port_map"].keys()))
     logging.info("Selected port %s to send traffic", rx_port)
 
     dst_ip = "10.10.10.10"
@@ -261,7 +261,7 @@ def add_default_route_to_dut(duts_running_config_facts, duthosts, tbinfo):
                     asic = duthost.asic_instance(asic_index)
                     bgp_neighbors = asic_cfg_facts["BGP_NEIGHBOR"]
                     ipv4_cmd_parts = ["ip route add default"]
-                    for neighbor in bgp_neighbors.keys():
+                    for neighbor in list(bgp_neighbors.keys()):
                         if is_ipv4_address(neighbor):
                             ipv4_cmd_parts.append("nexthop via %s" % neighbor)
                     ipv4_cmd_parts.sort()
@@ -294,15 +294,15 @@ def testbed_params(duthosts, rand_one_dut_hostname, tbinfo):
 
     physical_port_map = {v: k
                          for k, v
-                         in mgFacts["minigraph_ptf_indices"].items()
-                         if k in mgFacts["minigraph_ports"].keys()}  # Trim inactive ports
+                         in list(mgFacts["minigraph_ptf_indices"].items())
+                         if k in list(mgFacts["minigraph_ports"].keys())}  # Trim inactive ports
 
     vlan_ports = [mgFacts["minigraph_ptf_indices"][ifname]
                   for ifname
-                  in mgFacts["minigraph_vlans"].values()[VLAN_INDEX]["members"]]
+                  in list(mgFacts["minigraph_vlans"].values())[VLAN_INDEX]["members"]]
 
     vlan_interface = mgFacts["minigraph_vlan_interfaces"][VLAN_INDEX].copy()
-    vlan_interface["type"] = mgFacts["minigraph_vlans"].values()[VLAN_INDEX].get("type", "untagged").lower()
+    vlan_interface["type"] = list(mgFacts["minigraph_vlans"].values())[VLAN_INDEX].get("type", "untagged").lower()
 
     return {"physical_port_map": physical_port_map,
             "vlan_ports": vlan_ports,
@@ -416,7 +416,7 @@ def arp_responder(ptfhost, testbed_params, tbinfo):
         arp_responder_conf = {"eth%s%s%s" % (k, constants.VLAN_SUB_INTERFACE_SEPARATOR, vlan_id):
                               v for k, v in list(vlan_host_map.items())}
     else:
-        arp_responder_conf = {"eth%s" % k: v for k, v in vlan_host_map.items()}
+        arp_responder_conf = {"eth%s" % k: v for k, v in list(vlan_host_map.items())}
 
     logging.info("Copying ARP responder topology to PTF")
     with open("/tmp/from_t1.json", "w") as ar_config:
@@ -437,7 +437,7 @@ def arp_responder(ptfhost, testbed_params, tbinfo):
     yield vlan_host_map
 
     logging.info("Stopping ARP responder")
-    ptfhost.shell("supervisorctl stop arp_responder")
+    ptfhost.shell("supervisorctl stop arp_responder", module_ignore_errors=True)
 
 
 @pytest.fixture
@@ -451,8 +451,8 @@ def mock_server(fanouthosts, testbed_params, arp_responder, ptfadapter, duthosts
 
     """
     duthost = duthosts[rand_one_dut_hostname]
-    server_dst_port = random.choice(arp_responder.keys())
-    server_dst_addr = random.choice(arp_responder[server_dst_port].keys())
+    server_dst_port = random.choice(list(arp_responder.keys()))
+    server_dst_addr = random.choice(list(arp_responder[server_dst_port].keys()))
     server_dst_mac = str(EUI(arp_responder[server_dst_port].get(server_dst_addr)))
     server_dst_intf = testbed_params["physical_port_map"][server_dst_port]
     logging.info("Creating mock server with IP %s; dut port = %s, dut intf = %s",
@@ -516,7 +516,7 @@ def _generate_vlan_servers(vlan_network, vlan_ports):
     # - IP addresses are randomly selected from the given VLAN network
     # - "Hosts" (IP/MAC pairs) are distributed evenly amongst the ports in the VLAN
     addr_list = list(IPNetwork(vlan_network))
-    for counter, i in enumerate(xrange(2, VLAN_HOSTS + 2)):
+    for counter, i in enumerate(range(2, VLAN_HOSTS + 2)):
         mac = VLAN_BASE_MAC_PATTERN.format(counter)
         port = vlan_ports[i % len(vlan_ports)]
         addr = random.choice(addr_list)

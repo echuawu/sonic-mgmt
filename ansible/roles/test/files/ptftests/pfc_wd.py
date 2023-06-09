@@ -3,7 +3,7 @@ import random
 import socket
 import struct
 import re
-
+import six
 import ptf
 import ptf.packet as scapy
 

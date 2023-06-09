@@ -24,12 +24,12 @@ def resume_paused():
               [0] == libvirt.VIR_DOMAIN_PAUSED]
 
     if len(paused) > 0:
-        print "Following VM are paused"
-        print "\n".join(paused)
+        print("Following VM are paused")
+        print("\n".join(paused))
         print
 
     for vm in paused:
-        print "Resume VM: " + vm.name()
+        print("Resume VM: " + vm.name())
         vm.resume()
 
     for _ in range(MAX_ATTEMPTS):
@@ -93,7 +93,7 @@ def get_port_id(ports):
 
 
 def cmd1(cmd):
-    print cmd
+    print(cmd)
 
 
 def reassign_ports(port_map, vm):

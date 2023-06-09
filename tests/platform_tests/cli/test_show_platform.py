@@ -323,7 +323,7 @@ def check_fan_status(duthost, cmd):
 
     # Check that all fans are showing valid status and also at-least one PSU is OK.
     num_fan_ok = 0
-    for a_fan in fans.values():
+    for a_fan in list(fans.values()):
         if a_fan['Status'] == "OK":
             num_fan_ok += 1
     return num_fan_ok > 0
@@ -408,6 +408,7 @@ def test_show_platform_ssdhealth(duthosts, enum_supervisor_dut_hostname):
     pytest_assert(len(unexpected_fields) == 0, "Unexpected fields in output: {} on '{}'".
                   format(repr(unexpected_fields), duthost.hostname))
 
+    # TODO: Test values against platform-specific expected data instead of testing for missing values
     for key in expected_fields:
         pytest_assert(ssdhealth_dict[key], "Missing value for '{}' on '{}'".format(key, duthost.hostname))
 

@@ -77,9 +77,6 @@ ecmp/inner_hashing/test_inner_hashing_lag.py
 ecmp/inner_hashing/test_wr_inner_hashing.py
 ecmp/inner_hashing/test_wr_inner_hashing_lag.py
 ecmp/test_fgnhg.py
-everflow/test_everflow_ipv6.py
-everflow/test_everflow_per_interface.py
-everflow/test_everflow_testbed.py
 fdb/test_fdb.py
 fdb/test_fdb_flush.py
 fdb/test_fdb_mac_expire.py
@@ -302,7 +299,6 @@ telemetry/test_events.py
 telemetry/test_telemetry.py
 test_features.py
 test_interfaces.py
-test_nbr_health.py
 test_posttest.py
 test_pretest.py
 test_procdockerstatsd.py

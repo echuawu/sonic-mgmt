@@ -1,9 +1,9 @@
 import logging
 import pytest
-from tests.common import config_reload
 import urllib3
-from urlparse import urlunparse
+from six.moves.urllib.parse import urlunparse
 
+from tests.common import config_reload
 from tests.common.helpers.assertions import pytest_require as pyrequire
 from tests.common.helpers.dut_utils import check_container_state
 

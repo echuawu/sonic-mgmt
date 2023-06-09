@@ -24,7 +24,7 @@ class TestFaultHandling():
     def test_link_flap(self, duthost, ctrl_links, wait_mka_establish):
         # Only pick one link for link flap test
         assert ctrl_links
-        port_name, nbr = ctrl_links.items()[0]
+        port_name, nbr = list(ctrl_links.items())[0]
         nbr_eth_port = get_eth_ifname(
             nbr["host"], nbr["port"])
         _, _, _, dut_egress_sa_table_orig, dut_ingress_sa_table_orig = get_appl_db(
@@ -94,7 +94,7 @@ class TestFaultHandling():
                                            primary_cak, primary_ckn, policy, send_sci, wait_mka_establish):
         # Only pick one uncontrolled link for mismatch macsec configuration test
         assert unctrl_links
-        port_name, nbr = unctrl_links.items()[0]
+        port_name, nbr = list(unctrl_links.items())[0]
 
         disable_macsec_port(duthost, port_name)
         disable_macsec_port(nbr["host"], nbr["port"])

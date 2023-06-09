@@ -505,15 +505,6 @@ class TestPfcwdWb(SetupPfcwdFunc):
         for t_idx, test_action in enumerate(testcase_actions):
             if 'warm-reboot' in test_action:
                 reboot(self.dut, localhost, reboot_type="warm")
-                # ----------------------------------------------------------------------#
-                # TODO: need to remove below code when the ticket is resolved
-                # ----------------------------------------------------------------------#
-                from infra.tools.redmine.redmine_api import is_redmine_issue_active
-                is_rm_issue_active, _ = is_redmine_issue_active([3336496])
-                if is_rm_issue_active:
-                    logger.info("sleep 120s")
-                    time.sleep(120)
-                # ----------------------------------------------------------------------#
                 continue
 
             # one of the factors to decide if the storm needs to be started

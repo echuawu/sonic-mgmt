@@ -4,12 +4,12 @@ import sys
 import json
 import yaml
 import itertools
-import ConfigParser
 import os
+from six.moves import configparser
 
 
 def read_config():
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     with open('linkstate/testbed_inv.ini') as fp:
         config.readfp(fp)
     testbed_topologies = config.get("Global", "testbed_configuration")

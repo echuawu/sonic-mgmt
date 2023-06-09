@@ -149,7 +149,7 @@ class DBChecker:
         separator = DB_SEPARATOR_MAP[db]
 
         db_check_fields = DB_CHECK_FIELD_MAP[db]
-        for table, field in db_check_fields.items():
+        for table, field in list(db_check_fields.items()):
             key_pattern = table + separator + "*"
             db_dump = self._dump_db(db, key_pattern)
 
@@ -256,22 +256,16 @@ def verify_tor_states(
     expected_active_host, expected_standby_host,
     expected_standby_health='healthy', intf_names='all',
     cable_type=CableType.default_type, skip_state_db=False,
+    skip_tunnel_route=True, standalone_tunnel_route=False,
     verify_db_timeout=30
 ):
     """
     Verifies that the expected states for active and standby ToRs are
     reflected in APP_DB and STATE_DB on each device
     """
-    if isinstance(expected_active_host, collections.Iterable):
-        for duthost in expected_active_host:
-            db_checker = DBChecker(duthost, 'active', 'healthy',
-                                   intf_names=intf_names, cable_type=cable_type,
-                                   verify_db_timeout=verify_db_timeout)
-            db_checker.verify_db(APP_DB)
-            if not skip_state_db:
-                db_checker.verify_db(STATE_DB)
-    elif expected_active_host is not None:
-        duthost = expected_active_host
+    if not isinstance(expected_active_host, collections.Iterable):
+        expected_active_host = [] if expected_active_host is None else [expected_active_host]
+    for duthost in expected_active_host:
         db_checker = DBChecker(duthost, 'active', 'healthy',
                                intf_names=intf_names, cable_type=cable_type,
                                verify_db_timeout=verify_db_timeout)
@@ -279,16 +273,12 @@ def verify_tor_states(
         if not skip_state_db:
             db_checker.verify_db(STATE_DB)
 
-    if isinstance(expected_standby_host, collections.Iterable):
-        for duthost in expected_standby_host:
-            db_checker = DBChecker(duthost, 'standby', expected_standby_health,
-                                   intf_names=intf_names, cable_type=cable_type,
-                                   verify_db_timeout=verify_db_timeout)
-            db_checker.verify_db(APP_DB)
-            if not skip_state_db:
-                db_checker.verify_db(STATE_DB)
-    elif expected_standby_host is not None:
-        duthost = expected_standby_host
+        if not skip_tunnel_route:
+            db_checker.verify_tunnel_route(standalone_tunnel_route)
+
+    if not isinstance(expected_standby_host, collections.Iterable):
+        expected_standby_host = [] if expected_standby_host is None else [expected_standby_host]
+    for duthost in expected_standby_host:
         db_checker = DBChecker(duthost, 'standby', expected_standby_health,
                                intf_names=intf_names, cable_type=cable_type,
                                verify_db_timeout=verify_db_timeout)

@@ -128,7 +128,7 @@ async def responder_control(reader_fd, pause_events):
             except json.decoder.JSONDecodeError:
                 continue
             if isinstance(data, Mapping):
-                for interface, is_pause in data.items():
+                for interface, is_pause in list(data.items()):
                     if interface in pause_events:
                         pause_event = pause_events[interface]
                         if is_pause:

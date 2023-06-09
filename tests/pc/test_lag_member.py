@@ -19,7 +19,7 @@ pytestmark = [
 ]
 
 # TODO: Remove this once we no longer support Python 2
-if sys.version_info.major == 3:
+if sys.version_info.major >= 3:
     UNICODE_TYPE = str
 else:
     UNICODE_TYPE = unicode      # noqa F821
@@ -177,7 +177,7 @@ def setup_ptf_lag(ptfhost, ptf_ports):
     ptfhost.create_lag(PTF_LAG_NAME, lag_ip, "802.3ad")
 
     # Add member to lag
-    for _, port_name in ptf_ports[ATTR_PORT_BEHIND_LAG].items():
+    for _, port_name in list(ptf_ports[ATTR_PORT_BEHIND_LAG].items()):
         ptfhost.add_intf_to_lag(PTF_LAG_NAME, port_name)
 
     ptfhost.startup_lag(PTF_LAG_NAME)
@@ -221,7 +221,7 @@ def generate_port_config(duthost, tbinfo, most_common_port_speed):
     port_speed, ports_num = most_common_port_speed
     number_of_lag_member = ports_num if ports_num < number_of_lag_member else number_of_lag_member
     # Get dut_ports (behind / not behind lag) used for creating dut lag by src_vlan_members and port_index_map
-    for port_name, _ in src_vlan_members.items():
+    for port_name, _ in list(src_vlan_members.items()):
         port_id = port_index_map[port_name]
         if port_status[port_name]['speed'] == port_speed and \
                 len(dut_ports[ATTR_PORT_BEHIND_LAG]) < number_of_lag_member:
@@ -284,8 +284,8 @@ def get_vlan_id(cfg_facts, number_of_lag_member):
     """
     port_status = cfg_facts["PORT"]
     src_vlan_id = -1
-    pytest_require(cfg_facts.has_key("VLAN_MEMBER"), "Can't get vlan member")
-    for vlan_name, members in cfg_facts["VLAN_MEMBER"].items():
+    pytest_require("VLAN_MEMBER" in cfg_facts, "Can't get vlan member")
+    for vlan_name, members in list(cfg_facts["VLAN_MEMBER"].items()):
         # Number of members in vlan is insufficient
         if len(members) < number_of_lag_member + 1:
             continue

@@ -4,7 +4,6 @@ import sys
 import json
 import re
 import paramiko
-import Queue
 import pickle
 import ast
 

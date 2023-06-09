@@ -62,7 +62,7 @@ def get_team_port(duthost, pc):
         pc: PortChannel name
     """
     dut_team_cfg = duthost.shell("teamdctl {} config dump".format(pc))['stdout']
-    dut_team_port = json.loads(dut_team_cfg)['ports'].keys()
+    dut_team_port = list(json.loads(dut_team_cfg)['ports'].keys())
     return dut_team_port[0]
 
 
@@ -99,7 +99,7 @@ def get_vm_links(tbinfo, dut_index):
         dut_index: Duthost index
     """
     result = []
-    vms = tbinfo['topo']['properties']['topology']['VMs'].keys()
+    vms = list(tbinfo['topo']['properties']['topology']['VMs'].keys())
     for vm in vms:
         vlans = tbinfo['topo']['properties']['topology']['VMs'][vm]['vlans']
         for vlan in vlans:
@@ -212,7 +212,7 @@ def generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, src_por
     if down_link_on_dut:
         exp_ttl = predict_exp_ttl(duthost1, duthost2, dst_ip, down_link_on_dut)
         exp_pkt[packet.IP].ttl = exp_ttl
-    exp_pkt[packet.Ether].src = unicode(expected_src_mac)
+    exp_pkt[packet.Ether].src = str(expected_src_mac)
 
     exp_pkt = mask.Mask(exp_pkt)
     exp_pkt.set_do_not_care_scapy(packet.Ether, "dst")
@@ -235,7 +235,7 @@ def generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, src_por
         testutils.verify_no_packet(ptfadapter, exp_pkt, dst_ports)
 
 
-def craft_pkt(ptfadapter, dst_mac, src_port, dst_ip, ip_src=u'2.2.2.1', ttl=TTL, pktlen=100):
+def craft_pkt(ptfadapter, dst_mac, src_port, dst_ip, ip_src='2.2.2.1', ttl=TTL, pktlen=100):
     """
     Generate packet to send
     Args:
@@ -288,7 +288,7 @@ def get_dut_routes(duthost, collect, mg_facts):
     vm_link = collect[duthost.hostname]['vm_links'][0]
     vm_interface_name = port_indices[int(vm_link)]
     ip = duthost.show_ip_interface()['ansible_facts']['ip_interfaces'][vm_interface_name]['peer_ipv4']
-    bgp_routes = duthost.bgp_route(neighbor=ip, direction="adv")['ansible_facts']['bgp_route_neiadv'].keys()
+    bgp_routes = list(duthost.bgp_route(neighbor=ip, direction="adv")['ansible_facts']['bgp_route_neiadv'].keys())
     return bgp_routes
 
 
@@ -370,7 +370,7 @@ def remove_vlan_members(duthost, mg_facts):
         mg_facts: Dict with minigraph facts for each DUT
     """
     cmd = []
-    vlan = mg_facts[duthost.hostname]['minigraph_vlans'].keys()[0]
+    vlan = list(mg_facts[duthost.hostname]['minigraph_vlans'].keys())[0]
     for i in mg_facts[duthost.hostname]['minigraph_vlans'][vlan]['members']:
         cmd.append("config interface shutdown {}".format(i))
         cmd.append("sleep 1")

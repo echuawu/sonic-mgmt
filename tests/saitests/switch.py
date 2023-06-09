@@ -92,7 +92,7 @@ def switch_init(client):
     attr_list = switch_attr_list.attr_list
     for attribute in attr_list:
         if attribute.id == SAI_SWITCH_ATTR_PORT_NUMBER:
-            print "max ports: " + attribute.value.u32
+            print("max ports: " + attribute.value.u32)
         elif attribute.id == SAI_SWITCH_ATTR_PORT_LIST:
             for port_id in attribute.value.objlist.object_id_list:
                 attr_value = sai_thrift_attribute_value_t(booldata=1)
@@ -101,7 +101,7 @@ def switch_init(client):
                 client.sai_thrift_set_port_attribute(port_id, attr)
                 sai_port_list.append(port_id)
         else:
-            print "unknown switch attribute"
+            print("unknown switch attribute")
 
     # wait till the port are up
     time.sleep(10)

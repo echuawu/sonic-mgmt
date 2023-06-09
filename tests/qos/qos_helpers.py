@@ -26,7 +26,7 @@ def ansible_stdout_to_str(ansible_stdout):
     """
     result = ""
     for x in ansible_stdout:
-        result += x.encode('UTF8')
+        result += x
     return result
 
 
@@ -132,7 +132,7 @@ def start_pause(host_ans, pkt_gen_path, intf, pkt_count, pause_duration, pause_p
         cmd = "nohup sudo python %s -i %s -p %d -t %d -n %d </dev/null >/dev/null 2>&1 &" % (
             pkt_gen_path, intf, 2**pause_priority, pause_duration, pkt_count)
 
-    print cmd
+    print(cmd)
     host_ans.host.shell(cmd)
 
 
@@ -157,11 +157,11 @@ def get_active_vlan_members(host_ans):
     mg_vlans = mg_facts['minigraph_vlans']
 
     if len(mg_vlans) != 1:
-        print 'There should be only one Vlan at the DUT'
+        print('There should be only one Vlan at the DUT')
         return None
 
     """ Get all the Vlan memebrs """
-    vlan_intf = mg_vlans.keys()[0]
+    vlan_intf = list(mg_vlans.keys())[0]
     vlan_members = mg_vlans[vlan_intf]['members']
     vlan_id = None
     if 'type' in mg_vlans[vlan_intf] and mg_vlans[vlan_intf]['type'] is not None \
@@ -186,7 +186,7 @@ def get_vlan_subnet(host_ans):
     mg_vlans = mg_facts['minigraph_vlans']
 
     if len(mg_vlans) != 1:
-        print 'There should be only one Vlan at the DUT'
+        print('There should be only one Vlan at the DUT')
         return None
 
     mg_vlan_intfs = mg_facts['minigraph_vlan_interfaces']

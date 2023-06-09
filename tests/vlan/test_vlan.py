@@ -94,7 +94,7 @@ def verify_icmp_packets(ptfadapter, send_pkt, vlan_ports_list, vlan_port, vlan_i
                 untagged_dst_pc_ports.append(port["port_index"])
             else:
                 untagged_dst_ports += port["port_index"]
-        elif vlan_id in map(int, port["permit_vlanid"]):
+        elif vlan_id in list(map(int, port["permit_vlanid"])):
             if len(port["port_index"]) > 1:
                 tagged_dst_pc_ports.append(port["port_index"])
             else:

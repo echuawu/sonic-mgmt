@@ -5,6 +5,7 @@ ansible/files/sonic_lab_pdu_links.csv
 ansible/files/lab_connection_graph.xml
 ansible/group_vars/all/inv_mapping.yml
 ansible/group_vars/all/labinfo.json
+ansible/group_vars/all/mux_simulator_http_port_map.yml
 ansible/group_vars/eos/eos.yml
 ansible/group_vars/fanout/secrets.yml
 ansible/group_vars/lab/lab.yml
@@ -19,12 +20,16 @@ ansible/module_utils/port_utils.py
 ansible/roles/fanout/tasks/main.yml
 ansible/roles/fanout/templates/mlnx_fanout.j2
 ansible/roles/test/files/tools/loganalyzer/loganalyzer_common_ignore.txt
+ansible/roles/vm_set/tasks/add_topo.yml
 ansible/templates/minigraph_device.j2
 ansible/testbed-cli.sh
 ansible/testbed.csv
+ansible/testbed.yaml
 ansible/vars/docker_registry.yml
+ansible/vars/qos.yml
 tests/common/devices.py
 tests/common/plugins/custom_skipif/credentials.yaml
+tests/common/plugins/conditional_mark/issue.py
 tests/common/plugins/allure_server/__init__.py
 tests/common/plugins/custom_skipif/CustomSkipIf.py
 tests/common/plugins/custom_skipif/Platform.py

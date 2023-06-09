@@ -77,7 +77,7 @@ class MultiAsicSonicHost(object):
             config_facts = self.config_facts(host=self.hostname, source="running")['ansible_facts']
             for service in list(self.sonichost.DEFAULT_ASIC_SERVICES):
                 if service == 'teamd' and config_facts['DEVICE_METADATA']['localhost'].get('switch_type', '') == 'dpu':
-                    logger.info("Removing teamd from default services for switch_type DPU")
+                    logger.warning("Removing teamd from default services for switch_type DPU")
                     self.sonichost.DEFAULT_ASIC_SERVICES.remove(service)
                     continue
                 if config_facts['FEATURE'][service]['has_per_asic_scope'] == "False":
@@ -510,7 +510,7 @@ class MultiAsicSonicHost(object):
         for asic in self.asics:
             bgp_neigh[asic.namespace] = {}
             bgp_info = asic.bgp_facts()["ansible_facts"]["bgp_neighbors"]
-            for k, v in bgp_info.items():
+            for k, v in list(bgp_info.items()):
                 if v["state"] != state:
                     bgp_info.pop(k)
             bgp_neigh[asic.namespace].update(bgp_info)
@@ -529,7 +529,7 @@ class MultiAsicSonicHost(object):
 
         for asic in self.asics:
             bgp_facts = asic.bgp_facts()['ansible_facts']
-            for k, v in bgp_facts['bgp_neighbors'].items():
+            for k, v in list(bgp_facts['bgp_neighbors'].items()):
                 if v['state'] == state:
                     if k.lower() in neigh_ips:
                         neigh_ok.append(k)
@@ -549,7 +549,7 @@ class MultiAsicSonicHost(object):
         """
         for asic in self.asics:
             if asic.namespace in bgp_neighbors:
-                neigh_ips = [k.lower() for k, v in bgp_neighbors[asic.namespace].items() if v["state"] == state]
+                neigh_ips = [k.lower() for k, v in list(bgp_neighbors[asic.namespace].items()) if v["state"] == state]
                 if not asic.check_bgp_session_state(neigh_ips, state):
                     return False
         return True
@@ -721,7 +721,7 @@ class MultiAsicSonicHost(object):
         )['ansible_facts']
         neighbors = mg_facts['minigraph_neighbors']
         mapping = dict()
-        for neigh in neighbors.values():
+        for neigh in list(neighbors.values()):
             mapping[neigh['name']] = neigh['namespace']
         return mapping
 
@@ -751,4 +751,4 @@ class MultiAsicSonicHost(object):
                 list of ports on this dut
         """
         mg_facts = self.sonichost.minigraph_facts(host=self.sonichost.hostname)
-        return mg_facts['ansible_facts']['minigraph_ports'].keys()
+        return list(mg_facts['ansible_facts']['minigraph_ports'].keys())

@@ -10,6 +10,10 @@ from tests.common.helpers.assertions import pytest_assert
 TOTAL_PACKETS = 100
 logger = logging.getLogger(__name__)
 
+pytestmark = [
+    pytest.mark.topology('any')
+]
+
 
 def test_console_escape():
     child = pexpect.spawn("ping 127.0.0.1 -c {} -i 1".format(TOTAL_PACKETS))

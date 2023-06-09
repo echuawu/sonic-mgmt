@@ -11,7 +11,7 @@ import pytest
 import datetime
 import six
 from tests.common.helpers.assertions import pytest_assert
-import passw_hardening_utils
+from . import passw_hardening_utils
 
 pytestmark = [
     pytest.mark.sanity_check(skip_sanity=True),

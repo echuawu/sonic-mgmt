@@ -2156,13 +2156,11 @@ class HdrmPoolSizeTest(sai_base_test.ThriftInterfaceDataPlane):
         self.src_port_macs = [self.dataplane.get_mac(
             0, ptid) for ptid in self.src_port_ids]
 
-        is_dualtor = self.test_params.get('is_dualtor', False)
-        def_vlan_mac = self.test_params.get('def_vlan_mac', None)
-        if is_dualtor and def_vlan_mac != None:
-            self.dst_port_mac = def_vlan_mac
-
         if self.testbed_type in ['dualtor', 'dualtor-56', 't0', 't0-64', 't0-116']:
             # populate ARP
+            # sender's MAC address is corresponding PTF port's MAC address
+            # sender's IP address is caculated in tests/qos/qos_sai_base.py::QosSaiBase::__assignTestPortIps()
+            # for dualtor: sender_IP_address = DUT_default_VLAN_interface_IP_address + portIndex + 1
             for idx, ptid in enumerate(self.src_port_ids):
 
                 arpreq_pkt = simple_arp_packet(
@@ -4617,11 +4615,7 @@ class PCBBPFCTest(sai_base_test.ThriftInterfaceDataPlane):
             pkts_num_margin = int(self.test_params['pkts_num_margin'])
         else:
             pkts_num_margin = 2
-        if 'cell_size' in self.test_params:
-            cell_size = self.test_params['cell_size']
-            cell_occupancy = (packet_size + cell_size - 1) // cell_size
-        else:
-            cell_occupancy = 1
+
         try:
             # Disable tx on EGRESS port so that headroom buffer cannot be free
             self.sai_thrift_port_tx_disable(
@@ -4653,7 +4647,7 @@ class PCBBPFCTest(sai_base_test.ThriftInterfaceDataPlane):
                                               packet_size=packet_size)
 
             # Send packets short of triggering pfc
-            send_packet(self, src_port_id, pkt, pkts_num_trig_pfc // cell_occupancy - 1 - pkts_num_margin)
+            send_packet(self, src_port_id, pkt, pkts_num_trig_pfc)
             time.sleep(8)
             # Read TX_OK again to calculate leaked packet number
             tx_counters, _ = sai_thrift_read_port_counters(

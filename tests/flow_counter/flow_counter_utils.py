@@ -3,7 +3,8 @@ import logging
 import pytest
 import random
 from tests.common.helpers.assertions import pytest_assert
-from tests.common.utilities import wait_until, check_skip_release, run_until
+from tests.common.utilities import wait_until, check_skip_release
+
 logger = logging.getLogger(__name__)
 
 skip_versions = ['201811', '201911', '202012', '202106', '202111']
@@ -71,7 +72,7 @@ class RouteFlowCounterTestContext:
         """
         logger.info('Checking route flow counter stats')
         with allure.step('Checking route flow counter stats'):
-            actual_stats = run_until(1, 5, self.route_pattern_list, parse_route_flow_counter_stats, self.dut)
+            actual_stats = parse_route_flow_counter_stats(self.dut)
             result, message = verify_route_flow_counter_stats(self.expected_stats, actual_stats)
             if not result:
                 return result, message
@@ -95,10 +96,11 @@ class RouteFlowCounterTestContext:
             else:
                 logger.info('Checking route flow counter stats after clearing all routes')
                 clear_route_flow_counter(self.dut)
-            for prefix, value in self.expected_stats.items():
+            for prefix, value in list(self.expected_stats.items()):
                 for key in value:
                     self.expected_stats[prefix][key] = '0'
-            actual_stats = run_until(1, 5, {}, parse_route_flow_counter_stats, self.dut)
+
+            actual_stats = parse_route_flow_counter_stats(self.dut)
             return verify_route_flow_counter_stats(self.expected_stats, actual_stats)
 
 
@@ -299,11 +301,11 @@ def verify_route_flow_counter_stats(expect_stats, actual_stats):
     """
     logger.info('Expected stats: {}'.format(expect_stats))
     logger.info('Actual stats: {}'.format(actual_stats))
-    for key, value in expect_stats.items():
+    for key, value in list(expect_stats.items()):
         if key not in actual_stats:
             return False, 'Failed to find {} in result'.format(key)
 
-        for stats_type, expect_value in value.items():
+        for stats_type, expect_value in list(value.items()):
             if int(expect_value) != int(actual_stats[key][stats_type].replace(',', '')):
                 return False, 'Expected {} value of {} is {}, but got {}'\
                     .format(stats_type, key, expect_value, actual_stats[key][stats_type])

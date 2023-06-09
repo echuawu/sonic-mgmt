@@ -69,7 +69,7 @@ def neighbor_ip(request, mux_config):       # noqa F811
     Randomly select an IP from the server IPs configured in the config DB MUX_CABLE table
     """
     ip_version = request.param
-    selected_intf = random.choice(mux_config.values())
+    selected_intf = random.choice(list(mux_config.values()))
     neigh_ip = ip_interface(selected_intf["SERVER"][ip_version]).ip
     logger.info("Using {} as neighbor IP".format(neigh_ip))
     return neigh_ip

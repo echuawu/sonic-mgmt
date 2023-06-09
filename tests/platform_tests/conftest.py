@@ -9,7 +9,6 @@ from datetime import datetime
 
 from tests.platform_tests.reboot_timing_constants import SERVICE_PATTERNS, OTHER_PATTERNS,\
     SAIREDIS_PATTERNS, OFFSET_ITEMS, TIME_SPAN_ITEMS, REQUIRED_PATTERNS
-from tests.common.fixtures.advanced_reboot import get_advanced_reboot
 from tests.common.mellanox_data import is_mellanox_device
 from tests.common.broadcom_data import is_broadcom_device
 from tests.common.plugins.loganalyzer.loganalyzer import LogAnalyzer
@@ -21,6 +20,7 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), "templates")
 FMT = "%b %d %H:%M:%S.%f"
 FMT_SHORT = "%b %d %H:%M:%S"
+FMT_ALT = "%Y-%m-%dT%H:%M:%S.%f%z"
 SMALL_DISK_SKUS = [
     "Arista-7060CX-32S-C32",
     "Arista-7060CX-32S-Q32",
@@ -32,8 +32,12 @@ def _parse_timestamp(timestamp):
     try:
         time = datetime.strptime(timestamp, FMT)
     except ValueError:
-        time = datetime.strptime(timestamp, FMT_SHORT)
+        try:
+            time = datetime.strptime(timestamp, FMT_SHORT)
+        except ValueError:
+            time = datetime.strptime(timestamp, FMT_ALT)
     return time
+
 
 @pytest.fixture(autouse=True, scope="module")
 def skip_on_simx(duthosts, rand_one_dut_hostname):
@@ -82,7 +86,7 @@ def bring_up_dut_interfaces(request, duthosts, enum_rand_one_per_hwsku_frontend_
     yield
     if request.node.rep_call.failed:
         mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
-        ports = mg_facts['minigraph_ports'].keys()
+        ports = list(mg_facts['minigraph_ports'].keys())
 
         # Enable outer interfaces
         for port in ports:
@@ -137,7 +141,7 @@ def get_report_summary(duthost, analyze_result, reboot_type, reboot_oper, base_o
     for entity in TIME_SPAN_ITEMS:
         time_taken = ""
         if entity in time_spans:
-            time_taken = time_spans.get(entity,{}).get("time_span", "")
+            time_taken = time_spans.get(entity, {}).get("time_span", "")
         elif entity in kexec_offsets:
             marker_first_time = kexec_offsets.get(
                 entity).get("timestamp", {}).get("Start")
@@ -154,7 +158,7 @@ def get_report_summary(duthost, analyze_result, reboot_type, reboot_oper, base_o
                             "arp_ping": "", "lacp_session_max_wait": ""}
     if lacp_sessions_waittime and len(lacp_sessions_waittime) > 0:
         max_lacp_session_wait = max(list(lacp_sessions_waittime.values()))
-        analyze_result.get(\
+        analyze_result.get(
             "controlplane", controlplane_summary).update(
                 {"lacp_session_max_wait": max_lacp_session_wait})
 
@@ -169,6 +173,7 @@ def get_report_summary(duthost, analyze_result, reboot_type, reboot_oper, base_o
         "offset_from_kexec": kexec_offsets_summary
     }
     return result_summary
+
 
 def get_kexec_time(duthost, messages, result):
     reboot_pattern = re.compile(
@@ -188,6 +193,7 @@ def get_kexec_time(duthost, messages, result):
         "timestamp": {"Start": reboot_time},
     }
 
+
 def analyze_log_file(duthost, messages, result, offset_from_kexec):
     service_restart_times = dict()
     derived_patterns = OTHER_PATTERNS.get("COMMON")
@@ -198,7 +204,7 @@ def analyze_log_file(duthost, messages, result, offset_from_kexec):
     elif is_mellanox_device(duthost):
         derived_patterns.update(OTHER_PATTERNS.get("MLNX"))
     # get image specific regexes
-    if "20191130" in duthost.os_version:
+    if "20191130" in get_current_sonic_version(duthost):
         derived_patterns.update(OTHER_PATTERNS.get("201911"))
         service_patterns.update(SERVICE_PATTERNS.get("201911"))
     else:
@@ -228,21 +234,20 @@ def analyze_log_file(duthost, messages, result, offset_from_kexec):
         timestamps[status] = time
         service_restart_times.update({service_name: service_dict})
 
-    reboot_time = "N/A"
     for message in messages:
         # Get stopping to started timestamps for services (swss, bgp, etc)
-        for status, pattern in service_patterns.items():
+        for status, pattern in list(service_patterns.items()):
             if re.search(pattern, message):
                 service_time_check(message, status)
                 break
         # Get timestamps of all other entities
-        for state, pattern in derived_patterns.items():
+        for state, pattern in list(derived_patterns.items()):
             if re.search(pattern, message):
                 delim = "{}|{}".format(duthost.hostname, "sonic")
                 timestamp = _parse_timestamp(
                     re.split(delim, message)[0].strip())
                 state_name = state.split("|")[0].strip()
-                if state_name + "|End" not in derived_patterns.keys():
+                if state_name + "|End" not in list(derived_patterns.keys()):
                     if "FDB_EVENT_OTHER_MAC_EXPIRY" in state_name or "FDB_EVENT_SCAPY_MAC_EXPIRY" in state_name:
                         fdb_aging_disable_start = service_restart_times.get("FDB_AGING_DISABLE", {})\
                             .get("timestamp", {}).get("Start")
@@ -261,26 +266,26 @@ def analyze_log_file(duthost, messages, result, offset_from_kexec):
                     service_restart_times.update(state_times)
                 break
     # Calculate time that services took to stop/start
-    for _, timings in service_restart_times.items():
+    for _, timings in list(service_restart_times.items()):
         timestamps = timings["timestamp"]
-        timings["stop_time"] = (_parse_timestamp(timestamps["Stopped"]) - \
-            _parse_timestamp(timestamps["Stopping"])).total_seconds() \
-                if "Stopped" in timestamps and "Stopping" in timestamps else None
+        timings["stop_time"] = (_parse_timestamp(timestamps["Stopped"]) -
+                                _parse_timestamp(timestamps["Stopping"])).total_seconds() \
+            if "Stopped" in timestamps and "Stopping" in timestamps else None
 
-        timings["start_time"] = (_parse_timestamp(timestamps["Started"]) -\
-            _parse_timestamp(timestamps["Starting"])).total_seconds() \
-                if "Started" in timestamps and "Starting" in timestamps else None
+        timings["start_time"] = (_parse_timestamp(timestamps["Started"]) -
+                                 _parse_timestamp(timestamps["Starting"])).total_seconds() \
+            if "Started" in timestamps and "Starting" in timestamps else None
 
         if "Started" in timestamps and "Stopped" in timestamps:
-            timings["time_span"] = (_parse_timestamp(timestamps["Started"]) -\
-                _parse_timestamp(timestamps["Stopped"])).total_seconds()
+            timings["time_span"] = (_parse_timestamp(timestamps["Started"]) -
+                                    _parse_timestamp(timestamps["Stopped"])).total_seconds()
         elif "Start" in timestamps and "End" in timestamps:
             if "last_occurence" in timings:
-                timings["time_span"] = (_parse_timestamp(timings["last_occurence"]) -\
-                    _parse_timestamp(timestamps["Start"])).total_seconds()
+                timings["time_span"] = (_parse_timestamp(timings["last_occurence"]) -
+                                        _parse_timestamp(timestamps["Start"])).total_seconds()
             else:
-                timings["time_span"] = (_parse_timestamp(timestamps["End"]) -\
-                    _parse_timestamp(timestamps["Start"])).total_seconds()
+                timings["time_span"] = (_parse_timestamp(timestamps["End"]) -
+                                        _parse_timestamp(timestamps["Start"])).total_seconds()
 
     result["time_span"].update(service_restart_times)
     result["offset_from_kexec"] = offset_from_kexec
@@ -290,7 +295,7 @@ def analyze_log_file(duthost, messages, result, offset_from_kexec):
 def analyze_sairedis_rec(messages, result, offset_from_kexec):
     sai_redis_state_times = dict()
     for message in messages:
-        for state, pattern in SAIREDIS_PATTERNS.items():
+        for state, pattern in list(SAIREDIS_PATTERNS.items()):
             if re.search(pattern, message):
                 timestamp = datetime.strptime(message.split(
                     "|")[0].strip(), "%Y-%m-%d.%H:%M:%S.%f")
@@ -311,14 +316,15 @@ def analyze_sairedis_rec(messages, result, offset_from_kexec):
                                                   first_after_offset=first_after_offset)
                     offset_from_kexec.update(state_times)
                 else:
-                    state_times = get_state_times(timestamp, state, sai_redis_state_times, first_after_offset=reboot_time)
+                    state_times = get_state_times(timestamp, state, sai_redis_state_times,
+                                                  first_after_offset=reboot_time)
                     sai_redis_state_times.update(state_times)
 
-    for _, timings in sai_redis_state_times.items():
+    for _, timings in list(sai_redis_state_times.items()):
         timestamps = timings["timestamp"]
         if "Start" in timestamps and "End" in timestamps:
-            timings["time_span"] = (_parse_timestamp(timestamps["End"]) -\
-                _parse_timestamp(timestamps["Start"])).total_seconds()
+            timings["time_span"] = (_parse_timestamp(timestamps["End"]) -
+                                    _parse_timestamp(timestamps["Start"])).total_seconds()
 
     result["time_span"].update(sai_redis_state_times)
     result["offset_from_kexec"] = offset_from_kexec
@@ -337,36 +343,36 @@ def get_data_plane_report(analyze_result, reboot_type, log_dir, reboot_oper):
 
 def verify_mac_jumping(test_name, timing_data, verification_errors):
     mac_jumping_other_addr = timing_data.get("offset_from_kexec", {})\
-        .get("FDB_EVENT_OTHER_MAC_EXPIRY",{}).get("Start count", 0)
+        .get("FDB_EVENT_OTHER_MAC_EXPIRY", {}).get("Start count", 0)
     mac_jumping_scapy_addr = timing_data.get("offset_from_kexec", {})\
-        .get("FDB_EVENT_SCAPY_MAC_EXPIRY",{}).get("Start count", 0)
-    mac_expiry_start = timing_data.get("offset_from_kexec", {}).get("FDB_EVENT_OTHER_MAC_EXPIRY",{})\
+        .get("FDB_EVENT_SCAPY_MAC_EXPIRY", {}).get("Start count", 0)
+    mac_expiry_start = timing_data.get("offset_from_kexec", {}).get("FDB_EVENT_OTHER_MAC_EXPIRY", {})\
         .get("timestamp", {}).get("Start")
-    fdb_aging_disable_start = timing_data.get("time_span", {}).get("FDB_AGING_DISABLE",{})\
+    fdb_aging_disable_start = timing_data.get("time_span", {}).get("FDB_AGING_DISABLE", {})\
         .get("timestamp", {}).get("Start")
-    fdb_aging_disable_end = timing_data.get("time_span", {}).get("FDB_AGING_DISABLE",{})\
+    fdb_aging_disable_end = timing_data.get("time_span", {}).get("FDB_AGING_DISABLE", {})\
         .get("timestamp", {}).get("End")
 
     if "mac_jump" in test_name:
         # MAC jumping allowed - allow Scapy default MAC to jump
-        logging.info("MAC jumping is allowed. Jump count for expected mac: {}, unexpected MAC: {}"\
-            .format(mac_jumping_scapy_addr, mac_jumping_other_addr))
+        logging.info("MAC jumping is allowed. Jump count for expected mac: {}, unexpected MAC: {}"
+                     .format(mac_jumping_scapy_addr, mac_jumping_other_addr))
         if not mac_jumping_scapy_addr:
             verification_errors.append(
                 "MAC jumping not detected when expected for address: 00-06-07-08-09-0A")
     else:
         # MAC jumping not allowed - do not allow the SCAPY default MAC to jump
         if mac_jumping_scapy_addr:
-            verification_errors.append("MAC jumping is not allowed. Jump count for scapy mac: {}, other MAC: {}"\
-                .format(mac_jumping_scapy_addr, mac_jumping_other_addr))
+            verification_errors.append("MAC jumping is not allowed. Jump count for scapy mac: {}, other MAC: {}"
+                                       .format(mac_jumping_scapy_addr, mac_jumping_other_addr))
     if mac_jumping_other_addr:
         # In both mac jump allowed and denied cases unexpected MAC addresses should NOT jump between
         # the window that starts when SAI is instructed to disable MAC learning (warmboot shutdown path)
         # and ends when SAI is instructed to enable MAC learning (warmboot recovery path)
         logging.info("Mac expiry for unexpected addresses started at {}".format(mac_expiry_start) +
                      " and FDB learning enabled at {}".format(fdb_aging_disable_end))
-        if _parse_timestamp(mac_expiry_start) > _parse_timestamp(fdb_aging_disable_start) and\
-           _parse_timestamp(mac_expiry_start) < _parse_timestamp(fdb_aging_disable_end):
+        if mac_expiry_start and _parse_timestamp(fdb_aging_disable_start) < _parse_timestamp(mac_expiry_start)\
+                < _parse_timestamp(fdb_aging_disable_end):
             verification_errors.append(
                 "Mac expiry detected during the window when FDB ageing was disabled")
 
@@ -384,8 +390,9 @@ def verify_required_events(duthost, event_counters, timing_data, verification_er
                 verification_errors.append("FAIL: Event {} was found {} times, when expected exactly {} times".
                                            format(pattern, observed_start_count, expected_count))
             if key == "time_span" and observed_start_count != observed_end_count:
-                verification_errors.append("FAIL: Event {} counters did not match. ".format(pattern) +\
-                    "Started {} times, and ended {} times".format(observed_start_count, observed_end_count))
+                verification_errors.append("FAIL: Event {} counters did not match. ".format(pattern) +
+                                           "Started {} times, and ended {} times".
+                                           format(observed_start_count, observed_end_count))
 
 
 def overwrite_script_to_backup_logs(duthost, reboot_type, bgpd_log):
@@ -398,10 +405,10 @@ def overwrite_script_to_backup_logs(duthost, reboot_type, bgpd_log):
     # find the anchor string inside fast/warm-reboot script
     rebooting_log_line = "debug.*Rebooting with.*to.*"
     # Create a backup log command to be inserted right after the anchor string defined above
-    backup_log_cmds ="cat /var/log/syslog.1 /var/log/syslog > /host/syslog.99 || true;" +\
+    backup_log_cmds = "cat /var/log/syslog.1 /var/log/syslog > /host/syslog.99 || true;" +\
         "cat /var/log/swss/sairedis.rec.1 /var/log/swss/sairedis.rec > /host/sairedis.rec.99 || true;" +\
         "cat /var/log/swss/swss.rec.1 /var/log/swss/swss.rec > /host/swss.rec.99 || true;" +\
-            "cat {}.1 {} > /host/bgpd.log.99 || true".format(bgpd_log, bgpd_log)
+        "cat {}.1 {} > /host/bgpd.log.99 || true".format(bgpd_log, bgpd_log)
     # Do find-and-replace on fast/warm-reboot script to insert the backup_log_cmds string
     insert_backup_command = "sed -i '/{}/a {}' {}".format(
         rebooting_log_line, backup_log_cmds, reboot_script_path)
@@ -453,7 +460,7 @@ def advanceboot_loganalyzer(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
                 bgpd_log = "/var/log/quagga/bgpd.log"
             else:
                 bgpd_log = "/var/log/frr/bgpd.log"
-            additional_files={'/var/log/swss/sairedis.rec': '', bgpd_log: ''}
+            additional_files = {'/var/log/swss/sairedis.rec': '', bgpd_log: ''}
             loganalyzer.additional_files = list(additional_files.keys())
             loganalyzer.additional_start_str = list(additional_files.values())
             return bgpd_log
@@ -472,7 +479,7 @@ def advanceboot_loganalyzer(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
             True if (log_filesystem and "tmpfs" in log_filesystem) else False)
         base_os_version.append(get_current_sonic_version(duthost))
         bgpd_log = bgpd_log_handler(preboot=True)
-        if hwsku in SMALL_DISK_SKUS or (len(logs_in_tmpfs) > 0 and logs_in_tmpfs[0] == True):
+        if hwsku in SMALL_DISK_SKUS or (len(logs_in_tmpfs) > 0 and logs_in_tmpfs[0] is True):
             # For small disk devices, /var/log in mounted in tmpfs.
             # Hence, after reboot the preboot logs are lost.
             # For log_analyzer to work, it needs logs from the shutdown path
@@ -494,29 +501,30 @@ def advanceboot_loganalyzer(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
 
     def post_reboot_analysis(marker, event_counters=None, reboot_oper=None, log_dir=None):
         bgpd_log_handler()
-        if hwsku in SMALL_DISK_SKUS or (len(logs_in_tmpfs) > 0 and logs_in_tmpfs[0] == True):
+        if hwsku in SMALL_DISK_SKUS or (len(logs_in_tmpfs) > 0 and logs_in_tmpfs[0] is True):
             restore_backup = "mv /host/syslog.99 /var/log/; " +\
                 "mv /host/sairedis.rec.99 /var/log/swss/; " +\
-                    "mv /host/swss.rec.99 /var/log/swss/; " +\
-                        "mv /host/bgpd.log.99 /var/log/"
+                "mv /host/swss.rec.99 /var/log/swss/; " +\
+                "mv /host/bgpd.log.99 /var/log/"
             duthost.shell(restore_backup, module_ignore_errors=True)
             # find the fast/warm-reboot script path
             reboot_script_path = duthost.shell('which {}'.format(
                 "{}-reboot".format(reboot_type)))['stdout']
             # restore original script. If the ".orig" file does not exist (upgrade path case), ignore the error.
-            duthost.shell("mv {} {}".format(reboot_script_path + ".orig", reboot_script_path), module_ignore_errors=True)
+            duthost.shell("mv {} {}".format(reboot_script_path + ".orig", reboot_script_path),
+                          module_ignore_errors=True)
         result = loganalyzer.analyze(marker, fail=False)
         analyze_result = {"time_span": dict(), "offset_from_kexec": dict()}
         offset_from_kexec = dict()
 
-        for key, messages in result["expect_messages"].items():
+        for key, messages in list(result["expect_messages"].items()):
             if "syslog" in key:
                 get_kexec_time(duthost, messages, analyze_result)
                 reboot_start_time = analyze_result.get(
                     "reboot_time", {}).get("timestamp", {}).get("Start")
                 if not reboot_start_time or reboot_start_time == "N/A":
-                    logging.error("kexec regex \"Rebooting with /sbin/kexec\" not found in syslog. " +\
-                    "Skipping log_analyzer checks..")
+                    logging.error("kexec regex \"Rebooting with /sbin/kexec\" not found in syslog. " +
+                                  "Skipping log_analyzer checks..")
                     return
                 syslog_messages = messages
             elif "bgpd.log" in key:
@@ -532,13 +540,13 @@ def advanceboot_loganalyzer(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
         analyze_sairedis_rec(sairedis_rec_messages,
                              analyze_result, offset_from_kexec)
 
-        for marker, time_data in analyze_result["offset_from_kexec"].items():
+        for marker, time_data in list(analyze_result["offset_from_kexec"].items()):
             marker_start_time = time_data.get("timestamp", {}).get("Start")
             reboot_start_time = analyze_result.get(
                 "reboot_time", {}).get("timestamp", {}).get("Start")
             if reboot_start_time and reboot_start_time != "N/A" and marker_start_time:
-                time_data["time_taken"] = (_parse_timestamp(marker_start_time) -\
-                    _parse_timestamp(reboot_start_time)).total_seconds()
+                time_data["time_taken"] = (_parse_timestamp(marker_start_time) -
+                                           _parse_timestamp(reboot_start_time)).total_seconds()
             else:
                 time_data["time_taken"] = "N/A"
 
@@ -557,9 +565,8 @@ def advanceboot_loganalyzer(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
             report_file_name = request.node.name + "_report.json"
             summary_file_name = request.node.name + "_summary.json"
 
-
-        report_file_dir = os.path.realpath((os.path.join(os.path.dirname(__file__),\
-            "../logs/platform_tests/")))
+        report_file_dir = os.path.realpath((os.path.join(os.path.dirname(__file__),
+                                           "../logs/platform_tests/")))
         report_file_path = report_file_dir + "/" + report_file_name
         summary_file_path = report_file_dir + "/" + summary_file_name
         if not os.path.exists(report_file_dir):
@@ -631,7 +638,8 @@ def capture_interface_counters(duthosts, enum_rand_one_per_hwsku_frontend_hostna
         res.pop('stdout')
         res.pop('stderr')
         outputs.append(res)
-    logging.debug("Counters before reboot test: dut={}, cmd_outputs={}".format(duthost.hostname,json.dumps(outputs, indent=4)))
+    logging.debug("Counters before reboot test: dut={}, cmd_outputs={}".format(duthost.hostname,
+                  json.dumps(outputs, indent=4)))
 
     yield
 
@@ -642,7 +650,8 @@ def capture_interface_counters(duthosts, enum_rand_one_per_hwsku_frontend_hostna
         res.pop('stdout')
         res.pop('stderr')
         outputs.append(res)
-    logging.debug("Counters after reboot test: dut={}, cmd_outputs={}".format(duthost.hostname,json.dumps(outputs, indent=4)))
+    logging.debug("Counters after reboot test: dut={}, cmd_outputs={}".format(duthost.hostname,
+                  json.dumps(outputs, indent=4)))
 
 
 @pytest.fixture()
@@ -674,4 +683,4 @@ def pytest_generate_tests(metafunc):
 
 
 def pytest_addoption(parser):
-     add_counterpoll_cpu_usage_args(parser)
+    add_counterpoll_cpu_usage_args(parser)

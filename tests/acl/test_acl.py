@@ -5,7 +5,7 @@ import logging
 import pprint
 import pytest
 import json
-
+import six
 import ptf.testutils as testutils
 import ptf.mask as mask
 import ptf.packet as packet
@@ -166,20 +166,21 @@ def get_t2_info(duthosts, tbinfo):
                                                                              defaultdict(list), defaultdict(list))
 
         for sonic_host_or_asic_inst in duthost.get_sonic_host_and_frontend_asic_instance():
-            namespace = sonic_host_or_asic_inst.namespace if hasattr(sonic_host_or_asic_inst, 'namespace') else DEFAULT_NAMESPACE
+            namespace = sonic_host_or_asic_inst.namespace if hasattr(sonic_host_or_asic_inst, 'namespace') \
+                  else DEFAULT_NAMESPACE
             if duthost.sonichost.is_multi_asic and namespace == DEFAULT_NAMESPACE:
                 continue
             asic_id = duthost.get_asic_id_from_namespace(namespace)
             router_mac = duthost.asic_instance(asic_id).get_router_mac()
             mg_facts = duthost.get_extended_minigraph_facts(tbinfo, namespace)
-            for interface, neighbor in mg_facts["minigraph_neighbors"].items():
+            for interface, neighbor in list(mg_facts["minigraph_neighbors"].items()):
                 port_id = mg_facts["minigraph_ptf_indices"][interface]
                 if "T1" in neighbor["name"]:
-                    downstream_ports_per_dut[neighbor['namespace']].append(interface)
+                    downstream_ports_per_dut[namespace].append(interface)
                     downstream_port_ids.append(port_id)
                     downstream_port_id_to_router_mac_map[port_id] = router_mac
                 elif "T3" in neighbor["name"]:
-                    upstream_ports_per_dut[neighbor['namespace']].append(interface)
+                    upstream_ports_per_dut[namespace].append(interface)
                     upstream_port_ids.append(port_id)
                     upstream_port_id_to_router_mac_map[port_id] = router_mac
                 mg_facts = duthost.get_extended_minigraph_facts(tbinfo, namespace)
@@ -194,14 +195,13 @@ def get_t2_info(duthosts, tbinfo):
 
             upstream_rifs = upstream_ports_per_dut[namespace]
             downstream_rifs = downstream_ports_per_dut[namespace]
-            for k, v in port_channels[namespace].iteritems():
+            for k, v in list(port_channels[namespace].items()):
                 acl_table_ports[namespace].append(k)
                 acl_table_ports[''].append(k)
                 upstream_rifs = list(set(upstream_rifs) - set(v['members']))
                 downstream_rifs = list(set(downstream_rifs) - set(v['members']))
             if len(upstream_rifs):
                 for port in upstream_rifs:
-                    acl_table_ports[namespace].append(port)
                     # This code is commented due to a bug which restricts rif interfaces to
                     # be added to global acl table - https://github.com/sonic-net/sonic-utilities/issues/2185
                     if namespace == DEFAULT_NAMESPACE:
@@ -210,7 +210,6 @@ def get_t2_info(duthosts, tbinfo):
                         acl_table_ports[namespace].append(port)
             else:
                 for port in downstream_rifs:
-                    acl_table_ports[namespace].append(port)
                     # This code is commented due to a bug which restricts rif interfaces to
                     # be added to global acl table - https://github.com/sonic-net/sonic-utilities/issues/2185
                     if namespace == DEFAULT_NAMESPACE:
@@ -272,7 +271,7 @@ def setup(duthosts, ptfhost, rand_selected_dut, rand_unselected_dut, tbinfo, ptf
         DOWNSTREAM_IP_TO_BLOCK = DOWNSTREAM_IP_TO_BLOCK_M0_L3
     if topo in ["t0", "mx", "m0_vlan"]:
         vlan_ports = [mg_facts["minigraph_ptf_indices"][ifname]
-                      for ifname in mg_facts["minigraph_vlans"].values()[0]["members"]]
+                      for ifname in list(mg_facts["minigraph_vlans"].values())[0]["members"]]
 
         config_facts = rand_selected_dut.get_running_config_facts()
         vlan_table = config_facts["VLAN"]
@@ -323,7 +322,7 @@ def setup(duthosts, ptfhost, rand_selected_dut, rand_unselected_dut, tbinfo, ptf
     # source or destination port
     if 'dualtor' in tbinfo['topo']['name'] and rand_unselected_dut is not None:
         peer_mg_facts = rand_unselected_dut.get_extended_minigraph_facts(tbinfo)
-        for interface, neighbor in peer_mg_facts['minigraph_neighbors'].items():
+        for interface, neighbor in list(peer_mg_facts['minigraph_neighbors'].items()):
             if (topo == "t1" and "T2" in neighbor["name"]) or (topo == "t0" and "T1" in neighbor["name"]):
                 port_id = peer_mg_facts["minigraph_ptf_indices"][interface]
                 upstream_port_ids.append(port_id)
@@ -352,7 +351,7 @@ def setup(duthosts, ptfhost, rand_selected_dut, rand_unselected_dut, tbinfo, ptf
     elif topo == "t2":
         acl_table_ports = t2_info['acl_table_ports']
     else:
-        for namespace, port in upstream_ports.iteritems():
+        for namespace, port in list(upstream_ports.items()):
             acl_table_ports[namespace] += port
             # In multi-asic we need config both in host and namespace.
             if namespace:
@@ -448,7 +447,7 @@ def populate_vlan_arp_entries(setup, ptfhost, duthosts, rand_one_dut_hostname, i
     yield populate_arp_table
 
     logging.info("Stopping ARP responder")
-    ptfhost.shell("supervisorctl stop arp_responder")
+    ptfhost.shell("supervisorctl stop arp_responder", module_ignore_errors=True)
 
     duthost.command("sonic-clear fdb all")
     duthost.command("sonic-clear arp")
@@ -470,7 +469,8 @@ def stage(request, duthosts, rand_one_dut_hostname, tbinfo):
     """
     duthost = duthosts[rand_one_dut_hostname]
     pytest_require(
-        request.param == "ingress" or duthost.facts.get("platform_asic") == "broadcom-dnx" or duthost.facts["asic_type"] not in ("broadcom"),
+        request.param == "ingress" or duthost.facts.get("platform_asic") == "broadcom-dnx"
+        or duthost.facts["asic_type"] not in ("broadcom"),
         "Egress ACLs are not currently supported on \"{}\" ASICs".format(duthost.facts["asic_type"])
     )
 
@@ -554,13 +554,13 @@ def acl_table(duthosts, rand_one_dut_hostname, setup, stage, ip_version, tbinfo)
     try:
         yield acl_table_config
     finally:
-        for duthost, loganalyzer in dut_to_analyzer_map.items():
+        for duthost, loganalyzer in list(dut_to_analyzer_map.items()):
             loganalyzer.expect_regex = [LOG_EXPECT_ACL_TABLE_REMOVE_RE]
             with loganalyzer:
                 create_or_remove_acl_table(duthost, acl_table_config, setup, "remove", topo)
 
 
-class BaseAclTest(object):
+class BaseAclTest(six.with_metaclass(ABCMeta, object)):
     """Base class for testing ACL rules.
 
     Subclasses must provide `setup_rules` method to prepare ACL rules for traffic testing.
@@ -568,8 +568,6 @@ class BaseAclTest(object):
     They can optionally override `teardown_rules`, which will otherwise remove the rules by
     applying an empty configuration file.
     """
-
-    __metaclass__ = ABCMeta
 
     ACL_COUNTERS_UPDATE_INTERVAL_SECS = 10
 
@@ -653,7 +651,7 @@ class BaseAclTest(object):
         try:
             yield
         finally:
-            for duthost, loganalyzer in dut_to_analyzer_map.items():
+            for duthost, loganalyzer in list(dut_to_analyzer_map.items()):
                 if duthost.is_supervisor_node():
                     continue
                 loganalyzer.expect_regex = [LOG_EXPECT_ACL_RULE_REMOVE_RE]

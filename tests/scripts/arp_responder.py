@@ -20,7 +20,7 @@ NEIGH_SOLICIT_ICMP_MSG_TYPE = 135
 
 
 def hexdump(data):
-    print " ".join("%02x" % ord(d) for d in data)
+    print((" ".join("%02x" % ord(d) for d in data)))
 
 
 def get_if(iff, cmd):
@@ -83,7 +83,7 @@ class Poller(object):
             self.mapping[interface.handler()] = interface
 
     def poll(self):
-        handlers = self.mapping.keys()
+        handlers = list(self.mapping.keys())
         while True:
             (rdlist, _, _) = select.select(handlers, [], [])
             for handler in rdlist:
@@ -229,7 +229,7 @@ def main():
     args = parse_args()
 
     if not os.path.exists(args.conf):
-        print "Can't find file %s" % args.conf
+        print(("Can't find file %s" % args.conf))
         return
 
     with open(args.conf) as fp:
@@ -238,7 +238,7 @@ def main():
     # generate ip_sets. every ip address will have it's own uniq mac address
     ip_sets = {}
     counter = 0
-    for iface, ip_dict in data.items():
+    for iface, ip_dict in list(data.items()):
         vlan = None
         if iface.find('@') != -1:
             iface, vlan = iface.split('@')
@@ -247,7 +247,7 @@ def main():
         if str(iface) not in ip_sets:
             ip_sets[str(iface)] = defaultdict(list)
         if args.extended:
-            for ip, mac in ip_dict.items():
+            for ip, mac in list(ip_dict.items()):
                 ip_sets[str(iface)][str(ip)] = binascii.unhexlify(str(mac))
                 counter += 1
         else:
@@ -257,7 +257,7 @@ def main():
             ip_sets[str(iface)]['vlan'].append(binascii.unhexlify(vlan_tag))
 
     ifaces = []
-    for iface_name in ip_sets.keys():
+    for iface_name in list(ip_sets.keys()):
         iface = Interface(iface_name)
         iface.bind()
         ifaces.append(iface)

@@ -4,14 +4,14 @@ import time
 import pytest
 
 import ptf.testutils as testutils
-import everflow_test_utilities as everflow_utils
+from . import everflow_test_utilities as everflow_utils
 
 from tests.ptf_runner import ptf_runner
-from everflow_test_utilities import TARGET_SERVER_IP, BaseEverflowTest, DOWN_STREAM, UP_STREAM, DEFAULT_SERVER_IP
+from .everflow_test_utilities import TARGET_SERVER_IP, BaseEverflowTest, DOWN_STREAM, UP_STREAM, DEFAULT_SERVER_IP
 # Module-level fixtures
 from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory                                 # noqa: F401
 from tests.common.fixtures.ptfhost_utils import copy_acstests_directory                                 # noqa: F401
-from everflow_test_utilities import setup_info, setup_arp_responder, EVERFLOW_DSCP_RULES                # noqa: F401
+from .everflow_test_utilities import setup_info, setup_arp_responder, EVERFLOW_DSCP_RULES                # noqa: F401
 from tests.common.fixtures.ptfhost_utils import copy_arp_responder_py                                   # noqa: F401
 from tests.common.dualtor.mux_simulator_control import toggle_all_simulator_ports_to_rand_selected_tor  # noqa: F401
 
@@ -531,7 +531,7 @@ class EverflowIPv4Tests(BaseEverflowTest):
 
         for asic in self.MIRROR_POLICER_UNSUPPORTED_ASIC_LIST:
             vendorAsic = "{0}_{1}_hwskus".format(vendor, asic)
-            if vendorAsic in hostvars.keys() and everflow_dut.facts['hwsku'] in hostvars[vendorAsic]:
+            if vendorAsic in list(hostvars.keys()) and everflow_dut.facts['hwsku'] in hostvars[vendorAsic]:
                 pytest.skip("Skipping test since mirror policing is not supported on {0} {1} platforms"
                             .format(vendor, asic))
 
@@ -638,7 +638,7 @@ class EverflowIPv4Tests(BaseEverflowTest):
             "(dscp)": self._base_tcp_packet(ptfadapter, setup, router_mac, dscp=51, dst_ip=default_ip)
         }
 
-        for description, pkt in pkt_dict.items():
+        for description, pkt in list(pkt_dict.items()):
             logging.info("Sending packet with qualifier set %s to DUT" % description)
             self.send_and_check_mirror_packets(
                 setup,
@@ -710,19 +710,6 @@ class TestEverflowV4EgressAclIngressMirror(EverflowIPv4Tests):
 
 class TestEverflowV4EgressAclEgressMirror(EverflowIPv4Tests):
     @pytest.fixture(scope="class", autouse=True)
-    def enable_bgp(self, duthosts, rand_one_dut_hostname):
-        """
-        Workaround for Egress test - we need to have BGP up - in other case test will fail
-        """
-        duthost = duthosts[rand_one_dut_hostname]
-        duthost.command("sudo config bgp startup all")
-        time.sleep(60)
-
-        yield
-
-        duthost.command("sudo config bgp shutdown all")
-        time.sleep(60)
-
     def acl_stage(self):
         return "egress"
 

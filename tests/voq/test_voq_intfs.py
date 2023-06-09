@@ -5,12 +5,12 @@ import ipaddress
 
 from tests.common import config_reload
 
-from test_voq_init import check_voq_interfaces
+from .test_voq_init import check_voq_interfaces
 
 from tests.common.helpers.sonic_db import VoqDbCli, SonicDbKeyNotFound
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.utilities import wait_until
-from test_voq_disrupts import check_bgp_neighbors
+from .test_voq_disrupts import check_bgp_neighbors
 logger = logging.getLogger(__name__)
 
 pytestmark = [

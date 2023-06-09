@@ -290,30 +290,10 @@ class FibTest(BaseTest):
                     break
 
     def check_ip_route(self, src_port, dst_ip_addr, dst_port_lists, ipv4=True):
-        # TODO: try block added by Petro Pikh just for debug RM issue: https://redmine.mellanox.com/issues/3151785
-        # Need to keep monitoring test - it will pass - then add here retries logic
-        # it it will fail - need to try to sleep before next try and check again
-        # if will fail in all cases - add logic which will in case of fail check that packet forwarded
-        # from PTF to DUT and arrived on DUT - if yes - then open bug for SONiC
-        try:
-            if ipv4:
-                res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
-            else:
-                res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
-        except AssertionError:
-            import os
-            timestamp = '_'.join(time.ctime().split())
-            filename_failed = 'fib_test_failed_{}'.format(timestamp)
-            filename_passed = 'fib_test_passed_{}'.format(timestamp)
-
-            os.system('apt update')
-            os.system('apt install -y sshpass')
-
-            if ipv4:
-                res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
-            else:
-                res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
-
+        if ipv4:
+            res = self.check_ipv4_route(src_port, dst_ip_addr, dst_port_lists)
+        else:
+            res = self.check_ipv6_route(src_port, dst_ip_addr, dst_port_lists)
 
         if self.pkt_action == self.ACTION_DROP:
             return res

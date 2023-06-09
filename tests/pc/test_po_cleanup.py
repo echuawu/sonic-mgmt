@@ -69,7 +69,7 @@ def test_po_cleanup_after_reload(duthosts, enum_rand_one_per_hwsku_frontend_host
     host_facts = duthost.setup()['ansible_facts']
 
     # Get the cpu information.
-    if host_facts.has_key("ansible_processor_vcpus"):
+    if "ansible_processor_vcpus" in host_facts:
         host_vcpus = int(host_facts['ansible_processor_vcpus'])
     else:
         res = duthost.shell("nproc")

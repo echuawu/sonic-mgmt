@@ -33,12 +33,12 @@ class ThriftInterface(BaseTest):
         BaseTest.setUp(self)
 
         self.test_params = testutils.test_params_get()
-        if self.test_params.has_key("server"):
+        if "server" in self.test_params:
             server = self.test_params['server']
         else:
             server = 'localhost'
 
-        if self.test_params.has_key("port_map"):
+        if "port_map" in self.test_params:
             user_input = self.test_params['port_map']
             splitted_map = user_input.split(",")
             for item in splitted_map:

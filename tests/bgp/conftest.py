@@ -7,6 +7,7 @@ import netaddr
 import pytest
 import random
 import re
+import six
 import socket
 
 from jinja2 import Template
@@ -35,7 +36,7 @@ def check_results(results):
         results (Proxy to shared dict): Results of parallel run, indexed by node name.
     """
     failed_results = {}
-    for node_name, node_results in results.items():
+    for node_name, node_results in list(results.items()):
         failed_node_results = [res for res in node_results if res['failed']]
         if len(failed_node_results) > 0:
             failed_results[node_name] = failed_node_results
@@ -117,10 +118,10 @@ def setup_bgp_graceful_restart(duthosts, rand_one_dut_hostname, nbrhosts, tbinfo
 
     check_results(results)
 
-    logger.info("bgp neighbors: {}".format(bgp_neighbors.keys()))
+    logger.info("bgp neighbors: {}".format(list(bgp_neighbors.keys())))
     res = True
     err_msg = ""
-    if not wait_until(300, 10, 0, duthost.check_bgp_session_state, bgp_neighbors.keys()):
+    if not wait_until(300, 10, 0, duthost.check_bgp_session_state, list(bgp_neighbors.keys())):
         res = False
         err_msg = "not all bgp sessions are up after enable graceful restart"
 
@@ -140,7 +141,7 @@ def setup_bgp_graceful_restart(duthosts, rand_one_dut_hostname, nbrhosts, tbinfo
 
     check_results(results)
 
-    if not wait_until(300, 10, 0, duthost.check_bgp_session_state, bgp_neighbors.keys()):
+    if not wait_until(300, 10, 0, duthost.check_bgp_session_state, list(bgp_neighbors.keys())):
         pytest.fail("not all bgp sessions are up after disable graceful restart")
 
 
@@ -231,7 +232,7 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
             loopback_intf_prefixlen = loopback_intf["prefixlen"]
 
             mux_configs = mux_cable_server_ip(duthost)
-            local_interfaces = random.sample(mux_configs.keys(), peer_count)
+            local_interfaces = random.sample(list(mux_configs.keys()), peer_count)
             for local_interface in local_interfaces:
                 connections.append(
                     {
@@ -244,14 +245,27 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
                 )
 
             ptfhost.remove_ip_addresses()
+            # let's stop arp_responder and garp_service as they could pollute
+            # devices' arp tables.
+            ptfhost.shell("supervisorctl stop garp_service", module_ignore_errors=True)
+            ptfhost.shell("supervisorctl stop arp_responder", module_ignore_errors=True)
 
+            first_neighbor_port = None
             for conn in connections:
                 ptfhost.shell("ifconfig %s %s" % (conn["neighbor_intf"],
                                                   conn["neighbor_addr"]))
+                if not first_neighbor_port:
+                    first_neighbor_port = conn["neighbor_intf"]
                 # NOTE: this enables the standby ToR to passively learn
-                # all the neighbors configured on the ptf interfaces
+                # all the neighbors configured on the ptf interfaces.
+                # As the ptf is a multihomed environment, the packets to the
+                # vlan gateway will always egress the first ptf port that has
+                # vlan subnet address assigned, so let's use the first
+                # ptf port to announce the neigbors.
                 ptfhost.shell(
-                    "arping %s -S %s -C 5" % (vlan_intf_addr, conn["neighbor_addr"].split("/")[0]),
+                    "arping %s -S %s -i %s -C 5" % (
+                        vlan_intf_addr, conn["neighbor_addr"].split("/")[0], first_neighbor_port
+                    ),
                     module_ignore_errors=True
                 )
 
@@ -289,12 +303,13 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
             if not loopback_ip:
                 pytest.fail("ipv4 lo interface not found")
 
-            for local_intf, neighbor_addr in zip(local_interfaces, neighbor_addresses):
+            neighbor_intf = random.choice(local_interfaces)
+            for neighbor_addr in neighbor_addresses:
                 conn = {}
                 conn["local_intf"] = vlan_intf_name
                 conn["local_addr"] = vlan_intf_addr
                 conn["neighbor_addr"] = neighbor_addr
-                conn["neighbor_intf"] = "eth%s" % mg_facts["minigraph_port_indices"][local_intf]
+                conn["neighbor_intf"] = "eth%s" % mg_facts["minigraph_port_indices"][neighbor_intf]
                 if is_backend_topo and is_vlan_tagged:
                     conn["neighbor_intf"] += (constants.VLAN_SUB_INTERFACE_SEPARATOR + vlan_id)
                 conn["loopback_ip"] = loopback_ip
@@ -303,14 +318,15 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
             ptfhost.remove_ip_addresses()  # In case other case did not cleanup IP address configured on PTF interface
 
             for conn in connections:
-                ptfhost.shell("ifconfig %s %s" % (conn["neighbor_intf"],
-                                                  conn["neighbor_addr"]))
+                ptfhost.shell("ip address add %s/%d dev %s" % (
+                    conn["neighbor_addr"], vlan_intf["prefixlen"], conn["neighbor_intf"]
+                ))
 
             yield connections
 
         finally:
             for conn in connections:
-                ptfhost.shell("ifconfig %s 0.0.0.0" % conn["neighbor_intf"])
+                ptfhost.shell("ip address flush %s" % conn["neighbor_intf"])
 
     @contextlib.contextmanager
     def _setup_interfaces_t1_or_t2(mg_facts, peer_count):
@@ -365,7 +381,7 @@ def setup_interfaces(duthosts, enum_rand_one_per_hwsku_frontend_hostname, ptfhos
 
             subnet_prefixlen = list(used_subnets)[0].prefixlen
             # Use a subnet which doesnt conflict with other subnets used in minigraph
-            subnets = ipaddress.ip_network(u"20.0.0.0/24").subnets(new_prefix=subnet_prefixlen)
+            subnets = ipaddress.ip_network(six.text_type("20.0.0.0/24")).subnets(new_prefix=subnet_prefixlen)
 
             loopback_ip = None
             for intf in mg_facts["minigraph_lo_interfaces"]:

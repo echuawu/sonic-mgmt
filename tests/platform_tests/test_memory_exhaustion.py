@@ -17,8 +17,6 @@ SSH_STARTUP_TIMEOUT = 420
 SSH_STATE_ABSENT = "absent"
 SSH_STATE_STARTED = "started"
 
-logger = logging.getLogger(__name__)
-
 
 class TestMemoryExhaustion:
     """
@@ -41,8 +39,8 @@ class TestMemoryExhaustion:
             # Waiting for SSH connection startup
             pytest_assert(self.check_ssh_state(localhost, dut_ip, SSH_STATE_STARTED, SSH_STARTUP_TIMEOUT),
                           'Recover {} by PDU reboot failed'.format(hostname))
-        # Wait until all critical processes are healthy.
-        wait_critical_processes(duthost)
+            # Wait until all critical processes are healthy.
+            wait_critical_processes(duthost)
 
     def test_memory_exhaustion(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost):
         duthost = duthosts[enum_rand_one_per_hwsku_hostname]
@@ -68,6 +66,8 @@ class TestMemoryExhaustion:
         # Waiting for SSH connection startup
         pytest_assert(self.check_ssh_state(localhost, dut_ip, SSH_STATE_STARTED, SSH_STARTUP_TIMEOUT),
                       'DUT {} did not startup'.format(hostname))
+        # Wait until all critical processes are healthy.
+        wait_critical_processes(duthost)
         # Verify DUT uptime is later than the time when the test case started running.
         dut_uptime = duthost.get_up_time()
         pytest_assert(dut_uptime > dut_datetime, "Device {} did not reboot".format(hostname))

@@ -26,12 +26,12 @@ class TestDataPlane():
                                 upstream_links, ptfadapter, wait_mka_establish):
         ptfadapter.dataplane.set_qlen(TestDataPlane.BATCH_COUNT * 100)
 
-        down_link = downstream_links.values()[0]
-        dut_macaddress = duthost.get_dut_iface_mac(ctrl_links.keys()[0])
+        down_link = list(downstream_links.values())[0]
+        dut_macaddress = duthost.get_dut_iface_mac(list(ctrl_links.keys())[0])
 
         setattr(ptfadapter, "force_reload_macsec", True)
 
-        for portchannel in get_portchannel(duthost).values():
+        for portchannel in list(get_portchannel(duthost).values()):
             members = portchannel["members"]
 
             if not members:
@@ -75,13 +75,13 @@ class TestDataPlane():
             pytest.fail(fail_message)
 
     def test_dut_to_neighbor(self, duthost, ctrl_links, upstream_links, wait_mka_establish):
-        for up_port, up_link in upstream_links.items():
+        for up_port, up_link in list(upstream_links.items()):
             ret = duthost.command(
                 "{} ping -c {} {}".format(get_ipnetns_prefix(duthost, up_port), 4, up_link['local_ipv4_addr']))
             assert not ret['failed']
 
     def test_neighbor_to_neighbor(self, duthost, ctrl_links, upstream_links, wait_mka_establish):
-        portchannels = get_portchannel(duthost).values()
+        portchannels = list(get_portchannel(duthost).values())
         for i in range(len(portchannels)):
             assert portchannels[i]["members"]
             requester = upstream_links[portchannels[i]["members"][0]]

@@ -119,19 +119,24 @@ def load_tunnel_qos_map(asic_name=None):
         maps = json.load(f)
     # inner_dscp_to_pg map, a map for mapping dscp to priority group at decap side
     ret['inner_dscp_to_pg_map'] = {}
-    for k, v in list(maps['DSCP_TO_TC_MAP'][TUNNEL_MAP_NAME].items()):
-        ret['inner_dscp_to_pg_map'][int(k)] = int(
-            maps['TC_TO_PRIORITY_GROUP_MAP'][TUNNEL_MAP_NAME][v])
+    if is_nvidia_platform:
+        for k, v in maps['DSCP_TO_TC_MAP'][UPLINK_MAP_NAME].items():
+            ret['inner_dscp_to_pg_map'][int(k)] = int(maps['TC_TO_PRIORITY_GROUP_MAP'][MAP_NAME][v])
+    else:
+        for k, v in maps['DSCP_TO_TC_MAP'][TUNNEL_MAP_NAME].items():
+            ret['inner_dscp_to_pg_map'][int(k)] = int(maps['TC_TO_PRIORITY_GROUP_MAP'][TUNNEL_MAP_NAME][v])
     # inner_dscp_to_outer_dscp_map, a map for rewriting DSCP in the encapsulated packets
     ret['inner_dscp_to_outer_dscp_map'] = {}
-    for k, v in list(maps['DSCP_TO_TC_MAP'][MAP_NAME].items()):
-        ret['inner_dscp_to_outer_dscp_map'][int(k)] = int(
-            maps['TC_TO_DSCP_MAP'][TUNNEL_MAP_NAME][v])
+    for k, v in maps['DSCP_TO_TC_MAP'][MAP_NAME].items():
+        ret['inner_dscp_to_outer_dscp_map'][int(k)] = int(maps['TC_TO_DSCP_MAP'][TUNNEL_MAP_NAME][v])
     # inner_dscp_to_queue_map, a map for mapping the tunnel traffic to egress queue at decap side
     ret['inner_dscp_to_queue_map'] = {}
-    for k, v in list(maps['DSCP_TO_TC_MAP'][TUNNEL_MAP_NAME].items()):
-        ret['inner_dscp_to_queue_map'][int(k)] = int(
-            maps['TC_TO_QUEUE_MAP'][MAP_NAME][v])
+    if is_nvidia_platform:
+        for k, v in maps['DSCP_TO_TC_MAP'][UPLINK_MAP_NAME].items():
+            ret['inner_dscp_to_queue_map'][int(k)] = int(maps['TC_TO_QUEUE_MAP'][MAP_NAME][v])
+    else:
+        for k, v in maps['DSCP_TO_TC_MAP'][TUNNEL_MAP_NAME].items():
+            ret['inner_dscp_to_queue_map'][int(k)] = int(maps['TC_TO_QUEUE_MAP'][MAP_NAME][v])
 
     return ret
 
@@ -223,7 +228,7 @@ def qos_config(rand_selected_dut, tbinfo, dut_config):
     dut_asic = None
     for asic in SUPPORTED_ASIC_LIST:
         vendor_asic = "{0}_{1}_hwskus".format(vendor, asic)
-        if vendor_asic in hostvars.keys() and mg_facts["minigraph_hwsku"] in hostvars[vendor_asic]:
+        if vendor_asic in list(hostvars.keys()) and mg_facts["minigraph_hwsku"] in hostvars[vendor_asic]:
             dut_asic = asic
             break
 
@@ -377,15 +382,10 @@ def toggle_mux_to_host(duthost):
     duthost.shell(cmd)
     TIMEOUT = 90
     while TIMEOUT > 0:
-<<<<<<< ed2208bca5f79f831eab67f202e550435d13a730
-        muxcables = json.loads(duthost.shell("show muxcable status --json")['stdout'])
-        inactive_muxcables = [intf for intf, muxcable in muxcables['MUX_CABLE'].items() if muxcable['STATUS'] != 'active']
-=======
         muxcables = json.loads(duthost.shell(
             "show muxcable status --json")['stdout'])
         inactive_muxcables = [intf for intf, muxcable in list(
             muxcables['MUX_CABLE'].items()) if muxcable['STATUS'] != 'active']
->>>>>>> [pre-commit] Fix style issues in test scripts under `tests/q*` folder (#7988)
         if len(inactive_muxcables) > 0:
             logger.info('Found muxcables not active on {}: {}'.format(
                 duthost.hostname, json.dumps(inactive_muxcables)))
@@ -401,7 +401,7 @@ def toggle_mux_to_host(duthost):
 
 def leaf_fanout_peer_info(duthost, conn_graph_facts, mg_facts, port_idx):
     dut_intf_paused = ""
-    for port, indice in mg_facts['minigraph_ptf_indices'].items():
+    for port, indice in list(mg_facts['minigraph_ptf_indices'].items()):
         if indice == port_idx:
             dut_intf_paused = port
             break
@@ -440,32 +440,6 @@ def run_ptf_test(ptfhost, test_case='', test_params={}):
     """
     logger.info("Start running {} on ptf host".format(test_case))
     pytest_assert(ptfhost.shell(
-<<<<<<< ed2208bca5f79f831eab67f202e550435d13a730
-                      argv = [
-                          "/root/env-python3/bin/ptf",
-                          "--test-dir",
-                          "saitests/py3",
-                          test_case,
-                          "--platform-dir",
-                          "ptftests",
-                          "--platform",
-                          "remote",
-                          "-t",
-                          ";".join(["{}={}".format(k, repr(v)) for k, v in test_params.items()]),
-                          "--disable-ipv6",
-                          "--disable-vxlan",
-                          "--disable-geneve",
-                          "--disable-erspan",
-                          "--disable-mpls",
-                          "--disable-nvgre",
-                          "--log-file",
-                          "/tmp/{0}.log".format(test_case),
-                          "--test-case-timeout",
-                          "600"
-                      ],
-                      chdir = "/root",
-                      )["rc"] == 0, "Failed when running test '{0}'".format(test_case))
-=======
         argv=[
             "/root/env-python3/bin/ptf",
             "--test-dir",
@@ -491,4 +465,3 @@ def run_ptf_test(ptfhost, test_case='', test_params={}):
         ],
         chdir="/root",
     )["rc"] == 0, "Failed when running test '{0}'".format(test_case))
->>>>>>> [pre-commit] Fix style issues in test scripts under `tests/q*` folder (#7988)

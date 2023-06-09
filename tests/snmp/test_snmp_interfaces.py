@@ -176,7 +176,7 @@ def test_snmp_interfaces(localhost, creds_all_duts, duthosts, enum_rand_one_per_
     logger.info('snmp_ifnames: {}'.format(snmp_ifnames))
 
     # Verify all physical ports in snmp interface list
-    for _, alias in config_facts['port_name_to_alias_map'].items():
+    for _, alias in list(config_facts['port_name_to_alias_map'].items()):
         assert alias in snmp_ifnames, "Interface not found in SNMP facts."
 
     # Verify all port channels in snmp interface list
@@ -210,7 +210,7 @@ def test_snmp_mgmt_interface(localhost, creds_all_duts, duthosts, enum_rand_one_
     # is implemented for multi-asic platform
     if duthost.num_asics() == 1:
         ports_list = []
-        ports_list.extend(config_facts.get('MGMT_INTERFACE', {}).keys())
+        ports_list.extend(list(config_facts.get('MGMT_INTERFACE', {}).keys()))
         dut_facts = collect_all_facts(duthost, ports_list)
         ports_snmps = verify_port_snmp(dut_facts, snmp_facts)
         speed_snmp = verify_snmp_speed(dut_facts, snmp_facts, ports_snmps)
@@ -234,7 +234,7 @@ def test_snmp_interfaces_mibs(duthosts, enum_rand_one_per_hwsku_hostname, localh
 
     ports_list = []
     for i in ['port_name_to_alias_map', 'PORTCHANNEL']:
-        ports_list.extend(config_facts.get(i, {}).keys())
+        ports_list.extend(list(config_facts.get(i, {}).keys()))
 
     dut_facts = collect_all_facts(duthost, ports_list, namespace)
     ports_snmps = verify_port_snmp(dut_facts, snmp_facts)

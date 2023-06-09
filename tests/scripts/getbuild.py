@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import base64
 import json
 import time
 import sys
 import argparse
-from urllib.request import urlopen, urlretrieve, Request, build_opener, install_opener
-import base64
+from six.moves.urllib.request import urlopen, urlretrieve, Request, build_opener, install_opener
 
 _start_time = None
 _last_time = None
@@ -107,7 +107,7 @@ def download_artifacts(url, content_type, platform, buildid, num_asic, access_to
         download_times = 0
         while download_times < MAX_DOWNLOAD_TIMES:
             try:
-                print('Downloading {} from build {}...'.format(filename, buildid))
+                print(('Downloading {} from build {}...'.format(filename, buildid)))
                 download_times += 1
                 # If access token is not empty, set headers
                 if access_token:
@@ -120,7 +120,7 @@ def download_artifacts(url, content_type, platform, buildid, num_asic, access_to
                 print('\nDownload finished!')
                 break
             except Exception as e:
-                print("Download error", e)
+                print(("Download error", e))
                 if download_times < MAX_DOWNLOAD_TIMES:
                     print(('Download times: {}, sleep: {} seconds before retry.'.format(download_times,
                                                                                         30 * download_times)))

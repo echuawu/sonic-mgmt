@@ -43,6 +43,7 @@ all:
           - wan-2dut
           - wan-3link-tg
           - wan-ecmp
+          - wan-pub-isis
       children:
         server_1:
     lab:

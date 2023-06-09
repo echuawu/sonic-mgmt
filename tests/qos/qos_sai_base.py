@@ -12,7 +12,6 @@ import six
 from tests.common.fixtures.ptfhost_utils import ptf_portmap_file  # noqa F401
 from tests.common.helpers.assertions import pytest_assert, pytest_require
 from tests.common.mellanox_data import is_mellanox_device as isMellanoxDevice
-from tests.common.dualtor.dual_tor_utils import upper_tor_host, lower_tor_host, dualtor_ports  # noqa F401
 from tests.common.cisco_data import is_cisco_device
 from tests.common.dualtor.dual_tor_utils import upper_tor_host, lower_tor_host, dualtor_ports  # noqa F401
 from tests.common.dualtor.mux_simulator_control \
@@ -83,7 +82,7 @@ class QosBase:
             if vlan_cfgs and 'default_vlan_config' in vlan_cfgs:
                 default_vlan_name = vlan_cfgs['default_vlan_config']
                 if default_vlan_name:
-                    for vlan in vlan_cfgs[default_vlan_name].values():
+                    for vlan in list(vlan_cfgs[default_vlan_name].values()):
                         if 'mac' in vlan and vlan['mac']:
                             dut_test_params["basicParams"]["def_vlan_mac"] = vlan['mac']
                             break
@@ -162,7 +161,7 @@ class QosSaiBase(QosBase):
             else:
                 pool = bufferProfile["pool"].translate({ord(i): None for i in '[]'})
         else:
-            pool = keystr + bufferProfile["pool"].encode("utf-8")
+            pool = keystr + bufferProfile["pool"]
         bufferSize = int(
             dut_asic.run_redis_cmd(
                 argv=["redis-cli", "-n", db, "HGET", pool, "size"]
@@ -263,11 +262,11 @@ class QosSaiBase(QosBase):
             argv=["redis-cli", "-n", db, "HGETALL", bufferProfileName]
         )
         it = iter(result)
-        bufferProfile = dict(zip(it, it))
+        bufferProfile = dict(list(zip(it, it)))
         bufferProfile.update({"profileName": bufferProfileName})
 
         # Update profile static threshold value if  profile threshold is dynamic
-        if "dynamic_th" in bufferProfile.keys():
+        if "dynamic_th" in list(bufferProfile.keys()):
             self.__computeBufferThreshold(dut_asic, bufferProfile)
 
         if "pg_lossless" in bufferProfileName:
@@ -306,7 +305,7 @@ class QosSaiBase(QosBase):
             argv=["redis-cli", "-n", db, "HGETALL", keystr]
         )
         it = iter(result)
-        ingressLosslessPool = dict(zip(it, it))
+        ingressLosslessPool = dict(list(zip(it, it)))
         return ingressLosslessPool.get("xoff")
 
     def __getEcnWredParam(self, dut_asic, table, port):
@@ -346,7 +345,7 @@ class QosSaiBase(QosBase):
             argv=["redis-cli", "-n", "4", "HGETALL", wredProfileName]
         )
         it = iter(result)
-        wredProfile = dict(zip(it, it))
+        wredProfile = dict(list(zip(it, it)))
 
         return wredProfile
 
@@ -435,7 +434,7 @@ class QosSaiBase(QosBase):
             testVlanIp = None
             for vlan in mgFacts["minigraph_vlan_interfaces"]:
                 if mgFacts["minigraph_vlans"][testVlan]["name"] in vlan["attachto"]:
-                    testVlanIp = ipaddress.ip_address(vlan["addr"])  # noqa F821
+                    testVlanIp = ipaddress.ip_address(str(vlan["addr"]))  # noqa F821
                     break
             pytest_assert(testVlanIp, "Failed to obtain vlan IP")
 
@@ -576,13 +575,13 @@ class QosSaiBase(QosBase):
             pytest_assert(
                 not duthost.sonichost.is_multi_asic, "Fixture not supported on T0 multi ASIC"
             )
-            for _, lag in mgFacts["minigraph_portchannels"].items():
+            for _, lag in list(mgFacts["minigraph_portchannels"].items()):
                 for intf in lag["members"]:
                     dutLagInterfaces.append(
                         mgFacts["minigraph_ptf_indices"][intf])
 
             testPortIds = set(mgFacts["minigraph_ptf_indices"][port]
-                              for port in mgFacts["minigraph_ports"].keys())
+                              for port in list(mgFacts["minigraph_ports"].keys()))
             testPortIds -= set(dutLagInterfaces)
             if isMellanoxDevice(duthost):
                 # The last port is used for up link from DUT switch
@@ -667,7 +666,7 @@ class QosSaiBase(QosBase):
             testPortIds = sorted(dutPortIps.keys())
 
         elif tbinfo["topo"]["type"] == "t2":
-            for iface, addr in dut_asic.get_active_ip_interfaces(tbinfo).items():
+            for iface, addr in list(dut_asic.get_active_ip_interfaces(tbinfo).items()):
                 vlan_id = None
                 if iface.startswith("Ethernet") and ("Ethernet-Rec" not in iface):
                     if "." in iface:
@@ -701,7 +700,7 @@ class QosSaiBase(QosBase):
         dutAsic = None
         for asic in self.SUPPORTED_ASIC_LIST:
             vendorAsic = "{0}_{1}_hwskus".format(vendor, asic)
-            if vendorAsic in hostvars.keys() and mgFacts["minigraph_hwsku"] in hostvars[vendorAsic]:
+            if vendorAsic in list(hostvars.keys()) and mgFacts["minigraph_hwsku"] in hostvars[vendorAsic]:
                 dutAsic = asic
                 break
 
@@ -747,10 +746,10 @@ class QosSaiBase(QosBase):
         dutinterfaces = {}
 
         if tbinfo["topo"]["type"] == "t2":
-            for ptf_port, ptf_val in dutPortIps.items():
+            for ptf_port, ptf_val in list(dutPortIps.items()):
                 dutinterfaces[ptf_port] = ptf_val['port']
         else:
-            for port, index in mgFacts["minigraph_ptf_indices"].items():
+            for port, index in list(mgFacts["minigraph_ptf_indices"].items()):
                 if 'Ethernet-Rec' not in port and 'Ethernet-IB' not in port:
                     dutinterfaces[index] = port
 
@@ -1012,7 +1011,7 @@ class QosSaiBase(QosBase):
             logger.info('Failed to read vlan interface config')
         if not vlanInterface:
             return
-        for key, value in vlanInterface.items():
+        for key, value in list(vlanInterface.items()):
             if 'proxy_arp' in value:
                 logger.info('ARP proxy is {} on {}'.format(
                     value['proxy_arp'], key))

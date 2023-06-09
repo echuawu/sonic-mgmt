@@ -60,7 +60,7 @@ def pfc_test_setup(duthosts, rand_one_dut_hostname, tbinfo, ptfhost):
     vlan_ip_addrs = list()
     if 'dualtor' in tbinfo['topo']['name']:
         servers = mux_cable_server_ip(duthost)
-        for intf, value in natsorted(servers.items()):
+        for intf, value in natsorted(list(servers.items())):
             vlan_ip_addrs.append(value['server_ipv4'].split('/')[0])
     else:
         vlan_ip_addrs = get_addrs_in_subnet(vlan_subnet, len(vlan_members))
@@ -198,7 +198,7 @@ def run_test(pfc_test_setup, fanouthosts, duthost, ptfhost, conn_graph_facts,   
         where a is # of passed iterations and b is total # of iterations
         """
         if len(words) != 4:
-            print 'Unknown PTF test result format'
+            print('Unknown PTF test result format')
             results[dut_intf_paused] = [0, 0]
 
         else:

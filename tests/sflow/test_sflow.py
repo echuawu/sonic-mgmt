@@ -54,7 +54,7 @@ def setup(duthosts, rand_one_dut_hostname, ptfhost, tbinfo, config_sflow_feature
 
     config_dut_ports(duthost, var['test_ports'][0:2], vlan=1000)
 
-    for port_channel, interfaces in mg_facts['minigraph_portchannels'].items():
+    for port_channel, interfaces in list(mg_facts['minigraph_portchannels'].items()):
         port = interfaces['members'][0]
         var['sflow_ports'][port] = {}
         var['sflow_ports'][port]['ifindex'] = get_ifindex(duthost, port)
@@ -297,8 +297,8 @@ class TestSflowCollector():
         verify_show_sflow(duthost, status='up', collector=[])
         time.sleep(5)
         partial_ptf_runner(
-	    enabled_sflow_interfaces=var['sflow_ports'].keys(),
-            active_collectors="[]" )
+            enabled_sflow_interfaces=list(var['sflow_ports'].keys()),
+            active_collectors="[]")
         # re-add collector
         config_sflow_collector(duthost, 'collector0', 'add')
         verify_show_sflow(duthost, status='up', collector=['collector0'])

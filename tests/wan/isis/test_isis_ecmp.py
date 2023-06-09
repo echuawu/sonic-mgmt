@@ -69,7 +69,7 @@ def test_isis_ecmp(duthosts, nbrhosts, common_setup_teardown):
     global path
     path = 0
     run_cmds = ["clear counters"]
-    for _, nbr in nbrhosts.items():
+    for _, nbr in list(nbrhosts.items()):
         nbr['host'].eos_command(commands=run_cmds)
 
     run_cmds = ["ping 202.2.1.3 -I 7.7.7.7 -c 2&",

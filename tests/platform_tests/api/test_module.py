@@ -229,13 +229,13 @@ class TestModuleApi(PlatformApiTestBase):
             ONIE_TLVINFO_TYPE_CODE_SERVICE_TAG,
             ONIE_TLVINFO_TYPE_CODE_VENDOR_EXT,
             ONIE_TLVINFO_TYPE_CODE_CRC32
-        ])
+        ]))
 
         MINIMUM_REQUIRED_TYPE_CODES_LIST = list(map(str.lower, [
             ONIE_TLVINFO_TYPE_CODE_SERIAL_NUMBER,
             ONIE_TLVINFO_TYPE_CODE_BASE_MAC_ADDR,
             ONIE_TLVINFO_TYPE_CODE_CRC32
-        ])
+        ]))
 
         # TODO: Add expected system EEPROM info for each module to inventory file and compare against it
         for i in range(self.num_modules):

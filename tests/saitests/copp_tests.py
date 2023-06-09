@@ -43,7 +43,7 @@ class ControlPlaneBaseTest(BaseTest):
 
         self.myip = {}
         self.peerip = {}
-        for i in xrange(self.MAX_PORTS):
+        for i in range(self.MAX_PORTS):
             self.myip[i] = "10.0.0.%d" % (i*2+1)
             self.peerip[i] = "10.0.0.%d" % (i*2)
 
@@ -54,7 +54,7 @@ class ControlPlaneBaseTest(BaseTest):
 
         self.my_mac = {}
         self.peer_mac = {}
-        for port_id, port in self.dataplane.ports.iteritems():
+        for port_id, port in list(self.dataplane.ports.items()):
             if port_id[0] == 0:
                 self.my_mac[port_id[1]] = port.mac()
             elif port_id[0] == 1:
@@ -80,7 +80,7 @@ class ControlPlaneBaseTest(BaseTest):
 
         start_time = datetime.datetime.now()
 
-        for i in xrange(count):
+        for i in range(count):
             testutils.send_packet(self, send_intf, packet)
 
         end_time = datetime.datetime.now()
@@ -146,13 +146,13 @@ class ControlPlaneBaseTest(BaseTest):
     def printStats(self, pkt_send_count, total_rcv_pkt_cnt, time_delta, tx_pps, rx_pps):
         if not self.verbose:
             return
-        print
-        print 'test stats'
-        print 'Packet sent = %10d' % pkt_send_count
-        print 'Packet rcvd = %10d' % total_rcv_pkt_cnt
-        print 'Test time = %s' % str(time_delta)
-        print 'TX PPS = %d' % tx_pps
-        print 'RX PPS = %d' % rx_pps
+        print()
+        print('test stats')
+        print(('Packet sent = %10d' % pkt_send_count))
+        print(('Packet rcvd = %10d' % total_rcv_pkt_cnt))
+        print(('Test time = %s' % str(time_delta)))
+        print(('TX PPS = %d' % tx_pps))
+        print(('RX PPS = %d' % rx_pps))
 
         return
 
@@ -347,7 +347,7 @@ class IP2METest(PolicyTest):
         self.run_suite()
 
     def one_port_test(self, port_number):
-        for port in self.dataplane.ports.iterkeys():
+        for port in list(self.dataplane.ports.keys()):
             if port[0] == 0:
                 continue
             packet = self.contruct_packet(port[1])

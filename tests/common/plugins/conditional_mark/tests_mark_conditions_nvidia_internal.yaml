@@ -771,6 +771,12 @@ everflow/test_everflow_testbed.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3431638 and 'sn5' in platform"
 
+everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
+skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499866"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3499866"
+
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
 # Default SONiC behavior is to forward the traffic, so loop-back filter does not triggers for IP packets.
@@ -1391,6 +1397,12 @@ system_health/test_system_health.py::test_external_checker:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335093"
     conditions:
       - "https://redmine.mellanox.com/issues/3335093"
+
+system_health/test_system_health.py::test_device_checker:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499875 and branch 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3499875 and '202211' in release"
 
 memory_checker/test_memory_checker.py:
   skip:

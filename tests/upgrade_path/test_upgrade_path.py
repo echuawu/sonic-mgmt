@@ -80,7 +80,6 @@ def test_upgrade_path(localhost, duthosts, ptfhost, rand_one_dut_hostname,
             pytest_assert(reboot_cause == upgrade_type,
                           "Reboot cause {} did not match the trigger - {}".format(reboot_cause, upgrade_type))
             check_services(duthost)
-            check_copp_config(duthost)
 
 
 @pytest.mark.device_type('vs')

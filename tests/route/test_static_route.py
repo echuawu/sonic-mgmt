@@ -73,7 +73,7 @@ def del_ipaddr(ptfhost, nexthop_addrs, prefix_len, nexthop_devs, ipv6=False):
                 module_ignore_errors=True
             )
     else:
-        ptfhost.shell('supervisorctl stop arp_responder')
+        ptfhost.shell('supervisorctl stop arp_responder', module_ignore_errors=True)
 
 
 def clear_arp_ndp(duthost, ipv6=False):
@@ -125,7 +125,7 @@ def generate_and_verify_traffic(duthost, ptfadapter, tbinfo, ip_dst, expected_po
 def wait_all_bgp_up(duthost):
     config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
     bgp_neighbors = config_facts.get('BGP_NEIGHBOR', {})
-    if not wait_until(300, 10, 0, duthost.check_bgp_session_state, bgp_neighbors.keys()):
+    if not wait_until(300, 10, 0, duthost.check_bgp_session_state, list(bgp_neighbors.keys())):
         pytest.fail("not all bgp sessions are up after config reload")
 
 
@@ -289,7 +289,7 @@ def get_nexthops(duthost, tbinfo, ipv6=False, count=1):
 
     # Filter VLANs with one interface inside only(PortChannel interface in case of t0-56-po2vlan topo)
     unexpected_vlans = []
-    for vlan, vlan_data in mg_facts['minigraph_vlans'].items():
+    for vlan, vlan_data in list(mg_facts['minigraph_vlans'].items()):
         if len(vlan_data['members']) < 2:
             unexpected_vlans.append(vlan)
 
@@ -308,7 +308,7 @@ def get_nexthops(duthost, tbinfo, ipv6=False, count=1):
     is_backend_topology = mg_facts.get(constants.IS_BACKEND_TOPOLOGY_KEY, False)
     if is_dualtor(tbinfo):
         server_ips = mux_cable_server_ip(duthost)
-        vlan_intfs = natsort.natsorted(server_ips.keys())
+        vlan_intfs = natsort.natsorted(list(server_ips.keys()))
         nexthop_devs = [mg_facts["minigraph_ptf_indices"][_] for _ in vlan_intfs]
         server_ip_key = "server_ipv6" if ipv6 else "server_ipv4"
         nexthop_addrs = [server_ips[_][server_ip_key].split("/")[0] for _ in vlan_intfs]

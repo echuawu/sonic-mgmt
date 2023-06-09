@@ -284,10 +284,10 @@ def apply_dual_tor_neigh_entries(cleanup_mocked_configs, rand_selected_dut, tbin
 
     dut = rand_selected_dut
 
-    vlan = dut.get_extended_minigraph_facts(tbinfo)['minigraph_vlans'].keys()[0]
+    vlan = list(dut.get_extended_minigraph_facts(tbinfo)['minigraph_vlans'].keys())[0]
 
     cmds = []
-    for ip, mac in mock_server_ip_mac_map.items():
+    for ip, mac in list(mock_server_ip_mac_map.items()):
         # Use `ip neigh replace` in case entries already exist for the target IP
         # If there are no pre-existing entries, equivalent to `ip neigh add`
         cmds.append('ip -4 neigh replace {} lladdr {} dev {}'.format(ip, mac, vlan))
@@ -306,7 +306,7 @@ def apply_dual_tor_peer_switch_route(cleanup_mocked_configs, rand_selected_dut, 
     '''
     logger.info("Applying dual ToR peer switch loopback route")
     dut = rand_selected_dut
-    bgp_neighbors = dut.bgp_facts()['ansible_facts']['bgp_neighbors'].keys()
+    bgp_neighbors = list(dut.bgp_facts()['ansible_facts']['bgp_neighbors'].keys())
 
     ipv4_neighbors = []
 
@@ -339,7 +339,7 @@ def apply_peer_switch_table_to_dut(cleanup_mocked_configs, rand_selected_dut, mo
     peer_switch_key = 'PEER_SWITCH|{}'.format(peer_switch_hostname)
     device_meta_key = 'DEVICE_METADATA|localhost'
     restart_swss = False
-    if dut.get_asic_name() in ['th2', 'td3']:
+    if dut.get_asic_name() in ['th2', 'td3', 'gb']:
         restart_swss = True
     cmd = 'redis-cli -n 4 HSET "{}" "{}" "{}"'.format(device_meta_key, 'subtype', 'DualToR')
     dut.shell(cmd=cmd)
@@ -370,6 +370,7 @@ def apply_tunnel_table_to_dut(cleanup_mocked_configs, rand_selected_dut, mock_pe
     dut = rand_selected_dut
 
     dut_loopback = (mock_peer_switch_loopback_ip - 1).ip
+
     tunnel_params = {
         'TUNNEL': {
             'MuxTunnel0': {

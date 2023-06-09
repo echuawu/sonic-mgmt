@@ -58,7 +58,7 @@ def test_snmp_loopback(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
 
     # TODO: Fix snmp query over Management IPv6 adderess and add SNMP test over management IPv6 address.
 
-    for ip in config_facts[u'LOOPBACK_INTERFACE'][u'Loopback0']:
+    for ip in config_facts['LOOPBACK_INTERFACE']['Loopback0']:
         loip = ip.split('/')[0]
         loip = ipaddress.ip_address(loip)
         # TODO: Fix SNMP query over IPv6 and remove the below check.

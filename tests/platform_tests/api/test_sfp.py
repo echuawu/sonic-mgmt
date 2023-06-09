@@ -132,7 +132,7 @@ class TestSfpApi(PlatformApiTestBase):
         'tx1power'
     ]
 
-    EXPECTED_XCVR_THRESHOLD_INFO_KEYS = [
+    EXPECTED_XCVR_COMMON_THRESHOLD_INFO_KEYS = [
         'txpowerlowwarning',
         'temphighwarning',
         'temphighalarm',
@@ -364,14 +364,14 @@ class TestSfpApi(PlatformApiTestBase):
     #
     # Functions to test methods defined in SfpBase class
     #
+
     def test_get_transceiver_info(self, duthosts, enum_rand_one_per_hwsku_hostname, localhost, platform_api_conn):
         # TODO: Do more sanity checking on transceiver info values
-        for index in self.sfp_setup["sfp_test_port_indices"]:
-            info_dict = sfp.get_transceiver_info(platform_api_conn, index)
-            if self.expect(info_dict is not None, "Unable to retrieve transceiver {} info".format(index)):
-                if self.expect(isinstance(info_dict, dict), "Transceiver {} info appears incorrect".format(index)):
-                    actual_keys = info_dict.keys()
-
+        for i in self.sfp_setup["sfp_test_port_indices"]:
+            info_dict = sfp.get_transceiver_info(platform_api_conn, i)
+            if self.expect(info_dict is not None, "Unable to retrieve transceiver {} info".format(i)):
+                if self.expect(isinstance(info_dict, dict), "Transceiver {} info appears incorrect".format(i)):
+                    actual_keys = list(info_dict.keys())
                     duthost = duthosts[enum_rand_one_per_hwsku_hostname]
                     # NOTE: No more releases to be added here. Platform should use SFP-refactor.
                     # 'hardware_rev' is ONLY applicable to QSFP-DD/OSFP modules
@@ -390,16 +390,16 @@ class TestSfpApi(PlatformApiTestBase):
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS
                     missing_keys = set(UPDATED_EXPECTED_XCVR_INFO_KEYS) - set(actual_keys)
                     for key in missing_keys:
-                        self.expect(False, "Transceiver {} info does not contain field: '{}'".format(index, key))
+                        self.expect(False, "Transceiver {} info does not contain field: '{}'".format(i, key))
 
                     # TODO: Remove this once we can include these keys in EXPECTED_XCVR_INFO_KEYS
                     for key in self.NEWLY_ADDED_XCVR_INFO_KEYS:
                         if key not in actual_keys:
                             logger.warning("test_get_transceiver_info: Transceiver {} info missing field '{}'. "
-                                           "Vendor needs to add support.".format(index, key))
+                                           "Vendor needs to add support.".format(i, key))
                         elif info_dict[key] == "N/A":
                             logger.warning("test_get_transceiver_info: Transceiver {} info value for '{}' is 'N/A'. "
-                                           "Vendor needs to add support.".format(index, key))
+                                           "Vendor needs to add support.".format(i, key))
 
                     unexpected_keys = set(actual_keys) - set(UPDATED_EXPECTED_XCVR_INFO_KEYS +
                                                              self.NEWLY_ADDED_XCVR_INFO_KEYS)
@@ -407,7 +407,7 @@ class TestSfpApi(PlatformApiTestBase):
                         # hardware_rev is applicable only for QSFP-DD or OSFP
                         if key == 'hardware_rev' and info_dict["type_abbrv_name"] in ["QSFP-DD", "OSFP-8X"]:
                             continue
-                        self.expect(False, "Transceiver {} info contains unexpected field '{}'".format(index, key))
+                        self.expect(False, "Transceiver {} info contains unexpected field '{}'".format(i, key))
         self.assert_expectations()
 
     def test_get_transceiver_bulk_status(self, duthosts, enum_rand_one_per_hwsku_hostname,
@@ -422,7 +422,7 @@ class TestSfpApi(PlatformApiTestBase):
                                "Transceiver {} bulk status appears incorrect".format(i)):
                     # TODO: This set of keys should be present no matter how many channels are present on the xcvr
                     #       If the xcvr has multiple channels, we should adjust the fields here accordingly
-                    actual_keys = bulk_status_dict.keys()
+                    actual_keys = list(bulk_status_dict.keys())
 
                     missing_keys = set(self.EXPECTED_XCVR_BULK_STATUS_KEYS) - set(actual_keys)
                     for key in missing_keys:
@@ -437,6 +437,13 @@ class TestSfpApi(PlatformApiTestBase):
         skip_release_for_platform(duthost, ["202012"], ["arista", "mlnx"])
 
         for i in self.sfp_setup["sfp_test_port_indices"]:
+            info_dict = sfp.get_transceiver_info(platform_api_conn, i)
+
+            if not self.is_xcvr_optical(info_dict):
+                logger.info("test_get_transceiver_threshold_info: \
+                               Skipping transceiver {} (not applicable for this transceiver type)".format(i))
+                continue
+
             thold_info_dict = sfp.get_transceiver_threshold_info(platform_api_conn, i)
             if self.expect(thold_info_dict is not None,
                            "Unable to retrieve transceiver {} threshold info".format(i)):
@@ -444,12 +451,18 @@ class TestSfpApi(PlatformApiTestBase):
                                "Transceiver {} threshold info appears incorrect".format(i)):
                     actual_keys = list(thold_info_dict.keys())
 
-                    missing_keys = set(self.EXPECTED_XCVR_THRESHOLD_INFO_KEYS) - set(actual_keys)
+                    expected_keys = list(self.EXPECTED_XCVR_COMMON_THRESHOLD_INFO_KEYS)
+                    if info_dict["type_abbrv_name"] == "QSFP-DD":
+                        expected_keys += self.QSFPDD_EXPECTED_XCVR_THRESHOLD_INFO_KEYS
+                        if 'ZR' in info_dict["media_interface_code"]:
+                            expected_keys += self.QSFPZR_EXPECTED_XCVR_THRESHOLD_INFO_KEYS
+
+                    missing_keys = set(expected_keys) - set(actual_keys)
                     for key in missing_keys:
                         self.expect(
                             False, "Transceiver {} threshold info does not contain field: '{}'".format(i, key))
 
-                    unexpected_keys = set(actual_keys) - set(self.EXPECTED_XCVR_THRESHOLD_INFO_KEYS)
+                    unexpected_keys = set(actual_keys) - set(expected_keys)
                     for key in unexpected_keys:
                         self.expect(
                             False, "Transceiver {} threshold info contains unexpected field '{}'".format(i, key))

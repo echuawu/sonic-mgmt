@@ -156,7 +156,7 @@ class TestMclagMemberPortStatusChange(object):
         dut2_route = get_routes[duthost2.hostname][2]
         for indx, mclag_intf in enumerate(collect[duthost1.hostname]['mclag_interfaces'][:mclag_intf_num]):
             dst_route = ipaddress.IPv4Interface(dut1_route) if indx % 2 == 0 else ipaddress.IPv4Interface(dut2_route)
-            dst_ip = unicode(str(dst_route.ip + (indx + 1)))
+            dst_ip = str(str(dst_route.ip + (indx + 1)))
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf, dst_ip,
                                         duthost1.facts["router_mac"], get_routes, collect)
 
@@ -199,7 +199,7 @@ class TestKeepAliveStatusChange(object):
         # and reach standby by PeerLink
         for indx, mclag_intf in enumerate(collect[duthost1.hostname]['mclag_interfaces'][:mclag_intf_num]):
             dst_route = ipaddress.IPv4Interface(dut1_route) if indx % 2 == 0 else ipaddress.IPv4Interface(dut2_route)
-            dst_ip = unicode(str(dst_route.ip + (indx + 1)))
+            dst_ip = str(str(dst_route.ip + (indx + 1)))
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf, dst_ip,
                                         duthost1.facts["router_mac"], get_routes, collect)
 
@@ -269,8 +269,8 @@ class TestActiveDeviceStatusChange():
                           .format(duthost2.facts["router_mac"], lag, dut2_sys_id))
 
         for indx, mclag_intf in enumerate(collect[duthost1.hostname]['mclag_interfaces'][:mclag_intf_num]):
-            dst_ip1 = unicode(str(dst_route1.ip + (indx + 1)))
-            dst_ip2 = unicode(str(dst_route2.ip + (indx + 1)))
+            dst_ip1 = str(str(dst_route1.ip + (indx + 1)))
+            dst_ip2 = str(str(dst_route2.ip + (indx + 1)))
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf,
                                         dst_ip2, duthost2.facts["router_mac"], get_routes, collect)
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf,
@@ -313,8 +313,8 @@ class TestStandByDeviceStatusChange():
         pytest_assert(status == 'ERROR', "Keepalive status should be ERROR, not {}".format(status))
 
         for indx, mclag_intf in enumerate(collect[duthost1.hostname]['mclag_interfaces'][:mclag_intf_num]):
-            dst_ip1 = unicode(str(dst_route1.ip + (indx + 1)))
-            dst_ip2 = unicode(str(dst_route2.ip + (indx + 1)))
+            dst_ip1 = str(str(dst_route1.ip + (indx + 1)))
+            dst_ip2 = str(str(dst_route2.ip + (indx + 1)))
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf,
                                         dst_ip1, duthost1.facts["router_mac"], get_routes, collect)
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf, dst_ip2,
@@ -367,8 +367,8 @@ class TestPeerLinkStatusChange():
         # use PortChannel member as source port, not PortChannel
         for mclag_intf1, mclag_intf2 in zip(active_mclag_interfaces, standby_mclag_interfaces):
             indx += 1
-            dst_ip1 = unicode(str(dst_route1.ip + indx))
-            dst_ip2 = unicode(str(dst_route2.ip + indx))
+            dst_ip1 = str(str(dst_route1.ip + indx))
+            dst_ip2 = str(str(dst_route2.ip + indx))
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf1,
                                         dst_ip1, duthost1.facts["router_mac"], get_routes, collect)
             generate_and_verify_traffic(duthost1, duthost2, ptfadapter, ptfhost, mclag_intf1,

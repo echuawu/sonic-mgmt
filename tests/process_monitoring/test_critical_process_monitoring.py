@@ -36,7 +36,7 @@ POST_CHECK_THRESHOLD_SECS = 360
 def config_reload_after_tests(duthosts, rand_one_dut_hostname):
     duthost = duthosts[rand_one_dut_hostname]
     yield
-    config_reload(duthost, safe_reload=True)
+    config_reload(duthost)
 
 
 @pytest.fixture(autouse=True, scope='module')
@@ -54,7 +54,7 @@ def disable_and_enable_autorestart(duthosts, rand_one_dut_hostname):
     containers_autorestart_states = duthost.get_container_autorestart_states()
     disabled_autorestart_containers = []
 
-    for container_name, state in containers_autorestart_states.items():
+    for container_name, state in list(containers_autorestart_states.items()):
         if "enabled" in state:
             logger.info("Disabling the autorestart of container '{}'.".format(container_name))
             command_disable_autorestart = "sudo config feature autorestart {} disabled".format(container_name)
@@ -133,7 +133,7 @@ def check_all_critical_processes_running(duthost):
         Otherwise return False.
     """
     processes_status = duthost.all_critical_process_status()
-    for container_name, processes in processes_status.items():
+    for container_name, processes in list(processes_status.items()):
         if processes["status"] is False or len(processes["exited_critical_process"]) > 0:
             logger.info("The status of checking process in container '{}' is: {}"
                         .format(container_name, processes["status"]))
@@ -224,7 +224,7 @@ def get_expected_alerting_messages_monit(duthost, containers_in_namespaces):
     expected_alerting_messages = []
 
     logger.info("Generating the regex of expected alerting messages ...")
-    for container_name in containers_in_namespaces.keys():
+    for container_name in list(containers_in_namespaces.keys()):
         namespace_ids = containers_in_namespaces[container_name]
 
         critical_process_list, succeeded = get_critical_process_from_monit(duthost, container_name)
@@ -294,7 +294,7 @@ def get_expected_alerting_messages_supervisor(duthost, containers_in_namespaces)
     expected_alerting_messages = []
 
     logger.info("Generating the regex of expected alerting messages ...")
-    for container_name in containers_in_namespaces.keys():
+    for container_name in list(containers_in_namespaces.keys()):
         namespace_ids = containers_in_namespaces[container_name]
         container_name_in_namespace = container_name
         # If a container is only running on host, then namespace_ids is [None]
@@ -359,7 +359,7 @@ def get_containers_namespace_ids(duthost, skip_containers):
     containers_states, succeeded = duthost.get_feature_status()
     pytest_assert(succeeded, "Failed to get feature status of containers!")
 
-    for container_name, state in containers_states.items():
+    for container_name, state in list(containers_states.items()):
         if container_name not in skip_containers and state not in ["disabled", "always_disabled"]:
             namespace_ids, succeeded = duthost.get_namespace_ids(container_name)
             pytest_assert(succeeded, "Failed to get namespace ids of container '{}'".format(container_name))
@@ -432,7 +432,7 @@ def stop_critical_processes(duthost, containers_in_namespaces):
     Returns:
         None.
     """
-    for container_name in containers_in_namespaces.keys():
+    for container_name in list(containers_in_namespaces.keys()):
         namespace_ids = containers_in_namespaces[container_name]
         container_name_in_namespace = container_name
         # If a container is only running on host, then namespace_ids is [None]
@@ -507,7 +507,7 @@ def ensure_all_critical_processes_running(duthost, containers_in_namespaces):
     Returns:
         None.
     """
-    for container_name in containers_in_namespaces.keys():
+    for container_name in list(containers_in_namespaces.keys()):
         namespace_ids = containers_in_namespaces[container_name]
         container_name_in_namespace = container_name
         # If a container is only running on host, then namespace_ids is [None]
@@ -601,7 +601,7 @@ def test_monitoring_critical_processes(duthosts, rand_one_dut_hostname, tbinfo, 
     logger.info("Found all the expected alerting messages from syslog!")
 
     logger.info("Executing the config reload...")
-    config_reload(duthost, safe_reload=True)
+    config_reload(duthost)
     logger.info("Executing the config reload was done!")
 
     ensure_all_critical_processes_running(duthost, containers_in_namespaces)

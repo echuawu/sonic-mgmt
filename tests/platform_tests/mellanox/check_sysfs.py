@@ -63,7 +63,7 @@ def check_sysfs(dut):
             repr(e))
 
     logging.info("Check fan related sysfs")
-    for fan_id, fan_info in sysfs_facts['fan_info'].items():
+    for fan_id, fan_info in list(sysfs_facts['fan_info'].items()):
         if platform_data["fans"]["hot_swappable"]:
             assert fan_info['status'] == '1', "Fan {} status {} is not 1".format(
                 fan_id, fan_info['status'])
@@ -95,7 +95,7 @@ def check_sysfs(dut):
         cpu_temp_list.append(cpu_pack_temp)
         cpu_crit_temp_list.append(cpu_pack_crit_temp)
 
-    for core_id, cpu_info in sysfs_facts['cpu_core_info'].items():
+    for core_id, cpu_info in list(sysfs_facts['cpu_core_info'].items()):
         cpu_core_temp = float(cpu_info["temp"]) / 1000
         cpu_core_max_temp = float(cpu_info["max_temp"]) / 1000
         cpu_core_crit_temp = float(cpu_info["crit_temp"]) / 1000
@@ -116,7 +116,7 @@ def check_sysfs(dut):
 
     logging.info("Check PSU related sysfs")
     if platform_data["psus"]["hot_swappable"]:
-        for psu_id, psu_info in sysfs_facts['psu_info'].items():
+        for psu_id, psu_info in list(sysfs_facts['psu_info'].items()):
             psu_id = int(psu_id)
             psu_status = int(psu_info["status"])
             if not psu_status:
@@ -161,7 +161,7 @@ def check_sysfs(dut):
                 logging.info("PSU sensors' capability checking ignored")
 
     logging.info("Check SFP related sysfs")
-    for sfp_id, sfp_info in sysfs_facts['sfp_info'].items():
+    for sfp_id, sfp_info in list(sysfs_facts['sfp_info'].items()):
         assert sfp_info["temp_fault"] == '0', "SFP%d temp fault" % sfp_id
         sfp_temp = float(sfp_info['temp']) if sfp_info['temp'] != '0' else 0
         sfp_temp_crit = float(
@@ -216,7 +216,7 @@ def _check_fan_speed_in_range(dut, config):
 
 
 def _is_fan_speed_in_range(sysfs_facts):
-    for fan_id, fan_info in sysfs_facts['fan_info'].items():
+    for fan_id, fan_info in list(sysfs_facts['fan_info'].items()):
         try:
             fan_min_speed = int(fan_info["min_speed"])
             fan_max_speed = int(

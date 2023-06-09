@@ -42,7 +42,7 @@ class ActionModule(ActionBase):
             login['user'].append((_login['user'], passwd))
 
         if _timeout is None:
-            _timeout = 300
+            _timeout = 30
 
         if _template is not None:
             if self._task._role is not None:

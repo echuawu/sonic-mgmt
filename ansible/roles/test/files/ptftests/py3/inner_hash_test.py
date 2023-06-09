@@ -30,7 +30,6 @@ class InnerHashTest(BaseTest):
     # ---------------------------------------------------------------------
     DEFAULT_BALANCING_RANGE = 0.25
     BALANCING_TEST_TIMES = 625
-    VALIDATION_TIMEOUT = 10
 
     _required_params = [
         'fib_info',
@@ -297,7 +296,7 @@ class InnerHashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "chksum")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "ttl")
 
-        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list)
 
     def simple_nvgrev6_packet(self, pktlen=300,
                               eth_dst='00:01:02:03:04:05',
@@ -390,7 +389,7 @@ class InnerHashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IPv6, "hlim")
 
-        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list)
 
     def check_ip_route_vxlan(self, hash_key, src_port, ip_dst, ip_src, dport, sport, ip_proto):
         '''
@@ -462,7 +461,7 @@ class InnerHashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "chksum")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IP, "ttl")
 
-        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list)
 
     def check_ipv6_route_vxlan(self, hash_key, src_port, ip_dst, ip_src, dport, sport, ip_proto):
         '''
@@ -506,7 +505,7 @@ class InnerHashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
         masked_exp_pkt.set_do_not_care_scapy(scapy.IPv6, "hlim")
 
-        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list, timeout=self.VALIDATION_TIMEOUT)
+        return verify_packet_any_port(self, masked_exp_pkt, self.exp_port_list)
 
     def check_within_expected_range(self, actual, expected):
         '''

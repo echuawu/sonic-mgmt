@@ -97,7 +97,7 @@ def test_service_checker(duthosts, enum_rand_one_per_hwsku_hostname):
     with ConfigFileContext(duthost, os.path.join(FILES_DIR, IGNORE_DEVICE_CHECK_CONFIG_FILE)):
         processes_status = duthost.all_critical_process_status()
         expect_error_dict = {}
-        for container_name, processes in processes_status.items():
+        for container_name, processes in list(processes_status.items()):
             if processes["status"] is False or len(processes["exited_critical_process"]) > 0:
                 for process_name in processes["exited_critical_process"]:
                     expect_error_dict[process_name] = '{}:{} is not running'.format(

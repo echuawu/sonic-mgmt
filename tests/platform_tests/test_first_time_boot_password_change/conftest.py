@@ -7,12 +7,10 @@ from tests.platform_tests.test_first_time_boot_password_change.default_consts im
 
 
 def pytest_addoption(parser):
-    parser.addoption("--cali_law_feature_enabled", action="store", default='False', help="set to True if the feature is enabled")
-    parser.addoption("--cali_law_base_image", action="store", default=None, help="Please specify an image "
-                                                                                 "containing this feature")
+    parser.addoption("--feature_enabled", action="store", default='False', help="set to True if the feature is enabled")
 
 
-class currentConfigurations:
+class CurrentConfigurations:
     '''
     @summary: this class will act as a global database to save current configurations and changes the test made.
     It will help us track the current state of the system,
@@ -22,7 +20,7 @@ class currentConfigurations:
         self.currentPassword = DefaultConsts.DEFAULT_PASSWORD  # initial password
 
 
-currentConfigurations = currentConfigurations()
+currentConfigurations = CurrentConfigurations()
 logger = logging.getLogger(__name__)
 
 
@@ -37,25 +35,26 @@ def dut_hostname(request):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def is_cali_law_feature_disabled(request):
+def is_feature_disabled(request):
     '''
     @summary: this fixture will be responsible for
     skipping the test if the feature is disabled
     '''
-    feature_enabled = request.config.getoption("cali_law_feature_enabled")
+    feature_enabled = request.config.getoption("feature_enabled")
     if feature_enabled == 'False':
-        pytest.skip("California law feature is disabled, will not run the test")
+        pytest.skip("Feature is disabled, will not run the test")
 
 
 @pytest.fixture(scope='module', autouse=True)
-def prepare_system_for_first_boot(request, dut_hostname, is_cali_law_feature_disabled):
+def prepare_system_for_first_boot(request, dut_hostname):
     '''
     @summary: will manufacture the dut device to the given image in the parameter --base_image_list,
     by installing the image given from ONIE. for detailed information read the documentation
     of the manufacture script.
     '''
-    base_image = request.config.getoption('cali_law_base_image')
-    assert(base_image == None, "cali_law_base_image param is empty")
+    base_image = request.config.getoption('base_image_list')
+    if not base_image:
+        pytest.skip("base_image_list param is empty")
     manufacture(dut_hostname, base_image)
 
 

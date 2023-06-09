@@ -28,7 +28,7 @@ def reset_timeout(duthost):
 
 def get_critical_processes_status(dut):
     processes_status = dut.all_critical_process_status()
-    for k, v in processes_status.items():
+    for k, v in list(processes_status.items()):
         if v['status'] is False or len(v['exited_critical_process']) > 0:
             return False, processes_status
 

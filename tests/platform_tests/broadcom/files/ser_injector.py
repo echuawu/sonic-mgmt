@@ -444,7 +444,7 @@ class BcmMemory():
         # Reading from file will change key type from int to str.
         # for the test to run correctly, the key needs to be
         # adjusted back to int.
-        for key, val in mem.items():
+        for key, val in list(mem.items()):
             self.memory_address[int(key)] = val
 
     def read_memory_from_file(self):
@@ -664,7 +664,7 @@ class SerTest(object):
                         print('--- stall detected. Stop testing')
                     break
 
-        print("SER test on ASIC : {}".format(get_asic_name()))
+        print(("SER test on ASIC : {}".format(get_asic_name())))
         if VERBOSE:
             print(("SER Test memories candidates (%s): %s" %
                   (len(self.test_candidates), self.test_candidates)))
@@ -746,7 +746,7 @@ class SerTest(object):
         '''
         m = re.search(r"^.*addr:(.*) port.*index: (\d+)", log)
         if not m:
-            print("--- cannot parse log {}".format(log))
+            print(("--- cannot parse log {}".format(log)))
             return None, None
 
         address = int(m.group(1), 16)
@@ -774,7 +774,7 @@ class SerTest(object):
         @param index: index of the entry to inject SER into
         '''
         if VERBOSE:
-            print('--- injecting error at {} index {} tag {}'.format(mem, index, tag))
+            print(('--- injecting error at {} index {} tag {}'.format(mem, index, tag)))
         return run_cmd(
             [
                 "bcmcmd",
@@ -810,7 +810,7 @@ class SerTest(object):
                 if m in self.mem_verification_pending:
                     self.mem_verification_pending.remove(m)
                 else:
-                    print("Memory %s appeared more than once" % m)
+                    print(("Memory %s appeared more than once" % m))
         elif VERBOSE:
             print(
                 ("Memory corresponding to the following syslog was not found! Syslog: '%s'" % line))
@@ -845,7 +845,7 @@ class SerTest(object):
                             ('--- mem {} error inject is slow: {}'.format(mem, speed)))
                 self.mem_injection_speed[mem] = speed
                 if stdout.decode().find('SER correction for it is not currently supported') > -1:
-                    print("memory %s does not support ser" % mem)
+                    print(("memory %s does not support ser" % mem))
                     self.mem_ser_unsupported.append(mem)
                 else:
                     self.mem_verification_pending.append(mem)
@@ -932,7 +932,7 @@ def main():
         asic_id=args.asic_id
     )
     rc = serTest.test_memory(args.completeness)
-    print("--- %s seconds, rc %d ---" % ((time.time() - start_time), rc))
+    print(("--- %s seconds, rc %d ---" % ((time.time() - start_time), rc)))
     sys.exit(rc)
 
 

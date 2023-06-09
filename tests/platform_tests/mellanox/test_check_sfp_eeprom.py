@@ -62,7 +62,7 @@ def test_check_sfp_eeprom_with_option_dom(duthosts, rand_one_dut_hostname, show_
             check_eeprom_dom_output["stdout"])
 
     with allure.step("Check results for {}".format(show_eeprom_cmd)):
-        for intf, inft_support_dom in sfp_test_intfs_to_dom_map.items():
+        for intf, inft_support_dom in list(sfp_test_intfs_to_dom_map.items()):
             if intf in sfp_info_dict:
                 with allure.step("Check {}".format(intf)):
                     if sfp_info_dict[intf] == "SFP EEPROM Not detected":
