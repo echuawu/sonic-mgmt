@@ -495,7 +495,7 @@ generic_config_updater/test_incremental_qos.py::test_incremental_qos_config_upda
     reason: "This test is not run on this hwsku/asic type currently"
     conditions:
       - "not any(i in hwsku for i in ['2700', 'Arista-7170-64C', 'montara', 'newport'])"
-      - "asic_type in ['broadcom', 'cisco-8000']"
+      - "asic_type in ['broadcom', 'cisco-8000', 'mellanox']"
 
 generic_config_updater/test_mmu_dynamic_threshold_config_update.py::test_dynamic_th_config_updates:
   skip:

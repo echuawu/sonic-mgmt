@@ -12,6 +12,7 @@ from .iface_loopback_action_helper import config_loopback_action
 from .iface_loopback_action_helper import clear_rif_counter
 from .iface_loopback_action_helper import verify_interface_loopback_action
 from .iface_loopback_action_helper import verify_rif_tx_err_count
+from .iface_loopback_action_helper import check_ip_interface_up
 from .iface_loopback_action_helper import shutdown_rif_interfaces, startup_rif_interfaces
 from tests.common.platform.interface_utils import check_interface_status_of_up_ports
 

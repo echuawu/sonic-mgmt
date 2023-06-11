@@ -748,8 +748,10 @@ pfc_asym/test_pfc_asym.py:
 ecmp/test_fgnhg.py:
   skip:
     reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2577145 and 'msn2' in platform"
+      - "https://redmine.mellanox.com/issues/3500798"
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
   skip:
