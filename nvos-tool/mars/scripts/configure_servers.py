@@ -46,7 +46,7 @@ logger = get_logger("ConfigureServers")
 
 def run_cmd(test_server_conn, cmd):
     try:
-        test_server_conn.run(cmd)
+        return test_server_conn.run(cmd)
     except BaseException as exc:
         logger.info(exc)
 
@@ -101,6 +101,15 @@ def reboot_server(server_name):
     time.sleep(300)
 
 
+def check_directory_accessibility(server_name, test_server_conn):
+    cmd = "ls /auto/sw_regression/system"
+    output = run_cmd(test_server_conn, cmd)
+    if "cannot access" in output:
+        reboot_server(server_name)
+        return is_device_up(server_name)
+    return True
+
+
 def verify_server_is_functional(server_name):
     if not is_device_up(server_name):
         reboot_server(server_name)
@@ -111,23 +120,27 @@ def verify_server_is_functional(server_name):
 def main():
     logger.info("Checking servers functionality")
     for server_name in servers_to_check_functionality.keys():
-        logger.info(f"Checking server {server_name} functionality")
-        logger.info("Server usage: " + servers_to_check_functionality[server_name]['description'])
+        try:
+            logger.info(f"Checking server {server_name} functionality")
+            logger.info("Server usage: " + servers_to_check_functionality[server_name]['description'])
 
-        is_functional = verify_server_is_functional(server_name)
+            is_functional = verify_server_is_functional(server_name)
 
-        if is_functional:
-            user_name = os.getenv("TEST_SERVER_USER")
-            password = os.getenv("TEST_SERVER_PASSWORD")
+            if is_functional:
+                user_name = os.getenv("TEST_SERVER_USER")
+                password = os.getenv("TEST_SERVER_PASSWORD")
 
-            logger.info(f"Create {server_name} connection object using username {user_name}")
-            test_server_conn = Connection(servers_to_check_functionality[server_name]['ip'],
-                                          user=user_name,
-                                          config=Config(overrides={"run": {"echo": True}}),
-                                          connect_kwargs={"password": password})
+                logger.info(f"Create {server_name} connection object using username {user_name}")
+                test_server_conn = Connection(servers_to_check_functionality[server_name]['ip'],
+                                              user=user_name,
+                                              config=Config(overrides={"run": {"echo": True}}),
+                                              connect_kwargs={"password": password})
 
-            if server_name in servers_to_configure:
-                configure_server(server_name, test_server_conn)
+                if server_name in servers_to_configure:
+                    if check_directory_accessibility(server_name, test_server_conn):
+                        configure_server(server_name, test_server_conn)
+        except BaseException as ex:
+            logger.warning(ex)
 
 
 if __name__ == "__main__":
