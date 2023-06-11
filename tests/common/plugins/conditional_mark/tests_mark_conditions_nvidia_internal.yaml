@@ -772,7 +772,7 @@ everflow/test_everflow_testbed.py:
       - "https://redmine.mellanox.com/issues/3431638 and 'sn5' in platform"
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
-skip:
+  skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499866"
     conditions:
       - "https://redmine.mellanox.com/issues/3499866"
