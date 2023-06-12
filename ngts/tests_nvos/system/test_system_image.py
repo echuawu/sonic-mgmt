@@ -337,12 +337,11 @@ def test_image_install(release_name, test_name):
     try:
         with allure.step("Install the first image"):
             logging.info("Install the first image")
-            install_image_and_verify(image_files[0], partition_id_for_new_image, original_images, system, test_name)
+            install_image_and_verify(BASE_IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image, original_images, system)
 
         with allure.step("Install the second image"):
             logging.info("Install the second image")
-            expected_dictionary = install_image_and_verify(BASE_IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image,
-                                                           original_images, system)
+            expected_dictionary = install_image_and_verify(image_files[0], partition_id_for_new_image, original_images, system, test_name)
 
         with allure.step("Set partition {} to boot next".format(partition_id_for_new_image)):
             logging.info("Set partition {} to boot next".format(partition_id_for_new_image))
