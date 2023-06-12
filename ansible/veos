@@ -85,6 +85,9 @@ R-R640-16 ansible_host=r-r640-16
 [vm_host_62]
 DEV-R-VRT-249 ansible_host=dev-r-vrt-249
 
+[vm_host_63]
+MTVR-R640-01 ansible_host=mtvr-r640-01
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -115,6 +118,7 @@ vm_host_59
 vm_host_60
 vm_host_61
 vm_host_62
+vm_host_63
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -916,6 +920,40 @@ VM2730 ansible_host=10.215.34.92
 VM2731 ansible_host=10.215.34.93
 VM2732 ansible_host=10.215.34.94
 
+[vms_63]
+VM2801 ansible_host=10.245.20.123
+VM2802 ansible_host=10.245.20.124
+VM2803 ansible_host=10.245.20.125
+VM2804 ansible_host=10.245.20.126
+VM2805 ansible_host=10.245.20.127
+VM2806 ansible_host=10.245.20.128
+VM2807 ansible_host=10.245.20.129
+VM2808 ansible_host=10.245.20.130
+VM2809 ansible_host=10.245.20.131
+VM2810 ansible_host=10.245.20.132
+VM2811 ansible_host=10.245.20.133
+VM2812 ansible_host=10.245.20.134
+VM2813 ansible_host=10.245.20.135
+VM2814 ansible_host=10.245.20.136
+VM2815 ansible_host=10.245.20.137
+VM2816 ansible_host=10.245.20.138
+VM2817 ansible_host=10.245.20.139
+VM2818 ansible_host=10.245.20.140
+VM2819 ansible_host=10.245.20.141
+VM2820 ansible_host=10.245.20.142
+VM2821 ansible_host=10.245.20.143
+VM2822 ansible_host=10.245.20.144
+VM2823 ansible_host=10.245.20.145
+VM2824 ansible_host=10.245.20.146
+VM2825 ansible_host=10.245.20.147
+VM2826 ansible_host=10.245.20.148
+VM2827 ansible_host=10.245.20.149
+VM2828 ansible_host=10.245.20.150
+VM2829 ansible_host=10.245.20.151
+VM2830 ansible_host=10.245.20.152
+VM2831 ansible_host=10.245.20.153
+VM2832 ansible_host=10.245.20.154
+
 [eos:children]
 vms_1
 vms_2
@@ -946,6 +984,7 @@ vms_59
 vms_60
 vms_61
 vms_62
+vms_63
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -1195,6 +1234,17 @@ host_var_file=host_vars/DEV-R-VRT-249.yml
 host_var_file=host_vars/DEV-R-VRT-249.yml
 mgmt_prefixlen=16
 
+[server_63:children]
+vm_host_63
+vms_63
+
+[server_63:vars]
+host_var_file=host_vars/MTVR-R640-01.yml
+
+[vms_63:vars]
+host_var_file=host_vars/MTVR-R640-01.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1225,6 +1275,7 @@ server_59
 server_60
 server_61
 server_62
+server_63
 
 [servers:vars]
 topologies=['dualtor', 'dualtor-mixed', 'dualtor-aa', 'dualtor-56', 'dualtor-mixed-56', 'dualtor-aa-56', 't1', 't1-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', appliance]
