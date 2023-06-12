@@ -2034,15 +2034,6 @@
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
 
-- Errors_list:
-    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''
-  Conditions:
-    - Platform:
-      - arm64-nvda_bf-mbf2h536c
-      - arm64-nvda_bf-9009d3b600cvaa
-      Redmine:
-      - 3346254
-
 # Errors which should be ignored in tests which doing reboot/reload
 - Errors_list:
     - '.* ERR watchdogutil: Failed to get watchdog module'
