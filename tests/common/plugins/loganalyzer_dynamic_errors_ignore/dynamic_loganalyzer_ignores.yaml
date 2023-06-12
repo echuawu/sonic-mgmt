@@ -143,6 +143,7 @@
     # After issuing reboot command, if we get the above error log we can ignore them. Please note,
     # this can be observed for any service that was issued to be enable but reboot command was give.
     - '.*ERR hostcfgd: sudo systemctl start syncd.service - failed: return code - 1.*'
+    - '.*sonic ERR hostcfgd: \[.*\] - failed: return code - \d+, output:.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
@@ -432,6 +433,12 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+
+- Errors_list:
+    - '.*ERR kernel: \[.*\d+\.\d+\] Register access failed \(reg_id=0x9014, status=0x1\).*'
+  Conditions:
+    - Redmine:
+        - 3486142
 
 - Errors_list:
     - '.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
@@ -782,7 +789,7 @@
 - Errors_list:
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
     - '.* ERR kernel: \[.*\] hwmon hwmon\d+: Failed to query module temperature.*'
-    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query temp sensor.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal \d+-0048: Failed to query temp sensor.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM.*'
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query fan.*'
     - '.* ERR pmon#thermalctld: Failed to read from file /run/hw-management/thermal/module.*_temp_fault - OSError.*'
@@ -1461,6 +1468,16 @@
       - generic_config_updater/test_monitor_config.py
       Redmine:
       - 3174870
+
+- Errors_list:
+    - '.*ERR swss#orchagent: :- createEntry: detection_time missing.*'
+    - '.*ERR swss#orchagent: :- doTask: Failed to process PFC watchdog SET task, invalid entry.*'
+    - '.*ERR swss#orchagent: :- createEntry: Failed to parse PFC Watchdog Ethernet.* configuration\. Unknown attribute NULL.*'
+  Conditions:
+    - Affected_test_cases:
+      - generic_config_updater/test_pfcwd_interval.py::test_stop_pfcwd
+      Redmine:
+      - 3449977
 
 - Errors_list:
     - ".* ERR teamd#tlm_teamd: :- process_add_queue: Can't connect to teamd after 10 attempts. LAG.*"
@@ -2436,7 +2453,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:94 Failed verify eth interface configuration.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_mtu
@@ -2480,18 +2497,36 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:100 Failed verify ib interface configuration.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify ib interface configuration.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed_invalid
 
 # NVOS Errors which should be ignored in tests which doing reset service
 - Errors_list:
+    - '.* ERR health-statsd#health_history: ib-utils: Container .* is not running.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_with_dockers_down
+
+# NVOS
+- Errors_list:
     - '.*ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
     - '.*ERR hostcfgd: \[.*\] - failed: return code - 1, output:#012b''.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+
+- Errors_list:
+    - '.* ERR auditd\[376\]: queue to plugins is full - dropping event.*'
+    - '.* ERR auditd\[376\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
+    - '.* ERR auditd\[376\]: auditd queue full reporting limit reached \- ending dropped event.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+    - Redmine:
+        - 3482718
 
 - Errors_list:
     - '.*ERR hostcfgd: ldap server ip=.* is not a valid IP address.*'
@@ -2504,14 +2539,31 @@
 
 # NVOS
 - Errors_list:
-    - '.* .* ERR nvued:   ERROR: lifecycle.py:146 File not found.*'
+    - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
 
 # NVOS
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:289 User requested a .* reboot, but NVOS cant perform it.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
+    - '.*ERR systemd-timedated\[\d+\]: Failed to set local time: Invalid argument.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow_openapi
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi
+
+# NVOS
+- Errors_list:
+    - '.* .* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_upload
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ User requested a .* reboot, but NVOS cant perform it.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_reboot.py::test_reboot_command_type
@@ -2561,18 +2613,27 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/config_commands/test_apply_detach.py::test_apply_assume
-        - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive
-        - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+        - tests_nvos/general/config_commands/test_replace_patch.py
         - tests_nvos/general/config_commands/test_show_diff_history.py
         - tests_nvos/system/test_show_system.py::test_system
         - tests_nvos/system/test_show_system.py::test_system_openapi
+        - tests_nvos/system/test_show_system.py::test_show_system_cpu_openapi
       Redmine:
         - 3474336
 
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: \[.*\] - failed.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run_multiple_times
+        - tests_nvos/system/test_system_reboot.py
+      Redmine:
+        - 3494875
 
 # NVOS : Errors which should be ignored in tests using invalid url
 - Errors_list:
-    - '.* ERR nvued:   ERROR: lifecycle.py:185 File not found.*'
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
     - '.* ERR nvued:   ERROR: format_checkers.py:246.*'
     - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:246.*'
     - '.* ERR nvued:   ERROR: format_checkers.py:246 Instance ffff:.*'
@@ -2625,3 +2686,149 @@
   Conditions:
     - Redmine:
         - 3473183
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_PORT\.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future\. Please use sx_api_port_parser_attr_set in its place.*'
+  Conditions:
+    - Redmine:
+        - 3482636
+
+- Errors_list:
+    - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
+  Conditions:
+    - Redmine:
+        - 3487047
+
+- Errors_list:
+    - '.*ERR hw-management-tc: ERROR - Missing max tachos config.*'
+  Conditions:
+    - Redmine:
+        - 3465864
+
+- Errors_list:
+    - '.*ERR kernel: .* mlxsw_minimal 2-0048: Failed to write PWM.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/fec/test_fec.py
+      Redmine:
+        - 3488995
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL Detected with cause : FW health issue \[id = 1\].*'
+    - '.*ERR kernel: .* sx_core: SDK health event, device:.*'
+    - '.*ERR kernel: .* SXD_HEALTH_FATAL:On device 1 cause =''FW health issue'' \[id = 1\]- Stopping further device monitoring!.*'
+    - '.*ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+    - '.*ERR hw-management-tc: ERROR - Read PWM error. Possible hw-management is not running.*'
+    - '.*ERR hw-management-tc: message repeated .* times: \[ ERROR - Read PWM error. Possible hw-management is not running\].*'
+  Conditions:
+    - Redmine:
+        - 3488969
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[FW health issue\], cause_id = \[\d+\]'
+    - '.*ERR syncd#SDK: \[SX_API_INTERNAL.ERR\] Failed command read at communication channel: Connection reset by peer'
+    - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue'
+  Conditions:
+    - Redmine:
+        - 3497721
+
+- Errors_list:
+    - '.*ERR syncd#SDK: .*- sai_set_attribute: Failed to set the attribute..*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch
+      Redmine:
+        - 3488512
+
+# NVOS : Errors - Bug 3493347 related
+- Errors_list:
+    - '.*ERR dhclient\[\d+\]: send_packet: Network is unreachable.*'
+    - '.*ERR dhclient\[\d+\]: send_packet: please consult README file regarding broadcast address.*'
+    - '.*ERR dhclient\[\d+\]: dhclient.c:2879: Failed to send 300 byte long packet over fallback interface.*'
+  Conditions:
+    - Redmine:
+        - 3493347
+
+# NVOS
+- Errors_list:
+    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/traffic/test_basic_traffic.py
+      - tests_nvos/interfaces/test_ib_interface_counters.py
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_timings
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
+    - '.*ERR kernel: \[.*\] SX_BULK_CNTR: operation TLV is missing in buffer.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] mlnx_sai_port\.c\[\d+\]- mlnx_get_port_stats_ext: Failed to prepare bulk counter for port stats.*'
+    - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
+  Conditions:
+    - Redmine:
+      - 3492750
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: ib-utils: Container .* is not running.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: bad_device: device is out of power.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file
+      - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
+      - tests_nvos/system/test_system_health.py::test_system_health_files
+
+# NVOS
+- Errors_list:
+    - ".*ERR health-statsd#health_history: snmp:snmp-subagent: 'snmp-subagent' is not running.*"
+    - ".*ERR health-statsd#health_history: snmp:snmpd: 'snmpd' is not running.*"
+    - ".*ERR health-statsd#health_history: snmp: Container 'snmp' is not running.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+      - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+        - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+        - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file
+        - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
+        - tests_nvos/system/test_system_health.py::test_system_health_files
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop
+        - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+
+# NVOS
+- Errors_list:
+    - '.*ERROR: native.py:\d+ Port internal name for interface .* is empty.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid supported_speeds None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid supported_speeds \[\], returning max None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid speed_admin None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* admin_speed is None speed should be configured first.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_timings
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_counters
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_n_times
+      Redmine:
+        - 3498811

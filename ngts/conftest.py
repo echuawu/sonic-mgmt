@@ -467,11 +467,12 @@ def engines(topology_obj):
     return engines_data
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', autouse=True)
 def test_name(request):
     """
     Method for getting the test name parameter
     :param request: pytest builtin
     :return: the test name, i.e, push_gate
     """
-    return request.node.name
+    pytest.test_name = request.node.name
+    return pytest.test_name

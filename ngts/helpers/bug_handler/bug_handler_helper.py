@@ -38,6 +38,8 @@ def handle_sanitizer_dumps(dump_paths, cli_type, branch, version, setup_name):
     stm_engine = LinuxSshEngine(STM_IP,
                                 DefaultSTMCred.DEFAULT_USERNAME,
                                 DefaultSTMCred.DEFAULT_PASS)
+    session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
+    create_session_tmp_folder(stm_engine, session_id)
     redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
     bug_handler_conf_file = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
     conf_path_at_stm = configure_stm_for_bug_handler(stm_engine, bug_handler_conf_file)
@@ -46,7 +48,18 @@ def handle_sanitizer_dumps(dump_paths, cli_type, branch, version, setup_name):
             bug_handler_dumps_results.append(handle_sanitizer_dump(stm_engine, conf_path_at_stm,
                                                                    sanitizer_dump_path, redmine_project,
                                                                    branch, version, setup_name))
+    clear_files(stm_engine, session_id)
     return bug_handler_dumps_results
+
+
+def create_session_tmp_folder(stm_engine, session_id):
+    stm_engine.run_cmd(f"sudo mkdir /tmp/{session_id}")
+    stm_engine.run_cmd(f"sudo chmod 777 /tmp/{session_id}")
+
+
+def clear_files(stm_engine, session_id):
+    stm_engine.run_cmd(f"sudo rm -rf /tmp/{session_id}")
+    os.system("rm -rf /tmp/parsed_sanitizer_dumps/")
 
 
 def configure_stm_for_bug_handler(stm_engine, bug_handler_conf_file):
@@ -171,8 +184,8 @@ def scp_file_to_stm(file_path):
     """
     file_base_dir, file_name = os.path.split(file_path)
     with allure.step(f"Copy file: {file_name} to STM"):
-        file_path_at_stm = os.path.join("/tmp", file_name)
-        cmd = f'sudo sshpass -p "{DefaultSTMCred.DEFAULT_PASS}" scp {file_path} ' \
+        file_path_at_stm = os.path.join("/tmp", os.environ.get(InfraConst.ENV_SESSION_ID), file_name)
+        cmd = f'sudo sshpass -p "{DefaultSTMCred.DEFAULT_PASS}" scp -o StrictHostKeyChecking=no {file_path} ' \
               f'{DefaultSTMCred.DEFAULT_USERNAME}@{STM_IP}:{file_path_at_stm}'
         logger.info("Copy to STM. CMD: %s" % cmd)
         os.system(cmd)
@@ -194,7 +207,8 @@ def bug_handler_wrapper(stm_engine, conf_path_at_stm, redmine_project,
     {'file_name': '2022-06-21_23-24-07_orchagent-asan.log.40',
     'messages': ['INFO:handle_bug:reading configuration from', ...],
     'rc': 0,
-    'decision': 'update'}
+    'decision': 'update',
+    'recommended_action': "Bug handler updated an existing bug, no additional action needed"}
     """
     bug_handler_cmd = f"sudo -E {BugHandlerConst.BUG_HANDLER_PYTHON_PATH} {BugHandlerConst.BUG_HANDLER_SCRIPT} " \
                       f"--cfg {conf_path_at_stm} --project {redmine_project} " \
@@ -202,27 +216,78 @@ def bug_handler_wrapper(stm_engine, conf_path_at_stm, redmine_project,
                       f"--debug_level 2 --parsed_data {yaml_parsed_file}"
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = stm_engine.run_cmd(bug_handler_cmd)
-    bug_handler_messages, bug_handler_rc, bug_handler_decision = parse_bug_handler_output(bug_handler_output)
+    bug_handler_messages, bug_handler_rc, bug_handler_decision, recommended_action = \
+        parse_bug_handler_output(bug_handler_output)
     bug_handler_sanitizer_file_result = dict()
     bug_handler_sanitizer_file_result["file_name"] = sanitizer_file_name
     bug_handler_sanitizer_file_result["messages"] = bug_handler_messages
     bug_handler_sanitizer_file_result["rc"] = bug_handler_rc
     bug_handler_sanitizer_file_result["decision"] = bug_handler_decision
+    bug_handler_sanitizer_file_result["recommended_action"] = recommended_action
     return bug_handler_sanitizer_file_result
 
 
 def parse_bug_handler_output(bug_handler_output):
     json_output = json.loads(bug_handler_output)
     bug_handler_messages = json_output["messages"]
+    messages = "\n".join(bug_handler_messages)
     bug_handler_rc = json_output["rc"]
-    decision = re.search("INFO:handle_bug:decision: (.*)", "\n".join(bug_handler_messages))
-    if decision:
-        bug_handler_decision = decision.group(1)
-    else:
-        bug_handler_decision = "not found"
+    bug_handler_decision = parse_bug_handler_messages(bug_handler_rc, messages)
+    recommended_action = get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, messages)
     logger.info(f"Bug Handler RC: {bug_handler_rc}")
     logger.info(f"Bug Handler Decision: {bug_handler_decision}")
-    return bug_handler_messages, bug_handler_rc, bug_handler_decision
+    return bug_handler_messages, bug_handler_rc, bug_handler_decision, recommended_action
+
+
+def parse_bug_handler_messages(bug_handler_rc, bug_handler_messages):
+    if bug_handler_rc == InfraConst.RC_SUCCESS:
+        decision = re.search(r"decision:\s*(.*)", bug_handler_messages, re.IGNORECASE)
+        action_res = re.search(r"bug action:\s*(.*)", bug_handler_messages, re.IGNORECASE)
+        if decision:
+            bug_handler_decision = decision.group(1)
+        if action_res:
+            action = action_res.group(1)
+            if action == BugHandlerConst.BUG_HANDLER_DECISION_REOPEN:
+                bug_handler_decision = BugHandlerConst.BUG_HANDLER_DECISION_REOPEN
+    elif bug_handler_rc == BugHandlerConst.RC_ABORT:
+        bug_handler_decision = BugHandlerConst.BUG_HANDLER_DECISION_ABORT
+    else:
+        bug_handler_decision = "not found"
+    return bug_handler_decision
+
+
+def get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, bug_handler_messages):
+    recommended_action = "Unknown scenario, please debug bug handler output."
+    if bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_UPDATE:
+        recommended_action = "Bug handler updated an existing bug, no additional action needed"
+    elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_CREATE:
+        bug_id = get_created_bug_id(bug_handler_messages)
+        recommended_action = f"Bug handler had created a new bug for this issue,<br>" \
+                             f" Please review ticket and update missing info.<br>" \
+                             f"Bug id: {bug_id}."
+    elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_ABORT:
+        recommended_action = f"Bug handler could not compare signature in sanitizer log.<br>" \
+                             f"1. If sanitizer log is missing traceback, update sanitizer tool owner.<br>" \
+                             f"2. If sanitizer log does not missing traceback, <br>" \
+                             f"update bug handler owner team that bug handler " \
+                             f"could not parse sanitizer output correctly.<br>" \
+                             f"3. Open bug manually for this leak, if an open issue does not exist."
+    elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_REOPEN:
+        recommended_action = "Bug handler had changed the status of an existing bug from fixed/closed to assigned.<br>" \
+                             "Review the bug and alert the bug owner that fix is not working or merged."
+    elif bug_handler_rc is not InfraConst.RC_SUCCESS:
+        recommended_action = f"Bug handler had failed, please review bug handler output.<br>" \
+                             f"1. If needed, consult with bug handler owner team about reason for failure.<br>" \
+                             f"2. Rerun bug handler after fix or review sanitizer leak manually."
+    return recommended_action
+
+
+def get_created_bug_id(bug_handler_messages):
+    bug_id = "could not find bug id in bug handler output, please review regex pattern"
+    result = re.search(r"\[INFO\] created bug with id=(\d+)", bug_handler_messages)
+    if result:
+        bug_id = result.group(1)
+    return bug_id
 
 
 def create_summary_html_report(session_id, setup_name, dumps_folder, sanitizer_dumps_info):
@@ -252,5 +317,6 @@ def get_xml_template(template_name):
 def review_bug_handler_results(bug_handler_results):
     for dump_info in bug_handler_results:
         for bug_handler_result in dump_info["results"]:
-            if bug_handler_result["decision"] != "update" or bug_handler_result["rc"] != 0:
+            if bug_handler_result["decision"] != BugHandlerConst.BUG_HANDLER_DECISION_UPDATE\
+                    or bug_handler_result["rc"] != InfraConst.RC_SUCCESS:
                 raise AssertionError("Bug handler found undetected issues, please review summary attached to allure")

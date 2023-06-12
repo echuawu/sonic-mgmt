@@ -102,7 +102,7 @@ def test_system_image_rename(release_name):
     try:
         with allure.step("Install new image name"):
             logging.info("Install new image name: {}".format(new_name))
-            fetched_image_file.action_file_install()
+            fetched_image_file.action_file_install().verify_result()
 
         with allure.step("Verify installed image"):
             logging.info("Verify installed image, we should see the origin name and not the new name,"
@@ -241,9 +241,9 @@ def test_system_image_bad_flow(engines, release_name):
         with allure.step("Install the same image twice"):
             try:
                 with allure.step("First installation"):
-                    image_file.action_file_install()
+                    image_file.action_file_install().verify_result()
                 with allure.step("Second installation"):
-                    image_file.action_file_install()
+                    image_file.action_file_install().verify_result()
             finally:
                 with allure.step("uninstall"):
                     system.image.action_uninstall(params='force')
@@ -461,15 +461,16 @@ def get_list_of_directories(current_installed_img, starts_with=None):
 
 
 def get_images_to_fetch(release_name, current_installed_img, images_amount=1):
-    images_to_fetch = []
+    images_to_fetch = [('nvos-amd64-25.01.1002.bin', '/auto/sw_system_release/nos/nvos/25.01.1002/amd64/nvos-amd64-25.01.1002.bin')]
     with allure.step("Get list of images"):
         logging.info("Get list of images")
         relevant_directories = get_list_of_directories(current_installed_img, release_name)
         for directory, images_list in relevant_directories.items():
-            images_to_fetch.append((images_list[0], directory + images_list[0]))
-            logging.info("Selected image: " + directory + images_list[0])
             if len(images_to_fetch) == images_amount:
                 break
+            images_to_fetch.append((images_list[0], directory + images_list[0]))
+            logging.info("Selected image: " + directory + images_list[0])
+
     return images_to_fetch
 
 

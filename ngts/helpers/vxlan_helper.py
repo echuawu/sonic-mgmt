@@ -265,26 +265,30 @@ def verify_underlay_ecmp_counter_entry(cli_objects, interface_counter_check_list
     This method is to verify the vxlan counter
     :param cli_objects: cli_object fixture
     :param interface_counter_check_list: counter check items, for example,
-    [['Ethernet64', 'rx', 400], ['Ethernet0', 'tx', 200]]
+    [['Ethernet64', 'rx', 400], [['Ethernet0', 'Ethernet128'], 'tx', 400]]
     """
     interface_counters_dict = cli_objects.dut.vxlan.show_interface_counter()
     check_item_num = len(interface_counter_check_list)
     count = 0
     for check_item in interface_counter_check_list:
-        intf_name = check_item[0]
+        intf_names = check_item[0]
         tx_rx_type = check_item[1]
         packet_num = int(check_item[2])
+        total_tx_packets = 0
         for _, counter_values in interface_counters_dict.items():
             if tx_rx_type == 'tx':
-                if counter_values["IFACE"] == intf_name and int(counter_values["TX_OK"]) >= packet_num:
-                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter is \
-                    {counter_values["TX_OK"]}, need to be at least {packet_num}')
-                    count += 1
+                for intf_name in intf_names:
+                    if counter_values["IFACE"] == intf_name:
+                        total_tx_packets += int(counter_values["TX_OK"])
             elif tx_rx_type == 'rx':
-                if counter_values["IFACE"] == intf_name and int(counter_values["RX_OK"]) >= packet_num:
-                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter is \
-                    {counter_values["RX_OK"]}, need to be at least {packet_num}')
+                if counter_values["IFACE"] == intf_names and int(counter_values["RX_OK"]) >= packet_num:
+                    logger.info(f'Checking {counter_values["IFACE"]}, the {tx_rx_type} counter '
+                                f'is {counter_values["RX_OK"]}, need to be at least {packet_num}')
                     count += 1
+        if total_tx_packets >= packet_num:
+            logger.info(f'Checking {intf_names}, the {tx_rx_type} counter is {total_tx_packets}, '
+                        f'need to be at least {packet_num}')
+            count += 1
     assert count == check_item_num, "Counter value not correct"
 
 

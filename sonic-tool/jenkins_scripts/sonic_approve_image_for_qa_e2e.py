@@ -3,148 +3,19 @@ This script used by Jenkins job: http://jenkins-fit81-sws.mellanox.com/job/sonic
 This script creates HTML - which will be send in email at the end of Jenkins job execution
 Script doing next:
  - Get environment variables
- - Get info about applications WJH/LCM
  - Create HTML with next content:
     - Email header
-    - Info about apps(WJH/DoRoCe) - if available
     - Info about PRs and issues - if available
  - Write HTML file
 """
 
 import os
-import json
-
-# Doing imports dynamically to be able to run code on different Python versions with requests/urllib
-requests_imported = False
-urllib_imported = False
-try:
-    import requests
-
-    requests_imported = True
-except ImportError:
-    import urllib
-
-    urllib_imported = True
 
 # Gen env variables
-build_id = os.environ.get('BUILD_ID')
-is_dpu_image = os.environ.get('IS_DPU_IMAGE')
-
-wjh_ver = os.environ.get('WJH_VER')
-doroce_ver = os.environ.get('DOROCE_VER')
-wjh_included_in_image = False
-doroce_included_in_image = False
-
 included_prs = os.environ.get('INCLUDED_PRS')
 not_included_prs = os.environ.get('NOT_INCLUDED_PRS')
 fixed_issues = os.environ.get('FIXED_ISSUES')
 known_issues = os.environ.get('KNOWN_ISSUES')
-
-
-def get_apps_info_from_build_params(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image):
-    """
-    Get info about WJH/DoRoCe from build parameters
-    :param wjh_ver: wjh version
-    :param wjh_included_in_image: True/False
-    :param doroce_ver: doroce version
-    :param doroce_included_in_image: True/False
-    :return: wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image
-    """
-    print('Getting WJH/DoRoCe versions info from original build job "sonic_main" build id {}'.format(build_id))
-    api_url = 'http://jenkins-fit81-sws.mellanox.com/job/sonic_main/{}/api/json'.format(build_id)
-    response = {}
-    if requests_imported:
-        response = requests.get(api_url).json()
-    else:
-        if urllib_imported:
-            response = json.loads(urllib.urlopen(api_url).read().decode('utf-8'))
-
-    for action in response['actions']:
-        if action.get('parameters'):
-            build_params = action['parameters']
-            wjh_ver, wjh_included_in_image = get_application_version_info_from_build_params(build_params,
-                                                                                            app_param_name='WJH_VERSION',
-                                                                                            app_ver=wjh_ver)
-            doroce_ver, doroce_included_in_image = get_application_version_info_from_build_params(build_params,
-                                                                                            app_param_name='DOROCE_VERSION',
-                                                                                            app_ver=doroce_ver)
-
-    print('WJH versions is: {}, is included in image: {}'.format(wjh_ver, wjh_included_in_image))
-    print('DoRoCe versions is: {}, is included in image: {}'.format(doroce_ver, doroce_included_in_image))
-
-    return wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image
-
-
-def get_application_version_info_from_build_params(build_params, app_param_name, app_ver, app_included_in_image=False):
-    """
-    Get info about application from build parameters
-    :param build_params: dict with build parameters
-    :param app_param_name: name of parameter
-    :param app_ver: application version, if not provided and we able to get from build params - will return app ver
-    :param app_included_in_image: is app included in image
-    :return: app version and True/False about is it included in image
-    """
-    for parameter in build_params:
-        if parameter['name'] == app_param_name:
-            if not app_ver:
-                app_ver = parameter['value']
-            if parameter['value']:
-                app_included_in_image = True
-
-            return app_ver, app_included_in_image
-
-
-def build_app_info_email_body(app, version, is_included):
-    """
-    Build email body - part related to applications
-    :param app: App name
-    :param version: App version
-    :param is_included: is app included in SONiC image
-    :return: string(html) with info about application
-    """
-    if not version.startswith('http'):
-        version = 'urm.nvidia.com/sw-nbu-sws-sonic-docker/{}:{}'.format(app, version)
-
-    app_info = '<tr style="height: 18px;">' \
-               '<td style="width: 50%; height: 18px;">{}</td>' \
-               '<td style="width: 25%; height: 18px;">{}</td>' \
-               '<td style="width: 25%; height: 18px;">{}</td>' \
-               '</tr>'.format(app, version, is_included)
-    return app_info
-
-
-def build_email_info_about_apps(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image):
-    """
-    Add to email info about apps(WJH/DoRoCe)
-    :param wjh_ver: WJH ver
-    :param wjh_included_in_image: True/False
-    :param doroce_ver: DoRoCe ver
-    :param doroce_included_in_image: True/False
-    :return string(html)
-    """
-    email_body = ''
-    if wjh_ver or doroce_ver:
-        wjh_lcp_header = '<table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">' \
-                         '<tbody>' \
-                         '<tr style="height: 18px; background-color: #777; color: white; font-weight: bold;">' \
-                         '<td style="width: 50%;">Application</td>' \
-                         '<td style="width: 25%;">Version</td>' \
-                         '<td style="width: 25%;">Included in image</td>' \
-                         '</tr>'
-        email_body += wjh_lcp_header
-
-        if wjh_ver:
-            wjh_info = build_app_info_email_body(app='sonic-wjh', version=wjh_ver, is_included=wjh_included_in_image)
-            email_body += wjh_info
-
-        if doroce_ver:
-            doroce_info = build_app_info_email_body(app='sonic-doroce', version=doroce_ver, is_included=doroce_included_in_image)
-            email_body += doroce_info
-
-        wjh_doroce_end = '</tbody>' \
-                      '</table>'
-        email_body += wjh_doroce_end
-    return email_body
 
 
 def build_extended_email_body(title, extended_list):
@@ -218,17 +89,13 @@ def build_known_issues_email_body(issues_list):
     return build_extended_email_body(title, issues_list)
 
 
-def create_email(wjh_ver=None, wjh_included_in_image=None, doroce_ver=None, doroce_included_in_image=None,
-                 included_prs=None, not_included_prs=None, fixed_issues=None, known_issues=None):
+def create_email(included_prs=None, not_included_prs=None, fixed_issues=None, known_issues=None):
     email_body = ''
 
     email_header = '<p style="font-size:14px">Hi All,</p>' \
                    '<p style="font-size:14px">This version is approved for QA and E2E.</p>'
 
     email_body += email_header
-
-    if wjh_ver or doroce_ver:
-        email_body += build_email_info_about_apps(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image)
 
     if included_prs:
         email_body += build_included_prs_email_body(included_prs.splitlines())
@@ -248,11 +115,4 @@ def create_email(wjh_ver=None, wjh_included_in_image=None, doroce_ver=None, doro
 
 if __name__ == "__main__":
 
-    if not is_dpu_image:
-        wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image = get_apps_info_from_build_params(wjh_ver,
-                                                                                                         wjh_included_in_image,
-                                                                                                         doroce_ver,
-                                                                                                         doroce_included_in_image)
-
-    create_email(wjh_ver, wjh_included_in_image, doroce_ver, doroce_included_in_image,
-                 included_prs, not_included_prs, fixed_issues, known_issues)
+    create_email(included_prs, not_included_prs, fixed_issues, known_issues)

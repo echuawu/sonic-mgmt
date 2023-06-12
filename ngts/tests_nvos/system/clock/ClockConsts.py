@@ -1,4 +1,5 @@
 from ngts.nvos_constants.constants_nvos import SystemConsts
+import os
 
 
 class ClockConsts:
@@ -7,7 +8,7 @@ class ClockConsts:
 
     DATETIME_MARGIN = 10  # tune this to decide what diff (in seconds) is ok between timedatectl and nv show system
     DEFAULT_TIMEZONE = "Etc/UTC"
-    PATH_TIMEZONE_YAML = "/auto/sw_system_release/nos/nvos/alonn/timezone.yaml"
+    PATH_TIMEZONE_YAML = os.path.join(os.getcwd(), 'timezone.yaml')
 
     TIMEDATECTL_CMD = "timedatectl"
     TIMEDATECTL_TIMEZONE_FIELD_NAME = "Time zone"

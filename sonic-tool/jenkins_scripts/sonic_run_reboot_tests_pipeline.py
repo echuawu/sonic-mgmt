@@ -40,6 +40,32 @@ DB_FILE_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
     <Test>
     </Test>
     <Case>
+        <on_not_success>
+        <name> Generate sysdump on not success </name>
+        <type> setup_mode </type>
+        <cmd>
+            <type> reg_exec_cmd </type>
+            <players_selection>
+                <ep_targets> SONIC_MGMT </ep_targets>
+            </players_selection>
+            <name> run_on_stm </name>
+            <tout> 600 </tout>
+            <params>
+                <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py --setup_name=[[conf:extra_info.setup_name]] --tech_support_duration=7200 --session_id=[[run_time:session_id]] --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+            </params>
+        </cmd>
+        <cmd>
+            <type> reg_exec_cmd </type>
+            <players_selection>
+                <ep_targets> SONIC_MGMT </ep_targets>
+            </players_selection>
+            <name> run_on_stm </name>
+            <tout> 600 </tout>
+            <params>
+                <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/collect_ptf_logs_on_not_success.py --setup_name=[[conf:extra_info.setup_name]] --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+            </params>
+        </cmd>
+    </on_not_success>
     </Case>
 </global>
 <test>
@@ -83,7 +109,7 @@ CASES_FILE_REBOOT_WITH_UPGRADE_TESTCASE_TEMPLATE = '''<case>
     <tout> 3600 </tout>
     <cmd>
          <params>
-             <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\\\'--log-cli-level debug  --show-capture=no -ra --showlocals --upgrade_type={test_type} --base_image_list={base_versions_list} --target_image_list={target_version} --clean-alluredir --alluredir=/tmp/allure-results --allure_server_project_id=\\\"\\\" --allure_server_addr=\\\"10.215.11.120\\\"\\\'" --test-scripts upgrade_path/test_upgrade_path.py::test_upgrade_path </static_args>
+             <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\\\'--log-cli-level debug  --show-capture=no -ra --showlocals --upgrade_type={test_type} --base_image_list={base_versions_list} --target_image_list={target_version} --restore_to_image={target_version} --clean-alluredir --alluredir=/tmp/allure-results --allure_server_project_id=\\\"\\\" --allure_server_addr=\\\"10.215.11.120\\\"\\\'" --test-scripts upgrade_path/test_upgrade_path.py::test_upgrade_path </static_args>
          </params>
     </cmd>
 </case>

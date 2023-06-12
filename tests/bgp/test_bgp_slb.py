@@ -5,7 +5,6 @@ from tests.common.helpers.bgp import BGPNeighbor
 from tests.common.dualtor.mux_simulator_control import mux_server_url                                   # noqa F401
 from tests.common.dualtor.mux_simulator_control import toggle_all_simulator_ports_to_rand_selected_tor  # noqa F401
 from tests.common.utilities import wait_until
-from tests.common.reboot import check_warmboot_finalizer_inactive
 
 
 pytestmark = [

@@ -126,15 +126,21 @@ def runTestForSetup(setup_name){
     local_cmd = "sshpass -p ${env.STM_PASSWORD} ssh ${env.STM_USER}@mtr-stm-095 -o StrictHostKeyChecking=no \" ${stm_cmd} \" 2>&1"
     echo "Running CMD locally: ${local_cmd}"
 
-    result = sh (script: local_cmd, returnStdout: true)
-
-    // Get -2 the end element from output(it's always MARS session ID)
-    session_id = result.tokenize()[-2]
-    echo "Have session ID ${session_id}"
-
-    // Add session ID to shared dict - later use it for collect report
-    SESSION_IDS[setup_name] = session_id
-
+    try {
+        result = sh (script: local_cmd, returnStdout: true)
+        // Get -2 the end element from output(it's always MARS session ID)
+        session_id = result.tokenize()[-2]
+        echo "Have session ID ${session_id}"
+        run_failed = false
+    } catch (Throwable exc) {
+        run_failed = true
+        echo "Failed to run MARS session"
+    } finally {
+        if (!run_failed) {
+            // Add session ID to shared dict - later use it for collect report
+            SESSION_IDS[setup_name] = session_id
+        }
+    }
 }
 
 

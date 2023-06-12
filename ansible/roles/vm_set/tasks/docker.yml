@@ -62,7 +62,7 @@
 #  become: yes
 #  environment: "{{ proxy_env | default({}) }}"
 #  register: apt_update_res
-#  until: apt_update_res.cache_updated
+#  until: apt_update_res.cache_updated is defined and apt_update_res.cache_updated
 #  retries: 5
 #  delay: 10
 
@@ -71,19 +71,28 @@
   become: yes
   environment: "{{ proxy_env | default({}) }}"
 
-- name: remove old python packages
-  pip: name=docker-py state=absent executable={{ pip_executable }}
-  become: yes
-  environment: "{{ proxy_env | default({}) }}"
-  ignore_errors: yes
+- name: Update python2 packages
+  block:
+  - name: remove old python packages
+    pip: name=docker-py state=absent executable={{ pip_executable }}
+    become: yes
+    environment: "{{ proxy_env | default({}) }}"
+    ignore_errors: yes
+  - name: Install python packages
+    pip: name=docker version=4.1.0 state=forcereinstall executable={{ pip_executable }}
+    become: yes
+    environment: "{{ proxy_env | default({}) }}"
+  when: pip_executable=="pip"
 
-- name: Install python packages
-  pip: name=docker version=4.1.0 state=forcereinstall executable={{ pip_executable }}
-  become: yes
-  environment: "{{ proxy_env | default({}) }}"
-
-- name: Install python requests=2.29.0 package
-  pip: name=requests version=2.29.0 state=forcereinstall executable={{ pip_executable }}
-  become: yes
-  environment: "{{ proxy_env | default({}) }}"
-  when: host_distribution_version.stdout == "20.04"
+- name: Update python3 packages
+  block:
+  - name: remove old python packages
+    pip: name=docker-py state=absent executable={{ pip_executable }}
+    become: yes
+    environment: "{{ proxy_env | default({}) }}"
+    ignore_errors: yes
+  - name: Install python packages
+    pip: name=docker version=6.1.0 state=forcereinstall executable={{ pip_executable }}
+    become: yes
+    environment: "{{ proxy_env | default({}) }}"
+  when: pip_executable=="pip3"

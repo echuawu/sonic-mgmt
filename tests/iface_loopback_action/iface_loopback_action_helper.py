@@ -20,7 +20,8 @@ NUM_OF_TOTAL_PACKETS = 10
 logger = logging.getLogger(__name__)
 
 
-def generate_and_verify_traffic(duthost, ptfadapter, rif_interface, src_port_index, ip_src='', ip_dst='', pkt_action=None):
+def generate_and_verify_traffic(duthost, ptfadapter, rif_interface, src_port_index, ip_src='', ip_dst='',
+                                pkt_action=None):
     """
     Send packet from PTF to DUT and and verify packet on PTF host
     :param duthost: DUT host object
@@ -50,7 +51,8 @@ def generate_and_verify_traffic(duthost, ptfadapter, rif_interface, src_port_ind
     duthost.shell("sudo ip neigh replace {} lladdr {} dev {}".format(ip_dst, eth_src, rif_interface))
     pytest_assert(wait_until(60, 3, 0, check_neighbor, duthost, ip_dst, eth_src, rif_interface),
                   "Failed to add neighbor for {}.".format(ip_dst))
-    logger.info("Traffic info is: eth_dst- {}, eth_src- {}, ip_src- {}, ip_dst- {}, vlan_vid- {}".format(eth_dst, eth_src, ip_src, ip_dst, vlan_vid))
+    logger.info("Traffic info is: eth_dst- {}, eth_src- {}, ip_src- {}, ip_dst- {}, vlan_vid- {}".format(
+        eth_dst, eth_src, ip_src, ip_dst, vlan_vid))
     pkt = testutils.simple_ip_packet(
         eth_dst=eth_dst,
         eth_src=eth_src,
@@ -109,7 +111,6 @@ def check_neighbor(duthost, ip_address, mac_address, interface):
         return False
     return True
 
-
 def get_tested_up_ports(duthost, ptf_ifaces_map, count=10):
     """
     Get the specified number of up ports
@@ -161,9 +162,9 @@ def get_all_up_ports(config_facts):
     :return: List of ports which is up
     """
     split_port_alias_pattern = r"etp\d+[a-z]"
-    split_up_ports = [p for p, v in config_facts['PORT'].items() if v.get('admin_status', None) == 'up' and
+    split_up_ports = [p for p, v in list(config_facts['PORT'].items()) if v.get('admin_status', None) == 'up' and
                       not re.match(split_port_alias_pattern, v['alias'])]
-    non_split_up_ports = [p for p, v in config_facts['PORT'].items() if v.get('admin_status', None) == 'up' and
+    non_split_up_ports = [p for p, v in list(config_facts['PORT'].items()) if v.get('admin_status', None) == 'up' and
                           re.match(split_port_alias_pattern, v['alias'])]
     return split_up_ports + non_split_up_ports
 
@@ -175,9 +176,9 @@ def get_portchannel_of_port(config_facts, port):
     :param port: the port which need to check
     :return: portchannel or None
     """
-    portchannels = config_facts['PORTCHANNEL'].keys() if 'PORTCHANNEL' in config_facts else []
+    portchannels = list(config_facts['PORTCHANNEL'].keys()) if 'PORTCHANNEL' in config_facts else []
     for portchannel in portchannels:
-        portchannel_members = config_facts['PORTCHANNEL_MEMBER'][portchannel].keys()
+        portchannel_members = config_facts['PORTCHANNEL'][portchannel].get('members')
         if port in portchannel_members:
             return portchannel
 
@@ -189,9 +190,9 @@ def get_vlan_of_port(config_facts, port):
     :param port: the port which need to check
     :return: vlan or None
     """
-    vlan_dict = config_facts['VLAN'].items() if 'VLAN' in config_facts else {}
+    vlan_dict = list(config_facts['VLAN'].items()) if 'VLAN' in config_facts else {}
     for vlan_name, vlan in vlan_dict:
-        if port in config_facts['VLAN_MEMBER'][vlan_name].keys():
+        if port in list(config_facts['VLAN_MEMBER'][vlan_name].keys()):
             return vlan['vlanid']
     return None
 
@@ -202,7 +203,7 @@ def remove_orig_dut_port_config(duthost, orig_ports_configuration):
     :param duthost: DUT host object
     :param orig_ports_configuration: original ports configuration parameters
     """
-    for _, port_dict in orig_ports_configuration.items():
+    for _, port_dict in list(orig_ports_configuration.items()):
         port = port_dict['port']
         if port_dict['vlan']:
             remove_dut_vlan_member(duthost, port, port_dict['vlan'])
@@ -226,11 +227,11 @@ def get_portchannel_peer_port_map(duthost, orig_ports_configuration, tbinfo, nbr
     peer_ports_map = {}
     mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
     vm_neighbors = mg_facts['minigraph_neighbors']
-    for _, port_dict in orig_ports_configuration.items():
+    for _, port_dict in list(orig_ports_configuration.items()):
         port = port_dict['port']
         if port_dict['portchannel']:
             vm_host, peer_port = get_peer_port_info(nbrhosts, vm_neighbors, port)
-            if not vm_host in peer_ports_map:
+            if vm_host not in peer_ports_map:
                 peer_ports_map[vm_host] = []
             peer_ports_map[vm_host].append(peer_port)
     return peer_ports_map
@@ -291,11 +292,10 @@ def apply_dut_config(duthost, ports_configuration):
     :param duthost: DUT host object
     :param ports_configuration: ports configuration parameters
     """
-    for _, port_conf in ports_configuration.items():
+    for _, port_conf in list(ports_configuration.items()):
         port = port_conf['port']
         port_type = port_conf['type']
         ip_addr = port_conf['ip_addr']
-
         if port_type == ETHERNET_RIF:
             add_ip_dut_port(duthost, port, ip_addr)
         elif port_type == VLAN_RIF:
@@ -314,7 +314,7 @@ def apply_ptf_config(ptfhost, ports_configuration):
     :param ptfhost: PTF host object
     :param ports_configuration: ports configuration parameters
     """
-    for _, port_conf in ports_configuration.items():
+    for _, port_conf in list(ports_configuration.items()):
         port_type = port_conf['type']
         ptf_port = port_conf['ptf_port']
 
@@ -331,7 +331,7 @@ def remove_ptf_config(ptfhost, ports_configuration):
     :param ptfhost: PTF host object
     :param ports_configuration: ports configuration parameters
     """
-    for _, port_conf in ports_configuration.items():
+    for _, port_conf in list(ports_configuration.items()):
         port_type = port_conf['type']
         ptf_port = port_conf['ptf_port']
         if port_type == PO_SUB_PORT_RIF or port_type == PO_RIF:
@@ -469,7 +469,8 @@ def add_ptf_bond(ptfhost, port, bond_id, ip_addr):
     """
     try:
         bond_port = 'bond{}'.format(bond_id)
-        ptfhost.shell("teamd -t {} -d -c '{{\"runner\": {{\"name\": \"lacp\"}}}}'".format(bond_port))
+        ptfhost.shell("ip link add {} type bond".format(bond_port))
+        ptfhost.shell("ip link set {} type bond miimon 100 mode 802.3ad".format(bond_port))
         ptfhost.shell("ip link set {} down".format(port))
         ptfhost.shell("ip link set {} master {}".format(port, bond_port))
         ptfhost.shell("ip link set dev {} up".format(bond_port))
@@ -510,7 +511,8 @@ def verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, act
         ip_dst = port_conf['ptf_ip_addr']
         port_index = port_conf['port_index']
         logger.info("Sending traffic from {}".format(src_port))
-        generate_and_verify_traffic(duthost, ptfadapter, rif_interface, port_index, ip_src, ip_dst, pkt_action=pkt_action)
+        generate_and_verify_traffic(duthost, ptfadapter, rif_interface, port_index, ip_src, ip_dst,
+                                    pkt_action=pkt_action)
 
 
 def config_loopback_action(duthost, rif_interfaces, action_list, ignore_err=False):
@@ -580,7 +582,7 @@ def verify_interface_loopback_action(duthost, rif_interfaces, expected_actions):
         loopback_action = interface_loopback_action_map[rif_interface]
         pytest_assert(loopback_action == expected_action,
                       "The loopback action on {} is {}, expected action is {}".format(rif_interface, loopback_action,
-                                                                                    expected_action))
+                                                                                      expected_action))
 
 
 def get_rif_tx_err_count(duthost):
@@ -610,10 +612,9 @@ def verify_rif_tx_err_count(duthost, rif_interfaces, expect_counts):
     rif_tx_err_map = get_rif_tx_err_count(duthost)
     for rif_interface, expected_count in zip(rif_interfaces, expect_counts):
         tx_err_count = int(rif_tx_err_map[rif_interface])
-        if tx_err_count != expected_count:
-            logger.error("The TX ERR count on {} is {}, expect TX ERR count is {}".format(
-                rif_interface, tx_err_count, expected_count))
-            return False
+        pytest_assert(tx_err_count == expected_count,
+                      "The TX ERR count on {} is {}, expect TX ERR count is {}".format(rif_interface, tx_err_count,
+                                                                                       expected_count))
     return True
 
 

@@ -1,7 +1,9 @@
 import math
 
+
 class QosParamMellanox(object):
-    def __init__(self, qos_params, asic_type, speed_cable_len, dutConfig, ingressLosslessProfile, ingressLossyProfile, egressLosslessProfile, egressLossyProfile, sharedHeadroomPoolSize, dualTor):
+    def __init__(self, qos_params, asic_type, speed_cable_len, dutConfig, ingressLosslessProfile,
+                 ingressLossyProfile, egressLosslessProfile, egressLossyProfile, sharedHeadroomPoolSize, dualTor):
         self.asic_param_dic = {
             'spc1': {
                 'cell_size': 96,
@@ -73,10 +75,12 @@ class QosParamMellanox(object):
 
         if self.sharedHeadroomPoolSize:
             headroom = xon + xoff
-            ingress_lossless_size = int(math.ceil(float(self.ingressLosslessProfile['static_th']) / self.cell_size)) - xon
+            ingress_lossless_size = int(
+                math.ceil(float(self.ingressLosslessProfile['static_th']) / self.cell_size)) - xon
         else:
             headroom = size
-            ingress_lossless_size = int(math.ceil(float(self.ingressLosslessProfile['static_th']) / self.cell_size)) - headroom
+            ingress_lossless_size = int(
+                math.ceil(float(self.ingressLosslessProfile['static_th']) / self.cell_size)) - headroom
         hysteresis = headroom - (xon + xoff)
 
         egress_lossy_size = int(math.ceil(float(self.egressLossyProfile['static_th']) / self.cell_size))
@@ -103,7 +107,7 @@ class QosParamMellanox(object):
             for i in range(1, ingress_ports_num_shp):
                 for j in range(pgs_per_port):
                     pkts_num_trig_pfc_shp.append(occupancy_per_port + xon + hysteresis)
-                    occupancy_per_port //= 2
+                    occupancy_per_port /= 2
                 ingress_ports_list_shp.append(testPortIds[i])
             self.qos_parameters['pkts_num_trig_pfc_shp'] = pkts_num_trig_pfc_shp
             self.qos_parameters['src_port_ids'] = ingress_ports_list_shp
@@ -147,7 +151,7 @@ class QosParamMellanox(object):
             hdrm_pool_size['cell_size'] = self.cell_size
             hdrm_pool_size['margin'] = 3
         else:
-            self.qos_params_mlnx[self.speed_cable_len].pop('hdrm_pool_size')    
+            self.qos_params_mlnx[self.speed_cable_len].pop('hdrm_pool_size')
 
         xoff = {}
         xoff['pkts_num_trig_pfc'] = pkts_num_trig_pfc

@@ -613,7 +613,7 @@ class FecConstants:
                                               '100G': ['CR'],
                                               '200G': ['CR4'],
                                               '400G': ['CR4'],
-                                              '800G': ['CR4']
+                                              '800G': ['CR8'],
                                               },
                 SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
                                               '50G': ['CR2'],
@@ -966,12 +966,19 @@ class NvosCliTypes:
 
 
 class BluefieldConstants:
-    BASE_SLINK_BF_IMAGE = '/auto/sw_system_release/sonic/sonic_dpu_config/images/{}/Image'
-    BASE_SLINK_BF_INITRAMFS = '/auto/sw_system_release/sonic/sonic_dpu_config/initramfs/{}/initramfs'
     BMC_USER = os.getenv("BMC_USER")
     BMC_PASS = os.getenv("BMC_PASSWORD")
-    BLUEFIELD_HWSKUS_LIST = ['Nvidia-MBF2H536C', 'Nvidia-MBF2H536C-C2',
-                             'Nvidia-9009d3b600CVAA', 'Nvidia-9009d3b600CVAA-C2']
+
+    PXE_SERVER = 'r-fit16-clone'
+    PXE_SERVER_CONFIGS_PATH = '/tftpboot/uefiboot/grub/'
+    BF2_HWSKU = 'Nvidia-MBF2H536C'
+    BF3_HWSKU = 'Nvidia-9009d3b600CVAA'
+    BF2_GRUB_CFG = 'bluefield-2.grub.cfg'
+    BF3_GRUB_CFG = 'bluefield-3.grub.cfg'
+    GRUB_CFG_FILE_MAP = {BF2_HWSKU: BF2_GRUB_CFG, BF3_HWSKU: BF3_GRUB_CFG}
+
+    BLUEFIELD_HWSKUS_LIST = [BF2_HWSKU, '{}-C2'.format(BF2_HWSKU),
+                             BF3_HWSKU, '{}-C2'.format(BF3_HWSKU)]
     BLUEFIELD_PORTS_LIST = ['Ethernet0', 'Ethernet4']
 
 
@@ -1077,11 +1084,16 @@ class BugHandlerConst:
     NGTS_PATH, path_suffix = os.path.abspath(__file__).split('constants/')
     CLI_TYPE_REDMINE_PROJECT = \
         {"MLNX_OS": "mlnxOS-Eth",
-         "NVUE": "NVOS",
+         "NVUE": "'NVOS - Design'",
          "Sonic": "SONiC-Design"}
     BUG_HANDLER_CONF_FILE = {"SONiC-Design": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf"),
-                             "NVOS": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf")}
+                             "'NVOS - Design'": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf")}
     BUG_HANDLER_PYTHON_PATH = "/mswg/projects/swvt/MARS/scripts/python37_wrapper.sh"
     BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/bin/handle_bug.py"
     BUG_HANDLER_SANITIZER_USER = "asan"
     SANITIZER_PARSED_DUMPS_FOLDER = "/tmp/parsed_sanitizer_dumps/"
+    BUG_HANDLER_DECISION_UPDATE = "update"
+    BUG_HANDLER_DECISION_CREATE = "create"
+    BUG_HANDLER_DECISION_ABORT = "abort"
+    BUG_HANDLER_DECISION_REOPEN = "reopen"
+    RC_ABORT = 2

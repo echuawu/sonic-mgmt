@@ -80,7 +80,7 @@ def get_pdu_controller(conn_graph_facts):
 
     yield pdu_controller_helper
 
-    for controller in controller_map.values():
+    for controller in list(controller_map.values()):
         if controller:
             controller.turn_on_outlet()
             controller.close()

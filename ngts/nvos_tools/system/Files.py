@@ -35,6 +35,12 @@ class Files(BaseComponent):
                                                    TestToolkit.engines.dut, log_type,
                                                    param, exit_cmd).get_returned_value()
 
+    def show_file(self, file='', exit_cmd=''):
+        with allure.step('Execute show for {file} file and exit cmd {exit_cmd}'.
+                         format(file=file, exit_cmd=exit_cmd)):
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show_file,
+                                                   TestToolkit.engines.dut, file, exit_cmd).get_returned_value()
+
     def get_files(self):
         with allure.step("Get system files"):
             logging.info("Get system files")
@@ -55,6 +61,11 @@ class Files(BaseComponent):
             logging.info("Delete files: {}".format(files_to_delete))
             for file in files_to_delete:
                 File(self, file).action_delete(expected_str)
+
+    def action_file(self, action_str, file, remote_url=""):
+        resource = self.get_resource_path() + '/' + file
+        return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_files,
+                                               TestToolkit.engines.dut, action_str, resource, remote_url)
 
 
 class File(Files):

@@ -68,7 +68,8 @@ class TestAutoTechSupport:
 
     def set_test_dockers_list(self):
         self.dockers_list = []
-        auto_tech_support_features_list = self.dut_cli.auto_techsupport.parse_show_auto_techsupport_feature().keys()
+        auto_tech_support_features_list = list(
+            self.dut_cli.auto_techsupport.parse_show_auto_techsupport_feature().keys())
         system_features_status = self.duthost.get_feature_status()
         for feature in auto_tech_support_features_list:
             if is_docker_enabled(system_features_status, feature):
@@ -412,7 +413,7 @@ class TestAutoTechSupport:
             num_of_dummy_files = 4
             one_file_size_in_percent = 5
 
-            one_percent_in_mb = total // 100
+            one_percent_in_mb = total / 100
             # On some platforms one_percent_in_mb may be up to 800 Mb, in case of core test_mode
             # this significantly increases the generation time needed for techsupport
             one_file_size_in_percent = 1 if one_percent_in_mb > 300 and test_mode == 'core' else 5
@@ -827,7 +828,7 @@ def validate_auto_techsupport_feature_config(dut_cli, expected_status_dict=None)
     """
     auto_techsupport_feature_dict = dut_cli.auto_techsupport.parse_show_auto_techsupport_feature()
 
-    for feature, configuration in auto_techsupport_feature_dict.items():
+    for feature, configuration in list(auto_techsupport_feature_dict.items()):
         if expected_status_dict:
             if feature not in expected_status_dict:
                 continue
@@ -983,7 +984,7 @@ def get_expected_oldest_timestamp_datetime(duthost, since_value_in_seconds):
             syslogs_creation_date_dict[file_timestamp] = [syslog_file_name]
 
     # Sorted from new to old
-    syslogs_sorted = sorted(syslogs_creation_date_dict.keys(), reverse=True)
+    syslogs_sorted = sorted(list(syslogs_creation_date_dict.keys()), reverse=True)
     expected_files_in_techsupport_list = []
     for date in syslogs_sorted:
         expected_files_in_techsupport_list.extend(syslogs_creation_date_dict[date])
@@ -1058,9 +1059,9 @@ def get_partition_usage_info(duthost, partition='/'):
     with allure.step('Getting HDD partition {} usage'.format(partition)):
         output = duthost.shell('sudo df {}'.format(partition))['stdout_lines']
         _, total, used, avail, used_percent, _ = output[-1].split()
-        total_mb = int(total) // KB_SIZE
-        used_mb = int(used) // KB_SIZE
-        avail_mb = int(avail) // KB_SIZE
+        total_mb = int(total) / KB_SIZE
+        used_mb = int(used) / KB_SIZE
+        avail_mb = int(avail) / KB_SIZE
         used_percent = int(used_percent.strip('%'))
 
     return total_mb, used_mb, avail_mb, used_percent
@@ -1110,7 +1111,7 @@ def create_core_stub_file(duthost, size_in_mb):
     """
     with allure.step('Create stub .core file'):
         current_time = int(time.time())
-        random_pid = random.choice(range(100, 20000))  # Get random PID
+        random_pid = random.choice(list(range(100, 20000)))  # Get random PID
         file_name = 'bash.{}.{}.core.gz'.format(current_time, random_pid)
         core_folder_path = '/var/core/'
         full_path_to_file = '{}{}'.format(core_folder_path, file_name)
@@ -1270,9 +1271,9 @@ def get_random_physical_port_non_po_member(minigraph_facts):
     """
     po_members = []
     test_port = None
-    for po_iface, po_data in minigraph_facts['minigraph_portchannels'].items():
+    for po_iface, po_data in list(minigraph_facts['minigraph_portchannels'].items()):
         po_members += po_data['members']
-    all_ports = list(minigraph_facts[u'minigraph_ports'].keys())
+    all_ports = list(minigraph_facts['minigraph_ports'].keys())
     non_po_ports = [port for port in all_ports if port not in po_members]
     if non_po_ports:
         test_port = random.choice(non_po_ports)

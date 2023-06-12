@@ -66,6 +66,25 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params[action_type])
 
     @staticmethod
+    def action_general(engine, action_str, resource_path):
+        logging.info("Running action: '{action_type}' on dut using OpenApi, resource: '{rsrc}'".
+                     format(action_type=action_str, rsrc=resource_path))
+        action_type = '@' + action_str
+        params = \
+            {
+                ActionType.CLEAR:
+                    {
+                        "state": "start"
+                    },
+                ActionType.GENERATE:
+                    {
+                        "state": "start",
+                    }
+            }
+        return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params[action_type])
+
+    @staticmethod
     def action_firmware_install(engine, op_param=""):
         logging.info("Running action: 'firmware install' on dut using OpenApi")
 
@@ -144,3 +163,8 @@ class OpenApiSystemCli(OpenApiBaseCli):
 
         return OpenApiCommandHelper.execute_action(ActionType.CHANGE, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
+
+    @staticmethod
+    def show_file(engine, file='', exit_cmd=''):
+        # TODO not supported yet
+        return ""

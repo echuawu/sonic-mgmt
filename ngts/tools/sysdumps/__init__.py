@@ -20,10 +20,9 @@ def pytest_runtest_makereport(item, call):
 
     if rep.when == 'teardown':
         os.environ.pop(item.name, None)
-        is_teardown_failed = item.rep_teardown.failed  # if LA failed, but may be not only LA
         session_id = item.funcargs.get('session_id', '')
-        if item.rep_setup.passed and (item.rep_call.failed or is_teardown_failed) and \
-                os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) == "True":
+        if (item.rep_setup.failed or (item.rep_setup.passed and (item.rep_call.failed or item.rep_teardown.failed))) \
+                and os.environ.get(PytestConst.GET_DUMP_AT_TEST_FALIURE) != "False":
             if session_id:
                 try:
                     topology_obj = item.funcargs['topology_obj']
@@ -70,7 +69,12 @@ def get_test_duration(item):
     :param item: pytest build-in
     :return: integer, test duration
     """
-    return math.ceil(item.rep_setup.duration) + math.ceil(item.rep_call.duration) + 120
+    duration = math.ceil(item.rep_setup.duration) + 120
+    if hasattr(item, "rep_call"):
+        duration = duration + math.ceil(item.rep_call.duration)
+    if hasattr(item, "rep_teardown"):
+        duration = duration + math.ceil(item.rep_teardown.duration)
+    return duration
 
 
 def store_dest_file_path(dest_file, test_name):

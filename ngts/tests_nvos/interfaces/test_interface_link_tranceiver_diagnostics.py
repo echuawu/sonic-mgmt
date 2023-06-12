@@ -62,16 +62,16 @@ def test_interface_tranceiver_diagnostics_basic(engines):
             .verify_result()
 
     with allure.step('Run diagnostics for not exist port/eth0/ib0/lo, wrong channel name'):
-        output_dictionary = platform.hardware.tranceiver.show('aa')
-        assert output_dictionary == 'The requested item does not exist.', "Negative command aa port accepted"
-        output_dictionary = platform.hardware.tranceiver.show('eth0')
-        assert output_dictionary == 'The requested item does not exist.', "Negative command eth0 port accepted"
-        output_dictionary = platform.hardware.tranceiver.show('ib0')
-        assert output_dictionary == 'The requested item does not exist.', "Negative command ib0 port accepted"
-        output_dictionary = platform.hardware.tranceiver.show('lo')
-        assert output_dictionary == 'The requested item does not exist.', "Negative command lo port accepted"
-        output_dictionary = platform.hardware.tranceiver.show('sw16 channel aa')
-        assert output_dictionary == 'The requested item does not exist.', "Negative command accepted"
+        output_dictionary = platform.hardware.tranceiver.show(op_param='aa', should_succeed=False)
+        assert 'The requested item does not exist.' in output_dictionary, "Negative command aa port accepted"
+        output_dictionary = platform.hardware.tranceiver.show(op_param='eth0', should_succeed=False)
+        assert 'The requested item does not exist.' in output_dictionary, "Negative command eth0 port accepted"
+        output_dictionary = platform.hardware.tranceiver.show(op_param='ib0', should_succeed=False)
+        assert 'The requested item does not exist.' in output_dictionary, "Negative command ib0 port accepted"
+        output_dictionary = platform.hardware.tranceiver.show(op_param='lo', should_succeed=False)
+        assert 'The requested item does not exist.' in output_dictionary, "Negative command lo port accepted"
+        output_dictionary = platform.hardware.tranceiver.show(op_param='sw16 channel aa', should_succeed=False)
+        assert 'The requested item does not exist.' in output_dictionary, "Negative command accepted"
 
     with allure.step("Run diagnostics with channel-id for link and verify output"):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(

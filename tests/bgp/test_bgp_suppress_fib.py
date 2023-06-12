@@ -15,6 +15,7 @@ from tests.common.reboot import reboot
 from tests.common.utilities import wait_until
 from tests.common.config_reload import config_reload
 from tests.common.helpers.assertions import pytest_assert
+from tests.common.platform.interface_utils import check_interface_status_of_up_ports
 from bgp_helpers import restart_bgp_session, get_eth_port, get_exabgp_port, get_vm_name, get_bgp_neighbor_ip, \
     check_route_install_status, validate_route_propagate_status, operate_orchagent, get_t2_ptf_intfs
 
@@ -300,21 +301,36 @@ def config_bgp_suppress_fib(duthost, enable=True):
     duthost.shell(cmd)
 
 
-def randomly_reboot(duthost, localhost):
+def do_and_wait_reboot(duthost, localhost, reboot_type):
     """
-    Randomly choose operation from config reload/reboot/fast reboot/warm reboot
+    Do reboot and wait critical services and ports up
     """
-    logger.info("Save configuration")
-    duthost.shell('sudo config save -y')
-
-    reboot_type_list = ["config_reload", "cold", "warm", "fast"]
-    reboot_type = random.choice(reboot_type_list)
-    logger.info("Randomly choose {} from config_reload, cold, warm, fast".format(reboot_type))
     with allure.step("Do {}".format(reboot_type)):
-        if reboot_type == "config_reload":
-            config_reload(duthost)
-        else:
-            reboot(duthost, localhost, reboot_type=reboot_type, reboot_helper=None, reboot_kwargs=None)
+        reboot(duthost, localhost, reboot_type=reboot_type, reboot_helper=None, reboot_kwargs=None,
+               wait_warmboot_finalizer=True)
+        pytest_assert(wait_until(300, 20, 0, duthost.critical_services_fully_started),
+                      "All critical services should be fully started!")
+        pytest_assert(wait_until(300, 20, 0, check_interface_status_of_up_ports, duthost),
+                      "Not all ports that are admin up on are operationally up")
+
+
+def param_reboot(request, duthost, localhost):
+    """
+    Read reboot_type from option bgp_suppress_fib_reboot_type
+    If reboot_type is reload, do config reload
+    If reboot_type is random, randomly choose one action from reload/cold/warm/fast reboot
+    Else do a reboot directly as bgp_suppress_fib_reboot_type assigned
+    """
+    reboot_type = request.config.getoption("--bgp_suppress_fib_reboot_type")
+    reboot_type_list = ["reload", "cold", "warm", "fast"]
+    if reboot_type == "random":
+        reboot_type = random.choice(reboot_type_list)
+        logger.info("Randomly choose {} from reload, cold, warm, fast".format(reboot_type))
+
+    if reboot_type == "reload":
+        config_reload(duthost, safe_reload=True, check_intf_up_ports=True)
+    else:
+        do_and_wait_reboot(duthost, localhost, reboot_type)
 
 
 def validate_route_states(duthost, vrf=DEFAULT, check_point=QUEUED, action=ACTION_IN):
@@ -367,7 +383,7 @@ def remove_static_route_and_redistribute(duthost):
 
 @pytest.mark.parametrize("vrf_type", VRF_TYPES)
 def test_bgp_route_with_suppress(duthost, tbinfo, nbrhosts, ptfadapter, localhost, restore_bgp_suppress_fib,
-                                 get_exabgp_ptf_ports, vrf_type):
+                                 get_exabgp_ptf_ports, vrf_type, request):
     try:
         if vrf_type == USER_DEFINED_VRF:
             with allure.step("Configure user defined vrf"):
@@ -386,9 +402,12 @@ def test_bgp_route_with_suppress(duthost, tbinfo, nbrhosts, ptfadapter, localhos
         with allure.step("Config bgp suppress-fib-pending function"):
             config_bgp_suppress_fib(duthost)
 
-        with allure.step("Save configuration and execute one action randomly \
-        choosen from reboot/config reload/fast-reboot/warm-reboot"):
-            randomly_reboot(duthost, localhost)
+        with allure.step("Save configuration"):
+            logger.info("Save configuration")
+            duthost.shell('sudo config save -y')
+
+        with allure.step("Do reload"):
+            param_reboot(request, duthost, localhost)
 
         with allure.step("Suspend orchagent process to simulate a route install delay"):
             operate_orchagent(duthost)
@@ -542,10 +561,10 @@ def test_credit_loop(duthost, tbinfo, nbrhosts, ptfadapter, get_exabgp_ptf_ports
     The problem with BGP programming occurs after the T1 switch is rebooted:
 
     First, the T1 FRR learns a default route from at least 1 T2
-    The T0 advertises it’s prefixes to T1
+    The T0 advertises its prefixes to T1
     FRR advertises the prefixes to T2 without waiting for them to be programmed in the ASIC
-    T2 starts forwarding traffic for prefixes not yet programmed, according to T1’s routing table,
-    T1 sends it back to a default route – same T2
+    T2 starts forwarding traffic for prefixes not yet programmed, according to T1 routing table,
+    T1 sends it back to a default route - same T2
     When the traffic is bounced back on lossless queue, buffers on both sides are overflown, credit loop happens
     """
     with allure.step("Prepare needed parameters"):

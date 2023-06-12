@@ -2,7 +2,7 @@ import re
 import logging
 from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
 import time
@@ -376,6 +376,44 @@ class GorillaSwitch(BaseSwitch):
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum2'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DISABLED_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
+    }
+    CATEGORY_LIST_DEFAULT_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
+    }
 
     def __init__(self):
         BaseSwitch.__init__(self)
@@ -407,6 +445,44 @@ class JaguarSwitch(BaseSwitch):
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DISABLED_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
+    }
+    CATEGORY_LIST_DEFAULT_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
+    }
 
     def __init__(self):
         BaseSwitch.__init__(self)

@@ -45,7 +45,7 @@ def dump_simx_data(topology_obj, dumps_folder, name_prefix=None):
     hyper_engine = topology_obj.players['hypervisor']['engine']
     hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
     hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
-    hyper_engine.run_cmd('docker cp {}:{} {}'.format(dut_name, src_file_path, dst_file_path))
+    hyper_engine.run_cmd('sudo docker cp {}:{} {}'.format(dut_name, src_file_path, dst_file_path))
 
     logger.info('SIMX VM log file location: {}'.format(dst_file_path))
 
@@ -63,17 +63,7 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
     if not name_postfix:
         name_postfix = time.strftime('%Y_%b_%d_%H_%M_%S')
 
-    # Get telnet port from simx vm
-    cmd_get_telnet_port = f"docker exec -it {dut_name} bash -c 'cat /etc/libvirt/qemu/d-switch-001.xml " \
-                          f"| grep source | grep host |grep service'"
-    telnet_port_info = hyper_engine.run_cmd(cmd_get_telnet_port)
-    reg_telnet_port = r".*source mode='bind' host='0.0.0.0' service='(?P<port>\d+)'.*"
-    telnet_port = None
-    for port_info in telnet_port_info.split("\n"):
-        port_res = re.search(reg_telnet_port, port_info)
-        if port_res:
-            telnet_port = port_res.groupdict()["port"].strip()
-            break
+    telnet_port = get_telnet_port(topology_obj)
     if not telnet_port:
         raise Exception(f"Can not get telnet port. telnet_port_info is :{telnet_port_info}")
 
@@ -167,6 +157,13 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
         logger.info(f'Simx syslog file location: {dest_folder}')
 
 
+def get_telnet_port(topology_obj):
+    serial_cmd = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['serial_conn_cmd']
+    serial_cmd_arr = serial_cmd.split(' ')
+    serial_port = serial_cmd_arr[len(serial_cmd_arr) - 1]
+    return serial_port
+
+
 def get_file_line_number(hyper_engine, get_file_line_number_cmd):
     line_number_content = hyper_engine.run_cmd(get_file_line_number_cmd)
     reg_get_line_number_cmd = r".*sudo  (cat|zcat) \/tmp\/syslog.* \| wc -l.*"
@@ -187,15 +184,47 @@ def get_file_line_number(hyper_engine, get_file_line_number_cmd):
     return READ_LINE_STEP
 
 
+def get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine):
+    """
+    :param dut_cli_object:
+    :param duration:
+    :param dumps_folder:
+    :return: dumps_folder: NVOS dump folders will be on a separated folder (not in the logs folder)
+             tar_file: NVOS file name will include the session id
+             tarball_file_name: the full path for dest + file name
+    """
+    with allure.step('get session_id and dumps folder name'):
+        dump_folder = dumps_folder.split('/')[-1]
+        session_id = dumps_folder.split('/')[-2]
+        logger.info('session_id = {}, dump folder name = {}'.format(session_id, dump_folder))
+
+    with allure.step('generate tarball file name'):
+        dumps_folder = dumps_folder.rpartition('/')[:-2][0]
+        dumps_folder = dumps_folder.rpartition('/')[:-2][0]
+        dumps_folder = dumps_folder + '/' + dump_folder
+        logger.info('NVOS dump folder path {}'.format(dumps_folder))
+
+    with allure.step('generate the file name'):
+        tar_file = dut_cli_object.general.generate_techsupport(duration)
+        logger.info('NVOS tar_file {}'.format(tar_file))
+        tarball_file_name = str(session_id) + '_' + tar_file.rpartition('/')[-1]
+        logger.info('NVOS tarball_file_name {}'.format(tarball_file_name))
+
+    with allure.step('testing the flow of NVOS commands'):
+        system = System(None)
+        temp_tar_file = system.techsupport.action_generate(engine=dut_engine)
+        logger.info('NVOS temp_tarball_file_name {}'.format(temp_tar_file))
+
+    return dumps_folder, tar_file, tarball_file_name
+
+
 @pytest.mark.disable_loganalyzer
 def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, is_simx, is_air):
     with allure.step('Generating a sysdump'):
         dut_cli_object = topology_obj.players['dut']['cli']
         dut_engine = topology_obj.players['dut']['engine']
         if isinstance(dut_cli_object, NvueCli):
-            system = System(None)
-            tar_file = system.techsupport.action_generate(dut_engine)
-            tarball_file_name = str(tar_file.replace('/host/dump/', ''))
+            dumps_folder, tar_file, tarball_file_name = get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine)
         else:
             tar_file = dut_cli_object.general.generate_techsupport(duration)
             tarball_file_name = str(tar_file.replace('/var/dump/', ''))

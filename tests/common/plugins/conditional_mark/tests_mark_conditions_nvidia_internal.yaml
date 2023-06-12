@@ -27,12 +27,19 @@ tests/nightly/runtime/test_runtime.py:
     conditions:
       - "'simx' in platform"
 
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3499268"
+    conditions:
+      - https://redmine.mellanox.com/issues/3499268
+
 tests/nightly/auto_negotition:
   skip:
     reason: "Testcase not supported on current platform"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform or '3800' in platform"
-
+      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform "
 
 tests/nightly/dynamic_port_breakout:
   skip:
@@ -250,6 +257,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
       - "https://redmine.mellanox.com/issues/3442487 and ('sn3' in platform or 'sn4' in platform)"
       - "'simx' in platform"
       - "'ASAN' in build_version"
+      - "https://redmine.mellanox.com/issues/3499006 and 'sn5' in platform"
 
 tests/push_build_tests/L3/sflow/test_sflow.py::test_basic_sflow_function:
   skip:
@@ -512,6 +520,12 @@ tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb
     conditions:
       - https://redmine.mellanox.com/issues/3421305
 
+tests/nightly/evpn_vxlan/underlay_ecmp/test_evpn_vxlan_underlay_ecmp.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3481969 on x86_64-mlnx_msn2700_simx-r0 platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3481969 and 'x86_64-mlnx_msn2700_simx-r0' in platform"
+
 ########################## NGTS IGNORE END ##########################
 
 
@@ -734,8 +748,10 @@ pfc_asym/test_pfc_asym.py:
 ecmp/test_fgnhg.py:
   skip:
     reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2577145 and 'msn2' in platform"
+      - "https://redmine.mellanox.com/issues/3500798"
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
   skip:
@@ -756,6 +772,12 @@ everflow/test_everflow_testbed.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 and platform sn5"
     conditions:
       - "https://redmine.mellanox.com/issues/3431638 and 'sn5' in platform"
+
+everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499866"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3499866"
 
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
@@ -1342,6 +1364,12 @@ pc/test_lag_2.py::test_lag:
     conditions:
       - "https://redmine.mellanox.com/issues/3195312 and 't0-56-po2vlan' in topo_name"
 
+ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3477790"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3477790"
+
 platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_option_dom:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3331528"
@@ -1371,6 +1399,12 @@ system_health/test_system_health.py::test_external_checker:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335093"
     conditions:
       - "https://redmine.mellanox.com/issues/3335093"
+
+system_health/test_system_health.py::test_device_checker:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499875 and branch 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3499875 and '202211' in release"
 
 memory_checker/test_memory_checker.py:
   skip:
@@ -1410,9 +1444,9 @@ platform_tests/test_reload_config.py::test_reload_configuration:
 
 platform_tests/test_reload_config.py::test_reload_configuration_checks:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    reason: "Test ignored due to RM issue: https://redmine.mellanox.com/issues/3495644"
     conditions:
-      - "https://redmine.mellanox.com/issues/3273006"
+      - "https://redmine.mellanox.com/issues/3495644 and '202211' in release"
 
 snmp/test_snmp_phy_entity.py::test_turn_off_psu_and_check_psu_info:
   skip:
@@ -1721,6 +1755,12 @@ bgp/test_bgp_speaker.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3420524"
 
+bgp/test_bgp_suppress_fib.py:
+  skip:
+    reason: "BGP suppress fib pending function is only supported at master branch"
+    conditions:
+      - "release not in ['master']"
+
 iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_port_flap:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
@@ -1777,5 +1817,11 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct[use-pkt-ca-ip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3479347"
     conditions:
       - "https://redmine.mellanox.com/issues/3479347 and 'nvda_bf' in platform"
+
+platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486626 on SPC4"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3486626 and sn5 in platform"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

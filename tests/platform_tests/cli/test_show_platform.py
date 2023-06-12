@@ -13,7 +13,8 @@ import json
 import logging
 import re
 import pytest
-import util
+import six
+from . import util
 from pkg_resources import parse_version
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.platform.daemon_utils import check_pmon_daemon_status
@@ -33,6 +34,9 @@ CMD_SHOW_PLATFORM = "show platform"
 
 THERMAL_CONTROL_TEST_WAIT_TIME = 65
 THERMAL_CONTROL_TEST_CHECK_INTERVAL = 5
+
+BF_2_PLATFORM = 'arm64-nvda_bf-mbf2h536c'
+BF_3_PLATFORM = 'arm64-nvda_bf-9009d3b600cvaa'
 
 
 @pytest.fixture(scope='module')
@@ -198,7 +202,7 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
 
         for line in utility_cmd_output["stdout_lines"]:
             if not line.startswith('-'):  # do not validate line '-------------------- ---- --- -----'
-                line_regexp = re.sub(r'\s+', '\\s+', line)
+                line_regexp = re.sub(r'\s+', r'\\s+', line)
                 pytest_assert(re.search(line_regexp, syseeprom_output), "Line '{}' was not found in output on '{}'".
                               format(line, duthost.hostname))
 
@@ -281,8 +285,12 @@ def verify_show_platform_fan_output(duthost, raw_output_lines):
     pytest_assert(len(raw_output_lines) > 0, "There must be at least one line of output on '{}'".
                   format(duthost.hostname))
     if len(raw_output_lines) == 1:
-        pytest_assert(raw_output_lines[0].encode('utf-8').strip() == "Fan Not detected",
-                      "Unexpected fan status output on '{}'".format(duthost.hostname))
+        if six.PY2:
+            pytest_assert(raw_output_lines[0].encode('utf-8').strip() == "Fan Not detected",
+                          "Unexpected fan status output on '{}'".format(duthost.hostname))
+        else:
+            pytest_assert(raw_output_lines[0].strip() == "Fan Not detected",
+                          "Unexpected fan status output on '{}'".format(duthost.hostname))
     else:
         pytest_assert(len(raw_output_lines) > 2,
                       "There must be at least two lines of output if any fan is detected on '{}'".
@@ -315,7 +323,7 @@ def check_fan_status(duthost, cmd):
 
     # Check that all fans are showing valid status and also at-least one PSU is OK.
     num_fan_ok = 0
-    for a_fan in fans.values():
+    for a_fan in list(fans.values()):
         if a_fan['Status'] == "OK":
             num_fan_ok += 1
     return num_fan_ok > 0
@@ -340,8 +348,12 @@ def verify_show_platform_temperature_output(raw_output_lines, hostname):
 
     pytest_assert(len(raw_output_lines) > 0, "There must be at least one line of output on '{}'".format(hostname))
     if len(raw_output_lines) == 1:
-        pytest_assert(raw_output_lines[0].encode('utf-8').strip() == "Thermal Not detected",
-                      "Unexpected thermal status output on '{}'".format(hostname))
+        if six.PY2:
+            pytest_assert(raw_output_lines[0].encode('utf-8').strip() == "Thermal Not detected",
+                          "Unexpected thermal status output on '{}'".format(hostname))
+        else:
+            pytest_assert(raw_output_lines[0].strip() == "Thermal Not detected",
+                          "Unexpected thermal status output on '{}'".format(hostname))
     else:
         pytest_assert(len(raw_output_lines) > 2,
                       "There must be at least two lines of output if any thermal is detected on '{}'".format(hostname))
@@ -370,7 +382,17 @@ def test_show_platform_ssdhealth(duthosts, enum_supervisor_dut_hostname):
     @summary: Verify output of `show platform ssdhealth`
     """
     duthost = duthosts[enum_supervisor_dut_hostname]
-    cmd = " ".join([CMD_SHOW_PLATFORM, "ssdhealth"])
+    cmds_list = [CMD_SHOW_PLATFORM, "ssdhealth"]
+
+    platform_ssd_device_path_dict = {BF_3_PLATFORM: "/dev/nvme0"}
+    unsupported_ssd_values_per_platform = {BF_2_PLATFORM: ["Temperature"]}
+
+    # Build specific path to SSD device based on platform/ssd path mapping dict
+    platform = duthost.facts['platform']
+    if platform_ssd_device_path_dict.get(platform):
+        cmds_list.append(platform_ssd_device_path_dict[platform])
+
+    cmd = " ".join(cmds_list)
 
     logging.info("Verifying output of '{}' on ''{}'...".format(cmd, duthost.hostname))
     ssdhealth_output_lines = duthost.command(cmd)["stdout_lines"]
@@ -389,6 +411,26 @@ def test_show_platform_ssdhealth(duthosts, enum_supervisor_dut_hostname):
     # TODO: Test values against platform-specific expected data instead of testing for missing values
     for key in expected_fields:
         pytest_assert(ssdhealth_dict[key], "Missing value for '{}' on '{}'".format(key, duthost.hostname))
+
+        line_data = ssdhealth_dict[key]
+        # Some platforms may have "N/A" value which is expected
+        is_line_empty = True if (not line_data or line_data == "N/A") else False
+        is_not_supported = True if key in unsupported_ssd_values_per_platform.get(platform, []) else False
+
+        if is_line_empty and is_not_supported:
+            logging.info("Validation ignored for '{}' on platform: '{}'".format(key, platform))
+            continue
+
+        pytest_assert(not is_line_empty, "Invalid data '{}' for '{}'".format(line_data, key))
+
+        if key == "Health":
+            health_float_value = float(line_data.strip("%"))
+            pytest_assert(health_float_value > 50.0, "SSD health is '{}', SSD replacement required".format(line_data))
+
+        if key == "Temperature":
+            temp_float_value = float(line_data.strip("C"))
+            pytest_assert(temp_float_value < 100.0,
+                          "SSD temperature '{}' is too high, expected less than 100.0 C".format(line_data))
 
 
 def verify_show_platform_firmware_status_output(raw_output_lines, hostname):

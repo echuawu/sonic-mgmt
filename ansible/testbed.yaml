@@ -26,7 +26,39 @@
   dut:
     - arc-switch1004
     - arc-switch1025
-  comment: Dual-TOR testbed
+  comment: 2700 Active-Standby Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-dualtor-mixed
+  group-name: vm-t1
+  topo: dualtor-mixed
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-1004
+  ptf_ip: 10.213.80.153/16
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.213.80.120/16
+  server: server_7
+  vm_base: VM0701
+  dut:
+    - arc-switch1004
+    - arc-switch1025
+  comment: 2700 Dual-TOR mixed testbed
+
+- conf-name: sonic-dual-tor-dualtor-aa
+  group-name: vm-t1
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-1004
+  ptf_ip: 10.213.80.153/16
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.213.80.120/16
+  server: server_7
+  vm_base: VM0701
+  dut:
+    - arc-switch1004
+    - arc-switch1025
+  comment: 2700 Active-Active Dual-TOR testbed
 
 - conf-name: sonic-dual-tor-tigon
   group-name: vm-t1
@@ -54,7 +86,39 @@
   dut:
     - r-tigon-20
     - r-tigon-21
-  comment: Dual-TOR testbed
+  comment: 4600C Active-Standby Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-tigon-dualtor-mixed
+  group-name: vm-t1
+  topo: dualtor-mixed
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-20
+  ptf_ip: 10.215.18.183/16
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.215.18.180/16
+  server: server_17
+  vm_base: VM1701
+  dut:
+    - r-tigon-20
+    - r-tigon-21
+  comment: 4600C Dual-TOR mixed testbed
+
+- conf-name: sonic-dual-tor-tigon-dualtor-aa
+  group-name: vm-t1
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-20
+  ptf_ip: 10.215.18.183/16
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.215.18.180/16
+  server: server_17
+  vm_base: VM1701
+  dut:
+    - r-tigon-20
+    - r-tigon-21
+  comment: 4600C Active-Active Dual-TOR mixed testbed
 
 - conf-name: arc-switch1038-t0
   group-name: vm-t1
@@ -89,6 +153,7 @@
   ptf: ptf-1038
   ptf_ip: 10.213.84.41/16
   ptf_ipv6:
+  ptf_extra_mgmt_ip: []
   server: server_1
   vm_base: VM0101
   dut:
@@ -2683,7 +2748,7 @@
     - r-anaconda-76
   comment: Mellanox MTR testbed
 
-  - conf-name: r-anaconda-77-ptf-any
+- conf-name: r-anaconda-77-ptf-any
   group-name: vm-t1
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx

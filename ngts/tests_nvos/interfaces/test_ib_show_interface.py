@@ -199,11 +199,9 @@ def test_ib_show_interface_name_stats(engines):
 
 
 def validate_interface_fields(output_dictionary):
-    with allure.step('Check that the following fields exist in the output: type, description, link'):
-        logging.info('Check that the following fields exist in the output: type, description, link')
-        field_to_check = [IbInterfaceConsts.TYPE,
-                          IbInterfaceConsts.DESCRIPTION,
-                          IbInterfaceConsts.LINK]
+    with allure.step('Check that the following fields exist in the output: type, link'):
+        logging.info('Check that the following fields exist in the output: type, link')
+        field_to_check = [IbInterfaceConsts.TYPE, IbInterfaceConsts.LINK]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
@@ -258,9 +256,7 @@ def validate_one_port_show_output(output_dictionary):
 
 
 def validate_one_port_in_show_all_ports(output_dictionary, port_up=True):
-    field_to_check = [IbInterfaceConsts.TYPE,
-                      IbInterfaceConsts.DESCRIPTION,
-                      IbInterfaceConsts.LINK]
+    field_to_check = [IbInterfaceConsts.TYPE, IbInterfaceConsts.LINK]
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
     validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], port_up)

@@ -7,15 +7,16 @@ from ngts.config_templates.vlan_config_template import VlanConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
-from ngts.helpers.vxlan_helper import send_and_validate_traffic, verify_underlay_ecmp_counter_entry, validate_basic_evpn_type_2_3_route
+from ngts.helpers.vxlan_helper import send_and_validate_traffic, verify_underlay_ecmp_counter_entry, \
+    validate_basic_evpn_type_2_3_route
 from ngts.constants.constants import VxlanConstants
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 """
 
- EVPN VXLAN Test Cases
+EVPN VXLAN Test Cases
 
- Documentation: https://confluence.nvidia.com/pages/viewpage.action?spaceKey=SW&title=SONiC+NGTS+EVPN+VXLAN+Documentation
+Documentation: https://confluence.nvidia.com/pages/viewpage.action?spaceKey=SW&title=SONiC+NGTS+EVPN+VXLAN+Documentation
 
 """
 
@@ -38,7 +39,8 @@ def config_veth_pair_at_ha(cli_objects, veth_name, veth_peer_name, bridge_name, 
     :param mac: mac address for veth
     """
     logger.info(
-        f"Create veth {veth_name} in namespace {name_space} in HA, and bind veth peer {veth_peer_name} to bridge {bridge_name}")
+        f"Create veth {veth_name} in namespace {name_space} in HA, and bind veth peer {veth_peer_name} to "
+        f"bridge {bridge_name}")
     cli_objects.ha.vxlan.add_vxlan_veth(name_space, bridge_name, veth_name, veth_peer_name)
     logger.info(f"Set IP {veth_ip} to HA veth {veth_name} in namespace {name_space}")
     cli_objects.ha.vxlan.set_veth_ip_addr(name_space, veth_name, veth_ip)
@@ -95,8 +97,9 @@ def basic_configuration(topology_obj, interfaces, cli_objects):
     IpConfigTemplate.configuration(topology_obj, ip_config_dict)
     logger.info('Basic vlan and ip connectivity configuration completed')
     VxlanConfigTemplate.configuration(topology_obj, vxlan_config_dict)
-    config_veth_pair_at_ha(cli_objects, VxlanConstants.VETH_NAME_1, VxlanConstants.VETH_PEER_NAME_1, VxlanConstants.VNI_3333_IFACE,
-                           VxlanConstants.VETH_IP, VxlanConstants.NAME_SPACE_1, VETH_MAC_ADDR)
+    config_veth_pair_at_ha(cli_objects, VxlanConstants.VETH_NAME_1, VxlanConstants.VETH_PEER_NAME_1,
+                           VxlanConstants.VNI_3333_IFACE, VxlanConstants.VETH_IP, VxlanConstants.NAME_SPACE_1,
+                           VETH_MAC_ADDR)
     # in case there is useless bgp configuration exist
     FrrConfigTemplate.cleanup(topology_obj, frr_config_dict)
     FrrConfigTemplate.configuration(topology_obj, frr_config_dict)
@@ -157,24 +160,26 @@ class TestEvpnVxlanUnderlayEcmp:
 
         self.dut_mac, self.ha_br_3333_mac, self.hb_vlan_3_mac = mac_addresses
         self.ecmp_interface_counter_check_list = [
-            [interfaces.dut_ha_1, 'tx', VxlanConstants.PACKET_NUM_200],
-            [interfaces.dut_ha_2, 'tx', VxlanConstants.PACKET_NUM_200],
+            [[interfaces.dut_ha_1, interfaces.dut_ha_2], 'tx', VxlanConstants.PACKET_NUM_400],
             [interfaces.dut_hb_1, 'rx', VxlanConstants.PACKET_NUM_400],
         ]
         self.network_nexthop_list = [self.ha_br_3333_ip, (self.ha_dut_1_ip, self.ha_dut_2_ip)]
 
     def validate_ecmp_traffic_and_counters(self, cli_objects):
-        with allure.step(f"Send ECMP traffic from HB to HA via VLAN {VxlanConstants.VLAN_3} to VNI {VxlanConstants.VNI_3333}"):
+        with allure.step(f"Send ECMP traffic from HB to HA via VLAN {VxlanConstants.VLAN_3} to "
+                         f"VNI {VxlanConstants.VNI_3333}"):
             logger.info("Clear interface and vxlan counter")
             cli_objects.dut.vxlan.clear_vxlan_counter()
             cli_objects.dut.interface.clear_counters()
-            pkt_ecmp_hb_ha_vlan3_vni3333_r = VxlanConstants.ECMP_SIMPLE_PACKET.format(self.hb_vlan_3_mac, self.ha_br_3333_mac,
-                                                                                      VxlanConstants.ECMP_TRAFFIC_SRC_IP_LIST,
-                                                                                      VxlanConstants.VETH_IP)
+            pkt_ecmp_hb_ha_vlan3_vni3333_r = VxlanConstants.ECMP_SIMPLE_PACKET.\
+                format(self.hb_vlan_3_mac, self.ha_br_3333_mac, VxlanConstants.ECMP_TRAFFIC_SRC_IP_LIST,
+                       VxlanConstants.VETH_IP)
             logger.info("Validate ECMP traffic")
             send_and_validate_traffic(player=self.players, sender=VxlanConstants.HOST_HB,
-                                      sender_intf=self.hb_vlan_3_iface, sender_pkt_format=pkt_ecmp_hb_ha_vlan3_vni3333_r,
-                                      sender_count=VxlanConstants.PACKET_NUM_100, receiver=VxlanConstants.HOST_HA, receiver_intf=VxlanConstants.VNI_3333_IFACE,
+                                      sender_intf=self.hb_vlan_3_iface,
+                                      sender_pkt_format=pkt_ecmp_hb_ha_vlan3_vni3333_r,
+                                      sender_count=VxlanConstants.PACKET_NUM_100, receiver=VxlanConstants.HOST_HA,
+                                      receiver_intf=VxlanConstants.VNI_3333_IFACE,
                                       receiver_filter_format=VxlanConstants.SIMPLE_PACKET_FILTER.format(
                                           VxlanConstants.VETH_IP),
                                       receiver_count=VxlanConstants.PACKET_NUM_400)
@@ -191,9 +196,12 @@ class TestEvpnVxlanUnderlayEcmp:
         2. Check that traffic balanced 50/50 via 2 routes(1.1.1.2, 2.2.2.2) - each route transmit 200 packets
         """
         with allure.step('Validate evpn type 2 and type 3 routes'):
-            validate_basic_evpn_type_2_3_route(self.players, cli_objects, interfaces, VxlanConstants.VLAN_3, self.dut_vlan_3_ip, self.dut_loopback_ip, self.ha_br_3333_ip, self.hb_vlan_3_ip,
+            validate_basic_evpn_type_2_3_route(self.players, cli_objects, interfaces, VxlanConstants.VLAN_3,
+                                               self.dut_vlan_3_ip, self.dut_loopback_ip, self.ha_br_3333_ip,
+                                               self.hb_vlan_3_ip,
                                                VxlanConstants.RD_3333)
         with allure.step('Validate BGP ECMP routes'):
-            retry_call(cli_objects.dut.frr.validate_bgp_ecmp_route, fargs=[self.network_nexthop_list], tries=3, delay=5, logger=logger)
+            retry_call(cli_objects.dut.frr.validate_bgp_ecmp_route, fargs=[self.network_nexthop_list], tries=3, delay=5,
+                       logger=logger)
         with allure.step('Validate vxlan traffic and counters'):
             self.validate_ecmp_traffic_and_counters(cli_objects)

@@ -12,8 +12,8 @@ from .iface_loopback_action_helper import config_loopback_action
 from .iface_loopback_action_helper import clear_rif_counter
 from .iface_loopback_action_helper import verify_interface_loopback_action
 from .iface_loopback_action_helper import verify_rif_tx_err_count
-from .iface_loopback_action_helper import shutdown_rif_interfaces, startup_rif_interfaces
 from .iface_loopback_action_helper import check_ip_interface_up
+from .iface_loopback_action_helper import shutdown_rif_interfaces, startup_rif_interfaces
 from tests.common.platform.interface_utils import check_interface_status_of_up_ports
 
 
@@ -54,8 +54,7 @@ def test_loopback_action_basic(duthost, ptfadapter, ports_configuration):
             with allure.step("Check the traffic can be received on the destination"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, [ACTION_FORWARD] * intf_count)
             with allure.step("Check the TX_ERR in rif counter statistic will not increase"):
-                pytest_assert(wait_until(20, 5, 0, verify_rif_tx_err_count, duthost, rif_interfaces, [0] * intf_count),
-                              "Checking TX ERR count failed, some counter is not as expected.")
+                verify_rif_tx_err_count(duthost, rif_interfaces, [0] * intf_count)
 
 
 def test_loopback_action_port_flap(duthost, ptfadapter, ports_configuration):
@@ -80,8 +79,7 @@ def test_loopback_action_port_flap(duthost, ptfadapter, ports_configuration):
             with allure.step("Check the traffic can be received or dropped as expected"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, action_list)
             with allure.step("Check the TX_ERR in rif counter statistic will increase or not as expected"):
-                pytest_assert(wait_until(20, 5, 0, verify_rif_tx_err_count, duthost, rif_interfaces, count_list),
-                              "Checking TX ERR count failed, some counter is not as expected.")
+                verify_rif_tx_err_count(duthost, rif_interfaces, count_list)
 
 
 def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_configuration):
@@ -109,13 +107,6 @@ def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_c
         reboot_type = request.config.getoption("--rif_loppback_reboot_type")
         if reboot_type == "random":
             reload_types = ["reload", "cold", "fast", "warm"]
-            # TODO: need to remove is when the ticket is resolved
-            # ----------------------------------------------------------------------#
-            from infra.tools.redmine.redmine_api import is_redmine_issue_active
-            is_rm_issue_active, _ = is_redmine_issue_active([3123938])
-            if is_rm_issue_active:
-                reload_types = ["reload", "cold", "fast"]
-            # ----------------------------------------------------------------------#
             reboot_type = random.choice(reload_types)
         if reboot_type == "reload":
             config_reload(duthost, safe_reload=True, check_intf_up_ports=True)
@@ -137,5 +128,4 @@ def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_c
             with allure.step("Check the traffic can be received or dropped as expected"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, action_list)
             with allure.step("Check the TX_ERR in rif counter statistic will increase or not as expected"):
-                pytest_assert(wait_until(20, 5, 0, verify_rif_tx_err_count, duthost, rif_interfaces, count_list),
-                              "Checking TX ERR count failed, some counter is not as expected.")
+                verify_rif_tx_err_count(duthost, rif_interfaces, count_list)

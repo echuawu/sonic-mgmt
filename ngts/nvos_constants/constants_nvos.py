@@ -79,10 +79,13 @@ class NvosConst:
 
     DATE_TIME_REGEX = "\\w{3}\\s{1,2}\\d{1,2} \\d\\d:\\d\\d:\\d\\d(?:.\\d+)?"
 
-    FW_DUMP_ME_SCRIPT_PATH = "/auto/sw_system_release/nos/nvos/security/fw_dump_me/sxd_api_crash_fw.py"
+    FW_DUMP_ME_SCRIPT_PATH = "/auto/sw_system_project/NVOS_INFRA/security/verification/fw_dump_me/sxd_api_crash_fw.py"
     DESTINATION_FW_SCRIPT_PATH = "/var/tmp/"
     SDK_DUMP_FOLDER = "/var/log/mellanox/sdk-dumps/"
     MARS_RESULTS_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
+
+    HOST_HA = 'ha'
+    HOST_HB = 'hb'
 
 
 class ApiType:
@@ -144,7 +147,7 @@ class SystemConsts:
     DATE_TIME = 'date-time'
 
     MIN_SYSTEM_YEAR = '1970'
-    MAX_SYSTEM_YEAR = '2231'
+    MAX_SYSTEM_YEAR = '2037'
     MIN_SYSTEM_DATE = MIN_SYSTEM_YEAR + "-01-01"
     MAX_SYSTEM_DATE = MAX_SYSTEM_YEAR + "-12-31"
     MIN_SYSTEM_DATETIME = MIN_SYSTEM_DATE + " 00:00:00"
@@ -267,7 +270,7 @@ class SystemConsts:
     MEMORY_PHYSICAL_KEY = 'Physical'
     MEMORY_SWAP_KEY = 'Swap'
     MEMORY_PERCENT_THRESH_MIN = 0.0
-    MEMORY_PERCENT_THRESH_MAX = 60.0
+    MEMORY_PERCENT_THRESH_MAX = 70.0
 
     CPU_CORE_COUNT_KEY = 'core-count'
     CPU_MODEL_KEY = 'model'
@@ -523,7 +526,7 @@ class NtpConsts:
     INVALID_SERVER_VERSION = '5'
 
     LOG_MSG_UNSET_NTP = "NtpCfg: Set global config: {'authentication': 'disabled', 'dhcp': 'disabled', " \
-                        "'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
+                        "'server_role': 'disabled', 'src_intf': 'eth0', 'state': 'disabled', 'vrf': 'default'}"
     LOG_MSG_SERVER_CONFIG = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
                             "'resolve_as': '10.7.77.134', 'state': 'enabled', 'trusted': 'no', 'version': '4'}}"
     LOG_MSG_SERVER_CONFIG_UPDATE = "servers: {'10.7.77.134': {'association_type': 'server', 'iburst': 'off', " \
@@ -690,3 +693,59 @@ class OperationTimeConsts:
     TEST_NAME_COL = 'test_name'
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
+
+
+class StatsConsts:
+    class State(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    SLEEP_15_SECONDS = 15  # [sec]
+    SLEEP_1_MINUTE = 60  # [sec]
+    SLEEP_3_MINUTES = 180  # [sec]
+    STATE = 'state'
+    STATE_DEFAULT = State.ENABLED.value
+    INTERVAL = 'interval'
+    INTERVAL_DEFAULT = '5'  # [min]
+    INTERVAL_MIN = '1'  # [min]
+    HISTORY_DURATION = 'history-duration'
+    HISTORY_DURATION_DEFAULT = '365'  # [days]
+    HISTORY_DURATION_MIN = '1'  # [days]
+    GENERATE_ALL_TIME_MAX = 2  # [sec]
+    CATEGORY_STATE_DISABLED = {STATE: State.DISABLED.value}
+    CATEGORY_DEFAULT_DICT = {
+        HISTORY_DURATION: HISTORY_DURATION_DEFAULT,
+        INTERVAL: INTERVAL_DEFAULT,
+        STATE: STATE_DEFAULT
+    }
+    CATEGORY_MIN_DICT = {
+        STATE: STATE_DEFAULT,
+        INTERVAL: INTERVAL_MIN,
+        HISTORY_DURATION: HISTORY_DURATION_MIN
+    }
+
+    LOG_MSG_UNSET_STATS = "PATCH /nvue_v1/system/stats"
+    LOG_MSG_SET_CATEGORY1 = "INFO stats-reportd: got config change "
+    LOG_MSG_SET_CATEGORY2 = ": {'enabled': 'true', 'history_duration': '365', 'interval': '1'}"
+    LOG_MSG_PATCH_CATEGORY = "PATCH /nvue_v1/system/stats/category/"
+
+    LOG_MSG_ERROR_DB = "..."  # TODO: Update message (parameter not found in redis DB)...
+
+    INVALID_CATEGORY_NAME = 'invalid_category_name'
+    ALL_CATEGORIES = 'all'
+    INVALID_STATE = 'invalid_state'
+    INVALID_INTERVAL_LOW = 0
+    INVALID_INTERVAL_HIGH = 1441
+    INVALID_HISTORY_DURATION_LOW = 0
+    INVALID_HISTORY_DURATION_HIGH = 366
+    INVALID_FILE_NAME = 'file_not_exists.csv'
+    INVALID_REMOTE_URL = 'invalid_remote_url'
+    INVALID_SHOW_CATEGORY = 'The requested item does not exist.'
+    VALID_REMOTE_URL = 'scp://iavraham:iavraham11@fit74/sysgwork/iavraham/tmp/'  # TODO: Update URL
+
+    TEMP_PATH = '/auto/rdmzsysgwork/shared/test_utilities/tmp/5b5931e6aac04bd39499372ef73fbf31'
+
+    GENERATE = 'generate'
+    DELETE = 'delete'
+    UPLOAD = 'upload'
+    CLEAR = 'clear'

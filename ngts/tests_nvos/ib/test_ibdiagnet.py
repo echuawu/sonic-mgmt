@@ -2,10 +2,12 @@ import pytest
 import allure
 import json
 import logging
+import time
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import IbConsts
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -71,6 +73,8 @@ def test_ibdiagnet_run_multiple_times(engines):
     """
     ib = Ib(None)
     tries_number = 5
+    if is_redmine_issue_active([3482696]):
+        time.sleep(40)
 
     with allure.step('try to generate ibdiagnet file {tries} times'.format(tries=tries_number)):
         for i in range(0, tries_number):
@@ -160,11 +164,11 @@ def test_ibdiagnet_upload(engines):
 
     with allure.step('try to upload ibdiagnet to invalid url - url is not in the right format'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_1)
-        assert "Invalid Command:" in output.info, "URL was not in the right format"
+        assert "is not a" in output.info, "URL was not in the right format"
 
     with allure.step('try to upload ibdiagnet to invalid url - using non supported transfer protocol'):
         output = ib.ibdiagnet.action_upload(upload_path=invalid_url_2)
-        assert "Invalid Command:" in output.info, "URL used non supported transfer protocol"
+        assert "is not a" in output.info, "URL used non supported transfer protocol"
 
 
 @pytest.mark.ib

@@ -33,6 +33,8 @@ def test_extract_python_coverage(topology_obj, dest, engines):
         engine = topology_obj.players['dut']['engine']
         cli_obj = topology_obj.players['dut']['cli']
 
+        check_used_capacity(engine)
+
         with allure.step('Get coverage file path'):
             coverage_file = cli_obj.general.echo(f'${{{ENV_COVERAGE_FILE}}}')
             if not coverage_file:
@@ -55,6 +57,7 @@ def test_extract_python_coverage(topology_obj, dest, engines):
         with allure.step('Create coverage xml report for the host'):
             host_coverage_xml_file = os.path.join(coverage_dir, f'{coverage_xml_filename_prefix}-{timestamp}.xml')
             create_coverage_xml(cli_obj.general, coverage_file, host_coverage_xml_file)
+            check_used_capacity(engine)
 
         containers = cli_obj.general.get_running_containers_names()
         logger.info(f'Running Docker containers: {containers}')
@@ -68,6 +71,8 @@ def test_extract_python_coverage(topology_obj, dest, engines):
                 for file in coverage_xml_files:
                     cli_obj.general.copy_from_docker(container, file, file)
                     cli_obj.general.remove_from_docker(container, file)
+
+        check_used_capacity(engine)
 
         with allure.step(f'Copy coverage xml reports from the system to destination directory'):
             coverage_xml_files = system_helpers.list_files(engine, coverage_dir, pattern=coverage_xml_filename_prefix)
@@ -86,6 +91,16 @@ def test_extract_python_coverage(topology_obj, dest, engines):
         raise AssertionError(err)
 
 
+def check_used_capacity(engine):
+    try:
+        logger.info("Check used capacity for /var/lib/python/coverage")
+        engine.run_cmd("df -h /var/lib/python/coverage/")
+        engine.run_cmd("du -sh /var/lib/python/coverage")
+        engine.run_cmd("du -h /sonic")
+    except BaseException as ex:
+        logger.warning(str(ex))
+
+
 @pytest.mark.disable_loganalyzer
 @allure.title('Extract GCOV Coverage')
 def test_extract_gcov_coverage(topology_obj, dest, engines):
@@ -98,6 +113,7 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
     :raise AssertionError: in case of script failure.
     """
     try:
+        c_dest = f"{dest}/c_coverage"
         engine = topology_obj.players['dut']['engine']
         cli_obj = topology_obj.players['dut']['cli']
 
@@ -108,6 +124,7 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
             if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
                     NvosCliTypes.NvueCliTypes:
                 engines.dut.run_cmd('sudo systemctl restart swss-ibv0.service')
+                engines.dut.run_cmd('sudo systemctl restart syncd-ibv0.service')
             else:
                 engines.dut.reload('sudo systemctl restart sonic.target')
                 system_helpers.wait_for_all_jobs_done(engine)
@@ -133,11 +150,11 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
             gcovr_flags = ' '.join(f'-a {gcov_json_file}' for gcov_json_file in gcov_json_files)
             gcovr_flags += f' --sonarqube -r {GCOV_DIR} -o {gcov_report_file}'
             sudo_cli_general.gcovr(flags=gcovr_flags)
-            logger.info(f'Destination directory: {dest}')
-            os.makedirs(dest, exist_ok=True)
+            logger.info(f'Destination directory: {c_dest}')
+            os.makedirs(c_dest, exist_ok=True)
             gcov_report_filename = os.path.basename(gcov_report_file)
             engine.copy_file(source_file=gcov_report_filename,
-                             dest_file=os.path.join(dest, gcov_report_filename),
+                             dest_file=os.path.join(c_dest, gcov_report_filename),
                              file_system=os.path.dirname(gcov_report_file),
                              direction='get')
             sudo_cli_general.rm(gcov_report_file, flags='-f')

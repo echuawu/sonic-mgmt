@@ -12,19 +12,20 @@
         <li>
             <p><strong>{{dump_info["dump_name"]}}</strong><br>
             <strong>Test name:</strong> {{dump_info["test_name"]}}</p>
-            <h4>Bug handler results:</h4>
+            <h4>Bug Handler Results:</h4>
             <ol type="a">
             {% for bug_handler_result in dump_info["results"] -%}
             <li>
-                </p>{{bug_handler_result["file_name"]}}<br>
-                bug handler messages:</p>
+                </p><strong>{{bug_handler_result["file_name"]}}<br>
+                Bug Handler Messages:</strong><br></p>
                 <p>
                 {% for message in bug_handler_result["messages"] -%}
                     {{message}}<br>
                 {% endfor %}
                 </p>
-                <p><strong>rc:</strong> {{bug_handler_result["rc"]}}<br>
-                <strong>decision:</strong> {{bug_handler_result["decision"]}}</p>
+                <p><strong>RC:</strong> {{bug_handler_result["rc"]}}<br>
+                <strong>Decision:</strong> {{bug_handler_result["decision"]}}<br>
+                <strong>Recommended Actions:</strong><br>{{bug_handler_result["recommended_action"]}}</p>
             </li>
             {% endfor %}
         </li>
