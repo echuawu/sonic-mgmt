@@ -1828,6 +1828,12 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486626 on SPC4"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486626 and sn5 in platform"
+      - "https://redmine.mellanox.com/issues/3486626 and 'sn5' in platform"
+
+platform_tests/mellanox/test_psu_power_threshold.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3501914 on SPC4"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3501914 and 'sn5' in platform"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
