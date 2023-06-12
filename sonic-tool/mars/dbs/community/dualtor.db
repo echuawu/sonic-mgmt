@@ -54,4 +54,7 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/dualtor.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/dualtor_mgmt.cases </cases>
+    </test>
 </DBDEF>
