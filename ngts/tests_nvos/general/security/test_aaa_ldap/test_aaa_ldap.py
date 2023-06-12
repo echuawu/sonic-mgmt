@@ -27,7 +27,6 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
     found only in the first server and connect through credentials in the second server only
     and we are testing the local credentials
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     first_real_ldap_server = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
     first_real_ldap_server[LdapConsts.PRIORITY] = '2'
     second_real_ldap_server = LdapConsts.DOCKER_LDAP_SERVER_DNS.copy()
@@ -49,7 +48,6 @@ def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configura
         validate_authentication_fail_with_credentials(engines,
                                                       username=second_ldap_server_user[LdapConsts.USERNAME],
                                                       password=second_ldap_server_user[LdapConsts.PASSWORD])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
@@ -57,7 +55,6 @@ def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devic
     @summary: in this test case we want to validate timeout functionality:
     there are two cases of timeout: bind-in timeout and search timeout functionalities
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
 
     with allure.step("Configuring LDAP server with low bind-in timeout value: {}".format(LdapConsts.LDAP_LOW_TIMOEUT)):
@@ -82,7 +79,6 @@ def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devic
         validate_authentication_fail_with_credentials(engines=engines,
                                                       username=ldap_server_users[0][LdapConsts.USERNAME],
                                                       password=ldap_server_users[0][LdapConsts.PASSWORD])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, devices):
@@ -91,7 +87,6 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
     we want to configure invalid port value and then see that we are not able to connect
     to switch
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -109,7 +104,6 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
                                                           LdapConsts.USERNAME],
                                                       password=ldap_server_info[LdapConsts.USERS][0][
                                                           LdapConsts.PASSWORD])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configurations, devices):
@@ -118,7 +112,6 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
     we want to configure invalid bind in password value and then see that we are not able to connect
     to switch
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -134,7 +127,6 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
                                                           LdapConsts.USERNAME],
                                                       password=ldap_server_info[LdapConsts.USERS][0][
                                                           LdapConsts.PASSWORD])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, devices):
@@ -143,7 +135,6 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
     we want to configure invalid bind dn value and then see that we are not able to connect
     to switch
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -159,7 +150,6 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
                                                           LdapConsts.USERNAME],
                                                       password=ldap_server_info[LdapConsts.USERS][0][
                                                           LdapConsts.PASSWORD])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, devices):
@@ -168,7 +158,6 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
     we want to configure invalid bind dn value and then see that we are not able to connect
     to switch
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -184,7 +173,6 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
                                                           LdapConsts.USERNAME],
                                                       password=ldap_server_info[LdapConsts.USERS][0][
                                                           LdapConsts.PASSWORD])
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations, devices):
@@ -192,7 +180,6 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
     @summary: in this test case we want to check that with non existing credentials we are not able to
     connect to switch
     """
-    engines.dut.run_cmd('stat /var/log/audit.log')
     ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
     configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
 
@@ -202,7 +189,6 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
         validate_authentication_fail_with_credentials(engines,
                                                       username=random_user,
                                                       password=random_password)
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -215,7 +201,6 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations, test_api):
     """
     TestToolkit.tested_api = test_api
 
-    engines.dut.run_cmd('stat /var/log/audit.log')
     configured_ldap_servers_hostname = []
     system = System()
     ldap_obj = system.aaa.ldap
@@ -272,13 +257,12 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations, test_api):
         for hostname in configured_ldap_servers_hostname:
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
                 hostname)
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
 
-@pytest.mark.parametrize('connection_method, encryption_mode, test_api', list(product(LdapConsts.CONNECTION_METHODS,
-                                                                                      LdapConsts.ENCRYPTION_MODES,
-                                                                                      ApiType.ALL_TYPES)))
-def test_ldap_authentication(connection_method, encryption_mode, test_api, engines, devices,
+@pytest.mark.parametrize('test_api, connection_method, encryption_mode', list(product(ApiType.ALL_TYPES,
+                                                                                      LdapConsts.CONNECTION_METHODS,
+                                                                                      LdapConsts.ENCRYPTION_MODES)))
+def test_ldap_authentication(test_api, connection_method, encryption_mode, engines, devices,
                              remove_ldap_configurations):
     """
     @summary:
@@ -290,7 +274,7 @@ def test_ldap_authentication(connection_method, encryption_mode, test_api, engin
         3. Enable ldap and set it as main authentication method
         4. Verify authentication with the result setup
     """
-    logging.info(f'Test setup: {connection_method}, {encryption_mode}, {test_api}')
+    logging.info(f'Test setup: {test_api}, {connection_method}, {encryption_mode}')
     TestToolkit.tested_api = test_api
 
     engines.dut.run_cmd('stat /var/log/audit.log')  # todo: ask azmy - what is that?
@@ -310,33 +294,39 @@ def test_ldap_authentication(connection_method, encryption_mode, test_api, engin
     with allure.step(f'Verify authentication with the current setup'):
         validate_users_authorization_and_role(engines=engines, users=ldap_server_info[LdapConsts.USERS])
 
-    engines.dut.run_cmd('stat /var/log/audit.log')
-
 
 @pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_no_connection(engines, devices, test_api, encryption_mode, reset_aaa):
+def test_bad_connection(test_api, encryption_mode, reset_aaa, engines, devices):
     """
     @summary:
-        Test that in case of bad connection with ldap server, authentication and authorization are done via local
+        Test that in case of bad connection with ldap server, authentication and authorization are done via next
+            server / auth. method in line.
 
         Steps:
-        1. Configure bad ldap server
+        1. Configure bad ldap servers
         2. Configure auth order - ldap, local
-        3. Verify authentication and authorization are done via local:
+        3. Verify authentication and authorization are done via next in line - local:
             - server only user can not login
             - mutual/local only user can login, and role is according to local configuration
+        4. Configure another (valid) ldap server, prioritized as the last of the servers
+        5. Verify authentication and authorization are done via next in line - 2nd server
+            - Invalid servers user can not login
+            - Valid server can login
+            - local user can not login
     """
-    logging.info(f'Test setup: {encryption_mode}, {test_api}')
+    logging.info(f'Test setup: {test_api}, {encryption_mode}')
     TestToolkit.tested_api = test_api
-
-    engines.dut.run_cmd('stat /var/log/audit.log')
 
     with allure.step('Configure bad ldap server'):
         aaa = System().aaa
         ldap_obj = aaa.ldap
-        ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
-        ldap_server_info[LdapConsts.HOSTNAME] = '1.2.3.4'
-        configure_ldap_server(engines, ldap_obj, ldap_server_info)
+        invalid_servers = [LdapConsts.PHYSICAL_LDAP_SERVER.copy() for _ in range(3)]
+        i = 4
+        for server in invalid_servers:
+            server[LdapConsts.HOSTNAME] = f'{1+i}.{2+i}.{3+i}.{4+i}'
+            server[LdapConsts.PRIORITY] = str(i)
+            configure_ldap_server(engines, ldap_obj, server)
+            i -= 1
 
     with allure.step(f'Configure encryption mode: {encryption_mode}'):
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)
@@ -344,28 +334,49 @@ def test_no_connection(engines, devices, test_api, encryption_mode, reset_aaa):
     with allure.step('Set ldap as main authentication method'):
         configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL])
 
-    with allure.step('Verify authentication and authorization are done via local'):
-        ldap_users = ldap_server_info[LdapConsts.USERS]
+    with allure.step('Set local users for the test'):
+        ldap1_users = invalid_servers[0][LdapConsts.USERS]
 
         with allure.step('Set local-only users'):
             local_users = LdapConsts.LOCAL_ONLY_TEST_USERS
             set_local_users(local_users)
 
-        with allure.step(f'Set mutual user "{ldap_users[0][AaaConsts.USERNAME]}" in local'):
+        with allure.step(f'Set ldap-local mutual user "{ldap1_users[0][AaaConsts.USERNAME]}" in local'):
             mutual_user = {
-                AaaConsts.USERNAME: ldap_users[0][AaaConsts.USERNAME],
+                AaaConsts.USERNAME: ldap1_users[0][AaaConsts.USERNAME],
                 AaaConsts.PASSWORD: LdapConsts.STRONG_PASSWORD,
-                AaaConsts.ROLE: AaaConsts.MONITOR if ldap_users[0][AaaConsts.ROLE] == AaaConsts.ADMIN else AaaConsts.ADMIN
+                AaaConsts.ROLE: AaaConsts.MONITOR if ldap1_users[0][
+                    AaaConsts.ROLE] == AaaConsts.ADMIN else AaaConsts.ADMIN
             }
             set_local_users([mutual_user])
 
+    with allure.step('Verify authentication and authorization are done via next in line - local'):
         with allure.step('Verify ldap-only user can not login'):
-            validate_users_authorization_and_role(engines=engines, users=ldap_users, login_should_succeed=False)
+            validate_users_authorization_and_role(engines=engines, users=ldap1_users, login_should_succeed=False)
 
         with allure.step('Verify mutual user can be authenticated and authorized (via local)'):
-            pass  # validate_users_authorization_and_role(engines=engines, users=[mutual_user])
+            validate_users_authorization_and_role(engines=engines, users=[mutual_user])
 
         with allure.step('Verify local-only user be authenticated and authorized (via local)'):
             validate_users_authorization_and_role(engines=engines, users=local_users)
 
-    engines.dut.run_cmd('stat /var/log/audit.log')
+    with allure.step('Add valid ldap server server'):
+        ldap2_server_info = LdapConsts.DOCKER_LDAP_SERVER_DNS.copy()
+        configure_ldap_server(engines, ldap_obj, ldap2_server_info)
+
+    with allure.step('Verify authentication and authorization are done via next in line - valid ldap server'):
+        ldap1_only_user = [user1 for user1 in invalid_servers[0][LdapConsts.USERS]
+                           if not any(user1[AaaConsts.USERNAME] == user2[AaaConsts.USERNAME]
+                                      for user2 in ldap2_server_info[LdapConsts.USERS])][0]
+        ldap2_user = ldap2_server_info[LdapConsts.USERS][random.randint(0,
+                                                                        len(ldap2_server_info[LdapConsts.USERS]) - 1)]
+        local_only_user = local_users[random.randint(0, len(local_users) - 1)]
+
+        with allure.step(f'Verify 1st server only user "{ldap1_only_user[AaaConsts.USERNAME]}" can not login'):
+            validate_users_authorization_and_role(engines=engines, users=[ldap1_only_user], login_should_succeed=False)
+
+        with allure.step(f'Verify 2nd server user "{ldap2_user[AaaConsts.USERNAME]}" can login'):
+            validate_users_authorization_and_role(engines=engines, users=[ldap2_user])
+
+        with allure.step(f'Verify local user "{local_only_user[AaaConsts.USERNAME]}" can not login'):
+            validate_users_authorization_and_role(engines=engines, users=[local_only_user], login_should_succeed=False)
