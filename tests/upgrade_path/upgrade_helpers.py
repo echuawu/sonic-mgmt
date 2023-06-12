@@ -3,7 +3,6 @@ import logging
 import time
 import json
 import re
-from urlparse import urlparse
 import ipaddress
 from six.moves.urllib.parse import urlparse
 from tests.common.helpers.assertions import pytest_assert
