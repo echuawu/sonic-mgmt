@@ -17,6 +17,8 @@ class SupportedRebootReloadTypes:
         self.config_reload = 'config reload -y'
         if platform == PlatformTypesConstants.PLATFORM_BOXER or is_redmine_issue_active([3431712]):
             del self.fast_reboot
+        if platform == PlatformTypesConstants.FILTERED_PLATFORM_MOOSE or is_redmine_issue_active([3505417]):
+            del self.warm_reboot
 
 
 def get_supported_reboot_reload_types_list(platform=None):
