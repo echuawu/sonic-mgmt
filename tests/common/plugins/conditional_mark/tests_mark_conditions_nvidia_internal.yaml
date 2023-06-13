@@ -558,9 +558,9 @@ vxlan/test_vxlan_decap.py:
 
 vxlan/test_vnet_vxlan.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419660 and branch 202211 and 't0' in topo_name"
+    reason: "Not enough routes are configured during vnet vxlan test"
     conditions:
-      - "https://redmine.mellanox.com/issues/3419660 and '202211' in release and 't0' in topo_name"
+      - https://github.com/sonic-net/sonic-mgmt/issues/8374
 
 vlan/test_vlan.py:
   skip:
