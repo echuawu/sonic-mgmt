@@ -296,7 +296,7 @@ def test_ldap_set_show_unset(engines, remove_ldap_configurations):
         logging.info("Validate Unset specific ldap hostname command")
         for hostname in configured_ldap_servers_hostname:
             system.aaa.ldap.hostname.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
-            output = system.aaa.ldap.hostname.show_hostname(hostname=hostname)
+            output = system.aaa.ldap.hostname.show()
             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
                 hostname)
 
