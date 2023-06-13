@@ -11,7 +11,7 @@ from fabric import Connection
 from fabric import Config
 
 
-servers_to_configure = ['fit-nvos-vrt-60', 'fit-l-vrt-1140', 'arc-host84']
+servers_to_configure = ['fit-nvos-vrt-60', 'fit-l-vrt-1140', 'arc-host84', 'fit-l-vrt-9100']
 
 servers_to_check_functionality = {'fit-l-docker-720': {'description': 'Traffic server for NVOS_QTM_CI_1 setup',
                                                        'ip': '10.237.37.20'},
@@ -54,12 +54,19 @@ def run_cmd(test_server_conn, cmd):
 def configure_server(server_name, test_server_conn):
     try:
         logger.info(f"Configuring server {server_name}")
+
+        cmd = "sudo service docker start"
+        logger.info(f"Run cmd: {cmd}")
+        run_cmd(test_server_conn, cmd)
+
         cmd = "sudo groupadd docker"
         logger.info(f"Run cmd: {cmd}")
         run_cmd(test_server_conn, cmd)
+
         cmd = "sudo usermod -aG docker $USER"
         logger.info(f"Run cmd: {cmd}")
         run_cmd(test_server_conn, cmd)
+
         cmd = "sudo chgrp docker /var/run/docker.sock"
         logger.info(f"Run cmd: {cmd}")
         run_cmd(test_server_conn, cmd)
