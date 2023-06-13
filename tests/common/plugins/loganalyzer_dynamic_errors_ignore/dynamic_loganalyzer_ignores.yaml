@@ -438,7 +438,7 @@
     - '.*ERR kernel: \[.*\d+\.\d+\] Register access failed \(reg_id=0x9014, status=0x1\).*'
   Conditions:
     - Redmine:
-        - 3486142
+        - 3495609
 
 - Errors_list:
     - '.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
@@ -2349,6 +2349,7 @@
   Conditions:
     - Affected_test_cases:
       - show_techsupport/test_auto_techsupport.py
+      - platform_tests/mellanox/test_check_sysfs.py
       Redmine:
       - 3425181
 
@@ -2701,6 +2702,7 @@
   Conditions:
     - Affected_test_cases:
         - tests/nightly/fec/test_fec.py
+        - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
       Redmine:
         - 3488995
 
