@@ -558,9 +558,9 @@ vxlan/test_vxlan_decap.py:
 
 vxlan/test_vnet_vxlan.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419660 and branch 202211 and 't0' in topo_name"
+    reason: "Not enough routes are configured during vnet vxlan test"
     conditions:
-      - "https://redmine.mellanox.com/issues/3419660 and '202211' in release and 't0' in topo_name"
+      - https://github.com/sonic-net/sonic-mgmt/issues/8374
 
 vlan/test_vlan.py:
   skip:
@@ -574,12 +574,6 @@ vlan/test_autostate_disabled.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3419725 and '202211' in release and 't0-64' in topo_name"
 
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132437 and paltform msn4"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132437 and 'msn4' in platform"
-
 qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3097795 and branch 202111"
@@ -587,6 +581,12 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
     conditions:
       - "https://redmine.mellanox.com/issues/3097795 and '202111' in release"
       - "https://redmine.mellanox.com/issues/3139078 and '202205' in release"
+
+qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499219 and branch 202211"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3499219 and '202211' in release"
 
 platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
   skip:
@@ -1316,11 +1316,11 @@ acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
 
 platform_tests/test_sensors.py::test_sensors:
   skip:
-    reason: "Testcase ignored due to RM issue 3162524 and platform 4600C, or RM 3433546 and platform 5600"
+    reason: "Testcase ignored due to RM issue 3505271 and platform 4600C, or RM 3505293 and platform 5600"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3162524 and 'x86_64-mlnx_msn4600c-r0' in platform"
-      - "https://redmine.mellanox.com/issues/3433546 and '5600' in platform"
+      - "https://redmine.mellanox.com/issues/3505271 and 'x86_64-mlnx_msn4600c-r0' in platform"
+      - "https://redmine.mellanox.com/issues/3505293 and '5600' in platform"
 
 bfd/test_bfd.py::test_bfd_basic:
   skip:
@@ -1339,12 +1339,6 @@ qos/test_qos_sai_dual_tor.py:
     reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64 and Mellanox-SN2700-D48C8"
     conditions:
       - "hwsku not in ['Mellanox-SN4600C-C64', 'Mellanox-SN2700-D48C8']"
-
-platform_tests/api/test_sfp.py::test_get_transceiver_info:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174878 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3174878 and '202205' in release"
 
 platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
   skip:
@@ -1822,6 +1816,18 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486626 on SPC4"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486626 and sn5 in platform"
+      - "https://redmine.mellanox.com/issues/3486626 and 'sn5' in platform"
+
+platform_tests/mellanox/test_psu_power_threshold.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3501914 on SPC4"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3501914 and 'sn5' in platform"
+
+platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3505442 on SPC4"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3505442 and 'sn5' in platform"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################

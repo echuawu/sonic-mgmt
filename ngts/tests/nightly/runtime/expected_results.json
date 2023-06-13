@@ -2,7 +2,7 @@
     "MSN2010": {
         "show_ifaces_status": "1.802",
         "add_vlan": "1.007",
-        "del_vlan": "1.011",
+        "del_vlan": "1.516",
         "add_route": "1.002",
         "del_route": "0.989",
         "add_po": "1.003",
@@ -19,7 +19,7 @@
     "MSN2100": {
         "show_ifaces_status": "1.734",
         "add_vlan": "0.989",
-        "del_vlan": "0.991",
+        "del_vlan": "1.486",
         "add_route": "0.998",
         "del_route": "0.999",
         "add_po": "0.982",
@@ -36,7 +36,7 @@
     "SN2201": {
         "show_ifaces_status": "1.41",
         "add_vlan": "0.765",
-        "del_vlan": "0.758",
+        "del_vlan": "1.137",
         "add_route": "0.74",
         "del_route": "0.746",
         "add_po": "0.77",
@@ -53,7 +53,7 @@
     "MSN2410": {
         "show_ifaces_status": "1.565",
         "add_vlan": "0.983",
-        "del_vlan": "0.951",
+        "del_vlan": "1.426",
         "add_route": "0.888",
         "del_route": "0.909",
         "add_po": "0.871",
@@ -70,7 +70,7 @@
     "SN2700": {
         "show_ifaces_status": "1.477",
         "add_vlan": "0.912",
-        "del_vlan": "0.961",
+        "del_vlan": "1.442",
         "add_route": "0.899",
         "del_route": "0.822",
         "add_po": "0.811",
@@ -87,7 +87,7 @@
     "MSN3420": {
         "show_ifaces_status": "0.931",
         "add_vlan": "0.537",
-        "del_vlan": "0.511",
+        "del_vlan": "0.766",
         "add_route": "0.474",
         "del_route": "0.483",
         "add_po": "0.496",
@@ -104,7 +104,7 @@
     "MSN3700": {
         "show_ifaces_status": "0.807",
         "add_vlan": "0.429",
-        "del_vlan": "0.427",
+        "del_vlan": "0.64",
         "add_route": "0.427",
         "del_route": "0.442",
         "add_po": "0.447",
@@ -121,7 +121,7 @@
     "MSN3700C": {
         "show_ifaces_status": "0.967",
         "add_vlan": "0.461",
-        "del_vlan": "0.46",
+        "del_vlan": "0.69",
         "add_route": "0.477",
         "del_route": "0.464",
         "add_po": "0.48",
@@ -138,7 +138,7 @@
     "MSN3800": {
         "show_ifaces_status": "0.871",
         "add_vlan": "0.457",
-        "del_vlan": "0.443",
+        "del_vlan": "0.664",
         "add_route": "0.442",
         "del_route": "0.434",
         "add_po": "0.457",
@@ -155,7 +155,7 @@
     "MSN4410": {
         "show_ifaces_status": "0.792",
         "add_vlan": "0.447",
-        "del_vlan": "0.439",
+        "del_vlan": "0.658",
         "add_route": "0.427",
         "del_route": "0.439",
         "add_po": "0.429",
@@ -172,7 +172,7 @@
     "MSN4600": {
         "show_ifaces_status": "0.881",
         "add_vlan": "0.453",
-        "del_vlan": "0.456",
+        "del_vlan": "0.684",
         "add_route": "0.455",
         "del_route": "0.45",
         "add_po": "0.444",
@@ -189,7 +189,7 @@
     "MSN4600C": {
         "show_ifaces_status": "0.869",
         "add_vlan": "0.446",
-        "del_vlan": "0.448",
+        "del_vlan": "0.672",
         "add_route": "0.452",
         "del_route": "0.451",
         "add_po": "0.449",
@@ -206,7 +206,7 @@
     "MSN4700": {
         "show_ifaces_status": "0.772",
         "add_vlan": "0.436",
-        "del_vlan": "0.424",
+        "del_vlan": "0.636",
         "add_route": "0.436",
         "del_route": "0.42",
         "add_po": "0.446",
@@ -223,7 +223,7 @@
     "SN5600": {
         "show_ifaces_status": "0.772",
         "add_vlan": "0.436",
-        "del_vlan": "0.424",
+        "del_vlan": "0.636",
         "add_route": "0.436",
         "del_route": "0.42",
         "add_po": "0.446",
