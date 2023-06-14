@@ -1,5 +1,6 @@
 import logging
 import json
+import re
 from ngts.cli_wrappers.interfaces.interface_general_clis import GeneralCliInterface
 
 logger = logging.getLogger()
@@ -185,3 +186,32 @@ class GeneralCliCommon(GeneralCliInterface):
                                                        ' -v build_version', validate=True)
             version = sonic_version_output.strip()
         return version
+
+    def stat(self, file):
+        """
+        get status of file
+        :return: file stat. e.g.  {"exists": False,"islink": False}
+        """
+        file_stat = {"exists": False,
+                     "islink": False}
+        reg_no_file = r"stat: cannot statx .* No such file or directory"
+        reg_symbolic_file = r"Size:.*Blocks:.*O Block:.*symbolic link"
+        file_stat_res = self.engine.run_cmd(f"sudo stat {file}")
+        if re.search(reg_no_file, file_stat_res):
+            return file_stat
+        file_stat["exists"] = True
+        if re.search(reg_symbolic_file, file_stat_res):
+            file_stat["islink"] = True
+        logger.info(f"{file}: {file_stat}")
+        return file_stat
+
+    def read_file(self, file_path):
+        """
+        Read file content.
+        :param file_path:  file path.
+        :return: Content of file.
+        """
+        file_status = self.stat(file_path)
+        if not file_status['exists']:
+            raise Exception(f'{file_path} not exist')
+        return self.engine.run_cmd(f"cat {file_path}")

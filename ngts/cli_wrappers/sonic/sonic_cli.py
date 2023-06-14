@@ -31,6 +31,7 @@ from ngts.cli_wrappers.sonic.sonic_doroce_clis import SonicDoroceCli
 from ngts.cli_wrappers.sonic.sonic_watermark_clis import SonicWatermarkCli
 from ngts.cli_util.stub_engine import StubEngine
 from dotted_dict import DottedDict
+from ngts.cli_wrappers.sonic.sonic_hw_mgmt_cli import SonicHwMgmtCli
 logger = logging.getLogger()
 
 
@@ -71,6 +72,7 @@ class SonicCli:
         self._watermark = None
         self._ztp = None
         self._sflow = None
+        self._hw_mgmt = None
 
     @property
     def ip(self):
@@ -258,6 +260,12 @@ class SonicCli:
         if self._ztp is None:
             self._ztp = SonicZtpCli(engine=self.engine)
         return self._ztp
+
+    @property
+    def hw_mgmt(self):
+        if self._hw_mgmt is None:
+            self._hw_mgmt = SonicHwMgmtCli(engine=self.engine)
+        return self._hw_mgmt
 
 
 class SonicCliStub(SonicCli):
