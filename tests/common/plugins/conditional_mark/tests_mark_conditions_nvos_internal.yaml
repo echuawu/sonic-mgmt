@@ -71,12 +71,6 @@ tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash:
     conditions:
       - https://redmine.mellanox.com/issues/3458839
 
-tests_nvos/interfaces/test_port_split.py::test_ib_split_port_default_values:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3477319"
-    conditions:
-      - https://redmine.mellanox.com/issues/3477319
-
 tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication:
   skip:
     reason: "Testcase skipped till ntp server will be available"
