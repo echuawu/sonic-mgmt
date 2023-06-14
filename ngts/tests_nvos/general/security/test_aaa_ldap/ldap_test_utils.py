@@ -132,11 +132,15 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices):
     @summary: in this function we will configure ldap servers in he ldap server list
     and validate the ldap configurations per server
     """
-    enable_ldap_feature(engines.dut)
+    ldap_is_enabled = False
 
     for ldap_server_info in ldap_server_list:
         with allure.step("Configuring ldap server {}".format(ldap_server_info)):
             configure_ldap(ldap_server_info)
+
+        if not ldap_is_enabled:
+            enable_ldap_feature(engines.dut)
+            ldap_is_enabled = True
 
         with allure.step("Validating ldap server configurations"):
             validate_ldap_configurations(ldap_server_info)
