@@ -121,8 +121,6 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices, should_valid
     @summary: in this function we will configure ldap servers in he ldap server list
     and validate the ldap configurations per server
     """
-    configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], failthrough=LdapConsts.ENABLED)
-
     for ldap_server_info in ldap_server_list:
         with allure.step("Configuring ldap server {}".format(ldap_server_info)):
             configure_ldap(ldap_server_info)
@@ -131,6 +129,7 @@ def configure_ldap_and_validate(engines, ldap_server_list, devices, should_valid
             with allure.step("Validating ldap server configurations"):
                 validate_ldap_configurations(ldap_server_info)
 
+    configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], failthrough=LdapConsts.ENABLED)
     validate_services_and_dockers_availability(engines, devices)
 
 
