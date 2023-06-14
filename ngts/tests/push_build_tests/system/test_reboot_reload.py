@@ -25,9 +25,19 @@ expected_traffic_loss_dict = {'fast-reboot': {'data': 30, 'control': 90},
 
 
 @pytest.fixture()
-def validation_type(platform_params, is_simx):
+def validation_type(platform_params, is_simx, reboot_type):
     supported_reboot_reload_list = get_supported_reboot_reload_types_list(platform_params.platform)
     validation_type = random.choice(supported_reboot_reload_list)
+
+    if reboot_type:
+        reboot_mapping_dict = {'fast': 'fast-reboot',
+                               'warm': 'warm-reboot',
+                               'reboot': 'reboot',
+                               'reload': 'config reload -y'}
+        reboot_type = reboot_mapping_dict[reboot_type]
+        assert reboot_type in supported_reboot_reload_list, f'Reboot type: "{reboot_type}" is not supported. ' \
+                                                            f'Please provide correct reboot type'
+        validation_type = reboot_type
 
     if is_simx:
         validation_type = random.choice(simx_validation_types)
