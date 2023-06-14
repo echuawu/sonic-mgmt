@@ -2511,9 +2511,9 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
 
 - Errors_list:
-    - '.* ERR auditd\[376\]: queue to plugins is full - dropping event.*'
-    - '.* ERR auditd\[376\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
-    - '.* ERR auditd\[376\]: auditd queue full reporting limit reached \- ending dropped event.*'
+    - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
+    - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
+    - '.* ERR auditd\[\d+\]: auditd queue full reporting limit reached \- ending dropped event.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py

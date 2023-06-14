@@ -1,5 +1,5 @@
 import random
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 import yaml
 import datetime as dt
@@ -25,7 +25,6 @@ class ClockTools:
         @return: ResultObj containing: True with parsed yaml as a dictionary, or False if parsing failed
         """
         with allure.step("Parsing .yaml file to dictionary"):
-            logging.info("Parsing .yaml file to dictionary")
             with open(yaml_file_path, 'r') as file:
                 logging.info("Reading provided .yaml file")
                 dic = yaml.safe_load(file)
@@ -305,11 +304,9 @@ class ClockTools:
             allowed_margin *= 2  # commands take a little longer with openapi infra, so allow larger margin
 
         with allure.step("Calculate diff (in seconds) between dt1: {dt1} and dt2 {dt2}".format(dt1=dt1, dt2=dt2)):
-            logging.info("Calculate diff (in seconds) between dt1: {dt1} and dt2 {dt2}".format(dt1=dt1, dt2=dt2))
             diff = ClockTools.datetime_difference_in_seconds(dt1, dt2)
 
         with allure.step("Assert diff: {diff} < const {const}".format(diff=diff, const=allowed_margin)):
-            logging.info("Assert diff: {diff} < const {const}".format(diff=diff, const=allowed_margin))
             assert diff < allowed_margin, \
                 ("Difference (delta) between times in 'nv show system' and 'timedatectl' is too high! \n"
                  "Expected delta: less than '{expected}' seconds, Actual delta: '{actual}' seconds"
@@ -352,7 +349,6 @@ class ClockTools:
                                                           should_be_found=True)
 
         with allure.step("Verify timezone hasn't changed"):
-            logging.info("Verify timezone hasn't changed")
             ClockTools.verify_timezone(engines, system_obj, expected_timezone=orig_timezone)
 
     @staticmethod
@@ -366,16 +362,13 @@ class ClockTools:
         @param expected_err: list of expected error messages (optional)
         """
         with allure.step("Save original date-time from show system"):
-            logging.info("Save original date-time from show system")
             orig_datetime = ClockTools.get_datetime_from_show_system_output(system_obj.show())
             logging.info("original date-time: '{odt}'".format(odt=orig_datetime))
 
         with allure.step("Try to set the datetime '{bdt}'".format(bdt=bad_datetime)):
-            logging.info("Try to set the datetime '{bdt}'".format(bdt=bad_datetime))
             res_obj = system_obj.datetime.action_change(params=bad_datetime)
 
         with allure.step("Take date-time from show system and 'timedatectl (after the change command)"):
-            logging.info("Take date-time from show system and 'timedatectl (after the change command)")
             show_datetime = ClockTools.get_datetime_from_show_system_output(system_obj.show())
             timedatectl_datetime = ClockTools.get_datetime_from_timedatectl_output(
                 engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD))
@@ -404,7 +397,6 @@ class ClockTools:
                                                           should_be_found=True)
 
         with allure.step("Verify date-time hasn't changed"):
-            logging.info("Verify date-time hasn't changed")
             ClockTools.verify_same_datetimes(orig_datetime, show_datetime)
             ClockTools.verify_same_datetimes(orig_datetime, timedatectl_datetime)
 
@@ -438,7 +430,6 @@ class ClockTools:
         @param system: System object
         """
         with allure.step('Take date-time from show and from last log timestamp'):
-            logging.info('Take date-time from show and from last log timestamp')
             system.log.rotate_logs()
             show_output = system.show()
             logs = system.log.show_log(exit_cmd='q', expected_str=' ')
@@ -449,7 +440,6 @@ class ClockTools:
             logging.info('show date-time: {}\nlogs date-time: {}'.format(show_datetime, log_datetime))
 
         with allure.step('Verify log timestamp similar to show date-time'):
-            logging.info('Verify log timestamp similar to show date-time')
             ClockTools.verify_same_datetimes(show_datetime, log_datetime)
 
     @staticmethod
@@ -489,7 +479,6 @@ class ClockTools:
         @return: new datetime string
         """
         with allure.step('Adding {} hours to the given datetime "{}"'.format(num_hours_to_add, datetime_str)):
-            logging.info('Adding {} hours to the given datetime "{}"'.format(num_hours_to_add, datetime_str))
             dt_obj = datetime.fromisoformat(datetime_str)
             dt_obj = dt_obj + timedelta(hours=num_hours_to_add)
             res = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
@@ -505,7 +494,6 @@ class ClockTools:
         @return: diff in days (int)
         """
         with allure.step('Calculate diff in days between "{}" and "{}"'.format(date1, date2)):
-            logging.info('Calculate diff in days between "{}" and "{}"'.format(date1, date2))
             date1_obj = datetime.fromisoformat(date1)
             date2_obj = datetime.fromisoformat(date2)
             return (date1_obj - date2_obj).days

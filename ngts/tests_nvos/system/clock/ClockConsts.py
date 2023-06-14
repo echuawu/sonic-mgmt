@@ -8,7 +8,7 @@ class ClockConsts:
 
     DATETIME_MARGIN = 10  # tune this to decide what diff (in seconds) is ok between timedatectl and nv show system
     DEFAULT_TIMEZONE = "Etc/UTC"
-    PATH_TIMEZONE_YAML = os.path.join(os.getcwd(), 'timezone.yaml')
+    PATH_TIMEZONE_YAML = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'timezone.yaml')
 
     TIMEDATECTL_CMD = "timedatectl"
     TIMEDATECTL_TIMEZONE_FIELD_NAME = "Time zone"

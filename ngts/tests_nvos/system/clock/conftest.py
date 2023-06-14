@@ -5,7 +5,7 @@ import pytest
 import datetime
 import logging
 import yaml
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_constants.constants_nvos import OutputFormat, SystemConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -98,14 +98,12 @@ def ntp_off(system):
 
     if should_change:
         with allure.step('Changing ntp state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED)):
-            logging.info('Changing ntp state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED))
             system.ntp.set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.DISABLED, apply=True).verify_result()
 
     yield
 
     if should_change:
         with allure.step('Changing back ntp state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED)):
-            logging.info('Changing back ntp state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED))
             system.ntp.set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.ENABLED, apply=True).verify_result()
 
 
@@ -122,14 +120,12 @@ def ntp_on(system):
 
     if should_change:
         with allure.step('Changing ntp state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED)):
-            logging.info('Changing ntp state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED))
             system.ntp.set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.ENABLED, apply=True).verify_result()
 
     yield
 
     if should_change:
         with allure.step('Changing back ntp state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED)):
-            logging.info('Changing back ntp state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED))
             system.ntp.set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.DISABLED, apply=True).verify_result()
 
 
@@ -150,15 +146,12 @@ def init_datetime(system):
 
     if cur_ntp_state == ClockConsts.DISABLED:
         with allure.step('Changing ntp state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED)):
-            logging.info('Changing ntp state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED))
             system.ntp.set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.ENABLED, apply=True).verify_result()
 
         with allure.step('Wait {} seconds for ntp to sync time'.format(ClockConsts.WAIT_TIME)):
-            logging.info('Wait {} seconds for ntp to sync time'.format(ClockConsts.WAIT_TIME))
             time.sleep(ClockConsts.WAIT_TIME)
 
         with allure.step('Changing back ntp state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED)):
-            logging.info('Changing back ntp state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED))
             system.ntp.set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.DISABLED, apply=True).verify_result()
 
 
@@ -175,7 +168,6 @@ def pwh_off(system):
 
     if should_change:
         with allure.step('Changing pwh state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED)):
-            logging.info('Changing pwh state from "{}" to "{}"'.format(ClockConsts.ENABLED, ClockConsts.DISABLED))
             system.security.password_hardening \
                 .set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.DISABLED, apply=True).verify_result()
 
@@ -183,6 +175,5 @@ def pwh_off(system):
 
     if should_change:
         with allure.step('Changing back pwh state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED)):
-            logging.info('Changing back pwh state from "{}" to "{}"'.format(ClockConsts.DISABLED, ClockConsts.ENABLED))
             system.security.password_hardening \
                 .set(op_param_name=ClockConsts.STATE, op_param_value=ClockConsts.ENABLED, apply=True).verify_result()

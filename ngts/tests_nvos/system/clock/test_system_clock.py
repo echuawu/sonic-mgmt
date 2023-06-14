@@ -5,7 +5,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 import pytest
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
@@ -17,7 +17,8 @@ from ngts.nvos_tools.infra.Tools import Tools
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_show_system_contains_timezone_and_datetime(engines, system):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_system_contains_timezone_and_datetime(test_api, engines, system):
     """
     @summary:
     Check that show system command's output contains timezone and date-time fields
@@ -25,10 +26,10 @@ def test_show_system_contains_timezone_and_datetime(engines, system):
         2. verify timezone & date-time fields exist in output
         3. validate fields' values
     """
+    TestToolkit.tested_api = test_api
     logging.info("Starting test : test_show_system_contains_timezone_and_datetime")
 
     with allure.step('Run show system and timedatectl commands'):
-        logging.info('Run show system and timedatectl commands')
         # run commands
         show_system_output_str = system.show()
         timedatectl_output_str = engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
@@ -39,14 +40,12 @@ def test_show_system_contains_timezone_and_datetime(engines, system):
             .parse_linux_cmd_output_to_dic(timedatectl_output_str).get_returned_value()
 
     with allure.step('Verify timezone & date-time fields exist in output'):
-        logging.info('Verify timezone & date-time fields exist in output')
         tested_fields = [ClockConsts.TIMEZONE, ClockConsts.DATETIME]
         Tools.ValidationTool \
             .verify_field_exist_in_json_output(json_output=show_system_output, keys_to_search_for=tested_fields) \
             .verify_result()
 
     with allure.step("Validate timezone value"):
-        logging.info("Validate timezone value")
         # verify that timezones are the same
         Tools.ValidationTool.compare_values(value1=show_system_output[ClockConsts.TIMEZONE],
                                             value2=ClockTools
@@ -54,7 +53,6 @@ def test_show_system_contains_timezone_and_datetime(engines, system):
                                             should_equal=True).verify_result()
 
     with allure.step("Validate date-time value"):
-        logging.info("Validate date-time value")
         # extract date-time value from outputs
         show_system_datetime = ClockTools.get_datetime_from_show_system_output(show_system_output_str)
         timedatectl_datetime = ClockTools.get_datetime_from_timedatectl_output(timedatectl_output_str)
@@ -65,7 +63,8 @@ def test_show_system_contains_timezone_and_datetime(engines, system):
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_set_unset_timezone_ntp_off(engines, system, valid_timezones, orig_timezone, ntp_off):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_unset_timezone_ntp_off(test_api, engines, system, valid_timezones, orig_timezone, ntp_off):
     """
     @summary:
     Check that system timezone set & unset commands work correctly with valid inputs
@@ -74,33 +73,30 @@ def test_set_unset_timezone_ntp_off(engines, system, valid_timezones, orig_timez
         3. Unset timezone
         4. verify timezone returned to default in 'nv show system' and 'timedatectl'
     """
+    TestToolkit.tested_api = test_api
 
     with allure.step("Pick a random new timezone to set (from timezone.yaml)"):
-        logging.info("Pick a random new timezone to set (from timezone.yaml)")
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
                                                              forbidden_values=[orig_timezone]).get_returned_value()
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
-        logging.info("Set the new timezone with 'nv set system timezone'")
         ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
 
     with allure.step("Verify new timezone in 'nv show system' and in 'timedatectl'"):
-        logging.info("Verify new timezone in 'nv show system' and in 'timedatectl'")
         ClockTools.verify_timezone(engines, system, expected_timezone=new_timezone)
 
     with allure.step("Unset the timezone with 'nv unset system timezone'"):
-        logging.info("Unset the timezone with 'nv unset system timezone'")
         ClockTools.unset_timezone(system, apply=True).verify_result()
 
     with allure.step("Verify default timezone in 'nv show system' and in 'timedatectl'"):
-        logging.info("Verify default timezone in 'nv show system' and in 'timedatectl'")
         ClockTools.verify_timezone(engines, system, expected_timezone=ClockConsts.DEFAULT_TIMEZONE)
 
 
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_set_unset_timezone_ntp_on(engines, system, valid_timezones, orig_timezone, ntp_on):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_unset_timezone_ntp_on(test_api, engines, system, valid_timezones, orig_timezone, ntp_on):
     """
     @summary:
     Check that system timezone set & unset commands work correctly with valid inputs when ntp is enabled
@@ -109,33 +105,30 @@ def test_set_unset_timezone_ntp_on(engines, system, valid_timezones, orig_timezo
         3. Unset timezone
         4. verify timezone returned to default in 'nv show system' and 'timedatectl'
     """
+    TestToolkit.tested_api = test_api
 
     with allure.step("Pick a random new timezone to set (from timezone.yaml)"):
-        logging.info("Pick a random new timezone to set (from timezone.yaml)")
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
                                                              forbidden_values=[orig_timezone]).get_returned_value()
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
-        logging.info("Set the new timezone with 'nv set system timezone'")
         ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
 
     with allure.step("Verify new timezone in 'nv show system' and in 'timedatectl'"):
-        logging.info("Verify new timezone in 'nv show system' and in 'timedatectl'")
         ClockTools.verify_timezone(engines, system, expected_timezone=new_timezone)
 
     with allure.step("Unset the timezone with 'nv unset system timezone'"):
-        logging.info("Unset the timezone with 'nv unset system timezone'")
         ClockTools.unset_timezone(system, apply=True).verify_result()
 
     with allure.step("Verify default timezone in 'nv show system' and in 'timedatectl'"):
-        logging.info("Verify default timezone in 'nv show system' and in 'timedatectl'")
         ClockTools.verify_timezone(engines, system, expected_timezone=ClockConsts.DEFAULT_TIMEZONE)
 
 
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_action_change_date_time_ntp_off(engines, system, init_datetime, ntp_off, pwh_off):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_action_change_date_time_ntp_off(test_api, engines, system, init_datetime, ntp_off, pwh_off):
     """
     @summary:
     Check that system date-time change action command work correctly with valid input of date and time
@@ -143,22 +136,19 @@ def test_action_change_date_time_ntp_off(engines, system, init_datetime, ntp_off
         2. Set new date and time with the action change command
         3. Verify new date-time in 'nv show system' and 'timedatectl'
     """
+    TestToolkit.tested_api = test_api
 
     with allure.step("Pick random new date-time to set"):
-        logging.info("Pick random new date-time to set")
         new_datetime = RandomizationTool.select_random_datetime().get_returned_value()
 
     with allure.step("Set the new date-time with 'nv action change system date-time'"):
-        logging.info("Set the new date-time with 'nv action change system date-time'")
         system.datetime.action_change(params=new_datetime).verify_result()
 
     with allure.step("Run 'nv show system' and 'timedatectl' immediately to verify date-time changed"):
-        logging.info("Run 'nv show system' and 'timedatectl' immediately to verify date-time changed")
         show_system_output_str = system.show()
         timedatectl_output_str = engines.dut.run_cmd(ClockConsts.TIMEDATECTL_CMD)
 
     with allure.step("Verify date-time"):
-        logging.info("Verify date-time")
         show_system_datetime = ClockTools.get_datetime_from_show_system_output(show_system_output_str)
         ClockTools.verify_same_datetimes(new_datetime, show_system_datetime)
         timedatectl_datetime = ClockTools.get_datetime_from_timedatectl_output(timedatectl_output_str)
@@ -214,7 +204,8 @@ def test_action_change_time_only_ntp_off(engines, system, datetime_backup_restor
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_set_system_invalid_timezone_ntp_off_error_flow(engines, system, valid_timezones, orig_timezone, ntp_off):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_system_invalid_timezone_ntp_off_error_flow(test_api, engines, system, valid_timezones, orig_timezone, ntp_off):
     """
     @summary:
         Check that system timezone set command works correctly with invalid inputs
@@ -225,19 +216,18 @@ def test_set_system_invalid_timezone_ntp_off_error_flow(engines, system, valid_t
             2. Verify error
             3. verify timezone hasn't changed (still the original one) in 'nv show system' and 'timedatectl'
     """
+    TestToolkit.tested_api = test_api
+
     # try to set random strings of varying length (also len 0 -> "")
     with allure.step("Pick random strings of different lengths as bad timezone"):
-        logging.info("Pick random strings of different lengths as bad timezone")
-    for n in range(0, 10, 3):
-        with allure.step("Pick a random string of length {n} as bad timezone".format(n=n)):
-            logging.info("Pick a random string of length {n} as bad timezone".format(n=n))
-            bad_timezone = RandomizationTool.get_random_string(length=n)
+        for n in range(0, 10, 3):
+            with allure.step("Pick a random string of length {n} as bad timezone".format(n=n)):
+                bad_timezone = RandomizationTool.get_random_string(length=n)
 
         ClockTools.set_invalid_timezone_and_verify(bad_timezone, system, engines, orig_timezone)
 
     # try to change random existing timezones from timezone.yaml and set them
     with allure.step("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity"):
-        logging.info("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity")
         random_timezones = RandomizationTool.select_random_values(list_of_values=valid_timezones,
                                                                   number_of_values_to_select=3).get_returned_value()
         bad_timezones = list(map(lambda s: ClockTools.alternate_capital_lower(s), random_timezones))
@@ -249,7 +239,8 @@ def test_set_system_invalid_timezone_ntp_off_error_flow(engines, system, valid_t
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_set_system_invalid_timezone_ntp_on_error_flow(engines, system, valid_timezones, orig_timezone, ntp_on):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_system_invalid_timezone_ntp_on_error_flow(test_api, engines, system, valid_timezones, orig_timezone, ntp_on):
     """
     @summary:
         Check that system timezone set command works correctly with invalid inputs, when ntp is enabled
@@ -260,19 +251,18 @@ def test_set_system_invalid_timezone_ntp_on_error_flow(engines, system, valid_ti
             2. Verify error
             3. verify timezone hasn't changed (still the original one) in 'nv show system' and 'timedatectl'
     """
+    TestToolkit.tested_api = test_api
+
     # try to set random strings of varying length (also len 0 -> "")
     with allure.step("Pick random strings of different lengths as bad timezone"):
-        logging.info("Pick random strings of different lengths as bad timezone")
-    for n in range(0, 10, 3):
-        with allure.step("Pick a random string of length {n} as bad timezone".format(n=n)):
-            logging.info("Pick a random string of length {n} as bad timezone".format(n=n))
-            bad_timezone = RandomizationTool.get_random_string(length=n)
+        for n in range(0, 10, 3):
+            with allure.step("Pick a random string of length {n} as bad timezone".format(n=n)):
+                bad_timezone = RandomizationTool.get_random_string(length=n)
 
         ClockTools.set_invalid_timezone_and_verify(bad_timezone, system, engines, orig_timezone)
 
     # try to change random existing timezones from timezone.yaml and set them
     with allure.step("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity"):
-        logging.info("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity")
         random_timezones = RandomizationTool.select_random_values(list_of_values=valid_timezones,
                                                                   number_of_values_to_select=3).get_returned_value()
         bad_timezones = list(map(lambda s: ClockTools.alternate_capital_lower(s), random_timezones))
@@ -284,7 +274,8 @@ def test_set_system_invalid_timezone_ntp_on_error_flow(engines, system, valid_ti
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_change_valid_datetime_ntp_on_error_flow(engines, system, ntp_on):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_change_valid_datetime_ntp_on_error_flow(test_api, engines, system, ntp_on):
     """
     @summary:
         Check that system date-time change action command gives the right error with ntp enabled,
@@ -299,8 +290,9 @@ def test_change_valid_datetime_ntp_on_error_flow(engines, system, ntp_on):
             2. verify error
             3. verify that date-time hasn't changed
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Pick {} random new date-time to set".format(ClockConsts.NUM_SAMPLES)):
-        logging.info("Pick {} random new date-time to set".format(ClockConsts.NUM_SAMPLES))
         new_datetimes = []
         for i in range(ClockConsts.NUM_SAMPLES):
             new_datetimes.append(RandomizationTool.select_random_datetime().get_returned_value())
@@ -308,14 +300,14 @@ def test_change_valid_datetime_ntp_on_error_flow(engines, system, ntp_on):
 
     for dt in new_datetimes:
         with allure.step("Test that 'nv action change system date-time {}' with ntp on failure".format(dt)):
-            logging.info("Test that 'nv action change system date-time {}' with ntp on failure".format(dt))
             ClockTools.change_datetime_and_verify_error(dt, system, engines, ClockConsts.ERR_DATETIME_NTP)
 
 
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_change_invalid_datetime_ntp_off_error_flow(test_api, engines, system, ntp_off):
     """
     @summary:
         Check that system date-time change action command works correctly (error) with invalid inputs,
@@ -330,8 +322,9 @@ def test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off):
             2. verify error
             3. verify that date-time hasn't changed
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Generate several invalid inputs for 'nv action change system date-time"):
-        logging.info("Generate several invalid inputs for 'nv action change system date-time")
         bad_inputs = ClockTools.generate_invalid_datetime_inputs()
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
@@ -348,7 +341,8 @@ def test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off):
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
-def test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, ntp_off):
     """
     @summary:
         Check that system date-time change action command works correctly (error) with invalid inputs,
@@ -363,8 +357,9 @@ def test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off):
             2. verify error
             3. verify that date-time hasn't changed
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Generate several invalid inputs for 'nv action change system date-time"):
-        logging.info("Generate several invalid inputs for 'nv action change system date-time")
         bad_inputs = ClockTools.generate_invalid_datetime_inputs()
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
@@ -399,11 +394,9 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
             7. Verify logs timestamp similar to the date-time in show
     """
     with allure.step('Verify show date-time same as last log timestamp'):
-        logging.info('Verify show date-time same as last log timestamp')
         ClockTools.verify_show_and_log_times(system)
 
     with allure.step('Set a random timezone'):
-        logging.info('Set a random timezone')
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
                                                              forbidden_values=[orig_timezone]).get_returned_value()
         logging.info('Random timezone: "{}"'.format(new_timezone))
@@ -412,15 +405,12 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
         ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
 
     with allure.step('Verify show date-time same as last log timestamp'):
-        logging.info('Verify show date-time same as last log timestamp')
         ClockTools.verify_show_and_log_times(system)
 
     with allure.step("Unset the timezone"):
-        logging.info("Unset the timezone")
         ClockTools.unset_timezone(system, apply=True).verify_result()
 
     with allure.step('Verify show date-time same as last log timestamp'):
-        logging.info('Verify show date-time same as last log timestamp')
         ClockTools.verify_show_and_log_times(system)
 
     with allure.step("Change date-time"):
@@ -437,89 +427,4 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
         system.datetime.action_change(params=new_datetime).verify_result()
 
     with allure.step('Verify show date-time same as last log timestamp'):
-        logging.info('Verify show date-time same as last log timestamp')
         ClockTools.verify_show_and_log_times(system)
-
-
-# --------------------- OpenApi --------------------- #
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_show_system_contains_timezone_and_datetime_openapi(engines, system):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_system_contains_timezone_and_datetime(engines, system)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_set_unset_timezone_ntp_off_openapi(engines, system, valid_timezones, orig_timezone, ntp_off):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_set_unset_timezone_ntp_off(engines, system, valid_timezones, orig_timezone, ntp_off)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_set_unset_timezone_ntp_on_openapi(engines, system, valid_timezones, orig_timezone, ntp_on):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_set_unset_timezone_ntp_on(engines, system, valid_timezones, orig_timezone, ntp_on)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_action_change_date_time_ntp_off_openapi(engines, system, init_datetime, ntp_off, pwh_off):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_action_change_date_time_ntp_off(engines, system, init_datetime, ntp_off, pwh_off)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_set_system_invalid_timezone_ntp_off_error_flow_openapi(engines, system, valid_timezones, orig_timezone, ntp_off):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_set_system_invalid_timezone_ntp_off_error_flow(engines, system, valid_timezones, orig_timezone, ntp_off)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_set_system_invalid_timezone_ntp_on_error_flow_openapi(engines, system, valid_timezones, orig_timezone, ntp_on):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_set_system_invalid_timezone_ntp_on_error_flow(engines, system, valid_timezones, orig_timezone, ntp_on)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_change_valid_datetime_ntp_on_error_flow_openapi(engines, system, ntp_on):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_change_valid_datetime_ntp_on_error_flow(engines, system, ntp_on)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_change_invalid_datetime_ntp_off_error_flow_openapi(engines, system, ntp_off):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_change_invalid_datetime_ntp_off_error_flow(engines, system, ntp_off)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.clock
-def test_change_invalid_datetime_ntp_on_error_flow_openapi(engines, system, ntp_off):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_change_invalid_datetime_ntp_on_error_flow(engines, system, ntp_off)
