@@ -135,9 +135,11 @@ class RebootReload:
             self.resolve_arp_static_route()
 
         try:
-            with allure.step('Running functional validations after reboot/reload'):
-                logger.info('Running functional validations after reboot/reload')
-                self.do_func_validations(request)
+            total_tests_number = len(request.session.items)
+            if total_tests_number > 1:
+                with allure.step('Running functional validations after reboot/reload'):
+                    logger.info('Running functional validations after reboot/reload')
+                    self.do_func_validations(request)
         except Exception as err:
             failed_validations['functional_validation'] = err
         finally:
