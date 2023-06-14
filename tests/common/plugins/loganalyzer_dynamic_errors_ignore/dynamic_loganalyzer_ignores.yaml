@@ -2395,7 +2395,7 @@
         - simx
 
 - Errors_list:
-    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse LLDPd JSON.*does not match format ''%H:%M:%S'''
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse (LLDPd|lldp) .*does not match format ''%H:%M:%S'''
   Conditions:
     - Redmine:
         - 3431874
