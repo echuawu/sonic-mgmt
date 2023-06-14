@@ -7,7 +7,7 @@ from retry import retry
 
 logger = logging.getLogger()
 
-path_to_source_code = "/.autodirect/sw_system_release/nos/nvos/yana-dev/simx_repo/sx_ver_build_scripts/simx_docker"
+path_to_source_code = "/.autodirect/sw_system_project/NVOS_INFRA/ChipSim/simx_repo/sx_ver_build_scripts/simx_docker"
 
 
 @pytest.mark.platform

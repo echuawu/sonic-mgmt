@@ -10,23 +10,32 @@ from retry import retry
 from fabric import Connection
 from fabric import Config
 
+REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {server_name}-ilo -U root -P 3tango11 chassis power cycle"
+REBOOT_SCRIPT_PATH = '/.autodirect/mswg/utils/bin/rreboot {server_name}'
 
 servers_to_configure = ['fit-nvos-vrt-60', 'fit-l-vrt-1140', 'arc-host84', 'fit-l-vrt-9100']
 
 servers_to_check_functionality = {'fit-l-docker-720': {'description': 'Traffic server for NVOS_QTM_CI_1 setup',
-                                                       'ip': '10.237.37.20'},
+                                                       'ip': '10.237.37.20',
+                                                       'reboot_cmd': REBOOT_SCRIPT_PATH},
                                   'fit-nvos-vrt-60': {'description': 'Server for sonic-mgmt dockers',
-                                                      'ip': '10.237.116.60'},
+                                                      'ip': '10.237.116.60',
+                                                      'reboot_cmd': REBOOT_SCRIPT_PATH},
                                   'arc-host84': {'description': 'Server for sonic-mgmt dockers',
-                                                 'ip': '10.213.86.120'},
+                                                 'ip': '10.213.86.120',
+                                                       'reboot_cmd': REBOOT_SCRIPT_PATH},
                                   'fit-l-vrt-1140': {'description': 'Server for sonic-mgmt dockers',
-                                                     'ip': '10.237.211.40'},
+                                                     'ip': '10.237.211.40',
+                                                     'reboot_cmd': REBOOT_SCRIPT_PATH},
                                   'fit-l-vrt-7220': {'description': 'Server for ChipSim dockers',
-                                                     'ip': '10.237.177.220'},
+                                                     'ip': '10.237.177.220',
+                                                     'reboot_cmd': REBOOT_CMD_TO_RUN},
                                   'fit-l-vrt-660': {'description': 'Server for ChipSim dockers',
-                                                    'ip': '10.237.6.60'},
+                                                    'ip': '10.237.6.60',
+                                                    'reboot_cmd': REBOOT_CMD_TO_RUN},
                                   'fit-l-vrt-9100': {'description': 'Traffic server for gorilla-153/gorilla154',
-                                                     'ip': '10.237.19.100'}
+                                                     'ip': '10.237.19.100',
+                                                     'reboot_cmd': REBOOT_CMD_TO_RUN}
                                   }
 
 
@@ -103,7 +112,9 @@ def is_device_up(server_name):
 
 def reboot_server(server_name):
     logger.info(f"Reboot {server_name}")
-    os.system('/.autodirect/mswg/utils/bin/rreboot {server_name}')
+    cmd = servers_to_check_functionality[server_name]["reboot_cmd"].format(server_name=server_name)
+    logger.info("Reboot cmd: " + cmd)
+    os.system(cmd)
     logger.info("Sleep for 5 min")
     time.sleep(300)
 

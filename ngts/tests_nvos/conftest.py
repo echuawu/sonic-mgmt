@@ -237,7 +237,7 @@ def clear_system_profile_config():
 
 def pytest_exception_interact(report):
     try:
-        TestToolkit.engines.dut.run_cmd("docker ps -l")
+        TestToolkit.engines.dut.run_cmd("docker ps")
         TestToolkit.engines.dut.run_cmd("systemctl --type=service")
     except BaseException as err:
         logging.warning(err)

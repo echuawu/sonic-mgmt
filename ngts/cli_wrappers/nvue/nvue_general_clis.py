@@ -1,6 +1,7 @@
 import logging
 import allure
 import time
+import os
 from retry import retry
 from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -218,7 +219,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         cmd = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']['Specific'][
             'remote_reboot']
         assert cmd, "Reboot command is empty"
-        topology_obj.players['server']['engine'].run_cmd(cmd)
+        os.system(cmd)
+        # topology_obj.players['sonic-mgmt']['engine'].run_cmd(cmd)
 
     def enter_serial_connection_context(self, topology_obj):
         '''
