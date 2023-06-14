@@ -90,7 +90,7 @@ class PwhConsts:
     # expected error messages
     ERR_ITEM_NOT_EXIST = 'The requested item does not exist.'
     ERR_INVALID_SET_CMD = 'Invalid Command: set system security password-hardening'
-    ERR_INCOMPLETE_SET_CMD = 'Error: Integer expected'
+    ERR_INCOMPLETE_SET_CMD = 'Error: Incomplete Command'
     ERR_INVALID_SET_ENABLE_DISABLED = "is not one of ['enabled', 'disabled']"
     ERR_PW_SHOULD_CONTAIN = 'Password should contain at least '
     ERR_RANGE = 'Valid range is'

@@ -203,6 +203,16 @@ def test_password_hardening_set_unset(engines, system):
                          .format(setting, orig_pwh_conf[setting]))
             value = RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[setting],
                                                           [orig_pwh_conf[setting]]).get_returned_value()
+
+            if setting == PwhConsts.EXPIRATION or setting == PwhConsts.EXPIRATION_WARNING:
+                smaller = int(value if setting == PwhConsts.EXPIRATION_WARNING else orig_pwh_conf[PwhConsts.EXPIRATION_WARNING])
+                larger = int(value if setting == PwhConsts.EXPIRATION else orig_pwh_conf[PwhConsts.EXPIRATION])
+                while smaller > larger:
+                    value = RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[setting],
+                                                                  [orig_pwh_conf[setting]]).get_returned_value()
+                    smaller = int(value if setting == PwhConsts.EXPIRATION_WARNING else orig_pwh_conf[PwhConsts.EXPIRATION_WARNING])
+                    larger = int(value if setting == PwhConsts.EXPIRATION else orig_pwh_conf[PwhConsts.EXPIRATION])
+
             logging.info('Selected value for setting "{}" - "{}")'.format(setting, value))
 
             assert value in PwhConsts.VALID_VALUES[setting], \
