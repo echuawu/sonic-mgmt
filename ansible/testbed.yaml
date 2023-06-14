@@ -36,7 +36,7 @@
   ptf_ip: 10.213.80.153/16
   ptf_ipv6:
   ptf_extra_mgmt_ip:
-  netns_mgmt_ip: 10.213.80.120/16
+  netns_mgmt_ip: 10.213.80.154/16
   server: server_7
   vm_base: VM0701
   dut:
@@ -52,7 +52,7 @@
   ptf_ip: 10.213.80.153/16
   ptf_ipv6:
   ptf_extra_mgmt_ip:
-  netns_mgmt_ip: 10.213.80.120/16
+  netns_mgmt_ip: 10.213.80.154/16
   server: server_7
   vm_base: VM0701
   dut:
@@ -96,7 +96,7 @@
   ptf_ip: 10.215.18.183/16
   ptf_ipv6:
   ptf_extra_mgmt_ip:
-  netns_mgmt_ip: 10.215.18.180/16
+  netns_mgmt_ip: 10.215.18.216/16
   server: server_17
   vm_base: VM1701
   dut:
@@ -112,13 +112,13 @@
   ptf_ip: 10.215.18.183/16
   ptf_ipv6:
   ptf_extra_mgmt_ip:
-  netns_mgmt_ip: 10.215.18.180/16
+  netns_mgmt_ip: 10.215.18.216/16
   server: server_17
   vm_base: VM1701
   dut:
     - r-tigon-20
     - r-tigon-21
-  comment: 4600C Active-Active Dual-TOR mixed testbed
+  comment: 4600C Active-Active Dual-TOR testbed
 
 - conf-name: arc-switch1038-t0
   group-name: vm-t1
