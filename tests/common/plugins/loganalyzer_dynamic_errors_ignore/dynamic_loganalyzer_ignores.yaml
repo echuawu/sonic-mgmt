@@ -128,6 +128,7 @@
   Conditions:
     - Affected_test_cases:
       - autorestart/test_container_autorestart.py::test_containers_autorestart
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
 
 # Vivek conclaimed these error logs are not bug(RM #3238130), he suggest adding them into common ignore list
 - Errors_list:
