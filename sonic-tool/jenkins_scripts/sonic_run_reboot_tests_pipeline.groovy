@@ -83,6 +83,9 @@ def prepareSonicMgmtTarball() {
     sh 'tar -czvf jenkins_reboot_tests_runner.db.1.tgz sonic-mgmt/'
     sh 'cp jenkins_reboot_tests_runner.db.1.tgz /.autodirect/sw_regression/system/SONIC/MARS/tarballs/'
     sh 'chmod 777 /.autodirect/sw_regression/system/SONIC/MARS/tarballs/jenkins_reboot_tests_runner.db.1.tgz'
+    // Copy tarball to MTBC location to allow MTBC setups to be able to run reboot tests
+    sh 'cp jenkins_reboot_tests_runner.db.1.tgz /.autodirect/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/'
+    sh 'chmod 777 /.autodirect/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/jenkins_reboot_tests_runner.db.1.tgz'
 }
 
 
@@ -161,7 +164,7 @@ pipeline {
 
     agent {
         docker { image 'harbor.mellanox.com/sonic/docker-ngts:1.2.198'
-                 args '--entrypoint="" -v /.autodirect/sw_regression/system/SONIC/MARS/tarballs:/.autodirect/sw_regression/system/SONIC/MARS/tarballs/'
+                 args '--entrypoint="" -v /.autodirect/sw_regression/system/SONIC/MARS/tarballs:/.autodirect/sw_regression/system/SONIC/MARS/tarballs/ -v /.autodirect/sw_regression/mtbcsw/system/SONIC/MARS/tarballs:/.autodirect/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/ '
             }
         }
 
