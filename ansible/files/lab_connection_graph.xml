@@ -50,6 +50,8 @@
       <Device Hostname="r-liger-05" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-liger-12" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="mtvr-liger-01" HwSku="MLNX-OS" Type="FanoutLeaf"/>
+      <Device Hostname="mtvr-liger-02" HwSku="MLNX-OS" Type="FanoutLeaf"/>
+      <Device Hostname="mtvr-liger-03" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-71" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-73" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-20" HwSku="MLNX-OS" Type="FanoutLeaf"/>
@@ -77,6 +79,8 @@
       <Device Hostname="r-r640-15" HwSku="TestServ" Type="Server"/>
       <Device Hostname="r-r640-16" HwSku="TestServ" Type="Server"/>
       <Device Hostname="mtvr-r640-01" HwSku="TestServ" Type="Server"/>
+      <Device Hostname="mtvr-r640-02" HwSku="TestServ" Type="Server"/>
+      <Device Hostname="mtvr-r740-01" HwSku="TestServ" Type="Server"/>
       <Device Hostname="dev-r-vrt-249" HwSku="TestServ" Type="Server"/>
       <Device Hostname="dev-r730-01" HwSku="TestServ" Type="Server"/>
       <Device Hostname="dev-r730-02" HwSku="TestServ" Type="Server"/>
@@ -120,6 +124,8 @@
       <Device Hostname="r-leopard-70" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-72" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="mtvr-moose-02" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="mtvr-moose-03" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="mtvr-moose-04" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-liger-02" HwSku="ACS-MSN4600" Type="DevSonic"/>
       <Device Hostname="r-tigon-15" HwSku="ACS-MSN4600C" Type="DevSonic"/>
       <Device Hostname="r-lionfish-07" HwSku="ACS-MSN3420" Type="DevSonic"/>
@@ -1068,6 +1074,73 @@
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-01" EndPort="ethernet 1/31" StartDevice="mtvr-moose-02" StartPort="Ethernet240"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-01" EndPort="ethernet 1/32" StartDevice="mtvr-moose-02" StartPort="Ethernet248"/>
 
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/1" StartDevice="mtvr-moose-03" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/2" StartDevice="mtvr-moose-03" StartPort="Ethernet8"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/3" StartDevice="mtvr-moose-03" StartPort="Ethernet16"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/4" StartDevice="mtvr-moose-03" StartPort="Ethernet24"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/5" StartDevice="mtvr-moose-03" StartPort="Ethernet32"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/6" StartDevice="mtvr-moose-03" StartPort="Ethernet40"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/7" StartDevice="mtvr-moose-03" StartPort="Ethernet48"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/8" StartDevice="mtvr-moose-03" StartPort="Ethernet56"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/9" StartDevice="mtvr-moose-03" StartPort="Ethernet64"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/10" StartDevice="mtvr-moose-03" StartPort="Ethernet72"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/11" StartDevice="mtvr-moose-03" StartPort="Ethernet80"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/12" StartDevice="mtvr-moose-03" StartPort="Ethernet88"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/13" StartDevice="mtvr-moose-03" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/14" StartDevice="mtvr-moose-03" StartPort="Ethernet104"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/15" StartDevice="mtvr-moose-03" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/16" StartDevice="mtvr-moose-03" StartPort="Ethernet120"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/17" StartDevice="mtvr-moose-03" StartPort="Ethernet128"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/18" StartDevice="mtvr-moose-03" StartPort="Ethernet136"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/19" StartDevice="mtvr-moose-03" StartPort="Ethernet144"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/20" StartDevice="mtvr-moose-03" StartPort="Ethernet152"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/21" StartDevice="mtvr-moose-03" StartPort="Ethernet160"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/22" StartDevice="mtvr-moose-03" StartPort="Ethernet168"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/23" StartDevice="mtvr-moose-03" StartPort="Ethernet176"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/24" StartDevice="mtvr-moose-03" StartPort="Ethernet184"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/25" StartDevice="mtvr-moose-03" StartPort="Ethernet192"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/26" StartDevice="mtvr-moose-03" StartPort="Ethernet200"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/27" StartDevice="mtvr-moose-03" StartPort="Ethernet208"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/28" StartDevice="mtvr-moose-03" StartPort="Ethernet216"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/29" StartDevice="mtvr-moose-03" StartPort="Ethernet224"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/30" StartDevice="mtvr-moose-03" StartPort="Ethernet232"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/31" StartDevice="mtvr-moose-03" StartPort="Ethernet240"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-02" EndPort="ethernet 1/32" StartDevice="mtvr-moose-03" StartPort="Ethernet248"/>
+
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/1" StartDevice="mtvr-moose-04" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/2" StartDevice="mtvr-moose-04" StartPort="Ethernet8"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/3" StartDevice="mtvr-moose-04" StartPort="Ethernet16"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/4" StartDevice="mtvr-moose-04" StartPort="Ethernet24"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/5" StartDevice="mtvr-moose-04" StartPort="Ethernet32"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/6" StartDevice="mtvr-moose-04" StartPort="Ethernet40"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/7" StartDevice="mtvr-moose-04" StartPort="Ethernet48"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/8" StartDevice="mtvr-moose-04" StartPort="Ethernet56"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/9" StartDevice="mtvr-moose-04" StartPort="Ethernet64"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/10" StartDevice="mtvr-moose-04" StartPort="Ethernet72"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/11" StartDevice="mtvr-moose-04" StartPort="Ethernet80"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/12" StartDevice="mtvr-moose-04" StartPort="Ethernet88"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/13" StartDevice="mtvr-moose-04" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/14" StartDevice="mtvr-moose-04" StartPort="Ethernet104"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/15" StartDevice="mtvr-moose-04" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/16" StartDevice="mtvr-moose-04" StartPort="Ethernet120"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/17" StartDevice="mtvr-moose-04" StartPort="Ethernet128"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/18" StartDevice="mtvr-moose-04" StartPort="Ethernet136"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/19" StartDevice="mtvr-moose-04" StartPort="Ethernet144"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/20" StartDevice="mtvr-moose-04" StartPort="Ethernet152"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/21" StartDevice="mtvr-moose-04" StartPort="Ethernet160"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/22" StartDevice="mtvr-moose-04" StartPort="Ethernet168"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/23" StartDevice="mtvr-moose-04" StartPort="Ethernet176"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/24" StartDevice="mtvr-moose-04" StartPort="Ethernet184"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/25" StartDevice="mtvr-moose-04" StartPort="Ethernet192"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/26" StartDevice="mtvr-moose-04" StartPort="Ethernet200"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/27" StartDevice="mtvr-moose-04" StartPort="Ethernet208"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/28" StartDevice="mtvr-moose-04" StartPort="Ethernet216"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/29" StartDevice="mtvr-moose-04" StartPort="Ethernet224"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/30" StartDevice="mtvr-moose-04" StartPort="Ethernet232"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/30" StartDevice="mtvr-moose-04" StartPort="Ethernet232"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/31" StartDevice="mtvr-moose-04" StartPort="Ethernet240"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-03" EndPort="ethernet 1/32" StartDevice="mtvr-moose-04" StartPort="Ethernet248"/>
+
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/1" StartDevice="r-leopard-70" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/2" StartDevice="r-leopard-70" StartPort="Ethernet8"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/3" StartDevice="r-leopard-70" StartPort="Ethernet16"/>
@@ -1764,6 +1837,8 @@
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-r640-15" EndPort="enp59s0f0" StartDevice="r-liger-12" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-16" EndPort="p2p1" StartDevice="r-leopard-71" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-r640-01" EndPort="p1p1" StartDevice="mtvr-liger-01" StartPort="ethernet 1/64"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-r640-02" EndPort="p1p1" StartDevice="mtvr-liger-02" StartPort="ethernet 1/64"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-r740-01" EndPort="p3p1" StartDevice="mtvr-liger-03" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-sonic-04" EndPort="p4p1" StartDevice="r-tigris-17" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="dev-r730-03" EndPort="enp4s0f1" StartDevice="mtbc-sonic-02-2700" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtbc-r730-04" EndPort="enp130s0f1" StartDevice="mtbc-3700c-02" StartPort="ethernet 1/32"/>
@@ -1851,6 +1926,12 @@
     </DevicesL3Info>
     <DevicesL3Info Hostname="mtvr-liger-01">
       <ManagementIPInterface Name="ManagementIp" Prefix="10.245.20.43/22"/>
+    </DevicesL3Info>
+    <DevicesL3Info Hostname="mtvr-liger-02">
+      <ManagementIPInterface Name="ManagementIp" Prefix="10.245.20.44/22"/>
+    </DevicesL3Info>
+    <DevicesL3Info Hostname="mtvr-liger-03">
+      <ManagementIPInterface Name="ManagementIp" Prefix="10.245.20.45/22"/>
     </DevicesL3Info>
     <DevicesL3Info Hostname="r-leopard-71">
       <ManagementIPInterface Name="ManagementIp" Prefix="10.210.24.133/22"/>
@@ -2984,6 +3065,78 @@
     </DevicesL2Info>
 
     <DevicesL2Info Hostname="mtvr-liger-01">
+        <InterfaceVlan mode="Access" portname="ethernet 1/1" vlanids="101"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/2" vlanids="102"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/3" vlanids="103"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/4" vlanids="104"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/5" vlanids="105"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/6" vlanids="106"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/7" vlanids="107"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/8" vlanids="108"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/9" vlanids="109"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/10" vlanids="110"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/11" vlanids="111"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/12" vlanids="112"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/13" vlanids="113"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/14" vlanids="114"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/15" vlanids="115"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/16" vlanids="116"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/17" vlanids="117"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/18" vlanids="118"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/19" vlanids="119"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/20" vlanids="120"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/21" vlanids="121"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/22" vlanids="122"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/23" vlanids="123"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/24" vlanids="124"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/25" vlanids="125"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/26" vlanids="126"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/27" vlanids="127"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/28" vlanids="128"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/29" vlanids="129"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/30" vlanids="130"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/31" vlanids="131"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/32" vlanids="132"/>
+        <InterfaceVlan mode="Trunk" portname="ethernet 1/64" vlanids="101-132"/>
+    </DevicesL2Info>
+
+    <DevicesL2Info Hostname="mtvr-liger-02">
+        <InterfaceVlan mode="Access" portname="ethernet 1/1" vlanids="101"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/2" vlanids="102"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/3" vlanids="103"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/4" vlanids="104"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/5" vlanids="105"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/6" vlanids="106"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/7" vlanids="107"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/8" vlanids="108"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/9" vlanids="109"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/10" vlanids="110"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/11" vlanids="111"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/12" vlanids="112"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/13" vlanids="113"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/14" vlanids="114"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/15" vlanids="115"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/16" vlanids="116"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/17" vlanids="117"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/18" vlanids="118"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/19" vlanids="119"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/20" vlanids="120"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/21" vlanids="121"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/22" vlanids="122"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/23" vlanids="123"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/24" vlanids="124"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/25" vlanids="125"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/26" vlanids="126"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/27" vlanids="127"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/28" vlanids="128"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/29" vlanids="129"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/30" vlanids="130"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/31" vlanids="131"/>
+        <InterfaceVlan mode="Access" portname="ethernet 1/32" vlanids="132"/>
+        <InterfaceVlan mode="Trunk" portname="ethernet 1/64" vlanids="101-132"/>
+    </DevicesL2Info>
+
+    <DevicesL2Info Hostname="mtvr-liger-03">
         <InterfaceVlan mode="Access" portname="ethernet 1/1" vlanids="101"/>
         <InterfaceVlan mode="Access" portname="ethernet 1/2" vlanids="102"/>
         <InterfaceVlan mode="Access" portname="ethernet 1/3" vlanids="103"/>
