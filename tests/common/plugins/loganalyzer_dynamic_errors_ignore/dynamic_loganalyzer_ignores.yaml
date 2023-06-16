@@ -1928,6 +1928,7 @@
     - '.* ERR wrong number of arguments for ''hset'' command: Input/output error: Input/output error'
     - '.* ERR hostcfgd: Failed to get status of snmp.service: rc=-15 stderr=b'''''
     - '.* ERR hostcfgd: \[''sudo'', ''systemctl'', ''start'', ''.*.service''\] - failed: return code - \d+, output:.*'
+    - '.* ERR hostcfgd: \[''systemctl'', ''(start|restart)'', ''.*''\] - failed: return code - \d+, output:.*'
   Conditions:
     - Redmine:
         - 3507983
