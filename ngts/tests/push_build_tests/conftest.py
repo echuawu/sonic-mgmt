@@ -78,6 +78,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
     """
     full_flow_run = all(arg is False for arg in [run_config_only, run_test_only, run_cleanup_only])
     skip_tests = False
+    ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
 
     # Check if app_ext supported and get app name, repo, version
     base_sonic_branch = sonic_branch
@@ -103,8 +104,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
                 cli_objects.dut.general.update_config_db_docker_routing_config_mode()
 
-        with allure.step('Check that links in UP state'.format()):
-            ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
+        with allure.step('Check that links in UP state'):
             retry_call(cli_objects.dut.interface.check_ports_status, fargs=[ports_list], tries=10,
                        delay=10, logger=logger)
 
@@ -340,8 +340,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
                 cli_objects.dut.general.update_config_db_docker_routing_config_mode(
                     remove_docker_routing_config_mode=True)
-            logger.info('Check that all ports in UP state')
-            ports_list = topology_obj.players_all_ports['dut']
+            logger.info('Check that links in UP state')
             cli_objects.dut.interface.check_link_state(ports_list)
 
             clean_frr_vrf_config(topology_obj, clean_frr_base_config_list)

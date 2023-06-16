@@ -225,6 +225,11 @@ class NgtsPushGateRebootLossTimeCollector(SonicDataCollector):
             controlplane_results = json.load(controlplane)
             reboot_result_dict['controlplane'] = controlplane_results['actual_traffic_loss_time']
 
+        with open(RebootTestConstants.IFACES_STATUS_FILE) as ports:
+            ports_results = json.load(ports)
+            self.setup_extra_info['total_ports'] = ports_results['total_ports']
+            self.setup_extra_info['active_ports'] = ports_results['active_ports']
+
         if reboot_result_dict:
             self.test_data = reboot_result_dict
 

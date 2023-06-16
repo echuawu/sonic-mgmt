@@ -1,6 +1,7 @@
 import allure
 import logging
 import pytest
+import json
 import random
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_process_on_host
@@ -73,6 +74,7 @@ class RebootReload:
         self.dut_engine = engines.dut
         self.cli_object = self.topology_obj.players['dut']['cli']
         self.interfaces = interfaces
+        self.dut_host_ifaces_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
         self.ping_sender_iface = '{}.40'.format(self.interfaces.ha_dut_2)
         self.hb_vlan_101_iface = 'bond0.101'
         self.ha_vni_500101_iface_ip = '101.0.0.2'
@@ -101,6 +103,9 @@ class RebootReload:
         allowed_control_loss_time = expected_traffic_loss_dict[validation_type]['control']
         failed_validations = {}
 
+        with allure.step('Getting info about ports status and store into file'):
+            self.collect_ports_number()
+
         if validation_type in ['fast-reboot', 'warm-reboot']:
             # Step below required, if no ARP for 30.0.0.2 warm/fast reboot will not work
             with allure.step('Resolve ARP on DUT for IP 30.0.0.2 in case of warm/fast reboot validation'):
@@ -113,7 +118,7 @@ class RebootReload:
             data_plane_checker = self.start_data_plane_validation(validation_type, allowed_data_loss_time)
 
         self.cli_object.general.reboot_reload_flow(r_type=validation_type, topology_obj=self.topology_obj,
-                                                   wait_after_ping=0)
+                                                   ports_list=self.dut_host_ifaces_list, wait_after_ping=0)
 
         try:
             with allure.step('Checking control plane traffic loss'):
@@ -158,6 +163,15 @@ class RebootReload:
 
         assert not failed_validations, 'We have failed validations during test run. ' \
                                        'Test result errors dict: {}'.format(failed_validations)
+
+    def collect_ports_number(self):
+        ifaces_status = self.cli_object.interface.parse_interfaces_status()
+        num_po_ifaces = 2  # In PushGate config we have 2 PortChannel interfaces, need to exclude them from file
+        total_ports = len(ifaces_status.keys()) - num_po_ifaces
+        active_ports = len([iface for iface in ifaces_status if ifaces_status[iface]['Oper'] == 'up']) - num_po_ifaces
+        with open(RebootTestConstants.IFACES_STATUS_FILE, 'w') as if_status_obj:
+            data = {'total_ports': total_ports, 'active_ports': active_ports}
+            json.dump(data, if_status_obj)
 
     def resolve_arp_static_route(self):
         validation = {'sender': 'ha', 'args': {'interface': 'bond0', 'count': 3, 'dst': self.dut_port_channel_ip}}

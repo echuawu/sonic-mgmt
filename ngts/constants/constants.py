@@ -989,6 +989,7 @@ class SonicDeployConstants:
 class RebootTestConstants:
     DATAPLANE_TRAFFIC_RESULTS_FILE = '/tmp/reboot_dataplane_result.json'
     CONTROLPLANE_TRAFFIC_RESULTS_FILE = '/tmp/reboot_controlplane_result.json'
+    IFACES_STATUS_FILE = '/tmp/reboot_ifaces_status.json'
 
 
 class VxlanConstants:
