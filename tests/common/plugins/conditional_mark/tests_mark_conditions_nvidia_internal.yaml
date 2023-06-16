@@ -1823,6 +1823,12 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct[use-pkt-ca-ip:
     conditions:
       - "https://redmine.mellanox.com/issues/3479347 and 'nvda_bf' in platform"
 
+dash/crm/test_dash_crm.py:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486626 on SPC4"
