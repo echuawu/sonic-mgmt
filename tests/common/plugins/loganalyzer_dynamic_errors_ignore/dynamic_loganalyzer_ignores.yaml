@@ -2752,7 +2752,9 @@
     - Affected_test_cases:
       - tests_nvos/general/traffic/test_basic_traffic.py
       - tests_nvos/interfaces/test_ib_interface_counters.py
-      - tests_nvos/interfaces/test_port_split.py::test_split_port_timings
+      - tests_nvos/interfaces/test_port_split.py
+      Redmine:
+        - 3498811
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
@@ -2828,3 +2830,13 @@
       - tests_nvos/interfaces/test_port_split.py::test_split_port_n_times
       Redmine:
         - 3498811
+
+# NVOS - FW Health issue
+- Errors_list:
+    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW fatal cause: HW cause id = \[.*\], cause_reg = \[.*\], cause_offset = \[.*\]'
+    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW health event device:\[\d+\] FW cause:\[\d+,FW FATAL CAUSE EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[.*\], long_process:\[\d+\],command_type:\[CMD-IFC\], IRISC:\[\d+\], method:\[.*\]'
+    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW SOS device:\[\d+\] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+\]\)'
+    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] SX_HEALTH_FATAL Detected with cause : FW health issue \[id = \d+\]'
+  Conditions:
+    - Redmine:
+      - 3498997
