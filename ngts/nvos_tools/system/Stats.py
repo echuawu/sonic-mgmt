@@ -1,13 +1,11 @@
-import allure
-
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_constants.constants_nvos import ApiType, StatsConsts
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.tools.test_utils.allure_utils import step
 from ngts.nvos_tools.system.Files import Files
+from ngts.tools.test_utils import allure_utils as allure
 
 
 class Stats(BaseComponent):
@@ -45,6 +43,6 @@ class StatsCategoryName(BaseComponent):
         self.parent_obj = parent_obj
 
     def action_general(self, action_str):
-        with step("Run system stats category action '{action_type}'".format(action_type=action_str)):
+        with allure.step("Run system stats category action '{action_type}'".format(action_type=action_str)):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_general,
                                                    TestToolkit.engines.dut, action_str, self.get_resource_path())

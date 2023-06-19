@@ -715,11 +715,6 @@ class StatsConsts:
     HISTORY_DURATION_MIN = '1'  # [days]
     GENERATE_ALL_TIME_MAX = 2  # [sec]
     CATEGORY_STATE_DISABLED = {STATE: State.DISABLED.value}
-    CATEGORY_DEFAULT_DICT = {
-        HISTORY_DURATION: HISTORY_DURATION_DEFAULT,
-        INTERVAL: INTERVAL_DEFAULT,
-        STATE: STATE_DEFAULT
-    }
     CATEGORY_MIN_DICT = {
         STATE: STATE_DEFAULT,
         INTERVAL: INTERVAL_MIN,
@@ -746,6 +741,17 @@ class StatsConsts:
     VALID_REMOTE_URL = 'scp://iavraham:iavraham11@fit74/sysgwork/iavraham/tmp/'  # TODO: Update URL
 
     TEMP_PATH = '/auto/rdmzsysgwork/shared/test_utilities/tmp/5b5931e6aac04bd39499372ef73fbf31'
+    INTERNAL_PATH = "/tmp"
+    OLD_SAMPLES_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/stats/old_samples/"
+    RESULTS_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/stats/results/"
+    INTERNAL_CAT_PATH = "/var/stats"
+    TEMP_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
+    HEADER_HOSTNAME = "# Hostname:"
+    HEADER_GROUP = "# Statistic group:  "
+    HEADER_TIME = "# Started sampling:"
+    TIMESTAMP_FORMAT = "%b-%d %Y %H:%M:%S"
+    MAX_ROWS_TO_SCAN = 300
+    CONST_HEADER_ROWS = 8
 
     GENERATE = 'generate'
     DELETE = 'delete'
