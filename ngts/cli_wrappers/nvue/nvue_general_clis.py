@@ -219,8 +219,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         cmd = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']['Specific'][
             'remote_reboot']
         assert cmd, "Reboot command is empty"
-        os.system(cmd)
-        # topology_obj.players['sonic-mgmt']['engine'].run_cmd(cmd)
+        topology_obj.players['sonic-mgmt']['engine'].run_cmd(cmd)
 
     def enter_serial_connection_context(self, topology_obj):
         '''
