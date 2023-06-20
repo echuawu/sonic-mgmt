@@ -210,6 +210,8 @@ def install_base_sonic_image(duthost, localhost, image_path, tbinfo, local_mg_pa
             "'onie-nos-install {}'".format(dut_host_ip, onie_image_path))
         wait_for_startup(duthost, localhost, 10, 300)
 
+        check_services(duthost)
+
         # Load minigraph on DUT
         duthost.copy(src=local_mg_path, dest=DUT_MINIGRAPH_PATH)
         duthost.shell("config load_minigraph -y")
