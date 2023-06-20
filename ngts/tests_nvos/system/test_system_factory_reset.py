@@ -66,12 +66,6 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             just_apply_port = ports[1]
             not_apply_port = ports[2]
 
-        '''with allure.step("Change profile to breakout mode"):
-            _change_profile_to_breakout()
-
-        with allure.step("Split a random port"):
-            split_port = _split_port(engines.dut)'''
-
         with allure.step('Set and apply description to ib port, save config after it'):
             logger.info("Set and apply description to ib port, save config after it")
             apply_and_save_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
@@ -123,9 +117,6 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
         with allure.step("Verify the cleanup done successfully"):
             _verify_cleanup_done(engines.dut, current_time, system, username)
 
-        '''with allure.step("Verify the breakup mode is disabled and selected port is not split any more"):
-            _verify_profile_and_split(split_port)'''
-
         with allure.step("Verify the setup is functional"):
             _verify_the_setup_is_functional(system, engines)
 
@@ -154,6 +145,10 @@ def test_reset_factory_keep_basic(engines):
     try:
         with allure.step('Create System object'):
             system = System()
+
+        # pre-init current time
+        date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
+        current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
 
         with allure.step('Validate health status is OK'):
             logger.info("Validate health status is OK")
@@ -414,11 +409,6 @@ def _validate_port_description(engine, port, expected_description):
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=NvosConst.DESCRIPTION,
                                                       expected_value=expected_description).verify_result()
-
-
-def _change_profile_to_breakout():
-    logging.info("Change profile to breakout mode")
-    logging.warning("Currently not supported")
 
 
 def _split_port(engine):
