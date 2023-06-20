@@ -9,9 +9,11 @@ from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
 from ngts.constants.constants import InfraConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 
 
 logger = logging.getLogger()
+server_ip = "10.237.116.60"
 
 
 class NvueGeneralCli(SonicGeneralCliDefault):
@@ -219,7 +221,9 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         cmd = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']['Specific'][
             'remote_reboot']
         assert cmd, "Reboot command is empty"
-        topology_obj.players['sonic-mgmt']['engine'].run_cmd(cmd)
+        ssh_conn = LinuxSshEngine(ip=server_ip, username=os.getenv("TEST_SERVER_USER"),
+                                  password=os.getenv("TEST_SERVER_PASSWORD"))
+        ssh_conn.run_cmd(cmd)
 
     def enter_serial_connection_context(self, topology_obj):
         '''
