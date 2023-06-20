@@ -3,9 +3,9 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> System Security test - NVUE </name>
+      <name> Security test - Secure Boot - Unsigned Shim </name>
       <info> </info>
-      <owner> Azmy Ali </owner>
+      <owner> Alon N. </owner>
     </Test>
     <Case>
       <tags> security </tags>
@@ -16,7 +16,7 @@
   </global>
 
    <case>
-    <name> NVUE - Secure Boot - Unsigned Shim </name>
+    <name> Secure Boot - Unsigned Shim </name>
     <info> </info>
     <cmd>
       <params>
