@@ -13,6 +13,7 @@ class Fae(BaseComponent):
 
     def __init__(self, parent_obj=None):
         self._resource_path = '/fae'
+        self.system = BaseComponent(self, {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, '/system')
         self.parent_obj = parent_obj
         self.firmware = Firmware(self)
         self.health = Health(self)

@@ -130,8 +130,20 @@ class ActionType:
     CHANGE = '@change'
 
 
+class ReadFromDataBase:
+    READ_SYSTEM_STATUS = 'redis-cli -n 6 hgetall "SYSTEM_READY|SYSTEM_STATE"'
+
+
 class SystemConsts:
     HOSTNAME = 'hostname'
+    STATUS = 'status'
+    STATUS_DEFAULT_VALUE = 'System is ready'
+    STATUS_NOT_OK = 'System is not ready'
+    STATUS_UP = 'UP'
+    STATUS_DOWN = 'DOWN'
+    STATUS_FAILS = ''
+    FAE_SYSTEM_STATE = 'state'
+    FAE_SYSTEM_STATE_DEFAULT_VALUE = 'enabled'
     REBOOT = 'reboot'
     BUILD = 'build'
     PLATFORM = 'platform'
