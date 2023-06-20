@@ -1920,7 +1920,7 @@
     - '.* ERR systemd\[\d+\]: Failed to start Chassis HW management service of Mellanox systems.'
     - '.* ERR show: Nowhere to read syseeprom from! No symlink found'
     - '.* ERR install-pending-fw.py: Nowhere to read syseeprom from! No symlink found'
-    - '.* ERR healthd: Failed to read from file /var/run/hw-management/led/led_status_capability - FileNotFoundError\(2, ''No such file or directory''\)'
+    - '.* ERR healthd: Failed to read from file /var/run/hw-management/led/led_status_capability - FileNotFoundError\(2, .No such file or directory.\)'
     - '.* ERR healthd:- FileNotFoundError\(2, ''No such file or directory''\)'
     - '.* ERR sonic-db-cli: :- guard: RedisReply catches system_error: command: .*, reason: ERR wrong number of arguments for ''hset'' command: Input/output error'
     - '.* ERR wrong number of arguments for ''hset'' command: Input/output error: Input/output error'
