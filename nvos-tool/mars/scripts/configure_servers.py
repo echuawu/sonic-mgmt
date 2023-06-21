@@ -122,7 +122,7 @@ def reboot_server(server_name):
 def check_directory_accessibility(server_name, test_server_conn):
     cmd = "ls /auto/sw_regression/system"
     output = run_cmd(test_server_conn, cmd)
-    if "cannot access" in output:
+    if not output or "cannot access" in str(output.stdout) or "No such file or directory" in str(output.stdout):
         reboot_server(server_name)
         return is_device_up(server_name)
     return True
@@ -137,6 +137,10 @@ def verify_server_is_functional(server_name):
 
 def main():
     logger.info("Checking servers functionality")
+
+    user_name = os.getenv("TEST_SERVER_USER")
+    password = os.getenv("TEST_SERVER_PASSWORD")
+
     for server_name in servers_to_check_functionality.keys():
         try:
             logger.info(f"Checking server {server_name} functionality")
@@ -145,9 +149,6 @@ def main():
             is_functional = verify_server_is_functional(server_name)
 
             if is_functional:
-                user_name = os.getenv("TEST_SERVER_USER")
-                password = os.getenv("TEST_SERVER_PASSWORD")
-
                 logger.info(f"Create {server_name} connection object using username {user_name}")
                 test_server_conn = Connection(servers_to_check_functionality[server_name]['ip'],
                                               user=user_name,

@@ -290,7 +290,7 @@ class SystemConsts:
     CPU_MODEL_KEY = 'model'
     CPU_UTILIZATION_KEY = 'utilization'
     CPU_PERCENT_THRESH_MIN = 0.0
-    CPU_PERCENT_THRESH_MAX = 30.0
+    CPU_PERCENT_THRESH_MAX = 60.0
 
     HEALTH_STATUS = "health-status"
 

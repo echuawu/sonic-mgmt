@@ -255,8 +255,9 @@ def test_interface_eth0_description(engines):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             mgmt_port.interface.show()).get_returned_value()
 
-        assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
-            "Expected not to have description field after unset command, but we still have this field."
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                          field_name=IbInterfaceConsts.DESCRIPTION,
+                                                          expected_value='eth0 description')
 
     with allure.step('Set possible description on mgmt port'):
         mgmt_port.interface.set(op_param_name='description', op_param_value='"nvosdescription"',

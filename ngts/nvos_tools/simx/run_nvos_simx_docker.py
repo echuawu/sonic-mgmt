@@ -4,6 +4,7 @@ import allure
 import os
 import time
 from retry import retry
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
 
@@ -24,6 +25,9 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
 
     with allure.step("Wait until the switch is ready (~10-12 min)"):
         wait_till_the_switch_is_ready(dut_name, server_engine)
+
+    with allure.step("Check installed image"):
+        NvueGeneralCli.show_version(dut_engine)
 
 
 @retry(Exception, tries=3, delay=10)

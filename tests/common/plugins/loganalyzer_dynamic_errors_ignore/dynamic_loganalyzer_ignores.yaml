@@ -2786,16 +2786,19 @@
       - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
       - tests_nvos/system/test_system_health.py::test_system_health_files
 
-# NVOS
+# NVOS - snmp error flows
 - Errors_list:
     - ".*ERR health-statsd#health_history: snmp:snmp-subagent: 'snmp-subagent' is not running.*"
     - ".*ERR health-statsd#health_history: snmp:snmpd: 'snmpd' is not running.*"
     - ".*ERR health-statsd#health_history: snmp: Container 'snmp' is not running.*"
+    - '.*ERR container: docker cmd: start for snmp failed with.*'
+    - '.*ERR systemd\[\d+\]: Failed to start SNMP container.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
       - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
       - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative
 
 # NVOS
 - Errors_list:
@@ -2813,6 +2816,7 @@
         - tests_nvos/system/test_system_health.py::test_system_health_files
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop
         - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative
 
 # NVOS
 - Errors_list:
@@ -2838,3 +2842,19 @@
   Conditions:
     - Redmine:
       - 3498997
+
+# NVOS - log issue
+- Errors_list:
+    - ".*ERR rsyslogd: file size limit cmd for file '\/var\/log\/nvued.log' did no resolve situation.*"
+  Conditions:
+    - Redmine:
+      - 3512321
+
+# NVOS - warning in traffic test
+- Errors_list:
+    - '.*WARNING kernel: \[ \d+.\d+\] NOHZ tick-stop error: Non-RCU local softirq.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos\general\traffic\test_basic_traffic.py::test_basic_traffic
+      Redmine:
+        - 3512421

@@ -8,6 +8,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, OutputFormat
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 
 
 @pytest.mark.general
@@ -78,7 +79,6 @@ def test_replace_positive(engines):
         ib0_port = MgmtPort('ib0')
         output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
             ib0_port.interface.show()).get_returned_value()
-        current_description = output_dictionary['description']
         new_ib0_description = '"ib0description"'
         with allure.step('set ib0 description to be {description} - with apply'.format(
                 description=new_ib0_description)):
@@ -105,9 +105,8 @@ def test_replace_positive(engines):
             output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
                 ib0_port.interface.show()).get_returned_value()
 
-            ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                        field_name=NvosConst.DESCRIPTION,
-                                                        expected_value=current_description).verify_result()
+            assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
+                "Expected not to have description field after unset command, but we still have this field."
             ib0_port.interface.unset(NvosConst.DESCRIPTION, apply=False).verify_result()
             system.unset(apply=True, ask_for_confirmation=True).verify_result()
 

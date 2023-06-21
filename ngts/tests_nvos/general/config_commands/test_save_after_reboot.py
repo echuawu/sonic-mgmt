@@ -8,6 +8,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 
 logger = logging.getLogger()
 
@@ -60,9 +61,9 @@ def test_save_reboot(engines, devices):
                 logger.info('verify the ib0 description is empty')
                 output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
                     ib0_port.interface.show()).get_returned_value()
-                ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                            field_name=NvosConst.DESCRIPTION,
-                                                            expected_value='').verify_result()
+                assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
+                    "Expected not to have description field after unset command, but we still have this field."
+
         finally:
             with allure.step('Cleanup - set hostname to be {hostname} - with apply'.format(hostname=old_hostname)):
                 logger.info('Cleanup - set hostname to be {hostname} - with apply'.format(hostname=old_hostname))
