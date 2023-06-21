@@ -366,7 +366,7 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1005" EndPort="ethernet 1/23" StartDevice="arc-switch1004" StartPort="Ethernet88"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1005" EndPort="ethernet 1/24" StartDevice="arc-switch1004" StartPort="Ethernet92"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1005" EndPort="ethernet 1/25" StartDevice="arc-switch1004" StartPort="Ethernet96"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="arc-switch1005" EndPort="ethernet 1/26/1" StartDevice="arc-switch1004" StartPort="Ethernet100"/>
+      <DeviceInterfaceLink BandWidth="10000" EndDevice="arc-switch1005" EndPort="ethernet 1/26/1" StartDevice="arc-switch1004" StartPort="Ethernet100"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="arc-switch1005" EndPort="ethernet 1/27/1" StartDevice="arc-switch1004" StartPort="Ethernet104"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="arc-switch1005" EndPort="ethernet 1/27/2" StartDevice="arc-switch1004" StartPort="Ethernet106"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="arc-switch1005" EndPort="ethernet 1/28/1" StartDevice="arc-switch1004" StartPort="Ethernet108"/>
