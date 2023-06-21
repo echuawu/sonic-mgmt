@@ -40,7 +40,7 @@ EXCEED_MAX_ERR = r"Error: The maximum number \(3\) of nameservers exceeded"
 DUPLICATED_IP_ERR = r"Error: .* nameserver is already configured"
 
 
-def test_static_dns_basic(duthost, localhost, mgmt_interfaces):
+def test_static_dns_basic(request, duthost, localhost, mgmt_interfaces):
     """
     Basic test for the Static DNS
     :param duthost: DUT host object
@@ -63,8 +63,10 @@ def test_static_dns_basic(duthost, localhost, mgmt_interfaces):
         verify_nameserver_in_conf_file(duthost, expected_nameservers)
 
     duthost.shell("config save -y")
-    reload_types = ["reload", "cold", "fast", "warm"]
-    reboot_type = random.choice(reload_types)
+    reboot_type = request.config.getoption("--static_dns_reboot_type")
+    if reboot_type == "random":
+        reload_types = ["reload", "cold", "fast", "warm"]
+        reboot_type = random.choice(reload_types)
     with allure.step(f"Reload the system with command {reboot_type}"):
         if reboot_type == "reload":
             config_reload(duthost, safe_reload=True, check_intf_up_ports=True)

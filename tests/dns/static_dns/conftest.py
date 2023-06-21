@@ -9,6 +9,20 @@ logger = logging.getLogger(__name__)
 allure.logger = logger
 
 
+def pytest_addoption(parser):
+    """
+        Adds options to pytest that are used by the rif loopback action tests.
+    """
+
+    parser.addoption(
+        "--static_dns_reboot_type",
+        action="store",
+        type=str,
+        default="cold",
+        help="reboot type such as reload, cold, fast, warm, random"
+    )
+
+
 @pytest.fixture(scope="module", autouse=True)
 def is_static_dns_supported(duthost):
     cmd_err = duthost.shell("show dns nameserver", module_ignore_errors=True)['stderr']
