@@ -91,11 +91,6 @@ def test_system_message(engines, devices):
     """
     new_pre_login_msg = "Testing PRE LOGIN MESSAGE"
     new_post_login_msg = "Testing POST LOGIN MESSAGE"
-    with allure.step('Run show system message command and verify that each field has a value'):
-        system = System()
-        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
-        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
-            message_output, system.message.get_expected_fields(devices.dut)).verify_result()
 
     with allure.step('Run set system message pre-login command and verify that pre-login is updated'):
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,

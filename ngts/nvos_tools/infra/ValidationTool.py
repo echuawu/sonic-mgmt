@@ -185,6 +185,25 @@ class ValidationTool:
             return result_obj
 
     @staticmethod
+    def verify_field_value_exist_in_output_dict(output_dict, expected_fields):
+        """
+        :param expected_fields: list of expected fields
+        :param output_dict: output
+        :return:
+        """
+        with allure.step("Verify existence of the fields in the output dict"):
+            if not output_dict:
+                return ResultObj(False, "The list is empty")
+
+            result = True
+            ret_info = ""
+            if expected_fields not in output_dict.keys():
+                ret_info += 'the {field} not found\n'.format(field=field)
+                result = False
+
+            return ResultObj(result, ret_info, ret_info)
+
+    @staticmethod
     def compare_dictionaries(first_dictionary, second_dictionary, ignore_double_quotes_in_values=False):
         """
         Compares two dictionaries

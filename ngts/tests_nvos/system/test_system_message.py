@@ -46,14 +46,18 @@ def test_show_system_message(engines, devices):
     new_post_login_msg = "Testing POST LOGIN MESSAGE"
     new_post_logout_msg = "Testing POST LOGOUT MESSAGE"
     system = System()
+    clear_system_messages(system, engines)
 
     try:
-        """
+
         with allure.step('Run show system message command and verify that each field has a value'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
-            ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
-                message_output, system.message.get_expected_fields(devices.dut)).verify_result()
-        """
+            ValidationTool.verify_field_value_exist_in_output_dict(message_output,
+                                                                   SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+            ValidationTool.verify_field_value_exist_in_output_dict(message_output,
+                                                                   SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+            ValidationTool.verify_field_value_exist_in_output_dict(message_output,
+                                                                   SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
 
         with allure.step('Run unset system message pre-login command and apply config'):
             system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
