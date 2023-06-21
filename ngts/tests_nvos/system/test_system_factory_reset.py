@@ -1,7 +1,5 @@
 import logging
 import os
-
-import allure
 import pytest
 import time
 from datetime import datetime
@@ -17,6 +15,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -91,9 +90,6 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
             logging.info("Current time: " + str(current_time))
             OperationTime.save_duration('reset factory', '', pytest.test_name, system.factory_default.action_reset).verify_result()
-
-        with allure.step("Wait while the system initializing"):
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
 
         with allure.step('Configure timezone'):
             logger.info(
@@ -176,9 +172,6 @@ def test_reset_factory_keep_basic(engines):
             NvueGeneralCli.save_config(engines.dut)
             OperationTime.save_duration('reset factory', "keep basic", pytest.test_name,
                                         system.factory_default.action_reset, param="keep basic").verify_result()
-
-        with allure.step("Wait while the system initializing"):
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
 
         with allure.step('Configure timezone'):
             logger.info(
@@ -269,9 +262,6 @@ def test_reset_factory_keep_all_config(engines):
             logging.info("Current time: " + str(current_time))
             OperationTime.save_duration('reset factory', "keep all-config", pytest.test_name,
                                         system.factory_default.action_reset, param="keep all-config").verify_result()
-
-        with allure.step("Wait while the system initializing"):
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
 
         with allure.step('Configure timezone'):
             logger.info(
@@ -364,9 +354,6 @@ def test_reset_factory_keep_only_files(engines):
             logging.info("Current time: " + str(current_time))
             OperationTime.save_duration('reset factory', "keep only-files", pytest.test_name,
                                         system.factory_default.action_reset, param="keep only-files").verify_result()
-
-        with allure.step("Wait while the system initializing"):
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engines.dut)
 
         with allure.step('Configure timezone'):
             logger.info(

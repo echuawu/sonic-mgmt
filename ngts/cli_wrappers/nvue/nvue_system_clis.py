@@ -1,5 +1,6 @@
 import logging
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import ActionConsts
 
 logger = logging.getLogger()
@@ -74,7 +75,7 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_reboot(engine, resource_path, op_param=""):
+    def action_reboot(engine, resource_path, op_param="", should_wait_till_system_ready=True):
         """
         Rebooting the switch
         """
@@ -82,7 +83,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reboot {path} {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.reload(cmd)
+        return DutUtilsTool.reload(engine=engine, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready).verify_result()
 
     @staticmethod
     def action_profile_change(engine, resource_path, op_param=""):

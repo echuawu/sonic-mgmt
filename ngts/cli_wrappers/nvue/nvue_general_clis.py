@@ -1,10 +1,11 @@
 import logging
-import allure
 import time
 import os
 from retry import retry
-from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
+from ngts.cli_wrappers.sonic.sonic_general_clis import *
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
 from ngts.constants.constants import InfraConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
@@ -58,6 +59,20 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
     def show_version(self, validate=False):
         return self.engine.run_cmd('nv show system version')
+
+    @staticmethod
+    def install_image_onie(engine, image_path, platform_params, topology_obj):
+        dut_ip = engine.ip
+        dut_ssh_port = engine.ssh_port
+        with allure.step('Installing image by "onie-nos-install"'):
+            SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path, platform_params=platform_params,
+                                                             topology_obj=topology_obj)
+        with allure.step('Waiting for switch shutdown after reload command'):
+            check_port_status_till_alive(False, dut_ip, dut_ssh_port)
+
+        with allure.step('Wait until the system is ready'):
+            retry_call(engine.run_cmd, fargs=[''], tries=60, delay=10, logger=logger)
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine)
 
     @staticmethod
     def diff_config(engine, revision_1='', revision_2='', output_type='json'):
@@ -152,17 +167,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    @retry(Exception, tries=48, delay=10)
-    def wait_for_nvos_to_become_functional(engine):
-        """
-        Waiting for NVOS to complete the init and become functional after the installation
-        """
-        logger.info('Checking the status of nvued ')
-        if ("active (running)" not in engine.run_cmd("sudo systemctl status nvued")) and \
-           ("active (running)" not in engine.run_cmd("sudo systemctl status nvue")):
-            raise Exception("Waiting for NVUE to become functional")
-
-    @staticmethod
     def upgrade_dut(engine, path_to_image):
         """
         Installing the provided image on dut
@@ -177,7 +181,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 engine.run_cmd('sudo curl {} -o {}'.format(image_path, NvosConst.IMAGES_PATH_ON_SWITCH), validate=True)
 
         with allure.step("Installing image {}".format(NvosConst.IMAGES_PATH_ON_SWITCH)):
-            logging.info("Installing image '{}'".format(NvosConst.IMAGES_PATH_ON_SWITCH))
             NvueSystemCli.action_image(engine=engine, action_str=ActionConsts.INSTALL,
                                        action_component_str="image", op_param=NvosConst.IMAGES_PATH_ON_SWITCH)
 
@@ -186,7 +189,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
         with allure.step("Verifying NVOS initialized successfully"):
             NvueGeneralCli.verify_dockers_are_up()
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engine)
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
 
     @staticmethod
     def upgrade_firmware(engine, path_to_fw_img):
@@ -211,7 +214,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
         with allure.step("Verifying NVOS initialized successfully"):
             NvueGeneralCli.verify_dockers_are_up()
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engine)
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
 
     def remote_reboot(self, topology_obj):
         '''

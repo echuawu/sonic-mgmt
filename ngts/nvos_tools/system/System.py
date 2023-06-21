@@ -1,5 +1,4 @@
 import logging
-import allure
 import time
 from retry import retry
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
@@ -7,6 +6,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
@@ -35,6 +35,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import OutputFormat
 import datetime
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -241,7 +242,7 @@ class FactoryDefault(BaseComponent):
             with allure.step("Reset factory takes: {} seconds".format(duration)):
                 logger.info("Reset factory takes: {} seconds".format(duration))
 
-            NvueGeneralCli.wait_for_nvos_to_become_functional(engine)
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
             end_time = time.time()
             duration = end_time - start_time
             with allure.step("Reset factory till system is functional takes: {} seconds".format(duration)):

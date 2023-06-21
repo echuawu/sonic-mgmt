@@ -525,7 +525,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             SonicOnieCli(self.engine.ip, self.engine.ssh_port, fw_pkg_path, platform_params).update_onie()
             self.confirm_in_onie_install_mode(topology_obj)
 
-        self.install_image_onie(self.engine.ip, self.engine.ssh_port, image_path, platform_params, topology_obj)
+        self.install_image_onie(self.engine, image_path, platform_params, topology_obj)
 
     def confirm_in_onie_install_mode(self, topology_obj):
         in_onie = self.prepare_for_installation(topology_obj)
@@ -563,8 +563,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.engine.reload([f'{onie_reboot_script_path} {mode}'], wait_after_ping=25, ssh_after_reload=False)
 
     @staticmethod
-    def install_image_onie(dut_ip, dut_ssh_port, image_path, platform_params, topology_obj):
+    def install_image_onie(engine, image_path, platform_params, topology_obj):
         sonic_cli_ssh_connect_timeout = 10
+        dut_ip = engine.ip
+        dut_ssh_port = engine.ssh_port
 
         with allure.step('Installing image by "onie-nos-install"'):
             SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path, platform_params=platform_params,

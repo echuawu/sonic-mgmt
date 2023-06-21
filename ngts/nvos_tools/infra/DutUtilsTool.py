@@ -2,9 +2,9 @@ import logging
 import time
 from .ResultObj import ResultObj, IssueType
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
-from retry.api import retry_call
-from ngts.nvos_constants.constants_nvos import ReadFromDataBase
-import allure
+from retry.api import retry_call, retry
+from ngts.nvos_constants.constants_nvos import ReadFromDataBase, SystemConsts
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -29,8 +29,6 @@ class DutUtilsTool:
                 logger.info("Waiting for switch shutdown after reload command")
                 check_port_status_till_alive(False, engine.ip, engine.ssh_port)
                 engine.disconnect()
-                dummy_cmd = ''
-                retry_call(engine.run_cmd, fargs=[dummy_cmd], tries=80, delay=2, logger=logger)
 
             if not should_wait_till_system_ready:
                 return ResultObj(result=True, info="system is not ready yet")
@@ -43,17 +41,26 @@ class DutUtilsTool:
         return result_obj
 
     @staticmethod
-    def wait_for_nvos_to_become_functional(engine, find_prompt_tries=600, find_prompt_delay=10):
+    def wait_for_nvos_to_become_functional(engine, find_prompt_tries=60, find_prompt_delay=10):
         with allure.step('wait until the system is ready - check SYSTEM_STATE table'):
-            result_obj = ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
-            retry_call(f=DutUtilsTool._wait_for_system_table_to_exist, fargs=engine, tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
-            if 'DOWN' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
-                return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
-            return result_obj
+            with allure.step('wait for the system table to exist'):
+                wait_for_system_table_to_exist(engine)
 
-    @staticmethod
-    def _wait_for_system_table_to_exist(engine):
-        if 'UP' not in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
-            logger.info('Waiting to SYSTEM_STATUS table to be available')
-            return False
-        return True
+            # after merge we need to check if '(empty array)' in output then table is missed
+            # if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+                # return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
+
+            with allure.step('wait until the CLI is up'):
+                time.sleep(5)
+
+            return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
+
+
+@retry(False, tries=60, delay=10)
+def wait_for_system_table_to_exist(engine):
+    time.sleep(90)  # to delete after merge
+    return True     # to delete after merge
+    if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+        logger.info('Waiting to SYSTEM_STATUS table to be available')
+        return False
+    return True

@@ -1,7 +1,6 @@
-import allure
 import logging
 import time
-from ngts.tools.test_utils.allure_utils import step
+from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from retry.api import retry_call

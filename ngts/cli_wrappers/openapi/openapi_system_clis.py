@@ -3,6 +3,7 @@ from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
 from .openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OpenApiReqType
 from ngts.nvos_constants.constants_nvos import ActionConsts, ActionType
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 logger = logging.getLogger()
 
 
@@ -141,15 +142,18 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, "/system/log", params)
 
     @staticmethod
-    def action_reboot(engine, resource_path, op_param=""):
+    def action_reboot(engine, resource_path, op_param="", should_wait_till_system_ready=True):
         logging.info("Running action: rotate system log on dut using OpenApi")
         params = \
             {
                 "state": "start",
                 # "parameters": {op_param}
             }
-        return OpenApiCommandHelper.execute_action(ActionType.REBOOT, engine.engine.username, engine.engine.password,
-                                                   engine.ip, resource_path, params)
+        result = OpenApiCommandHelper.execute_action(ActionType.REBOOT, engine.engine.username, engine.engine.password,
+                                                     engine.ip, resource_path, params)
+        if should_wait_till_system_ready:
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
+        return result
 
     @staticmethod
     def action_change(engine, resource_path, params_dict=None):

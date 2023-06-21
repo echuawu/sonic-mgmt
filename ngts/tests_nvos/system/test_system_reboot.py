@@ -1,10 +1,8 @@
 import pytest
-import allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 

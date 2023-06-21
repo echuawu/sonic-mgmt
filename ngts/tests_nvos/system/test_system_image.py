@@ -1,7 +1,6 @@
 import logging
 import pytest
 import os
-import allure
 import string
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.system.Files import File
@@ -10,7 +9,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
@@ -350,7 +349,7 @@ def test_image_install(release_name, test_name):
         try:
             with allure.step('Rebooting the dut after image installation'):
                 logging.info('Rebooting the dut after image installation')
-                reboot_dut()
+                system.reboot.action_reboot()
                 expected_dictionary[ImageConsts.CURRENT_IMG] = expected_dictionary[ImageConsts.NEXT_IMG]
                 system.image.verify_show_images_output(expected_dictionary)
                 system.image.files.verify_show_files_output(expected_files=image_files)
@@ -362,7 +361,7 @@ def test_image_install(release_name, test_name):
 
             with allure.step("Rebooting the dut after origin image installation"):
                 logging.info("Rebooting the dut after origin image installation")
-                reboot_dut()
+                system.reboot.action_reboot()
                 expected_dictionary[ImageConsts.CURRENT_IMG] = original_image
                 expected_dictionary[ImageConsts.NEXT_IMG] = original_image
                 system.image.verify_show_images_output(expected_dictionary)
@@ -412,15 +411,6 @@ def image_uninstall_test(release_name, uninstall_force=""):
                 system.image.verify_show_images_output(installed_images_output)
     finally:
         cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
-
-
-def reboot_dut():
-    system = System()
-    logging.info("Rebooting dut")
-    system.reboot.action_reboot()
-    nvue_cli = NvueGeneralCli(TestToolkit.engines.dut)
-    nvue_cli.verify_dockers_are_up()
-    NvueGeneralCli.wait_for_nvos_to_become_functional(TestToolkit.engines.dut)
 
 
 def normalize_image_name(image_name):

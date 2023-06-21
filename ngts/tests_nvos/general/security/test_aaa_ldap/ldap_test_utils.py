@@ -1,7 +1,7 @@
 import random
 import time
 
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
@@ -115,7 +115,7 @@ def enable_ldap_feature(dut_engine):
         NVUED_SLEEP_FOR_RESTART = 4
         with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
             time.sleep(NVUED_SLEEP_FOR_RESTART)
-        NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
+        DutUtilsTool.wait_for_nvos_to_become_functional(dut_engine).verify_result()
 
 
 def validate_services_and_dockers_availability(engines, devices):

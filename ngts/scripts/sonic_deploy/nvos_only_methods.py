@@ -1,6 +1,7 @@
 import logging
 import allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 import shutil
 import os
 from ngts.constants.constants import LinuxConsts
@@ -58,7 +59,7 @@ class NvosInstallationSteps:
         :return: Bool
         """
         try:
-            NvueGeneralCli.wait_for_nvos_to_become_functional(dut_engine)
+            DutUtilsTool.wait_for_nvos_to_become_functional(dut_engine).verify_result()
             return True
         except Exception as err:
             return False
