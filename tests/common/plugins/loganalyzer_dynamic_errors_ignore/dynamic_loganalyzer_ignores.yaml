@@ -2693,6 +2693,12 @@
         - 3487047
 
 - Errors_list:
+    - '.* ERR swss#intfmgrd: :- setIntfIp: Command ''/sbin/ip address "add" ".*" broadcast ".*" dev ".*"'' failed with rc \d+'
+  Conditions:
+    - Redmine:
+        - 3508074
+
+- Errors_list:
     - '.*ERR hw-management-tc: ERROR - Missing max tachos config.*'
   Conditions:
     - Redmine:
