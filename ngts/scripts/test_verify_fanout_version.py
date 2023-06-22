@@ -1,7 +1,7 @@
 import logging
 import pytest
 
-EXPECTED_VERSION = "3.10.1974"
+EXPECTED_VERSION = "3.10.4206"
 
 logger = logging.getLogger()
 

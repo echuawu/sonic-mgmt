@@ -3,15 +3,6 @@ scripts/log_profiler/log_profiler.py :
   skip:
     reason: "The test not stable, skip it statically"
 
-scripts/test_verify_fanout_version.py::test_verify_fanout_version:
-  skip:
-    reason: "Skip fanout version check due to RM bug: 3398598"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3398598 and 'arc-switch1004' in testbed"
-      - "https://redmine.mellanox.com/issues/3398598 and 'r-leopard-70' in testbed"
-      - "https://redmine.mellanox.com/issues/3398598 and 'r-leopard-72' in testbed"
-
 tests/simx/test_simx_custom_base_mac.py:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3344406"
