@@ -39,6 +39,10 @@ from mlxlib.common import trace
 
 logger = trace.set_logger()
 
+BF2_PLATFORM = 'arm64-nvda_bf-mbf2h536c'
+BF3_PLATFORM = 'arm64-nvda_bf-9009d3b600cvaa'
+BF_PLATFORMS = [BF2_PLATFORM, BF3_PLATFORM]
+
 
 class SonicAddSessionInfo(SessionAddInfo):
     """
@@ -65,14 +69,21 @@ class SonicAddSessionInfo(SessionAddInfo):
         hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
         asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
         platform = platform_re.findall(output)[0] if platform_re.search(output) else ""
-        chip_type = int(str(re.search("(\d{4})",platform).group(1))[0])-1 if platform else ""
+        if platform in BF_PLATFORMS:
+            if platform == BF2_PLATFORM:
+                chip_type = 'BF2'
+            else:
+                chip_type = 'BF3'
+        else:
+            chip_type = int(str(re.search("(\d{4})",platform).group(1))[0])-1 if platform else ""
+            chip_type = "SPC{}".format(chip_type) if chip_type else ""
         res = {
             "version": version.findall(output)[0] if version.search(output) else "",
             "platform": platform,
             "hwsku": hwsku.findall(output)[0] if hwsku.search(output) else "",
             "asic": asic.findall(output)[0] if asic.search(output) else "",
             "topology": topology,
-            "chip_type": "SPC{}".format(chip_type) if chip_type else ""
+            "chip_type": chip_type
         }
 
         return res
