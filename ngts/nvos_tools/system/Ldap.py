@@ -10,6 +10,7 @@ class Ldap(BaseComponent):
         self._resource_path = '/ldap'
         self.parent_obj = parent_obj
         self.hostname = LdapHostname(self)
+        self.ssl = Ssl(self)
 
     def set_hostname_priority(self, hostname, priority, apply=False, ask_for_confirmation=False):
         return self.set("hostname {} priority ".format(hostname), priority, apply=apply, ask_for_confirmation=ask_for_confirmation)
@@ -38,4 +39,11 @@ class LdapHostnameResource(BaseComponent):
     def __init__(self, parent_obj, hostname_id):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/{id}'.format(id=hostname_id)
+        self.parent_obj = parent_obj
+
+
+class Ssl(BaseComponent):
+    def __init__(self, parent_obj):
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/ssl'
         self.parent_obj = parent_obj
