@@ -2,6 +2,7 @@ import random
 import time
 import logging
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -170,7 +171,7 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info):
                 LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],
                 LdapConsts.VERSION: ldap_server_info[LdapConsts.VERSION]
             }
-            configure_ldap_settings(engines, ldap_obj, conf_to_set)
+            configure_resource(engines, ldap_obj, conf_to_set)
 
         with allure.step('Configure the given server with its priority'):
             priority = int(ldap_server_info[LdapConsts.PRIORITY])
@@ -186,81 +187,54 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode):
     @param encryption_mode: in [NONE, START_TLS, SSL]
     """
     with allure.step(f'Configure ldap encryption: {encryption_mode}'):
-        # todo: understand what conf needed for each encryption mode
         if encryption_mode == LdapConsts.TLS:
-            configure_ldap_settings(engines, ldap_obj, ldap_conf={
-                # LdapConsts.SSL: {
-                # LdapConsts.SSL_MODE: LdapConsts.START_TLS,
-                # LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED
-                # }
+            configure_resource(engines, ldap_obj.ssl, conf={
+                LdapConsts.SSL_MODE: LdapConsts.START_TLS,
+                LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED
             })
         elif encryption_mode == LdapConsts.SSL:
-            configure_ldap_settings(engines, ldap_obj, ldap_conf={
-                # LdapConsts.SSL: {
-                # LdapConsts.SSL_MODE: LdapConsts.SSL,
-                # LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED,
-                # LdapConsts.SSL_PORT: 636
-                # }
+            configure_resource(engines, ldap_obj.ssl, conf={
+                LdapConsts.SSL_MODE: LdapConsts.START_TLS,
+                LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED
             })
         elif encryption_mode == LdapConsts.NONE:
-            configure_ldap_settings(engines, ldap_obj, ldap_conf={
-                # LdapConsts.SSL: {
-                # LdapConsts.SSL_MODE: LdapConsts.NONE,  # todo: verify phase 2 defaults
-                # LdapConsts.SSL_CERT_VERIFY: LdapConsts.DEFAULTS[LdapConsts.SSL_CERT_VERIFY],
-                # LdapConsts.SSL_CA_LIST: LdapConsts.DEFAULTS[LdapConsts.SSL_CA_LIST],
-                # LdapConsts.SSL_CIPHERS: LdapConsts.DEFAULTS[LdapConsts.SSL_CIPHERS],
-                # LdapConsts.TLS_CRL_CHECK_FILE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_FILE],
-                # LdapConsts.TLS_CRL_CHECK_STATE: LdapConsts.DEFAULTS[LdapConsts.TLS_CRL_CHECK_STATE],
-                # LdapConsts.SSL_PORT: LdapConsts.DEFAULTS[LdapConsts.SSL_PORT]
-                # }
+            configure_resource(engines, ldap_obj.ssl, conf={
+                LdapConsts.SSL_MODE: LdapConsts.NONE,
+                LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED
             })
 
 
-def configure_ldap_settings(engines, ldap_obj, ldap_conf):
+def configure_resource(engines, resource_obj: BaseComponent, conf, apply=True):
     """
-    @summary: Configure ldap settings according to the given desired configuration
+    @summary: Configure resource according to the given desired configuration
         * Configuration example:
             if we want:
-                - bind-dn = abc
-                - auth-port = 123
-                - ssl ssl-port = 456
-                - tls mode = start-tls
+            ldap
+                bind-dn = abc
+                auth-port = 123
             then configuration dictionary should be:
             {
                 bind-dn: abc,
-                auth-port: 123,
-                ssl:    {
-                            ssl-port: 456
-                        },
-                tls:    {
-                            mode: start-tls
-                        }
+                auth-port: 123
             }
     @param engines: engines object
-    @param ldap_obj: ldap object
-    @param ldap_conf: the desired ldap configuration (dictionary)
+    @param resource_obj: resource object
+    @param conf: the desired configuration (dictionary)
+    @param apply: whether to apply the changes or not
     """
-    if not ldap_conf:
+    if not conf:
         return
 
-    with allure.step('Set ldap configuration'):
-        logging.info(f'Given configuration to set:\n{ldap_conf}')
+    with allure.step(f'Set configuration for resource: {resource_obj.get_resource_path()}'):
+        logging.info(f'Given configuration to set:\n{conf}')
 
-        for key, value in ldap_conf.items():
-            if key == LdapConsts.SSL:
-                ssl_conf = ldap_conf[LdapConsts.SSL]
-                for ssl_key, ssl_value in ssl_conf.items():
-                    ssl_value = int(ssl_value) if ssl_value.isnumeric() else ssl_value
-                    ldap_obj.ssl.set(ssl_key, ssl_value, apply=False).verify_result()
-            elif key == LdapConsts.TLS:
-                tls_conf = ldap_conf[LdapConsts.TLS]
-                for tls_key, tls_value in tls_conf.items():
-                    tls_value = int(tls_value) if tls_value.isnumeric() else tls_value
-                    ldap_obj.tls.set(tls_key, tls_value, apply=False).verify_result()
-            else:
+        with allure.step('Set fields'):
+            for key, value in conf.items():
+                logging.info(f'Set field "{key}" to value "{value}"')
                 value = int(value) if value.isnumeric() else value
-                ldap_obj.set(key, value, apply=False).verify_result()
+                resource_obj.set(key, value, apply=False).verify_result()
 
-        logging.info('Apply all changes')
-        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)\
-            .verify_result()
+        if apply:
+            with allure.step('Apply all changes'):
+                SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
+                                                engines.dut, True).verify_result()

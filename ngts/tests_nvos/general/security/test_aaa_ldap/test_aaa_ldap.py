@@ -361,6 +361,7 @@ def test_bad_connection(test_api, encryption_mode, reset_aaa, engines, devices):
 
     with allure.step('Add valid ldap server server'):
         ldap2_server_info = LdapConsts.DOCKER_LDAP_SERVER_DNS.copy()
+        ldap2_server_info[LdapConsts.PRIORITY] = 1
         configure_ldap_server(engines, ldap_obj, ldap2_server_info)
 
     with allure.step('Verify authentication and authorization are done via next in line - valid ldap server'):
