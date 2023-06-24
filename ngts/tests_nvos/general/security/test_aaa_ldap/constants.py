@@ -142,6 +142,11 @@ class LdapConsts:
         "priority": '2',
         "users": [
             {
+                'username': 'adminuser',  # TODO: change to volt once it is in
+                'password': 'asdasd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
                 'username': 'monitoruser',  # TODO: change to volt once it is in
                 'password': 'asd',  # TODO: change to volt once it is in
                 'role': 'monitor'
@@ -150,6 +155,11 @@ class LdapConsts:
                 'username': 'azmy',  # TODO: change to volt once it is in
                 'password': 'azmy',  # TODO: change to volt once it is in
                 'role': 'admin'
+            },
+            {
+                'username': 'alon',  # TODO: change to volt once it is in
+                'password': 'alon',  # TODO: change to volt once it is in
+                'role': 'monitor'
             }
         ]
     }
@@ -169,6 +179,11 @@ class LdapConsts:
         "priority": '3',
         "users": [
             {
+                'username': 'adminuser',  # TODO: change to volt once it is in
+                'password': 'asdasd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
                 'username': 'monitoruser',  # TODO: change to volt once it is in
                 'password': 'asd',  # TODO: change to volt once it is in
                 'role': 'monitor'
@@ -177,6 +192,11 @@ class LdapConsts:
                 'username': 'azmy',  # TODO: change to volt once it is in
                 'password': 'azmy',  # TODO: change to volt once it is in
                 'role': 'admin'
+            },
+            {
+                'username': 'alon',  # TODO: change to volt once it is in
+                'password': 'alon',  # TODO: change to volt once it is in
+                'role': 'monitor'
             }
         ]
     }
@@ -205,4 +225,4 @@ class LdapConsts:
 
     TLS = 'tls'
     CONNECTION_METHODS = [IPV4, IPV6, DNS]
-    ENCRYPTION_MODES = [NONE]  # [NONE, TLS, SSL]
+    ENCRYPTION_MODES = [NONE, TLS, SSL]
