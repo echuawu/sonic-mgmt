@@ -19,27 +19,29 @@ class LdapConsts:
     TIMEOUT = 'timeout-search'
     VERSION = 'version'
     # phase 2 show cmd fields
+    SSL = 'ssl'
+    SSL_CA_LIST = 'ca-list'
+    SSL_CERT_VERIFY = 'cert-verify'
     SSL_MODE = 'mode'
-    SSL_CERT_VERIFY = 'ssl-cert-verify'
-    SSL_CA_LIST = 'ssl-ca-list'
-    SSL_CIPHERS = 'ssl-ciphers'
-    TLS_CRL_CHECK_FILE = 'tls-crl-check-file'
-    TLS_CRL_CHECK_STATE = 'tls-crl-check-state'
-    SSL_PORT = 'ssl-port'  # under open question
+    SSL_PORT = 'port'
+    SSL_TLS_CIPHERS = 'tls-ciphers'
+    SSL_CRL_LIST = 'crl-list'  # decided out of feature
+    TLS_CRL_CHECK_FILE = 'tls-crl-check-file'  # decided out of feature
+    TLS_CRL_CHECK_STATE = 'tls-crl-check-state'  # decided out of feature
 
-    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, LOGIN_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT, VERSION,
-                   SSL_MODE, SSL_CERT_VERIFY, SSL_CA_LIST, SSL_CIPHERS, TLS_CRL_CHECK_FILE, TLS_CRL_CHECK_STATE,
-                   SSL_PORT]
+    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, LOGIN_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT, VERSION]
+    SSL_FIELDS = [SSL_CA_LIST, SSL_CERT_VERIFY, SSL_MODE, SSL_PORT, SSL_TLS_CIPHERS]
 
     # possible values
     NONE = 'none'
     DISABLED = 'disabled'
     ENABLED = 'enabled'
-    START_TLS = 'start-tls'
-    SSL = 'ssl'
+    DEFAULT = 'default'
+    START_TLS = 'start_tls'
     DEFAULT_CA_LIST = 'default-ca-list'
     TLS_1_2 = 'TLS1.2'
     TLS_1_3 = 'TLS1.3'
+    ALL = 'all'
     DEFAULT_CRL = 'default-crl'
     PORT_389 = '389'
     PORT_636 = '636'
@@ -58,14 +60,16 @@ class LdapConsts:
         BIND_PASSWORD: str,
         TIMEOUT_BIND: list(range(1, 60 + 1)),
         TIMEOUT: list(range(1, 60 + 1)),
-        VERSION: [2, 3],
-        SSL_MODE: [NONE, START_TLS, SSL],
+        VERSION: [2, 3]
+    }
+
+    VALID_VALUES_SSL = {
+        SSL_CA_LIST: [DEFAULT, NONE],
         SSL_CERT_VERIFY: [ENABLED, DISABLED],
-        SSL_CA_LIST: [NONE, DEFAULT_CA_LIST],
-        SSL_CIPHERS: [TLS_1_2, TLS_1_3],
-        TLS_CRL_CHECK_FILE: [NONE, DEFAULT_CRL],
-        TLS_CRL_CHECK_STATE: [ENABLED, DISABLED],
-        SSL_PORT: TEST_PORTS
+        SSL_CRL_LIST: [DEFAULT, NONE],
+        SSL_MODE: [NONE, START_TLS, SSL],
+        SSL_PORT: TEST_PORTS,
+        SSL_TLS_CIPHERS: [ALL, TLS_1_2, TLS_1_3]
     }
 
     # default values
@@ -79,13 +83,12 @@ class LdapConsts:
         TIMEOUT_BIND: 5,
         TIMEOUT: 5,
         VERSION: 3,
-        SSL_MODE: NONE,  # todo: verify phase 2 defaults
-        SSL_CERT_VERIFY: DISABLED,
-        SSL_CA_LIST: NONE,
-        SSL_CIPHERS: TLS_1_2,
-        TLS_CRL_CHECK_FILE: NONE,
-        TLS_CRL_CHECK_STATE: DISABLED,
-        SSL_PORT: PORT_389
+        # ssl defaults
+        SSL_CA_LIST: DEFAULT,
+        SSL_CERT_VERIFY: ENABLED,
+        SSL_MODE: NONE,
+        SSL_PORT: 636,
+        SSL_TLS_CIPHERS: ALL
     }
 
     PHYSICAL_LDAP_SERVER = {
