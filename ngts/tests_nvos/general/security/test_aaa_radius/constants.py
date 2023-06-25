@@ -71,6 +71,11 @@ class RadiusConstants:
                     'username': 'admin1',  # TODO: change to volt once it is in
                     'password': 'admin1',  # TODO: change to volt once it is in
                     'role': 'monitor'
+                },
+                {
+                    'username': 'testing',  # TODO: change to volt once it is in
+                    'password': 'asdasd',  # TODO: change to volt once it is in
+                    'role': 'admin'
                 }
             ]
         }

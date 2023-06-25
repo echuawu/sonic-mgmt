@@ -329,12 +329,25 @@ def test_change_invalid_datetime_ntp_off_error_flow(test_api, engines, system, n
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
     for bad_datetime in bad_inputs:
+        logging.info(f'Check bad datetime: "{bad_datetime}"')
         if TestToolkit.tested_api == ApiType.OPENAPI:
             errs = ClockConsts.ERR_OPENAPI_DATETIME
-        elif bad_datetime == '' or len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(bad_datetime):
+        elif bad_datetime == '':
             errs = ClockConsts.ERR_EMPTY_PARAM
-        else:
-            errs = ClockConsts.ERR_INVALID_DATETIME
+        elif len(bad_datetime.split(' ')) == 1:
+            if ClockTools.is_valid_system_date(bad_datetime):
+                errs = ClockConsts.ERR_EMPTY_PARAM
+            else:
+                errs = [ClockConsts.ERR_INVALID_DATE.format(bad_datetime)]
+        else:  # there are 2 arguments in the input
+            b_date = bad_datetime.split(' ')[0]
+            b_time = bad_datetime.split(' ')[1]
+            if not ClockTools.is_valid_system_date(b_date):
+                errs = [ClockConsts.ERR_INVALID_DATE.format(b_date)]
+            elif not ClockTools.is_valid_time(b_time):
+                errs = [ClockConsts.ERR_INVALID_TIME.format(b_time)]
+            else:
+                errs = ClockConsts.ERR_INVALID_DATETIME
         ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
 
 
@@ -364,12 +377,25 @@ def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, nt
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
     for bad_datetime in bad_inputs:
+        logging.info(f'Check bad datetime: "{bad_datetime}"')
         if TestToolkit.tested_api == ApiType.OPENAPI:
             errs = ClockConsts.ERR_OPENAPI_DATETIME
-        elif bad_datetime == '' or len(bad_datetime.split(' ')) == 1 and ClockTools.is_valid_system_date(bad_datetime):
+        elif bad_datetime == '':
             errs = ClockConsts.ERR_EMPTY_PARAM
-        else:
-            errs = ClockConsts.ERR_INVALID_DATETIME
+        elif len(bad_datetime.split(' ')) == 1:
+            if ClockTools.is_valid_system_date(bad_datetime):
+                errs = ClockConsts.ERR_EMPTY_PARAM
+            else:
+                errs = [ClockConsts.ERR_INVALID_DATE.format(bad_datetime)]
+        else:  # there are 2 arguments in the input
+            b_date = bad_datetime.split(' ')[0]
+            b_time = bad_datetime.split(' ')[1]
+            if not ClockTools.is_valid_system_date(b_date):
+                errs = [ClockConsts.ERR_INVALID_DATE.format(b_date)]
+            elif not ClockTools.is_valid_time(b_time):
+                errs = [ClockConsts.ERR_INVALID_TIME.format(b_time)]
+            else:
+                errs = ClockConsts.ERR_INVALID_DATETIME
         ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
 
 
