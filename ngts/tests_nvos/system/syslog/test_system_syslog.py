@@ -509,6 +509,7 @@ def test_rsyslog_protocol(engines):
             with allure.step("Simulate disconnection to the server"):
                 logging.info("Simulate disconnection to the server")
                 remote_server_engine.run_cmd('/etc/init.d/rsyslog stop')
+                time.sleep(10)
                 random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
                 send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_didnt_received=True)
 
@@ -529,6 +530,11 @@ def test_rsyslog_protocol(engines):
         with allure.step("Cleanup syslog configurations"):
             logging.info("Cleanup syslog configurations")
             system.syslog.unset(apply=True)
+        with allure.step("Reconnect to the server"):
+            logging.info("Reconnect to the server")
+            remote_server_engine.run_cmd('rm -f /var/run/rsyslogd.pid')
+            remote_server_engine.run_cmd('rsyslogd')
+            time.sleep(10)
 
 
 @pytest.mark.system

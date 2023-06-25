@@ -27,7 +27,7 @@ def test_run_nvos_simx_docker(topology_obj, base_version):
         wait_till_the_switch_is_ready(dut_name, server_engine)
 
     with allure.step("Check installed image"):
-        NvueGeneralCli.show_version(dut_engine)
+        dut_engine.run_cmd('nv show system version')
 
 
 @retry(Exception, tries=3, delay=10)

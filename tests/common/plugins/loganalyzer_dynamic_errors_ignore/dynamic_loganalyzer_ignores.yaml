@@ -2799,6 +2799,7 @@
     - ".*ERR health-statsd#health_history: snmp: Container 'snmp' is not running.*"
     - '.*ERR container: docker cmd: start for snmp failed with.*'
     - '.*ERR systemd\[\d+\]: Failed to start SNMP container.*'
+    - '.*warn=True _uses_shell=False.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
@@ -2861,6 +2862,6 @@
     - '.*WARNING kernel: \[ \d+.\d+\] NOHZ tick-stop error: Non-RCU local softirq.*'
   Conditions:
     - Affected_test_cases:
-      - tests_nvos\general\traffic\test_basic_traffic.py::test_basic_traffic
+      - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
       Redmine:
         - 3512421
