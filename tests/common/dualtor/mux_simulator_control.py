@@ -229,7 +229,7 @@ def set_output(url):
 
 
 @pytest.fixture(scope='module')
-def toggle_simulator_port_to_upper_tor(url, tbinfo):
+def toggle_simulator_port_to_upper_tor(url, tbinfo, active_standby_ports):
     """
     Returns _toggle_simulator_port_to_upper_tor to make fixture accept arguments
     """
