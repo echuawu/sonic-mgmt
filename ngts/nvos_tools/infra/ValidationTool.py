@@ -171,7 +171,7 @@ class ValidationTool:
             if not all(field in list(output_dictionary.keys()) for field in expected_fields):
                 result_obj.result = False
                 result_obj.info += "the next fields are missing on the device constants {missing} ".format(
-                    missing=output_dictionary.keys() - expected_fields)
+                    missing=list(set(output_dictionary.keys()) ^ set(expected_fields)))
 
             if not all(field in expected_fields for field in list(output_dictionary.keys())):
                 result_obj.result = False
