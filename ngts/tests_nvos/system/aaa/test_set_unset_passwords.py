@@ -1,9 +1,10 @@
 import logging
 import random
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.system.System import System
 
@@ -154,3 +155,74 @@ def verify_invalid_messages(supported_rules, set_output):
         output_lines = set_output.splitlines()[2:]
         expected_output = [messeges_dict[value] for value in messeges_dict.keys() if value not in supported_rules]
         assert expected_output.sort() == output_lines.sort(), "at least one of the error messages is missing, output = {output} expected = {expected}".format(output=output_lines, expected=expected_output)
+
+
+def test_password_history(engines):
+    """
+        as part of password-hardening we can change the history count,
+        meaning the new password should be different than <history count> previous passwords
+
+        in this test we want to check the error message after
+        configuring a password that already used and also set/unset history cnt
+
+        Test flow:
+            1. generate two valid passwords
+            2. nv set system aaa user monitor password <new_password1>
+            3. nv config apply
+            4. nv set system aaa user monitor password <new_password2>
+            5. nv config apply
+            6. nv set system aaa user monitor password <new_password1>
+            7. verify the output message includes relevant error messages Password should be different than 10 previous passwords
+                from password_hardening get history-cnt (10)
+            8. nv set system aaa user monitor password <new_password2>
+            9. verify the output message includes relevant error messages Password should be different than 10 previous passwords
+                from password_hardening get history-cnt (10)
+            10. run nv set system security password-hardening history-cnt 1
+            11. nv config apply
+            12. nv set system aaa user monitor password <new_password1>
+            13. verify message (should accept)
+            14. nv set system aaa user monitor password <new_password2>
+            15. verify message (should accept)
+            16. run nv unset system security password-hardening history-cnt as cleanup step
+            17. nv config apply
+            16. run nv show system security password-hardening verify history-cnt = 10
+    """
+    system = System(None)
+    with allure.step("test password history with default history-cnt = 10"):
+        with allure.step('generate two valid password'):
+            new_password_1 = system.security.password_hardening.generate_password(is_valid=True)
+            new_password_2 = system.security.password_hardening.generate_password(is_valid=True)
+            logger.info("the first password is {first}, the second password is {second}".format(first=new_password_1, second=new_password_2))
+
+        with allure.step('set the monitor password to {} and apply configuration'.format(new_password_1)):
+            system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
+            system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').verify_result()
+            NvueGeneralCli.apply_config(engines.dut)
+
+        with allure.step('set the monitor password to {} and apply configuration'.format(new_password_2)):
+            system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_2 + '"').verify_result()
+            NvueGeneralCli.apply_config(engines.dut)
+
+        with allure.step("set the same password again - password = {}".format(new_password_2)):
+            assert "Password should be different than" in system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_2 + '"').info, "we can not set a previous password"
+
+        with allure.step("set the first password again - password = {}".format(new_password_1)):
+            assert "Password should be different than" in system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').info, "we can not set a previous password"
+
+    with allure.step("test password history after changing history-cnt to 1"):
+
+        with allure.step("set password-hardening history-cnt rule to 1"):
+            system.security.password_hardening.set(SystemConsts.USERNAME_PASSWORD_HARDENING_HISTORY_COUNT, '1')
+            NvueGeneralCli.apply_config(engines.dut, True)
+
+        with allure.step("set the same password again - password = {} and apply".format(new_password_2)):
+            system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').verify_result()
+            NvueGeneralCli.apply_config(engines.dut)
+
+        with allure.step("unset password-hardening history-cnt rule"):
+            system.security.password_hardening.unset(SystemConsts.USERNAME_PASSWORD_HARDENING_HISTORY_COUNT)
+            NvueGeneralCli.apply_config(engines.dut, True)
+
+        with allure.step("verify it's 10"):
+            security_output = OutputParsingTool.parse_json_str_to_dictionary(system.security.password_hardening.show()).verify_result()
+            assert security_output[SystemConsts.USERNAME_PASSWORD_HARDENING_HISTORY_COUNT] == '10', "the history count default value is 10"

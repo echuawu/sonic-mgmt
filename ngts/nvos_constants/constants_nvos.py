@@ -252,6 +252,7 @@ class SystemConsts:
     ROLE_CONFIGURATOR_DEFAULT_GROUPS = 'apply,set,show'
     ROLE_VIEWER_DEFAULT_GROUPS = 'show'
     USERNAME_MAX_LEN = 32
+    USERNAME_PASSWORD_HARDENING_HISTORY_COUNT = 'history-cnt'
     USERNAME_PASSWORD_HARDENING_STATE = 'state'
     USERNAME_VALID_CHARACTERS = list(map(chr, range(65, 91))) + list(map(chr, range(97, 123)))
     USERNAME_INVALID_CHARACTERS = list(map(chr, range(48, 57)))

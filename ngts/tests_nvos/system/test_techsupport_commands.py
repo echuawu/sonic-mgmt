@@ -1,7 +1,7 @@
 import pytest
-import allure
 import datetime
 import json
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
@@ -179,6 +179,22 @@ def test_techsupport_upload(engines):
         assert "is not a" in output.info, "URL used non supported transfer protocol"
 
 
+@pytest.mark.system
+def test_techsupport_multiple_times(engines, test_name):
+    """
+    Run nv show system tech-support files command and verify the required fields are exist
+    command: nv show system tech-support files
+
+    Test flow:
+        1. run nv action generate system tech-support 4 times in a row
+    """
+    system = System(None)
+    with allure.step('Run show/action system tech-support 4 times in a row'):
+        for i in range(0, 4):
+            with allure.step("Generate Tech-Support for the {} time".format(i)):
+                system.techsupport.action_generate(test_name=test_name)
+
+
 def validate_techsupport_output(output_dictionary_before, output_dictionary_after):
     with allure.step('Validating the generate command and show command working as expected'):
         new_folders = [file for file in output_dictionary_after if file not in output_dictionary_before]
@@ -212,3 +228,10 @@ def test_techsupport_since_openapi(engines, test_name):
 def test_techsupport_since_invalid_date_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_techsupport_since_invalid_date(engines)
+
+
+@pytest.mark.system
+@pytest.mark.openapi
+def test_techsupport_multiple_times_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_techsupport_multiple_times(engines)
