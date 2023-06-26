@@ -325,9 +325,6 @@ def test_show_platform_fanstatus_mocked(duthosts, enum_rand_one_per_hwsku_hostna
     """
     duthost = duthosts[enum_rand_one_per_hwsku_hostname]
 
-    # TODO: this code will be removed once the tests related to new hw tc are updated
-    skip_on_new_hw_tc_enable(duthost)
-
     # Mock data and check
     mocker = mocker_factory(duthost, 'FanStatusMocker')
     pytest_require(mocker, "No FanStatusMocker for %s, skip rest of the testing in this case" %
@@ -343,14 +340,12 @@ def test_show_platform_fanstatus_mocked(duthosts, enum_rand_one_per_hwsku_hostna
 @pytest.mark.disable_loganalyzer
 @pytest.mark.parametrize('ignore_particular_error_log', [SKIP_ERROR_LOG_SHOW_PLATFORM_TEMP], indirect=True)
 def test_show_platform_temperature_mocked(duthosts, enum_rand_one_per_hwsku_hostname,
+                                          suspend_and_resume_hw_tc_on_mellanox_device,
                                           mocker_factory, ignore_particular_error_log):  # noqa F811
     """
     @summary: Check output of 'show platform temperature'
     """
     duthost = duthosts[enum_rand_one_per_hwsku_hostname]
-
-    # TODO: this code will be removed once the tests related to new hw tc are updated
-    skip_on_new_hw_tc_enable(duthost)
 
     # Mock data and check
     mocker = mocker_factory(duthost, 'ThermalStatusMocker')
@@ -504,12 +499,3 @@ def test_thermal_control_fan_status(duthosts, enum_rand_one_per_hwsku_hostname, 
             single_fan_mocker.mock_normal_speed()
             check_cli_output_with_mocker(
                 duthost, single_fan_mocker, CMD_PLATFORM_FANSTATUS, THERMAL_CONTROL_TEST_WAIT_TIME, 2)
-
-
-# TODO: This function will be removed once the tests related to new hw tc are updated
-def skip_on_new_hw_tc_enable(duthost):
-    import re
-    hw_tc_status = duthost.command('sudo service hw-management-tc status', module_ignore_errors=True)['stdout']
-    hw_tc_running_reg = r'.*Active: active \(running\).*'
-    if re.findall(hw_tc_running_reg, hw_tc_status, flags=re.DOTALL):
-        pytest.skip("SKipping the test due to new hw tc being enabled")

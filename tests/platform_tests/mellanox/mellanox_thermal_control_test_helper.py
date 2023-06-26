@@ -3,6 +3,7 @@ import json
 import random
 import logging
 import time
+import re
 from pkg_resources import parse_version
 from tests.platform_tests.thermal_control_test_helper import mocker, FanStatusMocker, ThermalStatusMocker, \
     SingleFanMocker
@@ -844,7 +845,6 @@ class RandomFanStatusMocker(CheckMockerResultMixin, FanStatusMocker):
         # All system fan is controlled to have the same speed, so only
         # get a random value once here
         speed = random.randint(60, 100)
-        FanData.mock_cooling_cur_state(self.mock_helper, speed / 10)
         while fan_index <= MockerHelper.FAN_NUM:
             try:
                 if (fan_index - 1) % MockerHelper.FAN_NUM_PER_DRAWER == 0:
@@ -1378,3 +1378,21 @@ class RebootCauseMocker(object):
 
     def mock_reset_from_asic(self):
         self.mock_helper.mock_value(self.RESET_FROM_ASIC, 1)
+
+
+def suspend_hw_tc_service(dut):
+    """
+    Suspend thermal control service
+    """
+    logging.info("suspend hw tc service ")
+    dut.shell("sudo touch /var/run/hw-management/config/suspend")
+    dut.shell("sudo chown admin /var/run/hw-management/config/suspend")
+    dut.shell("sudo echo 1 > /var/run/hw-management/config/suspend")
+
+
+def resume_hw_tc_service(dut):
+    """
+    Resume hw thermal control service
+    """
+    logging.info("resume hw tc service ")
+    dut.shell("sudo rm -f /var/run/hw-management/config/suspend")
