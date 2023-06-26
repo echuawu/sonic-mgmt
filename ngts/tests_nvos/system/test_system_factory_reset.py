@@ -193,6 +193,13 @@ def test_reset_factory_keep_basic(engines):
                                                               expected_value='nvosdescription')
             mgmt_port.interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
 
+        with allure.step('Configure timezone'):
+            logger.info(
+                "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
+            with allure.step('Save configuration'):
+                NvueGeneralCli.save_config(engines.dut)
+
         with allure.step("Verify the setup is functional"):
             _verify_the_setup_is_functional(system, engines)
 
