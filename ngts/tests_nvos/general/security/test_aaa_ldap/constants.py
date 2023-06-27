@@ -37,7 +37,7 @@ class LdapConsts:
     DISABLED = 'disabled'
     ENABLED = 'enabled'
     DEFAULT = 'default'
-    START_TLS = 'start_tls'
+    START_TLS = 'start-tls'
     DEFAULT_CA_LIST = 'default-ca-list'
     TLS_1_2 = 'TLS1.2'
     TLS_1_3 = 'TLS1.3'
@@ -167,6 +167,43 @@ class LdapConsts:
         ]
     }
 
+    DOCKER_LDAP_SERVER_IPV4 = {
+        "hostname": "10.237.0.86",
+        "base-dn": "dc=itzgeek,dc=local",
+        "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
+        "password": "secret",
+        "login-attribute": "cn",
+        "group-attribute": "member",
+        # "scope": "subtree", not supported now
+        "auth-port": "389",
+        "timeout-bind": "1",
+        "timeout-search": "1",
+        "version": '3',
+        "priority": '2',
+        "users": [
+            {
+                'username': 'adminuser',  # TODO: change to volt once it is in
+                'password': 'asdasd',  # TODO: change to volt once it is in
+                'role': 'monitor'  # NOTE that adminuser in this server is with monitor permissions!
+            },
+            {
+                'username': 'monitoruser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'azmy',  # TODO: change to volt once it is in
+                'password': 'azmy',  # TODO: change to volt once it is in
+                'role': 'admin'
+            },
+            {
+                'username': 'alon',  # TODO: change to volt once it is in
+                'password': 'alon',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            }
+        ]
+    }
+
     DOCKER_LDAP_SERVER_DNS = {
         "hostname": "fit-l-vrt-60-086",
         "base-dn": "dc=itzgeek,dc=local",
@@ -260,7 +297,7 @@ class LdapConsts:
     DNS = 'dns'
 
     SERVER_INFO = {
-        IPV4: PHYSICAL_LDAP_SERVER,
+        IPV4: DOCKER_LDAP_SERVER_IPV4,
         IPV6: DOCKER_LDAP_SERVER,
         DNS: DOCKER_LDAP_SERVER_DNS
     }
@@ -268,3 +305,12 @@ class LdapConsts:
     TLS = 'tls'
     CONNECTION_METHODS = [IPV4, IPV6, DNS]
     ENCRYPTION_MODES = [NONE, TLS, SSL]
+
+    DOCKER_LDAP_SERVER_CERT_PATH = \
+        '/auto/sw_system_project/NVOS_INFRA/security/verification/ldap/custom_ldap_server_cert.pem'
+    SWITCH_TMP_PATH = '/tmp'
+    SERVER_CERT_FILE_IN_SWITCH = '/tmp/custom_ldap_server_cert.pem'
+    SWITCH_CA_FILE = '/etc/ssl/certs/ca-certificates.crt'
+    SWITCH_CA_BACKUP_FILE = '/tmp/backup_ca-certificates.crt'
+
+    PERMISSION_DENIED = 'Permission denied'

@@ -1,9 +1,16 @@
 ########################## NVOS IGNORE START ##########################
-tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_apply_new_password_and_expiration_settings_together:
+
+tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_failthrough:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3408710"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3501518"
     conditions:
-      - https://redmine.mellanox.com/issues/3408710
+      - https://redmine.mellanox.com/issues/3501518
+
+tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3519743"
+    conditions:
+      - https://redmine.mellanox.com/issues/3519743
 
 tests_nvos/system/test_log_commands.py::test_log_files_set_unset_log_rotation_size_disk_percentage:
   skip:

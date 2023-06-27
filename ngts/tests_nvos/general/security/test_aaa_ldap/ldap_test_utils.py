@@ -1,6 +1,9 @@
 import random
 import time
+import subprocess
 import logging
+
+from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -14,7 +17,6 @@ from ngts.tests_nvos.general.security.constants import AuthConsts
 from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
     configure_authentication, validate_services_and_dockers_availability
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
-from ngts.tests_nvos.infra.init_flow.init_flow import test_system_dockers, test_system_services
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -198,21 +200,14 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode):
     @param encryption_mode: in [NONE, START_TLS, SSL]
     """
     with allure.step(f'Configure ldap encryption: {encryption_mode}'):
+        conf_to_set = {LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED}
         if encryption_mode == LdapConsts.TLS:
-            configure_resource(engines, ldap_obj.ssl, conf={
-                LdapConsts.SSL_MODE: LdapConsts.START_TLS,
-                LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED
-            })
+            conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.START_TLS
         elif encryption_mode == LdapConsts.SSL:
-            configure_resource(engines, ldap_obj.ssl, conf={
-                LdapConsts.SSL_MODE: LdapConsts.START_TLS,
-                LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED
-            })
+            conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.SSL
         elif encryption_mode == LdapConsts.NONE:
-            configure_resource(engines, ldap_obj.ssl, conf={
-                LdapConsts.SSL_MODE: LdapConsts.NONE,
-                LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED
-            })
+            conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.NONE
+        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set)
 
 
 def configure_resource(engines, resource_obj: BaseComponent, conf, apply=True):
@@ -249,3 +244,16 @@ def configure_resource(engines, resource_obj: BaseComponent, conf, apply=True):
             with allure.step('Apply all changes'):
                 SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
                                                 engines.dut, True).verify_result()
+
+
+def add_ldap_server_certificate_to_switch(engines):
+    """
+    @summary: Add ldap server certificate to the switch
+    """
+    with allure.step('Append server certificate to certificates file'):
+        engines.dut.run_cmd(
+            f"sudo sh -c 'cat {LdapConsts.SERVER_CERT_FILE_IN_SWITCH} >> {LdapConsts.SWITCH_CA_FILE}'")
+
+    with allure.step('Restart nslcd service'):
+        engines.dut.run_cmd('sudo service nslcd restart')
+        time.sleep(3)

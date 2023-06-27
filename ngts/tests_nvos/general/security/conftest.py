@@ -122,9 +122,11 @@ def is_secure_boot_enabled(engines):
 @pytest.fixture(scope='function')
 def reset_aaa():
     """
-    @summary: fixture to reset aaa configuration after test
+    @summary: fixture to reset aaa configuration before and after test
     """
     aaa_obj = System().aaa
+    with allure.step('Reset aaa configuration before test'):
+        aaa_obj.unset(apply=True)
 
     yield
 

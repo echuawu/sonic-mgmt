@@ -1,4 +1,7 @@
 import logging
+from time import sleep
+
+from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.tools.test_utils import allure_utils as allure
 import pytest
 
@@ -6,29 +9,23 @@ from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 
 
-def disable_ldap_feature(dut_engine):
-    '''
-    @summary: in this test case we want to remove ldap configuration as a remote aaa method
-    '''
-    logging.info("re-adjusting auth. method back to local only")
-    dut_engine.run_cmd('nv set system aaa authentication order local')
-    dut_engine.run_cmd("nv set system aaa authentication fallback disabled")
-    dut_engine.run_cmd("nv set system aaa authentication fallback disabled")
-    dut_engine.run_cmd("nv config apply -y")
-
-
 @pytest.fixture(scope='function', autouse=False)
 def remove_ldap_configurations(engines):
     '''
     @summary: remove all ldap configurations
     '''
+    with allure.step("Before test: Removing ldap configurations"):
+        system = System()
+        system.aaa.unset(apply=True, ask_for_confirmation=True)
+        system.aaa.ldap.show(output_format=OutputFormat.auto)
+        system.aaa.authentication.show(output_format=OutputFormat.auto)
+
     yield
 
-    disable_ldap_feature(engines.dut)
-    with allure.step("Removing ldap configurations"):
-        logging.info("Removing ldap configurations")
-        system = System()
-        system.aaa.ldap.unset(apply=True, ask_for_confirmation=True)
+    with allure.step("After test: Removing ldap configurations"):
+        system.aaa.unset(apply=True, ask_for_confirmation=True)
+        system.aaa.ldap.show(output_format=OutputFormat.auto)
+        system.aaa.authentication.show(output_format=OutputFormat.auto)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -54,4 +51,25 @@ def alias_docker_ldap_server_dns(engines):
     yield
 
     with allure.step('After tests: Remove docker ldap server alias from the switch'):
-        engines.dut.run_cmd("sudo sed -i '$ d' /etc/hosts")
+        # engines.dut.run_cmd("sudo sed -i '$ d' /etc/hosts")
+        engines.dut.run_cmd("sudo sed -i '/10\\.237\\.0\\.86 ldap\\.itzgeek\\.local/d' /etc/hosts")
+
+
+@pytest.fixture(scope='function', autouse=False)
+def backup_and_restore_certificates(engines):
+    """
+    @summary: To allow the switch work with the docker ldap server with cert-verify enabled,
+        we need to get the right certificate, which is kept in specific shared location.
+    """
+    with allure.step('Before tests: Add ldap server certificate'):
+        with allure.step('Backup original certificates file'):
+            engines.dut.run_cmd(f'sudo cp -f {LdapConsts.SWITCH_CA_FILE} {LdapConsts.SWITCH_CA_BACKUP_FILE}')
+
+    yield
+
+    with allure.step('After tests: Restore certificates file'):
+        engines.dut.run_cmd(f"sudo mv -f {LdapConsts.SWITCH_CA_BACKUP_FILE} {LdapConsts.SWITCH_CA_FILE}")
+
+    with allure.step('Restart nslcd service'):
+        engines.dut.run_cmd('sudo service nslcd restart')
+        sleep(3)
