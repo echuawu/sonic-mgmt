@@ -1008,38 +1008,6 @@
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/30" StartDevice="r-moose-01" StartPort="Ethernet232"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/31" StartDevice="r-moose-01" StartPort="Ethernet240"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/32" StartDevice="r-moose-01" StartPort="Ethernet248"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/33" StartDevice="r-moose-01" StartPort="Ethernet256"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/34" StartDevice="r-moose-01" StartPort="Ethernet264"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/35" StartDevice="r-moose-01" StartPort="Ethernet272"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/36" StartDevice="r-moose-01" StartPort="Ethernet280"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/37" StartDevice="r-moose-01" StartPort="Ethernet288"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/38" StartDevice="r-moose-01" StartPort="Ethernet296"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/39" StartDevice="r-moose-01" StartPort="Ethernet304"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/40" StartDevice="r-moose-01" StartPort="Ethernet312"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/41" StartDevice="r-moose-01" StartPort="Ethernet320"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/42" StartDevice="r-moose-01" StartPort="Ethernet328"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/43" StartDevice="r-moose-01" StartPort="Ethernet336"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/44" StartDevice="r-moose-01" StartPort="Ethernet344"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/45" StartDevice="r-moose-01" StartPort="Ethernet352"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/46" StartDevice="r-moose-01" StartPort="Ethernet360"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/47" StartDevice="r-moose-01" StartPort="Ethernet368"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/48" StartDevice="r-moose-01" StartPort="Ethernet376"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/49" StartDevice="r-moose-01" StartPort="Ethernet384"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/50" StartDevice="r-moose-01" StartPort="Ethernet392"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/51" StartDevice="r-moose-01" StartPort="Ethernet400"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/52" StartDevice="r-moose-01" StartPort="Ethernet408"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/53" StartDevice="r-moose-01" StartPort="Ethernet416"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/54" StartDevice="r-moose-01" StartPort="Ethernet424"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/55" StartDevice="r-moose-01" StartPort="Ethernet432"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/56" StartDevice="r-moose-01" StartPort="Ethernet440"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/57" StartDevice="r-moose-01" StartPort="Ethernet448"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/58" StartDevice="r-moose-01" StartPort="Ethernet456"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/59" StartDevice="r-moose-01" StartPort="Ethernet464"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/60" StartDevice="r-moose-01" StartPort="Ethernet472"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/61" StartDevice="r-moose-01" StartPort="Ethernet480"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-liger-12" EndPort="ethernet 1/62" StartDevice="r-moose-01" StartPort="Ethernet488"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-liger-12" EndPort="ethernet 1/63/1" StartDevice="r-moose-01" StartPort="Ethernet496"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-liger-12" EndPort="ethernet 1/63/2" StartDevice="r-moose-01" StartPort="Ethernet504"/>
 
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-01" EndPort="ethernet 1/1" StartDevice="mtvr-moose-02" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-liger-01" EndPort="ethernet 1/2" StartDevice="mtvr-moose-02" StartPort="Ethernet8"/>
