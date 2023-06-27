@@ -93,7 +93,7 @@ class File(Files):
                                                                 expected_str, TestToolkit.engines.dut, 'delete',
                                                                 resource_path).get_returned_value()
 
-    def action_rename(self, new_name, expected_str=""):
+    def action_rename(self, new_name, expected_str="", rewrite_file_name=True):
         resource_path = self.get_resource_path()
         with allure.step("Rename {resource_path} file {original_name}, new name: {new_name}"
                          .format(resource_path=resource_path, original_name=self.file_name, new_name=new_name)):
@@ -102,7 +102,7 @@ class File(Files):
             result = SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
                                                                   expected_str, TestToolkit.engines.dut, 'rename',
                                                                   resource_path, new_name).get_returned_value()
-            if result:
+            if result and rewrite_file_name:
                 self.file_name = new_name
                 self._resource_path = '/{file_name}'.format(file_name=self.file_name)
             return result
@@ -116,6 +116,11 @@ class File(Files):
                                                                 resource_path)
 
     def rename_and_verify(self, new_name):
+        original_name = self.file_name
+        self.action_rename(new_name)
+        self.parent_obj.verify_show_files_output(expected_files=[new_name], unexpected_files=[original_name])
+
+    def rename_and_verify_firmware(self, new_name):
         original_name = self.file_name
         self.action_rename(new_name)
         self.parent_obj.verify_show_files_output(expected_files=[new_name], unexpected_files=[original_name])

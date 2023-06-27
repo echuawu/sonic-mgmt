@@ -1,12 +1,16 @@
 import logging
 import pytest
 import allure
+import string
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.Fae import Fae
+from ngts.nvos_tools.system.Files import File
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_constants.constants_nvos import ImageConsts
+from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
 
@@ -180,6 +184,104 @@ def test_set_unset_system_firmware_default(engines):
         verify_firware_value(system, "default", "image")
 
 
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_firmware_image_rename(engines, devices, topology_obj):
+    """
+    Check the image rename cmd.
+    Validate that install and delete commands will success with the new name
+    and will fail with the old name.
+    1. Fetch random image, fetch image without mfa ending
+    2. Rename image without mfa ending, rename image, rename existing image
+    3. Install original image name, should fail
+    4. Delete the original image name , should fail
+    5. Install new image name , success
+    6. Uninstall image
+    7. Delete the new image name , success
+    """
+    system = System()
+    dut = devices.dut
+    original_images, original_image, fetched_image, default_firmware = \
+        get_image_data_and_fetch_random_image_files(system, dut, topology_obj)
+    fetched_image_file = File(system.firmware.files, fetched_image)
+
+    with allure.step("Rename image without mfa ending"):
+        system.firmware.action_fetch(url="scp://username[:password]@hostname/path/filename",
+                                     expected_str="firmware file must have mfa extension")
+
+    with allure.step("Rename image without mfa ending"):
+        new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits)
+        fetched_image_file.action_rename(new_name, expected_str="firmware file must have mfa extension",
+                                         rewrite_file_name=False)
+
+    with allure.step("Rename image and verify"):
+        new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits) + '.mfa'
+        fetched_image_file.rename_and_verify(new_name)
+
+    with allure.step("Rename already exist image and verify"):
+        fetched_image_file.action_rename(new_name, expected_str="already exists")
+
+    with allure.step("Install original image name, should fail"):
+        logging.info("Install original image name: {}, should fail".format(fetched_image))
+        system.firmware.action_install_fw(fetched_image, "Action failed")
+
+    with allure.step("Delete original image name, should fail"):
+        logging.info("Delete original image name, should fail")
+        system.firmware.files.delete_system_files([fetched_image], "File not found")
+
+    try:
+        with allure.step("Install new image name"):
+            logging.info("Install new image name: {}".format(new_name))
+            new_image_renamed = File(system.firmware.files, new_name)
+            new_image_renamed.action_file_install().verify_result()
+    finally:
+        system.firmware.action_install_fw(default_firmware, "Action succeeded")
+        system.firmware.files.delete_system_files([new_name], "Action succeeded")
+
+
+@pytest.mark.checklist
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_firmware_image_upload(engines, devices, topology_obj):
+    """
+    Uploading image file to player and validate.
+    1. Fetch random image
+    2. Upload image to player
+    3. Validate image uploaded to player
+    4. Delete image file from player
+    5. Delete image file from dut
+    """
+    system = System()
+    dut = devices.dut
+    original_images, original_image, fetched_image = get_image_data_and_fetch_random_image_files(system, dut,
+                                                                                                 topology_obj)
+    upload_protocols = ['scp', 'sftp']
+    player = engines['sonic_mgmt']
+    image_file = File(system.firmware.files, fetched_image)
+
+    with allure.step("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols)):
+        logging.info("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols))
+
+        for protocol in upload_protocols:
+            with allure.step("Upload image to player with {} protocol".format(protocol)):
+                logging.info("Upload image to player with {} protocol".format(protocol))
+                upload_path = '{}://{}:{}@{}/tmp/{}'.format(protocol, player.username, player.password, player.ip, fetched_image)
+                image_file.action_upload(upload_path, expected_str='File upload successfully')
+
+            with allure.step("Validate file was uploaded to player and delete it"):
+                logging.info("Validate file was uploaded to player and delete it")
+                assert player.run_cmd(cmd='ls /tmp/ | grep {}'.format(fetched_image)), "Did not find the file with ls cmd"
+                player.run_cmd(cmd='rm -f /tmp/{}'.format(fetched_image))
+
+    with allure.step("Delete file from player"):
+        logging.info("Delete file from player")
+        system.firmware.files.delete_system_files([fetched_image])
+        system.firmware.files.verify_show_files_output(unexpected_files=[fetched_image])
+
+
 def set_firmware_default(system, value):
     logging.info("Setting firmware default to '{}'".format(value))
     system.firmware.set("default", value)
@@ -225,3 +327,31 @@ def compare_asic_names(first_dictionary, second_dictionary):
 def compare_asic_fields(first_dictionary, second_dictionary):
     logging.info("Compare asic fields")
     ValidationTool.compare_dictionaries(first_dictionary, second_dictionary).verify_result()
+
+
+def get_image_data_and_fetch_random_image_files(system, dut, topology_obj, images_amount_to_fetch=1):
+    original_images, original_image, default_firmware = get_image_data(system, dut)
+
+    with allure.step("Get {} available image files".format(images_amount_to_fetch)):
+        asic_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
+            'chip_type']
+        image_to_fetch = '/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/fw-{}-'.format(asic_type) + \
+                         ImageConsts.FW_STABLE_VERSION
+        image_name = 'fw-{}-'.format(asic_type) + ImageConsts.FW_STABLE_VERSION
+        with allure.step("Fetch an image {}".format(ImageConsts.SCP_PATH + image_to_fetch)):
+            system.firmware.action_fetch(ImageConsts.SCP_PATH + image_to_fetch)
+    return original_images, original_image, image_name, default_firmware
+
+
+def get_image_data(system, dut):
+    with allure.step("Save original installed image name"):
+        original_images = system.firmware.get_fw_image_field_values()
+        original_image = original_images[ImageConsts.ACTUAL_FIRMWARE]
+        if dut.ASIC_TYPE == "Quantum2":
+            default_firmware = 'fw-QTM2.mfa'
+        elif dut.ASIC_TYPE == "Quantum":
+            default_firmware = 'fw-QTM.mfa'
+        else:
+            default_firmware = 'fw-SIB2.mfa'
+        logging.info("Actual firmware: {}".format(original_image))
+        return original_images, original_image, default_firmware

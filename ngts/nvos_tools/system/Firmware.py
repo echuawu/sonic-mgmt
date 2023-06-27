@@ -6,6 +6,9 @@ from ngts.nvos_constants.constants_nvos import ApiType, ActionConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_constants.constants_nvos import ImageConsts
+from ngts.nvos_tools.system.Files import Files
 from ngts.nvos_tools.system.Asic import Asic
 logger = logging.getLogger()
 
@@ -18,9 +21,43 @@ class Firmware(BaseComponent):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/firmware'
         self.parent_obj = parent_obj
+        self.files = Files(self)
 
-    def action_install_fw(self, fw_file_path):
+    def _action(self, action_type, op_param="", expected_str="Action succeeded"):
+        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_firmware_image,
+                                                            expected_str,
+                                                            TestToolkit.engines.dut,
+                                                            action_type, self.get_resource_path(), op_param).get_returned_value()
+
+    def action_install_fw(self, fw_file_path='', expected_str="Action succeeded"):
         with allure.step("Install system firmware: '{path}'".format(path=fw_file_path)):
             logging.info("Install system firmware: '{path}'".format(path=fw_file_path))
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_firmware_install,
-                                                   TestToolkit.engines.dut, fw_file_path).get_returned_value()
+            if TestToolkit.tested_api == ApiType.OPENAPI and expected_str == "Action succeeded":
+                expected_str = 'File fetched successfully'
+            return SendCommandTool.execute_command_expected_str(
+                self.api_obj[TestToolkit.tested_api].action_firmware_install, expected_str,
+                TestToolkit.engines.dut, fw_file_path).get_returned_value()
+
+    def action_fetch(self, url="", expected_str="Action succeeded"):
+        with allure.step("Image fetch {url} ".format(url=url)):
+            logging.info("Image fetch {url} system image".format(url=url))
+            if TestToolkit.tested_api == ApiType.OPENAPI and expected_str == "Action succeeded":
+                expected_str = 'File fetched successfully'
+            return self._action(ActionConsts.FETCH, url, expected_str)
+
+    def action_boot_next(self, partition_id, expected_str=''):
+        with allure.step("Set image '{id}' to boot next".format(id=partition_id)):
+            logging.info("Set image '{id}' to boot next".format(id=partition_id))
+            return self._action(ActionConsts.BOOT_NEXT, partition_id, expected_str)
+
+    def get_fw_image_field_values(self, field_names=[ImageConsts.ACTUAL_FIRMWARE, ImageConsts.INSTALLED_FIRMWARE]):
+        output = OutputParsingTool.parse_json_str_to_dictionary(BaseComponent.show(self)).get_returned_value()
+        values = {}
+        fw_asic = ImageConsts.FW_ASIC
+        asic = ImageConsts.ASIC
+        for field_name in field_names:
+            if field_name in output[asic][fw_asic].keys():
+                values[field_name] = output[asic][fw_asic].get(field_name, "")
+            else:
+                values[field_name] = ""
+        return values

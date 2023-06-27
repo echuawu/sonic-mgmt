@@ -425,6 +425,12 @@ class ImageConsts:
     CURRENT_IMG = 'current'
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
+    ACTUAL_FIRMWARE = 'actual-firmware'
+    INSTALLED_FIRMWARE = 'installed-firmware'
+    TYPE = 'type'
+    ASIC = 'asic'
+    FW_ASIC = 'ASIC'
+    FW_STABLE_VERSION = 'rel-31_2010_4100-004-EVB.mfa'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                        'fit70')
 
