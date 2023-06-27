@@ -2444,6 +2444,16 @@
     - Redmine:
         - 3447925
 
+- Errors_list:
+    - '.* ERR neighbor_advertiser: EVERFLOW table does not exist.*'
+  Conditions:
+    - Affected_test_cases:
+        - decap/test_decap.py
+      Redmine:
+        - 3431638
+      Platform:
+        - 5600
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
