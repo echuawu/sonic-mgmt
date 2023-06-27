@@ -41,14 +41,32 @@ class DutUtilsTool:
         return result_obj
 
     @staticmethod
+    def run_cmd_and_reconnect(engine, command, find_prompt_tries=5, find_prompt_delay=2):
+        """
+            this tool will help u to run commands that disconnect the admin
+
+        :param engine:
+        :param command:
+        :param find_prompt_tries:
+        :param find_prompt_delay:
+        :return:
+        """
+        with allure.step('Run {} and reconnect'.format(command)):
+            engine.send_config_set(command, exit_config_mode=False, cmd_verify=False)
+            engine.disconnect()
+            retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
+
+            return ResultObj(result=True, info="Reconnected After Running {}".format(command))
+
+    @staticmethod
     def wait_for_nvos_to_become_functional(engine, find_prompt_tries=60, find_prompt_delay=10):
         with allure.step('wait until the system is ready - check SYSTEM_STATE table'):
             with allure.step('wait for the system table to exist'):
                 wait_for_system_table_to_exist(engine)
 
             # after merge we need to check if '(empty array)' in output then table is missed
-            # if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
-                # return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
+            if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+                return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
 
             with allure.step('wait until the CLI is up'):
                 time.sleep(5)
@@ -58,8 +76,6 @@ class DutUtilsTool:
 
 @retry(False, tries=60, delay=10)
 def wait_for_system_table_to_exist(engine):
-    time.sleep(90)  # to delete after merge
-    return True     # to delete after merge
     if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
         logger.info('Waiting to SYSTEM_STATUS table to be available')
         return False

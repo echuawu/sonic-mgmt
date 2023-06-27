@@ -12,15 +12,11 @@ class NvueSystemCli(NvueBaseCli):
         self.cli_name = "System"
 
     @staticmethod
-    def action_image(engine, action_str, action_component_str, op_param="", should_reboot_after_action=True):
+    def action_image(engine, action_str, action_component_str, op_param=""):
         cmd = "nv action {action_type} system image {param}".format(action_type=action_str, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        if action_str == ActionConsts.INSTALL:
-            return engine.run_cmd_set([cmd, 'y'], patterns_list=[r"Operation will reboot the system."],
-                                      tries_after_run_cmd=1)
-        else:
-            return engine.run_cmd(cmd)
+        return engine.run_cmd(cmd)
 
     @staticmethod
     def action_upload(engine, path, file_name, url, op_param=""):

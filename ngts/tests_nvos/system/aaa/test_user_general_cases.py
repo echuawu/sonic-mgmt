@@ -1,8 +1,8 @@
 import logging
-import random
-import allure
 import pytest
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -107,6 +107,18 @@ def test_disconnect_nonuser(engines):
     system.aaa.user.set_username(username)
     output = NvueSystemCli.action_disconnect(engines.dut, system.aaa.user.get_resource_path().replace('/', ' '))
     assert 'does not exist' in output, "{username} is not a user!".format(username=username)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+def test_disconnect_all_users(engines):
+    """
+    Test flow:
+            1. run nv action disconnect system aaa user
+
+    """
+    command = "nv action disconnect system aaa user"
+    DutUtilsTool.run_cmd_and_reconnect(engine=engines.dut, command=command).verify_result()
 
 
 def verify_after_disconnect(dut_engine, system, action_output, username, password, connections_count):
