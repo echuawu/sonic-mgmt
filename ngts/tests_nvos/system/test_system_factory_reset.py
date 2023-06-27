@@ -589,7 +589,7 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
                 else:
                     create_time = datetime.strptime(output.split(".")[0], f'%Y-%m-%dT%H:%M:%S')
 
-                if docker_name == "database":
+                if "database" in docker_name:
                     if create_time != orig_create_time:
                         errors += "reset factory should not restart database docker"
                 else:

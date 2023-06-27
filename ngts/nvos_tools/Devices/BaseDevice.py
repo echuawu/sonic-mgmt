@@ -371,75 +371,6 @@ class BaseSwitch(BaseDevice, ABC):
         self.user_fields = ['admin', 'monitor']
 
 
-# -------------------------- Gorilla Switch ----------------------------
-class GorillaSwitch(BaseSwitch):
-    GORILLA_IB_PORT_NUM = 64
-    SWITCH_CORE_COUNT = 4
-    ASIC_TYPE = 'Quantum2'
-    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
-    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
-    CATEGORY_DEFAULT_DISABLED_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.State.DISABLED.value
-    }
-    CATEGORY_DEFAULT_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
-    }
-    CATEGORY_DISK_DEFAULT_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
-    }
-    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.State.DISABLED.value
-    }
-    CATEGORY_DISABLED_DICT = {
-        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
-    }
-    CATEGORY_LIST_DEFAULT_DICT = {
-        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
-        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
-    }
-
-    def __init__(self):
-        BaseSwitch.__init__(self)
-        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format("x86_64-mlnx_mqm9700-r0")
-
-    def ib_ports_num(self):
-        return self.GORILLA_IB_PORT_NUM
-
-    def _init_ib_speeds(self):
-        BaseSwitch._init_ib_speeds(self)
-        self.invalid_ib_speeds.update({'qdr': '40G'})
-        self.supported_ib_speeds.pop('qdr')
-        self.supported_ib_speeds.update({'ndr': '400G'})
-
-    def _init_fan_list(self):
-        BaseSwitch._init_fan_list(self)
-        self.fan_list.append("FAN7/1")
-        self.fan_list.append("FAN7/2")
-        self.fan_led_list.append('FAN7')
-
-    def _init_temperature(self):
-        BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
-
-
 # -------------------------- Jaguar Switch ----------------------------
 class JaguarSwitch(BaseSwitch):
     JAGUAR_IB_PORT_NUM = 40
@@ -514,6 +445,14 @@ class MultiAsicSwitch(BaseSwitch):
     def _init_available_databases(self):
         BaseSwitch._init_available_databases(self)
         self.available_tables = {'database': self.available_tables}
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update(
+            {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2,
+             "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
+             "LANES": 0,
+             "VIDCOUNTER": 0,
+             "RIDTOVID": 0,
+             "HIDDEN": 0,
+             "COLDVIDS": 0})
 
     def _init_services(self):
         BaseSwitch._init_services(self)
@@ -600,13 +539,6 @@ class MarlinSwitch(MultiAsicSwitch):
 
     def _init_available_databases(self):
         MultiAsicSwitch._init_available_databases(self)
-        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2,
-                                                                            "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
-                                                                            "LANES": 0,
-                                                                            "VIDCOUNTER": 0,
-                                                                            "RIDTOVID": 0,
-                                                                            "HIDDEN": 0,
-                                                                            "COLDVIDS": 0})
 
         available_tables_per_asic = {
             DatabaseConst.APPL_DB_ID:
@@ -679,3 +611,71 @@ class AnacondaSwitch(BaseSwitch):
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
         self.platform_env_psu_prop = ["state"]
+
+
+# -------------------------- Gorilla Switch ----------------------------
+class GorillaSwitch(MultiAsicSwitch):
+    GORILLA_IB_PORT_NUM = 64
+    SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'Quantum2'
+    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
+    ASIC_AMOUNT = 1
+
+    def __init__(self):
+        MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format("x86_64-mlnx_mqm9700-r0")
+
+    def ib_ports_num(self):
+        return self.GORILLA_IB_PORT_NUM
+
+    def _init_ib_speeds(self):
+        BaseSwitch._init_ib_speeds(self)
+        self.invalid_ib_speeds.update({'qdr': '40G'})
+        self.supported_ib_speeds.pop('qdr')
+        self.supported_ib_speeds.update({'ndr': '400G'})
+
+    def _init_fan_list(self):
+        BaseSwitch._init_fan_list(self)
+        self.fan_list.append("FAN7/1")
+        self.fan_list.append("FAN7/2")
+        self.fan_led_list.append('FAN7')
+
+    def _init_temperature(self):
+        BaseSwitch._init_temperature(self)
+        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
+
+    def _init_available_databases(self):
+        MultiAsicSwitch._init_available_databases(self)
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num(),
+                                                                            "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
+                                                                            "LANES": 0,
+                                                                            "VIDCOUNTER": 0,
+                                                                            "RIDTOVID": 0,
+                                                                            "HIDDEN": 0,
+                                                                            "COLDVIDS": 0})
+
+        available_tables_per_asic = {
+            DatabaseConst.APPL_DB_ID:
+                {"IB_PORT_TABLE:Infiniband": self.ib_ports_num(),
+                 "ALIAS_PORT_MAP": self.ib_ports_num(),
+                 "IB_PORT_TABLE:Port": 2},
+            DatabaseConst.ASIC_DB_ID:
+                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,
+                 "LANES": 1,
+                 "VIDCOUNTER": 1,
+                 "RIDTOVID": 1,
+                 "HIDDEN": 1,
+                 "COLDVIDS": 1},
+            DatabaseConst.COUNTERS_DB_ID:
+                {"COUNTERS_PORT_NAME_MAP": 1,
+                 "COUNTERS:oid": self.ib_ports_num() / 2},
+            DatabaseConst.CONFIG_DB_ID:
+                {"IB_PORT": self.ib_ports_num() / 2,
+                 "BREAKOUT_CFG": self.ib_ports_num() / 2,
+                 "FEATURE": 6,
+                 "CONFIG_DB_INITIALIZED": 1,
+                 "DEVICE_METADATA": 1,
+                 "VERSIONS": 0,
+                 "KDUMP": 0}
+        }
+        self.available_tables.update({'database0': available_tables_per_asic})
