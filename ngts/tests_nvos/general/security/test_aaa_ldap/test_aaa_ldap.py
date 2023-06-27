@@ -21,6 +21,14 @@ from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfig
 from ngts.tools.test_utils import allure_utils as allure
 
 
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_alon_alon_alon(engines, test_api):
+    TestToolkit.tested_api = test_api
+    with allure.step('assert x == 8'):
+        x = 8
+        assert x == 8, 'ERROR'
+
+
 def test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
     """
     @summary: in this test case we want to validate the functionality of the priority
@@ -193,7 +201,7 @@ def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations
 
 
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ldap_set_show_unset(test_api, engines, remove_ldap_configurations):
+def test_ldap_set_show_unset(test_api, engines):
     """
     @summary: in this test case we want to validate ldap commands:
         1. set

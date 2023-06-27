@@ -147,7 +147,7 @@ class LdapConsts:
             {
                 'username': 'adminuser',  # TODO: change to volt once it is in
                 'password': 'asdasd',  # TODO: change to volt once it is in
-                'role': 'monitor'
+                'role': 'monitor'  # NOTE that adminuser in this server is with monitor permissions!
             },
             {
                 'username': 'monitoruser',  # TODO: change to volt once it is in
@@ -184,7 +184,7 @@ class LdapConsts:
             {
                 'username': 'adminuser',  # TODO: change to volt once it is in
                 'password': 'asdasd',  # TODO: change to volt once it is in
-                'role': 'monitor'
+                'role': 'monitor'  # NOTE that adminuser in this server is with monitor permissions!
             },
             {
                 'username': 'monitoruser',  # TODO: change to volt once it is in
@@ -203,6 +203,45 @@ class LdapConsts:
             }
         ]
     }
+
+    DOCKER_LDAP_SERVER_DNS_WITH_CERT = {
+        "hostname": "ldap.itzgeek.local",
+        "base-dn": "dc=itzgeek,dc=local",
+        "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
+        "password": "secret",
+        "login-attribute": "cn",
+        "group-attribute": "member",
+        # "scope": "subtree", not supported now
+        "auth-port": "389",
+        "timeout-bind": "1",
+        "timeout-search": "1",
+        "version": '3',
+        "priority": '3',
+        "users": [
+            {
+                'username': 'adminuser',  # TODO: change to volt once it is in
+                'password': 'asdasd',  # TODO: change to volt once it is in
+                'role': 'monitor'  # NOTE that adminuser in this server is with monitor permissions!
+            },
+            {
+                'username': 'monitoruser',  # TODO: change to volt once it is in
+                'password': 'asd',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            },
+            {
+                'username': 'azmy',  # TODO: change to volt once it is in
+                'password': 'azmy',  # TODO: change to volt once it is in
+                'role': 'admin'
+            },
+            {
+                'username': 'alon',  # TODO: change to volt once it is in
+                'password': 'alon',  # TODO: change to volt once it is in
+                'role': 'monitor'
+            }
+        ]
+    }
+
+    DOCKER_LDAP_SERVER_HOST_ALIAS = '10.237.0.86 ldap.itzgeek.local'
 
     LDAP_SERVERS_LIST = [
         PHYSICAL_LDAP_SERVER,
