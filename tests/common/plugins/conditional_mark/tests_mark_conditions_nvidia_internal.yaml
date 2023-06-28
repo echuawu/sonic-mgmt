@@ -518,6 +518,32 @@ tests/nightly/ecmp_calculator/test_ecmp_calculator.py:
       - "https://redmine.mellanox.com/issues/3332330 and 'sn4600' in platform"
       - "https://redmine.mellanox.com/issues/3332330 and 'sn2201' in platform"
 
+tests/nightly/dynamic_port_breakout/:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3519038 on SPC4"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3519038 and 'sn5' in platform"
+
+tests/nightly/lag/test_lag.py::test_lag_members_scale:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3519693 on SPC4"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3519693 and 'sn5' in platform"
+
+tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3519693 on MSN4410 Platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3519693 and 'msn4410' in platform"
+
+tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3518706 on MSN4410 Platform and https://redmine.mellanox.com/issues/3518820 on SN2700 platform"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
+      - "https://redmine.mellanox.com/issues/3518820 and 'sn27' in platform"
+
 tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag_without_fdb:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416551"
@@ -603,6 +629,12 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
     conditions:
       - https://redmine.mellanox.com/issues/3225815
+
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_target_speed:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3519061"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3519061"
 
 radv/test_radv_restart.py::test_radv_swss:
   skip:
