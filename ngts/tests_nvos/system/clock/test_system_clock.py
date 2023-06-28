@@ -383,7 +383,7 @@ def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, nt
         elif bad_datetime == '':
             errs = ClockConsts.ERR_EMPTY_PARAM
         elif len(bad_datetime.split(' ')) == 1:
-            if ClockTools.is_valid_system_date(bad_datetime):
+            if ClockTools.is_valid_system_date(bad_datetime, check_range=False):
                 errs = ClockConsts.ERR_EMPTY_PARAM
             else:
                 errs = [ClockConsts.ERR_INVALID_DATE.format(bad_datetime)]

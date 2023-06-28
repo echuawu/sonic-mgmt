@@ -171,22 +171,25 @@ class ClockTools:
         return True
 
     @staticmethod
-    def is_valid_system_date(s):
+    def is_valid_system_date(s, check_range=True):
         """
         @summary:
             Check if a given string represents a valid date,
                 between ClockConsts.MIN_SYSTEM_DATE to ClockConsts.MAX_SYSTEM_DATE.
             * valid date - in 'YYYY-MM-DD' format , and the represented date exists in the calendar
         @param s: the given string to be checked
+        @param check_range: whether to check if given s is a date in the valid system dates range
         @return: [True/False] whether the given string is a valid system date or not
         """
         try:
             s_date = dt.date.fromisoformat(s)  # parse s, validate its format, and verify its a real date
-            min_date = dt.date.fromisoformat(ClockConsts.MIN_SYSTEM_DATE)
-            max_date = dt.date.fromisoformat(ClockConsts.MAX_SYSTEM_DATE)
-            return min_date <= s_date <= max_date
+            if check_range:
+                min_date = dt.date.fromisoformat(ClockConsts.MIN_SYSTEM_DATE)
+                max_date = dt.date.fromisoformat(ClockConsts.MAX_SYSTEM_DATE)
+                return min_date <= s_date <= max_date
         except ValueError:
             return False
+        return True
 
     @staticmethod
     def get_invalid_time():
