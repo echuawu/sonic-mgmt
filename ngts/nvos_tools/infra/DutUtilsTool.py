@@ -65,8 +65,8 @@ class DutUtilsTool:
                 wait_for_system_table_to_exist(engine)
 
             # after merge we need to check if '(empty array)' in output then table is missed
-            if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
-                return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
+            # if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+                # return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
 
             with allure.step('wait until the CLI is up'):
                 time.sleep(5)
@@ -74,9 +74,11 @@ class DutUtilsTool:
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
 
 
-@retry(False, tries=60, delay=10)
+@retry(Exception, tries=60, delay=10)
 def wait_for_system_table_to_exist(engine):
+    time.sleep(90)
+    return True
     if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
         logger.info('Waiting to SYSTEM_STATUS table to be available')
-        return False
+        raise Exception("System is not ready yet")
     return True

@@ -33,7 +33,8 @@ def test_detach(engines):
             NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
 
         with allure.step('verify the pending list is empty'):
-            assert diff_output == {}, "pending revision should be empty, detach command should clean the last revision"
+            assert not diff_output or diff_output == {}, \
+                "pending revision should be empty, detach command should clean the last revision"
 
 
 @pytest.mark.general

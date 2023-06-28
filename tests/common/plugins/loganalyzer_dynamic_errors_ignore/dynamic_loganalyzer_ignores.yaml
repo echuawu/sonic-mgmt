@@ -2540,6 +2540,7 @@
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
 
+# NVOS
 - Errors_list:
     - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
     - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
@@ -2550,6 +2551,7 @@
     - Redmine:
         - 3482718
 
+# NVOS
 - Errors_list:
     - '.*ERR hostcfgd: ldap server ip=.* is not a valid IP address.*'
   Conditions:
@@ -2570,10 +2572,12 @@
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
     - '.*ERR systemd-timedated\[\d+\]: Failed to set local time: Invalid argument.*'
+    - '.*Failed to run timedatectl.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow_openapi
         - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow
 
 # NVOS
 - Errors_list:

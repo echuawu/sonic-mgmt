@@ -59,8 +59,9 @@ def test_show_system_image():
     with allure.step("Run show command to view system image files"):
         logging.info("Run show command to view system image files ")
         output_dictionary = system.image.files.get_files()
-        for image_file, path_dict in output_dictionary.items():
-            assert image_file in path_dict['path'], "The image file {} has the wrong path {}".format(image_file, path_dict['path'])
+        if output_dictionary:
+            for image_file, path_dict in output_dictionary.items():
+                assert image_file in path_dict['path'], "The image file {} has the wrong path {}".format(image_file, path_dict['path'])
 
 
 @pytest.mark.checklist

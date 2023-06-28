@@ -4,6 +4,7 @@ import logging
 import os
 import time
 import pytest
+import json
 from ngts.helpers import system_helpers
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
@@ -15,7 +16,7 @@ ENV_COVERAGE_FILE = 'COVERAGE_FILE'
 GCOV_DIR = '/sonic'
 SOURCES_PATH = '/src/sonic_src.tar.gz'
 GCOV_CONTAINERS_SONIC = ['swss', 'syncd']
-GCOV_CONTAINERS_NVOS = ['swss-ibv0', 'syncd-ibv0']
+GCOV_CONTAINERS_NVOS = ['swss-ibv00', 'syncd-ibv00']
 
 
 @pytest.mark.disable_loganalyzer
@@ -32,6 +33,7 @@ def test_extract_python_coverage(topology_obj, dest, engines):
     try:
         engine = topology_obj.players['dut']['engine']
         cli_obj = topology_obj.players['dut']['cli']
+        dest = get_dest_path(engine, dest)
 
         check_used_capacity(engine)
 
@@ -113,9 +115,9 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
     :raise AssertionError: in case of script failure.
     """
     try:
-        c_dest = f"{dest}/c_coverage"
         engine = topology_obj.players['dut']['engine']
         cli_obj = topology_obj.players['dut']['cli']
+        c_dest = get_dest_path(engine, f"{dest}/c_coverage/")
 
         with allure.step('Check that sources exist on the switch'):
             cli_obj.general.ls(SOURCES_PATH, validate=True)
@@ -123,8 +125,10 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
         with allure.step('Restart all system services to get coverage for running services'):
             if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
                     NvosCliTypes.NvueCliTypes:
-                engines.dut.run_cmd('sudo systemctl restart swss-ibv0.service')
-                engines.dut.run_cmd('sudo systemctl restart syncd-ibv0.service')
+                engines.dut.run_cmd('sudo systemctl stop swss-ibv0@0.service')
+                engines.dut.run_cmd('sudo systemctl stop syncd-ibv0@0.service')
+                engines.dut.run_cmd('sudo systemctl start swss-ibv0@0.service')
+                engines.dut.run_cmd('sudo systemctl start syncd-ibv0@0.service')
             else:
                 engines.dut.reload('sudo systemctl restart sonic.target')
                 system_helpers.wait_for_all_jobs_done(engine)
@@ -168,6 +172,21 @@ def install_gcov(cli_obj):
         cli_obj.apt_update()
         cli_obj.apt_install('lcov', flags='-y')
         cli_obj.pip3_install('gcovr')
+
+
+def get_dest_path(engine, coverage_path):
+    with allure.step("Get nvos version"):
+        output = json.loads(engine.run_cmd("nv show system version -o json"))
+        nvos_version = output['image']
+
+    dest = f"{coverage_path}{nvos_version}"
+
+    with allure.step("Create coverage folder if not exists"):
+        if not os.path.exists(dest):
+            os.makedirs(dest)
+            os.chmod(dest, 0o777)
+
+    return dest
 
 
 def create_coverage_xml(cli_general, coverage_file, coverage_xml_file):

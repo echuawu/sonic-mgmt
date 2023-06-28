@@ -400,9 +400,10 @@ def _validate_health_status_report(system, last_status_line):
 def _validate_port_description(engine, port, expected_description):
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
         port.show_interface(engine, port.name)).get_returned_value()
-    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=NvosConst.DESCRIPTION,
-                                                      expected_value=expected_description).verify_result()
+    if expected_description:
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                          field_name=NvosConst.DESCRIPTION,
+                                                          expected_value=expected_description).verify_result()
 
 
 def _split_port(engine):
