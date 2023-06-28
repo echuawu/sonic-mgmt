@@ -1,3 +1,4 @@
+import re
 import pytest
 import sys
 
@@ -25,15 +26,18 @@ class TestCpuRamHddUsage:
         self.dut_engine = engines.dut
 
     @pytest.mark.parametrize('partition_usage', partitions_and_expected_usage)
-    def test_hdd_usage(self, partition_usage):
+    def test_hdd_usage(self, partition_usage, platform_params):
         """
         This tests checks HDD usage in specific partition
         Test doing "df {partition}" and then check usage and compare with expected usage from test parameters
         :param partition_usage: dictionary with partition name and expected usage: {'partition': '/', 'max_usage': 6000}
         """
-        if is_redmine_issue_active([3454585]):
-            if partition_usage['partition'] == '/var/log/':
+        if partition_usage['partition'] == '/var/log/':
+            if is_redmine_issue_active([3454585]):
                 partition_usage['max_usage'] = 1000
+            platform_hwsku = platform_params.hwsku
+            if re.search('sn5', platform_hwsku):
+                partition_usage['max_usage'] = 1500
 
         do_hdd_usage_test(self.dut_engine, partition_usage)
 
