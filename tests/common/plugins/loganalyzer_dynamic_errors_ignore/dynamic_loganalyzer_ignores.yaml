@@ -443,6 +443,16 @@
         - 3495609
 
 - Errors_list:
+    - '.*ERR kernel: \[.*\d+\.\d+\] Register access failed \(reg_id=0x5008, status=0x7\).*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/wjh/test_wjh.py
+      Redmine:
+        - 3519344
+      Platform:
+        - sn5600_simx
+
+- Errors_list:
     - '.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
     - '.*ERR.*dhcp_relay#dhcrelay\[\d+\]:\smessage\srepeated\s\d+\stimes:\s\[\sparse_option_buffer:\smalformed\soption\sdhcp6\.<unknown>\s\(code 29797\):\soption\slength\sexceeds\soption\sbuffer\slength\.'
   Conditions:
