@@ -1515,65 +1515,65 @@ ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_dr
     conditions:
       - "https://redmine.mellanox.com/issues/3373836"
 
-dualtor_io/test_tor_failure.py:
+dualtor_mgmt/test_ingress_drop.py::test_ingress_drop[active-active]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3355826"
+     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3507115"
+     conditions:
+       - "https://redmine.mellanox.com/issues/3507115"
 
-dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream:
+dualtor_io/test_grpc_server_failure.py::test_grpc_server_failure_config_standby_config_auto_upstream_active:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3507115"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3507115"
+
+dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream[active-active]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3521240"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3521240"
+
+dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
-dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor:
+dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
-dualtor_io/test_normal_op.py::test_lower_tor_config_reload_upstream:
+dualtor_io/test_normal_op.py::test_lower_tor_config_reload_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
-dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor:
+dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
-dualtor_io/test_tor_failure.py::test_active_tor_reboot_upstream:
+dualtor_io/test_tor_failure.py::test_active_tor_reboot_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
-dualtor_io/test_tor_failure.py::test_active_tor_reboot_downstream_standby:
+dualtor_io/test_tor_failure.py::test_active_tor_reboot_downstream_standby[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
     conditions:
       - "https://redmine.mellanox.com/issues/3284421"
 
-dualtor_io/test_link_failure.py::test_active_link_down_downstream_active:
+dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downstream[active-active]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3389842"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3521929"
     conditions:
-      - "https://redmine.mellanox.com/issues/3389842"
-
-dualtor_io/test_link_failure.py::test_active_link_down_downstream_standby:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3389842"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3389842"
-
-dualtor_io/test_link_failure.py::test_active_tor_downlink_down_downstream_active:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3389842"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3389842"
+      - "https://redmine.mellanox.com/issues/3521929"
 
 dualtor/test_tor_ecn.py::test_dscp_to_queue_during_decap_on_active[2]:
   skip:

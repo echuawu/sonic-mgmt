@@ -2465,6 +2465,14 @@
       Platform:
         - 5600
 
+- Errors_list:
+    - '.*ERR pmon#ycabled: Stop daemon main loop.*'
+  Conditions:
+    - Affected_test_cases:
+        - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_upstream[active-active]
+      Redmine:
+        - 3521394
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
