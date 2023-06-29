@@ -236,7 +236,7 @@ def test_system_snmp_functional(engines, topology_obj):
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=IbInterfaceConsts.DESCRIPTION,
-                                                          expected_value='nvosdescription')
+                                                          expected_value='eth0 description')
 
         with allure.step("Snmpwalk after autorefresh"):
             host_output = HostMethods.host_snmp_walk(host_engine, ip_address, param='| grep nvosdescription')
