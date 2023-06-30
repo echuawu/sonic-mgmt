@@ -63,4 +63,7 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/common/sdk_api.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/common/secure_boot_checker.cases </cases>
+    </test>
 </DBDEF>

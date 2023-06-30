@@ -3,6 +3,15 @@ scripts/log_profiler/log_profiler.py :
   skip:
     reason: "The test not stable, skip it statically"
 
+scripts/test_verify_secure_boot_enabled.py:
+  skip:
+    reason: "Skip the secure boot checker on SPC1, SPC2, SPC3"
+    conditions_logical_operator: or
+    conditions:
+      - "'sn2' in platform"
+      - "'sn3' in platform"
+      - "'sn4' in platform"
+
 tests/simx/test_simx_custom_base_mac.py:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3344406"
