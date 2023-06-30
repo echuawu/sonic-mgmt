@@ -44,6 +44,7 @@ class SonicInstallationSteps:
                 for dut in setup_info['duts']:
                     SonicInstallationSteps.remove_topologies(ansible_path=ansible_path,
                                                              dut_name=dut['dut_name'],
+                                                             setup_name=setup_name,
                                                              sonic_topo=sonic_topo)
 
             SonicInstallationSteps.start_community_background_threads(threads_dict, setup_name,
@@ -158,18 +159,25 @@ class SonicInstallationSteps:
         return ptf_tag
 
     @staticmethod
-    def remove_topologies(ansible_path, dut_name, sonic_topo):
+    def remove_topologies(ansible_path, dut_name, setup_name, sonic_topo):
         """
         The method removes the topologies to get the clear environment.
         """
         logger.info("Removing topologies to get the clear environment")
         with allure.step("Remove Topologies (community step)"):
             topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo, dut_name)
+            testbed_file = ''
+            if sonic_topo == 'dualtor-aa' and 'dualtor-aa' not in topologies:
+                topologies.append('dualtor-aa')
             logger.info(f"Remove topologies: {topologies}. This may increase a chance to deploy a new one successful")
             for topology in topologies:
+                if topology == 'dualtor-aa':
+                    cmd = "./testbed-cli.sh -t testbed.yaml -k ceos remove-topo {SETUP}-{TOPO} vault".format(
+                        TESTBED_FILE=testbed_file, SETUP=setup_name, TOPO=topology)
+                else:
+                    cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(
+                        TESTBED_FILE=testbed_file, SWITCH=dut_name, TOPO=topology)
                 logger.info("Remove topo {}".format(topology))
-                cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(SWITCH=dut_name,
-                                                                                          TOPO=topology)
                 logger.info("Running CMD: {}".format(cmd))
                 try:
                     execute_script(cmd, ansible_path, validate=False, timeout=600)
@@ -191,10 +199,14 @@ class SonicInstallationSteps:
 
     @staticmethod
     def get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag):
+        testbed_file = ''
         if is_dualtor_topo(sonic_topo):
             dut_name = setup_name
-        cmd = "./testbed-cli.sh -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
-              "ptf_imagetag={PTF_TAG} -vvvvv".format(SWITCH=dut_name, TOPO=sonic_topo, PTF_TAG=ptf_tag)
+            if sonic_topo == 'dualtor-aa':
+                testbed_file = '-t testbed.yaml'
+        cmd = "./testbed-cli.sh {TESTBED_FILE} -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
+              "ptf_imagetag={PTF_TAG} -vvvvv".format(TESTBED_FILE=testbed_file, SWITCH=dut_name,
+                                                     TOPO=sonic_topo, PTF_TAG=ptf_tag)
         return cmd
 
     @staticmethod
@@ -289,7 +301,7 @@ class SonicInstallationSteps:
 
         # Community only steps
         if is_community(sonic_topo):
-            if is_dualtor_topo(sonic_topo):
+            if is_dualtor_topo(sonic_topo) and 'dualtor-aa' not in sonic_topo:
                 config_y_cable_simulator(ansible_path=ansible_path, setup_name=setup_name, sonic_topo=sonic_topo)
                 for dut in setup_info['duts']:
                     add_host_for_y_cable_simulator(dut, setup_info)

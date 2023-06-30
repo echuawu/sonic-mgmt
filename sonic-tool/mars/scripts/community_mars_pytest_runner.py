@@ -197,8 +197,9 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                          ALLURE_PROJ=allure_proj_pytest_arg)
         # For dualtor test, need to use setup name in --testbed
         if 'dualtor' in (self.sonic_topo):
+            testbed_file = '../ansible/testbed.yaml' if self.sonic_topo == 'dualtor-aa' else '../ansible/testbed.csv'
             cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
-                           ../ansible/library/ --testbed {SETUP_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
+                           ../ansible/library/ --testbed {SETUP_NAME}-{SONIC_TOPO} --testbed_file {TESTBED_FILE} \
                            --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
                            --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
             cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
@@ -206,6 +207,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                              DUT_NAME=self.dut_name,
                              SETUP_NAME=self.setup_name,
                              SONIC_TOPO=self.sonic_topo,
+                             TESTBED_FILE=testbed_file,
                              SESSION_ID=self.session_id,
                              MARS_KEY_ID=self.mars_key_id,
                              REPORT_FILE=self.report_file,
