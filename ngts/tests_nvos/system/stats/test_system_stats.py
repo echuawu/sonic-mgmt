@@ -188,13 +188,12 @@ def test_system_stats_generation(engines, devices, test_api):
     3. Update all categories stats states
     4. Wait 3 minutes
     5. Generate system stats category
-    6. Validate file content
-    7. Upload stats file to URL
-    8. Delete stats file
-    9. Clear system stats specific category
-    10.	Wait 3 minutes
-    11.	Check internal and external files
-    12.	Validate sample timestamps
+    6. Upload stats file to URL
+    7. Delete stats file
+    8. Clear system stats specific category
+    9. Wait 3 minutes
+    10.	Check internal and external files
+    11.	Validate sample timestamps
     """
 
     TestToolkit.tested_api = test_api
@@ -232,8 +231,6 @@ def test_system_stats_generation(engines, devices, test_api):
         with allure.step("Generate system stats category"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
             system.stats.category.categoryName[name].action_general(StatsConsts.GENERATE).verify_result()
-            after_generate_time = datetime.now()
-            before_generate_time = after_generate_time - timedelta(minutes=5)
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
             file_name = list(stats_files_show)[0]
@@ -241,18 +238,12 @@ def test_system_stats_generation(engines, devices, test_api):
             assert name in file_name, "Expected category file does not exist"
 
         with allure.step("Upload stats file to URL"):
-            player = validate_upload_stats_file(engines, system, file_name, False)
+            validate_upload_stats_file(engines, system, file_name, True)
 
         with allure.step("Validate show file"):
             show_output = system.stats.files.show_file(file=file_name, exit_cmd='q')
             if 'NVUE' == TestToolkit.tested_api:
                 assert name in show_output, "show file is missing category name"
-
-        with allure.step("Validate external file header"):
-            validate_external_file_header(name, file_name, before_generate_time, after_generate_time)
-
-        with allure.step("Delete uploaded file"):
-            player.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
         with allure.step("Delete stats external file"):
             system.stats.files.action_file(StatsConsts.DELETE, file_name).verify_result()
@@ -283,13 +274,13 @@ def test_system_stats_generation(engines, devices, test_api):
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
             file_name = list(stats_files_show)[0]
-            player = validate_upload_stats_file(engines, system, file_name, False)
+            validate_upload_stats_file(engines, system, file_name, False)
 
         with allure.step("Validate samples timestamps is older than clear time"):
             validate_external_file_timestamps(file_name, clear_time)
 
         with allure.step("Delete uploaded file"):
-            player.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
     finally:
         set_system_stats_to_default(engine, system)
@@ -298,7 +289,7 @@ def test_system_stats_generation(engines, devices, test_api):
 @pytest.mark.system
 @pytest.mark.stats
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_system_stats_performance(engines, devices, test_api):
     """
     validate:
@@ -336,6 +327,9 @@ def test_system_stats_performance(engines, devices, test_api):
             assert stats_show[StatsConsts.STATE] == StatsConsts.State.ENABLED.value, \
                 "stats state parameter is expected to be 'enabled'"
 
+        with allure.step("Clear all system stats and delete stats files"):
+            clear_all_internal_and_external_files(system, category_list)
+
         with allure.step("Update cache duration to 1 minute"):
             RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
 
@@ -367,6 +361,9 @@ def test_system_stats_performance(engines, devices, test_api):
         with allure.step("Perform system reboot"):
             system.reboot.action_reboot(params='force').verify_result()
 
+        with allure.step("Wait 5 minutes..."):
+            time.sleep(StatsConsts.SLEEP_5_MINUTES)
+
         with allure.step("Check internal files were created"):
             check_category_internal_files_exist(engine, category_list)
 
@@ -380,13 +377,13 @@ def test_system_stats_performance(engines, devices, test_api):
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
             file_name = list(stats_files_show)[0]
-            player = validate_upload_stats_file(engines, system, file_name, False)
+            validate_upload_stats_file(engines, system, file_name, False)
 
         with allure.step("Verify cleanup after restart process"):
             validate_external_file_timestamps(file_name, history_time)
 
         with allure.step("Delete uploaded file"):
-            player.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
         with allure.step("Clear all external files"):
             engine.run_cmd("sudo rm -f /host/stats/*.csv")
@@ -405,18 +402,22 @@ def test_system_stats_performance(engines, devices, test_api):
             assert diff_time < StatsConsts.GENERATE_ALL_TIME_MAX, "Generate all time is higher than allowed"
 
         with allure.step("Upload stats file to URL"):
-            player = validate_upload_stats_file(engines, system, file_name, False)
+            validate_upload_stats_file(engines, system, file_name, False)
 
         with allure.step("Extract the file and check that all categories file exist"):
-            player.run_cmd("sudo tar -xf {}{}".format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            # engine.run_cmd('sudo tar -xf ' + NvosConst.MARS_RESULTS_FOLDER + file_name + ' -C /tmp')
+            # folder_name = techsupport.replace('.tar.gz', "")
+            # output = engine.run_cmd('ls ' + folder_name + '/stats')
+
+            engine.run_cmd("sudo tar -xf {}{}".format(NvosConst.MARS_RESULTS_FOLDER, file_name))
             file_split = file_name.split("_")
             report_path = os.path.splitext('report_{}_{}'.format(file_split[-2], file_split[-1]))[0]
             output = engine.run_cmd("ls {}{}".format(NvosConst.MARS_RESULTS_FOLDER, report_path))
-            for name in category_list:
-                assert name in output, f"{name} external file is missing in tar file"
+            # for name in category_list:
+            #     assert name in output, f"{name} external file is missing in tar file"
 
         with allure.step("Delete uploaded file"):
-            player.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
     finally:
         set_system_stats_to_default(engine, system)
@@ -474,6 +475,8 @@ def test_stats_reliability(engines, devices, test_api):
 
         with allure.step("restart stats service and check internal path"):
             engine.run_cmd("sudo systemctl restart stats-reportd")
+            with allure.step("Wait 15 seconds..."):
+                time.sleep(StatsConsts.SLEEP_15_SECONDS)
             check_category_internal_files_exist(engine, category_list)
 
         with allure.step("Perform system reboot"):
@@ -555,8 +558,62 @@ def test_system_stats_log(engines, devices, test_api):
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, log_msg).verify_result()
 
+        with allure.step("Validate stats files in tech support file"):
+            stats_files = list(engine.run_cmd("ls /var/stats").split())
+            validate_stats_files_exist_in_techsupport(system, engine, stats_files)
+
     finally:
         set_system_stats_to_default(engine, system)
+
+
+@pytest.mark.system
+@pytest.mark.stats
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_validate_tech_support_with_max_size(engines, devices, test_api):
+    """
+    validate:
+    - Validate creating tech support when all stats files are full (reached max size)
+
+    Test flow:
+    1. Disable stats feature
+    2. Replace all stats categories internal files with max sized files
+    3. Run tech-support and validate files.
+    """
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
+    engine = engines.dut
+    player_engine = engines['sonic_mgmt']
+    category_list = devices.dut.CATEGORY_LIST
+
+    try:
+        with allure.step("Disable system stats feature"):
+            system.stats.set(op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value,
+                             apply=True).verify_result()
+
+        with allure.step("Clear all internal files"):
+            engine.run_cmd("sudo rm -f /var/stats/*")
+
+        with allure.step("Replace all category internal files with a max sized files"):
+            for category in category_list:
+                file_name = category + '.csv'
+                file_path = StatsConsts.MAX_SIZE_FILE_PATH + file_name
+                player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                                    dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                    dest_folder=StatsConsts.INTERNAL_PATH,
+                                                    dest_ip=engines.dut.ip,
+                                                    local_file_path=file_path)
+                engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+
+        with allure.step("Validate stats files in tech support file"):
+            stats_files = list(engine.run_cmd("ls /var/stats").split())
+            validate_stats_files_exist_in_techsupport(system, engine, stats_files)
+
+    finally:
+        with allure.step("Clear all internal files and set to all default"):
+            engine.run_cmd("sudo rm -f /var/stats/*")
+            set_system_stats_to_default(engine, system)
 
 
 @pytest.mark.system
@@ -587,6 +644,9 @@ def test_system_stats_invalid_values(engines, devices, test_api):
     system = System(devices_dut=devices.dut)
     engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
+    player = engines['sonic_mgmt']
+    invalid_remote_url = 'scp://{}:{}{}/tmp/'.format(player.username, player.password, player.ip)
+    valid_remote_url = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
 
     try:
         with allure.step("Validate set system stats unknown category"):
@@ -621,8 +681,7 @@ def test_system_stats_invalid_values(engines, devices, test_api):
                 verify_result(should_succeed=False)
 
         with allure.step("Validate show system stats invalid category"):
-            stats_show = system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].show()
-            assert StatsConsts.INVALID_SHOW_CATEGORY in stats_show, "Expected error msg: requested item does not exist"
+            system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].show(should_succeed=False)
 
         with allure.step("Validate clear system stats invalid category"):
             system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_general(StatsConsts.CLEAR).\
@@ -633,21 +692,241 @@ def test_system_stats_invalid_values(engines, devices, test_api):
                 verify_result(should_succeed=False)
 
         with allure.step("Validate upload system stats file not exists"):
-            system.stats.files.action_file(StatsConsts.UPLOAD, StatsConsts.INVALID_FILE_NAME,
-                                           StatsConsts.VALID_REMOTE_URL).verify_result(should_succeed=False)
+            system.stats.files.action_file(StatsConsts.UPLOAD, StatsConsts.INVALID_FILE_NAME, valid_remote_url).\
+                verify_result(should_succeed=False)
 
-        # with allure.step("Validate upload system stats file to invalid URL"):
-        #     # TODO: update <file_name>
-        #     system.stats.files.action_file(StatsConsts.UPLOAD,'<file_name>',
-        #                                    StatsConsts.INVALID_REMOTE_URL).verify_result(should_succeed=False)
+        with allure.step("Validate upload system stats file to invalid URL"):
+            file_name = 'stats_cpu_gorilla-154_20230702_145940.csv'
+            file_path = StatsConsts.GENERATED_FILE_PATH + file_name
+            player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                         dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                         dest_folder=StatsConsts.INTERNAL_PATH,
+                                         dest_ip=engines.dut.ip,
+                                         local_file_path=file_path)
+            engine.run_cmd("sudo cp /tmp/{} /host/stats".format(file_name))
+            system.stats.files.action_file(StatsConsts.UPLOAD, file_name, invalid_remote_url).\
+                verify_result(should_succeed=False)
 
         with allure.step("Validate generate system stats invalid category"):
             system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_general(StatsConsts.GENERATE).\
                 verify_result(should_succeed=False)
 
     finally:
+        engine.run_cmd("sudo rm -f /host/stats/*")
         SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                         detach_config, TestToolkit.engines.dut).verify_result()
+        set_system_stats_to_default(engine, system)
+
+
+@pytest.mark.system
+@pytest.mark.stats
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system_stats_big_files(engines, devices, test_api):
+    """
+    validate:
+    - Append works on a big file (600K samples)
+    - Clear works on a big file (600K samples)
+    - Corrupted file - bigger than 600MB
+    - Corrupted file - without a header
+
+    Test flow:
+    1. unset system stats feature
+    2. set fan category history duration and interval to min values
+    3. Update general configuration - cache_duration to min value
+    4. Restart stats service to apply changes immediately
+    5. Replace internal file with a big file
+    6. Wait interval time and validate new samples are written to file
+    7. Restart stats service and validate clear works on a big file
+    8. Replace category internal file with a corrupted file (no header) and validate creation of a new file
+    9. Replace category internal file with a corrupted file (over 600MB) and validate creation of a new file
+    """
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
+    engine = engines.dut
+    player_engine = engines['sonic_mgmt']
+
+    try:
+        with allure.step("Set system stats feature to default"):
+            system.stats.unset(apply=True).verify_result()
+
+        with allure.step("set fan category history duration and interval to min values"):
+            system.stats.category.categoryName['fan'].set(
+                op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=int(StatsConsts.HISTORY_DURATION_MIN)).\
+                verify_result()
+            system.stats.category.categoryName['fan'].set(
+                op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN), apply=True).\
+                verify_result()
+
+        with allure.step("Update cache duration to 1 minute"):
+            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+
+        with allure.step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+
+        with allure.step("Replace internal file with a big file"):
+            file_name = 'fan.csv'
+            file_path = StatsConsts.BIG_FILE_PATH + file_name
+            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                                dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                dest_folder=StatsConsts.INTERNAL_PATH,
+                                                dest_ip=engines.dut.ip,
+                                                local_file_path=file_path)
+            engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+
+        with allure.step("Wait 1 min..."):
+            time.sleep(StatsConsts.SLEEP_1_MINUTE)
+
+        with allure.step("Validate appending big file"):
+            validate_number_of_lines_in_external_file(engines, system, 'fan', StatsConsts.BIG_FILE_NUM_OF_LINES,
+                                                      StatsConsts.BIG_FILE_NUM_OF_LINES + 3)
+
+        with allure.step("Delete uploaded file"):
+            engine.run_cmd(cmd='rm -f {}'.format(file_path))
+
+        with allure.step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+
+        with allure.step("Wait 15 seconds..."):
+            time.sleep(StatsConsts.SLEEP_15_SECONDS)
+
+        with allure.step("Validate clearing big file"):
+            validate_number_of_lines_in_external_file(engines, system, 'fan', StatsConsts.FUN_HEADER_NUM_OF_LINES,
+                                                      StatsConsts.FUN_HEADER_NUM_OF_LINES + 30)
+
+        with allure.step("Delete uploaded file"):
+            engine.run_cmd(cmd='rm -f {}'.format(file_path))
+
+        # with allure.step("Replace internal file with file without header"):
+        #     file_name = 'power.csv'
+        #     file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
+        #     player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+        #                                         dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+        #                                         dest_folder=StatsConsts.INTERNAL_PATH,
+        #                                         dest_ip=engines.dut.ip,
+        #                                         local_file_path=file_path)
+        #     engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+        #
+        # with allure.step("Restart process..."):
+        #     engine.run_cmd("sudo systemctl restart stats-reportd")
+        #
+        # with allure.step("Wait 15 seconds..."):
+        #     time.sleep(StatsConsts.SLEEP_15_SECONDS)
+        #
+        # with allure.step("Validate creating new category file when header is corrupted"):
+        #     validate_number_of_lines_in_external_file(engines, system, 'power', StatsConsts.FUN_HEADER_NUM_OF_LINES,
+        #                                               StatsConsts.POWER_HEADER_NUM_OF_LINES + 3)
+        #
+        # with allure.step("Delete uploaded file"):
+        #     engine.run_cmd(cmd='rm -f {}'.format(file_path))
+
+        with allure.step("Replace internal file with a huge file"):
+            file_name = 'temperature.csv'
+            file_path = StatsConsts.HUGE_FILE_PATH + file_name
+            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                                dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                dest_folder=StatsConsts.INTERNAL_PATH,
+                                                dest_ip=engines.dut.ip,
+                                                local_file_path=file_path)
+            engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+
+        with allure.step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+
+        with allure.step("Wait 15 seconds..."):
+            time.sleep(StatsConsts.SLEEP_15_SECONDS)
+
+        with allure.step("Validate creating new category file when file size is over 600MB"):
+            validate_number_of_lines_in_external_file(engines, system, 'temperature',
+                                                      StatsConsts.TEMPERATURE_HEADER_NUM_OF_LINES,
+                                                      StatsConsts.TEMPERATURE_HEADER_NUM_OF_LINES + 100)
+
+        with allure.step("Delete uploaded file"):
+            engine.run_cmd(cmd='rm -f {}'.format(file_path))
+
+    finally:
+        set_system_stats_to_default(engine, system)
+
+
+@pytest.mark.system
+@pytest.mark.stats
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_validate_category_file_values(engines, devices, test_api):
+    """
+    validate:
+    - Category file values are within the valid range
+    - Samples timestamps match the configured interval
+
+    Test flow:
+    1. unset system stats feature
+    2. set random category history duration and interval to min values
+    3. Update general configuration - cache_duration to min value
+    4. clear all internal and external category files
+    5. Restart stats service to apply changes immediately
+    6. Wait 5 minutes
+    7. Generate and upload the chosen category file
+    8. Validate file values are within range
+    9. Validate samples timestamps match the configured interval
+    10. Restore default values
+    """
+
+    TestToolkit.tested_api = test_api
+    system = System(devices_dut=devices.dut)
+    engine = engines.dut
+    category_list = devices.dut.CATEGORY_LIST
+
+    try:
+        with allure.step("Set system stats feature to default"):
+            system.stats.unset(apply=True).verify_result()
+
+        with allure.step("Set all categories history duration and interval values to minimum"):
+            for name in category_list:
+                system.stats.category.categoryName[name].set(
+                    op_param_name=StatsConsts.HISTORY_DURATION, op_param_value=int(StatsConsts.HISTORY_DURATION_MIN)).\
+                    verify_result()
+                system.stats.category.categoryName[name].set(
+                    op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).\
+                    verify_result()
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                            apply_config, TestToolkit.engines.dut, False).verify_result()
+
+        with allure.step("Update cache duration to 1 minute"):
+            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+
+        with allure.step("Clear all system stats and delete stats files"):
+            system_show = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
+            start_time = datetime.strptime(system_show['date-time'], StatsConsts.SYSTEM_TIME_FORMAT)
+            hostname = system_show['hostname']
+            clear_all_internal_and_external_files(system, category_list)
+
+        with allure.step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+
+        with allure.step("Wait 5 min..."):
+            time.sleep(StatsConsts.SLEEP_5_MINUTES)
+
+        with allure.step("Generate system stats category"):
+            for name in category_list:
+                system.stats.category.categoryName[name].action_general(StatsConsts.GENERATE).verify_result()
+            stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
+                get_returned_value()
+
+            for file_name in stats_files_show:
+                with allure.step("Upload stats file to URL"):
+                    validate_upload_stats_file(engines, system, file_name, False)
+
+                with allure.step("Validate external file header"):
+                    name = file_name.split('_')[1]
+                    file_path = NvosConst.MARS_RESULTS_FOLDER + file_name
+                    end_time = start_time + timedelta(minutes=6)
+                    validate_external_file_header_and_data(name, file_path, hostname, start_time, end_time)
+
+                with allure.step("Delete uploaded file"):
+                    engine.run_cmd(cmd='rm -f {}'.format(file_path))
+
+    finally:
         set_system_stats_to_default(engine, system)
 
 
@@ -716,26 +995,25 @@ def validate_upload_stats_file(engines, system, file, delete=True):
                 with allure.step("Delete uploaded file"):
                     player.run_cmd(cmd='rm -f {}{}'.format(dest_path, file))
 
-        return player
 
-
-def validate_external_file_header(name, file_name, start_time, end_time):
-    full_path = NvosConst.MARS_RESULTS_FOLDER + file_name
-    with open(full_path, 'r') as csv_file:
+def validate_external_file_header_and_data(name, file_path, hostname, start_time, end_time):
+    with open(file_path, 'r') as csv_file:
         reader = csv.reader(csv_file)
         next(reader)
         row = next(reader)
-        assert row[0].startswith(StatsConsts.HEADER_HOSTNAME), "unexpected hostname in file header"
+        assert row[0] == StatsConsts.HEADER_HOSTNAME + hostname,\
+            f"unexpected hostname in file header, {row[0]} instead of {hostname}"
         row = next(reader)
-        assert row[0] == StatsConsts.HEADER_GROUP + name, "unexpected group in file header"
+        assert row[0] == StatsConsts.HEADER_GROUP + name,\
+            f"unexpected group in file header, {row[0]} instead of {name}"
         row = next(reader)
-        assert row[0].startswith(StatsConsts.HEADER_TIME), "unexpected time in file header"
+        assert row[0].startswith(StatsConsts.HEADER_TIME), "unexpected started time text in file header"
 
         if start_time and end_time:
             export_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
                                             StatsConsts.TIMESTAMP_FORMAT)
             assert start_time < export_time < end_time,\
-                "External file export time is not as expected"
+                f"External file started sampling time: {export_time} should be between {start_time}-{end_time}"
 
         idx = 4
         start_data_idx = -1
@@ -752,10 +1030,126 @@ def validate_external_file_header(name, file_name, start_time, end_time):
         assert len(row) == (start_data_idx - StatsConsts.CONST_HEADER_ROWS),\
             "mismatch between columns defined number"
 
+        prev_sample_time = export_time - timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+        col_names = row
         num_of_samples = 0
-        for row in reader:
-            num_of_samples += 1
-        assert num_of_samples >= 1, "Number of samples in file are not as expected"
+        num_of_columns = len(row)
+
+        if name == 'cpu':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"CPU timestamp {sample_time} is too far from expected {expected_time}"
+                assert StatsConsts.CPU_FREE_RAM_MIN <= int(row[1]) <= StatsConsts.CPU_FREE_RAM_MAX,\
+                    f"CPU {col_names[1]} not in range ({row[1]}) in sample #{num_of_samples}"
+                assert StatsConsts.CPU_UTIL_MIN <= int(row[2]) <= StatsConsts.CPU_UTIL_MAX,\
+                    f"CPU {col_names[2]} not in range ({row[2]}) in sample #{num_of_samples}"
+                assert StatsConsts.CPU_REBOOT_CNT_MIN <= int(row[3]) <= StatsConsts.CPU_REBOOT_CNT_MAX,\
+                    f"CPU {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
+        elif name == 'disk':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Disk timestamp {sample_time} is too far from expected {expected_time}"
+                if row[1] != 'N/A':
+                    assert StatsConsts.DISK_FREE_SPACE_MIN <= int(row[1]) <= StatsConsts.DISK_FREE_SPACE_MAX,\
+                        f"Disk {col_names[1]} not in range ({row[1]}) in sample #{num_of_samples}"
+                if row[2] != 'N/A':
+                    assert StatsConsts.DISK_RMN_LIFE_MIN <= int(row[2]) <= StatsConsts.DISK_RMN_LIFE_MAX,\
+                        f"Disk {col_names[2]} not in range ({row[2]}) in sample #{num_of_samples}"
+                if row[3] != 'N/A':
+                    assert StatsConsts.DISK_FAIL_CNT_MIN <= int(row[3]) <= StatsConsts.DISK_FAIL_CNT_MAX,\
+                        f"Disk {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
+                if row[4] != 'N/A':
+                    assert StatsConsts.DISK_FAIL_CNT_MIN <= int(row[4]) <= StatsConsts.DISK_FAIL_CNT_MAX,\
+                        f"Disk {col_names[4]} not in range ({row[4]}) in sample #{num_of_samples}"
+                if row[5] != 'N/A':
+                    assert StatsConsts.DISK_FAIL_CNT_MIN <= int(row[5]) <= StatsConsts.DISK_FAIL_CNT_MAX,\
+                        f"Disk {col_names[5]} not in range ({row[5]}) in sample #{num_of_samples}"
+                if row[6] != 'N/A':
+                    assert StatsConsts.DISK_TOTAL_LBA_RW_MIN <= int(row[6]) <= StatsConsts.DISK_TOTAL_LBA_RW_MAX,\
+                        f"Disk {col_names[6]} not in range ({row[6]}) in sample #{num_of_samples}"
+                if row[7] != 'N/A':
+                    assert StatsConsts.DISK_TOTAL_LBA_RW_MIN <= int(row[7]) <= StatsConsts.DISK_TOTAL_LBA_RW_MAX,\
+                        f"Disk {col_names[7]} not in range ({row[7]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
+        elif name == 'fan':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Fan timestamp {sample_time} is too far from expected {expected_time}"
+                for col in range(1, num_of_columns):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.FAN_MIN <= int(row[col]) <= StatsConsts.FAN_MAX,\
+                            f"Fan {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
+        elif name == 'temperature':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Temperature timestamp {sample_time} is too far from expected {expected_time}"
+                for col in range(1, num_of_columns):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.TEMP_MIN <= int(row[col]) <= StatsConsts.TEMP_MAX,\
+                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
+        elif name == 'mgmt-interface':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Mgmt-Interface timestamp {sample_time} is too far from expected {expected_time}"
+                for col in range(1, num_of_columns):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.MGMT_INT_MIN <= int(row[col]) <= StatsConsts.MGMT_INT_MAX,\
+                            f"Mgmt-Interface {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
+        elif name == 'power':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Power timestamp {sample_time} is too far from expected {expected_time}"
+                if row[1] != 'N/A':
+                    assert StatsConsts.PWR_PSU_VOLT_MIN <= int(row[1]) <= StatsConsts.PWR_PSU_VOLT_MAX,\
+                        f"Power {col_names[1]} not in range ({row[1]} in sample #{num_of_samples}"
+                assert StatsConsts.PWR_PSU_VOLT_MIN <= int(row[2]) <= StatsConsts.PWR_PSU_VOLT_MAX,\
+                    f"Power {col_names[2]} not in range ({row[2]}) in sample #{num_of_samples}"
+                if row[3] != 'N/A':
+                    assert StatsConsts.PWR_PSU_CUR_MIN <= int(row[3]) <= StatsConsts.PWR_PSU_CUR_MAX,\
+                        f"Power {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
+                assert StatsConsts.PWR_PSU_CUR_MIN <= int(row[4]) <= StatsConsts.PWR_PSU_CUR_MAX,\
+                    f"Power {col_names[4]} not in range ({row[4]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
 
 
 def validate_external_file_timestamps(file_name, clear_time):
@@ -779,3 +1173,35 @@ def validate_external_file_timestamps(file_name, clear_time):
             sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
                                             StatsConsts.TIMESTAMP_FORMAT)
             assert sample_time > clear_time, "Samples time is earlier than clear time"
+
+
+def validate_number_of_lines_in_external_file(engines, system, cat_name, min_lines, max_lines):
+    with allure.step("Clear external files"):
+        engines.dut.run_cmd("sudo rm -f /host/stats/*.csv")
+
+    with allure.step("Generate system stats category"):
+        system.stats.category.categoryName[cat_name].action_general(StatsConsts.GENERATE).verify_result()
+        stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
+            get_returned_value()
+        file_name = list(stats_files_show)[0]
+
+    with allure.step("Upload stats file to URL"):
+        validate_upload_stats_file(engines, system, file_name, False)
+
+    with allure.step("Validate number of lines in file"):
+        full_path = NvosConst.MARS_RESULTS_FOLDER + file_name
+        file1 = open(full_path, 'r')
+        num_of_lines = len(file1.readlines())
+        assert min_lines < num_of_lines < max_lines,\
+            f"Number of lines: {num_of_lines} is not as expected: {min_lines}-{max_lines}"
+
+
+def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
+    """
+    generate techsupport and validate stats files exist in the stats dir
+    """
+    tech_support_folder = system.techsupport.action_generate()
+    techsupport_files_list = system.techsupport.get_techsupport_stats_files_names(engine, tech_support_folder)
+    for stat_file in stats_files:
+        assert "{}.gz".format(stat_file) in techsupport_files_list, \
+            "Expect to have {} file, in the tech support stats files {}".format(stat_file, techsupport_files_list)

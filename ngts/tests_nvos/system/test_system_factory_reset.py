@@ -445,6 +445,18 @@ def _add_verification_data(engine, system):
             output = engine.run_cmd("sudo mkdir /var/dump/")
         output = engine.run_cmd("sudo touch /var/dump/verification_test")
 
+    with allure.step("Add file to /var/stats/"):
+        output = engine.run_cmd("ls /var/stats/")
+        if "No such file or directory" in output:
+            output = engine.run_cmd("sudo mkdir /var/stats/")
+        output = engine.run_cmd("sudo touch /var/stats/verification_test")
+
+    with allure.step("Add file to /host/stats/"):
+        output = engine.run_cmd("ls /host/stats/")
+        if "No such file or directory" in output:
+            output = engine.run_cmd("sudo mkdir /host/stats/")
+        output = engine.run_cmd("sudo touch /host/stats/verification_test")
+
     with allure.step("Add history files to /home"):
         output = engine.run_cmd("ls /home")
         if ".bash_history" not in output:
@@ -527,6 +539,18 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
             output = engine.run_cmd("ls /var/dump")
             if output and "No such file or directory" not in output:
                 errors += "\ntech-support files were not deleted"
+
+    with allure.step("Verify stats internal files were deleted"):
+        if param != KEEP_ONLY_FILES:
+            output = engine.run_cmd("ls /var/stats")
+            if output and "No such file or directory" not in output:
+                errors += "\nstats internal files were not deleted"
+
+    with allure.step("Verify stats external files were deleted"):
+        if param != KEEP_ONLY_FILES:
+            output = engine.run_cmd("ls /host/stats")
+            if output and "No such file or directory" not in output:
+                errors += "\nstats external files were not deleted"
 
     with allure.step("Verify /etc/sonic content was cleared"):
         if param != KEEP_ONLY_FILES:

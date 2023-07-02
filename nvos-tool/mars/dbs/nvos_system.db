@@ -76,4 +76,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_clock.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_stats.cases </cases>
+    </test>
 </DBDEF>
