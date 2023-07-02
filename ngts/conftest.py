@@ -276,8 +276,6 @@ def update_topology_with_cli_class(topology):
 
 
 def update_nvos_topology(topology, player_info):
-    player_info['cli'] = NvueCli(topology)
-
     if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
         player_info['attributes'].noga_query_data['attributes']['Specific']['TYPE'] = ""
     else:
@@ -285,6 +283,7 @@ def update_nvos_topology(topology, player_info):
                                                NvosConst.DEFAULT_PASS)
         player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
         player_info['attributes'].noga_query_data['attributes']['Common']['Description'] = "dut"
+    player_info['cli'] = NvueCli(topology)
 
 
 @pytest.fixture(scope='session')

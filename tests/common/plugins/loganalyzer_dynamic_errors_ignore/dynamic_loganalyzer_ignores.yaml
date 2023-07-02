@@ -2957,3 +2957,10 @@
       - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
       Redmine:
         - 3512421
+
+# NVOS
+- Errors_list:
+    - '.*failed to get COUNTERS_PORT_NAME_MAP with: Unable to connect to redis: Cannot assign requested address.*'
+  Conditions:
+    - Redmine:
+        - 3494774

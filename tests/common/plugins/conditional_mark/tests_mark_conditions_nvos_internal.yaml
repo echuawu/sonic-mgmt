@@ -154,4 +154,10 @@ tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3526265"
     conditions:
       - https://redmine.mellanox.com/issues/3526265
+
+tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_description:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3527752"
+    conditions:
+      - https://redmine.mellanox.com/issues/3527752
 ########################## NVOS IGNORE END ##########################

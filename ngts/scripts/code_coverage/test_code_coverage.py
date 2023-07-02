@@ -17,6 +17,8 @@ GCOV_DIR = '/sonic'
 SOURCES_PATH = '/src/sonic_src.tar.gz'
 GCOV_CONTAINERS_SONIC = ['swss', 'syncd']
 GCOV_CONTAINERS_NVOS = ['swss-ibv00', 'syncd-ibv00']
+C_DIR = "/c_coverage/"
+PYTHON_DIR = "/python_coverage/"
 
 
 @pytest.mark.disable_loganalyzer
@@ -33,7 +35,8 @@ def test_extract_python_coverage(topology_obj, dest, engines):
     try:
         engine = topology_obj.players['dut']['engine']
         cli_obj = topology_obj.players['dut']['cli']
-        dest = get_dest_path(engine, dest)
+        is_nvos = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.'][
+            'CLI_TYPE'] in NvosCliTypes.NvueCliTypes
 
         check_used_capacity(engine)
 
@@ -45,8 +48,8 @@ def test_extract_python_coverage(topology_obj, dest, engines):
             logger.info(f'Coverage file path: {coverage_file}')
 
         with allure.step('Restart all system services to get coverage for running services'):
-            if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
-                    NvosCliTypes.NvueCliTypes:
+            if is_nvos:
+                dest = get_dest_path(engine, dest) + PYTHON_DIR
                 engines.dut.run_cmd('sudo systemctl restart nvued.service')
             else:
                 engines.dut.reload('sudo systemctl restart sonic.target')
@@ -117,18 +120,18 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
     try:
         engine = topology_obj.players['dut']['engine']
         cli_obj = topology_obj.players['dut']['cli']
-        c_dest = get_dest_path(engine, f"{dest}/c_coverage/")
+        c_dest = f"{dest}/c_coverage/"
+        is_nvos = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
+            NvosCliTypes.NvueCliTypes
 
         with allure.step('Check that sources exist on the switch'):
             cli_obj.general.ls(SOURCES_PATH, validate=True)
 
         with allure.step('Restart all system services to get coverage for running services'):
-            if topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in \
-                    NvosCliTypes.NvueCliTypes:
-                engines.dut.run_cmd('sudo systemctl stop swss-ibv0@0.service')
-                engines.dut.run_cmd('sudo systemctl stop syncd-ibv0@0.service')
-                engines.dut.run_cmd('sudo systemctl start swss-ibv0@0.service')
-                engines.dut.run_cmd('sudo systemctl start syncd-ibv0@0.service')
+            if is_nvos:
+                c_dest = get_dest_path(engine, dest) + C_DIR
+                engines.dut.run_cmd('sudo systemctl restart swss-ibv0@0.service')
+                engines.dut.run_cmd('sudo systemctl restart syncd-ibv0@0.service')
             else:
                 engines.dut.reload('sudo systemctl restart sonic.target')
                 system_helpers.wait_for_all_jobs_done(engine)
@@ -143,7 +146,7 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
         gcov_filename_prefix = f'gcov-{hostname}'
         with allure.step(f'Collect GCOV coverage from docker containers: {containers}'):
             for container in containers:
-                collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix)
+                collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, is_nvos)
 
         install_gcov(sudo_cli_general)
         timestamp = int(time.time())
@@ -162,6 +165,8 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
                              file_system=os.path.dirname(gcov_report_file),
                              direction='get')
             sudo_cli_general.rm(gcov_report_file, flags='-f')
+            for gcov_json_file in gcov_json_files:
+                sudo_cli_general.rm(gcov_json_file, flags='-f')
 
     except Exception as err:
         raise AssertionError(err)
@@ -179,12 +184,18 @@ def get_dest_path(engine, coverage_path):
         output = json.loads(engine.run_cmd("nv show system version -o json"))
         nvos_version = output['image']
 
-    dest = f"{coverage_path}{nvos_version}"
+    dest = f"{coverage_path}/{nvos_version}"
 
     with allure.step("Create coverage folder if not exists"):
         if not os.path.exists(dest):
             os.makedirs(dest)
             os.chmod(dest, 0o777)
+            sub_dir = dest + C_DIR
+            os.makedirs(sub_dir)
+            os.chmod(sub_dir, 0o777)
+            sub_dir = dest + PYTHON_DIR
+            os.makedirs(sub_dir)
+            os.chmod(sub_dir, 0o777)
 
     return dest
 
@@ -212,7 +223,7 @@ def create_coverage_xml(cli_general, coverage_file, coverage_xml_file):
         cli_general.coverage_xml(coverage_xml_file)
 
 
-def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix):
+def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, is_nvos):
     """
     Collect GCOV coverage from a container running on the system, and creates a
     JSON report from it. This JSON report may later be combined with other JSON
@@ -224,7 +235,8 @@ def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix)
     """
     docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
     docker_cli_obj = GeneralCliCommon(docker_exec_engine)
-    install_gcov(docker_cli_obj)
+    if not is_nvos:
+        install_gcov(docker_cli_obj)
     with allure.step(f'Create GCOV JSON report for {container} container'):
         container_gcov_json_file = os.path.join(GCOV_DIR, f'{gcov_filename_prefix}-{container}.json')
         docker_cli_obj.tar(flags=f'xzf {SOURCES_PATH} -C {GCOV_DIR}')
