@@ -195,6 +195,26 @@ def test_techsupport_multiple_times(engines, test_name):
                 system.techsupport.action_generate(test_name=test_name)
 
 
+@pytest.mark.system
+def test_techsupport_size(engines, test_name):
+    """
+    Run nv action generate system tech-support and verify output file size
+    command: nv action generate system tech-support
+
+    Test flow:
+        1. run nv action generate system tech-support
+        2. check file size by du -sh
+        3. assert if size > 50 MB
+    """
+    engine = engines.dut
+    system = System(None)
+    with allure.step('Run generate tech-support'):
+        tech_support_folder = system.techsupport.action_generate()
+        output = engine.run_cmd('sudo du -sh ' + tech_support_folder)
+        size_in_MB = int(output.split("M")[0])
+        assert size_in_MB < 50, f"{tech_support_folder} size ({size_in_MB}MB) should be less than 50MB"
+
+
 def validate_techsupport_output(output_dictionary_before, output_dictionary_after):
     with allure.step('Validating the generate command and show command working as expected'):
         new_folders = [file for file in output_dictionary_after if file not in output_dictionary_before]

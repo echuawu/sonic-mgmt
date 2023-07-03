@@ -148,4 +148,10 @@ tests_nvos/system/clock/test_system_clock.py::test_set_unset_timezone_ntp_off:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3507024"
     conditions:
       - https://redmine.mellanox.com/issues/3507024
+
+tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3526265"
+    conditions:
+      - https://redmine.mellanox.com/issues/3526265
 ########################## NVOS IGNORE END ##########################
