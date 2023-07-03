@@ -1523,6 +1523,27 @@ ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_dr
     conditions:
       - "https://redmine.mellanox.com/issues/3373836"
 
+dualtor/test_ipinip.py::test_encap_with_mirror_session:
+  skip:
+     reason: "Testcase ignored on dualtor-aa topology due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/8577"
+     conditions:
+       - https://github.com/sonic-net/sonic-mgmt/issues/8577
+       - "'dualtor-aa' in topo_name"
+
+dualtor/test_tor_ecn.py::test_dscp_to_queue_during_encap_on_standby:
+  skip:
+     reason: "Testcase ignored on dualtor-aa topology due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/8577"
+     conditions:
+       - https://github.com/sonic-net/sonic-mgmt/issues/8577
+       - "'dualtor-aa' in topo_name"
+
+dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby:
+  skip:
+     reason: "Testcase ignored on dualtor-aa topology due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/8577"
+     conditions:
+       - https://github.com/sonic-net/sonic-mgmt/issues/8577
+       - "'dualtor-aa' in topo_name"
+
 dualtor_mgmt/test_ingress_drop.py::test_ingress_drop[active-active]:
   skip:
      reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3507115"
@@ -1582,6 +1603,12 @@ dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downs
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3521929"
     conditions:
       - "https://redmine.mellanox.com/issues/3521929"
+
+dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_link_up_downstream_standby[active-active]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3526263"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3526263"
 
 platform_tests/daemon/test_pcied.py::test_pmon_pcied_running_status:
   skip:
