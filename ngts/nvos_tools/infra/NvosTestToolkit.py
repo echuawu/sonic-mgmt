@@ -5,6 +5,7 @@ import logging
 import allure
 import re
 import pytest
+import math
 from datetime import datetime
 
 logger = logging.getLogger()
@@ -83,3 +84,29 @@ class TestToolkit:
         """
         is_code_coverage_run = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
         return pytest.is_sanitizer or is_code_coverage_run
+
+    @staticmethod
+    def version_to_release(version):
+        """
+        return the relevant release according to the version param.
+        if its private version or unknown will return ''
+        examples:
+            from  'nvos-25.02.2000'  to '25.02.2000'
+            from 'nvos-25.02.1910-014' to  '25.02.2000'
+            from 'nvos-25.02.1320-014' to  '25.02.1400'
+        """
+        pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
+        if not re.match(pattern, version):
+            return ''
+        pattern = r'(\d+)-(\d+)$'
+        match = re.search(pattern, version)
+        if match:
+            num_str = match.group(1)  # extract the number string '0930' from 'nvos-25.02.0930-011'
+            rounded_num = math.ceil(int(num_str) / 100) * 100  # round up to the nearest hundred
+            rounded_num_str = str(rounded_num).zfill(
+                len(num_str))  # convert the rounded number back to string with leading zeros
+            result = re.sub(pattern, f'{rounded_num_str}', version)
+        else:
+            result = version
+        result = result.replace('nvos-', '')
+        return result

@@ -278,7 +278,7 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
         try:
             type = platform_params['filtered_platform']
             version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
-            release_name = version_to_release(version)
+            release_name = TestToolkit.version_to_release(version)
             if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name and ("_CI_" not in setup_name):
                 insert_operation_duration_to_db(setup_name, type, version, session_id, release_name)
         except Exception as err:
@@ -319,31 +319,6 @@ def insert_operation_duration_to_db(setup_name, type, version, session_id, relea
         logger.info("--------- insert to operation time DB table successfully ---------\n")
     finally:
         mssql_connection_obj.disconnect_db()
-
-
-def version_to_release(version):
-    """
-    return the relevant release according to the version param.
-    if its private version or unknown will return ''
-    examples:
-        from  'nvos-25.02.2000'  to '25.02.2000'
-        from 'nvos-25.02.1910-014' to  '25.02.2000'
-        from 'nvos-25.02.1320-014' to  '25.02.1400'
-    """
-    pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
-    if not re.match(pattern, version):
-        return ''
-    pattern = r'(\d+)-(\d+)$'
-    match = re.search(pattern, version)
-    if match:
-        num_str = match.group(1)    # extract the number string '0930' from 'nvos-25.02.0930-011'
-        rounded_num = math.ceil(int(num_str) / 100) * 100   # round up to the nearest hundred
-        rounded_num_str = str(rounded_num).zfill(len(num_str))     # convert the rounded number back to string with leading zeros
-        result = re.sub(pattern, f'{rounded_num_str}', version)
-    else:
-        result = version
-    result = result.replace('nvos-', '')
-    return result
 
 
 @pytest.fixture(autouse=True)
