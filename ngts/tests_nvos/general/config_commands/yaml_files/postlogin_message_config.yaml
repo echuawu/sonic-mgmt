@@ -1,0 +1,11 @@
+[
+  {
+    "set": {
+      "system": {
+        "message": {
+          "post-login": "TestingConfigFetch"
+        }
+      }
+    }
+  }
+]

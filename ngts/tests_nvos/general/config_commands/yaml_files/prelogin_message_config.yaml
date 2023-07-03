@@ -1,0 +1,11 @@
+[
+  {
+    "set": {
+      "system": {
+        "message": {
+          "pre-login": "TestingConfigFetch"
+        }
+      }
+    }
+  }
+]
