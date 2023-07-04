@@ -1575,42 +1575,6 @@ dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downs
     conditions:
       - "https://redmine.mellanox.com/issues/3521929"
 
-dualtor/test_tor_ecn.py::test_dscp_to_queue_during_decap_on_active[2]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3400587"
-
-dualtor/test_tor_ecn.py::test_dscp_to_queue_during_decap_on_active[6]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3400587"
-
-dualtor/test_tor_ecn.py::test_dscp_to_queue_during_encap_on_standby[2]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3400587"
-
-dualtor/test_tor_ecn.py::test_dscp_to_queue_during_encap_on_standby[6]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3400587"
-
-dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby[2]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3400587"
-
-dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby[6]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3400587"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3400587"
-
 platform_tests/daemon/test_pcied.py::test_pmon_pcied_running_status:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413691"
