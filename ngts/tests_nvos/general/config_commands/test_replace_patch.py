@@ -42,7 +42,7 @@ def test_replace_empty_file(engines):
 
         engines.dut.run_cmd('sudo rm {file}.{type}'.format(file=file_name, type=file_type))
         with allure.step('verify the pending list is empty'):
-            assert diff_after_hostname_change == {}, "pending revision should be empty, replace command should replace the last revision with empty file"
+            assert not diff_after_hostname_change, "pending revision should be empty, replace command should replace the last revision with empty file"
 
 
 @pytest.mark.general
