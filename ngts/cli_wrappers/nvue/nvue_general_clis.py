@@ -1,7 +1,3 @@
-import logging
-import time
-import os
-from retry import retry
 from ngts.cli_wrappers.sonic.sonic_general_clis import *
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -26,6 +22,21 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
     def __init__(self, engine):
         self.engine = engine
+
+    @retry(Exception, tries=5, delay=30)
+    def generate_techsupport(self, duration=60):
+        """
+        Generate sysdump for a given time frame in seconds
+        if 0/'0'/False so we will run it without the since option.
+        :param duration: time frame in seconds
+        :return: dump path
+        """
+        with allure.step('Generate Tech-support'):
+            add_the_since_option = duration and duration != '0'
+            since = 'since' if add_the_since_option else ''
+            since_time = f"\"-{duration} seconds\"" if add_the_since_option else ''
+            output = NvueSystemCli.action_generate_techsupport(self.engine, f'system tech-support {since} {since_time}')
+            return output.splitlines()[-2].split(" ")[-1]
 
     @retry(Exception, tries=25, delay=10)
     def verify_dockers_are_up(self, dockers_list=NvosConst.DOCKERS_LIST):
