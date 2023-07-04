@@ -122,6 +122,20 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(rotate_log_cmd)
 
     @staticmethod
+    def action_fetch(engine, resource_path, remote_url):
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action fetch {} {}".format(path, remote_url)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_export(engine, resource_path, file_name):
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action export {} {}".format(path, file_name)
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def action_write_to_logs(engine):
         permission_cmd = "sudo chmod 777 /var/log/syslog"
         write_content_cmd = "sudo sh -c 'echo regular_log >> /var/log/syslog'"

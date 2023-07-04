@@ -5,6 +5,7 @@ from infra.tools.validations.traffic_validations.port_check.port_checker import 
 from retry.api import retry_call, retry
 from ngts.nvos_constants.constants_nvos import ReadFromDataBase, SystemConsts
 from ngts.tools.test_utils import allure_utils as allure
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 
 logger = logging.getLogger()
 
@@ -72,6 +73,23 @@ class DutUtilsTool:
                 time.sleep(5)
 
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
+
+    @staticmethod
+    def get_url(engine, command_opt='scp', file_full_path=''):
+        if not engine or not engine.username:
+            return ResultObj(result=False, info="No Engine")
+
+        with allure.step('Trying to create url for {}'.format(engine.username)):
+
+            with allure.step('check engine is reachable'):
+                ssh_connection = ConnectionTool.create_ssh_conn(engine.ip, engine.username, engine.password).verify_result()
+                if not ssh_connection:
+                    return ResultObj(result=False, info="{} is unreachable".format(engine.ip))
+
+            with allure.step('generate url'):
+                remote_url = '{}://{}:{}@{}{}/{}'.format(command_opt, engine.username, engine.password, engine.ip, file_full_path)
+
+            return ResultObj(result=True, info=remote_url, returned_value=remote_url)
 
 
 @retry(Exception, tries=60, delay=10)

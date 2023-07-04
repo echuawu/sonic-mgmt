@@ -16,6 +16,7 @@ from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
 from ngts.nvos_tools.system.Profile import Profile
+from ngts.nvos_tools.system.Config import Config
 from ngts.nvos_tools.system.Log import Log
 from ngts.nvos_tools.system.Debug_log import DebugLog
 from ngts.nvos_tools.system.Component import Component
@@ -56,6 +57,7 @@ class System(BaseComponent):
     def __init__(self, parent_obj=None, username='admin', devices_dut=None):
         self._resource_path = '/system'
         self.parent_obj = parent_obj
+        self.config = Config(self)
         self.documentation = Documentation(self)
         self.aaa = Aaa(self, username)
         self.log = Log(self)
