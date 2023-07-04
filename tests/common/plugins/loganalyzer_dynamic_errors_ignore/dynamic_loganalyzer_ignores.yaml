@@ -2779,7 +2779,9 @@
     - '.*ERR hw-management-tc: ERROR - Missing max tachos config.*'
   Conditions:
     - Redmine:
-        - 3465864
+      - 3527759
+      Platform:
+        - simx
 
 - Errors_list:
     - '.*ERR kernel: .* mlxsw_minimal 2-0048: Failed to write PWM.*'

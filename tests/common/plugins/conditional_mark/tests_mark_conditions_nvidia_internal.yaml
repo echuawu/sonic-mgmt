@@ -467,9 +467,9 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvp
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_mac_move_handling:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3320013"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3487097"
     conditions:
-      - "https://redmine.mellanox.com/issues/3320013"
+      - "https://redmine.mellanox.com/issues/3487097 and 'simx' in platform"
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_L2_BUM:
   skip:
