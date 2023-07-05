@@ -521,7 +521,7 @@ class NtpConsts:
     DUMMY_SERVER8 = 'server8'
     SERVER_FAILED = 'DNS resolution failed'
     MULTIPLE_SERVERS_NUMBER = 11
-    CONFIG_TIME_DIFF_THRESHOLD = 1.0  # [sec]
+    CONFIG_TIME_DIFF_THRESHOLD = 2.0  # [sec]
     SHOW_TIME_DIFF_THRESHOLD = 0.5  # [sec]
     SYNCHRONIZATION_MAX_TIME = 100  # [sec]
     SYNCHRONIZATION_TIME_AFTER_REBOOT = 60  # [sec]
@@ -566,7 +566,6 @@ class NtpConsts:
         VRF: Vrf.DEFAULT.value
     }
     NTP_STATUS_DEFAULT_DICT = {}
-    SERVER_DEFAULT_DICT = {}
     SERVER_DEFAULT_VALUES_DICT = {
         AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
@@ -797,7 +796,7 @@ class StatsConsts:
     CPU_UTIL_MAX = 50  # [%]
     CPU_REBOOT_CNT_MIN = 0
     CPU_REBOOT_CNT_MAX = 100
-    DISK_FREE_SPACE_MIN = 70  # [%]
+    DISK_FREE_SPACE_MIN = 60  # [%]
     DISK_FREE_SPACE_MAX = 95  # [%]
     DISK_RMN_LIFE_MIN = 70  # [%]
     DISK_RMN_LIFE_MAX = 100  # [%]

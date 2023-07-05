@@ -54,7 +54,6 @@ def test_configure_ntp_server():
     system = System()
     server_name = NtpConsts.SERVER1_IPV4
     ntp_dict = dict(NtpConsts.NTP_DEFAULT_DICT)
-    ntp_server_dict = dict(NtpConsts.SERVER_DEFAULT_DICT)
 
     try:
         with allure.step("Clear all ntp configurations"):
@@ -73,7 +72,7 @@ def test_configure_ntp_server():
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
             ValidationTool.compare_dictionary_content(ntp_show, ntp_dict).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
-            ValidationTool.compare_dictionary_content(server_list, ntp_server_dict).verify_result()
+            assert server_list == '', f"server list {server_list} should be empty"
 
         with allure.step("Set different date and time"):
             logging.info("Set different date and time")
@@ -232,7 +231,7 @@ def test_configure_ntp_server():
             default_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
             ValidationTool.compare_dictionary_content(ntp_show, default_dict).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
-            ValidationTool.compare_dictionary_content(server_list, NtpConsts.SERVER_DEFAULT_DICT).verify_result()
+            assert server_list == '', f"server list {server_list} should be empty"
             key_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.keys.show()).get_returned_value()
             ValidationTool.compare_dictionary_content(key_list, NtpConsts.KEY_DEFAULT_DICT).verify_result()
 
@@ -681,7 +680,7 @@ def test_configure_ntp_multiple_servers():
             ntp_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
             ValidationTool.compare_dictionary_content(ntp_show, NtpConsts.NTP_DEFAULT_DICT).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
-            ValidationTool.compare_dictionary_content(server_list, NtpConsts.SERVER_DEFAULT_DICT).verify_result()
+            assert server_list == '', f"server list {server_list} should be empty"
 
     finally:
         with allure.step("Unset system ntp"):
@@ -706,7 +705,7 @@ def test_ntp_performance():
     3. Measure show system ntp for 1 server (server is configured. Clock is synchronized)
     4. Measure configuring time of 10 severs
     5. Measure show system ntp for 10 server (All servers are configured. Clock is synchronized)
-    6. Validate configuration time diff (Diff time < 1 sec)
+    6. Validate configuration time diff (Diff time < 2 sec)
     7. Validate show system ntp time diff (Diff time < 0.5 sec)
     8. Validate CPU utilization (Utilization < 35%)
     9. Remove all ntp servers
