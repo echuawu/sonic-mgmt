@@ -91,8 +91,10 @@ def test_system_message(engines, devices):
     """
     new_pre_login_msg = "Testing PRE LOGIN MESSAGE"
     new_post_login_msg = "Testing POST LOGIN MESSAGE"
+    system = System()
 
     with allure.step('Run set system message pre-login command and verify that pre-login is updated'):
+        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
         system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
@@ -102,6 +104,7 @@ def test_system_message(engines, devices):
                                                     new_pre_login_msg).verify_result()
 
     with allure.step('Run set system message post-login command and verify that post-login is updated'):
+        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
         system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
