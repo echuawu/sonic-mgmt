@@ -2673,6 +2673,18 @@
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
         - tests_nvos/system/test_install_system_firmware.py::test_install_system_firmware
 
+# NVOS : Error - Bug 3494774 related
+- Errors_list:
+    - '.* ERR countermgrd: failed to get COUNTERS_PORT_NAME_MAP with: Unable to connect to redis: Cannot assign requested address.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/config_commands/test_show_diff_history::test_diff_history_revision_ids
+        - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+        - tests_nvos/system/test_show_system.py::test_system
+        - tests_nvos/system/test_show_system.py::test_system_openapi
+      Redmine:
+        - 3494774
+
 # NVOS : Errors - Bug 3474336 related
 - Errors_list:
     - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
@@ -2703,10 +2715,10 @@
 # NVOS : Errors which should be ignored in tests using invalid url
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
-    - '.* ERR nvued:   ERROR: format_checkers.py:246.*'
-    - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:246.*'
-    - '.* ERR nvued:   ERROR: format_checkers.py:246 Instance ffff:.*'
-    - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:246 Instance ffff.*'
+    - '.* ERR nvued:   ERROR: format_checkers.py:\d+.*'
+    - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:\d+.*'
+    - '.* ERR nvued:   ERROR: format_checkers.py:\d+ Instance ffff:.*'
+    - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:\d+ Instance ffff.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_documents.py::test_upload_document

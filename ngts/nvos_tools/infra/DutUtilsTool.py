@@ -87,7 +87,7 @@ class DutUtilsTool:
                     return ResultObj(result=False, info="{} is unreachable".format(engine.ip))
 
             with allure.step('generate url'):
-                remote_url = '{}://{}:{}@{}{}/{}'.format(command_opt, engine.username, engine.password, engine.ip, file_full_path)
+                remote_url = '{}://{}:{}@{}{}'.format(command_opt, engine.username, engine.password, engine.ip, file_full_path)
 
             return ResultObj(result=True, info=remote_url, returned_value=remote_url)
 

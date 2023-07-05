@@ -10,8 +10,8 @@ from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
-YAML_FILES_PATH = MarsConstants.SONIC_MGMT_DIR + "/ngts/tests_nvos/general/config_commands/yaml_files"
-YAML_FILES_LIST = ['/hostname_config.yaml', '/post_login_message_config.yaml', '/pre_login_message_config.yaml']
+YAML_FILES_PATH = MarsConstants.SONIC_MGMT_DIR + "/ngts/tests_nvos/general/config_commands/yaml_files/"
+YAML_FILES_LIST = ['hostname_config.yaml', 'post_login_message_config.yaml', 'pre_login_message_config.yaml']
 
 
 @pytest.mark.general

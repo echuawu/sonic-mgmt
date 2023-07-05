@@ -21,14 +21,15 @@ class Config(BaseComponent):
         self._resource_path = '/config'
         self.parent_obj = parent_obj
 
-    def action_fetch(self, remote_url, expected_str):
-        with allure.step('Trying to fetch {remote_url}'.format(remote_url)):
+    def action_fetch(self, remote_url, expected_str=""):
+        with allure.step('Trying to fetch {}'.format(remote_url)):
             return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_fetch,
                                                                 expected_str, TestToolkit.engines.dut,
-                                                                self.get_resource_path(), remote_url).verify_result()
+                                                                self.get_resource_path(),
+                                                                remote_url).verify_result()
 
-    def action_export(self, file_name, expected_str):
-        with allure.step('Trying to export the applied configuration to {file_name}'.format(file_name)):
+    def action_export(self, file_name, expected_str=""):
+        with allure.step('Trying to export the applied configuration to {}'.format(file_name)):
             return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_export,
                                                                 expected_str, TestToolkit.engines.dut,
                                                                 self.get_resource_path(), file_name).verify_result()
