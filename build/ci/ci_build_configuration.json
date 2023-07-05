@@ -275,7 +275,7 @@
           "category": "Allocate setups",
           "node": "MINI_MARS@QTM2",
           "parameters": {
-            "queue_id": "devops_nvos_ci_qtm2",
+            "queue_id": "devops_mlnx_os_ci_qtm2",
             "priority": "1",
             "setup_type": "CI_NVOS_QTM2",
             "setup_var": "CI_NVOS_QTM2_SETUP",
