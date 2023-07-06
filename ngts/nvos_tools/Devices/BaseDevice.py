@@ -694,8 +694,7 @@ class GorillaSwitch(MultiAsicSwitch):
         available_tables_per_asic = {
             DatabaseConst.APPL_DB_ID:
                 {"IB_PORT_TABLE:Infiniband": self.ib_ports_num(),
-                 "ALIAS_PORT_MAP": self.ib_ports_num(),
-                 "IB_PORT_TABLE:Port": 2},
+                 "ALIAS_PORT_MAP": self.ib_ports_num()},
             DatabaseConst.ASIC_DB_ID:
                 {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,
                  "LANES": 1,
@@ -708,7 +707,6 @@ class GorillaSwitch(MultiAsicSwitch):
                  "COUNTERS:oid": self.ib_ports_num() / 2},
             DatabaseConst.CONFIG_DB_ID:
                 {"IB_PORT": self.ib_ports_num() / 2,
-                 "BREAKOUT_CFG": self.ib_ports_num() / 2,
                  "FEATURE": 6,
                  "CONFIG_DB_INITIALIZED": 1,
                  "DEVICE_METADATA": 1,
