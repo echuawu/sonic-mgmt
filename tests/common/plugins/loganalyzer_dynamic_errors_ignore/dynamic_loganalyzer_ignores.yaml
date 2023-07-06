@@ -2817,14 +2817,6 @@
         - 3488969
 
 - Errors_list:
-    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[FW health issue\], cause_id = \[\d+\]'
-    - '.*ERR syncd#SDK: \[SX_API_INTERNAL.ERR\] Failed command read at communication channel: Connection reset by peer'
-    - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue'
-  Conditions:
-    - Redmine:
-        - 3497721
-
-- Errors_list:
     - '.*ERR syncd#SDK: .*- sai_set_attribute: Failed to set the attribute..*'
   Conditions:
     - Affected_test_cases:

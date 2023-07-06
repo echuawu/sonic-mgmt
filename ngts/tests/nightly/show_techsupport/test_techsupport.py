@@ -67,7 +67,11 @@ def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer):
         duthost.run_cmd('docker exec -it syncd python mellanox_sdk_trigger_event_script.py')
         for dut in loganalyzer:
             loganalyzer[dut].expect_regex.extend(["Health event happened, severity"])
-
+            ignoreRegex = [
+                r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
+                r".*Failed command read at communication channel: Connection reset by peer.*",
+            ]
+            loganalyzer[dut].ignore_regex.extend(ignoreRegex)
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):
         number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
 
