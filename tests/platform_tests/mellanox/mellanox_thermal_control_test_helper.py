@@ -180,10 +180,6 @@ class MockerHelper:
 
         MockerHelper.FAN_NUM = int(content)
         platform_data = get_platform_data(self.dut)
-        if not platform_data['fans']['hot_swappable']:
-            # For non swappable fan, there is no drawer. We put them in a "virtual" drawer.
-            MockerHelper.FAN_NUM_PER_DRAWER = MockerHelper.FAN_NUM
-            return
 
         if MockerHelper.FAN_NUM > fan_drawer_num:
             MockerHelper.FAN_NUM_PER_DRAWER = 2
@@ -894,6 +890,19 @@ class RandomFanStatusMocker(CheckMockerResultMixin, FanStatusMocker):
                 if drawer_data.mocked_presence == 'Present':
                     expected_data = self.expected_data[fan_data.name]
                     expected_data[1] = drawer_data.get_expect_led_color()
+
+        platform_data = get_platform_data(self.dut)
+        if not platform_data['fans']['hot_swappable']:
+            # For non swappable fan, all fans share one led
+            is_one_red_led_at_least = False
+            for _, expected_data in self.expected_data.items():
+                if expected_data[1] == "red":
+                    is_one_red_led_at_least = True
+                    break
+            if is_one_red_led_at_least:
+                logging.info("update all expected led to red")
+                for fan_name, expected_data in self.expected_data.items():
+                    self.expected_data[fan_name][1] = "red"
 
         platform_data = get_platform_data(self.mock_helper.dut)
         psu_count = platform_data["psus"]["number"]

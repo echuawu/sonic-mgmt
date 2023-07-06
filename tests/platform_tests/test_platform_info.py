@@ -319,6 +319,7 @@ def test_turn_on_off_psu_and_check_psustatus(duthosts, enum_rand_one_per_hwsku_h
 
 @pytest.mark.disable_loganalyzer
 def test_show_platform_fanstatus_mocked(duthosts, enum_rand_one_per_hwsku_hostname,
+                                        suspend_and_resume_hw_tc_on_mellanox_device,
                                         mocker_factory, disable_thermal_policy):  # noqa F811
     """
     @summary: Check output of 'show platform fan'.
