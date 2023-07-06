@@ -95,7 +95,7 @@ class PwhConsts:
     ERR_PW_SHOULD_CONTAIN = 'Password should contain at least '
     ERR_RANGE = 'Valid range is'
     ERR_EXP_WARN_LEQ_EXP = 'expiration-warning should be equal or smaller than expiration'
-    ERR_INTEGER_EXPECTED = 'Error: Integer expected'
+    ERR_INTEGER_EXPECTED = "Error: '{}' is not an integer"
 
     WEAK_PW_ERRORS = {
         HISTORY_CNT: 'Password should be different than',

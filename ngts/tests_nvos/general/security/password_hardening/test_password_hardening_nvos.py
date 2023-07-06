@@ -286,7 +286,7 @@ def test_password_hardening_set_invalid_input(engines, system):
                         if re.match(PwhConsts.REGEX_NUMERIC, str(invalid_value)):  # value is numeric but not in range
                             expected_err = PwhConsts.ERR_RANGE
                         else:
-                            expected_err = PwhConsts.ERR_INTEGER_EXPECTED  # value is not numeric
+                            expected_err = PwhConsts.ERR_INTEGER_EXPECTED.format(invalid_value)  # value is not numeric
                     else:
                         expected_err = PwhConsts.ERR_INVALID_SET_CMD
                     PwhTools.verify_error(res_obj=res_obj, error_should_contain=expected_err)
