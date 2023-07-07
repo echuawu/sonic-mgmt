@@ -464,7 +464,7 @@
     - Affected_test_cases:
       - tests/push_build_tests/general/wjh/test_wjh.py
       Redmine:
-        - 3519344
+        - 3520522
       Platform:
         - sn5600_simx
 
@@ -2774,7 +2774,7 @@
     - '.*ERR syncd#SDK: \[SX_API_PORT\.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future\. Please use sx_api_port_parser_attr_set in its place.*'
   Conditions:
     - Redmine:
-        - 3482636
+        - 3500892
 
 - Errors_list:
     - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
