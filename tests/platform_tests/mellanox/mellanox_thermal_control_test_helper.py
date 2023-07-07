@@ -9,6 +9,8 @@ from tests.platform_tests.thermal_control_test_helper import mocker, FanStatusMo
     SingleFanMocker
 from tests.common.mellanox_data import get_platform_data
 from .minimum_table import get_min_table
+from tests.common.utilities import wait_until
+from tests.common.helpers.assertions import pytest_assert
 
 
 NOT_AVAILABLE = 'N/A'
@@ -107,6 +109,8 @@ FAN_NAMING_RULE = {
         "max_speed": "psu{}_fan_max",
     }
 }
+
+SUSPEND_FILE_PATH  = "/var/run/hw-management/config/suspend"
 
 
 class SysfsNotExistError(Exception):
@@ -1394,9 +1398,16 @@ def suspend_hw_tc_service(dut):
     Suspend thermal control service
     """
     logging.info("suspend hw tc service ")
-    dut.shell("sudo touch /var/run/hw-management/config/suspend")
-    dut.shell("sudo chown admin /var/run/hw-management/config/suspend")
-    dut.shell("sudo echo 1 > /var/run/hw-management/config/suspend")
+
+    dut.shell(f"sudo touch {SUSPEND_FILE_PATH}")
+    dut.shell(f"sudo chown admin {SUSPEND_FILE_PATH}")
+    dut.shell(f"sudo echo 1 > {SUSPEND_FILE_PATH}")
+
+    def check_pwm_is_max():
+        pwm = int(dut.shell("cat /var/run/hw-management/thermal/pwm1")["stdout"])
+        return pwm == 255
+
+    pytest_assert(wait_until(10, 0, 1, check_pwm_is_max), "TC is not suspended")
 
 
 def resume_hw_tc_service(dut):
@@ -1404,4 +1415,4 @@ def resume_hw_tc_service(dut):
     Resume hw thermal control service
     """
     logging.info("resume hw tc service ")
-    dut.shell("sudo rm -f /var/run/hw-management/config/suspend")
+    dut.shell(f"sudo rm -f {SUSPEND_FILE_PATH}")
