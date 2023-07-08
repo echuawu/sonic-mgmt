@@ -698,6 +698,7 @@ def suspend_and_resume_hw_tc_on_mellanox_device(duthosts, enum_rand_one_per_hwsk
     if is_mellanox_device(duthost) and duthost.is_host_service_running("hw-management-tc"):
         suspend_hw_tc_service(duthost)
 
-        yield
+    yield
 
+    if is_mellanox_device(duthost) and duthost.is_host_service_running("hw-management-tc"):
         resume_hw_tc_service(duthost)
