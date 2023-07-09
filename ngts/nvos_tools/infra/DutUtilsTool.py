@@ -32,6 +32,7 @@ class DutUtilsTool:
                 engine.disconnect()
 
             if not should_wait_till_system_ready:
+                time.sleep(50)
                 return ResultObj(result=True, info="system is not ready yet")
 
             with allure.step('Waiting for switch to be ready'):
@@ -65,9 +66,11 @@ class DutUtilsTool:
             with allure.step('wait for the system table to exist'):
                 wait_for_system_table_to_exist(engine)
 
-            # after merge we need to check if '(empty array)' in output then table is missed
-            # if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
-                # return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
+            if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+                return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
+
+            if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+                return ResultObj(result=False, info="SYSTEM_READY|SYSTEM_STATE TABLE IS MISSED", issue_type=IssueType.PossibleBug)
 
             with allure.step('wait until the CLI is up'):
                 time.sleep(5)
@@ -94,8 +97,6 @@ class DutUtilsTool:
 
 @retry(Exception, tries=60, delay=10)
 def wait_for_system_table_to_exist(engine):
-    time.sleep(90)
-    return True
     if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
         logger.info('Waiting to SYSTEM_STATUS table to be available')
         raise Exception("System is not ready yet")
