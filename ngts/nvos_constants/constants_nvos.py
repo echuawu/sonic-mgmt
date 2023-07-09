@@ -739,6 +739,11 @@ class StatsConsts:
         INTERVAL: INTERVAL_MIN,
         HISTORY_DURATION: HISTORY_DURATION_MIN
     }
+    CATEGORY_MIN_DISABLED_DICT = {
+        STATE: State.DISABLED.value,
+        INTERVAL: INTERVAL_MIN,
+        HISTORY_DURATION: HISTORY_DURATION_MIN
+    }
 
     LOG_MSG_UNSET_STATS = "PATCH /nvue_v1/system/stats"
     LOG_MSG_SET_CATEGORY1 = "INFO stats-reportd: got config change "

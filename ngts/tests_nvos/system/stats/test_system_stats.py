@@ -200,6 +200,7 @@ def test_system_stats_generation(engines, devices, test_api):
     system = System(devices_dut=devices.dut)
     engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
+    category_list_default = devices.dut.CATEGORY_LIST_DEFAULT_DICT
 
     try:
 
@@ -281,6 +282,47 @@ def test_system_stats_generation(engines, devices, test_api):
 
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+
+        with allure.step("Select a random category and set its configuration to minimum values"):
+            name = RandomizationTool.select_random_value(category_list).get_returned_value()
+            system.stats.category.categoryName[name].set(
+                op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
+            system.stats.category.categoryName[name].set(
+                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value).verify_result()
+            system.stats.category.categoryName[name].set(
+                op_param_name=StatsConsts.HISTORY_DURATION,
+                op_param_value=int(StatsConsts.HISTORY_DURATION_MIN), apply=True).verify_result()
+            stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
+                system.stats.category.categoryName[name].show()).get_returned_value()
+            ValidationTool.compare_dictionary_content(stats_category_show, StatsConsts.CATEGORY_MIN_DISABLED_DICT).\
+                verify_result()
+
+        with allure.step("Verify unset each category parameter configuration"):
+            system.stats.category.categoryName[name].unset(op_param=StatsConsts.INTERVAL).verify_result()
+            system.stats.category.categoryName[name].unset(op_param=StatsConsts.HISTORY_DURATION).verify_result()
+            system.stats.category.categoryName[name].unset(op_param=StatsConsts.STATE, apply=True).verify_result()
+
+            stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
+                system.stats.category.categoryName[name].show()).get_returned_value()
+            ValidationTool.compare_dictionary_content(stats_category_show, category_list_default[name]).\
+                verify_result()
+
+        with allure.step("Select a random category and set its configuration to minimum values"):
+            name = RandomizationTool.select_random_value(category_list).get_returned_value()
+            system.stats.category.categoryName[name].set(
+                op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
+            system.stats.category.categoryName[name].set(
+                op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.DISABLED.value).verify_result()
+            system.stats.category.categoryName[name].set(
+                op_param_name=StatsConsts.HISTORY_DURATION,
+                op_param_value=int(StatsConsts.HISTORY_DURATION_MIN), apply=True).verify_result()
+            stats_category_show = OutputParsingTool.parse_json_str_to_dictionary(
+                system.stats.category.categoryName[name].show()).get_returned_value()
+            ValidationTool.compare_dictionary_content(stats_category_show, StatsConsts.CATEGORY_MIN_DISABLED_DICT).\
+                verify_result()
+
+        with allure.step("Verify unset category configuration"):
+            system.stats.category.categoryName[name].unset(apply=True).verify_result()
 
     finally:
         set_system_stats_to_default(engine, system)

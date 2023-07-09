@@ -2,12 +2,15 @@ import logging
 import allure
 import pytest
 
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 
 logger = logging.getLogger()
 
@@ -196,6 +199,70 @@ def test_ib_show_interface_name_stats(engines):
             selected_port.ib_interface.link.stats.show()).get_returned_value()
 
         validate_stats_fields(output_dictionary)
+
+
+@pytest.mark.ib_interfaces
+@pytest.mark.nvos_ci
+@pytest.mark.ib
+def test_show_interface_filter(engines):
+    """
+    Run show interface command with filter flag and verify the required fields are exist
+    command: nv show interface -- filter "<filter>=<value>"
+
+    flow:
+    1. Run show interface without filter
+    2. Select filter type and value from existing output
+    3. Create expected dictionary according to the selected filter
+    4. Run show interface with the selected filter
+    5. Compare between filtered output dictionary to expected dictionary (at least one should be found)
+    6. Run show interface with an empty filter (returns all data)
+    7. Compare between filtered output dictionary to the full dictionary
+    8. Run show interface with existing filter but value not exist
+    9. Run show interface with a filter that does not exist
+    """
+    interface = Interface()
+
+    with allure.step('Run show interface without filter'):
+        output_dict = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            interface.show()).get_returned_value()
+
+    with allure.step('Select filter type and value from existing output'):
+        random_key = RandomizationTool.select_random_value(list(output_dict.keys())).get_returned_value()
+        filter_name = RandomizationTool.select_random_value(list(output_dict[random_key].keys())).get_returned_value()
+        value = output_dict[random_key][filter_name]
+
+    with allure.step('Create expected dictionary according to the selected filter'):
+        filtered_expected = {}
+        for key in output_dict.keys():
+            if filter_name in output_dict[key].keys():
+                if value == output_dict[key][filter_name]:
+                    filtered_expected.update({key: output_dict[key]})
+
+    with allure.step('Run show interface with the selected filter'):
+        output_dict_filtered = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            interface.show(f'--filter "{filter_name}={value}"')).get_returned_value()
+
+    with allure.step('Compare between filtered output dictionary to expected dictionary'
+                     '(at least one should be found)'):
+        ValidationTool.compare_nested_dictionary_content(output_dict_filtered, filtered_expected).verify_result()
+
+    with allure.step('Run show interface with an empty filter (returns all data)'):
+        output_dict_filtered = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            interface.show('--filter ""')).get_returned_value()
+
+    with allure.step('Compare between filtered output dictionary to the full dictionary'):
+        ValidationTool.compare_nested_dictionary_content(output_dict_filtered, output_dict).verify_result()
+
+    with allure.step('Run show interface with existing filter but value not exist'):
+        value = 'value_not_exists'
+        output_dict_filtered = interface.show(f'--filter "{filter_name}={value}"', output_format='auto')
+        assert output_dict_filtered == 'No Data'
+
+    with allure.step('Run show interface with a filter that does not exist'):
+        filter_name = 'filter_not_exist'
+        output_dict_filtered = interface.show(f'--filter "{filter_name}={value}"',
+                                              output_format='auto', should_succeed=False)
+        assert 'Error: No match found for filter depth of 4.' in output_dict_filtered
 
 
 def validate_interface_fields(output_dictionary):

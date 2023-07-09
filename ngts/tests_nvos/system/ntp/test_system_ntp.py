@@ -233,7 +233,7 @@ def test_configure_ntp_server():
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
             assert server_list == '', f"server list {server_list} should be empty"
             key_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.keys.show()).get_returned_value()
-            ValidationTool.compare_dictionary_content(key_list, NtpConsts.KEY_DEFAULT_DICT).verify_result()
+            assert key_list == '', f"key list {key_list} should be empty"
 
         with allure.step("Validate unset system ntp commands"):
             logging.info("Validate unset system ntp commands")
