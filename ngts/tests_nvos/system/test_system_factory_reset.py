@@ -320,6 +320,8 @@ def test_reset_factory_keep_only_files(engines):
     try:
         with allure.step('Create System object'):
             system = System()
+            date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
+            current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
 
         with allure.step('Validate health status is OK'):
             logger.info("Validate health status is OK")
@@ -330,10 +332,11 @@ def test_reset_factory_keep_only_files(engines):
             logger.info("Set description to ib ports")
             description = "with_all_files_param"
             ports = Tools.RandomizationTool.select_random_ports(requested_ports_state="up",
-                                                                num_of_ports_to_select=3).get_returned_value()
+                                                                num_of_ports_to_select=2).get_returned_value()
             apply_and_save_port = ports[0]
             just_apply_port = ports[1]
-            not_apply_port = ports[2]
+            not_apply_port = Tools.RandomizationTool.select_random_ports(requested_ports_state="down",
+                                                                         num_of_ports_to_select=2).get_returned_value()[0]
 
         with allure.step('Set and apply description to ib port, save config after it'):
             logger.info("Set and apply description to ib port, save config after it")

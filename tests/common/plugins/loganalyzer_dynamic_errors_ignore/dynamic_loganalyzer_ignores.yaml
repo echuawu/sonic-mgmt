@@ -464,7 +464,7 @@
     - Affected_test_cases:
       - tests/push_build_tests/general/wjh/test_wjh.py
       Redmine:
-        - 3520522
+        - 3519344
       Platform:
         - sn5600_simx
 
@@ -2774,7 +2774,7 @@
     - '.*ERR syncd#SDK: \[SX_API_PORT\.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future\. Please use sx_api_port_parser_attr_set in its place.*'
   Conditions:
     - Redmine:
-        - 3500892
+        - 3482636
 
 - Errors_list:
     - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
@@ -2956,3 +2956,38 @@
   Conditions:
     - Redmine:
         - 3494774
+
+# NVOS
+- Errors_list:
+    - '.*ERR healthd: configmgrd service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: interfaces-config service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: ntp-config service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: portsyncmgrd service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: swss-ibv0@0 service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: syncd-ibv0@0 service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: usercfgd service status: Down, app status: Down, fail reason: Inactive.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command
+      - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_immediate
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_force
+      - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+      Redmine:
+        - 3532697
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd: unexpected exception #012#012  RAN: \/usr\/bin\/monit summary.*'
+    - '.*ERR health-statsd#health_history: Fan: Failed to get fan information.*'
+    - ".*ERR health-statsd#health_history: ib-utils: Container 'ib-utils' is not running.*"
+    - '.*ERR health-statsd#health_history: monit: service is not ready.*'
+    - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
+    - ".*ERR health-statsd#health_history: syncd-ibv00: Container 'syncd-ibv00' is not running.*"
+    - ".*ERR health-statsd#health_history: PSU: Failed to get information.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      - tests_nvos/general/config_commands/est_show_diff_history.py::test_diff_history_revision_ids
+      Redmine:
+        - 3531453
