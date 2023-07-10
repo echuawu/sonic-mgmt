@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from tests.common.devices.base import AnsibleHostBase
 from tests.common.helpers.drop_counters.fanout_drop_counter import FanoutOnyxDropCounter
 
@@ -87,10 +88,12 @@ class OnyxHost(AnsibleHostBase):
                             -l {fanout_host} --extra-vars \'{extra_vars}\' -vvvvv'
         cli_cmd = playbook_template.format(ansible_path=ansible_root, playbook=ansible_playbook, inventory=inventory,
                                            fanout_host=self.hostname, extra_vars=json.dumps(kwargs))
-        res = self.localhost.shell(cli_cmd)
 
-        if res["localhost"]["rc"] != 0:
-            raise Exception("Unable to execute template\n{}".format(res["localhost"]["stdout"]))
+        # TODO: This is a temporal fix. because pytest_ansible has an issue, when calling localhost.shell(cli_cmd),
+        #  cli_cmd will be executed two times. After pytest_ansible issue is fixed, we can change it back.
+        res = os.system(cli_cmd)
+        if res != 0:
+            raise Exception("Unable to execute template\n{}".format(res))
 
     def get_system_type(self):
         """Get system type
