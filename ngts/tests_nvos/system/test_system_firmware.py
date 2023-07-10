@@ -256,8 +256,7 @@ def test_system_firmware_image_upload(engines, devices, topology_obj):
     """
     system = System()
     dut = devices.dut
-    original_images, original_image, fetched_image = get_image_data_and_fetch_random_image_files(system, dut,
-                                                                                                 topology_obj)
+    original_images, original_image, fetched_image, _ = get_image_data_and_fetch_random_image_files(system, dut, topology_obj)
     upload_protocols = ['scp', 'sftp']
     player = engines['sonic_mgmt']
     image_file = File(system.firmware.files, fetched_image)
