@@ -185,7 +185,7 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
     conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
     mars_docker_env_secrets = os.getenv("MARS_DOCKER_ENV_SECRETS")
     secrets_vars_script_path = create_secrets_vars_script(conn, mars_docker_env_secrets, container_name)
-    cmd_tmplt = "docker run -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
+    cmd_tmplt = "docker run --init -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
                 "--privileged --network=containers_network --mac-address={MAC_ADDRESS} " \
                 "--env ANSIBLE_CONFIG=/root/mars/workspace/sonic-mgmt/ansible/ansible.cfg {MARS_DOCKER_ENV_SECRETS} " \
                 "--name {CONTAINER_NAME} {IMAGE_NAME}:{IMAGE_TAG} /bin/bash"
