@@ -86,6 +86,10 @@ class BaseDevice:
         pass
 
     @abstractmethod
+    def _init_sensors_dict(self):
+        pass
+
+    @abstractmethod
     def _init_psu_list(self):
         pass
 
@@ -339,6 +343,11 @@ class BaseSwitch(BaseDevice, ABC):
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
         self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
 
+    def _init_sensors_dict(self):
+        self.sensors_dict = {
+            'HW': []
+        }
+
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
         self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
@@ -373,7 +382,7 @@ class JaguarSwitch(BaseSwitch):
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
         StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -401,7 +410,8 @@ class JaguarSwitch(BaseSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
     }
     CATEGORY_LIST_DEFAULT_DICT = {
         CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
@@ -409,7 +419,8 @@ class JaguarSwitch(BaseSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
     }
 
     def __init__(self):
