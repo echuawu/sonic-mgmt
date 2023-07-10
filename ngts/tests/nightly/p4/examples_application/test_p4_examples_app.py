@@ -7,7 +7,6 @@ from ngts.tests.nightly.p4.examples_application.conftest import verify_running_f
 logger = logging.getLogger()
 
 
-@pytest.mark.build
 @pytest.mark.p4_examples
 def test_p4_examples_feature_state(cli_objects, p4_example_default_feature):
     """

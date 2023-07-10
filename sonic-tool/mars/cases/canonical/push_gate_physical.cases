@@ -16,16 +16,6 @@
     </Case>
   </global>
   <case>
-    <name> P4 </name>
-    <info> </info>
-    <!-- Skipped on SimX due to missing feature  -->
-    <cmd>
-      <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/p4 --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results -m build --showlocals\'"</static_args>
-      </params>
-    </cmd>
-  </case>
-  <case>
     <name> Physical </name>
     <info> </info>
     <!-- Skipped on SimX due to missing feature/unstable feature -->
