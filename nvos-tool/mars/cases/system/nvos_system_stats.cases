@@ -71,7 +71,7 @@
   </case>
 
   <case>
-    <name> stats_log </name>
+    <name> stats_validate_tech_support_with_max_size </name>
     <info> </info>
     <tout> 3300 </tout>
     <cmd>

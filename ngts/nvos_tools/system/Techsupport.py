@@ -80,6 +80,6 @@ class TechSupport(BaseComponent):
         with allure.step('Get all tech-support stats dump files'):
             engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
             folder_name = techsupport.replace('.tar.gz', "")
-            output = engine.run_cmd('ls ' + folder_name + '/stats')
+            output = engine.run_cmd('sudo ls ' + folder_name + '/stats')
             engine.run_cmd('sudo rm -rf ' + folder_name)
             return output.split()
