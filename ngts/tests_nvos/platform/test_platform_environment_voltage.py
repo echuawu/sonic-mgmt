@@ -17,7 +17,7 @@ def test_show_platform_environment_voltage(engines):
         platform = Platform()
 
     with allure.step("Execute show platform environment and make sure all the components exist"):
-        voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show()).verify_result()
+        voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show().get_returned_value()).verify_result()
         sensors_count = engines.dut.run_cmd('redis-cli -n 6 keys * | grep VOLTAGE').splitlines()
 
     assert len(sensors_count) == len(voltage_output.keys())
@@ -25,7 +25,7 @@ def test_show_platform_environment_voltage(engines):
         random_sensor = random.choice(list(voltage_output.keys()))
 
         with allure.step("Execute show platform environment voltage for random sensor {}".format(random_sensor)):
-            sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show(random_sensor)).verify_result()
+            sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show(random_sensor).get_returned_value()).verify_result()
             with allure.step("Verify both dictionaries are equal"):
                 assert sensor_output == voltage_output[random_sensor], ""
 
@@ -34,7 +34,20 @@ def test_show_platform_environment_voltage(engines):
 
 
 @pytest.mark.platform
-def test_database_platform_environment_voltage(engines, devices):
+def test_show_voltage_bad_flow(engines, devices):
+    """
+    For Each Sensor we have DB (should be part of init flow)
+    """
+    with allure.step("Create System object"):
+        platform = Platform()
+        expected_msg = 'The requested item does not exist'
+    with allure.step("Try nv show platform environment voltage <not_exist_sensor>"):
+        output = platform.environment.voltage.show('not_sensor')
+        assert expected_msg in output.info, "check the show command for not exist sensor, the expected message is {}, the current output is {}".format(expected_msg, output)
+
+
+@pytest.mark.platform
+def test_database_platform_environment_voltage(engines):
     """
     For Each Sensor we have DB (should be part of init flow)
     """
@@ -62,9 +75,8 @@ def test_database_platform_environment_voltage(engines, devices):
 
 def get_random_sensor_max_min(sensors_dic):
     """
-
+        get random sensor out of all the sensors with: ok state and have max, min values
     :param sensors_dic:
-    :param keys_list:
     :return:
     """
     sensors_list = []
@@ -84,4 +96,4 @@ def check_voltage_in_range(sensor_output):
     with allure.step("Verify the actual voltage is between min and max"):
         assert sensor_output['state'] == 'ok', ""
         assert float(sensor_output['actual']) < float(sensor_output['max']), "the actual voltage out of range, max voltage = {}".format(sensor_output['max'])
-        assert float(sensor_output['actual']) > float(sensor_output['min']), "the actual voltage out of range, max voltage = {}".format(sensor_output['min'])
+        assert float(sensor_output['actual']) > float(sensor_output['min']), "the actual voltage out of range, min voltage = {}".format(sensor_output['min'])
