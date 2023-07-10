@@ -91,9 +91,9 @@ class TestToolkit:
         return the relevant release according to the version param.
         if its private version or unknown will return ''
         examples:
-            from  'nvos-25.02.2000'  to '25.02.2000'
-            from 'nvos-25.02.1910-014' to  '25.02.2000'
-            from 'nvos-25.02.1320-014' to  '25.02.1400'
+            from  'nvos-25.02.2000'  to 'nvos-25-02-2000'
+            from 'nvos-25.02.1910-014' to  'nvos-25-02-2000'
+            from 'nvos-25.02.1320-014' to  'nvos-25-02-1400'
         """
         pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
         if not re.match(pattern, version):
@@ -108,5 +108,22 @@ class TestToolkit:
             result = re.sub(pattern, f'{rounded_num_str}', version)
         else:
             result = version
-        result = result.replace('nvos-', '')
+        result = result.replace('.', '-')
         return result
+
+    @staticmethod
+    def is_release_version_in_mars_regular_run(version, topology_obj, setup_name):
+        """
+        check if all the following conditions are met
+            * it is not special run (sanitizer /code coverage)
+            * it is mars run
+            * version from release and not private version
+            * not ci run
+        :param version: string of the system version
+        :param topology_obj: topology object
+        :param setup_name: name of the setup
+        :return: True if all the conditions are met, else false
+        """
+        release_name = TestToolkit.version_to_release(version)
+        return (not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name and (
+            "_CI_" not in setup_name))

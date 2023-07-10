@@ -27,6 +27,9 @@ from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_
 from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.helpers.bug_handler.bug_handler_helper import handle_log_analyzer_errors
+from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
@@ -476,3 +479,25 @@ def test_name(request):
     """
     pytest.test_name = request.node.name
     return pytest.test_name
+
+
+@pytest.fixture(scope='function', autouse=True)
+def log_analyzer_bug_handler(setup_name, test_name, topology_obj, show_platform_summary):
+    """
+    fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
+    """
+    yield
+    run_log_analyzer_bug_handler = False
+    branch = topology_obj.players['dut']['branch']
+    cli_type = os.environ['CLI_TYPE']
+    version = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(cli_type)
+    system_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
+
+    if cli_type == 'NVUE':
+        branch = TestToolkit.version_to_release(version)
+        run_log_analyzer_bug_handler = TestToolkit.is_release_version_in_mars_regular_run(version, topology_obj, setup_name)
+
+    if run_log_analyzer_bug_handler:
+        res = handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name, topology_obj, system_type)
+        logger.info(f"Log Analyzer result: {res}")
+        # TODO - if 'create' in dict - fail test , else no
