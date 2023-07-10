@@ -103,17 +103,6 @@ def generate_and_verify_traffic(duthost, ptfadapter, src_port, dst_port, ptfhost
         pktlen: packet length
         ip_tunnel: Tunnel IP address of DUT
     """
-    ##################################################################################
-    # TODO: This is a temporary WA for bug 3421885 on SPC4, remove this after the issue is fixed
-    def _check_lag_status_up():
-        output = duthost.shell("show interface portchannel")
-        for line in output['stdout_lines']:
-            if "PortChannel1" in line or "PortChannel2" in line or "PortChannel3" in line or "PortChannel4" in line:
-                if "LACP(A)(Up)" not in line:
-                    return False
-        return True
-    pytest_assert(wait_until(180, 5, 0, _check_lag_status_up), "Not all port channels are up.")
-    ##################################################################################
     type_of_traffic = [type_of_traffic] if not isinstance(type_of_traffic, list) else type_of_traffic
 
     for tr_type in type_of_traffic:
