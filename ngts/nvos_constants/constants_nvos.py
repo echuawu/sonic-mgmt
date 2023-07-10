@@ -297,6 +297,7 @@ class SystemConsts:
 
 
 class DocumentsConsts:
+    MIN_FILES_SIZE = 2000
     TYPE_EULA = 'EULA'
     TYPE_USER_MANUAL = 'User manual'
     TYPE_OPEN_SOURCE_LICENSES = 'Open source licenses'

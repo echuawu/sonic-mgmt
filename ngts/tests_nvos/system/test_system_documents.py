@@ -41,6 +41,8 @@ def test_show_document_files(engines):
         output_files = OutputParsingTool.parse_json_str_to_dictionary(system.documentation.show('files')).verify_result()
     with allure.step('Verify all the documents paths'):
         verify_documents_path(output_files, 'path')
+    with allure.step('Verify all the documents size'):
+        verify_documents_size(engines.dut)
 
 
 @pytest.mark.system
@@ -101,6 +103,16 @@ def verify_documents_path(output, validation_key):
     """
     paths = [DocumentsConsts.PATH_EULA, DocumentsConsts.PATH_RELEASE_NOTES, DocumentsConsts.PATH_USER_MANUAL, DocumentsConsts.PATH_OPEN_SOURCE_LICENSES]
     verify_documents(output, validation_key, paths)
+
+
+def verify_documents_size(engine):
+    files_list = [DocumentsConsts.PATH_EULA, DocumentsConsts.PATH_RELEASE_NOTES, DocumentsConsts.PATH_USER_MANUAL]
+    error_msg = ''
+    for file in files_list:
+        temp = int(engine.run_cmd('stat -c %s {}'.format(file)).splitlines()[0])
+        if DocumentsConsts.MIN_FILES_SIZE > temp:
+            error_msg += "The {} expected size should be more than {} and the current size is {}".format(file, DocumentsConsts.MIN_FILES_SIZE, temp)
+    assert not error_msg, error_msg
 
 
 def verify_documents(output, validation_key, expected_list):
