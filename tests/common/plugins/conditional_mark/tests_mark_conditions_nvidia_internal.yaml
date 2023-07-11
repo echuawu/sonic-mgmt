@@ -1811,4 +1811,28 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
     conditions:
       - "https://redmine.mellanox.com/issues/3505442 and 'sn5' in platform"
 
+dash/crm/test_dash_crm.py::TestDashCRM::test_dash_routing:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+
+dash/crm/test_dash_crm.py::TestDashCRM::test_dash_outbound_ca_to_pa:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+
+dash/crm/test_dash_crm.py::TestDashCRM::test_dash_acl_group:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+
+dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
