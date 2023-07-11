@@ -166,4 +166,10 @@ tests_nvos/system/test_system_image::test_system_image_rename:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3529578"
     conditions:
       - https://redmine.mellanox.com/issues/3529578
+
+tests_nvos/system/test_system_documents.py::test_show_document_files:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3529640"
+    conditions:
+      - https://redmine.mellanox.com/issues/3529640
 ########################## NVOS IGNORE END ##########################
