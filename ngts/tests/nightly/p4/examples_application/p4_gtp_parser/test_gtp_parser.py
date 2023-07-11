@@ -13,7 +13,6 @@ GTP_U_PORT = 2152
 UDP_PROTOCOL = 17
 
 
-@pytest.mark.build
 @pytest.mark.p4_examples
 @allure.title('Test GTP entries can be added, updated correctly.')
 def test_gtp_parser_basic(engines, gtp_table_params, cli_objects):
@@ -38,7 +37,6 @@ def test_gtp_parser_basic(engines, gtp_table_params, cli_objects):
                                                       table_name=P4ExamplesConsts.GTP_PARSER_P4NSPECT_TABLE)
 
 
-@pytest.mark.build
 @pytest.mark.p4_examples
 @allure.title('Test gtp entries can hit as expect.')
 def test_gtp_parser_entry_hit(topology_obj, engines, gtp_table_params, cli_objects):
@@ -115,7 +113,6 @@ def test_gtp_parser_entry_hit(topology_obj, engines, gtp_table_params, cli_objec
             cli_objects.dut.p4_gtp.update_entry(entry_key, entry_params)
 
 
-@pytest.mark.build
 @pytest.mark.p4_examples
 @allure.title('Test gtp entries can not hit as expect.')
 def test_gtp_parser_entry_not_hit(topology_obj, engines, gtp_table_params, gtp_entry_mismatch_params):

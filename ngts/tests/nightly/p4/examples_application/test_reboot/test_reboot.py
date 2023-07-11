@@ -13,7 +13,6 @@ logger = logging.getLogger()
 REBOOT_LIST = ["reboot", "config reload -y"]
 
 
-@pytest.mark.build
 @pytest.mark.p4_examples
 def test_p4_examples_reboot(request, cli_objects, engines, topology_obj):
     """

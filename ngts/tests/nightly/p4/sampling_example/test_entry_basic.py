@@ -4,7 +4,6 @@ from ngts.constants.constants import P4SamplingConsts
 from ngts.helpers.p4_sampling_utils import P4SamplingUtils
 
 
-@pytest.mark.build
 @pytest.mark.p4_sampling
 @pytest.mark.usefixtures('p4_sampling_entries')
 class TestEntryBasic:

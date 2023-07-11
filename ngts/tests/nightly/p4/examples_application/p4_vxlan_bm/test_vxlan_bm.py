@@ -228,7 +228,6 @@ def p4_vxlan_bm_entry_config(engines, table_params, cli_objects):
         cli_obj.p4_examples.stop_p4_example_feature()
 
 
-@pytest.mark.build
 @pytest.mark.p4_examples
 def test_vxlan_bm_basic(topology_obj, engines, table_params, cli_objects):
     """

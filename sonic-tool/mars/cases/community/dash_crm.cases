@@ -3,7 +3,7 @@
     <global>
         <Test>
             <info> DASH CRM test </info>
-            <name> test_dash </name>
+            <name> test_dash_crm </name>
             <owner> </owner>
             <pre></pre>
             <post></post>

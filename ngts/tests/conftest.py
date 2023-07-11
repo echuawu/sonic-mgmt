@@ -279,15 +279,6 @@ def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, 
     # TODO: code below to convert 100(which we get from platform.json on DUT) to 100M, which is used by the test
     convert_speed_format_to_m_speed(split_mode_supported_speeds)
 
-    # TODO: on moose, it dose not support 10G, 25G, there is open bug for it, when get the value from platform.json,
-    # it has 10G, 25G, need to remove them.
-    if PlatformTypesConstants.PLATFORM_MOOSE == platform and is_redmine_issue_active([3416102]):
-        for port in split_mode_supported_speeds.keys():
-            for split_mode in split_mode_supported_speeds[port].keys():
-                for speed in ["10G", "40G"]:
-                    if speed in split_mode_supported_speeds[port][split_mode]:
-                        split_mode_supported_speeds[port][split_mode].remove(speed)
-
     for host_engine, host_info in hosts_ports.items():
         host_cli, host_ports = host_info
         for port in host_ports:
