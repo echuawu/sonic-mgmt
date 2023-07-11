@@ -650,44 +650,23 @@ def test_nhop_group_member_order_capability(duthost, tbinfo, ptfadapter, gather_
                          45: 'c0:ff:ee:00:00:11', 46: 'c0:ff:ee:00:00:0c',
                          47: 'c0:ff:ee:00:00:0f', 48: 'c0:ff:ee:00:00:0d', 49: 'c0:ff:ee:00:00:12'}
 
-    spc1_asic_flow_map = {0: 'c0:ff:ee:00:00:0c', 1: 'c0:ff:ee:00:00:11', 2: 'c0:ff:ee:00:00:0d',
-                          3: 'c0:ff:ee:00:00:10', 4: 'c0:ff:ee:00:00:0f', 5: 'c0:ff:ee:00:00:0e',
-                          6: 'c0:ff:ee:00:00:12', 7: 'c0:ff:ee:00:00:0b', 8: 'c0:ff:ee:00:00:0c',
-                          9: 'c0:ff:ee:00:00:11', 10: 'c0:ff:ee:00:00:0d', 11: 'c0:ff:ee:00:00:10',
-                          12: 'c0:ff:ee:00:00:0d', 13: 'c0:ff:ee:00:00:10', 14: 'c0:ff:ee:00:00:0c',
-                          15: 'c0:ff:ee:00:00:11', 16: 'c0:ff:ee:00:00:0d', 17: 'c0:ff:ee:00:00:10',
-                          18: 'c0:ff:ee:00:00:0c', 19: 'c0:ff:ee:00:00:11', 20: 'c0:ff:ee:00:00:12',
-                          21: 'c0:ff:ee:00:00:0b', 22: 'c0:ff:ee:00:00:0f', 23: 'c0:ff:ee:00:00:0e',
-                          24: 'c0:ff:ee:00:00:0b', 25: 'c0:ff:ee:00:00:12', 26: 'c0:ff:ee:00:00:0e',
-                          27: 'c0:ff:ee:00:00:0f', 28: 'c0:ff:ee:00:00:0d', 29: 'c0:ff:ee:00:00:10',
-                          30: 'c0:ff:ee:00:00:0c', 31: 'c0:ff:ee:00:00:11', 32: 'c0:ff:ee:00:00:0d',
-                          33: 'c0:ff:ee:00:00:10', 34: 'c0:ff:ee:00:00:0c', 35: 'c0:ff:ee:00:00:11',
-                          36: 'c0:ff:ee:00:00:12', 37: 'c0:ff:ee:00:00:0b', 38: 'c0:ff:ee:00:00:0f',
-                          39: 'c0:ff:ee:00:00:0e', 40: 'c0:ff:ee:00:00:0d', 41: 'c0:ff:ee:00:00:10',
-                          42: 'c0:ff:ee:00:00:0c', 43: 'c0:ff:ee:00:00:11', 44: 'c0:ff:ee:00:00:0c',
-                          45: 'c0:ff:ee:00:00:11', 46: 'c0:ff:ee:00:00:0d', 47: 'c0:ff:ee:00:00:10',
-                          48: 'c0:ff:ee:00:00:0c', 49: 'c0:ff:ee:00:00:11'}
-
-    spc2_asic_flow_map = {0: 'c0:ff:ee:00:00:11', 1: 'c0:ff:ee:00:00:0c', 2: 'c0:ff:ee:00:00:10',
-                          3: 'c0:ff:ee:00:00:0d', 4: 'c0:ff:ee:00:00:0e', 5: 'c0:ff:ee:00:00:0f',
-                          6: 'c0:ff:ee:00:00:0b', 7: 'c0:ff:ee:00:00:12', 8: 'c0:ff:ee:00:00:11',
-                          9: 'c0:ff:ee:00:00:0c', 10: 'c0:ff:ee:00:00:10', 11: 'c0:ff:ee:00:00:0d',
-                          12: 'c0:ff:ee:00:00:10', 13: 'c0:ff:ee:00:00:0d', 14: 'c0:ff:ee:00:00:11',
-                          15: 'c0:ff:ee:00:00:0c', 16: 'c0:ff:ee:00:00:10', 17: 'c0:ff:ee:00:00:0d',
-                          18: 'c0:ff:ee:00:00:11', 19: 'c0:ff:ee:00:00:0c', 20: 'c0:ff:ee:00:00:0b',
-                          21: 'c0:ff:ee:00:00:12', 22: 'c0:ff:ee:00:00:0e', 23: 'c0:ff:ee:00:00:0f',
-                          24: 'c0:ff:ee:00:00:12', 25: 'c0:ff:ee:00:00:0b', 26: 'c0:ff:ee:00:00:0f',
-                          27: 'c0:ff:ee:00:00:0e', 28: 'c0:ff:ee:00:00:10', 29: 'c0:ff:ee:00:00:0d',
-                          30: 'c0:ff:ee:00:00:11', 31: 'c0:ff:ee:00:00:0c', 32: 'c0:ff:ee:00:00:10',
-                          33: 'c0:ff:ee:00:00:0d', 34: 'c0:ff:ee:00:00:11', 35: 'c0:ff:ee:00:00:0c',
-                          36: 'c0:ff:ee:00:00:0b', 37: 'c0:ff:ee:00:00:12', 38: 'c0:ff:ee:00:00:0e',
-                          39: 'c0:ff:ee:00:00:0f', 40: 'c0:ff:ee:00:00:10', 41: 'c0:ff:ee:00:00:0d',
-                          42: 'c0:ff:ee:00:00:11', 43: 'c0:ff:ee:00:00:0c', 44: 'c0:ff:ee:00:00:11',
-                          45: 'c0:ff:ee:00:00:0c', 46: 'c0:ff:ee:00:00:10', 47: 'c0:ff:ee:00:00:0d',
-                          48: 'c0:ff:ee:00:00:11', 49: 'c0:ff:ee:00:00:0c'}
-
-    # SPC2, SPC3, SPC4 - all have the same traffic flow
-    spc3_asic_flow_map = spc4_asic_flow_map = spc2_asic_flow_map
+    spc_asic_flow_map = {0: 'c0:ff:ee:00:00:0b', 1: 'c0:ff:ee:00:00:12', 2: 'c0:ff:ee:00:00:0e',
+                         3: 'c0:ff:ee:00:00:0f', 4: 'c0:ff:ee:00:00:10', 5: 'c0:ff:ee:00:00:0d',
+                         6: 'c0:ff:ee:00:00:11', 7: 'c0:ff:ee:00:00:0c', 8: 'c0:ff:ee:00:00:0b',
+                         9: 'c0:ff:ee:00:00:12', 10: 'c0:ff:ee:00:00:0e', 11: 'c0:ff:ee:00:00:0f',
+                         12: 'c0:ff:ee:00:00:0e', 13: 'c0:ff:ee:00:00:0f', 14: 'c0:ff:ee:00:00:0b',
+                         15: 'c0:ff:ee:00:00:12', 16: 'c0:ff:ee:00:00:0e', 17: 'c0:ff:ee:00:00:0f',
+                         18: 'c0:ff:ee:00:00:0b', 19: 'c0:ff:ee:00:00:12', 20: 'c0:ff:ee:00:00:11',
+                         21: 'c0:ff:ee:00:00:0c', 22: 'c0:ff:ee:00:00:10', 23: 'c0:ff:ee:00:00:0d',
+                         24: 'c0:ff:ee:00:00:0c', 25: 'c0:ff:ee:00:00:11', 26: 'c0:ff:ee:00:00:0d',
+                         27: 'c0:ff:ee:00:00:10', 28: 'c0:ff:ee:00:00:0e', 29: 'c0:ff:ee:00:00:0f',
+                         30: 'c0:ff:ee:00:00:0b', 31: 'c0:ff:ee:00:00:12', 32: 'c0:ff:ee:00:00:0e',
+                         33: 'c0:ff:ee:00:00:0f', 34: 'c0:ff:ee:00:00:0b', 35: 'c0:ff:ee:00:00:12',
+                         36: 'c0:ff:ee:00:00:11', 37: 'c0:ff:ee:00:00:0c', 38: 'c0:ff:ee:00:00:10',
+                         39: 'c0:ff:ee:00:00:0d', 40: 'c0:ff:ee:00:00:0e', 41: 'c0:ff:ee:00:00:0f',
+                         42: 'c0:ff:ee:00:00:0b', 43: 'c0:ff:ee:00:00:12', 44: 'c0:ff:ee:00:00:0b',
+                         45: 'c0:ff:ee:00:00:12', 46: 'c0:ff:ee:00:00:0e', 47: 'c0:ff:ee:00:00:0f',
+                         48: 'c0:ff:ee:00:00:0b', 49: 'c0:ff:ee:00:00:12'}
 
     # Make sure a given flow always hash to same nexthop/neighbor. This is done to try to find issue
     # where SAI vendor changes Hash Function across SAI releases. Please note this will not catch the issue every time
@@ -696,8 +675,8 @@ def test_nhop_group_member_order_capability(duthost, tbinfo, ptfadapter, gather_
     # Fill this array after first run of test case which will give neighbor selected
     SUPPORTED_ASIC_TO_NEXTHOP_SELECTED_MAP = {"th": th_asic_flow_map, "gb": gb_asic_flow_map, "gblc": gb_asic_flow_map,
                                               "td2": td2_asic_flow_map, "th2": th2_asic_flow_map,
-                                              "spc1": spc1_asic_flow_map, "spc2": spc2_asic_flow_map,
-                                              "spc3": spc3_asic_flow_map, "spc4": spc4_asic_flow_map}
+                                              "spc1": spc_asic_flow_map, "spc2": spc_asic_flow_map,
+                                              "spc3": spc_asic_flow_map, "spc4": spc_asic_flow_map}
 
     vendor = duthost.facts["asic_type"]
     hostvars = duthost.host.options['variable_manager']._hostvars[duthost.hostname]
