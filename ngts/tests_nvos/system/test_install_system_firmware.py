@@ -28,7 +28,7 @@ def test_install_system_firmware(engines, test_name):
     system = System()
     fae = Fae()
     fw_has_changed = False
-    fw_file = "/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/fw-QTM2-rel-31_2010_4026-EVB.mfa"
+    fw_file = "/auto/sw_system_project/NVOS_INFRA/verification_files/fw-QTM2-rel-31_2010_4026-EVB.mfa"
     new_fw_name = "31.2010.4026"
     new_fw_to_install = fw_file.split("/")[-1]
     logging.info("using {} fw file".format(fw_file))

@@ -161,12 +161,6 @@ tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_descripti
     conditions:
       - https://redmine.mellanox.com/issues/3527752
 
-tests_nvos/system/test_system_image::test_system_image_rename:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3529578"
-    conditions:
-      - https://redmine.mellanox.com/issues/3529578
-
 tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3533906"

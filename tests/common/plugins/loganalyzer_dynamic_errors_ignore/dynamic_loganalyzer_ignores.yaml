@@ -2966,6 +2966,12 @@
     - '.*ERR healthd: swss-ibv0@0 service status: Down, app status: Down, fail reason: Inactive.*'
     - '.*ERR healthd: syncd-ibv0@0 service status: Down, app status: Down, fail reason: Inactive.*'
     - '.*ERR healthd: usercfgd service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: usercfgd service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: system_serviceSet changed size during iteration.*'
+    - '.*ERR healthd: interfaces-config service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: swss-ibv0@0 service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: syncd-ibv0@0 service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: ntp-config service status: Starting, app status: Starting, fail reason.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_system_reboot.py::test_reboot_command

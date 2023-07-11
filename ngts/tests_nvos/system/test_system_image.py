@@ -93,7 +93,7 @@ def test_system_image_rename(release_name):
 
     with allure.step("Install original image name, should fail"):
         logging.info("Install original image name: {}, should fail".format(fetched_image))
-        File(system.image.files, fetched_image).action_file_install("Action failed")
+        File(system.image.files, fetched_image).action_file_install("Action failed", "force")
 
     with allure.step("Delete original image name, should fail"):
         logging.info("Delete original image name, should fail")
