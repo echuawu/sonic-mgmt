@@ -15,6 +15,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 FILES_DIR = os.path.join(BASE_DIR, 'files')
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SDK_DUMP_DIR = '/var/log/mellanox/sdk-dumps'
+FW_EVENTS_DICT = {"FW_HEALTH_EVENT": 1, "PLL_LOCK_EVENT": 6}
 
 
 @pytest.mark.disable_loganalyzer
@@ -53,9 +54,11 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
             cli_objects.dut.general.reboot_reload_flow(topology_obj=topology_obj)
 
 
-def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer):
+@pytest.mark.parametrize("fw_event", ["FW_HEALTH_EVENT", "PLL_LOCK_EVENT"])
+def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer, fw_event):
     duthost = engines.dut
-
+    logger.info("Health event generated is {}".format(fw_event))
+    event_id = FW_EVENTS_DICT[fw_event]
     with allure.step('Copy to dut a script that triggers SDK health event'):
         cp_sdk_event_trigger_script_to_dut_syncd(duthost)
 
@@ -64,13 +67,20 @@ def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer):
         number_of_sdk_error_before = generate_tech_support_and_count_sdk_dumps(duthost)
 
     with allure.step('STEP2: Trigger SDK health event at dut'):
-        duthost.run_cmd('docker exec -it syncd python mellanox_sdk_trigger_event_script.py')
+        duthost.run_cmd('docker exec -it syncd python mellanox_sdk_trigger_event_script.py --fw_event {}'.format(event_id))
         for dut in loganalyzer:
             loganalyzer[dut].expect_regex.extend(["Health event happened, severity"])
-            ignoreRegex = [
-                r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
-                r".*Failed command read at communication channel: Connection reset by peer.*",
-            ]
+            if fw_event == "FW_HEALTH_EVENT":
+                ignoreRegex = [
+                    r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
+                    r".*Failed command read at communication channel: Connection reset by peer.*",
+                ]
+            if fw_event == "PLL_LOCK_EVENT":
+                ignoreRegex = [
+                    r".*SXD_HEALTH_FW_FATAL: FW Fatal:fw_cause.*",
+                    r".*SX_HEALTH_FATAL: cause_string = \[PLL lock failure\].*",
+                    r".*SXD_HEALTH_FATAL:On device \d+ cause =\'PLL lock failure\'.*"
+                ]
             loganalyzer[dut].ignore_regex.extend(ignoreRegex)
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):
         number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)

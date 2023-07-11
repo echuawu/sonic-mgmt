@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description='This example demonstrates how to r
                                               activate and handle SDK health events',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--device_id', default=1, type=lambda x: int(x, 0), help='The device id on which the health example will run')
+parser.add_argument('--fw_event', type=int, help='The Event ID as listed in the sx_dbg_auto.h file')
 args = parser.parse_args()
 
 
@@ -42,7 +43,7 @@ def trigger():
     # trigger a test event which will activate the handler
     sx_dbg_test_params_p = new_sx_dbg_test_params_t_p()
     sx_dbg_test_params_p.dev_id = args.device_id
-    sx_dbg_test_params_p.test_type = SX_DBG_TEST_FW_FATAL_EVENT_E
+    sx_dbg_test_params_p.test_type = args.fw_event
     rc = sx_api_fw_dbg_test(handle, sx_dbg_test_params_p)
     if rc != SX_STATUS_SUCCESS:
         print(("sx_api_fw_dbg_test failed rc %d" % rc))
