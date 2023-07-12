@@ -102,7 +102,7 @@ def test_system_image_rename(release_name):
     try:
         with allure.step("Install new image name"):
             logging.info("Install new image name: {}".format(new_name))
-            fetched_image_file.action_file_install().verify_result()
+            fetched_image_file.action_file_install(op_param="force").verify_result()
 
         with allure.step("Verify installed image"):
             logging.info("Verify installed image, we should see the origin name and not the new name,"

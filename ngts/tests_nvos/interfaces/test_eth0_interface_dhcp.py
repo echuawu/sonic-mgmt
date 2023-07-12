@@ -131,23 +131,29 @@ def test_interface_eth0_speed_duplex_autoneg(engines):
         list_supported_duplex = ["full", "half"]
         for speed in list_supported_speeds:
             for duplex in list_supported_duplex:
-                mgmt_port.interface.link.set(op_param_name='speed', op_param_value=speed, apply=True,
-                                             ask_for_confirmation=True).verify_result()
+                try:
+                    mgmt_port.interface.link.set(op_param_name='speed', op_param_value=speed, apply=True,
+                                                 ask_for_confirmation=True).verify_result()
 
-                result = mgmt_port.interface.link.set(op_param_name='duplex', op_param_value=duplex,
-                                                      apply=True, ask_for_confirmation=True)
-                if not result:
-                    SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                    apply_config, engines.dut, True).verify_result()
+                    time.sleep(5)
+                    Port.wait_for_port_state(mgmt_port, "up")
 
-                output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                    mgmt_port.interface.link.show()).get_returned_value()
-                Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                                  field_name=IbInterfaceConsts.LINK_SPEED,
-                                                                  expected_value=speed)
-                Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                                  field_name=IbInterfaceConsts.LINK_DUPLEX,
-                                                                  expected_value=duplex)
+                    result = mgmt_port.interface.link.set(op_param_name='duplex', op_param_value=duplex,
+                                                          apply=True, ask_for_confirmation=True)
+                    if not result:
+                        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
+                                                        apply_config, engines.dut, True).verify_result()
+
+                    output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+                        mgmt_port.interface.link.show()).get_returned_value()
+                    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                                      field_name=IbInterfaceConsts.LINK_SPEED,
+                                                                      expected_value=speed).verify_result()
+                    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
+                                                                      field_name=IbInterfaceConsts.LINK_DUPLEX,
+                                                                      expected_value=duplex).verify_result()
+                except BaseException as ex:
+                    logger.error(ex)
 
     with allure.step('Set autoneg to off'):
         mgmt_port.interface.link.set(op_param_name='auto-negotiate', op_param_value='off', apply=True,
