@@ -662,7 +662,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step('Apply DNS servers configuration'):
                 self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
                     is_air_setup=platform_params.setup_name.startswith('air'))
-        self.save_configuration()
 
     def apply_config_files(self, topology_obj, setup_name, platform_params):
         platform = platform_params['platform']

@@ -234,6 +234,7 @@ class SonicIpCli(IpCliCommon):
             self.apply_nvidia_air_dns_servers_resolv_conf()
         else:
             self.apply_nvidia_lab_dns_servers_resolv_conf()
+        self.engine.run_cmd("sudo config save -y")
 
     def apply_nvidia_lab_dns_servers_resolv_conf(self):
         """
