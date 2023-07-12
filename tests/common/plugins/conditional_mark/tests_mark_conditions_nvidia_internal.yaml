@@ -1831,4 +1831,10 @@ dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
     conditions:
       - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
 
+pfcwd/test_pfcwd_warm_reboot.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3535060 and platform sn5600"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3535060 and 'sn5600' in platform"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
