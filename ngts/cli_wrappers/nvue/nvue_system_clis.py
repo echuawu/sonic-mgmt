@@ -54,7 +54,7 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_firmware_install(engine, param=""):
-        cmd = "nv action install system firmware asic {param}".format(param=param)
+        cmd = "nv action install system firmware files {param}".format(param=param)
         logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -194,3 +194,10 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv show system stats files {file}".format(file=file)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd_after_cmd([cmd, exit_cmd])
+
+    @staticmethod
+    def action_clear(engine, resource_path, op_params=''):
+        path = resource_path.replace('/', ' ')
+        cmd = f"nv action clear {path} {op_params}"
+        logging.info(f"Running '{cmd}' on dut using NVUE")
+        return engine.run_cmd(cmd)

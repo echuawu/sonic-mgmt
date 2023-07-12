@@ -128,6 +128,7 @@ class ActionType:
     UPLOAD = '@upload'
     RESET = '@reset'
     CHANGE = '@change'
+    CLEAR = '@clear'
 
 
 class ReadFromDataBase:

@@ -4,8 +4,10 @@ import logging
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.constants import AuthConsts
+from ngts.tests_nvos.general.security.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -85,3 +87,32 @@ def configure_authentication_order(order, apply=True):
     with allure.step(f'Set authentication order: {order}'):
         order = ','.join(order)
         System().aaa.authentication.set(AuthConsts.ORDER, order, apply=apply).verify_result()
+
+
+def set_local_users(engines, users):
+    """
+    @summary: Set the given users on local.
+        * users should be a list of users.
+        * a user should be a dictionary in the following format:
+            {
+                username: str ,
+                password: str ,
+                role: <admin, monitor>
+            }
+    @param engines: engines object
+    @param users: users list (list of dictionaries)
+    """
+    with allure.step(f'Set {len(users)} local users'):
+        for user in users:
+            username = user[AaaConsts.USERNAME]
+            password = user[AaaConsts.PASSWORD]
+            role = user[AaaConsts.ROLE]
+            with allure.step(f'Set user "{username}" with role: {role}'):
+                user_obj = System(username=username).aaa.user
+                logging.info(f'Set user: {username} , password: {password}')
+                user_obj.set(AaaConsts.PASSWORD, password).verify_result()
+                logging.info(f'Set user: {username} , role: {role}')
+                user_obj.set(AaaConsts.ROLE, role).verify_result()
+
+    with allure.step('Apply changes together'):
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)

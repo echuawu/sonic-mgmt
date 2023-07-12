@@ -101,7 +101,7 @@ class ValidationTool:
                 result_obj.result = False
                 result_obj.info = "Field {field_name} can't be found".format(field_name=field_name)
 
-            if str(output_dictionary[field_name]).strip() == expected_value.strip():
+            if str(output_dictionary[field_name]).strip() == str(expected_value).strip():
                 if should_be_equal:
                     logging.info("The value of {field_name} is '{expected_value}' as expected".format(
                         field_name=field_name, expected_value=expected_value))
@@ -135,12 +135,10 @@ class ValidationTool:
             result = True
             ret_info = ""
             for field, value in zip(expected_fields, expected_values):
-                if field not in output_dict.keys():
-                    ret_info += 'the {field} not found\n'.format(field=field)
+                result_obj = ValidationTool.verify_field_value_in_output(output_dict, field, value)
+                if not result_obj.result:
                     result = False
-                elif output_dict[field] != value:
-                    ret_info += 'the {field} value is {value} not {expected} as expected\n'.format(field=field, value=output_dict[field], expected=value)
-                    result = False
+                    ret_info += result_obj.info
 
             return ResultObj(result, ret_info, ret_info)
 

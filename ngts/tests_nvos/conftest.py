@@ -22,6 +22,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.constants.constants import DbConstants, CliType
@@ -214,7 +215,11 @@ def clear_config(markers):
                     active_port = result.returned_value[0]
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
 
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=False)
+            system = System()
+            system.aaa.authentication.restrictions.set(RestrictionsConsts.LOCKOUT_STATE, RestrictionsConsts.DISABLED)\
+                .verify_result()
+            system.aaa.authentication.restrictions.set(RestrictionsConsts.FAIL_DELAY, 0).verify_result()
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, system, apply=False)
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
             if active_port:
                 active_port.ib_interface.wait_for_port_state(state='up').verify_result()
