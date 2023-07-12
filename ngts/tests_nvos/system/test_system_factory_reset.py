@@ -449,7 +449,7 @@ def _add_verification_data(engine, system):
             output = engine.run_cmd("sudo mkdir /var/dump/")
         output = engine.run_cmd("sudo touch /var/dump/verification_test")
 
-    if is_redmine_issue_active([3532683]):
+    if not is_redmine_issue_active([3532683]):
         with allure.step("Add file to /var/stats/"):
             output = engine.run_cmd("ls /var/stats/")
             if "No such file or directory" in output:
@@ -545,7 +545,7 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
             if output and "No such file or directory" not in output:
                 errors += "\ntech-support files were not deleted"
 
-    if is_redmine_issue_active([3532683]):
+    if not is_redmine_issue_active([3532683]):
         with allure.step("Verify stats internal files were deleted"):
             if param != KEEP_ONLY_FILES:
                 output = engine.run_cmd("ls /var/stats")
