@@ -310,6 +310,12 @@ class SonicInstallationSteps:
                 deploy_minigpraph(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
                                   recover_by_reboot=recover_by_reboot, topology_obj=topology_obj,
                                   cli_obj=general_cli_obj)
+            with allure.step('Apply DNS servers configuration'):
+                for dut in setup_info['duts']:
+                    general_cli_obj = dut['cli_obj']
+                    general_cli_obj.cli_obj.ip.apply_dns_servers_into_resolv_conf(
+                        is_air_setup=platform_params.setup_name.startswith('air'))
+                    general_cli_obj.save_configuration()
             # TODO remove the "if" for DPU when the RM issue 3203843 will be resolved
             if not is_bf_topo(sonic_topo):
                 for dut in setup_info['duts']:

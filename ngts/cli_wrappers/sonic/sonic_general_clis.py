@@ -348,14 +348,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if apply_base_config:
             with allure.step("Apply basic config"):
-                self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp)
+                self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp,
+                                        configure_dns=configure_dns)
         else:
             self.disable_ztp(disable_ztp)
-
-        if configure_dns:
-            with allure.step('Apply DNS servers configuration into /etc/resolv.conf'):
-                self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
-                    is_air_setup=platform_params.setup_name.startswith('air'))
 
         self.configure_dhclient_if_simx()
 
@@ -633,7 +629,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.save_configuration()
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
-                           disable_ztp=False):
+                           disable_ztp=False, configure_dns=False):
         with allure.step("Upload port_config.ini and config_db.json with reboot of dut"):
             retry_call(self.apply_config_files,
                        fargs=[topology_obj, setup_name, platform_params],
@@ -662,6 +658,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Enable INFO logging on swss"):
             self.enable_info_logging_on_docker(docker_name='swss')
 
+        if configure_dns:
+            with allure.step('Apply DNS servers configuration'):
+                self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
+                    is_air_setup=platform_params.setup_name.startswith('air'))
         self.save_configuration()
 
     def apply_config_files(self, topology_obj, setup_name, platform_params):
