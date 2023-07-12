@@ -2,8 +2,10 @@ import time
 import logging
 
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
@@ -40,7 +42,7 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
                 should_succeed=False)
 
 
-def validate_users_authorization_and_role(engines, users):
+def validate_users_authorization_and_role(engines, users, login_should_succeed=True):
     """
     @summary:
         in this function we want to iterate on all users given and validate that access to switch
@@ -49,11 +51,14 @@ def validate_users_authorization_and_role(engines, users):
     """
     try:
         for user_info in users:
+            logging.info(f'Check login and role for user {user_info["username"]}')
             connect_to_switch_and_validate_role(engines, user_info['username'], user_info['password'],
                                                 user_info['role'])
     except Exception as err:
         logging.info("Got an exception while connection to switch and validating role")
-        raise err
+        if login_should_succeed:
+            logging.info('Failed due to authentication or permission error')
+            raise err
     finally:
         restore_original_engine_credentials(engines)
 
@@ -78,15 +83,80 @@ def validate_authentication_fail_with_credentials(engines, username, password):
             should_succeed=False)
 
 
-def configure_authentication_order(order, apply=True):
+def validate_services_and_dockers_availability(engines, devices):
+    """
+    @summary: validate all services and dockers are up
+    """
+    with allure.step("validating all services and dockers are up"):
+        devices.dut.verify_dockers(engines.dut).verify_result()
+        devices.dut.verify_services(engines.dut).verify_result()
+
+
+def configure_authentication(engines, devices, order=None, failthrough=None, fallback=None):
     """
     @summary:
-        Configure order with given authentication types
-    @param order: ordered list with authentication types
+        Configure different authentication settings as given
     """
-    with allure.step(f'Set authentication order: {order}'):
-        order = ','.join(order)
-        System().aaa.authentication.set(AuthConsts.ORDER, order, apply=apply).verify_result()
+    if order == failthrough == fallback is None:
+        return
+
+    with allure.step('Configure authentication settings'):
+        auth_obj = System().aaa.authentication
+        if order:
+            logging.info(f'Set authentication order: {order}')
+            order = ','.join(order)
+            auth_obj.set(AuthConsts.ORDER, order).verify_result()
+        if failthrough:
+            logging.info(f'Set authentication failthrough: {failthrough}')
+            auth_obj.set(AuthConsts.FAILTHROUGH, failthrough).verify_result()
+        # if fallback:
+        #     logging.info(f'Set authentication fallback: {fallback}')
+        #     auth_obj.set(AuthConsts.FALLBACK, fallback).verify_result()
+
+    with allure.step('Apply settings'):
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
+
+    with allure.step('Validate that services and dockers are up'):
+        DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut)
+
+
+def user_lists_difference(users_a, users_b):
+    """
+    @summary: Get the difference of the two given user lists.
+        * Difference (like sets difference): A - B = all elements of A that are not in B.
+        * Here, the elements are users (dictionaries {username: str, password: str, role: <admin, monitor>}),
+            then the result will be all users of A, that don't have the same username as any user of B.
+    @param users_a: users list A
+    @param users_b: users list B
+    @return: list of the difference.
+    """
+    with allure.step('Get users lists difference'):
+        a_usernames = [user[AaaConsts.USERNAME] for user in users_a]
+        b_usernames = [user[AaaConsts.USERNAME] for user in users_b]
+        logging.info(f'A: {a_usernames}\nB: {b_usernames}')
+
+        usernames_diff = list(set(a_usernames) - set(b_usernames))
+        logging.info(f'Diff: {usernames_diff}')
+
+        return [user for user in users_a if user[AaaConsts.USERNAME] in usernames_diff]
+
+
+def mutual_users(users_a, users_b):
+    """
+    @summary: Get the mutual of the two given user lists.
+    @param users_a: users list A
+    @param users_b: users list B
+    @return: list of the mutual users.
+    """
+    with allure.step('Get mutual users list'):
+        a_usernames = [user[AaaConsts.USERNAME] for user in users_a]
+        b_usernames = [user[AaaConsts.USERNAME] for user in users_b]
+        logging.info(f'A: {a_usernames}\nB: {b_usernames}')
+
+        mutual_usernames = list(set(a_usernames).intersection(set(b_usernames)))
+        logging.info(f'Mutual users: {mutual_usernames}')
+
+        return [user for user in users_a if user[AaaConsts.USERNAME] in mutual_usernames]
 
 
 def set_local_users(engines, users):
