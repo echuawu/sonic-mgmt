@@ -28,31 +28,39 @@ def remove_ldap_configurations(engines):
         system.aaa.authentication.show(output_format=OutputFormat.auto)
 
 
-@pytest.fixture(scope='session', autouse=True)
-def alias_docker_ldap_server_dns(engines):
+@pytest.fixture(scope='function', autouse=False, params=[LdapConsts.IPV4, LdapConsts.IPV6])
+def alias_ldap_server_dn(engines, request):
     """
     @summary: To allow the switch work with the docker ldap server with certificate,
         we need to add an alias of the server's ip to a specific domain name.
         Also, as cleanup step, remove the line of the added alias after the tests.
     """
-    with allure.step('Before tests: Verify that docker ldap server dns has alias in the switch'):
+    connection_method = request.param
+    if connection_method == LdapConsts.IPV4:
+        alias_line = LdapConsts.DOCKER_LDAP_SERVER_HOST_ALIAS_IPV4
+        remove_alias_cmd = "sudo sed -i '/10\\.237\\.0\\.86 ldap\\.itzgeek\\.local/d' /etc/hosts"
+    else:
+        alias_line = LdapConsts.DOCKER_LDAP_SERVER_HOST_ALIAS_IPV6
+        remove_alias_cmd = "sudo sed -i '/fdfd:fdfd:10:237:250:56ff:fe1b:56 ldap\\.itzgeek\\.local/d' /etc/hosts"
+
+    with allure.step(f'Before tests: Verify that docker ldap server dn has {connection_method} alias in the switch'):
         output = engines.dut.run_cmd('cat /etc/hosts')
-        if LdapConsts.DOCKER_LDAP_SERVER_HOST_ALIAS not in output:
+        if alias_line not in output:
             with allure.step('Switch does not have existing alias for the docker ldap server. Add the alias'):
-                engines.dut.run_cmd(f'echo "{LdapConsts.DOCKER_LDAP_SERVER_HOST_ALIAS} " | sudo tee -a /etc/hosts')
+                engines.dut.run_cmd(f'echo "{alias_line} " | sudo tee -a /etc/hosts')
 
             with allure.step('Verify alias wad added'):
                 output = engines.dut.run_cmd('cat /etc/hosts')
-                assert LdapConsts.DOCKER_LDAP_SERVER_HOST_ALIAS in output, \
+                assert alias_line in output, \
                     f'Error: docker server alias was not found in /etc/hosts .\n' \
                     f'/etc/hosts content: {output}\n' \
-                    f'Expected: {LdapConsts.DOCKER_LDAP_SERVER_HOST_ALIAS}'
+                    f'Expected: {alias_line}'
 
     yield
 
     with allure.step('After tests: Remove docker ldap server alias from the switch'):
         # engines.dut.run_cmd("sudo sed -i '$ d' /etc/hosts")
-        engines.dut.run_cmd("sudo sed -i '/10\\.237\\.0\\.86 ldap\\.itzgeek\\.local/d' /etc/hosts")
+        engines.dut.run_cmd(remove_alias_cmd)
 
 
 @pytest.fixture(scope='function', autouse=False)

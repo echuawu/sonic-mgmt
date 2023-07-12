@@ -476,7 +476,8 @@ def test_ldap_failthrough(test_api, encryption_mode, reset_aaa, engines, devices
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_cert_verify(test_api, encryption_mode, reset_aaa, engines, devices, backup_and_restore_certificates):
+def test_cert_verify(test_api, encryption_mode, reset_aaa, engines, devices, backup_and_restore_certificates,
+                     alias_ldap_server_dn):
     logging.info(f'Test setup: {test_api}, {encryption_mode}')
     TestToolkit.tested_api = test_api
 

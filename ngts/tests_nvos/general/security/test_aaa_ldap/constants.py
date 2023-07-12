@@ -278,7 +278,8 @@ class LdapConsts:
         ]
     }
 
-    DOCKER_LDAP_SERVER_HOST_ALIAS = '10.237.0.86 ldap.itzgeek.local'
+    DOCKER_LDAP_SERVER_HOST_ALIAS_IPV4 = '10.237.0.86 ldap.itzgeek.local'
+    DOCKER_LDAP_SERVER_HOST_ALIAS_IPV6 = 'fdfd:fdfd:10:237:250:56ff:fe1b:56 ldap.itzgeek.local'
 
     LDAP_SERVERS_LIST = [
         PHYSICAL_LDAP_SERVER,

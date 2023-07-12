@@ -118,11 +118,8 @@ def enable_ldap_feature(engines, devices):
         are available we will change this function
     """
     with allure.step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], failthrough=LdapConsts.ENABLED, fallback=LdapConsts.ENABLED)
-        NVUED_SLEEP_FOR_RESTART = 4
-        with allure.step("Sleeping {} secs for nvued to start the restart".format(NVUED_SLEEP_FOR_RESTART)):
-            time.sleep(NVUED_SLEEP_FOR_RESTART)
-        DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
+                                 failthrough=LdapConsts.ENABLED, fallback=LdapConsts.ENABLED)
 
 
 def configure_ldap_and_validate(engines, ldap_server_list, devices, should_validate_conf=True):

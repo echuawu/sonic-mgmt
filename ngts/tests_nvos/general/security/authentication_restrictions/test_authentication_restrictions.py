@@ -9,7 +9,8 @@ from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.authentication_restrictions.auth_restrictions_test_utils import *
 from ngts.tests_nvos.general.security.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_utils import set_local_users
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LDAPConsts
+from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator, OpenapiAuthenticator
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import configure_ldap, enable_ldap_feature
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -518,7 +519,7 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
 @pytest.mark.simx
 @pytest.mark.security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_auth_restrictions_remote_counting(test_api, engines, test_user):
+def test_auth_restrictions_remote_counting(test_api, engines, devices, test_user):
     """
     @summary: Verify that when there are more than <lockout-attempts> remote authentication servers configured,
         an authentication failure still counts as 1 attempt.
@@ -533,19 +534,15 @@ def test_auth_restrictions_remote_counting(test_api, engines, test_user):
 
     with allure.step('Configure remote auth with more than <lockout-attempts> servers'):
         aaa = System().aaa
-        servers_info = [LDAPConsts.PHYSICAL_LDAP_SERVER.copy(), LDAPConsts.DOCKER_LDAP_SERVER.copy(),
-                        LDAPConsts.DOCKER_LDAP_SERVER_DNS.copy()]
+        servers_info = [LdapConsts.PHYSICAL_LDAP_SERVER.copy(), LdapConsts.DOCKER_LDAP_SERVER.copy(),
+                        LdapConsts.DOCKER_LDAP_SERVER_DNS.copy()]
         prio = 3
         for server in servers_info:
             server['priority'] = prio
             configure_ldap(server)
             prio -= 1
 
-        # configure_resource(engines, aaa.authentication, configuration={
-        #     AuthConsts.ORDER: f'{AuthConsts.LDAP},{AuthConsts.LOCAL}',
-        #     AuthConsts.FAILTHROUGH: RestrictionsConsts.ENABLED
-        # })
-        enable_ldap_feature(engines.dut)
+        enable_ldap_feature(engines, devices)
 
     with allure.step('Configure lockout and enable it'):
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])

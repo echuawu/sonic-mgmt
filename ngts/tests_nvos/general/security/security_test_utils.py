@@ -22,6 +22,9 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
     with allure.step("Using username: {}, role: {}".format(username, role)):
         engines.dut.update_credentials(username=username, password=password)
 
+    with allure.step('FOR DEBUG - after login, run: stat /var/log/audit.log'):
+        engines.dut.run_cmd('stat /var/log/audit.log')
+
     SLEEP_BEFORE_EXECUTING_CMDS = 5
     with allure.step("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS)):
         time.sleep(SLEEP_BEFORE_EXECUTING_CMDS)

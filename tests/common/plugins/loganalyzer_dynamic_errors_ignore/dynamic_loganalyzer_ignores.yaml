@@ -2582,16 +2582,16 @@
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
 
-# NVOS
-- Errors_list:
-    - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
-    - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
-    - '.* ERR auditd\[\d+\]: auditd queue full reporting limit reached \- ending dropped event.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
-    - Redmine:
-        - 3482718
+## NVOS - commented the ignore for debug
+#- Errors_list:
+#    - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
+#    - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
+#    - '.* ERR auditd\[\d+\]: auditd queue full reporting limit reached \- ending dropped event.*'
+#  Conditions:
+#    - Affected_test_cases:
+#        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+#    - Redmine:
+#        - 3482718
 
 # NVOS
 - Errors_list:
@@ -2997,3 +2997,14 @@
       - tests_nvos/general/config_commands/est_show_diff_history.py::test_diff_history_revision_ids
       Redmine:
         - 3531453
+
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: cmd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b''''*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_functionality
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_warning_functionality
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_functionality
+      Redmine:
+        - 3531935
