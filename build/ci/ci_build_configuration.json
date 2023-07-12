@@ -280,7 +280,7 @@
             "setup_type": "CI_MLNX_OS_QTM2",
             "setup_var": "CI_NVOS_QTM2_SETUP",
             "device_var": "SWITCH_BLACKBIRD",
-            "setup_requirements": "group_name:Sagi,sub_group:CI,setup_status:enable"
+            "setup_requirements": "group_name:Sagi,sub_group:MLNX_OS_CI,setup_status:enable"
           },
           "skip": "${SKIP_NVOS_BAT}",
           "on_failure": "stop",
