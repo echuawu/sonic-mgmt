@@ -1,6 +1,7 @@
 import logging
 import time
 from .ResultObj import ResultObj, IssueType
+import subprocess
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from retry.api import retry_call, retry
 from ngts.nvos_constants.constants_nvos import ReadFromDataBase, SystemConsts
@@ -33,6 +34,7 @@ class DutUtilsTool:
 
             if not should_wait_till_system_ready:
                 time.sleep(50)
+                ping_device(engine.ip)
                 return ResultObj(result=True, info="system is not ready yet")
 
             with allure.step('Waiting for switch to be ready'):
@@ -73,7 +75,7 @@ class DutUtilsTool:
                 return ResultObj(result=False, info="SYSTEM_READY|SYSTEM_STATE TABLE IS MISSED", issue_type=IssueType.PossibleBug)
 
             with allure.step('wait until the CLI is up'):
-                time.sleep(5)
+                time.sleep(10)
 
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
 
@@ -93,6 +95,33 @@ class DutUtilsTool:
                 remote_url = '{}://{}:{}@{}{}'.format(command_opt, engine.username, engine.password, engine.ip, file_full_path)
 
             return ResultObj(result=True, info=remote_url, returned_value=remote_url)
+
+
+def ping_device(ip_add):
+    try:
+        return _ping_device(ip_add)
+    except BaseException as ex:
+        logging.error(str(ex))
+        logging.info(f"ip address {ip_add} is unreachable")
+        return False
+
+
+@retry(Exception, tries=5, delay=10)
+def _ping_device(ip_add):
+    with allure.step(f"Ping device ip {ip_add}"):
+        cmd = f"ping -c 3 {ip_add}"
+        logging.info(f"Running cmd: {cmd}")
+        process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        logging.info("output: " + str(output))
+        logging.info("error: " + str(error))
+        if " 0% packet loss" in str(output):
+            logging.info("Reachable using ip address: " + ip_add)
+            return True
+        else:
+            logging.error("Unreachable using ip address: " + ip_add)
+            logging.info(f"ip address {ip_add} is unreachable")
+            raise Exception(f"ip address {ip_add} is unreachable")
 
 
 @retry(Exception, tries=60, delay=10)

@@ -10,6 +10,7 @@ import time
 import pytest
 from retry import retry
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
+from ngts.nvos_tools.infra.DutUtilsTool import ping_device
 
 logger = logging.getLogger()
 
@@ -51,33 +52,6 @@ def test_regression_pre_step(engines, topology_obj):
                 #     logging.info(f'dut {engines.dut.ip} is {"still un" if res else "now "}reachable')
 
         assert res, info
-
-
-def ping_device(ip_add):
-    try:
-        return _ping_device(ip_add)
-    except BaseException as ex:
-        logging.error(str(ex))
-        logging.info(f"ip address {ip_add} is unreachable")
-        return False
-
-
-@retry(Exception, tries=5, delay=10)
-def _ping_device(ip_add):
-    with allure.step(f"Ping device ip {ip_add}"):
-        cmd = f"ping -c 3 {ip_add}"
-        logging.info(f"Running cmd: {cmd}")
-        process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
-        output, error = process.communicate()
-        logging.info("output: " + str(output))
-        logging.info("error: " + str(error))
-        if " 0% packet loss" in str(output):
-            logging.info("Reachable using ip address: " + ip_add)
-            return True
-        else:
-            logging.error("Unreachable using ip address: " + ip_add)
-            logging.info(f"ip address {ip_add} is unreachable")
-            raise Exception(f"ip address {ip_add} is unreachable")
 
 
 def remote_reboot_dut(topology_obj):

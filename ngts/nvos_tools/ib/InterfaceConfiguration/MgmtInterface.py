@@ -86,10 +86,10 @@ class MgmtInterface(BaseComponent):
             return result_obj
 
     @retry(Exception, tries=10, delay=2)
-    def wait_for_mtu_changed(self, mtu_to_verify):
+    def wait_for_mtu_changed(self, mtu_to_verify, output_column=""):
         with allure.step("Waiting for ib0 port mtu changed to {}".format(mtu_to_verify)):
             output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                self.link.show()).get_returned_value()
+                self.link.show(output_column)).get_returned_value()
             current_mtu = output_dictionary[IbInterfaceConsts.LINK_MTU]
             assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".\
                 format(current_mtu, mtu_to_verify)

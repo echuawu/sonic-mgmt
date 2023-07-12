@@ -1,5 +1,4 @@
 import logging
-import allure
 import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
@@ -11,6 +10,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
