@@ -531,9 +531,9 @@ tests/nightly/ecmp_calculator/test_ecmp_calculator.py:
 
 tests/nightly/dynamic_port_breakout/:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3531634 on SPC4"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3536951 on SPC4"
     conditions:
-      - "https://redmine.mellanox.com/issues/3531634 and 'sn5' in platform"
+      - "https://redmine.mellanox.com/issues/3536951 and 'sn5' in platform"
 
 tests/nightly/lag/test_lag.py::test_lag_members_scale:
   skip:
