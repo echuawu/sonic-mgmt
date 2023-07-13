@@ -1,6 +1,7 @@
 import pytest
 import json
 import os
+import logging
 
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
@@ -8,6 +9,7 @@ from ngts.constants.constants import InfraConst, PlatformTypesConstants
 from ngts.helpers.config_db_utils import save_config_db_json
 from ngts.tools.infra import get_platform_info
 
+logger = logging.getLogger()
 
 UNSUPPORTED_SPLIT_PLATFORMS = [PlatformTypesConstants.PLATFORM_ALLIGATOR]
 REBOOT_TEST_NAME = 'test_push_gate_reboot_policer'
@@ -47,22 +49,23 @@ def pytest_collection_modifyitems(session, config, items):
                                      PlatformTypesConstants.PLATFORM_LEOPARD: 116,
                                      PlatformTypesConstants.PLATFORM_MOOSE: 244}
 
-        expected_ports_num = int(config.option.ports_number)
-
-        if expected_ports_num < minimum_ports_number:
-            pytest.skip(f'Expected number of ports: {expected_ports_num}, but it must be >= {minimum_ports_number}')
-
         setup_name = session.config.option.setup_name
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
         dut_engine = topology.players['dut']['engine']
         cli_object = SonicCli(topology)
         platform = get_platform_info(topology)['platform']
-
         platform_max_ports_num = max_pors_num_per_platform[platform]
-        if expected_ports_num > platform_max_ports_num:
-            pytest.skip(f'Platfrom: {platform} expected number of ports: {expected_ports_num}, '
-                        f'but it must be <= {platform_max_ports_num}')
+        if config.option.ports_number == "max":
+            expected_ports_num = platform_max_ports_num
+        else:
+            expected_ports_num = int(config.option.ports_number)
 
+        if expected_ports_num < minimum_ports_number:
+            pytest.skip(f'Expected number of ports: {expected_ports_num}, but it must be >= {minimum_ports_number}')
+        if expected_ports_num > platform_max_ports_num:
+            pytest.skip(f'Platform: {platform} expected number of ports: {expected_ports_num}, '
+                        f'but it must be <= {platform_max_ports_num}')
+        logger.info(f'Setup will be configured with {expected_ports_num} ports')
         # Get config from shared location
         shared_path = f'{InfraConst.MARS_TOPO_FOLDER_PATH}{setup_name}'
         sonic_ver = cli_object.general.get_image_sonic_version()
