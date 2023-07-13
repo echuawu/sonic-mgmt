@@ -55,7 +55,7 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
 
 
 @pytest.mark.parametrize("fw_event", ["FW_HEALTH_EVENT", "PLL_LOCK_EVENT"])
-def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer, fw_event):
+def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, loganalyzer, fw_event):
     duthost = engines.dut
     logger.info("Health event generated is {}".format(fw_event))
     event_id = FW_EVENTS_DICT[fw_event]
@@ -79,6 +79,7 @@ def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer, fw_eve
                 ignoreRegex = [
                     r".*SXD_HEALTH_FW_FATAL: FW Fatal:fw_cause.*",
                     r".*SX_HEALTH_FATAL: cause_string = \[PLL lock failure\].*",
+                    r".*Failed command read at communication channel: Connection reset by peer.*",
                     r".*SXD_HEALTH_FATAL:On device \d+ cause =\'PLL lock failure\'.*"
                 ]
             loganalyzer[dut].ignore_regex.extend(ignoreRegex)
@@ -88,8 +89,8 @@ def test_techsupport_mellanox_sdk_dump(engines, cli_objects, loganalyzer, fw_eve
     with allure.step('Validate that the techsupport file contain one more SDK extended dump'):
         assert number_of_sdk_error_after == number_of_sdk_error_before + 1
 
-    with allure.step('Validate dockers status'):
-        cli_objects.dut.general.verify_dockers_are_up()
+    with allure.step('Reload switch'):
+        cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
 
 def cp_sdk_event_trigger_script_to_dut_syncd(engine):

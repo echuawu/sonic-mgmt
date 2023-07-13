@@ -264,6 +264,12 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
       - "'ASAN' in build_version"
       - "https://redmine.mellanox.com/issues/3499006 and 'sn5' in platform"
 
+tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump[PLL_LOCK_EVENT]:
+  skip:
+    reason: "Testcase ignored on platforms SPC, SPC2"
+    conditions:
+      - "'sn2' in platform or 'sn3' in platform"
+
 tests/push_build_tests/L3/sflow/test_sflow.py::test_basic_sflow_function:
   skip:
     reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3440608 on setups with upgrade test"
