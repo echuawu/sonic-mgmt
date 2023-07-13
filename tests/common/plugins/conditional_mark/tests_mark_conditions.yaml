@@ -1018,6 +1018,11 @@ show_techsupport/test_techsupport.py::test_techsupport:
       - "branch in ['internal-202012']"
       - "build_version <= '20201231.33'"
 
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit[core]:
+skip:
+    reason: "This test case may fail due to a known issue https://github.com/sonic-net/sonic-buildimage/issues/15051."
+    conditions: https://github.com/sonic-net/sonic-buildimage/issues/15051
+
 #######################################
 #####            snmp             #####
 #######################################
