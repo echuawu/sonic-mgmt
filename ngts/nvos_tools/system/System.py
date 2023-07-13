@@ -12,6 +12,7 @@ from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ntp import Ntp
 from ngts.nvos_tools.system.Stats import Stats
 from ngts.nvos_tools.system.Ssh_server import SshServer
+from ngts.nvos_tools.system.Serial_console import SerialConsole
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
@@ -69,6 +70,7 @@ class System(BaseComponent):
         self.readonly_community = ReadonlyCommunity(self)
         self.security = Security(self)
         self.ssh_server = SshServer(self)
+        self.serial_console = SerialConsole(self)
         self.syslog = Syslog(self)
         self.ntp = Ntp(self)
         self.stats = Stats(self, devices_dut)
