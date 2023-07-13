@@ -244,7 +244,7 @@ def test_rotate_debug_log_files(engines):
                 with allure.step("Verify {} was deleted".format(log_file)):
                     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.debug_log.files.show()) \
                         .get_returned_value()
-                    assert log_file not in output_dictionary.keys(), log_file + " was not actually deleted"
+                    assert len(output_dictionary) == 0, "We have log files after delete all"
 
 
 @pytest.mark.system
