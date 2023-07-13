@@ -162,7 +162,8 @@ def parse_sanitizer_file(file_path, dump_path, project, version, setup_name):
                             'detected_in_version': version,
                             'session_id': os.environ.get(InfraConst.ENV_SESSION_ID),
                             'setup_name': setup_name,
-                            'test_name': get_test_name_from_sanitizer_dump(dump_path)}
+                            'test_name': get_test_name_from_sanitizer_dump(dump_path),
+                            'system_type': os.environ.get('CLI_TYPE')}
     yaml_content = yaml.dump(yaml_content_as_dict)
     with open(yaml_file_path, "a") as file:
         file.write(yaml_content)
