@@ -2924,16 +2924,6 @@
       Redmine:
         - 3498811
 
-# NVOS - FW Health issue
-- Errors_list:
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW fatal cause: HW cause id = \[.*\], cause_reg = \[.*\], cause_offset = \[.*\]'
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW health event device:\[\d+\] FW cause:\[\d+,FW FATAL CAUSE EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[.*\], long_process:\[\d+\],command_type:\[CMD-IFC\], IRISC:\[\d+\], method:\[.*\]'
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW SOS device:\[\d+\] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+\]\)'
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] SX_HEALTH_FATAL Detected with cause : FW health issue \[id = \d+\]'
-  Conditions:
-    - Redmine:
-      - 3498997
-
 # NVOS - log issue
 - Errors_list:
     - ".*ERR rsyslogd: file size limit cmd for file '\/var\/log\/nvued.log' did no resolve situation.*"
