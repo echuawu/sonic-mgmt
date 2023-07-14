@@ -225,7 +225,7 @@ def _is_fan_speed_in_range(sysfs_facts):
             fan_speed_get = int(fan_info["speed_get"])
 
             low_threshold = ((float(fan_speed_set) / 255)
-                             * fan_max_speed) * (1 - 0.5)
+                             * fan_min_speed) * (1 - 0.5)
             high_threshold = ((float(fan_speed_set) / 255)
                               * fan_max_speed) * (1 + 0.5)
 
@@ -233,7 +233,7 @@ def _is_fan_speed_in_range(sysfs_facts):
                 fan_min_speed,
                 fan_max_speed)
             assert low_threshold < fan_speed_get < high_threshold, 'Fan speed {} not in range: [{}, {}]'.format(
-                low_threshold, fan_min_speed, high_threshold
+                fan_speed_get, low_threshold, high_threshold
             )
 
         except Exception as e:
