@@ -160,8 +160,11 @@ class SshAuthenticator(Authenticator):
         else:
             return login_succeeded, send_timestamp
 
-    def attempt_login_success(self, timeout=MAX_TIMEOUT, return_output=False):
-        self.close_ssh_login_session()  # make the attempt in new ssh session
+    def attempt_login_success(self, timeout=MAX_TIMEOUT, return_output=False, restart_session_process=True):
+        if restart_session_process:
+            self.start_session()
+            self.ssh_session_already_started = False
+        # self.close_ssh_login_session()  # make the attempt in new ssh session
         self.log(f'Make auth attempt with good credentials')
         return self.auth_attempt(self.password, timeout, return_output)
 

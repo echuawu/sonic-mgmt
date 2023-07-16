@@ -2991,6 +2991,7 @@
 # NVOS
 - Errors_list:
     - '.*ERR hostcfgd: cmd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b''''*'
+    - '.*ERR hostcfgd: \[''chage'', ''-W'', ''15'', ''.*''\] - failed: return code - 1, output:#012b'''''
   Conditions:
     - Affected_test_cases:
       - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_functionality

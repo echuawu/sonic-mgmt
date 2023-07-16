@@ -8,7 +8,7 @@ class AaaConsts:
     MONITOR = 'monitor'
     USERNAME = 'username'
 
-    STRONG_PASSWORD = 'x%]AZf[K_Ualon6'
+    STRONG_PASSWORD = 'Your_password1'
 
     LOCAL_ONLY_TEST_USERS = [
         {
