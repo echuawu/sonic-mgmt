@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> Security test - AAA LDAP </name>
+      <name> Security test - AAA Authentication Restrictions </name>
       <info> </info>
       <owner> Alon N. </owner>
     </Test>
