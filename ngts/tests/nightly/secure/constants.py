@@ -78,6 +78,10 @@ class SonicSecureBootConsts(SecureBootConsts):
     SWITCH_RECOVER_TIMEOUT = 300
     CPLD_BRUNING_RECOVER_TIMEOUT = 1200
     ONIE_TIMEOUT = 120
+    PROD_CORRUPT_MFA_FILE = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/OPN/prod_corrupted_bin.mfa'
+    DEV_CORRUPT_MFA_FILE = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/IPN/dev_corrupted_bin.mfa'
+    MFA_FILE_PATH = "/etc/mlnx"
+    CORRUPT_MFA_ERR_MSG = "Rejected authentication"
 
 
 class SecureUpgradeConsts:
