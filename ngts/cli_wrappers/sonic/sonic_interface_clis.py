@@ -664,3 +664,26 @@ class SonicInterfaceCli(InterfaceCliCommon):
         :return: command output
         """
         return self.engine.run_cmd("sudo config subinterface del {}".format(sub_interface))
+
+    def config_port_scheduler(self, port_scheduler, shaper_value):
+        """
+        This method is to config the scheduler with given shaper value.
+        Here is how shaper value applied to the low layer:
+        1. for 0, it will be converted to SXD_COS_SHAPER_RATE_MAX
+        2. for range (0, MIN_SHAPER_RATE_BPS), it will be 0. MIN_SHAPER_RATE_BPS = (200 * 1000 * 1000 / 8) = 25000000bps
+        when set the value in this range, the speed of the port will be 0
+        3. for the rest values, it will be value / 1000 * 80, it is to open the shaper.
+        :param port_scheduler: the scheduler name
+        :param shaper_value: the value of the shaper on the scheduler
+        :return: command output
+        """
+        return self.engine.run_cmd(f'redis-cli -n 4 hset "SCHEDULER|{port_scheduler}" type STRICT pir {shaper_value}')
+
+    def config_port_qos_map(self, interface, port_scheduler):
+        """
+        This method is config the qos map for the interface
+        :param interface: interface name
+        :param interface: the scheduler name
+        :return: command output
+        """
+        return self.engine.run_cmd(f'redis-cli -n 4 hset "PORT_QOS_MAP|{interface}" scheduler {port_scheduler}')

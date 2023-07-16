@@ -10,6 +10,7 @@ from ngts.config_templates.wjh_buffer_config_template import WjhBufferConfigTemp
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.common.checkers import is_feature_ready
+from ngts.constants.constants import SonicConst
 
 
 pytest.CHANNEL_CONF = None
@@ -147,42 +148,31 @@ def get_parsed_table(dut, cmd, table_type):
 
 
 @pytest.fixture(scope='module')
-def wjh_buffer_configuration(topology_obj, cli_objects, engines, interfaces):
+def wjh_buffer_configuration(topology_obj, cli_objects, interfaces):
     """
     Pytest fixture which is doing configuration fot WJH Buffer test case
     :param topology_obj: topology object fixture
     :param cli_objects: cli_objects fixture
-    :param engines: engines fixture
     :param interfaces: interfaces fixture
     """
-    with allure.step('Check that links are in UP state'.format()):
+    with allure.step('Check that links are in UP state'):
         ports_list = [interfaces.dut_ha_1, interfaces.dut_ha_2, interfaces.dut_hb_1, interfaces.dut_hb_2]
         retry_call(cli_objects.dut.interface.check_ports_status, fargs=[ports_list], tries=10, delay=10,
                    logger=logger)
 
-    # variable below required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
-                                                                                     interfaces.dut_hb_2,
-                                                                                     interfaces.dut_ha_2,
-                                                                                     interfaces.dut_hb_1])
-    with allure.step("Configuring dut_ha_2 speed to be 1G, and dut_hb_2 to be 25G \
-                      Configuring port dut_ha_2, pg 0, congestion threshold = 10%, latency threshold = 100ns"):
-        interfaces_config_dict = {
-            'dut': [{'iface': interfaces.dut_ha_2, 'speed': '1G',
-                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '1G')},
-                    {'iface': interfaces.dut_hb_2, 'speed': '25G',
-                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
-                    ]
-        }
+    with allure.step(f"Configuring port {interfaces.dut_ha_2}, pg 0, congestion threshold = 10%, "
+                     f"latency threshold = 100ns"):
         thresholds_config_dict = {
             'dut': [{'iface': interfaces.dut_ha_2, 'queue_type': 'queue', 'threshold': 10},
                     {'iface': interfaces.dut_ha_2, 'queue_type': 'latency', 'threshold': 100}
                     ]
         }
-
+    with allure.step(f"Config the shaper of the port {interfaces.dut_ha_2}"):
+        port_scheduler = "port_scheduler"
+        cli_objects.dut.interface.config_port_scheduler(port_scheduler, SonicConst.MIN_SHAPER_RATE_BPS)
+        cli_objects.dut.interface.config_port_qos_map(interfaces.dut_ha_2, port_scheduler)
     logger.info('Starting WJH Buffer configuration')
     cli_objects.dut.interface.disable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
-    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
     WjhBufferConfigTemplate.configuration(topology_obj, thresholds_config_dict)
     cli_objects.dut.interface.enable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
     cli_objects.dut.interface.check_link_state([interfaces.dut_ha_2, interfaces.dut_hb_2])
@@ -193,9 +183,8 @@ def wjh_buffer_configuration(topology_obj, cli_objects, engines, interfaces):
         cli_objects.dut.general.save_configuration()
 
     yield
-
+    cli_objects.dut.interface.config_port_scheduler(port_scheduler, SonicConst.MAX_SHAPER_RATE_BPS)
     WjhBufferConfigTemplate.cleanup(topology_obj, thresholds_config_dict)
-    InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
     logger.info('Doing config save after cleanup')
     cli_objects.dut.general.save_configuration()
     logger.info('WJH Buffer cleanup completed')
@@ -513,14 +502,6 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
                 hb_dut_2_mac):
     """
     This test will configure the DUT and hosts to generate buffer drops
-
-        ha                  DUT                     hb
-    __________          ____________             __________
-    |         |         |           |            |         |
-    |         |         |           |            |         |
-    |         |---------| TD        |------------|         |
-    |_________|   1G    |___________|    25G     |_________|
-
     """
 
     validation = {

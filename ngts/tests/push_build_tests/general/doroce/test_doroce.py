@@ -9,7 +9,7 @@ from ngts.config_templates.interfaces_config_template import InterfaceConfigTemp
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from infra.tools.validations.traffic_validations.iperf.iperf_runner import IperfChecker
 from ngts.common.checkers import is_feature_installed
-from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.constants.constants import AppExtensionInstallationConstants, SonicConst
 
 logger = logging.getLogger()
 
@@ -93,43 +93,17 @@ def check_feature_status(cli_objects):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def pre_configuration_for_doroce(topology_obj, cli_objects, engines, players, interfaces, check_feature_status, is_simx):
+def pre_configuration_for_doroce(cli_objects, interfaces):
     """
-    This fixture will do:
-    1. configure the DUT speeds to generate buffer drops
-    2. disable the DoRoCE if was enabled
-    3. check the no RoCE buffer configuration
-    4. run traffic and check that the no RoCE configurations are affected
-    5. at the cleanup, steps 3-4 executed again
-
-
-        ha                  DUT                     hb
-    __________          ____________             __________
-    |         |         |           |            |         |
-    |         |         |           |            |         |
-    |         |---------| TD        |------------|         |
-    |_________|   1G    |___________|    25G     |_________|
-
+    This fixture is to config the a small shaper value on the egress port to create the buffer congestion.
     """
-    # variable below is required for correct interfaces speed cleanup
-    dut_original_interfaces_speeds = cli_objects.dut.interface.get_interfaces_speed([interfaces.dut_ha_1,
-                                                                                     interfaces.dut_hb_1])
-    with allure.step("Configuring dut_ha_1 speed to be 1G, and dut_hb_1 to be 25G"):
-        interfaces_config_dict = {
-            'dut': [{'iface': interfaces.dut_ha_2, 'speed': '1G',
-                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_ha_2, '1G')},
-                    {'iface': interfaces.dut_hb_2, 'speed': '25G',
-                     'original_speed': dut_original_interfaces_speeds.get(interfaces.dut_hb_2, '25G')}
-                    ]
-        }
-    cli_objects.dut.interface.disable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
-    InterfaceConfigTemplate.configuration(topology_obj, interfaces_config_dict)
-    cli_objects.dut.interface.enable_interfaces([interfaces.dut_ha_2, interfaces.dut_hb_2])
-    cli_objects.dut.interface.check_link_state([interfaces.dut_ha_2, interfaces.dut_hb_2])
+    port_scheduler = "port_scheduler"
+    with allure.step("Config the shaper of the port"):
+        cli_objects.dut.interface.config_port_scheduler(port_scheduler, SonicConst.MIN_SHAPER_RATE_BPS)
+        cli_objects.dut.interface.config_port_qos_map(interfaces.dut_ha_2, port_scheduler)
 
     yield
-
-    InterfaceConfigTemplate.cleanup(topology_obj, interfaces_config_dict)
+    cli_objects.dut.interface.config_port_scheduler(port_scheduler, SonicConst.MAX_SHAPER_RATE_BPS)
 
 
 @pytest.fixture(scope='module', autouse=True)
