@@ -45,7 +45,7 @@ def test_clear_all_counters(engines, players, interfaces, start_sm):
 
 def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
     with allure.step("Get a random active port"):
-        temp_selected_ports = Tools.RandomizationTool.get_random_active_port(0).get_returned_value()
+        temp_selected_ports = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
     user_name, password, user_id, file_name = "", "", "", ""
     system = None
     try:
@@ -121,7 +121,7 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
 
 def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_name,
                             inactive_ssh_engine, selected_port):
-    with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.parent_obj.parent_obj.name,
+    with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.name,
                                                                                active_ssh_engine.username)):
         selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine).verify_result()
         with allure.step('Check selected port counters for user ' + active_user_name):
@@ -129,7 +129,7 @@ def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_n
         with allure.step('Check selected port counters for user ' + inactive_user_name):
             check_port_counters(selected_port, False, inactive_ssh_engine).verify_result()
         logging.info("The counters were cleared for port '{}' successfully".format(
-            selected_port.parent_obj.parent_obj.name))
+            selected_port.name))
 
 
 def check_port_counters(selected_port, should_be_zero, ssh_engine):

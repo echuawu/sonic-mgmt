@@ -241,10 +241,10 @@ def test_rotate_debug_log_files(engines):
             with allure.step("Delete {} file".format(log_file)):
                 File(system.debug_log.files, log_file).action_delete()
 
-                with allure.step("Verify {} was deleted".format(log_file)):
-                    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.debug_log.files.show()) \
-                        .get_returned_value()
-                    assert len(output_dictionary) == 0, "We have log files after delete all"
+        with allure.step("Verify all debug-log files were deleted".format(log_file)):
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.debug_log.files.show()) \
+                .get_returned_value()
+            assert len(output_dictionary) == 0, "We have log files after delete all"
 
 
 @pytest.mark.system

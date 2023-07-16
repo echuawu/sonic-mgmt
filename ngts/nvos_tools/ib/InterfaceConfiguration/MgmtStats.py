@@ -19,6 +19,6 @@ class MgmtStats(BaseComponent):
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
 
-        with allure.step('Clear stats for {port_name}'.format(port_name=self.parent_obj.name)):
+        with allure.step('Clear stats for {port_name}'.format(port_name=self.parent_obj.parent_obj.parent_obj.name)):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].clear_stats,
-                                                   dut_engine, self.parent_obj.name)
+                                                   dut_engine, self.parent_obj.parent_obj.parent_obj.name)
