@@ -2,7 +2,7 @@ import random
 import re
 import string
 import itertools
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -36,12 +36,10 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
         8. Verify that login with weak password fails
     """
     with allure.step('Get password hardening configuration'):
-        logging.info('Get password hardening configuration')
         conf = OutputParsingTool.parse_json_str_to_dictionary(system.security.password_hardening.show())\
             .get_returned_value()
 
     with allure.step('Pick a strong and a weak password'):
-        logging.info('Pick a strong and a weak password')
         username = PwhConsts.ADMIN_TEST_USR
         user_obj = System(username=username).aaa.user
         strong_pw = PwhTools.generate_strong_pw(conf, username, [])
@@ -50,25 +48,20 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
             'Test username: "{}"\nstrong password: "{}"\nweak password: "{}"'.format(username, strong_pw, weak_pw))
 
     with allure.step('Set the strong password'):
-        logging.info('Set the strong password')
         res_obj = user_obj.set(PwhConsts.PW, '"' + strong_pw + '"', apply=True)
 
     with allure.step('Verify set succeeds'):
-        logging.info('Verify set succeeds')
         res_obj.verify_result(should_succeed=True)
 
     with allure.step('Verify login with the strong password succeeds'):
-        logging.info('Verify login with the strong password succeeds')
         PwhTools.verify_user(system, username)
         PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
 
     with allure.step('Try to set the weak password and expect errors'):
-        logging.info('Try to set the weak password')
         expected_errors = PwhTools.get_expected_errors(conf, username, weak_pw, [strong_pw])
         PwhTools.set_pw_expect_pwh_error(user_obj, weak_pw, expected_errors)
 
     with allure.step('Verify that login with weak password fails'):
-        logging.info('Verify that login with weak password fails')
         PwhTools.verify_login(engines.dut, username, weak_pw, login_should_succeed=False)
         PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
 
@@ -88,16 +81,13 @@ def test_password_hardening_show_system_security(engines, system):
     """
 
     with allure.step("Run 'nv show system security password-hardening'"):
-        logging.info("Run 'nv show system security password-hardening'")
         output = OutputParsingTool.parse_json_str_to_dictionary(system.security.password_hardening.show()) \
             .get_returned_value()
 
     with allure.step("Verify all fields exist in output"):
-        logging.info("Verify all fields exist in output")
         ValidationTool.verify_all_fields_value_exist_in_output_dictionary(output, PwhConsts.FIELDS).verify_result()
 
     with allure.step("Verify all initial values are set to default"):
-        logging.info("Verify all initial values are set to default")
         ValidationTool.validate_fields_values_in_output(expected_fields=PwhConsts.FIELDS,
                                                         expected_values=PwhConsts.DEFAULTS.values(),
                                                         output_dict=output).verify_result()
@@ -132,44 +122,35 @@ def test_password_hardening_enable_disable(engines, system, testing_users):
     pw_history = [orig_pw]
 
     with allure.step("Take original pwh configuration"):
-        logging.info("Take original pwh configuration")
         orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
 
     with allure.step("Disable feature"):
-        logging.info("Disable feature")
         pwh.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True).verify_result()
 
     with allure.step("Verify pwh configuration in show"):
-        logging.info("Verify pwh configuration in show")
         cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
         ValidationTool.compare_dictionaries(cur_pwh_conf, PwhConsts.DISABLED_CONF, True).verify_result()
 
     with allure.step("Generate weak pw which violates orig pwh conf rules"):
-        logging.info("Generate weak pw which violates orig pwh conf rules")
         weak_pw = PwhTools.generate_weak_pw(orig_pwh_conf, usrname, orig_pw)
 
     with allure.step('Set weak pw "{}" and apply'.format(weak_pw)):
-        logging.info('Set weak pw "{}" and apply'.format(weak_pw))
         user_obj.set(PwhConsts.PW, '"' + weak_pw + '"', apply=True).verify_result()
         pw_history.append(weak_pw)  # save successful new pws in this list for 'history record' for the test
 
     with allure.step("Enable feature"):
-        logging.info("Enable feature")
         pwh.set(PwhConsts.STATE, PwhConsts.ENABLED, apply=True).verify_result()
 
     with allure.step("Verify pwh configuration in show matches to original pwh conf"):
-        logging.info("Verify pwh configuration in show matches to original pwh conf")
         cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
         ValidationTool.compare_dictionaries(cur_pwh_conf, orig_pwh_conf, True).verify_result()
 
     with allure.step('Try to set the weak password and expect errors'):
-        logging.info('Try to set the weak password and expect errors')
         weak_pw2 = PwhTools.generate_weak_pw(cur_pwh_conf, usrname, weak_pw)
         expected_errors = PwhTools.get_expected_errors(cur_pwh_conf, usrname, weak_pw2, pw_history)
         PwhTools.set_pw_expect_pwh_error(user_obj, weak_pw2, expected_errors)
 
     with allure.step("Set strong pw"):
-        logging.info("Set strong pw")
         strong_pw = PwhTools.generate_strong_pw(cur_pwh_conf, usrname, pw_history)
         user_obj.set(PwhConsts.PW, '"' + strong_pw + '"', apply=True).verify_result()
 
@@ -192,15 +173,12 @@ def test_password_hardening_set_unset(engines, system):
     pwh_obj = system.security.password_hardening
 
     with allure.step('Get current password hardening configuration'):
-        logging.info('Get current password hardening configuration')
         orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
         logging.info('Current (orig) password hardening configuration:\n{}'.format(orig_pwh_conf))
 
     for setting in PwhConsts.FIELDS:
         with allure.step('Select random valid value for setting "{}" (except value "{}")'
                          .format(setting, orig_pwh_conf[setting])):
-            logging.info('Select random valid value for setting "{}" (except value "{}")'
-                         .format(setting, orig_pwh_conf[setting]))
             value = RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[setting],
                                                           [orig_pwh_conf[setting]]).get_returned_value()
 
@@ -224,21 +202,16 @@ def test_password_hardening_set_unset(engines, system):
                 'Problem: selected value "{}" == orig value "{}"'.format(setting, value, orig_pwh_conf[setting])
 
         with allure.step('Set password hardening setting "{}" to "{}"'.format(setting, value)):
-            logging.info('Set password hardening setting "{}" to "{}"'.format(setting, value))
             pwh_obj.set(setting, value, apply=True).verify_result()
 
         with allure.step('Verify new setting ("{}" = "{}") in show output'.format(setting, value)):
-            logging.info('Verify new setting ("{}" = "{}") in show output'.format(setting, value))
             PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, value)
 
         with allure.step('Unset password hardening setting "{}"'.format(setting)):
-            logging.info('Unset password hardening setting "{}"'.format(setting))
             pwh_obj.unset(setting, apply=True).verify_result()
 
         with allure.step('Verify setting "{}" is set to default ("{}") in show output'
                          .format(setting, PwhConsts.DEFAULTS[setting])):
-            logging.info('Verify setting "{}" is set to default ("{}") in show output'
-                         .format(setting, PwhConsts.DEFAULTS[setting]))
             PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, PwhConsts.DEFAULTS[setting])
 
 
@@ -258,13 +231,11 @@ def test_password_hardening_set_invalid_input(engines, system):
     pwh_obj = system.security.password_hardening
 
     with allure.step('Get current password hardening configuration'):
-        logging.info('Get current password hardening configuration')
         orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
         logging.info('Current (orig) password hardening configuration:\n{}'.format(orig_pwh_conf))
 
     for setting in PwhConsts.FIELDS:
         with allure.step('Select invalid values for setting "{}"'.format(setting)):
-            logging.info('Select invalid values for setting "{}"'.format(setting))
 
             # invalid values: 1.empty value; 2.just a random string; 3.another value which is not in valid values list
             invalid_values_to_test = PwhTools.generate_invalid_field_inputs(setting)
@@ -273,11 +244,9 @@ def test_password_hardening_set_invalid_input(engines, system):
                 logging.info('Invalid value for setting "{}" - "{}")'.format(setting, invalid_value))
 
                 with allure.step('Try to set password hardening setting "{}" to "{}"'.format(setting, invalid_value)):
-                    logging.info('Try to set password hardening setting "{}" to "{}"'.format(setting, invalid_value))
                     res_obj = pwh_obj.set(setting, invalid_value, apply=False)
 
                 with allure.step('Verify error'):
-                    logging.info('Verify error')
                     if invalid_value == '':
                         expected_err = PwhConsts.ERR_INCOMPLETE_SET_CMD
                     elif PwhConsts.VALID_VALUES[setting] == [PwhConsts.ENABLED, PwhConsts.DISABLED]:
@@ -293,19 +262,15 @@ def test_password_hardening_set_invalid_input(engines, system):
 
                 with allure.step('Verify setting "{}" is still "{}" in show output'
                                  .format(setting, orig_pwh_conf[setting])):
-                    logging.info('Verify setting "{}" is still "{}" in show output'
-                                 .format(setting, orig_pwh_conf[setting]))
                     PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, orig_pwh_conf[setting])
 
     with allure.step('Verify the constraint expiration-warning must be less or equal to expiration'):
-        logging.info('Verify the constraint expiration-warning must be less or equal to expiration')
 
         pwh_obj.unset(apply=True)
         conf = {PwhConsts.EXPIRATION: '-1', PwhConsts.EXPIRATION_WARNING: '-1'}
         PwhTools.set_pwh_conf(conf, pwh_obj, engines)
 
         with allure.step('Try to set expiration-warning which is larger than expiration'):
-            logging.info('Try to set expiration-warning which is larger than expiration')
             exp = random.randint(0, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING] - 1)
             bad_exp_warn = random.randint(exp + 1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING])
             logging.info('Set expiration to {} - should succeed'.format(exp))
@@ -320,7 +285,6 @@ def test_password_hardening_set_invalid_input(engines, system):
         PwhTools.set_pwh_conf(conf, pwh_obj, engines)
 
         with allure.step('Try to set expiration which is smaller than expiration-warning'):
-            logging.info('Try to set expiration which is smaller than expiration-warning')
             exp_warn = random.randint(1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING])
             bad_exp = random.randint(0, exp_warn - 1)
             logging.info('Set expiration-warning to {} - should succeed'.format(exp_warn))
@@ -366,13 +330,11 @@ def test_password_hardening_functionality(engines, system, testing_users, tst_al
     pw_history = [orig_pw]
 
     with allure.step('Test functionality for each password hardening configuration'):
-        logging.info('Test functionality for each password hardening configuration')
         prev_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
         for i, conf in enumerate(test_confs):
             logging.info('Testing with conf #{} :\n{}'.format(i, conf))  # for debugging
 
             with allure.step('Verify conf is a valid password hardening configuration'):
-                logging.info('Verify conf is a valid password hardening configuration')
                 PwhTools.assert_is_pwh_conf(conf)
 
             with allure.step('Set password hardening configuration'):
@@ -387,27 +349,22 @@ def test_password_hardening_functionality(engines, system, testing_users, tst_al
             # when all are False (the relevant fields enabled) -> cant generate 'weak' password without any character
             if not (lowers or uppers or digits or specials):
                 with allure.step('Generate weak password that breaks enabled policies in current configuration'):
-                    logging.info('Generate weak password that breaks enabled policies in current configuration')
                     weak_pw = PwhTools.generate_random_pw(lowers, uppers, digits, specials)
                     logging.info('Generated weak password: "{}"'.format(weak_pw))
 
                 with allure.step('Test with the weak password "{}"'.format(weak_pw)):
-                    logging.info('Test with the weak password "{}"'.format(weak_pw))
                     PwhTools.verify_conf_with_password(engines.dut, conf, test_user_obj, weak_pw, old_pw, pw_history)
 
             if conf[PwhConsts.REJECT_USER_PASSW_MATCH] == PwhConsts.ENABLED:
                 with allure.step('Test with the username as a password "{}"'.format(test_username)):
-                    logging.info('Test with the username as a password "{}"'.format(test_username))
                     PwhTools.verify_conf_with_password(engines.dut, conf, test_user_obj, test_username, old_pw,
                                                        pw_history)
 
             with allure.step('Generate strong password that applies policies of current configuration'):
-                logging.info('Generate strong password that applies policies of current configuration')
                 strong_pw = PwhTools.generate_strong_pw(conf, test_username, pw_history)
                 logging.info('Generated strong password: "{}"'.format(strong_pw))
 
             with allure.step('Test with the strong password "{}"'.format(strong_pw)):
-                logging.info('Test with the strong password "{}"'.format(strong_pw))
                 PwhTools.verify_conf_with_password(engines.dut, conf, test_user_obj, strong_pw, old_pw, pw_history)
                 pw_history.append(strong_pw)
                 old_pw = strong_pw
@@ -444,20 +401,16 @@ def test_password_hardening_history_functionality(engines, system, testing_users
     pw_history = [orig_pw]
 
     with allure.step('Set setting "{}" to N ( {} )'.format(PwhConsts.HISTORY_CNT, hist_cnt)):
-        logging.info('Set setting "{}" to N ( {} )'.format(PwhConsts.HISTORY_CNT, hist_cnt))
         pwh_obj.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
 
     with allure.step('Set N ( {} ) new passwords to user "{}" and verify success'.format(hist_cnt, test_username)):
-        logging.info('Set N ( {} ) new passwords to user "{}" and verify success'.format(hist_cnt, test_username))
         pw_history = PwhTools.verify_set_passwords(hist_cnt, pwh_conf, test_username, test_user_obj, pw_history,
                                                    engines.dut,
                                                    should_succeed=True)
 
     with allure.step('Try to set some ( {} ) of these N ( {} ) passwords again, and verify errors'
                      .format(min(PwhConsts.NUM_SAMPLES, hist_cnt), hist_cnt)):
-        logging.info('Try to set some ( {} ) of these N ( {} ) passwords again, and verify errors'
-                     .format(min(PwhConsts.NUM_SAMPLES, hist_cnt), hist_cnt))
         # todo: currently user can reuse current pw to set as new pw (bug).
         #   after bug fix, change blow code to let the test pick also the current pass (pw_history[-1])
         cant_reuse_pws = pw_history[1:len(pw_history) - 1]  # can reuse orig and current pws, so don't pick them
@@ -466,7 +419,6 @@ def test_password_hardening_history_functionality(engines, system, testing_users
                                                    engines.dut, should_succeed=False)
 
     with allure.step('Set the original password ( "{}" ), and verify success'.format(orig_pw)):
-        logging.info('Set the original password ( "{}" ), and verify success'.format(orig_pw))
         PwhTools.verify_set_passwords([orig_pw], pwh_conf, test_username, test_user_obj, pw_history, engines.dut,
                                       should_succeed=True)
 
@@ -498,12 +450,10 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
     exp = random.randint(0, PwhConsts.MAX[PwhConsts.EXPIRATION])  # can randomize between min_expiration to max_expiration but the test will be too long
 
     with allure.step('Set expiration setting to {}'.format(exp)):
-        logging.info('Set expiration setting to {}'.format(exp))
         pwh_obj.set(PwhConsts.EXPIRATION_WARNING, -1, apply=True).verify_result()
         pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
 
     with allure.step('Set user2 with new password'):
-        logging.info('Set user2 with new password')
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
         logging.info('Current password hardening configuration:\n{}'.format(pwh_conf))
         pw2 = PwhTools.generate_strong_pw(pwh_conf, user2, [pw2])
@@ -511,25 +461,21 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
         user2_obj.set(PwhConsts.PW, '"' + pw2 + '"', apply=True).verify_result()
 
     with allure.step('Let {} days pass, and on each day, login (with both users) and expect success'.format(exp)):
-        logging.info('Let {} days pass, and on each day, login (with both users) and expect success'.format(exp))
         expired_day = exp + 1
         day_num = 0  # today
         while day_num <= expired_day:
             if day_num == expired_day:
                 with allure.step('Day #{} - verify expired'.format(day_num)):
-                    logging.info('Day #{} - verify expired'.format(day_num))
                     PwhTools.verify_expiration(engines.dut.ip, user1, pw1)
                     PwhTools.verify_expiration(engines.dut.ip, user2, pw2)
                 break
             else:
                 with allure.step('Day #{} - verify login success'.format(day_num)):
-                    logging.info('Day #{} - verify login success'.format(day_num))
                     PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
                     PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
 
                 step = random.randint(1, expired_day - day_num)
                 with allure.step('Move {} days ahead'.format(step)):
-                    logging.info('Move {} days ahead'.format(step))
                     PwhTools.move_k_days(num_of_days=step, system=system)
                     day_num += step
 
@@ -562,15 +508,12 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
     exp_warn = random.randint(0, min(exp - 1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING]))
 
     with allure.step('Set expiration-warning setting to {}'.format(exp_warn)):
-        logging.info('Set expiration-warning setting to {}'.format(exp_warn))
         pwh_obj.set(PwhConsts.EXPIRATION_WARNING, exp_warn, apply=True).verify_result()
 
     with allure.step('Set expiration setting to {}'.format(exp)):
-        logging.info('Set expiration setting to {}'.format(exp))
         pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
 
     with allure.step('Set user2 with new password'):
-        logging.info('Set user2 with new password')
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
         logging.info('Current password hardening configuration:\n{}'.format(pwh_conf))
         pw2 = PwhTools.generate_strong_pw(pwh_conf, user2, [pw2])
@@ -578,25 +521,21 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
         user2_obj.set(PwhConsts.PW, '"' + pw2 + '"', apply=True).verify_result()
 
     with allure.step('Let {} days to pass'.format(exp)):
-        logging.info('Let {} days to pass'.format(exp))
         warning_day = exp - exp_warn + 1
         day_num = 0  # today
         while day_num <= warning_day:
             if day_num == warning_day:
                 with allure.step('Day #{} - Expect warning'.format(day_num)):
-                    logging.info('Day #{} - Expect warning'.format(day_num))
                     PwhTools.verify_expiration(engines.dut.ip, user1, pw1, expiration_type=PwhConsts.EXPIRATION_WARNING)
                     PwhTools.verify_expiration(engines.dut.ip, user2, pw2, expiration_type=PwhConsts.EXPIRATION_WARNING)
                 break
             else:
                 with allure.step('Day #{} - verify login success'.format(day_num)):
-                    logging.info('Day #{} - verify login success'.format(day_num))
                     PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
                     PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
 
                 step = random.randint(1, warning_day - day_num)
                 with allure.step('Move {} days ahead'.format(step)):
-                    logging.info('Move {} days ahead'.format(step))
                     PwhTools.move_k_days(num_of_days=step, system=system)
                     day_num += step
 
@@ -625,30 +564,24 @@ def test_password_hardening_apply_new_password_and_expiration_settings_together(
             logging.info('Round #{}'.format(i))
 
             with allure.step('Randomizing new password, expiration and expiration-warning values'):
-                logging.info('Randomizing new password, expiration and expiration-warning values')
                 password = PwhTools.generate_strong_pw(orig_pwh_conf, username)
                 expiration = random.randint(1, PwhConsts.NUM_SAMPLES)
                 expiration_warning = random.randint(1, expiration)
                 logging.info('New expiration: {}\t;\tNew expiration-warning: {}'.format(expiration, expiration_warning))
 
             with allure.step('Set user "{}" with password "{}" (no apply)'.format(username, password)):
-                logging.info('Set user "{}" with password "{}" (no apply)'.format(username, password))
                 user_obj.set(PwhConsts.PW, '"' + password + '"', apply=False).verify_result()
 
             with allure.step('Set expiration to {} (no apply)'.format(expiration)):
-                logging.info('Set expiration to {} (no apply)'.format(expiration))
                 pwh_obj.set(PwhConsts.EXPIRATION, expiration, apply=False).verify_result()
 
             with allure.step('Set expiration-warning to {} (no apply)'.format(expiration_warning)):
-                logging.info('Set expiration-warning to {} (no apply)'.format(expiration_warning))
                 pwh_obj.set(PwhConsts.EXPIRATION_WARNING, expiration_warning, apply=False).verify_result()
 
             with allure.step('Apply changes together'):
-                logging.info('Apply changes together')
                 SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
 
             with allure.step('Verify new settings'):
-                logging.info('Verify new settings')
                 logging.info('Verify user "{}"'.format(username))
                 PwhTools.verify_user(system, username, usr_should_exist=True)
                 cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
@@ -661,7 +594,6 @@ def test_password_hardening_apply_new_password_and_expiration_settings_together(
                     .verify_result()
 
             with allure.step('Verify new expiration settings applied also on new password'):
-                logging.info('Verify new expiration settings applied also on new password')
                 chage_output = PwhTools.run_chage(engines.dut, username)
                 chage_dict = OutputParsingTool.parse_linux_cmd_output_to_dic(chage_output).get_returned_value()
                 logging.info('Compare expiration:\nExpected: {}\nActual: {}'
@@ -673,12 +605,10 @@ def test_password_hardening_apply_new_password_and_expiration_settings_together(
                                               int(expiration_warning)).verify_result()
 
             with allure.step('Unset changes'):
-                logging.info('Unset changes')
                 pwh_obj.unset(apply=True).verify_result()
                 user_obj.unset(apply=True).verify_result()
 
             with allure.step('Verify old settings'):
-                logging.info('Verify old settings')
                 logging.info('Verify user "{}" doesnt exist'.format(username))
                 PwhTools.verify_user(system, username, usr_should_exist=False)
                 cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
@@ -726,11 +656,9 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
     logging.info('Chosen history-count for test_history_multi_user_password_hardening: {}'.format(hist_cnt))
 
     with allure.step('Set history-count to {}'.format(hist_cnt)):
-        logging.info('Set history-count to {}'.format(hist_cnt))
         pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
 
     with allure.step('Set user1 "{}" with {} new passwords'.format(user1, hist_cnt)):
-        logging.info('Set user1 "{}" with {} new passwords'.format(user1, hist_cnt))
 
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
 
@@ -741,7 +669,6 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
             pw_hist1.append(pw1)
 
     with allure.step('Set user2 "{}" with the same {} passwords, and expect success'.format(user2, hist_cnt)):
-        logging.info('Set user2 "{}" with the same {} passwords, and expect success'.format(user2, hist_cnt))
         passwords_to_set = pw_hist1[1:]  # take the same N new passwords that were set to user1
         assert len(passwords_to_set) == hist_cnt, 'Error: Something is wrong.\nExpected len(passwords_to_set) : {}\n' \
                                                   'Actual len(passwords_to_set) : {}\n' \
@@ -755,28 +682,24 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
             pw_hist2.append(pw2)
 
     with allure.step('Set user2 "{}" with another password (pw_{}+1)'.format(user2, hist_cnt)):
-        logging.info('Set user2 "{}" with another password (pw_{}+1)'.format(user2, hist_cnt))
         pw2 = PwhTools.generate_strong_pw(pwh_conf, user2, pw_hist2)
         logging.info('Set user2 "{}" with password "{}"'.format(user2, pw2))
         user2_obj.set(PwhConsts.PW, '"' + pw2 + '"', apply=True).verify_result()
         pw_hist2.append(pw2)
 
     with allure.step('Try to set user1 "{}" with password pw_1 "{}" and expect errors'.format(user1, pw_hist1[1])):
-        logging.info('Try to set user1 "{}" with password pw_1 "{}" and expect errors'.format(user1, pw_hist1[1]))
         PwhTools.set_pw_expect_pwh_error(user1_obj, pw_hist1[1], [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
         if TestToolkit.tested_api == ApiType.NVUE:
             logging.info('Detaching the failed config')
             NvueGeneralCli.detach_config(engines.dut)
 
     with allure.step('Set user2 "{}" with password pw_1 "{}"'.format(user2, pw_hist2[1])):
-        logging.info('Set user2 "{}" with password pw_1 "{}"'.format(user2, pw_hist2[1]))
         assert pw_hist1[1] == pw_hist2[1], 'Error: expected pw_hist1[1] == pw_hist2[1]\n' \
                                            'pw_hist1[1] = {}\n' \
                                            'pw_hist2[1] = {}'.format(pw_hist1[1], pw_hist2[1])
         res_obj = user2_obj.set(PwhConsts.PW, '"' + pw_hist2[1] + '"', apply=True)
 
     with allure.step('Expect success'):
-        logging.info('Expect success')
         res_obj.verify_result()
 
 
@@ -801,14 +724,12 @@ def test_password_hardening_history_increase(engines, system, testing_users):
     orig_pw = testing_users[username][PwhConsts.PW]
 
     with allure.step('Set history-count'):
-        logging.info('Set history-count')
         hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.NUM_SAMPLES)
         logging.info('Set history-count to {}'.format(hist_cnt))
         pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
 
     with allure.step('Set 2*{} ({}) new passwords'.format(hist_cnt, 2 * hist_cnt)):
-        logging.info('Set 2*{} ({}) new passwords'.format(hist_cnt, 2 * hist_cnt))
         pw_history = [orig_pw]
         for i in range(1, (2 * hist_cnt) + 1):
             pw_i = PwhTools.generate_strong_pw(pwh_conf, username, pw_history)
@@ -817,12 +738,10 @@ def test_password_hardening_history_increase(engines, system, testing_users):
             pw_history.append(pw_i)
 
     with allure.step('Increase history-count to 2*{} ({})'.format(hist_cnt, 2 * hist_cnt)):
-        logging.info('Increase history-count to 2*{} ({})'.format(hist_cnt, 2 * hist_cnt))
         pwh.set(PwhConsts.HISTORY_CNT, 2 * hist_cnt, apply=True).verify_result()
         pwh_conf[PwhConsts.HISTORY_CNT] = 2 * hist_cnt
 
     with allure.step('Try to set again the first {} passwords. Expect failure'.format(hist_cnt)):
-        logging.info('Try to set again the first {} passwords. Expect failure'.format(hist_cnt))
         for i in range(1, hist_cnt + 1):
             pw_i = pw_history[i]
             logging.info('Round #{} - Set user "{}" with password pw_{} - "{}"'.format(i, username, i, pw_i))
@@ -852,18 +771,15 @@ def test_password_hardening_history_when_feature_disabled(engines, system, testi
     pw_history = [orig_pw]
 
     with allure.step('Set history-cnt'):
-        logging.info('Set history-cnt')
         hist_cnt = random.randint(PwhConsts.MIN[PwhConsts.HISTORY_CNT], PwhConsts.NUM_SAMPLES)
         logging.info('Set history-cnt to {}'.format(hist_cnt))
         pwh.set(PwhConsts.HISTORY_CNT, hist_cnt, apply=True).verify_result()
         pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh.show()).get_returned_value()
 
     with allure.step('Disable the feature'):
-        logging.info('Disable the feature')
         pwh.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True).verify_result()
 
     with allure.step('Set {} new passwords'.format(hist_cnt)):
-        logging.info('Set {} new passwords'.format(hist_cnt))
         for i in range(1, hist_cnt + 1):
             pw_i = PwhTools.generate_strong_pw(pwh_conf, username, pw_history)
             logging.info('Round #{} - Set user "{}" wit pw_{} - "{}"'.format(i, username, i, pw_i))
@@ -871,11 +787,9 @@ def test_password_hardening_history_when_feature_disabled(engines, system, testi
             pw_history.append(pw_i)
 
     with allure.step('Enable the feature'):
-        logging.info('Enable the feature')
         pwh.set(PwhConsts.STATE, PwhConsts.ENABLED, apply=True).verify_result()
 
     with allure.step('Try to set again the {} new passwords. Expect failure'.format(hist_cnt)):
-        logging.info('Try to set again the {} new passwords. Expect failure'.format(hist_cnt))
         for i in range(1, hist_cnt):
             pw_i = pw_history[i]
             with allure.step('Set user "{}" with pw_{} - "{}" and expect errors'.format(username, i, pw_i)):

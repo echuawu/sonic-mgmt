@@ -7,6 +7,7 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 
@@ -132,3 +133,15 @@ def reset_aaa():
 
     with allure.step('Reset aaa configuration after test'):
         aaa_obj.unset(apply=True)
+
+
+@pytest.fixture(scope='module', autouse=True)
+def show_sys_version():
+    """
+    For regression analysis, show the system info (and version) before each test case/file
+    """
+    with allure.step('Before test case: show system info'):
+        system = System()
+        system.show(output_format=OutputFormat.auto)
+        system.show()
+        system.version.show()
