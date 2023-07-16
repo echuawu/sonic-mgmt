@@ -29,7 +29,7 @@ class Voltage(BaseComponent):
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show, TestToolkit.engines.dut,
                                                    self.get_resource_path(), op_param,
-                                                   output_format).get_returned_value()
+                                                   output_format)
 
     def get_sensors_list(self, engine, stringtoadd="VOLTAGE_INFO|"):
         """
