@@ -145,7 +145,7 @@
     # After issuing reboot command, if we get the above error log we can ignore them. Please note,
     # this can be observed for any service that was issued to be enable but reboot command was give.
     - '.*ERR hostcfgd: sudo systemctl start syncd.service - failed: return code - 1.*'
-    - '.*sonic ERR hostcfgd: \[.*\] - failed: return code - \d+, output:.*'
+    - '.* ERR hostcfgd: \[.*\] - failed: return code - (\d+|-\d+), output:.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
