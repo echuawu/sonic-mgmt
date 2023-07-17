@@ -41,6 +41,9 @@ class NvueSystemCli(NvueBaseCli):
             .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        if action_str == ActionConsts.INSTALL:
+            return engine.run_cmd_set([cmd, 'y'], patterns_list=[r"Operation will reboot the system."],
+                                      tries_after_run_cmd=1)
         return engine.run_cmd(cmd)
 
     @staticmethod
