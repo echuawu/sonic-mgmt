@@ -845,6 +845,9 @@ class RandomFanStatusMocker(CheckMockerResultMixin, FanStatusMocker):
         # All system fan is controlled to have the same speed, so only
         # get a random value once here
         speed = random.randint(60, 100)
+        if not self.mock_helper.dut.is_host_service_running("hw-management-tc"):
+            # When image doesn't support new tc, we still use cooling level to control thermal
+            FanData.mock_cooling_cur_state(self.mock_helper, speed / 10)
         while fan_index <= MockerHelper.FAN_NUM:
             try:
                 if (fan_index - 1) % MockerHelper.FAN_NUM_PER_DRAWER == 0:
