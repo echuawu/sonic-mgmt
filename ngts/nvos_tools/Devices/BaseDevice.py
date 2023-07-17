@@ -115,7 +115,6 @@ class BaseDevice:
         :param dut_engine: ssh dut engine
         Return result_obj with True result if all tables exists, False and a relevant info if one or more tables are missing
         """
-        time.sleep(10)
         result_obj = ResultObj(True, "")
         for db_name, db_id in self.available_databases.items():
             if db_name == DatabaseConst.STATE_DB_NAME:
