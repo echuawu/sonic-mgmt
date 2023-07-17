@@ -526,7 +526,7 @@ def _run_cmd_nvue(engines, cmds_to_run, num_of_iterations):
 def _get_split_ports():
     active_ports = Tools.RandomizationTool.get_random_active_port(0).get_returned_value()
     split_ports = []
-    split_port_names = ["sw10p1", "sw10p2"]
+    split_port_names = ["sw10p1", "sw10p2", "sw15p1", "sw16p1"]
     for port in active_ports:
         if port.name in split_port_names:
             split_ports.append(port)

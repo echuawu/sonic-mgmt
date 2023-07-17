@@ -2833,17 +2833,6 @@
     - Redmine:
         - 3493347
 
-# NVOS
-- Errors_list:
-    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests_nvos/general/traffic/test_basic_traffic.py
-      - tests_nvos/interfaces/test_ib_interface_counters.py
-      - tests_nvos/interfaces/test_port_split.py
-      Redmine:
-        - 3498811
-
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
     - '.*ERR kernel: \[.*\] SX_BULK_CNTR: operation TLV is missing in buffer.*'
@@ -3000,3 +2989,26 @@
       - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_functionality
       Redmine:
         - 3531935
+
+# NVOS
+- Errors_list:
+    - '.*ERROR: main.py:225 Could not add API nos.funits.cue_platform_v1.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command
+      - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_immediate
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_force
+      Redmine:
+        - 3539462
+
+# NVOS
+- Errors_list:
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU1\/FAN: is missing.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU1: is missing or not available.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU\d\/FAN: speed is out of range.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: FAN\d\/\d: speed is out of range.*'
+  Conditions:
+    - Redmine:
+      - 3541063

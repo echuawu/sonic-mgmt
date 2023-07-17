@@ -175,7 +175,6 @@ def log_test_wrapper(request, engines):
     if 'no_log_test_wrapper' in request.keywords:
         return
     try:
-        check_switch_capacity(engines.dut)
         SendCommandTool.execute_command(LinuxGeneralCli(engines.dut).clear_history)
     except BaseException as exc:
         logger.error(" the command 'history -c' failed and this is the exception info : {}".format(exc))
@@ -259,7 +258,6 @@ def save_results_and_clear_after_test(item):
     markers = item.keywords._markers
     try:
         logging.info(' ---------------- The test completed successfully ---------------- ')
-        check_switch_capacity(TestToolkit.engines.dut)
         run_cli_coverage(item, markers)
     except KeyboardInterrupt:
         raise
