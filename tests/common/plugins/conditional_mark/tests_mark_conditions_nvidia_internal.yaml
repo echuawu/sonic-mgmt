@@ -1320,11 +1320,9 @@ acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
 
 platform_tests/test_sensors.py::test_sensors:
   skip:
-    reason: "Testcase ignored due to RM issue 3505271 and platform 4600C, or RM 3520576 and platform 5600"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue 3505271 and platform 4600C"
     conditions:
       - "https://redmine.mellanox.com/issues/3505271 and 'x86_64-mlnx_msn4600c-r0' in platform"
-      - "https://redmine.mellanox.com/issues/3520576 and '5600' in platform"
 
 bfd/test_bfd.py::test_bfd_basic:
   skip:
