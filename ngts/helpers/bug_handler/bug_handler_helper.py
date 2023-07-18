@@ -332,7 +332,7 @@ def review_bug_handler_results(bug_handler_results):
 
 def handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name, topology_obj, system_type):
     """
-    Call bug handler on all log errors and return list with results
+    Call bug handler on all log errors and return list of dictionaries with results
     :param cli_type: i.e, Sonic
     :param branch: i.e 202211
     :param version: i.e, SONiC-OS-202211_RC15.1-7ceec30cc_Internal
@@ -365,13 +365,12 @@ def handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name,
             file_path_at_stm = scp_file_to_stm(file_path)
             os.remove(file_path)   # delete file from player
             log_errors = stm_engine.run_cmd(f"cat {file_path_at_stm}")
-            error_groups = split_log_errors_to_optional_bugs(log_errors)
+            error_groups = group_log_errors_by_timestamp(log_errors)
 
             for error_group in error_groups:
-                yaml_file_at_stm, regex_line = create_log_analyzer_yaml_file(error_group, session_tmp_folder,
-                                                                             redmine_project, version, setup_name,
-                                                                             test_name, tar_file_path_at_stm,
-                                                                             system_type, hostname)
+                yaml_file_at_stm = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
+                                                                 version, setup_name, test_name, tar_file_path_at_stm,
+                                                                 system_type, hostname)
 
                 with allure.step(f"Run Bug Handler on Log Analyzer error: {error_group}"):
                     bug_handler_dumps_results.append(bug_handler_wrapper(stm_engine, conf_path_at_stm,
@@ -385,6 +384,15 @@ def handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name,
         else:
             logger.info(f"File {file_path} does not exist - means there are no errors in the log")
         return bug_handler_dumps_results
+
+
+def create_log_analyzer_yaml_path(test_name, dump_path):
+    yaml_file_dir = os.path.join(dump_path, "yaml_parsed_files")
+    Path(yaml_file_dir).mkdir(parents=True, exist_ok=True)
+    date_time = datetime.now().strftime("%m_%d_%Y_%H-%M-%S-%f")
+    file_name = f"{test_name}_log_analyzer_files_{date_time}".replace("::", "_")
+    yaml_file_path = os.path.join(yaml_file_dir, f"{file_name}.yaml")
+    return yaml_file_path
 
 
 def create_log_analyzer_yaml_file(log_errors, dump_path, project, version, setup_name, test_name, tar_file_path_at_stm,
@@ -401,19 +409,15 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, version, setup
     :param hostname: i.e, gorilla-153
     :return: path to parsed YAML file
     """
-    date_time = datetime.now().strftime("%m_%d_%Y_%H-%M-%S-%f")
-    file_name = f"{test_name}_log_analyzer_files_{date_time}".replace("::", "_")
-    yaml_file_dir = os.path.join(dump_path, "yaml_parsed_files")
-    yaml_file_path = os.path.join(dump_path, "yaml_parsed_files", f"{file_name}.yaml")
-    Path(yaml_file_dir).mkdir(parents=True, exist_ok=True)
+    yaml_file_path = create_log_analyzer_yaml_path(test_name, dump_path)
 
     # remove date, time and hostname before create the regex!
     hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
     line = re.sub(rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s', '', log_errors[0])
-    regex_line = '.*' + error_to_regex(line).replace("\\", "\\\\")
+    bug_regex = '.*' + error_to_regex(line).replace("\\", "\\\\")
 
     description = f'| {line}\n' + '\n'.join(log_errors)
-    yaml_content_as_dict = {'search_regex': regex_line,
+    yaml_content_as_dict = {'search_regex': bug_regex,
                             'description': f"{description}",
                             'project': project,
                             'attachments': [tar_file_path_at_stm],
@@ -423,12 +427,12 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, version, setup
                             'system_type': system_type,
                             'test_name': test_name}
     yaml_content = yaml.dump(yaml_content_as_dict)
-    yaml_content = yaml_content.replace(regex_line, f"\"{regex_line}\"")
+    yaml_content = yaml_content.replace(bug_regex, f"\"{bug_regex}\"")
     logger.info("yaml file content: {}".format(yaml_content))
     with open(yaml_file_path, "w+") as file:
         file.write(yaml_content)
 
-    return scp_file_to_stm(yaml_file_path), regex_line
+    return scp_file_to_stm(yaml_file_path)
 
 
 def error_to_regex(error_string):
@@ -479,9 +483,9 @@ def remove_empty_lines(text):
     return re.sub(pattern, '', text, flags=re.MULTILINE)
 
 
-def split_log_errors_to_optional_bugs(log_errors):
+def group_log_errors_by_timestamp(log_errors):
     """
-    separate the log errors to groups, new group starts if its bigger then 5 sec from the first line in the group.
+    Group the log errors by timestamp: new group starts if it is bigger than 5 sec from the first line in the group.
     so we will consider it as different bug.
     :param log_errors: list of log errors
     :return: error_groups, list of lists. each list is the log errors bug that related to a bug.
