@@ -350,7 +350,7 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
         self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
-        self.platform_env_psu_prop = ["capacity", "current", "power", "state", "voltage"]
+        self.platform_env_psu_prop = ["capacity", "current", "power", "state"]
 
     def _init_temperature(self):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
@@ -381,7 +381,7 @@ class JaguarSwitch(BaseSwitch):
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
         StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -409,8 +409,7 @@ class JaguarSwitch(BaseSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
     }
     CATEGORY_LIST_DEFAULT_DICT = {
         CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
@@ -418,8 +417,7 @@ class JaguarSwitch(BaseSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
     }
 
     def __init__(self):
@@ -661,7 +659,7 @@ class GorillaSwitch(MultiAsicSwitch):
     ASIC_TYPE = 'Quantum2'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
     ASIC_AMOUNT = 1
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
         StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -689,7 +687,8 @@ class GorillaSwitch(MultiAsicSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
     }
     CATEGORY_LIST_DEFAULT_DICT = {
         CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
@@ -697,7 +696,8 @@ class GorillaSwitch(MultiAsicSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
     }
 
     def __init__(self):
