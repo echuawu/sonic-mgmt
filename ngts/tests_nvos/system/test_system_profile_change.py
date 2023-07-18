@@ -3,6 +3,7 @@ import pytest
 import allure
 import random
 import time
+import os
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -12,6 +13,9 @@ from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_constants.constants_nvos import ImageConsts, NvosConst
 from ngts.constants.constants import InfraConst
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.constants.constants import LinuxConsts
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -119,6 +123,9 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
                                                             values_to_verify,
                                                             system_profile_output).verify_result()
             logging.info("All expected values were found")
+
+        update_timezone(engines)
+
         with allure.step("Start OpenSM and check traffic port up"):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
             for port in active_ports:
@@ -153,6 +160,9 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
                                                         SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
+
+        update_timezone(engines)
+
         with allure.step("Start OpenSM and check traffic port up"):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
             for port in active_ports:
@@ -221,6 +231,8 @@ def test_system_profile_change_breakout_mode(engines):
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
+    update_timezone(engines)
+
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
@@ -284,6 +296,8 @@ def test_system_profile_changes_stress(engines):
                                                             system_profile_output).verify_result()
             logging.info("All expected values were found")
 
+    update_timezone(engines)
+
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
@@ -319,6 +333,8 @@ def test_system_profile_redis_db_crash(engines):
                                                         SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
+
+    update_timezone(engines)
 
 
 @pytest.mark.system
@@ -364,6 +380,8 @@ def test_system_profile_change_upgrade_not_default_profile(engines):
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
+    update_timezone(engines)
+
 
 def _check_port_up_on_hosts(host, state='Up', tries=10, timeout=1):
     for _ in range(tries):
@@ -390,3 +408,12 @@ def _run_cmd_nvue(engines, cmds_to_run, num_of_iterations):
                 i -= 1
         except BaseException as ex:
             raise Exception("Failed during iteration #{}: {}".format(i, str(ex)))
+
+
+def update_timezone(engines):
+    with allure.step("Update timezone"):
+        logging.info(
+            "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+        ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
+        with allure.step('Set timezone using timedatectl command'):
+            os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
