@@ -7,6 +7,7 @@ import re
 import math
 from retry import retry
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -203,6 +204,9 @@ def clear_config(markers):
 
         if not(len(set_comp.keys()) == 1 and "system" in set_comp.keys() and
                len(set_comp["system"].keys()) == 1 and "timezone" in set_comp["system"]):
+            should_wait_for_nvued_after_apply = 'aaa' in set_comp["system"].keys() \
+                                                and 'authentication' in set_comp["system"]['aaa'].keys() \
+                                                and 'order' in set_comp["system"]['aaa']['authentication'].keys()
             if len(set_comp["system"].keys()) > 1:
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'system')
             if "ib" in set_comp.keys():
@@ -220,6 +224,8 @@ def clear_config(markers):
             system.aaa.authentication.restrictions.set(RestrictionsConsts.FAIL_DELAY, 0).verify_result()
             ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, system, apply=False)
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+            if should_wait_for_nvued_after_apply:
+                DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()
             if active_port:
                 active_port.ib_interface.wait_for_port_state(state='up').verify_result()
 

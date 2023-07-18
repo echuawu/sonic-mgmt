@@ -9,25 +9,6 @@ from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 
 
-@pytest.fixture(scope='function', autouse=False)
-def remove_ldap_configurations(engines):
-    '''
-    @summary: remove all ldap configurations
-    '''
-    with allure.step("Before test: Removing ldap configurations"):
-        system = System()
-        system.aaa.unset(apply=True, ask_for_confirmation=True)
-        system.aaa.ldap.show(output_format=OutputFormat.auto)
-        system.aaa.authentication.show(output_format=OutputFormat.auto)
-
-    yield
-
-    with allure.step("After test: Removing ldap configurations"):
-        system.aaa.unset(apply=True, ask_for_confirmation=True)
-        system.aaa.ldap.show(output_format=OutputFormat.auto)
-        system.aaa.authentication.show(output_format=OutputFormat.auto)
-
-
 @pytest.fixture(scope='function', autouse=False, params=[LdapConsts.IPV4, LdapConsts.IPV6])
 def alias_ldap_server_dn(engines, request):
     """

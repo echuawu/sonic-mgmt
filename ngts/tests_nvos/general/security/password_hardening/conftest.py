@@ -1,5 +1,9 @@
 import re
 import pytest
+
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.tests_nvos.general.security.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_utils import set_local_users
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 
@@ -33,55 +37,25 @@ def testing_users(engines, system):
                                 }
         }
     """
-    if TestToolkit.tested_api == ApiType.NVUE:
-        logging.info('Detaching the failed config')
-        NvueGeneralCli.detach_config(engines.dut)
+    with allure.step("Before test: set local test users"):
+        users_info = AaaConsts.LOCAL_ONLY_TEST_USERS
+        set_local_users(engines, users_info)
 
-    with allure.step("Fixture: testing_users - before test - setting new users & pws"):
-
-        with allure.step("Get pwh configuration"):
-            pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(system.security.password_hardening.show())\
-                .get_returned_value()
-            logging.info("Get pwh configuration:\n{}".format(pwh_conf))
-
-        with allure.step("Generate testing usernames"):
-            usrname_admin, usrname_monitor = PwhConsts.ADMIN_TEST_USR, PwhConsts.MONITOR_TEST_USR
-            logging.info("Generate testing usernames: {} , {}".format(usrname_admin, usrname_monitor))
-
-        with allure.step("Generate testing pw"):
-            pw_admin = PwhTools.generate_strong_pw(pwh_conf, usrname_admin)
-            pw_monitor = PwhTools.generate_strong_pw(pwh_conf, usrname_monitor)
-            logging.info("Generate pws for test users:\n{} - {}\n{} - {}"
-                         .format(usrname_admin, pw_admin, usrname_monitor, pw_monitor))
-
-        users = {usrname_admin: pw_admin, usrname_monitor: pw_monitor}
-
-        for usrname, pw in users.items():
-            role = PwhConsts.ADMIN if usrname == usrname_admin else PwhConsts.MONITOR
-            with allure.step('Set test usr "{}" and pw "{}" with role {}'.format(usrname, pw, role)):
-                logging.info('set the usr + pw')
-                system.create_new_user(engines.dut, usrname, pw, role)
-                user_obj = System(username=usrname).aaa.user
-
-                users[usrname] = {PwhConsts.USER_OBJ: user_obj, PwhConsts.PW: pw}
+        users = {
+            user[AaaConsts.USERNAME]: {
+                PwhConsts.USER_OBJ: System(username=user[AaaConsts.USERNAME]).aaa.user,
+                AaaConsts.PASSWORD: user[AaaConsts.PASSWORD]
+            } for user in users_info
+        }
 
     yield users
 
-    with allure.step("Fixture: testing_users - after test - cleaning test users"):
-        for usrname, usr_dict in users.items():
-            with allure.step('Unset test usr "{}"'.format(usrname)):
-                logging.info('Unset test usr "{}"'.format(usrname))
-                usr_dict[PwhConsts.USER_OBJ].unset(apply=True).verify_result()
+    for username in users.keys():
+        with allure.step(f'Clear user {username}'):
+            System().aaa.user.unset(username)
 
-
-@pytest.fixture(scope='function')
-def admin_test_user_obj(testing_users):
-    return testing_users[PwhConsts.ADMIN_TEST_USR][PwhConsts.USER_OBJ]
-
-
-@pytest.fixture(scope='function')
-def monitor_test_user_obj(testing_users):
-    return testing_users[PwhConsts.MONITOR_TEST_USR][PwhConsts.USER_OBJ]
+    with allure.step('Apply users unset'):
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
 
 
 @pytest.fixture(scope='function')

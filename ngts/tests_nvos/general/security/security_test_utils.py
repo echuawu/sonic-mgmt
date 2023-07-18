@@ -1,6 +1,7 @@
 import time
 import logging
 
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import SystemConsts
@@ -10,6 +11,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.constants import AuthConsts, AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -20,10 +22,12 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
         and validate user role configurations
     """
     with allure.step("Using username: {}, role: {}".format(username, role)):
-        engines.dut.update_credentials(username=username, password=password)
+        new_engine = ProxySshEngine(device_type=engines.dut.device_type, ip=engines.dut.ip, username=username,
+                                    password=password)
+        # engines.dut.update_credentials(username=username, password=password)
 
-    with allure.step('FOR DEBUG - after login, run: stat /var/log/audit.log'):
-        engines.dut.run_cmd('stat /var/log/audit.log')
+    with allure.step('FOR DEBUG - after login, run: sudo stat /var/log/audit.log'):
+        new_engine.run_cmd('sudo stat /var/log/audit.log')
 
     SLEEP_BEFORE_EXECUTING_CMDS = 5
     with allure.step("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS)):
@@ -37,11 +41,11 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
     with allure.step("Validating role permissions are as expected"):
         if role == SystemConsts.DEFAULT_USER_ADMIN:
             logging.info("User has admin permissions and can set configurations")
-            system.message.set("NVOS TESTS", engines.dut, field_name='pre-login').verify_result(should_succeed=True)
-            system.message.unset(engines.dut, field_name='pre-login').verify_result(should_succeed=True)
+            system.message.set("NVOS TESTS", new_engine, field_name='pre-login').verify_result(should_succeed=True)
+            system.message.unset(new_engine, field_name='pre-login').verify_result(should_succeed=True)
         else:
             logging.info("User has monitor permissions and cannot set configurations")
-            system.message.set("NVOS TESTS", engines.dut, field_name='pre-login').verify_result(
+            system.message.set("NVOS TESTS", new_engine, field_name='pre-login').verify_result(
                 should_succeed=False)
 
 
@@ -63,7 +67,34 @@ def validate_users_authorization_and_role(engines, users, login_should_succeed=T
             logging.info('Failed due to authentication or permission error')
             raise err
     finally:
-        restore_original_engine_credentials(engines)
+        # restore_original_engine_credentials(engines)
+        logging.info('Finally')
+
+    # for user_info in users:
+    #     username = user_info[AaaConsts.USERNAME]
+    #     password = user_info[AaaConsts.PASSWORD]
+    #     role = user_info[AaaConsts.ROLE]
+    #
+    #     with allure.step(f'Verify authentication {username}'):
+    #         authenticator = SshAuthenticator(username, password, engines.dut.ip)
+    #         login_succeeded, _ = authenticator.attempt_login_success(logout_if_succeeded=False)
+    #         assert login_succeeded == login_should_succeed, \
+    #             f'User {username} could {"" if login_succeeded else "not "}login'
+    #
+    #     if login_should_succeed:
+    #         with allure.step(f'Verify role of {username}: {role}'):
+    #             with allure.step(f'Verify user {username} can make show command'):
+    #                 _, _, output = authenticator.send_cmd(AuthConsts.SHOW_COMMAND, AuthConsts.SWITCH_PROMPT_PATTERN)
+    #                 assert AuthConsts.PERMISSION_ERROR not in output, \
+    #                     f'User {username} do not have permission to run "{AuthConsts.SHOW_COMMAND}"'
+    #
+    #             can_set = role == AaaConsts.ADMIN
+    #             with allure.step(f'Verify user {username} can {"" if can_set else "not "}make set command'):
+    #                 _, _, output = authenticator.send_cmd(AuthConsts.SET_COMMAND, AuthConsts.SWITCH_PROMPT_PATTERN)
+    #                 cond = AuthConsts.PERMISSION_ERROR not in output if can_set else AuthConsts.PERMISSION_ERROR in output
+    #                 assert cond, f'User {username} do not have permission to run "{AuthConsts.SET_COMMAND}"'
+    #
+    #     del authenticator
 
 
 def restore_original_engine_credentials(engines):

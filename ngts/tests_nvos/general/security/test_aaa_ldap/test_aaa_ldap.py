@@ -22,7 +22,7 @@ from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfig
 from ngts.tools.test_utils import allure_utils as allure
 
 
-def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configurations, devices):
+def a_test_ldap_priority_and_fallback_functionality(engines, devices):
     """
     @summary: in this test case we want to validate the functionality of the priority
     and fallback, we will configure 2 ldap servers and then connect through the credentials
@@ -52,7 +52,7 @@ def a_test_ldap_priority_and_fallback_functionality(engines, remove_ldap_configu
                                                       password=second_ldap_server_user[LdapConsts.PASSWORD])
 
 
-def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devices):
+def a_test_ldap_timeout_functionality(engines, devices):
     """
     @summary: in this test case we want to validate timeout functionality:
     there are two cases of timeout: bind-in timeout and search timeout functionalities
@@ -83,7 +83,7 @@ def a_test_ldap_timeout_functionality(engines, remove_ldap_configurations, devic
                                                       password=ldap_server_users[0][LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, devices):
+def test_ldap_invalid_auth_port_error_flow(engines, devices):
     """
     @summary: in this test case we want to validate invalid port ldap error flows of ,
     we want to configure invalid port value and then see that we are not able to connect
@@ -108,7 +108,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, remove_ldap_configurations, 
                                                           LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configurations, devices):
+def test_ldap_invalid_bind_in_password_error_flow(engines, devices):
     """
     @summary: in this test case we want to validate invalid bind in password ldap error flows,
     we want to configure invalid bind in password value and then see that we are not able to connect
@@ -131,7 +131,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, remove_ldap_configura
                                                           LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, devices):
+def test_ldap_invalid_bind_dn_error_flow(engines, devices):
     """
     @summary: in this test case we want to validate invalid bind dn ldap error flows,
     we want to configure invalid bind dn value and then see that we are not able to connect
@@ -154,7 +154,7 @@ def test_ldap_invalid_bind_dn_error_flow(engines, remove_ldap_configurations, de
                                                           LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, devices):
+def test_ldap_invalid_base_dn_error_flow(engines, devices):
     """
     @summary: in this test case we want to validate invalid base dn ldap error flows,
     we want to configure invalid bind dn value and then see that we are not able to connect
@@ -177,7 +177,7 @@ def test_ldap_invalid_base_dn_error_flow(engines, remove_ldap_configurations, de
                                                           LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_credentials_error_flow(engines, remove_ldap_configurations, devices):
+def test_ldap_invalid_credentials_error_flow(engines, devices):
     """
     @summary: in this test case we want to check that with non existing credentials we are not able to
     connect to switch
@@ -286,8 +286,7 @@ def test_ldap_set_show_unset(test_api, engines):
 @pytest.mark.parametrize('test_api, connection_method, encryption_mode', list(product(ApiType.ALL_TYPES,
                                                                                       LdapConsts.CONNECTION_METHODS,
                                                                                       LdapConsts.ENCRYPTION_MODES)))
-def test_ldap_authentication(test_api, connection_method, encryption_mode, engines, devices,
-                             reset_aaa):
+def test_ldap_authentication(test_api, connection_method, encryption_mode, engines, devices):
     """
     @summary:
         Test basic functionality - verify authentication through the ldap server.
@@ -316,12 +315,15 @@ def test_ldap_authentication(test_api, connection_method, encryption_mode, engin
         user_to_validate = random.choice(ldap_server_info[LdapConsts.USERS])
         validate_users_authorization_and_role(engines=engines, users=[user_to_validate])
 
+    with allure.step(f'Disable ldap'):
+        disable_ldap(engines, ldap_server_info)
+
 
 @pytest.mark.bug  # opened bug for permissions traceback exception 3519743
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_ldap_bad_connection(test_api, encryption_mode, reset_aaa, engines, devices):
+def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
     """
     @summary:
         Test that in case of bad connection with ldap server, authentication and authorization are done via next
@@ -403,12 +405,15 @@ def test_ldap_bad_connection(test_api, encryption_mode, reset_aaa, engines, devi
         with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can not login'):
             validate_users_authorization_and_role(engines=engines, users=[local_user], login_should_succeed=False)
 
+    with allure.step(f'Disable ldap'):
+        disable_ldap(engines, ldap2_server_info)
+
 
 @pytest.mark.bug  # opened bug for fail through 3501518
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_ldap_failthrough(test_api, encryption_mode, reset_aaa, engines, devices):
+def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
     """
     @summary: Test ldap failthrough mechanism.
         * Fail through: In case of auth. error (e.g. bad credentials, user not found, etc) move forward to the
@@ -459,8 +464,12 @@ def test_ldap_failthrough(test_api, encryption_mode, reset_aaa, engines, devices
         with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can not login'):
             validate_users_authorization_and_role(engines=engines, users=[local_user], login_should_succeed=False)
 
+    with allure.step(f'Disable ldap'):
+        disable_ldap(engines, server1)
+
     with allure.step('Set failthrough on'):
-        configure_authentication(engines, devices, failthrough=LdapConsts.ENABLED)
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
+                                 failthrough=LdapConsts.ENABLED)
 
     with allure.step('Verify all users can login'):
         with allure.step(f'Verify 1st server user "{server1_user[AaaConsts.USERNAME]}" can login'):
@@ -476,7 +485,7 @@ def test_ldap_failthrough(test_api, encryption_mode, reset_aaa, engines, devices
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_cert_verify(test_api, encryption_mode, reset_aaa, engines, devices, backup_and_restore_certificates,
+def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_restore_certificates,
                      alias_ldap_server_dn):
     logging.info(f'Test setup: {test_api}, {encryption_mode}')
     TestToolkit.tested_api = test_api
@@ -493,7 +502,8 @@ def test_cert_verify(test_api, encryption_mode, reset_aaa, engines, devices, bac
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)
 
     with allure.step('Enable and set ldap as main authentication method'):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL])
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
+                                 failthrough=LdapConsts.ENABLED)
 
     with allure.step('Enable cert-verify'):
         configure_resource(engines, ldap_obj.ssl, conf={LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED})

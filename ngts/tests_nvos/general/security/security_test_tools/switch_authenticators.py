@@ -133,7 +133,7 @@ class SshAuthenticator(Authenticator):
             self.ssh_session_already_started = False
             self.log('\n')
 
-    def auth_attempt(self, password_to_send, timeout=MAX_TIMEOUT, return_output=False):
+    def auth_attempt(self, password_to_send, timeout=MAX_TIMEOUT, return_output=False, logout_if_succeeded=True):
         if not self.ssh_session_already_started:
             self.start_ssn()
 
@@ -145,7 +145,8 @@ class SshAuthenticator(Authenticator):
         if respond_index == 0:
             self.log('Login success')
             login_succeeded = True
-            self.logout_from_ssh()
+            if logout_if_succeeded:
+                self.logout_from_ssh()
         elif respond_index == 1:
             self.log('Login failed. can try again')
             login_succeeded = False
@@ -160,13 +161,14 @@ class SshAuthenticator(Authenticator):
         else:
             return login_succeeded, send_timestamp
 
-    def attempt_login_success(self, timeout=MAX_TIMEOUT, return_output=False, restart_session_process=True):
+    def attempt_login_success(self, timeout=MAX_TIMEOUT, return_output=False, restart_session_process=True,
+                              logout_if_succeeded=True):
         if restart_session_process:
             self.start_session()
             self.ssh_session_already_started = False
         # self.close_ssh_login_session()  # make the attempt in new ssh session
         self.log(f'Make auth attempt with good credentials')
-        return self.auth_attempt(self.password, timeout, return_output)
+        return self.auth_attempt(self.password, timeout, return_output, logout_if_succeeded)
 
     def attempt_login_failure(self, timeout=MAX_TIMEOUT, return_output=False):
         self.log(f'Make auth attempt with bad credentials')

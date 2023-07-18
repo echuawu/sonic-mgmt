@@ -3,6 +3,7 @@ import time
 import subprocess
 import logging
 
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
@@ -13,7 +14,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.constants import AuthConsts
+from ngts.tests_nvos.general.security.constants import AuthConsts, AaaConsts
 from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
     configure_authentication, validate_services_and_dockers_availability
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
@@ -65,6 +66,30 @@ def configure_ldap(ldap_server_info):
         system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME],
                                               priority=priority,
                                               apply=True).verify_result()
+
+
+def disable_ldap(engines, ldap_server_info):
+    """
+    @summary: Remove ldap from authentication order configuration using an admin user from the given ldap server
+    """
+    with allure.step(f'Find admin user in ldap server {ldap_server_info[LdapConsts.HOSTNAME]}'):
+        ldap_admin_user_info = find_server_admin_user(ldap_server_info)
+        logging.info(f'Found admin user: {ldap_admin_user_info[AaaConsts.USERNAME]}')
+
+    with allure.step(f'Remove ldap from authentication order using admin user: {ldap_admin_user_info[AaaConsts.USERNAME]}'):
+        with allure.step(f"Creating engine to switch with username: {ldap_admin_user_info[AaaConsts.USERNAME]}"):
+            new_engine = ProxySshEngine(device_type=engines.dut.device_type, ip=engines.dut.ip,
+                                        username=ldap_admin_user_info[AaaConsts.USERNAME],
+                                        password=ldap_admin_user_info[AaaConsts.PASSWORD])
+        with allure.step('Unset authentication order configuration through new engine'):
+            System(None).aaa.authentication.unset(op_param=AuthConsts.ORDER, apply=True,
+                                                  dut_engine=new_engine).verify_result()
+
+
+def find_server_admin_user(ldap_server_info):
+    for user in ldap_server_info[LdapConsts.USERS]:
+        if user[AaaConsts.ROLE] == AaaConsts.ADMIN:
+            return user
 
 
 def validate_ldap_configurations(ldap_server_info):

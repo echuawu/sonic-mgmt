@@ -97,13 +97,12 @@ def change_username_password(engines, username, curr_password, new_password):
         logger.info("Changing password for user: {}\n"
                     "Current password: {}\n"
                     "New password proposed: {}".format(username, curr_password, new_password))
+        system = System()
+        system.aaa.user.set_username(username=username)
+        system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
 
-    # create system class
-    system = System()
-    system.aaa.user.set_username(username=username)
-    system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
-    logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
-    time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
+    with allure.step("Sleeping {} secs to allow password change".format(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)):
+        time.sleep(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability,
@@ -272,8 +271,8 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
     finally:
         with allure.step('Restoring original password'):
             system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD, apply=True, ask_for_confirmation=True)
-        with allure.step("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME)):
-            time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
+        with allure.step("Sleeping {} secs to allow password change".format(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)):
+            time.sleep(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 @pytest.mark.login_ssh_notification

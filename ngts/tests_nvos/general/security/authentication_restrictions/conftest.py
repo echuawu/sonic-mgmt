@@ -2,6 +2,8 @@ import random
 
 import pytest
 
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.general.security.constants import AaaConsts
@@ -10,7 +12,7 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.fixture(scope='function')
-def test_user(engines, clear_conf):
+def test_user(engines):
     """
     @summary: Configure a test user
     @return: Test user info
@@ -28,7 +30,7 @@ def test_user(engines, clear_conf):
 
 
 @pytest.fixture(scope='function')
-def test_users(engines, clear_conf):
+def test_users(engines):
     """
     @summary: Configure two test users
     @return: list of Test users info
@@ -46,21 +48,18 @@ def test_users(engines, clear_conf):
 
     for user_details in users:
         with allure.step(f'Clear user {user_details[AaaConsts.USERNAME]}'):
-            System().aaa.user.unset(user_details[AaaConsts.USERNAME], apply=True)
+            System().aaa.user.unset(user_details[AaaConsts.USERNAME])
+
+    with allure.step('Apply users unset'):
+        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
 
 
 @pytest.fixture(scope='function', autouse=True)
-def clear_conf(engines):
+def clear_users(engines):
     """
-    @summary: Clear existing configurations before test
+    @summary: Clear blocked users before and after test
     """
-    with allure.step('Clear all users before test'):
-        system = System()
-        system.aaa.unset(apply=True).verify_result()
-        system.aaa.authentication.restrictions.action_clear()
-
     yield
 
     with allure.step('Clear all configurations after test'):
-        system.aaa.unset(apply=True).verify_result()
-        system.aaa.authentication.restrictions.action_clear()
+        System().aaa.authentication.restrictions.action_clear()

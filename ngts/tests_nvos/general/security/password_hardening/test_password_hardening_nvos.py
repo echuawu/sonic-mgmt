@@ -2,6 +2,8 @@ import random
 import re
 import string
 import itertools
+
+from ngts.tests_nvos.general.security.constants import AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
@@ -40,7 +42,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
             .get_returned_value()
 
     with allure.step('Pick a strong and a weak password'):
-        username = PwhConsts.ADMIN_TEST_USR
+        username = AaaConsts.LOCALADMIN
         user_obj = System(username=username).aaa.user
         strong_pw = PwhTools.generate_strong_pw(conf, username, [])
         weak_pw = PwhTools.generate_weak_pw(conf, username, [strong_pw])
@@ -116,7 +118,7 @@ def test_password_hardening_enable_disable(engines, system, testing_users):
     10. Verify pw changed
     """
     pwh = system.security.password_hardening
-    usrname = PwhConsts.ADMIN_TEST_USR
+    usrname = AaaConsts.LOCALADMIN
     orig_pw = testing_users[usrname][PwhConsts.PW]
     user_obj = testing_users[usrname][PwhConsts.USER_OBJ]
     pw_history = [orig_pw]
@@ -318,9 +320,9 @@ def test_password_hardening_functionality(engines, system, testing_users, tst_al
             7. Verify success and that password changed
     """
     pwh_obj = system.security.password_hardening
-    test_username = PwhConsts.ADMIN_TEST_USR
-    orig_pw = testing_users[PwhConsts.ADMIN_TEST_USR][PwhConsts.PW]
-    test_user_obj = testing_users[PwhConsts.ADMIN_TEST_USR][PwhConsts.USER_OBJ]
+    test_username = AaaConsts.LOCALADMIN
+    orig_pw = testing_users[AaaConsts.LOCALADMIN][PwhConsts.PW]
+    test_user_obj = testing_users[AaaConsts.LOCALADMIN][PwhConsts.USER_OBJ]
 
     all_confs = PwhTools.generate_configurations()
     test_confs = all_confs if tst_all_pwh_confs else random.sample(all_confs, PwhConsts.NUM_SAMPLES)
@@ -394,7 +396,7 @@ def test_password_hardening_history_functionality(engines, system, testing_users
 
     pwh_obj = system.security.password_hardening
 
-    test_username = PwhConsts.ADMIN_TEST_USR
+    test_username = AaaConsts.LOCALADMIN
     test_user_obj = testing_users[test_username][PwhConsts.USER_OBJ]
     orig_pw = testing_users[test_username][PwhConsts.PW]
 
@@ -440,10 +442,10 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
             expect password expiration prompt
     """
     pwh_obj = system.security.password_hardening
-    user1 = PwhConsts.ADMIN_TEST_USR
+    user1 = AaaConsts.LOCALADMIN
     pw1 = testing_users[user1][PwhConsts.PW]
     user1_obj = testing_users[user1][PwhConsts.USER_OBJ]
-    user2 = PwhConsts.MONITOR_TEST_USR
+    user2 = AaaConsts.LOCALMONITOR
     pw2 = testing_users[user2][PwhConsts.PW]
     user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
 
@@ -497,10 +499,10 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
             expect password expiration warning
     """
     pwh_obj = system.security.password_hardening
-    user1 = PwhConsts.ADMIN_TEST_USR
+    user1 = AaaConsts.LOCALADMIN
     pw1 = testing_users[user1][PwhConsts.PW]
     user1_obj = testing_users[user1][PwhConsts.USER_OBJ]
-    user2 = PwhConsts.MONITOR_TEST_USR
+    user2 = AaaConsts.LOCALMONITOR
     pw2 = testing_users[user2][PwhConsts.PW]
     user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
 
@@ -556,7 +558,7 @@ def test_password_hardening_apply_new_password_and_expiration_settings_together(
     pwh_obj = system.security.password_hardening
     orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
 
-    username = PwhConsts.ADMIN_TEST_USR
+    username = AaaConsts.LOCALADMIN
     user_obj = System(username=username).aaa.user
 
     for i in range(PwhConsts.NUM_SAMPLES):
@@ -642,12 +644,12 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
     """
     pwh = system.security.password_hardening
 
-    user1 = PwhConsts.ADMIN_TEST_USR
+    user1 = AaaConsts.LOCALADMIN
     user1_obj = testing_users[user1][PwhConsts.USER_OBJ]
     pw1 = testing_users[user1][PwhConsts.PW]
     pw_hist1 = [pw1]
 
-    user2 = PwhConsts.MONITOR_TEST_USR
+    user2 = AaaConsts.LOCALMONITOR
     user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
     pw2 = testing_users[user2][PwhConsts.PW]
     pw_hist2 = [pw2]
@@ -719,7 +721,7 @@ def test_password_hardening_history_increase(engines, system, testing_users):
         5. Expect failure
     """
     pwh = system.security.password_hardening
-    username = PwhConsts.ADMIN_TEST_USR
+    username = AaaConsts.LOCALADMIN
     user_obj = testing_users[username][PwhConsts.USER_OBJ]
     orig_pw = testing_users[username][PwhConsts.PW]
 
@@ -764,7 +766,7 @@ def test_password_hardening_history_when_feature_disabled(engines, system, testi
         5. Try to set again the N passwords
         6. Expect failure
     """
-    username = PwhConsts.ADMIN_TEST_USR
+    username = AaaConsts.LOCALADMIN
     user_obj = testing_users[username][PwhConsts.USER_OBJ]
     orig_pw = testing_users[username][PwhConsts.PW]
     pwh = system.security.password_hardening
