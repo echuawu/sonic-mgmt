@@ -70,18 +70,22 @@ def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, logan
         duthost.run_cmd('docker exec -it syncd python mellanox_sdk_trigger_event_script.py --fw_event {}'.format(event_id))
         for dut in loganalyzer:
             loganalyzer[dut].expect_regex.extend(["Health event happened, severity"])
-            if fw_event == "FW_HEALTH_EVENT":
-                ignoreRegex = [
-                    r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
-                    r".*Failed command read at communication channel: Connection reset by peer.*",
-                ]
+            ignoreRegex = [
+                r".*SX_HEALTH_FATAL Detected with cause : FW health issue.*",
+                r".*SDK health event, device.*",
+                r".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*- Stopping further device monitoring.*",
+                r".*on_switch_shutdown_request: Syncd stopped.*",
+                r".*ERROR - Read PWM error. Possible hw-management is not running.*",
+                r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
+                r".*Failed command read at communication channel: Connection reset by peer.*",
+            ]
             if fw_event == "PLL_LOCK_EVENT":
-                ignoreRegex = [
+                ignoreRegex.extend([
                     r".*SXD_HEALTH_FW_FATAL: FW Fatal:fw_cause.*",
                     r".*SX_HEALTH_FATAL: cause_string = \[PLL lock failure\].*",
                     r".*Failed command read at communication channel: Connection reset by peer.*",
                     r".*SXD_HEALTH_FATAL:On device \d+ cause =\'PLL lock failure\'.*"
-                ]
+                ])
             loganalyzer[dut].ignore_regex.extend(ignoreRegex)
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):
         number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
