@@ -3,7 +3,7 @@ import logging
 
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from .static_dns_util import RESOLV_CONF_FILE, get_nameserver_from_config_db, get_nameserver_from_resolvconf, \
-    config_mgmt_ip
+    config_mgmt_ip, clear_nameserver_from_resolvconf
 
 logger = logging.getLogger(__name__)
 allure.logger = logger
@@ -20,6 +20,14 @@ def pytest_addoption(parser):
         type=str,
         default="cold",
         help="reboot type such as reload, cold, fast, warm, random"
+    )
+
+    parser.addoption(
+        "--both_static_dynamic_ip_supported",
+        action="store",
+        type=bool,
+        default=False,
+        help="Both dynamic and static ip are configured on the dut"
     )
 
 
@@ -46,7 +54,7 @@ def static_dns_setup(duthost):
             duthost.shell(f"config dns nameserver del {nameserver}")
 
     with allure.step(f"Clear all existing DNS nameserver from {RESOLV_CONF_FILE}"):
-        duthost.shell(f"echo > {RESOLV_CONF_FILE}")
+        clear_nameserver_from_resolvconf(duthost)
 
     yield
 
@@ -55,7 +63,7 @@ def static_dns_setup(duthost):
             duthost.shell(f"config dns nameserver add {nameserver}")
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=False)
 def static_dns_clean(duthost):
 
     yield
@@ -66,22 +74,35 @@ def static_dns_clean(duthost):
             duthost.shell(f"config dns nameserver del {nameserver}")
 
 
-@pytest.fixture()
-def static_mgmt_ip_guarantee(duthost, mgmt_interfaces):
+@pytest.fixture(scope='class')
+def static_mgmt_ip_configured(duthost, mgmt_interfaces):
     with allure.step("Check the static ip address configured on the mgmt interface"):
         if not mgmt_interfaces:
             pytest.skip("No static ip address is configured, skip the test")
 
-    with allure.step("Delete the ip address from the mgmt port"):
-        config_mgmt_ip(duthost, mgmt_interfaces, "remove")
+    yield
+
+
+@pytest.fixture(scope='class')
+def static_mgmt_ip_not_configured(duthost, mgmt_interfaces, request):
+    dynamic_static_ip_configured = request.config.getoption("--both_static_dynamic_ip_supported")
+
+    with allure.step("Check the static ip address configured on the mgmt interface"):
+        if mgmt_interfaces:
+            if dynamic_static_ip_configured:
+                with allure.step("Delete the ip address from the mgmt port"):
+                    config_mgmt_ip(duthost, mgmt_interfaces, "remove")
+            else:
+                pytest.skip("Static ip address is configured, skip the test")
 
     yield
 
-    with allure.step("Config the static ip on the mgmt port"):
-        config_mgmt_ip(duthost, mgmt_interfaces, "add")
+    if mgmt_interfaces and dynamic_static_ip_configured:
+        with allure.step("Config the static ip on the mgmt port"):
+            config_mgmt_ip(duthost, mgmt_interfaces, "add")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def mgmt_interfaces(duthost, tbinfo):
     ansible_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
     mgmt_interface_info = ansible_facts["MGMT_INTERFACE"] if "MGMT_INTERFACE" in ansible_facts else {}

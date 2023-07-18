@@ -10,7 +10,8 @@ from tests.common.utilities import wait_until
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from tests.common.platform.interface_utils import check_interface_status_of_up_ports
 from .static_dns_util import RESOLV_CONF_FILE, verify_nameserver_in_config_db, verify_nameserver_in_conf_file, \
-    get_nameserver_from_resolvconf, config_mgmt_ip, add_dns_nameserver, del_dns_nameserver
+    get_nameserver_from_resolvconf, config_mgmt_ip, add_dns_nameserver, del_dns_nameserver, get_mgmt_port_ip_info, \
+    get_nameserver_from_config_db, clear_nameserver_from_resolvconf
 
 
 pytestmark = [
@@ -99,65 +100,92 @@ def test_static_dns_basic(request, duthost, localhost, mgmt_interfaces):
                 verify_nameserver_in_conf_file(duthost, origin_dynamic_nameservers)
 
 
-@pytest.mark.usefixtures('static_mgmt_ip_guarantee')
-def test_static_dns_is_not_changing_when_changing_the_static_ip_to_dynamic(duthost, mgmt_interfaces):
-    """
-    Test case to verify Static DNS will not change when changing the ip address of the mgmt port from static to dynamic
-    :param duthost: DUT host object
-    :param mgmt_interfaces: mgmt interfaces information.
-    """
-    expected_nameservers = [IPV4_UNICAST_ADDRESS, IPV6_UNICAST_ADDRESS]
-    with allure.step("Configure static IP on the mgmt interface"):
-        config_mgmt_ip(duthost, mgmt_interfaces, "add")
+@pytest.mark.usefixtures('static_mgmt_ip_configured')
+class TestStaticMgmtPortIP():
+    def test_dynamic_dns_not_working_when_static_ip_configured(self, duthost):
+        """
+        Test to verify Dynamic DNS not work when static ip address is configured on the mgmt port
+        :param duthost: DUT host object
+        """
+        with allure.step("Delete all DNS nameserver"):
+            origin_nameservers = get_nameserver_from_config_db(duthost)
+            for nameserver in origin_nameservers:
+                del_dns_nameserver(duthost, nameserver)
+        with allure.step(f"Clear all existing DNS nameserver from {RESOLV_CONF_FILE}"):
+            clear_nameserver_from_resolvconf(duthost)
 
-    with allure.step("Configure static DNS"):
-        for nameserver in expected_nameservers:
-            add_dns_nameserver(duthost, nameserver)
-    with allure.step(f"Verify that {RESOLV_CONF_FILE} is updated"):
-        with allure.step("Verify the nameserver is configured as expected with cli show command"):
-            verify_nameserver_in_config_db(duthost, expected_nameservers)
-        with allure.step(f"Verify the content in {RESOLV_CONF_FILE} is as expected"):
+        with allure.step("Verify the nameservers are cleaned up"):
+            verify_nameserver_in_config_db(duthost, [])
+            verify_nameserver_in_conf_file(duthost, [])
+
+        with allure.step("Renew dhcp to restore the dns configuration."):
+            duthost.shell("sudo dhclient")
+            verify_nameserver_in_conf_file(duthost, [])
+
+
+@pytest.mark.usefixtures('static_mgmt_ip_not_configured')
+class TestDynamicMgmtPortIP():
+    def test_static_dns_is_not_changing_when_do_dhcp_renew(self, duthost):
+        """
+        Test case to verify Static DNS will not change when do dhcp renew for the mgmt port
+        :param duthost: DUT host object
+        """
+        expected_nameservers = [IPV4_UNICAST_ADDRESS, IPV6_UNICAST_ADDRESS]
+
+        with allure.step("Configure static DNS"):
+            for nameserver in expected_nameservers:
+                add_dns_nameserver(duthost, nameserver)
+        with allure.step(f"Verify that {RESOLV_CONF_FILE} is updated"):
+            with allure.step("Verify the nameserver is configured as expected with cli show command"):
+                verify_nameserver_in_config_db(duthost, expected_nameservers)
+            with allure.step(f"Verify the content in {RESOLV_CONF_FILE} is as expected"):
+                verify_nameserver_in_conf_file(duthost, expected_nameservers)
+
+        with allure.step("Renew dhcp to restore the dns configuration."):
+            duthost.shell("sudo dhclient")
+
+        with allure.step(f"Verify that {RESOLV_CONF_FILE} is not modified"):
             verify_nameserver_in_conf_file(duthost, expected_nameservers)
 
-    with allure.step("Delete the ip address from the mgmt port"):
-        config_mgmt_ip(duthost, mgmt_interfaces, "remove")
+        with allure.step("Delete static DNS"):
+            for nameserver in expected_nameservers:
+                del_dns_nameserver(duthost, nameserver)
 
-    with allure.step(f"Verify that {RESOLV_CONF_FILE} is not modified"):
-        verify_nameserver_in_conf_file(duthost, expected_nameservers)
+    @pytest.mark.usefixtures('static_mgmt_ip_not_configured')
+    def test_dynamic_dns_working_when_no_static_ip_and_static_dns(self, duthost):
+        """
+        The test is to verify Dynamic DNS work as expected when no static ip configured on mgmt port and
+        static DNS is configured.
+        :param duthost: DUT host object
+        """
+        mgmt_interfaces = get_mgmt_port_ip_info(duthost)
+        expected_nameservers = [IPV4_UNICAST_ADDRESS, IPV6_UNICAST_ADDRESS, IPV4_LOOPBACK_ADDRESS]
+        origin_dynamic_nameservers = get_nameserver_from_resolvconf(duthost)
+        with allure.step("Configure statically the same ip that was provided by dhcp."):
+            config_mgmt_ip(duthost, mgmt_interfaces, "add")
+
+        with allure.step("Add DNS nameserver and verify it was added as expected"):
+            for nameserver in expected_nameservers:
+                add_dns_nameserver(duthost, nameserver)
+
+        with allure.step("Delete nameservers"):
+            for nameserver in expected_nameservers:
+                del_dns_nameserver(duthost, nameserver)
+            with allure.step("Verify the nameserver is configured as expected with cli show command"):
+                verify_nameserver_in_config_db(duthost, [])
+
+            with allure.step(f"Verify the content in {RESOLV_CONF_FILE} is as expected"):
+                verify_nameserver_in_conf_file(duthost, [])
+
+        with allure.step("Remove the static IP"):
+            config_mgmt_ip(duthost, mgmt_interfaces, "remove")
+
+        with allure.step("Renew dhcp to restore the dns configuration."):
+            duthost.shell("sudo dhclient")
+            verify_nameserver_in_conf_file(duthost, origin_dynamic_nameservers)
 
 
-@pytest.mark.usefixtures('static_mgmt_ip_guarantee')
-def test_dynamic_dns_not_working_when_static_ip_configured(duthost, mgmt_interfaces):
-    """
-    Test to verify Dynamic DNS not work when static ip address is configured on the mgmt port
-    :param duthost: DUT host object
-    :param mgmt_interfaces: mgmt interfaces information.
-    """
-    with allure.step(f"Verify the {RESOLV_CONF_FILE} will update with the nameserver from the DHCP server"):
-        verify_nameserver_in_conf_file(duthost, [], expect_same=False)
-
-    with allure.step("Config the static ip on the mgmt port"):
-        config_mgmt_ip(duthost, mgmt_interfaces, "add")
-
-    with allure.step(f"Verify {RESOLV_CONF_FILE} will be cleaned"):
-        verify_nameserver_in_conf_file(duthost, [])
-
-    with allure.step("Delete the ip address from the mgmt port"):
-        config_mgmt_ip(duthost, mgmt_interfaces, "remove")
-
-    with allure.step("Get the nameserver from the resolv.conf"):
-        nameservers_from_dhcp_server = get_nameserver_from_resolvconf(duthost)
-
-    nameservers = [IPV4_UNICAST_ADDRESS, IPV6_UNICAST_ADDRESS]
-    assert nameservers_from_dhcp_server != nameservers
-
-    with allure.step("Add dns name server to config db with cli command"):
-        for nameserver in nameservers:
-            add_dns_nameserver(duthost, nameserver)
-    with allure.step("Verify resolv.conf is disable to receive dynamic DNS configuration."):
-        verify_nameserver_in_conf_file(duthost, nameservers)
-
-
+@pytest.mark.usefixtures('static_dns_clean')
 def test_static_dns_negative(duthost):
     """
     Negative test case, to verify the expected Err msg will be returned.

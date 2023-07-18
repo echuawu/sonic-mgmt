@@ -1,5 +1,5 @@
 import logging
-
+import json
 from tests.common.utilities import wait_until
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from ipaddress import ip_address, IPv4Address, IPv6Address
@@ -48,6 +48,33 @@ def get_nameserver_from_resolvconf(duthost, file_name=RESOLV_CONF_FILE, containe
     nameservers = " ".join(current_nameservers)
     logger.info(f"nameservers in resolv.conf are: [{nameservers}]")
     return current_nameservers
+
+
+def clear_nameserver_from_resolvconf(duthost):
+    duthost.shell(f"echo > {RESOLV_CONF_FILE}")
+    containers = duthost.get_running_containers()
+    for container in containers:
+        duthost.shell(f"docker exec {container} /bin/bash -c \"echo > {RESOLV_CONF_FILE}\"")
+
+
+def get_mgmt_port_ip_info(duthost):
+    mgmt_port = "eth0"
+    ip_addr = duthost.shell(f"show ip interfaces | grep -w '{mgmt_port}' | awk '{{print $2}}'")['stdout']
+    default_route = duthost.shell("show ip route 0.0.0.0/0 json")['stdout']
+
+    if default_route:
+        default_route = json.loads(default_route)
+        gwaddr = default_route['0.0.0.0/0'][0]["nexthops"][0]["ip"]
+
+    return {
+        mgmt_port:
+        {
+            ip_addr:
+            {
+                "gwaddr": gwaddr
+            }
+        }
+    }
 
 
 def config_mgmt_ip(duthost, mgmt_interfaces, action):
@@ -127,11 +154,11 @@ def _verify_nameserver_in_conf_file(duthost, expected_nameserver, expect_same=Tr
     if expect_same:
         assert set(nameserver_in_host_conf) == set(expected_nameserver), \
             f"The nameserver in the host's {RESOLV_CONF_FILE} is: {nameserver_in_host_conf}, " \
-                f"expected is: {expected_nameserver}"
+            f"expected is: {expected_nameserver}"
     else:
         assert set(nameserver_in_host_conf) != set(expected_nameserver), \
             f"The nameserver in the host's {RESOLV_CONF_FILE} is: {nameserver_in_host_conf}, " \
-                f"expected is: {expected_nameserver}"
+            f"expected is: {expected_nameserver}"
     containers = duthost.get_running_containers()
     for container in containers:
         nameserver_in_containers_conf = get_nameserver_from_resolvconf(duthost, container=container)
@@ -140,11 +167,11 @@ def _verify_nameserver_in_conf_file(duthost, expected_nameserver, expect_same=Tr
         if expect_same:
             assert set(nameserver_in_containers_conf) == set(expected_nameserver), \
                 f"The nameserver in container {container}'s {RESOLV_CONF_FILE} is: {nameserver_in_containers_conf}, " \
-                    f"expected is: {expected_nameserver}"
+                f"expected is: {expected_nameserver}"
         else:
             assert set(nameserver_in_containers_conf) != set(expected_nameserver), \
                 f"The nameserver in container {container}'s {RESOLV_CONF_FILE} is: {nameserver_in_containers_conf}, " \
-                    f"expected is: {expected_nameserver}"
+                f"expected is: {expected_nameserver}"
     return True
 
 

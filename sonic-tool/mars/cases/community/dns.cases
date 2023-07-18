@@ -3,13 +3,13 @@
     <global>
         <Test>
             <info> DNS test </info>
-            <name> test_dns </name>
+            <name> test_static_dns </name>
             <owner> </owner>
             <pre></pre>
             <post></post>
         </Test>
         <Case>
-            <tags> DNS </tags>
+            <tags> Static DNS </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
             <tout> 1800 </tout>
         </Case>

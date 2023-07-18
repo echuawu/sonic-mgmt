@@ -2330,4 +2330,11 @@ platform_tests/test_memory_exhaustion.py::TestMemoryExhaustion::test_memory_exha
     reason: "Simx doesn't support PDU"
     conditions:
       - "'simx' in platform"
+
+dns/static_dns/test_static_dns.py::TestStaticMgmtPortIP::test_dynamic_dns_not_working_when_static_ip_configured:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3611766"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3611766"
+      -
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
