@@ -378,12 +378,12 @@ class TestSfpApi(PlatformApiTestBase):
                             key if key != 'vendor_rev' else 'hardware_rev' for key in self.EXPECTED_XCVR_INFO_KEYS]
                         # self.EXPECTED_XCVR_INFO_KEYS = EXPECTED_XCVR_INFO_KEYS
                     else:
-
                         if info_dict["type_abbrv_name"] in ["QSFP-DD", "OSFP-8X"]:
+                            active_apsel_hostlane_count = 8
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS + \
                                                            self.EXPECTED_XCVR_NEW_QSFP_DD_OSFP_INFO_KEYS + \
                                                            ["active_apsel_hostlane{}".format(n)
-                                                            for n in range(1, info_dict['host_lane_count'] + 1)]
+                                                            for n in range(1, active_apsel_hostlane_count + 1)]
                         else:
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS
                     missing_keys = set(UPDATED_EXPECTED_XCVR_INFO_KEYS) - set(actual_keys)
