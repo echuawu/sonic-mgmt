@@ -2558,6 +2558,7 @@
         - tests_nvos/ib/test_unset_ib.py
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up_openapi
+        - tests_nvos/interfaces/test_ib_interface_counters.py
 
 # NVOS
 - Errors_list:
@@ -2565,6 +2566,13 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed_invalid
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify ipoib interface configuration.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled_sm
 
 # NVOS Errors which should be ignored in tests which doing reset service
 - Errors_list:

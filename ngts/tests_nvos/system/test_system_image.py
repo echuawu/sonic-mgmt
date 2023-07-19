@@ -102,7 +102,7 @@ def test_system_image_rename(release_name):
     try:
         with allure.step("Install new image name"):
             logging.info("Install new image name: {}".format(new_name))
-            fetched_image_file.action_file_install(op_param="force").verify_result()
+            fetched_image_file.action_file_install_with_reboot().verify_result()
 
         with allure.step("Verify installed image"):
             logging.info("Verify installed image, we should see the origin name and not the new name,"
@@ -237,13 +237,13 @@ def test_system_image_bad_flow(engines, release_name):
     with allure.step("Install bad flows"):
         logging.info("Install bad flows")
         with allure.step("Install image file that does not exist"):
-            file_rand_name.action_file_install("Image does not exist")
+            file_rand_name.action_file_install_with_reboot("Image does not exist")
         with allure.step("Install the same image twice"):
             try:
                 with allure.step("First installation"):
-                    image_file.action_file_install().verify_result()
+                    image_file.action_file_install_with_reboot().verify_result()
                 with allure.step("Second installation"):
-                    image_file.action_file_install().verify_result()
+                    image_file.action_file_install_with_reboot().verify_result()
             finally:
                 with allure.step("uninstall"):
                     system.image.action_uninstall(params='force')
@@ -421,7 +421,7 @@ def normalize_image_name(image_name):
 def install_image_and_verify(image_name, partition_id, original_images, system, test_name=''):
     with allure.step("Installing image {}".format(image_name)):
         logging.info("Installing image '{}'".format(image_name))
-        OperationTime.save_duration('image install', '', test_name, File(system.image.files, image_name).action_file_install)
+        OperationTime.save_duration('image install', '', test_name, File(system.image.files, image_name).action_file_install_with_reboot)
     with allure.step("Verify installed image"):
         expected_show_images_output = original_images.copy()
         expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(image_name)
@@ -451,7 +451,7 @@ def get_list_of_directories(current_installed_img, starts_with=None):
 
 
 def get_images_to_fetch(release_name, current_installed_img, images_amount=1):
-    images_to_fetch = [('nvos-amd64-25.01.1002.bin', '/auto/sw_system_release/nos/nvos/25.01.1002/amd64/nvos-amd64-25.01.1002.bin')]
+    images_to_fetch = []
     with allure.step("Get list of images"):
         logging.info("Get list of images")
         relevant_directories = get_list_of_directories(current_installed_img, release_name)

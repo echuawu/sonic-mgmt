@@ -41,9 +41,6 @@ class NvueSystemCli(NvueBaseCli):
             .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        if action_str == ActionConsts.INSTALL:
-            return engine.run_cmd_set([cmd, 'y'], patterns_list=[r"Operation will reboot the system."],
-                                      tries_after_run_cmd=1)
         return engine.run_cmd(cmd)
 
     @staticmethod
@@ -70,9 +67,7 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_install(engine, action_component_str, file=""):
-        cmd = "nv action install system {action_component} files {file}".format(action_component=action_component_str,
-                                                                                file=file)
-
+        cmd = "nv action install system {action_component} files {file}".format(action_component=action_component_str, file=file)
         logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
 
@@ -96,6 +91,16 @@ class NvueSystemCli(NvueBaseCli):
         return DutUtilsTool.reload(engine=engine, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready).verify_result()
 
     @staticmethod
+    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
+        resource_path = resource_path.replace('/', ' ')
+        cmd = "nv action {action_type} {resource_path} {param}" \
+            .format(action_type=action_str, resource_path=resource_path, param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        engine.run_cmd_set([cmd, 'y'], patterns_list=[r"Operation will reboot the system"], tries_after_run_cmd=1)
+        DutUtilsTool.reload(engine=engine, command='y').verify_result()
+
+    @staticmethod
     def action_profile_change(engine, resource_path, op_param=""):
         """
         Rebooting the switch
@@ -104,7 +109,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action change {path} profile {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine, cmd)
+        return DutUtilsTool.reload(engine=engine, command=cmd).verify_result()
 
     @staticmethod
     def show_log(engine, log_type='', param='', exit_cmd=''):
@@ -176,7 +181,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reset system {comp} {params}".format(comp=comp, params=param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine, cmd)
+        return DutUtilsTool.reload(engine=engine, command=cmd).verify_result()
 
     @staticmethod
     def show_health_report(engine, param='', exit_cmd=''):

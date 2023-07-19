@@ -33,8 +33,9 @@ class DutUtilsTool:
                 engine.disconnect()
 
             if not should_wait_till_system_ready:
-                time.sleep(50)
+                time.sleep(40)
                 ping_device(engine.ip)
+                time.sleep(10)
                 return ResultObj(result=True, info="system is not ready yet")
 
             with allure.step('Waiting for switch to be ready'):
@@ -76,6 +77,9 @@ class DutUtilsTool:
 
             with allure.step('wait until the CLI is up'):
                 time.sleep(10)
+
+            with allure.step('wait for ib-utils to be up'):
+                wait_for_ib_utils_docker(engine)
 
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
 
@@ -130,3 +134,9 @@ def wait_for_system_table_to_exist(engine):
         logger.info('Waiting to SYSTEM_STATUS table to be available')
         raise Exception("System is not ready yet")
     return True
+
+
+@retry(Exception, tries=60, delay=2)
+def wait_for_ib_utils_docker(engine):
+    cmd_output = engine.run_cmd('docker ps --format \"table {{.Names}}\"')
+    assert 'ib-utils' in cmd_output, "ib-utils still down"

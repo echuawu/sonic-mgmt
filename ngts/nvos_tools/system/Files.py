@@ -115,6 +115,14 @@ class File(Files):
                                                                 expected_str, TestToolkit.engines.dut, 'install',
                                                                 resource_path, op_param)
 
+    def action_file_install_with_reboot(self, expected_str="", op_param=""):
+        resource_path = self.get_resource_path()
+        with allure.step("Install {resource_path} file '{file}'".format(resource_path=resource_path, file=self.file_name)):
+            logging.info("Trying to install {resource_path} '{file}'".format(resource_path=resource_path, file=self.file_name))
+            return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_install_image_with_reboot,
+                                                                expected_str, TestToolkit.engines.dut, 'install',
+                                                                resource_path, op_param)
+
     def rename_and_verify(self, new_name):
         original_name = self.file_name
         self.action_rename(new_name)

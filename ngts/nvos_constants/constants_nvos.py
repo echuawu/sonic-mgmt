@@ -341,6 +341,7 @@ class ConfigConsts:
 
 class PlatformConsts:
     PLATFORM_FW = "firmware"
+    FM_PATH = "/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/"
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"

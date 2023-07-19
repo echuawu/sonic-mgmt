@@ -137,10 +137,11 @@ class BaseDevice:
                                                  NvosConst.PORT_STATUS_LABEL, expected_port_state)
         return result_obj
 
-    def verify_dockers(self, dut_engine):
+    def verify_dockers(self, dut_engine, dockers_list=""):
         result_obj = ResultObj(True, "")
         cmd_output = dut_engine.run_cmd('docker ps --format \"table {{.Names}}\"')
-        for docker in self.available_dockers:
+        list_of_dockers = dockers_list if dockers_list else self.available_dockers
+        for docker in list_of_dockers:
             if docker not in cmd_output:
                 result_obj.result = False
                 result_obj.info += "{} docker is not active.\n".format(docker)
