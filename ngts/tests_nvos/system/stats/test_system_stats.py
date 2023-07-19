@@ -840,28 +840,28 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}'.format(file_path))
 
-        # with allure.step("Replace internal file with file without header"):
-        #     file_name = 'power.csv'
-        #     file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
-        #     player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-        #                                         dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
-        #                                         dest_folder=StatsConsts.INTERNAL_PATH,
-        #                                         dest_ip=engines.dut.ip,
-        #                                         local_file_path=file_path)
-        #     engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
-        #
-        # with allure.step("Restart process..."):
-        #     engine.run_cmd("sudo systemctl restart stats-reportd")
-        #
-        # with allure.step("Wait 15 seconds..."):
-        #     time.sleep(StatsConsts.SLEEP_15_SECONDS)
-        #
-        # with allure.step("Validate creating new category file when header is corrupted"):
-        #     validate_number_of_lines_in_external_file(engines, system, 'power', StatsConsts.FUN_HEADER_NUM_OF_LINES,
-        #                                               StatsConsts.POWER_HEADER_NUM_OF_LINES + 3)
-        #
-        # with allure.step("Delete uploaded file"):
-        #     engine.run_cmd(cmd='rm -f {}'.format(file_path))
+        with allure.step("Replace internal file with file without header"):
+            file_name = 'power.csv'
+            file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
+            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                                dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                dest_folder=StatsConsts.INTERNAL_PATH,
+                                                dest_ip=engines.dut.ip,
+                                                local_file_path=file_path)
+            engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+
+        with allure.step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+
+        with allure.step("Wait 15 seconds..."):
+            time.sleep(StatsConsts.SLEEP_15_SECONDS)
+
+        with allure.step("Validate creating new category file when header is corrupted"):
+            validate_number_of_lines_in_external_file(engines, system, 'power', StatsConsts.FUN_HEADER_NUM_OF_LINES,
+                                                      StatsConsts.POWER_HEADER_NUM_OF_LINES + 3)
+
+        with allure.step("Delete uploaded file"):
+            engine.run_cmd(cmd='rm -f {}'.format(file_path))
 
         with allure.step("Replace internal file with a huge file"):
             file_name = 'temperature.csv'
@@ -1191,6 +1191,26 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
                         f"Power {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
                 assert StatsConsts.PWR_PSU_CUR_MIN <= int(row[4]) <= StatsConsts.PWR_PSU_CUR_MAX,\
                     f"Power {col_names[4]} not in range ({row[4]}) in sample #{num_of_samples}"
+                prev_sample_time = sample_time
+        elif name == 'voltage':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Voltage timestamp {sample_time} is too far from expected {expected_time}"
+                for col in range(1, num_of_columns - 1):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.VOLTAGE_GENERAL_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_GENERAL_MAX,\
+                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                col = num_of_columns - 1
+                if row[col] != 'N/A':
+                    assert StatsConsts.VOLTAGE_PSU_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_PSU_MAX, \
+                        f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+
                 prev_sample_time = sample_time
 
 

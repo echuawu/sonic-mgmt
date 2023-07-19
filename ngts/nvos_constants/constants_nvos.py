@@ -811,6 +811,10 @@ class StatsConsts:
     DISK_FAIL_CNT_MAX = 0
     DISK_TOTAL_LBA_RW_MIN = 10000
     DISK_TOTAL_LBA_RW_MAX = 4294967295
+    VOLTAGE_GENERAL_MIN = 0
+    VOLTAGE_GENERAL_Max = 16
+    VOLTAGE_PSU_MIN = 0
+    VOLTAGE_PSU_Max = 300
 
     GENERATE = 'generate'
     DELETE = 'delete'
