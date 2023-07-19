@@ -3039,3 +3039,22 @@
         - 3540710
     - Platform:
         - mqm9520
+
+# NVOS Marlin
+- Errors_list:
+    - ".*Fail to register core bus.*"
+    - ".*Could not start transaction.*"
+    - ".*command handler 'sdq_max_diff_clear' already exists.*"
+    - ".*command handler 'qos_counters_clear' already exists.*"
+  Conditions:
+    - Redmine:
+        - 3540016
+    - Platform:
+        - mqm9520
+
+# NVOS
+- Errors_list:
+    - ".*Failed to fetch file: (.*, 'Could not resolve host: hostname').*"
+  Conditions:
+    - Redmine:
+      - 3532915
