@@ -2975,7 +2975,7 @@
       - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
       - tests_nvos/general/config_commands/est_show_diff_history.py::test_diff_history_revision_ids
       Redmine:
-        - 3531453
+        - 3372506
 
 # NVOS
 - Errors_list:
