@@ -54,6 +54,8 @@ def pytest_collection_modifyitems(session, config, items):
         dut_engine = topology.players['dut']['engine']
         cli_object = SonicCli(topology)
         platform = get_platform_info(topology)['platform']
+        if platform not in max_pors_num_per_platform.keys():
+            pytest.skip(f'{platform} platform does not support split to maximum ports')
         platform_max_ports_num = max_pors_num_per_platform[platform]
         if config.option.ports_number == "max":
             expected_ports_num = platform_max_ports_num
