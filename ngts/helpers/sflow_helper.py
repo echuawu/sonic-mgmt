@@ -4,9 +4,12 @@ import time
 from datetime import datetime
 import json
 import random
+import os
 from retry import retry
-from ngts.constants.constants import SflowConsts
+from ngts.constants.constants import *
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
+
+SCAPY_TEMPLATE_DIR = MarsConstants.SONIC_MGMT_DIR + '/ngts/helpers/scapy_send_template.py'
 
 logger = logging.getLogger()
 
@@ -133,7 +136,7 @@ def remove_tmp_sample_file(engines):
     hb_engine.run_cmd(f"rm -rf {SflowConsts.COLLECTOR[SflowConsts.COLLECTOR_1]['sample_file']}")
 
 
-def analyze_sample(sample_file, interface_name=None):
+def analyze_sample(sample_file, interface_name=None, loopback=False):
     """
     This method is used to collect time stamps for a specific interface
     The typical flow sample format is:
@@ -400,6 +403,7 @@ def analyze_sample(sample_file, interface_name=None):
         }
     :param sample_file: sflowtool json format file
     :param interface_name: the specific interface name
+    :param loopback: True if the traffic is sent via loopback ports
     :return: time stamp list for a specific interface and flow sample count number
     """
     time_stamps = {}
@@ -417,7 +421,7 @@ def analyze_sample(sample_file, interface_name=None):
                 update_time_stamp_list(sample, sample_type, interface_name, time_stamps, localtime)
                 if sample_type == "FLOWSAMPLE":
                     for element in sample["elements"]:
-                        flow_sample_count += update_flow_sample_count(element, sample_type)
+                        flow_sample_count += update_flow_sample_count(element, sample_type, loopback=loopback)
     sflow_data.close()
     return time_stamps[interface_name], flow_sample_count
 
@@ -440,18 +444,29 @@ def update_time_stamp_list(sample, sample_type, interface_name, time_stamps, loc
                 time_stamps[interface_name].append(localtime)
 
 
-def update_flow_sample_count(element, sample_type):
+def update_flow_sample_count(element, sample_type, loopback=False):
     """
     This method is used to check whether it's a valid flow sample
     :param element:
     :param sample_type:
+    :param loopback: True if the traffic is sent via loopback ports
     :return: valid flow sample number
     """
-    if element.get("srcIP") == SflowConsts.HA_DUT_1_IP and element.get("dstIP") == SflowConsts.HA_DUT_2_IP:
-        logger.info(f"One {sample_type} found - srcIP:{SflowConsts.HA_DUT_1_IP} dstIP:{SflowConsts.HA_DUT_2_IP} srcMac:{element['srcMAC']} dstMAC:{element['dstMAC']}")
-        return 1
+    expected_packet = {"srcIP": None, "dstIP": None}
+    actual_src_ip = element.get("srcIP")
+    actual_dst_ip = element.get("dstIP")
+    if not loopback:
+        expected_packet["srcIP"] = SflowConsts.HA_DUT_1_IP
+        expected_packet["dstIP"] = SflowConsts.HA_DUT_2_IP
     else:
-        return 0
+        expected_packet["srcIP"] = SflowConsts.DUMMY_SOURCE_LOOPBACK_IP
+        expected_packet["dstIP"] = SflowConsts.LOOPBACK_DEST_PORT_IP
+
+    if actual_src_ip == expected_packet["srcIP"] and actual_dst_ip == expected_packet["dstIP"]:
+        logger.info("One {} found - srcIP: {}, dstIP: {} srcMac: {} dstMAC: {}"
+                    .format(sample_type, actual_src_ip, actual_dst_ip, element['srcMAC'], element['dstMAC']))
+        return 1
+    return 0
 
 
 def format_json(engines, sample_file):
@@ -563,34 +578,75 @@ def verify_sflow_sample_polling_interval(engines, topology_obj, collector, polli
     analyze_time_stamp(time_stamp_list, polling_interval, SflowConsts.COLLECTOR[collector]['sample_file'])
 
 
-def send_traffic(interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac):
+def send_traffic(engines, interfaces, topology_obj, source_iface_mac, dest_iface_mac, loopback=False, src_iface_name=None):
     """
     This method is used to send traffic
     :param interfaces: interface fixture
     :param topology_obj: topology_obj fixture
+    :param source_iface_mac: mac address of source interface
+    :param dest_iface_mac: mac address of destination interface
+    :param loopback: True if the traffic is sent via loopback ports
+    :param src_iface_name: name of the source interface
     """
     logger.info(f"Start sending traffic ...")
     packet_length = random.randint(100, 1000)
+    src_ip = SflowConsts.HA_DUT_1_IP
+    dest_ip = SflowConsts.HA_DUT_2_IP
+    if loopback:
+        src_ip = SflowConsts.DUMMY_SOURCE_LOOPBACK_IP
+        dest_ip = SflowConsts.LOOPBACK_DEST_PORT_IP
 
-    pkt_udp = f'Ether(dst="{dut_ha_1_mac}", src="{ha_dut_1_mac}")/IP(src="{SflowConsts.HA_DUT_1_IP}", dst="{SflowConsts.HA_DUT_2_IP}", len={packet_length})/UDP()'
-    pkt_tcp = f'Ether(dst="{dut_ha_1_mac}", src="{ha_dut_1_mac}")/IP(src="{SflowConsts.HA_DUT_1_IP}", dst="{SflowConsts.HA_DUT_2_IP}", len={packet_length})/TCP()'
-    pkt_icmp = f'Ether(dst="{dut_ha_1_mac}", src="{ha_dut_1_mac}")/IP(src="{SflowConsts.HA_DUT_1_IP}", dst="{SflowConsts.HA_DUT_2_IP}", len={packet_length})/ICMP()'
-    pkt_ip = f'Ether(dst="{dut_ha_1_mac}", src="{ha_dut_1_mac}")/IP(src="{SflowConsts.HA_DUT_1_IP}", dst="{SflowConsts.HA_DUT_2_IP}", len={packet_length})'
+    pkt_udp = f'Ether(dst="{dest_iface_mac}", src="{source_iface_mac}")/IP(src="{src_ip}", dst="{dest_ip}", len={packet_length})/UDP()'
+    pkt_tcp = f'Ether(dst="{dest_iface_mac}", src="{source_iface_mac}")/IP(src="{src_ip}", dst="{dest_ip}", len={packet_length})/TCP()'
+    pkt_icmp = f'Ether(dst="{dest_iface_mac}", src="{source_iface_mac}")/IP(src="{src_ip}", dst="{dest_ip}", len={packet_length})/ICMP()'
+    pkt_ip = f'Ether(dst="{dest_iface_mac}", src="{source_iface_mac}")/IP(src="{src_ip}", dst="{dest_ip}", len={packet_length})'
 
     pkt_list = [pkt_udp, pkt_tcp, pkt_icmp, pkt_ip]
 
     random_pkt = random.choice(pkt_list)
     logger.info(f"Randomly choose {random_pkt} from udp/tcp/ip/icmp packet type")
     logger.info(f"Sending {SflowConsts.SEND_PACKET_NUM} {random_pkt} ...")
-    validation_r = {'sender': 'ha',
-                    'send_args': {'interface': f'{interfaces.ha_dut_1}',
-                                  'packets': random_pkt, 'count': SflowConsts.SEND_PACKET_NUM}}
-    scapy_sender = ScapyChecker(topology_obj.players, validation_r)
-    scapy_sender.run_validation()
+    if not loopback:
+        #  send packets via ScapyChecker class
+        validation_r = {'sender': 'ha',
+                        'send_args': {'interface': f'{interfaces.ha_dut_1}',
+                                      'packets': random_pkt, 'count': SflowConsts.SEND_PACKET_NUM}}
+        scapy_sender = ScapyChecker(topology_obj.players, validation_r)
+        scapy_sender.run_validation()
+    else:
+        #  send packets via scapy python script copied to the switch
+        handle_and_send_scapy_python_script(engines, random_pkt, src_iface_name)
+
+
+def handle_and_send_scapy_python_script(engines, random_pkt, src_iface_name):
+    """
+    This method is used to create python file that uses scapy to send traffic from the switch,
+    The file is created from template with a random packet that's being added to it, copied to the switch and runs the traffic.
+    :param engines: engines fixture
+    :param random_pkt: packet that was chosen from a list of packet types
+    :param src_iface_name: name of the source interface
+    """
+    try:
+        scapy_template_file = "scapy_send_template.py"
+        scapy_file_tmp_dir = os.path.join('/tmp/', scapy_template_file)
+        os.system('cp {} {}'.format(SCAPY_TEMPLATE_DIR, scapy_file_tmp_dir))
+        with open(scapy_file_tmp_dir, 'a') as send_script:
+            send_script.write('pkt = {}\n'.format(random_pkt))
+            send_script.write('\nsend_packet(pkt, {}, "{}")\n'.format(SflowConsts.SEND_PACKET_NUM, src_iface_name))
+        engines.dut.copy_file(source_file=scapy_file_tmp_dir, dest_file='send_scapy.py',
+                              file_system='/home/admin', overwrite_file=True, verify_file=False)
+        engines.dut.run_cmd('sudo python3 send_scapy.py', validate=True)
+
+    except Exception as err:
+        raise AssertionError(err)
+
+    finally:
+        os.system('rm -rf {}'.format(scapy_file_tmp_dir))
+        engines.dut.run_cmd('sudo rm -rf send_scapy.py')
 
 
 @retry(Exception, tries=5, delay=5)
-def verify_flow_sample_received(engines, interfaces, topology_obj, collector, sample_rate, ha_dut_1_mac, dut_ha_1_mac, sample_exist=True):
+def verify_flow_sample_received(engines, interfaces, topology_obj, collector, sample_rate, source_iface_mac, dest_iface_mac, sample_exist=True, loopback=False, src_iface_name=None):
     """
     This method is used to verify flow sample in the sample file
     :param engines: engines fixture
@@ -598,14 +654,17 @@ def verify_flow_sample_received(engines, interfaces, topology_obj, collector, sa
     :param topology_obj: topology_obj fixture
     :param collector: collector name
     :param sample_rate: sample rate
-    :param ha_dut_1_mac: mac address of ha_dut_1
-    :param dut_ha_1_mac: mac address of dut_ha_1
+    :param source_iface_mac: mac address of source interface
+    :param dest_iface_mac: mac address of destination interface
     :param sample_exist: suppose flow sample exist or not
+    :param loopback: True if the traffic is sent via loopback ports
+    :param src_iface_name: name of the source interface
+
     """
     hb_engine = engines.hb
 
     sflowtool_pid = start_sflowtool_process(engines, collector)
-    send_traffic(interfaces, topology_obj, ha_dut_1_mac, dut_ha_1_mac)
+    send_traffic(engines, interfaces, topology_obj, source_iface_mac, dest_iface_mac, loopback=loopback, src_iface_name=src_iface_name)
 
     # 500 ms is for three main processes
     # 1. Sflow docker collect, process and send  sflow samples
@@ -619,7 +678,7 @@ def verify_flow_sample_received(engines, interfaces, topology_obj, collector, sa
         copy_sample_file_to_ngts_docker(engines, SflowConsts.COLLECTOR[collector]['sample_file'])
 
         logger.info("Start analyzing flow samples")
-        _, flow_sample_count = analyze_sample(SflowConsts.COLLECTOR[collector]['sample_file'])
+        _, flow_sample_count = analyze_sample(SflowConsts.COLLECTOR[collector]['sample_file'], loopback=loopback)
         count = SflowConsts.SEND_PACKET_NUM // sample_rate
         logger.info("##-------------------------------##")
         logger.info(f"There should be at least {count}, at most {count+1} flow samples due to the sflow random sample algorithm")
