@@ -416,8 +416,9 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, version, setup
     line = re.sub(rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s', '', log_errors[0])
     bug_regex = '.*' + error_to_regex(line).replace("\\", "\\\\")
 
-    description = f'| {line}\n' + '\n'.join(log_errors)
+    description = '| \n' + '\n'.join(log_errors)
     yaml_content_as_dict = {'search_regex': bug_regex,
+                            'bug_title': line,
                             'description': f"{description}",
                             'project': project,
                             'attachments': [tar_file_path_at_stm],
