@@ -97,12 +97,6 @@ tests_nvos/system/test_system_health.py::test_reboot_test:
     conditions:
       - https://redmine.mellanox.com/issues/3409698
 
-tests_nvos/system/test_system_snmp.py::test_system_snmp_functional:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3466894"
-    conditions:
-      - https://redmine.mellanox.com/issues/3466894
-
 tests_nvos/system/test_system_health.py::
   skip:
     reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
@@ -167,12 +161,6 @@ tests_nvos/system/clock/test_system_clock.py::test_set_unset_timezone_ntp_off:
     conditions:
       - https://redmine.mellanox.com/issues/3507024
 
-tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3526265"
-    conditions:
-      - https://redmine.mellanox.com/issues/3526265
-
 tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_description:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3527752"
@@ -202,12 +190,6 @@ tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3537022"
     conditions:
       - https://redmine.mellanox.com/issues/3537022
-
-tests_nvos/system/test_system_factory_reset.py:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3545526"
-    conditions:
-      - https://redmine.mellanox.com/issues/3545526
 
 tests_nvos/interfaces/test_port_split.py:
   skip:
