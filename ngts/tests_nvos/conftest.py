@@ -5,7 +5,9 @@ import time
 import os
 import re
 import math
+import smtplib
 from retry import retry
+from email.mime.text import MIMEText
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -26,7 +28,7 @@ from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
-from ngts.constants.constants import DbConstants, CliType
+from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
 
 logger = logging.getLogger()
 
@@ -274,6 +276,32 @@ def save_results_and_clear_after_test(item):
         clear_config(markers)
 
 
+@pytest.fixture(scope='function', autouse=True)
+def debug_kernel_check(engines, test_name, setup_name, session_id):
+    yield
+    if pytest.is_debug_kernel:
+        engines.dut.run_cmd("sudo dmesg | grep {}".format(DebugKernelConsts.KMEMLEAK))
+        engines.dut.run_cmd("sudo echo scan | sudo tee {}".format(DebugKernelConsts.KMEMLEAK_PATH))
+        mem_leaks_output = engines.dut.run_cmd("sudo cat {}".format(DebugKernelConsts.KMEMLEAK_PATH))
+        if mem_leaks_output:
+            logger.info("kernel memory leaks were found, will send mail with the leaks")
+            context = f"Kernel memory leaks were found during test:{test_name}\n" \
+                      f"Setup: {setup_name}\n" \
+                      f"Session ID: {session_id}\n" \
+                      f"{mem_leaks_output}"
+            try:
+                s = smtplib.SMTP(InfraConst.NVIDIA_MAIL_SERVER)
+                email_contents = MIMEText(context)
+                email_contents['Subject'] = "debug kernel issue nvos"
+                email_contents['To'] = ", ".join(['bshpigel@nvidia.com', 'ncaro@nvidia.com', 'yport@nvidia.com'])
+                s.sendmail('noreply@debugkernel.com', email_contents['To'], email_contents.as_string())
+                logger.info("Mail was sent to: {}".format(email_contents['To']))
+            finally:
+                s.quit()
+
+            engines.dut.run_cmd("sudo echo clear | sudo tee {}".format(DebugKernelConsts.KMEMLEAK_PATH))
+
+
 @pytest.fixture(scope="session", autouse=True)
 def insert_operation_time_to_db(setup_name, session_id, platform_params, topology_obj):
     '''
@@ -288,7 +316,7 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
             type = platform_params['filtered_platform']
             version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
             release_name = TestToolkit.version_to_release(version)
-            if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name and ("_CI_" not in setup_name):
+            if not TestToolkit.is_special_run() and pytest.is_mars_run and release_name and not pytest.is_ci_run:
                 insert_operation_duration_to_db(setup_name, type, version, session_id, release_name)
         except Exception as err:
             logger.warning("Failed to save operation duration data, because: {}".format(err))

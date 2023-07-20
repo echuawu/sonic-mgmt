@@ -14,13 +14,14 @@ import logging
 import re
 import os
 import json
+from paramiko.ssh_exception import SSHException
 from dotted_dict import DottedDict
 
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import PytestConst, NvosCliTypes
+from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
@@ -359,6 +360,37 @@ def is_sanitizer_image(topology_obj):
     update_sanitizer_in_topology(topology_obj)
     pytest.is_sanitizer = topology_obj.players['dut']['sanitizer']
     return pytest.is_sanitizer
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_code_coverage_run(topology_obj):
+    pytest.is_code_coverage = False
+    try:
+        pytest.is_code_coverage = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
+    except SSHException as err:
+        logger.warning(f'Unable to check if its code coverage run. Assuming that the device is not reachable. '
+                       f'Setting the is_code_coverage_run as False, '
+                       f'Got error: {err}')
+    return pytest.is_code_coverage
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_debug_kernel_run(engines):
+    pytest.is_debug_kernel = False
+    try:
+        output = engines.dut.run_cmd(f"sudo ls {DebugKernelConsts.KMEMLEAK_PATH}")
+        pytest.is_debug_kernel = False if "No such file or directory" in output else True    # only in debug kernel version we have this file
+    except SSHException as err:
+        logger.warning(f'Unable to check if its debug kernel run. Assuming that the device is not reachable. '
+                       f'Setting the is_debug_kernel_run as False, '
+                       f'Got error: {err}')
+    return pytest.is_debug_kernel
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_ci_run(setup_name):
+    pytest.is_ci_run = "_CI_" in setup_name
+    return pytest.is_ci_run
 
 
 @pytest.fixture(scope="session", autouse=True)

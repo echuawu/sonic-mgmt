@@ -76,14 +76,13 @@ class TestToolkit:
         return res
 
     @staticmethod
-    def is_special_run(topology_obj):
+    def is_special_run():
         """
-        check if this run is special run (sanitizer /code coverage)
+        check if this run is special run (sanitizer / code coverage / debug kernel)
         :param topology_obj:
         :return: True is this is a special run , else False
         """
-        is_code_coverage_run = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
-        return pytest.is_sanitizer or is_code_coverage_run
+        return pytest.is_sanitizer or pytest.is_code_coverage or pytest.is_debug_kernel
 
     @staticmethod
     def version_to_release(version):
@@ -125,5 +124,4 @@ class TestToolkit:
         :return: True if all the conditions are met, else false
         """
         release_name = TestToolkit.version_to_release(version)
-        return (not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name and (
-            "_CI_" not in setup_name))
+        return (not TestToolkit.is_special_run() and pytest.is_mars_run and release_name and not pytest.is_ci_run)
