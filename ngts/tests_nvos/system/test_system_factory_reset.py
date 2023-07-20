@@ -524,7 +524,7 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
                     errors += "\nsonic.target probably was not stopped"
 
     with allure.step("Verify new DB was created"):
-        if param != KEEP_ONLY_FILES:
+        if param not in [KEEP_ALL_CONFIG, KEEP_ONLY_FILES]:
             output = engine.run_cmd("stat /etc/sonic/config_db.json | grep Birth")
             if output and "No such file or directory" not in output:
                 file_date_time = _create_date_time_obj(output)

@@ -31,17 +31,14 @@ class DutUtilsTool:
                 logger.info("Waiting for switch shutdown after reload command")
                 check_port_status_till_alive(False, engine.ip, engine.ssh_port)
                 engine.disconnect()
+                check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
-            if not should_wait_till_system_ready:
-                time.sleep(40)
-                ping_device(engine.ip)
-                time.sleep(10)
-                return ResultObj(result=True, info="system is not ready yet")
-
-            with allure.step('Waiting for switch to be ready'):
-                logger.info("Waiting for switch to be ready")
-                retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
-                result_obj = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine, find_prompt_delay=find_prompt_delay)
+            if should_wait_till_system_ready:
+                with allure.step('Waiting for switch to be ready'):
+                    logger.info("Waiting for switch to be ready")
+                    retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
+                    result_obj = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine,
+                                                                                 find_prompt_delay=find_prompt_delay)
 
         return result_obj
 
@@ -76,7 +73,7 @@ class DutUtilsTool:
                 return ResultObj(result=False, info="SYSTEM_READY|SYSTEM_STATE TABLE IS MISSED", issue_type=IssueType.PossibleBug)
 
             with allure.step('wait until the CLI is up'):
-                time.sleep(10)
+                wait_until_cli_is_up(engine)
 
             with allure.step('wait for ib-utils to be up'):
                 wait_for_ib_utils_docker(engine)
@@ -140,3 +137,12 @@ def wait_for_system_table_to_exist(engine):
 def wait_for_ib_utils_docker(engine):
     cmd_output = engine.run_cmd('docker ps --format \"table {{.Names}}\"')
     assert 'ib-utils' in cmd_output, "ib-utils still down"
+
+
+@retry(Exception, tries=60, delay=10)
+def wait_until_cli_is_up(engine):
+    logger.info('Checking the status of nvued')
+    output = engine.run_cmd('nv show system version')
+    logger.info(output)
+    if 'CLI is unavailable' in output:
+        raise Exception("Waiting for NVUE to become functional")

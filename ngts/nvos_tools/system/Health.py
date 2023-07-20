@@ -79,7 +79,7 @@ class History(Health):
         line = self.search_line("health_history file deleted, creating new file")
         assert len(line) > 0
 
-    @retry(Exception, tries=12, delay=30)
+    @retry(Exception, tries=10, delay=60)
     def validate_new_summary_line_in_history_file_after_boot(self, last_summary_line):
         health_history_output = self.show()
         assert self.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[

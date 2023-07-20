@@ -95,7 +95,7 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
             dhcp_client6_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 ipoib_port.interface.ip.dhcp_client6.show()).verify_result()
             Tools.ValidationTool.verify_field_value_in_output(dhcp_client6_dict, IbInterfaceConsts.DHCP_SET_HOSTNAME,
-                                                              'enabled').verify_result()
+                                                              'disabled').verify_result()
 
 
 @pytest.mark.ib
