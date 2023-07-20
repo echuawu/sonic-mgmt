@@ -2786,6 +2786,16 @@
         - 3482636
 
 - Errors_list:
+    - '.*ERR pmon#psud: Fail to read model number: No key PN_VPD_FIELD.*'
+    - '.*ERR pmon#psud: Fail to read serial number: No key SN_VPD_FIELD.*'
+    - '.*ERR pmon#psud: Fail to read revision: No key REV_VPD_FIELD.*'
+  Conditions:
+    - Redmine:
+      - 3546979
+      Platform:
+        - simx
+
+- Errors_list:
     - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
   Conditions:
     - Redmine:
