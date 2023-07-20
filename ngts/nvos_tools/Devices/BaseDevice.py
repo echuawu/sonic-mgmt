@@ -351,7 +351,7 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
         self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
-        self.platform_env_psu_prop = ["capacity", "current", "power", "state"]
+        self.platform_env_psu_prop = ["capacity", "current", "power", "state", "voltage"]
 
     def _init_temperature(self):
         self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
@@ -374,70 +374,6 @@ class BaseSwitch(BaseDevice, ABC):
     def _init_system_lists(self):
         self.system_list = []
         self.user_fields = ['admin', 'monitor']
-
-
-# -------------------------- Jaguar Switch ----------------------------
-class JaguarSwitch(BaseSwitch):
-    JAGUAR_IB_PORT_NUM = 40
-    SWITCH_CORE_COUNT = 4
-    ASIC_TYPE = 'Quantum'
-    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
-    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
-    CATEGORY_DEFAULT_DISABLED_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.State.DISABLED.value
-    }
-    CATEGORY_DEFAULT_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
-    }
-    CATEGORY_DISK_DEFAULT_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
-    }
-    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
-        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
-        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
-        StatsConsts.STATE: StatsConsts.State.DISABLED.value
-    }
-    CATEGORY_DISABLED_DICT = {
-        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
-    }
-    CATEGORY_LIST_DEFAULT_DICT = {
-        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
-        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
-    }
-
-    def __init__(self):
-        BaseSwitch.__init__(self)
-        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
-            "x86_64-mlnx_mqm8700-r0")
-
-    def ib_ports_num(self):
-        return self.JAGUAR_IB_PORT_NUM
-
-    def _init_ib_speeds(self):
-        BaseSwitch._init_ib_speeds(self)
-        self.invalid_ib_speeds.update({'ndr': '400G'})
-
-    def _init_temperature(self):
-        BaseSwitch._init_temperature(self)
-        self.temperature_list += ["Ambient COMEX Temp", ]
 
 
 # -------------------------- Multi ASIC Switch ----------------------------
@@ -540,7 +476,7 @@ class MarlinSwitch(MultiAsicSwitch):
     MARLIN_IB_PORT_NUM = 128
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum2'
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
         StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -568,8 +504,7 @@ class MarlinSwitch(MultiAsicSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
     }
     CATEGORY_LIST_DEFAULT_DICT = {
         CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
@@ -577,8 +512,7 @@ class MarlinSwitch(MultiAsicSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
     }
 
     def __init__(self):
