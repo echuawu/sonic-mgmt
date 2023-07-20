@@ -117,10 +117,11 @@ def validate_ldap_configurations(ldap_server_info):
         output = system.aaa.ldap.show()
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
         expected_field = [LdapConsts.PORT, LdapConsts.BASE_DN, LdapConsts.BIND_DN,
-                          LdapConsts.LOGIN_ATTR,
+                          # LdapConsts.LOGIN_ATTR,  not supported now
                           LdapConsts.TIMEOUT_BIND, LdapConsts.TIMEOUT]
         expected_values = [ldap_server_info[LdapConsts.PORT], ldap_server_info[LdapConsts.BASE_DN],
-                           ldap_server_info[LdapConsts.BIND_DN], ldap_server_info[LdapConsts.LOGIN_ATTR],
+                           ldap_server_info[LdapConsts.BIND_DN],
+                           # ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
                            ldap_server_info[LdapConsts.TIMEOUT_BIND], ldap_server_info[LdapConsts.TIMEOUT],
                            ldap_server_info[LdapConsts.VERSION]]
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
@@ -200,7 +201,7 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info):
                 LdapConsts.BASE_DN: ldap_server_info[LdapConsts.BASE_DN],
                 LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
                 LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
-                LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],
+                # LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
                 LdapConsts.BIND_PASSWORD: ldap_server_info[LdapConsts.BIND_PASSWORD],
                 LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],
                 LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],

@@ -13,7 +13,7 @@ class LdapConsts:
     BASE_DN = 'base-dn'
     BIND_DN = 'bind-dn'
     GROUP_ATTR = 'group-attribute'
-    LOGIN_ATTR = 'login-attribute'
+    # LOGIN_ATTR = 'login-attribute'  not supported now
     BIND_PASSWORD = 'password'
     TIMEOUT_BIND = 'timeout-bind'
     TIMEOUT = 'timeout-search'
@@ -29,7 +29,7 @@ class LdapConsts:
     TLS_CRL_CHECK_FILE = 'tls-crl-check-file'  # decided out of feature
     TLS_CRL_CHECK_STATE = 'tls-crl-check-state'  # decided out of feature
 
-    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, LOGIN_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT, VERSION]
+    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT, VERSION]
     SSL_FIELDS = [SSL_CA_LIST, SSL_CERT_VERIFY, SSL_MODE, SSL_PORT, SSL_TLS_CIPHERS]
 
     # possible values
@@ -56,7 +56,7 @@ class LdapConsts:
         BASE_DN: str,
         BIND_DN: str,
         GROUP_ATTR: str,
-        LOGIN_ATTR: str,
+        # LOGIN_ATTR: str,  not supported now
         BIND_PASSWORD: str,
         TIMEOUT_BIND: list(range(1, 60 + 1)),
         TIMEOUT: list(range(1, 60 + 1)),
@@ -78,7 +78,7 @@ class LdapConsts:
         BASE_DN: 'ou=users,dc=example,dc=com',
         BIND_DN: '',
         GROUP_ATTR: 'member',
-        LOGIN_ATTR: 'cn',
+        # LOGIN_ATTR: 'cn',  not supported now
         BIND_PASSWORD: '*',
         TIMEOUT_BIND: 5,
         TIMEOUT: 5,
@@ -96,7 +96,7 @@ class LdapConsts:
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
-        "login-attribute": "cn",
+        # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
@@ -135,7 +135,7 @@ class LdapConsts:
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
-        "login-attribute": "cn",
+        # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
@@ -172,7 +172,7 @@ class LdapConsts:
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
-        "login-attribute": "cn",
+        # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
@@ -209,7 +209,7 @@ class LdapConsts:
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
-        "login-attribute": "cn",
+        # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",
@@ -246,7 +246,7 @@ class LdapConsts:
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "password": "secret",
-        "login-attribute": "cn",
+        # "login-attribute": "cn", not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
         "auth-port": "389",

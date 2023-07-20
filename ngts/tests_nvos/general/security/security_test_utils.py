@@ -26,8 +26,9 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
                                     password=password)
         # engines.dut.update_credentials(username=username, password=password)
 
-    with allure.step('FOR DEBUG - after login, run: sudo stat /var/log/audit.log'):
-        new_engine.run_cmd('sudo stat /var/log/audit.log')
+    if role == AaaConsts.ADMIN:
+        with allure.step('FOR DEBUG - after login, run: sudo stat /var/log/audit.log'):
+            new_engine.run_cmd('sudo stat /var/log/audit.log')
 
     SLEEP_BEFORE_EXECUTING_CMDS = 5
     with allure.step("Sleeping {} secs before executing commands".format(SLEEP_BEFORE_EXECUTING_CMDS)):
@@ -49,13 +50,33 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
                 should_succeed=False)
 
 
-def validate_users_authorization_and_role(engines, users, login_should_succeed=True):
+def check_nslcd_service(engines):
+    """
+    @summary: Check the status of nslcd service, and restart it if needed (for next test cases):
+    """
+    exit_cmd = 'q'
+    status_cmd = 'sudo service nslcd status'
+    restart_cmd = 'sudo service nslcd restart'
+
+    with allure.step('Check nslcd service status'):
+        output = engines.dut.run_cmd_after_cmd([status_cmd, exit_cmd])
+        if 'Active: failed' in output:
+            logging.info('Service nslcd failed')
+            with allure.step('Restart nslcd service'):
+                engines.dut.run_cmd(restart_cmd)
+            with allure.step('Check nslcd service status again'):
+                output = engines.dut.run_cmd([status_cmd, exit_cmd])
+                logging.info(f'Service nslcd is active: {"Active: active (running)" in output}')
+
+
+def validate_users_authorization_and_role(engines, users, login_should_succeed=True, check_nslcd_if_login_failed=False):
     """
     @summary:
         in this function we want to iterate on all users given and validate that access to switch
         and role as expected.
         We will restore the engine to default credentials afterwards
     """
+    should_check_nslcd_service = False
     try:
         for user_info in users:
             logging.info(f'Check login and role for user {user_info["username"]}')
@@ -65,8 +86,11 @@ def validate_users_authorization_and_role(engines, users, login_should_succeed=T
         logging.info("Got an exception while connection to switch and validating role")
         if login_should_succeed:
             logging.info('Failed due to authentication or permission error')
+            should_check_nslcd_service = check_nslcd_if_login_failed
             raise err
     finally:
+        if should_check_nslcd_service:
+            check_nslcd_service(engines)
         # restore_original_engine_credentials(engines)
         logging.info('Finally')
 
