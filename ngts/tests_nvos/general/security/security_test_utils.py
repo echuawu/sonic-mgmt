@@ -37,7 +37,7 @@ def connect_to_switch_and_validate_role(engines, username, password, role=System
     system = System(None)
     SHOW_SYSTEM_VERSION_CMD = 'nv show system version'
     with allure.step("Running command: \'{}\'".format(SHOW_SYSTEM_VERSION_CMD)):
-        system.version.show()
+        system.version.show(dut_engine=new_engine)
 
     with allure.step("Validating role permissions are as expected"):
         if role == SystemConsts.DEFAULT_USER_ADMIN:

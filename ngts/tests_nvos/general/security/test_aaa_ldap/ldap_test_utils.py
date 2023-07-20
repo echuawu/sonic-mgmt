@@ -6,6 +6,7 @@ import logging
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
@@ -72,6 +73,10 @@ def disable_ldap(engines, ldap_server_info):
     """
     @summary: Remove ldap from authentication order configuration using an admin user from the given ldap server
     """
+    with allure.step(f'Turning api to NVUE'):
+        orig_tested_api = TestToolkit.tested_api
+        TestToolkit.tested_api = ApiType.NVUE
+
     with allure.step(f'Find admin user in ldap server {ldap_server_info[LdapConsts.HOSTNAME]}'):
         ldap_admin_user_info = find_server_admin_user(ldap_server_info)
         logging.info(f'Found admin user: {ldap_admin_user_info[AaaConsts.USERNAME]}')
@@ -84,6 +89,9 @@ def disable_ldap(engines, ldap_server_info):
         with allure.step('Unset authentication order configuration through new engine'):
             System(None).aaa.authentication.unset(op_param=AuthConsts.ORDER, apply=True,
                                                   dut_engine=new_engine).verify_result()
+
+    with allure.step(f'Restore to test api: {orig_tested_api}'):
+        TestToolkit.tested_api = orig_tested_api
 
 
 def find_server_admin_user(ldap_server_info):
