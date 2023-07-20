@@ -13,6 +13,7 @@ from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
 from ngts.tests.nightly.conftest import compare_actual_and_expected
 
 logger = logging.getLogger()
+ASIC_SUPPORTS_AN_AND_FORCE_COMBO = ["SPC", "SPC2", "SPC3"]
 
 
 def skip_for_interface_type_rj45(func):
@@ -34,13 +35,14 @@ def skip_for_interface_type_rj45(func):
 class TestAutoNegBase:
 
     @pytest.fixture(autouse=True)
-    def setup(self, topology_obj, engines, cli_objects,
+    def setup(self, topology_obj, engines, cli_objects, chip_type,
               interfaces, physical_interfaces_types_dict, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
               split_mode_supported_speeds, interfaces_types_port_dict, platform_params):
         self.topology_obj = topology_obj
         self.engines = engines
         self.interfaces = interfaces
         self.cli_objects = cli_objects
+        self.chip_type = chip_type
         self.tested_lb_dict = tested_lb_dict
         self.tested_dut_host_lb_dict = tested_dut_host_lb_dict
         self.ports_lanes_dict = ports_lanes_dict
@@ -504,8 +506,9 @@ class TestAutoNegBase:
                                          set_expected_mlxlink_autoneg=False)
             for port in lb_ports_2_list:
                 conf[port]['expected_mlxlink_autoneg'] = "Force"
-            logger.info("Check configuration on ports did not modify while auto neg is enabled on one loopback port")
-            self.verify_auto_neg_configuration(conf, check_adv_parm=False)
+            if self.chip_type in ASIC_SUPPORTS_AN_AND_FORCE_COMBO:
+                logger.info("Check configuration on ports did not modify while auto neg is enabled on one loopback port")
+                self.verify_auto_neg_configuration(conf, check_adv_parm=False)
             logger.info("Enable auto negotiation mode on the second port of the loopbacks")
             self.configure_port_auto_neg(self.cli_objects.dut, lb_ports_2_list, conf, cleanup_list)
             self.update_port_conf(conf, conf.keys())
