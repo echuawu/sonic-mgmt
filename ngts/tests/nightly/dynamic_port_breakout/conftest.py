@@ -299,9 +299,9 @@ def verify_ifaces_transceiver_presence(cli_object, interfaces_list):
     :return: Exception raised in case of not all breakout ports has transceiver present
     """
     with allure.step('Verify interfaces transceiver presence'):
+        transceiver_presence = cli_object.interface.parse_interfaces_transceiver_presence()
         for iface in interfaces_list:
             with allure.step(f'Verify interface {iface} transceiver presence'):
-                transceiver_presence = cli_object.interface.parse_interfaces_transceiver_presence(iface)
                 assert transceiver_presence[iface]['Presence'] == 'Present'
 
 
