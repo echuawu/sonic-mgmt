@@ -156,6 +156,19 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_d
     conditions:
       - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
 
+tests/nightly/app_extension/:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3547445"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3547445 and 'r-anaconda-51' in testbed"
+
+tests/push_build_tests/:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3547445"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3547445 and 'r-anaconda-51' in testbed"
+
+
 tests/push_build_tests/general/wjh/test_wjh.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3008967 on SIMX platform"
@@ -613,6 +626,9 @@ copp/test_copp.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3130627"
     conditions:
       - https://redmine.mellanox.com/issues/3130627
+
+
+
 
 snmp/test_snmp_memory.py::test_snmp_memory:
   skip:
