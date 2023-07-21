@@ -908,12 +908,6 @@ monit/test_monit_status.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3249005 and 'nvda_bf' in platform"
 
-platform_tests:
-  skip:
-    reason: "Testcase ignored due to platform SIMX"
-    conditions:
-      - "'simx' in platform"
-
 platform_tests/test_auto_negotiation.py:
   skip:
     reason: "Testcase ignored due to platform 3800 and the fanout of r-tigon-11 setup is 3800"
@@ -1019,9 +1013,11 @@ platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current:
 
 platform_tests/test_reboot.py:
   skip:
-    reason: "Testcase ignored due to platform 2010"
+    reason: "Testcase ignored due to platform 2010 or simx doesn't support due to QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions_logical_operator: or
     conditions:
       - "'2010' in platform"
+      - "'simx' in platform"
 
 platform_tests/test_reboot.py::test_warm_reboot:
   skip:
@@ -1489,9 +1485,9 @@ acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
 
 platform_tests/test_sensors.py::test_sensors:
   skip:
-    reason: "Testcase ignored due to RM issue 3505271 and platform 4600C"
+    reason: "Testcase ignored due to RM issue 3556737"
     conditions:
-      - "https://redmine.mellanox.com/issues/3505271 and 'x86_64-mlnx_msn4600c-r0' in platform"
+      - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
 
 bfd/test_bfd.py::test_bfd_basic:
   skip:
@@ -1579,9 +1575,9 @@ iface_loopback_action/test_iface_loopback_action_wjh.py:
 
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
+    reason: "Simx doesn't support PSU"
     conditions:
-      - https://redmine.mellanox.com/issues/3355826
+      - "'simx' in platform"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
   skip:
@@ -1591,15 +1587,15 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
 
 platform_tests/api/test_watchdog.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    reason: "Simx doesn't support CPLD"
     conditions:
-      - "https://redmine.mellanox.com/issues/3273006"
+      - "'simx' in platform"
 
 platform_tests/test_reload_config.py::test_reload_configuration:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
+    reason: "Simx doesn't support due to QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
     conditions:
-      - "https://redmine.mellanox.com/issues/3273006"
+      - "'simx' in platform"
 
 platform_tests/test_reload_config.py::test_reload_configuration_checks:
   skip:
@@ -1970,9 +1966,9 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct[use-pkt-ca-ip:
 
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486626 on SPC4"
+    reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486626 and 'sn5' in platform"
+      - "'simx' in platform"
 
 platform_tests/mellanox/test_psu_power_threshold.py:
   skip:
@@ -2053,3 +2049,102 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiPgSharedWatermark:
       - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
+
+
+########################## NVIDIA INTERNAL SIMX EMULATION IGNORE START ############################
+platform_tests/sfp/test_sfpshow.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/mellanox/test_check_sfp_eeprom.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/mellanox/test_check_sfp_using_ethtool.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/mellanox/test_check_sfp_plug_in_out_sim.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/sfp/test_sfputil.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/sfp/test_show_intf_xcvr.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/test_xcvr_info_in_db.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_base_mac:
+  skip:
+    reason: "When deploying image, Simx will generate dynamic MAC"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_system_eeprom_info:
+  skip:
+    reason: "When deploying image, Simx will generate dynamic MAC"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/mellanox/test_check_sfp_presence.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/test_sequential_restart.py:
+  skip:
+    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/cli/test_show_platform.py::test_show_platform_syseeprom:
+  skip:
+    reason: "When deploying image, Simx will generate dynamic MAC"
+    conditions:
+      - "'simx' in platform"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
+  skip:
+    reason: "Skip simx platform by bug of https://redmine.mellanox.com/issues/3585579"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3585579 and 'simx' in platform"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
+  skip:
+    reason: " Skip simx platform by bug of https://redmine.mellanox.com/issues/3585579"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3585579 and 'simx' in platform"
+
+platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
+  skip:
+    reason: "Skip simx platform by bug of https://redmine.mellanox.com/issues/3585586"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3585586 and'simx' in platform"
+
+platform_tests/test_memory_exhaustion.py::TestMemoryExhaustion::test_memory_exhaustion:
+  skip:
+    reason: "Simx doesn't support PDU"
+    conditions:
+      - "'simx' in platform"
+########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
