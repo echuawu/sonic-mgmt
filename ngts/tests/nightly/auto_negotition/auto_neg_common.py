@@ -292,22 +292,6 @@ class TestAutoNegBase:
         self.compare_actual_and_expected_auto_neg_output(expected_conf=port_conf_dict_copy,
                                                          actual_conf=mlxlink_actual_conf, port_num=port_number)
 
-    def is_msn4410_with_speed_50g_type_cr(self, key, actual_conf, expected_conf):
-        """
-        This method is used to check whether it is msn4410(ocelot) with interface speed configured as 50G and one lane(type CR)
-        Right now, the first 24 physical ports do not support 50Gx1 mode, the last 8 physical ports support 50Gx1 mode
-        This method is used to check whether the context setup meets the conditions
-        :param key: key in dict expected_conf
-        :param actual_conf: actual configuration dict
-        :param expected_conf: expected configuration dict
-        :return: True if it meets all the conditions, else False
-        """
-        if key == AutonegCommandConstants.WIDTH and actual_conf[AutonegCommandConstants.SPEED] == '50G' \
-                and PlatformTypesConstants.FILTERED_PLATFORM_OCELOT in self.hwsku and expected_conf[AutonegCommandConstants.TYPE] == 'CR':
-            return True
-        else:
-            return False
-
     def compare_actual_and_expected_auto_neg_output(self, expected_conf, actual_conf, check_adv_parm=True, port_num=1):
         """
         :return: raise assertion error in case expected and actual configuration don't match
@@ -325,13 +309,6 @@ class TestAutoNegBase:
                     elif key == AutonegCommandConstants.ADV_TYPES and check_adv_parm:
                         self.compare_advertised_types(value, actual_conf_value,
                                                       physical_interface_type=physical_interface_type)
-                    elif self.is_msn4410_with_speed_50g_type_cr(key, actual_conf, expected_conf):
-                        if int(port_num) > 24:
-                            # value in this scenario would be 1
-                            compare_actual_and_expected(key, value, actual_conf_value)
-                        else:
-                            # value in this scenario would be 1, then modify it to 2 according to physical support limitation
-                            compare_actual_and_expected(key, value + 1, actual_conf_value)
                     elif key == AutonegCommandConstants.SPEED and expected_conf.get('connected_to_host'):
                         assert str(value) <= str(actual_conf_value), \
                             "Compared {} result failed: actual speed {} >= expected speed {}".format(key,
