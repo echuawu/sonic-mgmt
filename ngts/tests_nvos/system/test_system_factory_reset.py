@@ -543,11 +543,15 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
             if output and "No such file or directory" not in output:
                 errors += "\ntech-support files were not deleted"
 
-    with allure.step("Verify stats internal files were deleted"):
+    with allure.step("Verify old stats internal files were deleted"):
         if param != KEEP_ONLY_FILES:
             output = engine.run_cmd("ls /var/stats")
             if output and "No such file or directory" not in output:
-                errors += "\nstats internal files were not deleted"
+                stats_files = list(output.split())
+                for stat_file in stats_files:
+                    file_date_time = _create_date_time_obj(stat_file)
+                    if current_time >= file_date_time:
+                        errors += "\nold stats internal files were not deleted"
 
     with allure.step("Verify stats external files were deleted"):
         if param != KEEP_ONLY_FILES:
