@@ -31,14 +31,19 @@ class DutUtilsTool:
                 logger.info("Waiting for switch shutdown after reload command")
                 check_port_status_till_alive(False, engine.ip, engine.ssh_port)
                 engine.disconnect()
-                check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
-            if should_wait_till_system_ready:
-                with allure.step('Waiting for switch to be ready'):
-                    logger.info("Waiting for switch to be ready")
-                    retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
-                    result_obj = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine,
-                                                                                 find_prompt_delay=find_prompt_delay)
+            if not should_wait_till_system_ready:
+                time.sleep(40)
+                ping_device(engine.ip)
+                time.sleep(10)
+                return ResultObj(result=True, info="system is not ready yet")
+
+            with allure.step('Waiting for switch to be ready'):
+                logger.info("Waiting for switch to be ready")
+                check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+                retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
+                result_obj = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine,
+                                                                             find_prompt_delay=find_prompt_delay)
 
         return result_obj
 

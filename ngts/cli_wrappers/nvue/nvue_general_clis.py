@@ -290,6 +290,20 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         logger.info("Pressing Enter to enter ONIE menu")
         self.wait_for_onie_prompt(serial_engine)
 
+        logger.info("Send 'onie-stop'")
+        self.send_onie_stop(serial_engine)
+
+    def send_onie_stop(self, serial_engine):
+        output, respond = serial_engine.run_cmd('\r', ['login:', 'ONIE:/ #'], timeout=5, send_without_enter=True)
+        logger.info(f'index: {respond} ; output:\n{output}')
+        if respond == 0:  # secured
+            output, respond = serial_engine.run_cmd('root', '[Pp]assword:', timeout=10)
+            logger.info(output)
+            output, respond = serial_engine.run_cmd('root', 'ONIE:~ #', timeout=20)
+            logger.info(output)
+        output, respond = serial_engine.run_cmd('onie-stop', 'done.', timeout=10)
+        logger.info(output)
+
     def prepare_for_installation(self, topology_obj):
         '''
         @summary: in this function we will enter onie install mode using remote reboot

@@ -9,6 +9,7 @@ from ngts.helpers import system_helpers
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import NvosCliTypes
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
@@ -183,8 +184,9 @@ def get_dest_path(engine, coverage_path):
     with allure.step("Get nvos version"):
         output = json.loads(engine.run_cmd("nv show system version -o json"))
         nvos_version = output['image']
+        release = TestToolkit.version_to_release(nvos_version)
 
-    dest = f"{coverage_path}/{nvos_version}"
+    dest = f"{coverage_path}/{release}_{nvos_version}"
 
     with allure.step("Create coverage folder if not exists"):
         if not os.path.exists(dest):
