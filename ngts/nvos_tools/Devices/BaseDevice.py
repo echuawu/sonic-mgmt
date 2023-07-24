@@ -354,8 +354,8 @@ class BaseSwitch(BaseDevice, ABC):
         self.platform_env_psu_prop = ["capacity", "current", "power", "state", "voltage"]
 
     def _init_temperature(self):
-        self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
-                                 "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
+        self.temperature_list = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
+                                 "CPU-Core-1-Temp", "CPU-Pack-Temp", "PSU-1-Temp"]
 
     def _init_health_components(self):
         self.health_components = self.fan_list + self.psu_list + self.psu_fan_list + \

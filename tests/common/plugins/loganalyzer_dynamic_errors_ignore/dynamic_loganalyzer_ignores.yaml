@@ -3076,3 +3076,10 @@
   Conditions:
     - Redmine:
       - 3532915
+
+# NVOS
+- Errors_list:
+    - ".*ERR healthd: system_serviceSet changed size during iteration.*"
+  Conditions:
+    - Redmine:
+      - 3544171
