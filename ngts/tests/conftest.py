@@ -243,7 +243,7 @@ def get_dut_loopbacks(topology_obj):
     [('Ethernet4', 'Ethernet8'), ('Ethernet40', 'Ethernet36'), ...]
     """
     dut_loopbacks = {}
-    pattern = r"dut-lb\d+-\d"
+    pattern = r"dut-lb.*"
     for alias, connected_alias in topology_obj.ports_interconnects.items():
         if dut_loopbacks.get(connected_alias):
             continue
