@@ -115,9 +115,9 @@ class File(Files):
                                                                 expected_str, TestToolkit.engines.dut, 'install',
                                                                 resource_path)
 
-    def rename_and_verify(self, new_name):
+    def rename_and_verify(self, new_name, expected_str=""):
         original_name = self.file_name
-        self.action_rename(new_name)
+        self.action_rename(new_name, expected_str)
         self.parent_obj.verify_show_files_output(expected_files=[new_name], unexpected_files=[original_name])
 
     def rename_and_verify_firmware(self, new_name):

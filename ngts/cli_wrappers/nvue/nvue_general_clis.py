@@ -113,17 +113,16 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
+    def patch_config(engine, file):
+        logging.info("Running 'nv config patch' on dut")
+        output = engine.run_cmd('nv config patch {file}'.format(file=file))
+        return output
+
+    @staticmethod
     def save_config(engine):
         logging.info("Running 'nv config save' on dut")
         output = engine.run_cmd('nv config save')
 
-        return output
-
-    @staticmethod
-    def patch_config(engine, file, output_type='json'):
-        logging.info("Running 'nv config patch' on dut")
-        output = engine.run_cmd('nv config patch {file} --output {output_type}'.format(file=file,
-                                                                                       output_type=output_type))
         return output
 
     @staticmethod

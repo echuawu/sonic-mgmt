@@ -87,7 +87,8 @@ def test_replace_positive(engines):
         with allure.step("Replace config"):
             file = create_file_with_content(engines.dut, 'replace', 'yaml', diff_after_hostname_change)
             output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
-            assert not output, "Failed to replace config"
+            expected_message = "Loading config file: replace.yaml from current directory."
+            assert expected_message in output, "Failed to replace config"
 
         with allure.step("Delete created yaml file: {}".format(file)):
             engines.dut.run_cmd('sudo rm {file}'.format(file=file))
