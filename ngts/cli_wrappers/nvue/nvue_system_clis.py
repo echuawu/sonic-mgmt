@@ -152,10 +152,9 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_write_to_debug_logs(engine):
-        permission_cmd = "sudo chmod 777 /var/log/debug"
         write_content_cmd = "sudo sh -c 'echo debug_log >> /var/log/debug'"
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=write_content_cmd))
-        return engine.run_cmd_set([permission_cmd, write_content_cmd])
+        return engine.run_cmd(write_content_cmd)
 
     @staticmethod
     def action_set_system_log_component(engine, component, log_level=""):

@@ -55,10 +55,6 @@ tests_nvos/system/test_system_profile_change.py::test_system_profile_change_upgr
   skip:
     reason: "Not implemented command"
 
-tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotation_max_number:
-  skip:
-    reason: "Not implemented command"
-
 tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_link_diagnostics_basic:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3383943"
