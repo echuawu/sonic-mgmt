@@ -571,7 +571,7 @@ class AnacondaSwitch(BaseSwitch):
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
         self.platform_environment_list = self.fan_list + self.fan_led_list + ["PSU1", "PSU2"] \
             + self.psu_fan_list
 
@@ -660,7 +660,7 @@ class GorillaSwitch(MultiAsicSwitch):
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
 
     def _init_available_databases(self):
         MultiAsicSwitch._init_available_databases(self)
