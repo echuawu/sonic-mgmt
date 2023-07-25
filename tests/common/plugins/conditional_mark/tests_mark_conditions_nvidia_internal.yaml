@@ -670,11 +670,11 @@ vlan/test_autostate_disabled.py:
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3097795 and branch 202111"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3097795 and branch 202111, or RM 3486128 and branch 202211 and sn5600 in platform"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3097795 and '202111' in release"
-      - "https://redmine.mellanox.com/issues/3139078 and '202205' in release"
+      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
   skip:
