@@ -1,17 +1,22 @@
 import pytest
 import allure
-import os
+import re
+import logging
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.ConfigTool import ConfigTool
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts, OutputFormat
+from ngts.nvos_constants.constants_nvos import SystemConsts, ConfigConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
+
+logger = logging.getLogger()
 
 
+@pytest.mark.general
 @pytest.mark.nvos_ci
+@pytest.mark.configuration
 @pytest.mark.simx
 def test_detach(engines):
     """
@@ -38,6 +43,7 @@ def test_detach(engines):
 
 
 @pytest.mark.general
+@pytest.mark.configuration
 @pytest.mark.simx
 def test_apply_assume(engines):
     """
@@ -81,3 +87,81 @@ def test_apply_assume(engines):
 
     with allure.step('apply system hostname change using {opt}'.format(opt=ConfigConsts.APPLY_YES)):
         NvueGeneralCli.apply_config(engines.dut, True, ConfigConsts.APPLY_YES)
+
+
+@pytest.mark.general
+@pytest.mark.configuration
+@pytest.mark.simx
+def test_apply_rev_id(engines):
+    """
+        Test flow:
+            1. run nv set system message pre-login <first_message>
+            2. run nv config apply and save rev id as <first_rev_id>
+            3. run nv set system message pre-login <second_message>
+            4. run nv config apply and save rev id as <second_rev_id>
+            5. run nv config apply <first_rev_id>
+            6. verify the pre-login = <first_message>
+            5. run nv config apply ref <second_rev_id>
+            8. verify the pre-login = <second_message>
+            9. check history data for both cases, should be: rev = original rev and ref should be rev_<rev_id>_apply_2
+            10. try again and check rev_<rev_id>_apply_3
+
+    """
+    system = System(None)
+    with allure.step('set pre-login message and apply'):
+        output = system.message.set("TESTING_001", engines.dut, field_name=SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+
+    with allure.step('get the rev id and ref'):
+        rev_id_1 = output.split()[-1]
+        ref_1 = 'rev_' + rev_id_1 + '_apply_1'
+
+    with allure.step('set pre-login message and apply'):
+        output = system.message.set("TESTING_002", engines.dut, field_name=SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+
+    with allure.step('get the rev id and ref'):
+        rev_id_2 = output.split()[-1]
+        ref_2 = 'rev_' + rev_id_2 + '_apply_1'
+
+    with allure.step('apply using rev id and verify output'):
+        apply_output = NvueGeneralCli.apply_config(engine=engines.dut, rev_id=rev_id_1)
+        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+
+        with allure.step('Verify pre-login changed to TESTING_001 in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE, "TESTING_001").verify_result()
+        assert 'applied' in apply_output, "failed to apply using rev_id"
+
+    with allure.step('apply using ref and verify output'):
+        apply_output = NvueGeneralCli.apply_config(engine=engines.dut, rev_id=ref_2)
+        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+
+        with allure.step('Verify pre-login changed to TESTING_002 in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE, "TESTING_002").verify_result()
+        assert 'applied' in apply_output, "failed to apply using ref"
+
+    if not is_redmine_issue_active([3553769]):
+        with allure.step('run nv config history'):
+            history_output = OutputParsingTool.parse_config_history(
+                TestToolkit.GeneralApi[TestToolkit.tested_api].history_config(engines.dut)).get_returned_value()
+            configs_list = [history_output[0], history_output[1]]
+            expected_id = [rev_id_2, rev_id_1]
+            expected_ref = [ref_2, ref_1]
+        with allure.step('verify the history output'):
+            verify_history_value(configs_list, expected_id, expected_ref)
+
+
+def verify_history_value(configs_list, expected_id, expected_ref):
+    """
+
+    :param configs_list:
+    :param expected_id:
+    :param expected_ref:
+    :return:
+    """
+    err_msg = ""
+    for rev, id, ref in zip(configs_list, expected_id, expected_ref):
+        if rev['rev_id'] != id:
+            err_msg += "the expected rev id = {} but the value now = {}\n".format(id, rev['rev_id'])
+        if rev['ref'] != ref:
+            err_msg += "the expected rev ref = {} but the value now = {}\n".format(id, rev['ref'])
+
+    assert not err_msg, err_msg

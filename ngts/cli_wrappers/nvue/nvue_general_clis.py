@@ -126,7 +126,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def apply_config(engine, ask_for_confirmation=False, option='', validate_apply_message=''):
+    def apply_config(engine, ask_for_confirmation=False, option='', validate_apply_message='', rev_id=""):
         """
         Apply configuration
         :param option: could be [-y, --assume-yes, --assume-no, --confirm-yes, --confirm-no, --confirm-status]
@@ -136,20 +136,20 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         logging.info("Checking the config to be applied")
         NvueGeneralCli.diff_config(engine=engine)
 
-        logging.info("Running 'nv config apply' on dut")
+        logging.info("Running 'nv config apply {} ' on dut".format(rev_id))
         if ask_for_confirmation:
             output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
                                         tries_after_run_cmd=1)
             if 'Declined apply after warnings' in output:
                 output = "Error: " + output
             elif 'y: command not found' in output and 'applied' in output:
-                output = 'applied'
+                output = 'applied' + NvueGeneralCli.get_rev_id(output)
         elif validate_apply_message:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
             assert validate_apply_message in output, 'Message {0} not exist in output {1}'.\
                 format(validate_apply_message, output)
         else:
-            output = engine.run_cmd('nv {option} config apply'.format(option=option))
+            output = engine.run_cmd('nv {option} config apply {rev}'.format(option=option, rev=rev_id))
         return output
 
     @staticmethod
@@ -313,3 +313,15 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
     def confirm_in_onie_install_mode(self, topology_obj):
         pass
+
+    @staticmethod
+    def get_rev_id(output):
+        """
+
+        :param output:
+        :return:
+        """
+        pattern = r"\[rev_id:\s(\d+)\]"
+        match = re.search(pattern, output)
+        assert match, "can't match rev_id after apply"
+        return ' ' + match.group(1)
