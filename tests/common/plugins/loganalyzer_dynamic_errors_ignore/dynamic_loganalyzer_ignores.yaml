@@ -2883,6 +2883,16 @@
       - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
       - tests_nvos/system/test_system_health.py::test_system_health_files
 
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: Invalid fan speed data for.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_ignore_health_issue
+
 # NVOS - snmp error flows
 - Errors_list:
     - ".*ERR health-statsd#health_history: snmp:snmp-subagent: 'snmp-subagent' is not running.*"
