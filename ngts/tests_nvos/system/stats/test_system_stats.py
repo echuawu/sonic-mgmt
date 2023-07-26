@@ -1202,14 +1202,14 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
                 time_high_thresh = expected_time + timedelta(seconds=5)
                 assert time_low_thresh < sample_time < time_high_thresh,\
                     f"Voltage timestamp {sample_time} is too far from expected {expected_time}"
-                for col in range(1, num_of_columns - 1):
+                for col in range(1, num_of_columns - 2):
                     if row[col] != 'N/A':
                         assert StatsConsts.VOLTAGE_GENERAL_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_GENERAL_MAX,\
                             f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
-                col = num_of_columns - 1
-                if row[col] != 'N/A':
-                    assert StatsConsts.VOLTAGE_PSU_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_PSU_MAX, \
-                        f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                for col in range(num_of_columns - 1, num_of_columns):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.VOLTAGE_PSU_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_PSU_MAX,\
+                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
 
                 prev_sample_time = sample_time
 

@@ -549,7 +549,8 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
             if output and "No such file or directory" not in output:
                 stats_files = list(output.split())
                 for stat_file in stats_files:
-                    file_date_time = _create_date_time_obj(stat_file)
+                    output = engine.run_cmd(f"stat /var/stats/{stat_file} | grep Birth")
+                    file_date_time = _create_date_time_obj(output)
                     if current_time >= file_date_time:
                         errors += "\nold stats internal files were not deleted"
 
