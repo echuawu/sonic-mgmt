@@ -13,6 +13,9 @@ logger = logging.getLogger()
 
 UNSUPPORTED_SPLIT_PLATFORMS = [PlatformTypesConstants.PLATFORM_ALLIGATOR]
 REBOOT_TEST_NAME = 'test_push_gate_reboot_policer'
+CONFIG_DB_DUT_PATH = '/etc/sonic/config_db.json'
+CONFIG_DB_DUT_TEMP_PATH = '/tmp/config_db.json'
+CONFIG_DB_COPY_NAME = 'config_db_copy.json'
 
 
 def pytest_addoption(parser):
@@ -33,7 +36,7 @@ def pytest_collection_modifyitems(session, config, items):
     msn4600  - 124
     msn4600c - 124
     msn4700  - 116
-    sn5600   - 244
+    sn5600   - 128
     """
 
     if len(items) == 1 and items[0].name == REBOOT_TEST_NAME and config.option.ports_number:
@@ -47,7 +50,7 @@ def pytest_collection_modifyitems(session, config, items):
                                      PlatformTypesConstants.PLATFORM_LIGER: 124,
                                      PlatformTypesConstants.PLATFORM_TIGON: 124,
                                      PlatformTypesConstants.PLATFORM_LEOPARD: 116,
-                                     PlatformTypesConstants.PLATFORM_MOOSE: 244}
+                                     PlatformTypesConstants.PLATFORM_MOOSE: 128}
 
         setup_name = session.config.option.setup_name
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
@@ -73,11 +76,13 @@ def pytest_collection_modifyitems(session, config, items):
         sonic_ver = cli_object.general.get_image_sonic_version()
         config_db_file_name = f'{sonic_ver}_config_db.json'
         orig_config_db_shared_path = os.path.join(shared_path, config_db_file_name)
-        # Set config_db shared path in cache variable
-        session.config.cache.set('CONFIG_DB_SHARED_PATH', orig_config_db_shared_path)
 
         original_config_db = read_config_db_from_shared_location(orig_config_db_shared_path)
         existing_ports_num = len(original_config_db['PORT'])
+        # Save available config_db.json from DUT to sonic-mgmt docker /tmp folder
+        logger.info(f'Copy original config_db.json from DUT to sonic-mgmt /tmp folder')
+        dut_engine.copy_file(source_file=f"{CONFIG_DB_DUT_PATH}",
+                             dest_file=f'/tmp/{CONFIG_DB_COPY_NAME}', file_system='/tmp/', direction='get')
 
         if expected_ports_num != existing_ports_num:
             if platform in UNSUPPORTED_SPLIT_PLATFORMS:
@@ -100,11 +105,12 @@ def pytest_sessionfinish(session, exitstatus):
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
         dut_engine = topology.players['dut']['engine']
         cli_object = SonicCli(topology)
-
-        orig_config_db_shared_path = session.config.cache.get('CONFIG_DB_SHARED_PATH', None)
-        original_config_db = read_config_db_from_shared_location(orig_config_db_shared_path)
-
-        save_config_db_json(dut_engine, original_config_db)
+        logger.info(f'Copy original config_db.json file from sonic-mgmt /tmp folder to  DUT /tmp/ folder')
+        dut_engine.copy_file(source_file=f"/tmp/{CONFIG_DB_COPY_NAME}",
+                             dest_file=CONFIG_DB_DUT_TEMP_PATH, file_system='/tmp/',
+                             overwrite_file=True, verify_file=False)
+        logger.info(f'Copy db file from DUT /tmp folder to DUT {CONFIG_DB_DUT_PATH}')
+        dut_engine.run_cmd(f'sudo cp {CONFIG_DB_DUT_TEMP_PATH} {CONFIG_DB_DUT_PATH}')
         cli_object.general.reload_configuration(force=True)
 
 
