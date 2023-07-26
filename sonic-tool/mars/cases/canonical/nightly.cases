@@ -209,6 +209,15 @@
     </cmd>
   </case>
   <case>
+    <name> New HW TC </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/new_hw_thermal_control --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --sensor_type=all --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
     <name> nightly_sanitizer_checker </name>
     <info> </info>
     <cmd>

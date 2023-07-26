@@ -2843,6 +2843,25 @@
       Redmine:
         - 3488512
 
+# In the test case test_sensor_errors[psu_err_present], it has an action to remove the psu file,
+# when pmon try to read the file psu file "/var/run/hw-management/thermal/psu\d+_status",
+# following error msg will be logged to syslog, it is not an real issue, so it is safe to ignore these err msg
+- Errors_list:
+    - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - FileNotFoundError.*No such file or directory.*'
+    - '.*RR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - ValueError.*invalid literal for int.* with base.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_present]
+
+# In the test case test_sensor_errors[fan_err_present], it has an action to remove the fan status file,
+# when pmon try to read the file psu file "/var/run/hw-management/thermal/fan\d+_status",
+# following error msg will be logged to syslog, it is not an real issue, so it is safe to ignore these err msg
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/fan\d+_status - FileNotFoundError.*No such file or directory.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[fan_err_present]
+
 # NVOS : Errors - Bug 3493347 related
 - Errors_list:
     - '.*ERR dhclient\[\d+\]: send_packet: Network is unreachable.*'
