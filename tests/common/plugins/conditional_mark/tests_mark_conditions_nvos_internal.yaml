@@ -217,5 +217,34 @@ tests_nvos/system/test_system_image.py::test_image_install:
     conditions:
       - https://redmine.mellanox.com/issues/3549627
 
+tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_crash:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3554789"
+    conditions:
+      - https://redmine.mellanox.com/issues/3554789
+
+tests_nvos/system/test_system_message.py::test_set_system_message_pre_login_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_show_system.py::test_system_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_show_system.py::test_system_show_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3546936"
+    conditions:
+      - https://redmine.mellanox.com/issues/3546936
 
 ########################## NVOS IGNORE END ##########################

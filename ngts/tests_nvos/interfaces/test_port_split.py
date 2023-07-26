@@ -15,6 +15,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -486,13 +487,14 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
         cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{} name".format(child_ports[0].name)
         alias = engines.dut.run_cmd(cmd)
 
-    with allure.step("Set mtu value through redis cli on a child port and validate"):
-        random_mtu = random.randrange(256, 4096)
-        cmd = "redis-cli -n 4 HSET IB_PORT\\|{0} mtu {1}".format(alias, random_mtu)
-        redis_cli_output = engines.dut.run_cmd(cmd)
-        assert redis_cli_output != 0, "Redis command failed"
-        Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            child_ports[0].ib_interface.link.show()).get_returned_value()
+    if not is_redmine_issue_active(3554789):
+        with allure.step("Set mtu value through redis cli on a child port and validate"):
+            random_mtu = random.randrange(256, 4096)
+            cmd = "redis-cli -n 4 HSET IB_PORT\\|{0} mtu {1}".format(alias, random_mtu)
+            redis_cli_output = engines.dut.run_cmd(cmd)
+            assert redis_cli_output != 0, "Redis command failed"
+            Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+                child_ports[0].ib_interface.link.show()).get_returned_value()
 
     with allure.step("Unset parent port"):
         parent_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()
