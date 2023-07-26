@@ -77,7 +77,7 @@ def test_install_system_firmware(engines, test_name):
 
 def install_image_fw(system, engines, test_name, fw_has_changed):
     with allure.step("Install original system firmware file"):
-        system.firmware.set("default", "image", apply=True)
+        system.firmware.asic.set("default", "image", apply=True)
         NvueGeneralCli.save_config(engines.dut)
 
     with allure.step('Rebooting the dut after image installation'):
@@ -88,8 +88,8 @@ def install_image_fw(system, engines, test_name, fw_has_changed):
 
 
 def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
-    system.firmware.action_install_fw("/tmp/{}".format(new_fw_to_install))
-    system.firmware.set("default", "user", apply=True)
+    system.firmware.asic.action_install_fw("/tmp/{}".format(new_fw_to_install))
+    system.firmware.asic.set("default", "user", apply=True)
 
     with allure.step("Verify installed file can be found in show output"):
         verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, actual_firmware)
