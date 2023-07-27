@@ -26,7 +26,7 @@ def pick_random_loopback(topology_obj, engines):
     :param engines: engines fixture
     :return: tuple of selected loopback ports.
     """
-    loopback_list = get_dut_loopbacks(topology_obj)
+    loopback_list = get_dut_loopbacks(topology_obj, split=True)
     random.shuffle(loopback_list)
     for loopback in loopback_list:
         first_iface = loopback[0]

@@ -236,14 +236,17 @@ def update_cpu_usage_for_simx(expected_cpu_or_ram_usage_file, is_simx, chip_type
         expected_cpu_or_ram_usage_dict['sx_sdk'] *= CPU_SDK_USAGE_SIMX_COEFFICIENT
 
 
-def get_dut_loopbacks(topology_obj):
+def get_dut_loopbacks(topology_obj, split=False):
     """
+    :param split: look also for split ports.
     :return: a list of ports tuple which are connected as loopbacks on dut
     i.e,
     [('Ethernet4', 'Ethernet8'), ('Ethernet40', 'Ethernet36'), ...]
     """
     dut_loopbacks = {}
-    pattern = r"dut-lb.*"
+    pattern = r"dut-lb\d+-\d"
+    if split:
+        pattern = r"dut-lb.*"
     for alias, connected_alias in topology_obj.ports_interconnects.items():
         if dut_loopbacks.get(connected_alias):
             continue
