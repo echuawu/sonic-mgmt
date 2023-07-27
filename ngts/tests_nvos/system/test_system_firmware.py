@@ -11,7 +11,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_constants.constants_nvos import PlatformConsts
+from ngts.nvos_constants.constants_nvos import PlatformConsts, StatsConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
@@ -210,8 +210,10 @@ def test_system_firmware_image_rename(engines, devices, topology_obj):
         get_image_data_and_fetch_random_image_files(system, dut, topology_obj)
     fetched_image_file = File(system.firmware.files, fetched_image)
     player = engines['sonic_mgmt']
-    with allure.step("Rename image without mfa ending"):
-        system.firmware.action_fetch(url="scp://{}:{}@{}{}/{}".format(player.username, player.password, player.ip, PlatformConsts.FM_PATH, fetched_image))
+    with allure.step("Fetch image without mfa ending"):
+        system.firmware.action_fetch(url="scp://{}:{}@{}{}/{}".format(player.username, player.password, player.ip,
+                                                                      PlatformConsts.FM_PATH, StatsConsts.TEMP_PATH),
+                                     expected_str="Failed to recv file")
 
     with allure.step("Rename image and verify"):
         new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits)
