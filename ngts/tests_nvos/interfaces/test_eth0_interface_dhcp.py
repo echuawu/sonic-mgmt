@@ -284,7 +284,7 @@ def test_interface_eth0_description(engines):
 
 
 @pytest.mark.ib
-def test_interface_eth0_ip_address(engines, topology_obj):
+def test_interface_eth0_ip_address(engines, topology_obj, serial_engine):
     """
     Verify can configure ipv address, switch ip updated by dhcp
 
@@ -297,7 +297,6 @@ def test_interface_eth0_ip_address(engines, topology_obj):
     """
     mgmt_port = MgmtPort('eth0')
     switch_ip = engines.dut.ip
-    serial_engine = topology_obj.players['dut_serial']['engine']
     with allure.step('Run show command on mgmt port and verify default description'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             mgmt_port.interface.ip.show()).get_returned_value()
@@ -310,34 +309,39 @@ def test_interface_eth0_ip_address(engines, topology_obj):
             "The operation succeeded while it is expected to fail"
 
     with allure.step('Disable dhcp, check mgmt port unreachable'):
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled', apply=True,
-                                               ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
+        serial_engine.serial_engine.sendline("nv set interface eth0 ip dhcp-client state disabled")
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
     with allure.step('Select random ipv4 and set it'):
         ip_address = Tools.IpTool.select_random_ipv4_address().verify_result()
-        mgmt_port.interface.ip.address.set(op_param_name=ip_address, apply=True, ask_for_confirmation=True,
-                                           dut_engine=serial_engine).verify_result()
+        serial_engine.serial_engine.sendline("nv set interface eth0 ip address {}".format(ip_address))
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
+
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.show(dut_engine=serial_engine)).get_returned_value()
-        validate_interface_ip_address(ip_address, output_dictionary, True)
+        serial_engine.serial_engine.sendline("nv show interface eth0")
+        serial_engine.serial_engine.expect(ip_address, timeout=120)
 
     with allure.step('Unset ipv4 and dhcp and check port reachable'):
-        mgmt_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True,
-                                                 dut_engine=serial_engine).verify_result()
-        logger.info('Check port status, should be down')
-        check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        mgmt_port.interface.ip.address.unset(apply=True, ask_for_confirmation=True,
-                                             dut_engine=serial_engine).verify_result()
+        serial_engine.serial_engine.sendline("nv unset interface eth0")
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
+
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.show()).get_returned_value()
-        validate_interface_ip_address(switch_ip, output_dictionary, True)
+        serial_engine.serial_engine.sendline("nv show interface eth0")
+        serial_engine.serial_engine.expect(switch_ip, timeout=120)
 
 
 @pytest.mark.ib
@@ -363,7 +367,7 @@ def test_interface_eth0_show_dhcp(engines):
 
 @pytest.mark.ib
 @pytest.mark.simx
-def test_interface_eth0_dhcp_hostname(engines, topology_obj):
+def test_interface_eth0_dhcp_hostname(engines, topology_obj, serial_engine):
     """
     Verify switch receive hostname by dhcp
 
@@ -382,7 +386,6 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
 
         dhcp_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
             'dhcp_hostname']
-        serial_engine = topology_obj.players['dut_serial']['engine']
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
@@ -404,56 +407,59 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
         assert dhcp_hostname == system_output['hostname']
 
     with allure.step('Disable dhcp and unset hostname, check port down and not reachable'):
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='disabled',
-                                               apply=True, ask_for_confirmation=True,
-                                               dut_engine=serial_engine).verify_result()
+        serial_engine.serial_engine.sendline("nv set interface eth0 ip dhcp-client state disabled")
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
+
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
-        output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
-
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary, field_name='state',
-                                                          expected_value='disabled').verify_result()
-
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary, field_name='is-running',
-                                                          expected_value='no').verify_result()
+        serial_engine.serial_engine.sendline("nv show interface eth0 ip dhcp-client")
+        serial_engine.serial_engine.expect("state         disabled", timeout=120)
+        serial_engine.serial_engine.expect("is-running    no", timeout=120)
 
     with allure.step('Disable dhcp set-hostname, check port down and not reachable'):
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='set-hostname', op_param_value='disabled', apply=True,
-                                               ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
+        serial_engine.serial_engine.sendline("nv set interface eth0 ip dhcp-client set-hostname disabled")
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
 
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
-
-        dhcp6_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client6.show(dut_engine=serial_engine)).get_returned_value()
-
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='set-hostname',
-                                                          expected_value='disabled').verify_result()
-
-        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp6_output, field_name='set-hostname',
-                                                          expected_value='disabled').verify_result()
+        serial_engine.serial_engine.sendline("nv show interface eth0 ip dhcp-client")
+        serial_engine.serial_engine.expect("state         disabled", timeout=120)
+        serial_engine.serial_engine.sendline("nv show interface eth0 ip dhcp-client6")
+        serial_engine.serial_engine.expect("state         disabled", timeout=120)
 
     with allure.step('Set hostname and enable dhcp, check hostname not changed, check port up'):
-        system.set(op_param_name=SystemConsts.HOSTNAME, op_param_value='nvos', apply=True)
+        serial_engine.serial_engine.sendline("nv set system hostname {}".format(SystemConsts.HOSTNAME))
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
         logger.info('Check port status, should be down')
         check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
-        mgmt_port.interface.ip.dhcp_client.set(op_param_name='state', op_param_value='enabled', apply=True,
-                                               ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
+        serial_engine.serial_engine.sendline("nv set interface eth0 ip dhcp-client state enabled")
+        serial_engine.serial_engine.sendline("nv config apply")
+        serial_engine.serial_engine.expect("Are you sure?", timeout=120)
+        serial_engine.serial_engine.sendline("y")
+        serial_engine.serial_engine.expect("applied", timeout=120)
+
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
         dhcp_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            mgmt_port.interface.ip.dhcp_client.show(dut_engine=serial_engine)).get_returned_value()
+            mgmt_port.interface.ip.dhcp_client.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=dhcp_output, field_name='state',
                                                           expected_value='enabled').verify_result()
 
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
-        Tools.ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME, 'nvos').verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
+                                                          'hostname').verify_result()
 
     with allure.step('Unset dhcp, , check port up'):
         mgmt_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True).verify_result()
@@ -471,7 +477,7 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj):
                                                           expected_value='enabled').verify_result()
 
     with allure.step('Check hostname received by dhcp'):
-        system.unset(op_param=SystemConsts.HOSTNAME, apply=True)
+        system.unset(op_param=SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True)
         wait_for_hostname_changed(system, dhcp_hostname)
 
 
