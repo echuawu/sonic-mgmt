@@ -3106,6 +3106,11 @@
       - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
       - tests_nvos/system/test_show_system.py::test_system
       - tests_nvos/system/test_show_system.py::test_system_openapi
+      - tests_nvos/config_commands/test_show_diff_history.py::test_show_diff_histor
+      - tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_apply_assume
       Redmine:
         - 3532724
 
@@ -3124,7 +3129,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
+    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic

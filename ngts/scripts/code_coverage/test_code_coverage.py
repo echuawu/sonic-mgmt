@@ -15,11 +15,26 @@ logger = logging.getLogger()
 
 ENV_COVERAGE_FILE = 'COVERAGE_FILE'
 GCOV_DIR = '/sonic'
-SOURCES_PATH = '/src/sonic_src.tar.gz'
+SOURCES_PATH = '/src/sonic_src_cov.tar.gz'
 GCOV_CONTAINERS_SONIC = ['swss', 'syncd']
 GCOV_CONTAINERS_NVOS = ['swss-ibv00', 'syncd-ibv00']
 C_DIR = "/c_coverage/"
 PYTHON_DIR = "/python_coverage/"
+NVOS_SOURCE_FILES = ['sonic/src/nvos-swss/cfgmgr/portmgr', 'sonic/src/nvos-swss/orchagent/response_publisher',
+                     'sonic/src/nvos-swss/lib/subintf', 'sonic/src/nvos-swss/cfgmgr/portmgrd',
+                     'sonic/src/nvos-swss/cfgmgr/intfmgrd', 'sonic/src/nvos-swss/orchagent/request_parser',
+                     'sonic/src/nvos-swss/orchagent/response_publisher',
+                     'sonic/src/nvos-swss/orchagent/request_parser', 'sonic/src/nvos-swss/orchagent/request_parser',
+                     'sonic/src/nvos-swss/orchagent/orch', 'sonic/src/nvos-swss/cfgmgr/intfmgr',
+                     'sonic/src/nvos-swss/orchagent/flex_counter/flex_counter_manager',
+                     'sonic/src/nvos-swss/orchagent/request_parser', 'sonic/src/nvos-swss/orchagent/response_publisher',
+                     'sonic/src/nvos-swss/orchagent/portsorch', 'sonic/src/nvos-swss/orchagent/notifications',
+                     'sonic/src/nvos-swss/orchagent/orchdaemon', 'sonic/src/nvos-swss/orchagent/saiattr',
+                     'sonic/src/nvos-swss/orchagent/flexcounterorch', 'sonic/src/nvos-swss/orchagent/saihelper',
+                     'sonic/src/nvos-swss/orchagent/switchorch', 'sonic/src/nvos-swss/orchagent/orch',
+                     'sonic/src/nvos-swss/orchagent/main', 'sonic/src/nvos-swss/swssconfig/swssconfi',
+                     'sonic/src/nvos-swss/portsyncd/linksync', 'sonic/src/nvos-swss/lib/gearboxutils',
+                     'sonic/src/nvos-swss/portsyncd/portsyncd']
 
 
 @pytest.mark.disable_loganalyzer
@@ -145,32 +160,70 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
         sudo_cli_general.mkdir(GCOV_DIR, flags='-p')
         hostname = sudo_cli_general.hostname()
         gcov_filename_prefix = f'gcov-{hostname}'
+        lcov_filename_prefix = f'lcov-{hostname}'
         with allure.step(f'Collect GCOV coverage from docker containers: {containers}'):
             for container in containers:
-                collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, is_nvos)
+                collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, lcov_filename_prefix, is_nvos)
 
         install_gcov(sudo_cli_general)
-        timestamp = int(time.time())
+
+        '''timestamp = int(time.time())
         gcov_report_file = os.path.join(GCOV_DIR, f'{gcov_filename_prefix}-{timestamp}.xml')
         with allure.step(f'Combine GCOV JSON reports into a single report for SonarQube'):
-            gcov_json_files = system_helpers.list_files(engine, GCOV_DIR, pattern=gcov_filename_prefix)
-            logger.info(f'GCOV JSON files on the system: {gcov_json_files}')
-            gcovr_flags = ' '.join(f'-a {gcov_json_file}' for gcov_json_file in gcov_json_files)
-            gcovr_flags += f' --sonarqube -r {GCOV_DIR} -o {gcov_report_file}'
-            sudo_cli_general.gcovr(flags=gcovr_flags)
-            logger.info(f'Destination directory: {c_dest}')
-            os.makedirs(c_dest, exist_ok=True)
-            gcov_report_filename = os.path.basename(gcov_report_file)
-            engine.copy_file(source_file=gcov_report_filename,
-                             dest_file=os.path.join(c_dest, gcov_report_filename),
-                             file_system=os.path.dirname(gcov_report_file),
-                             direction='get')
-            sudo_cli_general.rm(gcov_report_file, flags='-f')
-            for gcov_json_file in gcov_json_files:
-                sudo_cli_general.rm(gcov_json_file, flags='-f')
+            create_and_copy_xml_coverage_file(engine, sudo_cli_general, gcov_report_file, c_dest, gcov_filename_prefix)'''
+
+        with allure.step(f'Create lcov file for each required source file'):
+            create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_prefix)
+
+        with allure.step("Delete JSON and LCOV files"):
+            # sudo_cli_general.rm(gcov_report_file, flags='-f')
+            sudo_cli_general.rm(GCOV_DIR + "/*.json", flags='-f')
+            sudo_cli_general.rm(GCOV_DIR + "/*.info", flags='-f')
 
     except Exception as err:
         raise AssertionError(err)
+
+
+def create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_prefix):
+    combined_coverage_file = '/sonic/combined_coverage.info'
+    lcov_files = system_helpers.list_files(engine, GCOV_DIR, pattern=lcov_filename_prefix)
+    lcov_file_to_combine = []
+
+    for lcov_file in lcov_files:
+        if int(engine.run_cmd(f"stat -c %s {lcov_file}")) > 0:
+            lcov_file_to_combine.append(lcov_file)
+
+    if len(lcov_file_to_combine) > 1:
+        lcovr_flags = ' '.join(f'--add-tracefile {lcov_file}' for lcov_file in lcov_file_to_combine)
+        lcovr_flags += f' --output-file {combined_coverage_file}'
+        sudo_cli_general.lcovr(flags=lcovr_flags)
+    else:
+        combined_coverage_file = lcov_file_to_combine[0]
+
+    for scr_file in NVOS_SOURCE_FILES:
+        lcov_file = scr_file.replace("/", "-")
+        lcov_file = f'{GCOV_DIR}/{lcov_file}.info'
+        lcov_file_name = f'{lcov_file}.info'
+        sudo_cli_general.lcovr(flags=f'-extract {combined_coverage_file} "*/{scr_file}.cpp" --output-file {lcov_file}')
+        engine.copy_file(source_file=lcov_file_name,
+                         dest_file=os.path.join(c_dest, lcov_file_name),
+                         file_system=os.path.dirname(lcov_file),
+                         direction='get')
+
+
+def create_and_copy_xml_coverage_file(engine, sudo_cli_general, gcov_report_file, c_dest, gcov_filename_prefix):
+    gcov_json_files = system_helpers.list_files(engine, GCOV_DIR, pattern=gcov_filename_prefix)
+    logger.info(f'GCOV JSON files on the system: {gcov_json_files}')
+    gcovr_flags = ' '.join(f'-a {gcov_json_file}' for gcov_json_file in gcov_json_files)
+    gcovr_flags += f' --sonarqube -r {GCOV_DIR} -o {gcov_report_file}'
+    sudo_cli_general.gcovr(flags=gcovr_flags)
+    logger.info(f'Destination directory: {c_dest}')
+    os.makedirs(c_dest, exist_ok=True)
+    gcov_report_filename = os.path.basename(gcov_report_file)
+    engine.copy_file(source_file=gcov_report_filename,
+                     dest_file=os.path.join(c_dest, gcov_report_filename),
+                     file_system=os.path.dirname(gcov_report_file),
+                     direction='get')
 
 
 def install_gcov(cli_obj):
@@ -185,6 +238,7 @@ def get_dest_path(engine, coverage_path):
         output = json.loads(engine.run_cmd("nv show system version -o json"))
         nvos_version = output['image']
         release = TestToolkit.version_to_release(nvos_version)
+        nvos_version = nvos_version.replace("nvos-", "")
 
     dest = f"{coverage_path}/{release}_{nvos_version}"
 
@@ -225,7 +279,7 @@ def create_coverage_xml(cli_general, coverage_file, coverage_xml_file):
         cli_general.coverage_xml(coverage_xml_file)
 
 
-def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, is_nvos):
+def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, lcov_filename_prefix, is_nvos):
     """
     Collect GCOV coverage from a container running on the system, and creates a
     JSON report from it. This JSON report may later be combined with other JSON
@@ -241,7 +295,11 @@ def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix,
         install_gcov(docker_cli_obj)
     with allure.step(f'Create GCOV JSON report for {container} container'):
         container_gcov_json_file = os.path.join(GCOV_DIR, f'{gcov_filename_prefix}-{container}.json')
+        container_gcov_lcov_file = os.path.join(GCOV_DIR, f'{lcov_filename_prefix}-{container}.info')
         docker_cli_obj.tar(flags=f'xzf {SOURCES_PATH} -C {GCOV_DIR}')
         docker_cli_obj.gcovr(paths=GCOV_DIR, flags=f'--json-pretty -r {GCOV_DIR} -o {container_gcov_json_file}')
-        cli_obj.general.copy_from_docker(container, container_gcov_json_file, container_gcov_json_file)
-        docker_cli_obj.rm(container_gcov_json_file, flags='-f')
+        docker_cli_obj.lcovr(flags=f'--gcov-tool gcov --capture --directory {GCOV_DIR} --output-file {container_gcov_lcov_file}')
+        # cli_obj.general.copy_from_docker(container, container_gcov_json_file, container_gcov_json_file)
+        cli_obj.general.copy_from_docker(container, container_gcov_lcov_file, container_gcov_lcov_file)
+        # docker_cli_obj.rm(container_gcov_json_file, flags='-f')
+        docker_cli_obj.rm(container_gcov_lcov_file, flags='-f')

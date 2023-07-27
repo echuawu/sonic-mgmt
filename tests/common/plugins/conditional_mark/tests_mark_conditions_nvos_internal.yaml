@@ -233,6 +233,36 @@ tests_nvos/system/test_show_system.py::test_system_show_message_openapi:
     conditions:
       - https://redmine.mellanox.com/issues/3555202
 
+tests_nvos/system/test_system_message.py::test_factory_reset_for_system_message:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_set_system_message_post_login_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_set_system_message_post_logout_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_factory_reset_for_system_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_system_reload_for_system_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
 tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3546936"
