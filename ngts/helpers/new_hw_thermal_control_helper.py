@@ -41,7 +41,7 @@ SENSOR_DATA = {"asic": {"temperature_file_name_rule": "asic",
                "sodimm": {"temperature_file_name_rule": "sodimm{}_temp_input",
                           "dev_parameters_name": "sodimm\\d_temp",
                           "total_number": 1,
-                          "start_index": 0},
+                          "start_index": 1},
                "comex_amb": {"temperature_file_name_rule": "comex_amb",
                              "dev_parameters_name": "sensor_amb",
                              "total_number": 1},
@@ -758,7 +758,7 @@ def get_sensor_err_test_data(sensor_err_type, mock_sensor, tc_config_dict):
 
     if sensor_type == "ambient":
         temperature_port = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/port_amb")
-        temperature_fan = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/port_amb")
+        temperature_fan = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/fan_amb")
         logger.info("temperature_port :{temperature_port}, temperature_fan:{temperature_fan}")
         current_temp = temperature_port if temperature_fan > temperature_port else temperature_fan
     else:
