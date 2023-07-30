@@ -28,9 +28,9 @@ def test_extract_python_coverage(topology_obj, dest, engines):
     engine, cli_obj, is_nvos = get_topology_info(topology_obj)
 
     if is_nvos:
-        extract_python_coverage_for_nvos(topology_obj, dest, engines, engine, cli_obj)
+        extract_python_coverage_for_nvos(dest, engines, engine, cli_obj)
     else:
-        extract_python_coverage_for_sonic(topology_obj, dest, engines, engine, cli_obj)
+        extract_python_coverage_for_sonic(dest, engines, engine, cli_obj)
 
 
 @pytest.mark.disable_loganalyzer
@@ -139,7 +139,7 @@ def get_topology_info(topology_obj):
         return engine, cli_obj, is_nvos
 
 
-def extract_python_coverage_for_nvos(topology_obj, dest, engines, engine, cli_obj):
+def extract_python_coverage_for_nvos(dest, engines, engine, cli_obj):
     dest = get_dest_path(engine, dest) + SharedConsts.PYTHON_DIR
 
     with allure.step("Check capacity"):
@@ -158,7 +158,7 @@ def extract_python_coverage_for_nvos(topology_obj, dest, engines, engine, cli_ob
         check_used_capacity(engine)
 
 
-def extract_python_coverage_for_sonic(topology_obj, dest, engines, engine, cli_obj):
+def extract_python_coverage_for_sonic(dest, engines, engine, cli_obj):
     with allure.step('Get coverage file path'):
         coverage_file = get_python_coverage_file(cli_obj)
 
@@ -176,6 +176,7 @@ def get_python_coverage_file(cli_obj):
         raise Exception('The system is not configured to collect code coverage.\n'
                         f'The environment variable {SharedConsts.ENV_COVERAGE_FILE} is not defined.')
     logger.info(f'Coverage file path: {coverage_file}')
+    return coverage_file
 
 
 def collect_python_coverage(cli_obj, engine, dest, coverage_file):
