@@ -1,7 +1,8 @@
 import logging
 import pytest
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.system.Files import File
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -47,13 +48,12 @@ def test_install_system_firmware(engines, test_name):
 
     try:
         with allure.step("Install system firmware file - " + fw_file):
-            with allure.step("Copy firmware file to switch"):
+            with allure.step("fetch firmware file to switch"):
                 player_engine = engines['sonic_mgmt']
-                player_engine.upload_file_using_scp(dest_username=SystemConsts.DEFAULT_USER_ADMIN,
-                                                    dest_password=engines.dut.password,
-                                                    dest_folder="/tmp/",
-                                                    dest_ip=engines.dut.ip,
-                                                    local_file_path=fw_file)
+                scp_path = 'scp://{}:{}@{}'.format(player_engine.username, player_engine.password, player_engine.ip)
+                system.firmware.action_fetch(scp_path + fw_file)
+                firmware_file = File(system.firmware.asic.files, "fw-QTM2-rel-31_2010_4026-EVB.mfa")
+                # firmware_file.action_file_install(op_param="")
 
                 OperationTime.save_duration('install user FW', 'include reboot', test_name, install_new_user_fw,
                                             system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name)
@@ -64,15 +64,16 @@ def test_install_system_firmware(engines, test_name):
             fw_has_changed = True
 
     finally:
-        if fw_has_changed:
-            OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
-                                        system, engines, test_name, fw_has_changed)
-        else:
-            install_image_fw(system, engines, test_name, fw_has_changed)
+        with allure.step("cleanup steps"):
+            if fw_has_changed:
+                OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
+                                            system, engines, test_name, fw_has_changed)
+            else:
+                install_image_fw(system, engines, test_name, fw_has_changed)
 
-        with allure.step('Verify the firmware installed successfully'):
-            verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
-            validate_all_asics_have_same_info()
+            with allure.step('Verify the firmware installed successfully'):
+                verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
+                validate_all_asics_have_same_info()
 
 
 def install_image_fw(system, engines, test_name, fw_has_changed):
@@ -88,7 +89,7 @@ def install_image_fw(system, engines, test_name, fw_has_changed):
 
 
 def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
-    system.firmware.asic.action_install_fw("/tmp/{}".format(new_fw_to_install))
+    system.firmware.asic.action_install_fw("{}".format(new_fw_to_install))
     system.firmware.asic.set("default", "user", apply=True)
 
     with allure.step("Verify installed file can be found in show output"):
