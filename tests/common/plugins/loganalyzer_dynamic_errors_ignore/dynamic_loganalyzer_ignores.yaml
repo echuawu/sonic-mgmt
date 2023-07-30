@@ -546,6 +546,15 @@
       - 2619129
 
 - Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] ./src/mlnx_sai_utils.c\[\d+\]- get_dispatch_attribs_handler: Failed Get #0, (UNKNOWN_UNICAST_FLOOD_GROUP|ISOLATION_GROUP|UNKNOWN_MULTICAST_FLOOD_GROUP|BROADCAST_FLOOD_GROUP|PORT_ID).*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] ./src/mlnx_sai_utils.c\[\d+\]- sai_get_attributes: Failed to get attribute'
+  Conditions:
+    - Redmine:
+      - 3556798
+      Branch:
+      - 202111
+
+- Errors_list:
     - '.*ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Could not infer system information from.*'
   Conditions:
     - Affected_test_cases:
