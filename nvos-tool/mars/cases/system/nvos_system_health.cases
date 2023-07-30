@@ -15,7 +15,7 @@
   </global>
 
   <case>
-    <name> Remote syslog tests </name>
+    <name> system health tests </name>
     <info> </info>
     <tout> 3900 </tout>
     <cmd>
