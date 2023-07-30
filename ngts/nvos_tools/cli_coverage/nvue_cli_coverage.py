@@ -304,9 +304,10 @@ class NVUECliCoverage:
                 cls.nvue_full_list_dir = os.path.join(nvue_dir, 'full_command_lists')
                 cls.engine = TestToolkit.engines.dut
                 if not cls.swversion:  # only init it once per session
-                    version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image'].split('-')
-                    cls.swversion = version[1]
-                    cls.build_id = version[2]
+                    nvos_version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image']
+                    release = TestToolkit.version_to_release(nvos_version).replace("nvos-", "")
+                    cls.swversion = release.replace("-", ".")
+                    cls.build_id = nvos_version.replace("nvos-", "")
                 if not cls.system_type:  # only init it once per session
                     cls.system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
 
