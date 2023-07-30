@@ -109,6 +109,7 @@ def test_system_image_rename(release_name):
                          "because the name is taken from the code it self and not from the file name")
             expected_show_images_output = original_images.copy()
             expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(fetched_image)
+            expected_show_images_output[ImageConsts.CURRENT_IMG] = normalize_image_name(fetched_image)
             expected_show_images_output[partition_id_for_new_image] = expected_show_images_output[ImageConsts.NEXT_IMG]
             system.image.verify_show_images_output(expected_show_images_output)
     finally:
@@ -237,7 +238,7 @@ def test_system_image_bad_flow(engines, release_name):
     with allure.step("Install bad flows"):
         logging.info("Install bad flows")
         with allure.step("Install image file that does not exist"):
-            file_rand_name.action_file_install_with_reboot("Image does not exist")
+            file_rand_name.action_file_install("Image does not exist")
         with allure.step("Install the same image twice"):
             try:
                 with allure.step("First installation"):
@@ -425,6 +426,7 @@ def install_image_and_verify(image_name, partition_id, original_images, system, 
     with allure.step("Verify installed image"):
         expected_show_images_output = original_images.copy()
         expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(image_name)
+        expected_show_images_output[ImageConsts.CURRENT_IMG] = normalize_image_name(image_name)
         expected_show_images_output[partition_id] = expected_show_images_output[ImageConsts.NEXT_IMG]
         system.image.verify_show_images_output(expected_show_images_output)
         return expected_show_images_output
@@ -472,6 +474,9 @@ def cleanup_test(system, original_images, original_image_partition, fetched_imag
     with allure.step("Set the original image to be booted next and verify"):
         logging.info("Set the original image to be booted next and verify")
         system.image.boot_next_and_verify(original_image_partition)
+
+    with allure.step("Reboot the system"):
+        system.reboot.action_reboot()
 
     with allure.step("{} uninstall unused images and verify".format(uninstall_force)):
         logging.info("{} uninstall unused images and verify".format(uninstall_force))

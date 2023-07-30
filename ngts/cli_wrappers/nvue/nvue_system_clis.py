@@ -44,6 +44,15 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
+        resource_path = resource_path.replace('/', ' ')
+        cmd = "nv action {action_type} {resource_path} {param}" \
+            .format(action_type=action_str, resource_path=resource_path, param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return DutUtilsTool.reload(engine=engine, command=cmd).verify_result()
+
+    @staticmethod
     def action_general(engine, action_str, resource_path, op_param=""):
         resource_path = resource_path.replace('/', ' ')
         cmd = "nv action {action_type} {resource_path} {param}" \
@@ -89,16 +98,6 @@ class NvueSystemCli(NvueBaseCli):
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return DutUtilsTool.reload(engine=engine, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready).verify_result()
-
-    @staticmethod
-    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
-        resource_path = resource_path.replace('/', ' ')
-        cmd = "nv action {action_type} {resource_path} {param}" \
-            .format(action_type=action_str, resource_path=resource_path, param=op_param)
-        cmd = " ".join(cmd.split())
-        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        engine.run_cmd_set([cmd, 'y'], patterns_list=[r"Operation will reboot the system"], tries_after_run_cmd=1)
-        DutUtilsTool.reload(engine=engine, command='y').verify_result()
 
     @staticmethod
     def action_profile_change(engine, resource_path, op_param=""):

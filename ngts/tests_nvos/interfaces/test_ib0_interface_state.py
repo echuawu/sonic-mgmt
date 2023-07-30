@@ -1,7 +1,6 @@
 import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.cli_wrappers.nvue.nvue_opensm_clis import NvueOpenSmCli
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -10,7 +9,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib
-def test_ib0_interface_state(engines):
+def test_ib0_interface_state(engines, start_sm):
     """
     Configure ib0 interface state and verify the configuration applied successfully
     Relevant cli commands:
@@ -24,7 +23,6 @@ def test_ib0_interface_state(engines):
     4. Verify the configuration applied by running “show” command
     """
     ib0_port = MgmtPort('ib0')
-    NvueOpenSmCli.enable(engines.dut)
     ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True, ask_for_confirmation=True).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(

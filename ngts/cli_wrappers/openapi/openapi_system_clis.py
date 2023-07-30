@@ -67,6 +67,35 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params[action_type])
 
     @staticmethod
+    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
+        logging.info("Running file action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
+        action_type = '@' + action_str
+        params = \
+            {
+                ActionType.DELETE:
+                    {
+                        "state": "start"
+                    },
+                ActionType.INSTALL:
+                    {
+                        "state": "start",
+                        "parameters": {"force": op_param}
+                    },
+                ActionType.RENAME:
+                    {
+                        "state": "start",
+                        "parameters": {"new-name": op_param}
+                    },
+                ActionType.UPLOAD:
+                    {
+                        "state": "start",
+                        "parameters": {"remote-url": op_param}
+                    }
+            }
+        return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params[action_type])
+
+    @staticmethod
     def action_general(engine, action_str, resource_path):
         logging.info("Running action: '{action_type}' on dut using OpenApi, resource: '{rsrc}'".
                      format(action_type=action_str, rsrc=resource_path))

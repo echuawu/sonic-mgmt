@@ -1262,7 +1262,7 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     """
     generate techsupport and validate stats files exist in the stats dir
     """
-    tech_support_folder = system.techsupport.action_generate()
+    tech_support_folder = system.techsupport.action_generate(engine=engine)
     techsupport_files_list = system.techsupport.get_techsupport_stats_files_names(engine, tech_support_folder)
     for stat_file in stats_files:
         assert "{}.gz".format(stat_file) in techsupport_files_list, \

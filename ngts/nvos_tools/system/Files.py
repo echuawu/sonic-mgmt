@@ -107,7 +107,7 @@ class File(Files):
                 self._resource_path = '/{file_name}'.format(file_name=self.file_name)
             return result
 
-    def action_file_install(self, expected_str="", op_param=""):
+    def action_file_install(self, expected_str="", op_param="force"):
         resource_path = self.get_resource_path()
         with allure.step("Install {resource_path} file '{file}'".format(resource_path=resource_path, file=self.file_name)):
             logging.info("Trying to install {resource_path} '{file}'".format(resource_path=resource_path, file=self.file_name))
@@ -115,7 +115,7 @@ class File(Files):
                                                                 expected_str, TestToolkit.engines.dut, 'install',
                                                                 resource_path, op_param)
 
-    def action_file_install_with_reboot(self, expected_str="", op_param=""):
+    def action_file_install_with_reboot(self, expected_str="", op_param="force"):
         resource_path = self.get_resource_path()
         with allure.step("Install {resource_path} file '{file}'".format(resource_path=resource_path, file=self.file_name)):
             logging.info("Trying to install {resource_path} '{file}'".format(resource_path=resource_path, file=self.file_name))

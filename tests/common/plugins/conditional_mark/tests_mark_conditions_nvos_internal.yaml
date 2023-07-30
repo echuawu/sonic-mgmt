@@ -197,18 +197,6 @@ tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation:
     conditions:
       - https://redmine.mellanox.com/issues/3549081
 
-tests_nvos/system/test_system_image.py::test_system_image_rename:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549627"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549627
-
-tests_nvos/system/test_system_image.py::test_image_install:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549627"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549627
-
 tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_crash:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3554789"
