@@ -40,5 +40,8 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/platform/nvos_platform.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/platform/nvos_new_hw_thermal_control.cases </cases>
+	</test>
 
 </DBDEF>

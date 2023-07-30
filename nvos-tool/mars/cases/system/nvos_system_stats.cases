@@ -15,7 +15,6 @@
   </global>
 
   <case>
-
     <name> stats_configuration </name>
     <info> </info>
     <tout> 3300 </tout>
