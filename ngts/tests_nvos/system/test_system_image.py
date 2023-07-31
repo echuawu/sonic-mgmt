@@ -12,6 +12,9 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from infra.tools.general_constants.constants import DefaultConnectionValues
 
 from infra.tools.redmine.redmine_api import *
 
@@ -414,6 +417,57 @@ def image_uninstall_test(release_name, uninstall_force=""):
         cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
 
 
+@pytest.mark.banner
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.image
+def test_system_image_install_reject_with_smallcase_n(engines):
+    """
+    Check the image install cmd by rejecting the prompt.
+    Validate that install image command will be aborted when the prompt is rejected.
+    1. Extract original image name
+    2. Attempt image install command, reject the prompt
+    3. Check the image is the original one
+    """
+    system = System()
+    prompt_response = 'n'
+
+    try:
+        with allure.step("Create SSH Engine to login to the switch"):
+            logging.info("ACreate SSH Engine to login to the switch")
+            child = create_ssh_login_engine(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN)
+            assert isinstance(child.pid, int), "SSH login process failed to be spawned"
+            respond = child.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
+            assert respond == 0, "SSH Connection to switch failed"
+            child.sendline(engines.dut.password)
+            respond = child.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
+            assert respond == 0, "Password prompt did not come up"
+
+        with allure.step("Extract Image name before attempting installing new image"):
+            logging.info("Extract Image name before attempting installing new image")
+            version_output = OutputParsingTool.parse_json_str_to_dictionary(system.version.show()).get_returned_value()
+            image_name = version_output['image']
+
+        with allure.step("Attempt install image and reject the prompt"):
+            logging.info("Attempt install image and reject the prompt")
+            child.sendline('nv action install system image files nvos.bin')
+            respond = child.expect('.*continue.*')
+            assert respond == 0, "Install image confirmation prompt did not come up"
+            child.sendline(prompt_response)
+            respond = child.expect('.*abort.*')
+            assert respond == 0, "Image install abort message did not appear"
+
+        with allure.step("Verify image is unchanged"):
+            logging.info("Verify image is unchanged")
+            version_output = OutputParsingTool.parse_json_str_to_dictionary(system.version.show()).get_returned_value()
+            image_name_post = version_output['image']
+            assert image_name == image_name_post, "Image name changed even though image install command was aborted"
+
+    finally:
+        # close connection
+        child.close()
+
+
 def normalize_image_name(image_name):
     return image_name.replace("-amd64", "").replace(".bin", "")
 
@@ -570,3 +624,12 @@ def test_system_image_rename_openapi(release_name):
 def test_show_system_image_openapi():
     TestToolkit.tested_api = ApiType.OPENAPI
     test_show_system_image()
+
+
+@pytest.mark.banner
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_install_reject_with_smallcase_n_openapi():
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_image_install_reject_with_smallcase_n()
