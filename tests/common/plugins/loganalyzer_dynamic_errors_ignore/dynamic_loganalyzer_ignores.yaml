@@ -2704,7 +2704,7 @@
       Redmine:
         - 3494774
 
-# NVOS : Errors - Bug 3532724 related
+# NVOS : Errors - Bug 3558065 related
 - Errors_list:
     - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
     - '.* ERR health-statsd#health_history: Disk check: is not Status ok.*'
@@ -2719,7 +2719,7 @@
         - tests_nvos/system/test_show_system.py::test_system_openapi
         - tests_nvos/system/test_show_system.py::test_show_system_cpu_openapi
       Redmine:
-        - 3532724
+        - 3558065
 
 # NVOS
 - Errors_list:
@@ -3112,7 +3112,7 @@
       - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
       - tests_nvos/general/config_commands/test_replace_patch.py::test_apply_assume
       Redmine:
-        - 3532724
+        - 3558065
 
 # NVOS
 - Errors_list:

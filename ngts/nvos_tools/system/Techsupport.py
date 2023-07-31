@@ -52,9 +52,10 @@ class TechSupport(BaseComponent):
     def get_techsupport_folder_name(techsupport_res):
         if 'Command failed' in techsupport_res.info:
             return techsupport_res.info
-        techsupport_folder = techsupport_res.returned_value.split('\n')
-        file_name = "".join([name for name in techsupport_folder if '.tar.gz' in name])
-        return file_name.replace('Generated tech-support ', '').replace(' ', '')
+        techsupport_res_list = techsupport_res.returned_value.split('\n')
+        files_name = "".join([name for name in techsupport_res_list if '.tar.gz' in name])
+        files_name = files_name.replace('Generated tech-support', '').split(' ')
+        return files_name[-1]
 
     @staticmethod
     def get_techsupport_log_files_names(engine, techsupport):
