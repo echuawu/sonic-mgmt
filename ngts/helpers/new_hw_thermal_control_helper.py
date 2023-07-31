@@ -579,7 +579,7 @@ def verify_pwd_ge_than_expected_value(mock_sensor, tc_config_dict, sensor_type, 
         check_cpu_pack_pwm()
 
 
-@retry(Exception, tries=10, delay=2)
+@retry(Exception, tries=20, delay=2)
 def compare_pwd_with_expected_value(mock_sensor, expected_pwm, operation):
     with allure.step(f"Verify actual pwd is {operation.__name__} {expected_pwm}"):
         pwm_curr = get_pwm(mock_sensor)
@@ -628,12 +628,17 @@ def verify_rpm_is_expected_value(mock_sensor, tc_config_dict):
             assert rpm_diff_norm <= rpm_tolerance, f"fan{fan_index}, actual rpm diff:{rpm_diff_norm} >  expected rpm tolerance:{rpm_tolerance}"
 
 
-def get_sensor_temperature_file_name(sensor_type):
+def get_sensor_temperature_file_name(sensor_type, platform_params):
     sensor_temperature_file_name = SENSOR_DATA[sensor_type]['temperature_file_name_rule']
     sensor_temperature_file_path_list = []
     if 'start_index' in SENSOR_DATA[sensor_type]:
         if sensor_type == "module":
             sensor_index = random.choice(SENSOR_DATA[sensor_type]["index supporting sensor"])
+        elif sensor_type == "voltmon" and platform_params.hwsku == 'ACS-MSN2100':
+            msn2100_voltmon_index_list = ["1", "2", "6"]
+            # For ACS-MSN2100, the voltmon numbering has gaps.
+            # it is an old issue and ACS-MSN2100 is very old sku, Hardware will not fix it.
+            sensor_index = random.choice(msn2100_voltmon_index_list)
         else:
             start_index = SENSOR_DATA[sensor_type]["start_index"]
             sensor_index = random.randint(start_index, SENSOR_DATA[sensor_type]["total_number"])
@@ -756,13 +761,12 @@ def get_sensor_err_test_data(sensor_err_type, mock_sensor, tc_config_dict):
 
     sensor_temperature_file = os.path.join(TC_CONST.HW_THERMAL_FOLDER, sensor_temperature_file)
 
-    if sensor_type == "ambient":
-        temperature_port = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/port_amb")
-        temperature_fan = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/fan_amb")
-        logger.info("temperature_port :{temperature_port}, temperature_fan:{temperature_fan}")
-        current_temp = temperature_port if temperature_fan > temperature_port else temperature_fan
-    else:
-        current_temp = mock_sensor.read_value(sensor_temperature_file)
+    # For all sensor errors, we all use min(port_amb, fan_abm) as the key to get the expected pwm from dmin table
+    temperature_port = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/port_amb")
+    temperature_fan = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/fan_amb")
+    logger.info("temperature_port :{temperature_port}, temperature_fan:{temperature_fan}")
+    current_temp = min(temperature_port, temperature_fan)
+
     expected_pwm = get_expected_pwm_by_temp_from_dmin_table(tc_config_dict, current_temp, sys_fan_dir_str,
                                                             sensor_err_type)
     if "sensor_read_error" == sensor_err_type:

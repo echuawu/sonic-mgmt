@@ -22,7 +22,7 @@ class TestNewTc:
         self.dut_engine = engines.dut
 
     @allure.title('test temperature sweep')
-    def test_temperature_sweep(self, request, get_dut_supported_sensors_and_tc_config):
+    def test_temperature_sweep(self, request, get_dut_supported_sensors_and_tc_config, platform_params):
         """
         This test is to verify temperature sweep
         1. Mock tested sensor temperature to val_min/10000-1. Wait poll_time secs
@@ -68,7 +68,7 @@ class TestNewTc:
 
         for sensor_type in tested_sensors:
             with MockSensors(self.dut_engine, self.cli_objects) as mock_sensor:
-                file_path_list = get_sensor_temperature_file_name(sensor_type)
+                file_path_list = get_sensor_temperature_file_name(sensor_type, platform_params)
                 dev_parameters_name = SENSOR_DATA[sensor_type]['dev_parameters_name']
 
                 temperature_max = get_temperature_digit(
