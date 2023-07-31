@@ -217,7 +217,7 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
     result = {'result': False, 'entry': None}
     for key in table:
         entry = table[key]
-        # If entry is a list, it means that the message is longer then one line,
+        # If entry is a list, it means that the message is longer than one line,
         # but all rest of info is in the first entry
         if isinstance(entry, list):
             entry = entry[0]
@@ -225,9 +225,7 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
         if (entry['sPort'] == interface and
             entry['Src IP:Port'].split(':')[0] == src_ip and
             entry['Dst IP:Port'].split(':')[0] == dst_ip and
-            # TODO: should be uncommented when issue is fixed:
-            # in aggregate table the proto shown as 'ip' instaed of 'udp'
-            # entry['IP Proto'] == proto and
+            entry['IP Proto'] == proto and
             entry['dMAC'] == dst_mac and
             entry['sMAC'] == src_mac and
                 entry['Drop reason - Recommended action'] in drop_reason):
@@ -555,14 +553,13 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
 
     ha_ip = '40.0.0.2'
     hb_ip = '40.0.0.3'
-    proto = 'udp'
     drop_reason_message = drop_reason_dict[drop_reason]
 
     cli_object = topology_obj.players['dut']['cli']
     with allure.step('Validating WJH raw table output'):
         do_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer',
                            channel_types=['raw', 'raw_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
-                           src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
+                           src_ip=hb_ip, proto='udp', drop_reason_message=drop_reason_message,
                            dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer',
                            drop_reason=drop_reason)
 
@@ -571,9 +568,11 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
         IperfChecker(players, validation).run_validation()
 
     with allure.step('Validating WJH aggregated table output'):
+        # The ip protocol cannot be parsed when the packet is fragmented.
+        # It will be displayed as "ip" in the table.
         do_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
                            channel_types=['agg', 'agg_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
-                           src_ip=hb_ip, proto=proto, drop_reason_message=drop_reason_message,
+                           src_ip=hb_ip, proto='ip', drop_reason_message=drop_reason_message,
                            dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
                            command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason)
 
