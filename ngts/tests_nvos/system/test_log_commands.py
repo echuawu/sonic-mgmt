@@ -145,8 +145,13 @@ def test_show_debug_log(engines):
         logging.info("Run nv show system debug-log command follow to view system logs")
         show_output = system.debug_log.show_log(log_type='debug-', exit_cmd='q')
 
+    with allure.step("Run nv show system debug-log command follow to view system logs"):
+        logging.info("Run nv show system debug-log command follow to view system logs")
+        show_output_debug = system.debug_log.show_log(log_type='debug-', param='files debug', exit_cmd='q')
+
     with allure.step('Verify debug_log message in log as expected'):
         logging.info('Verify debug_log message in log as expected')
+        ValidationTool.verify_expected_output(show_output_debug, 'debug_log').verify_result()
         ValidationTool.verify_expected_output(show_output, 'debug_log').verify_result()
 
 
@@ -308,6 +313,9 @@ def _log_files_rotation_default_fields(system_log_obj, default_max_number, defau
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                     field_name='size', expected_value=default_size).verify_result()
 
+    with allure.step("Verify unset system log"):
+        system_log_obj.unset()
+
 
 @pytest.mark.system
 @pytest.mark.log
@@ -448,6 +456,7 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '3499.999').verify_result()
+        system_log_obj.rotation.unset(op_param='size')
 
     with allure.step("Negative validation disk percentage configuration"):
         logging.info("Negative validation disk percentage configuration")
@@ -462,6 +471,7 @@ def _log_files_set_unset_log_rotation_size_disk_percentage(engines, system_log_o
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         ValidationTool.verify_field_value_in_output(output_dictionary, 'size', '1750').verify_result()
         ValidationTool.verify_field_value_in_output(output_dictionary, 'disk-percentage', '50.0').verify_result()
+        system_log_obj.rotation.unset(op_param='disk-percentage')
 
         logging.info("Validate disk percentage configuration with lowest value")
         system_log_obj.rotation.set('disk-percentage', '0.001')
@@ -578,7 +588,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
 
     with allure.step("Validate unset log rotation"):
         logging.info("Validate unset log rotation")
-        system_log_obj.rotation.unset()
+        system_log_obj.rotation.unset('max-number')
         NvueGeneralCli.apply_config(engines.dut)
         show_output = system_log_obj.rotation.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
@@ -649,12 +659,14 @@ def test_log_components(engines):
     with allure.step("Validate default log levels for all components"):
         logging.info("Validate default log levels for all components")
         for component in list_with_all_components:
+            show_output = system.log.component.show(op_param=component)
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
             default_log_level = "notice"
             if component == "nvued":
                 default_log_level = default_log_level_nvued
             with allure.step("Validate component {component} with default log level {level}"
                              .format(component=component, level=default_log_level)):
-                ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", default_log_level).verify_result()
+                ValidationTool.verify_field_value_in_output(output_dictionary, "level", default_log_level).verify_result()
                 logging.info("All expected components were with default log levels")
 
     with allure.step("Rotate logs"):
@@ -680,6 +692,10 @@ def test_log_components(engines):
                     ValidationTool.verify_field_value_in_output(
                         output_dictionary[component], "level",
                         default_log_level if component != "nvued" else default_log_level_nvued).verify_result()
+
+    with allure.step("Unset log components"):
+        logging.info("Unset log components")
+        system.log.component.unset_system_log_component()
 
 
 @pytest.mark.system

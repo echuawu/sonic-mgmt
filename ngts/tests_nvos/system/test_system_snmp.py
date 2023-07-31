@@ -45,6 +45,15 @@ def test_snmp_default_values_fields(engines):
         logging.info("Snmp enabled successfully")
 
     with allure.step('Verify fields and values after snmp enabled'):
+        listening_address_output = OutputParsingTool.parse_json_str_to_dictionary(
+            system.snmp_server.listening_address.show()).get_returned_value()
+        ValidationTool.compare_values(listening_address_output, {'all': {'port': 161, 'vrf': ''}}).verify_result()
+        read_only_community_output = OutputParsingTool.parse_json_str_to_dictionary(
+            system.snmp_server.readonly_community.show()).get_returned_value()
+        ValidationTool.compare_values(read_only_community_output, {'qwerty12': {}}).verify_result()
+        read_only_community_output = OutputParsingTool.parse_json_str_to_dictionary(
+            system.snmp_server.readonly_community.show('qwerty12')).get_returned_value()
+        ValidationTool.compare_values(read_only_community_output, '').verify_result()
         system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show())\
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output([SystemConsts.SNMP_REFRESH_INTERVAL,
@@ -89,7 +98,12 @@ def test_snmp_default_values_fields(engines):
                                                             system_snmp_output).verify_result()
 
     with allure.step("Unset snmp"):
-        system.snmp_server.unset().verify_result()
+        system.snmp_server.listening_address.unset().verify_result()
+        system.snmp_server.readonly_community.unset().verify_result()
+        system.snmp_server.unset('state').verify_result()
+        system.snmp_server.unset('system-contact').verify_result()
+        system.snmp_server.unset('system-location').verify_result()
+        system.snmp_server.unset('auto-refresh-interval').verify_result()
         NvueGeneralCli.apply_config(engines.dut)
         _wait_for_snmp_is_running(system, 'no')
 

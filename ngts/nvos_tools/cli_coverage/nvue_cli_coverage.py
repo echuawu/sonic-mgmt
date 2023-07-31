@@ -65,7 +65,14 @@ class NVUECliCoverage:
                        'nv set system snmp-server',
                        'nv set system ssh-server',
                        'nv set system syslog',
-                       'nv set system syslog format'
+                       'nv set system syslog format',
+                       'nv set system debug-log rotation disk-percentage',
+                       'nv set system debug-log rotation max-number',
+                       'nv unset system debug-log',
+                       'nv unset system debug-log rotation',
+                       'nv unset system debug-log rotation disk-percentage',
+                       'nv unset system debug-log rotation max-number',
+                       'nv unset system debug-log rotation size'
                        }
 
     @classmethod
