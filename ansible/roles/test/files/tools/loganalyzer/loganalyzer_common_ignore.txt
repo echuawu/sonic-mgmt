@@ -237,7 +237,7 @@ r, ".* INFO bgp#supervisord .* ERRO pool .* event buffer overflowed.*"
 r, ".* ERR bgp#/supervisor-proc-exit-listener: Syntax of the line .* in critical_processes file is incorrect.*"
 r, ".* ERR swss#orchagent: .* FdbOrch .* Failed to locate vlan.*port from bv_id"
 r, ".* INFO kernel: .* CPU features: detected: ARM errata .*"
-r, ".* (sonic|INFO) kernel:.*DMA: preallocated.*KiB (GFP_KERNEL|GFP_DMA)(\d)* pool for atomic allocations"
+r, ".* (sonic|INFO) kernel:.*DMA: preallocated.*KiB GFP_KERNEL|GFP_DMA(\d)* pool for atomic allocations"
 r, ".* (:?sonic|INFO) kernel:.*pcieport.*DPC: error containment capabilities: Int Msg.*RPExt.*PoisonedTLP.*SwTrigger.*RP PIO Log \d, DL_ActiveErr.*"
 
 # https://dev.azure.com/msazure/One/_workitems/edit/14482841
