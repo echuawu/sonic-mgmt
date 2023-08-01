@@ -247,10 +247,12 @@ def create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_p
     else:
         combined_coverage_file = lcov_file_to_combine[0]
 
+    timestamp = int(time.time())
+
     for scr_file in NvosConsts.NVOS_SOURCE_FILES:
         lcov_file = scr_file.replace("/", "-")
-        lcov_file_name = f'{lcov_file}.info'
-        lcov_file = f'{SharedConsts.GCOV_DIR}/{lcov_file}.info'
+        lcov_file_name = f'{lcov_file}-{timestamp}.info'
+        lcov_file = f'{SharedConsts.GCOV_DIR}/{lcov_file_name}'
         sudo_cli_general.lcovr(flags=f'-extract {combined_coverage_file} "*/{scr_file}.cpp" --output-file {lcov_file}')
         engine.copy_file(source_file=lcov_file,
                          dest_file=os.path.join(c_dest, lcov_file_name),
