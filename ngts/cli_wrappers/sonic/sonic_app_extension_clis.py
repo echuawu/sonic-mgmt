@@ -52,7 +52,7 @@ class SonicAppExtensionCli:
         # TODO: [SONIC - Design] Bug SW #3322943:[Non-Functional ] [app|spm] |
         # TODO: The return of sonic-package-manager list includes some redundant strings
         # -----------------------------workaround-------------------------------
-        unexpected_line = 'libyang[1]: Value "vnet-direct" does not satisfy the constraint "'
+        unexpected_line = 'libyang[1]:'
         if unexpected_line in app_package_repo_list:
             name_offset = 0
             for line in app_package_repo_list.split("\n"):
