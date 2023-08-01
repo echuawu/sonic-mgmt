@@ -1,4 +1,5 @@
 import pytest
+import logging
 import time
 import csv
 import os
@@ -14,6 +15,8 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
+
+logger = logging.getLogger()
 
 
 @pytest.mark.system
@@ -574,7 +577,6 @@ def test_system_stats_log(engines, devices, test_api):
 
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
-    engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
 
     try:
@@ -601,11 +603,11 @@ def test_system_stats_log(engines, devices, test_api):
             ValidationTool.verify_expected_output(show_output, log_msg).verify_result()
 
         with allure.step("Validate stats files in tech support file"):
-            stats_files = list(engine.run_cmd("ls /var/stats").split())
-            validate_stats_files_exist_in_techsupport(system, engine, stats_files)
+            stats_files = list(engines.dut.run_cmd("ls /var/stats").split())
+            validate_stats_files_exist_in_techsupport(system, engines.dut, stats_files)
 
     finally:
-        set_system_stats_to_default(engine, system)
+        set_system_stats_to_default(engines.dut, system)
 
 
 @pytest.mark.system
@@ -625,7 +627,6 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
 
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
-    engine = engines.dut
     player_engine = engines['sonic_mgmt']
     category_list = devices.dut.CATEGORY_LIST
 
@@ -635,7 +636,7 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
                              apply=True).verify_result()
 
         with allure.step("Clear all internal files"):
-            engine.run_cmd("sudo rm -f /var/stats/*")
+            engines.dut.run_cmd("sudo rm -f /var/stats/*")
 
         with allure.step("Replace all category internal files with a max sized files"):
             for category in category_list:
@@ -646,16 +647,16 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
                                                     dest_folder=StatsConsts.INTERNAL_PATH,
                                                     dest_ip=engines.dut.ip,
                                                     local_file_path=file_path)
-                engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+                engines.dut.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
 
         with allure.step("Validate stats files in tech support file"):
-            stats_files = list(engine.run_cmd("ls /var/stats").split())
-            validate_stats_files_exist_in_techsupport(system, engine, stats_files)
+            stats_files = list(engines.dut.run_cmd("ls /var/stats").split())
+            validate_stats_files_exist_in_techsupport(system, engines.dut, stats_files)
 
     finally:
         with allure.step("Clear all internal files and set to all default"):
-            engine.run_cmd("sudo rm -f /var/stats/*")
-            set_system_stats_to_default(engine, system)
+            engines.dut.run_cmd("sudo rm -f /var/stats/*")
+            set_system_stats_to_default(engines.dut, system)
 
 
 @pytest.mark.system
@@ -1263,6 +1264,7 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     generate techsupport and validate stats files exist in the stats dir
     """
     tech_support_folder = system.techsupport.action_generate(engine=engine)
+    logger.info("The techsupport file name is : " + tech_support_folder)
     techsupport_files_list = system.techsupport.get_techsupport_stats_files_names(engine, tech_support_folder)
     for stat_file in stats_files:
         assert "{}.gz".format(stat_file) in techsupport_files_list, \

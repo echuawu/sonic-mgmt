@@ -24,7 +24,7 @@ class DutUtilsTool:
         :param find_prompt_delay:
         :return:
         """
-        with allure.step('Reload the system with {} command, and wait till system is ready'):
+        with allure.step('Reload the system with {} command, and wait till system is ready'.format(command)):
             engine.send_config_set(command, exit_config_mode=False, cmd_verify=False)
 
             with allure.step('Waiting for switch shutdown after reload command'):
@@ -34,8 +34,6 @@ class DutUtilsTool:
 
             if not should_wait_till_system_ready:
                 time.sleep(40)
-                ping_device(engine.ip)
-                time.sleep(10)
                 return ResultObj(result=True, info="system is not ready yet")
 
             with allure.step('Waiting for switch to be ready'):

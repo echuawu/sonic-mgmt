@@ -66,25 +66,6 @@ def ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
 
 
 @pytest.fixture(scope='function')
-def serial_engine(topology_obj):
-    """
-    :return: serial connection
-    """
-    att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
-    # add connection options to pass connection problems
-    extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
-    extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
-    extended_rcon_command = ' '.join(extended_rcon_command)
-    serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
-                                        username=att['Topology Conn.']['CONN_USER'],
-                                        password=att['Topology Conn.']['CONN_PASSWORD'],
-                                        rcon_command=extended_rcon_command,
-                                        timeout=30)
-    serial_engine.create_serial_engine()
-    return serial_engine
-
-
-@pytest.fixture(scope='function')
 def post_test_remote_reboot(topology_obj):
     '''
     @summary: perform remote reboot from the physical server using the noga remote reboot command,

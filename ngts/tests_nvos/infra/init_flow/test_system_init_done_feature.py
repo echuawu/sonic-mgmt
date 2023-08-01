@@ -3,6 +3,7 @@ import time
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.system.System import System
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -13,7 +14,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.init_flow
-def test_system_ready_state_up(engines, devices):
+def test_system_ready_state_up(engines, devices, topology_obj):
     """
     Test flow:
         0. serial connection
@@ -31,13 +32,22 @@ def test_system_ready_state_up(engines, devices):
                             should_wait_till_system_ready=False).verify_result()
 
     with allure.step('reconnect to the switch'):
-        ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
+        serial_engine = ConnectionTool.create_serial_connection(topology_obj)
 
     with allure.step('verify NVUE is not working before system is ready'):
-        assert 'System is initializing!' in ssh_connection.run_cmd('nv show system'), "WE CAN NOT RUN NV COMMANDS BEFORE SYSTEM IS READY MESSAGE"
+        with allure.step("running nv show system command"):
+            serial_engine.serial_engine.sendline('nv show system')
+        with allure.step("verifying the output includes System is initializing!"):
+            serial_engine.serial_engine.expect("System is initializing!", timeout=10)
 
     with allure.step('verify SYSTEM_READY|SYSTEM_STATE is not exist yet'):
-        assert '(empty array)' in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM_READY state table should not be exist before system is ready"
+        with allure.step("running {}".format(ReadFromDataBase.READ_SYSTEM_STATUS)):
+            serial_engine.serial_engine.sendline(ReadFromDataBase.READ_SYSTEM_STATUS)
+        with allure.step("verifying the output includes (empty array)"):
+            serial_engine.serial_engine.expect("(empty array)", timeout=10)
+
+    check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
+    ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
 
     with allure.step('wait until the system is ready'):
         DutUtilsTool.wait_for_nvos_to_become_functional(ssh_connection).verify_result()
@@ -67,7 +77,7 @@ def test_system_ready_state_up(engines, devices):
 
 
 @pytest.mark.init_flow
-def test_system_ready_state_down(engines, devices):
+def test_system_ready_state_down(engines, devices, topology_obj):
     """
     Test flow:
         0. serial connection
@@ -77,43 +87,45 @@ def test_system_ready_state_down(engines, devices):
         4. verify expected logs after waiting 10 minuets
         5. start docker as a cleanup step
     """
+    with allure.step('pick a docker to kill'):
+        docker_to_kill = [i for i in devices.dut.available_services if i.startswith('swss')][0]
+        logger.info("after reboot we will stop {}".format(docker_to_kill))
+
     with allure.step('reboot the system'):
         reload_cmd_set = "nv action reboot system"
         DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set, should_wait_till_system_ready=False).verify_result()
 
     with allure.step('reconnect to the switch'):
+        serial_engine = ConnectionTool.create_serial_connection(topology_obj)
+
+    with allure.step('kill service {}'.format(docker_to_kill)):
+        serial_engine.serial_engine.sendline('sudo systemctl stop {}'.format(docker_to_kill))
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
         ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
 
     try:
-
-        with allure.step('test system status after killing swss docker'):
-            with allure.step('pick a docker to kill'):
-                docker_to_kill = [i for i in devices.dut.available_services if i.startswith('swss')][0]
-
-            with allure.step('kill service {}'.format(docker_to_kill)):
-                engines.dut.run_cmd('sudo systemctl stop {}'.format(docker_to_kill))
-
         with allure.step('Sleep 5 min'):
             time.sleep(300)
 
-        with allure.step('verify SYSTEM_READY|SYSTEM_STATE is not exist yet'):
-            assert '(empty array)' in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM_READY state table should not be exist before system is ready"
+        with allure.step('check system status after killing swss docker'):
+            with allure.step('verify SYSTEM_READY|SYSTEM_STATE is not exist yet'):
+                assert '(empty array)' in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM_READY state table should not be exist before system is ready"
 
-        with allure.step('verify NVUE is not working before system is ready'):
-            assert 'System is initializing!' in ssh_connection.run_cmd('nv show system'), "WE CAN NOT RUN NV COMMANDS BEFORE SYSTEM IS READY MESSAGE"
+            with allure.step('verify NVUE is not working before system is ready'):
+                assert 'System is initializing!' in ssh_connection.run_cmd('nv show system'), "WE CAN NOT RUN NV COMMANDS BEFORE SYSTEM IS READY MESSAGE"
 
-        with allure.step('Sleep 5 min'):
-            time.sleep(300)
+            with allure.step('Sleep 5 min'):
+                time.sleep(300)
 
-        logs_to_find = ['Wait until the NOS signal we are ready to serve', 'System is not ready']
-        verify_expected_logs(ssh_connection, logs_to_find)
+            logs_to_find = ['Wait until the NOS signal we are ready to serve', 'System is not ready']
+            verify_expected_logs(ssh_connection, logs_to_find)
 
-        with allure.step('verify the system status is DOWN'):
-            assert SystemConsts.STATUS_DOWN in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM STATE SHOULD BE DOWN"
+            with allure.step('verify the system status is DOWN'):
+                assert SystemConsts.STATUS_DOWN in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM STATE SHOULD BE DOWN"
 
-        with allure.step("verify we can run nvue command and the system status is not ok"):
-            system = System(None)
-            ValidationTool.verify_field_value_in_output(OutputParsingTool.parse_json_str_to_dictionary(system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_NOT_OK).verify_result()
+            with allure.step("verify we can run nvue command and the system status is not ok"):
+                system = System(None)
+                ValidationTool.verify_field_value_in_output(OutputParsingTool.parse_json_str_to_dictionary(system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_NOT_OK).verify_result()
 
     finally:
         with allure.step('start docker {} as a cleanup step'.format(docker_to_kill)):

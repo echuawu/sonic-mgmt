@@ -4,6 +4,8 @@ from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from netmiko.ssh_exception import NetmikoAuthenticationException
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
@@ -46,3 +48,24 @@ class ConnectionTool:
                 username=engine.username))).verify_result()[SystemConsts.PASSWORD_HARDENING_RUNNING_PROCESSES]
 
             return ResultObj(running_processes, "", "connected to {number}".format(number=running_processes))
+
+    @staticmethod
+    def create_serial_connection(topology_obj):
+        """
+
+        :param topology_obj:
+        :return:
+        """
+        with allure.step("create serial connection"):
+            att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
+            # add connection options to pass connection problems
+            extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
+            extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
+            extended_rcon_command = ' '.join(extended_rcon_command)
+            serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
+                                                username=att['Topology Conn.']['CONN_USER'],
+                                                password=att['Topology Conn.']['CONN_PASSWORD'],
+                                                rcon_command=extended_rcon_command,
+                                                timeout=30)
+            serial_engine.create_serial_engine()
+            return serial_engine

@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
@@ -29,8 +30,6 @@ from ngts.tests_nvos.general.security.authentication_restrictions.constants impo
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 
 logger = logging.getLogger()
 
@@ -100,18 +99,7 @@ def serial_engine(topology_obj):
     """
     :return: serial connection
     """
-    att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
-    # add connection options to pass connection problems
-    extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
-    extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
-    extended_rcon_command = ' '.join(extended_rcon_command)
-    serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
-                                        username=att['Topology Conn.']['CONN_USER'],
-                                        password=att['Topology Conn.']['CONN_PASSWORD'],
-                                        rcon_command=extended_rcon_command,
-                                        timeout=30)
-    serial_engine.create_serial_engine()
-    return serial_engine
+    return ConnectionTool.create_serial_connection(topology_obj)
 
 
 @pytest.fixture
