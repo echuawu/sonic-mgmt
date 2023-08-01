@@ -2345,10 +2345,10 @@
         - x86_64-nvidia_sn5600-r0
 
 - Errors_list:
-    - '.*ERR mlnx-fw-upgrade\.sh: no such file: \/etc\/mlnx\/.*'
+    - '.* ERR swss#buffermgrd: :- guard: RedisReply catches system_error: command: .* reason: ERR Error running script .* attempt to perform arithmetic on local .current_profile_size. \(a nil value\): Input\/output error.*'
   Conditions:
     - Redmine:
-        - 3413755
+        - 3555138
       Platform:
         - x86_64-nvidia_sn5600-r0
 
