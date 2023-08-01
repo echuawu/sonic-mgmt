@@ -13,15 +13,15 @@
 # NOTE: more specific regular expression must be defined after less specific.
 
 default:
-  valid_timeout: 10     # A valid timeout the watchdog has to accept
-  greater_timeout: 20   # A greater timeout value that watchdog has to accept, put None if single timeout value is a watchdog limitation
+  valid_timeout: 20     # A valid timeout the watchdog has to accept
+  greater_timeout: 40   # A greater timeout value that watchdog has to accept, put None if single timeout value is a watchdog limitation
   too_big_timeout: 100  # A timeout which is too big for HW watchdog, put None if there is no such limitation
 
 # Mellanox watchdog type 1
 x86_64-mlnx_msn2.*-r0:
   default:
-    valid_timeout: 10
-    greater_timeout: 20
+    valid_timeout: 20
+    greater_timeout: 40
     too_big_timeout: 66000
 
 # Mellanox watchdog type 2
