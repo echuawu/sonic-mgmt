@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 ENDPOINT_URL_TEMPLATE = 'https://{ip}/nvue_v1'
 REQ_HEADER = {"Content-Type": "application/json"}
-INVALID_RESPONSE = ["ays_fail", "invalid", "Bad Request", "Not Found"]
+INVALID_RESPONSE = ["ays_fail", "invalid", "Bad Request", "Not Found", "Forbidden", "Internal Server Error"]
 
 
 class RequestData:
