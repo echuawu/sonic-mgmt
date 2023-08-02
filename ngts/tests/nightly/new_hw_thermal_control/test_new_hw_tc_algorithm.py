@@ -5,6 +5,7 @@ import random
 import os
 import time
 import operator
+import re
 
 
 from ngts.helpers.new_hw_thermal_control_helper import TC_CONST, MockSensors, SENSOR_DATA, \
@@ -199,3 +200,26 @@ class TestNewTc:
         finally:
             with allure.step(f'Remove {asic_blacklist_file}'):
                 self.dut_engine.run_cmd(f"sudo rm -f {asic_blacklist_file}")
+
+    @allure.title('test check tc_config link')
+    def test_check_tc_config_link(self, platform_params):
+        """
+        This tests is to check tc_config is linked to the correct file
+        """
+        with allure.step("Get tc_config link and sku info"):
+            tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
+            reg_sku = '.*tc_config_(?P<sku>.*).json'
+            sku_res = re.search(reg_sku, tc_config_link)
+            if sku_res:
+                sku = sku_res.groupdict()['sku']
+            else:
+                assert False, f" Does not find sku name in {tc_config_link}"
+
+        with allure.step("Check tc_config is linked to correct file"):
+            if platform_params.hwsku == "ACS-MSN4410":
+                # For ACS-MSN4410, the tc_config is linked to /etc/hw-management-thermal/tc_config_msn4700.json
+                assert "msn4700" in tc_config_link, f"tc_config is linked to wrong file for ACS-MSN4410. " \
+                    f"tc_config link:{tc_config_link}, platform sku: {platform_params.sku}"
+            else:
+                assert sku.upper() in platform_params.hwsku.upper(), \
+                    f"tc_config is linked to wrong file. tc_config link:{tc_config_link}, platform sku: {platform_params.sku}"
