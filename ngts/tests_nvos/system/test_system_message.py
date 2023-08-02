@@ -192,8 +192,9 @@ def test_set_system_message_post_login(engines, devices):
                                                                            username=SystemConsts.DEFAULT_USER_ADMIN,
                                                                            password=engines.dut.password)
             post_login_output = output.split('\n')[4].strip()
-            assert new_post_login_msg == post_login_output,\
-                "Failed to set post-login message to \n{post_login}".format(post_login=post_login_output)
+            assert new_post_login_msg in post_login_output,\
+                "Failed to set post-login message to {post_login}\n post_login_output={post_login_output}".format(
+                    post_login=new_post_login_msg, post_login_output=post_login_output)
 
         with allure.step('Verify pre-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,

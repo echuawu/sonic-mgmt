@@ -2,6 +2,7 @@
 import allure
 import logging
 import os
+import re
 import time
 import pytest
 import json
@@ -91,9 +92,9 @@ def extract_c_coverage_for_nvos(dest, engines, engine, cli_obj):
     with allure.step(f'Create lcov file for each required source file'):
         create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_prefix)
 
-    '''with allure.step("Delete JSON and LCOV files"):
+    with allure.step("Delete JSON and LCOV files"):
         sudo_cli_general.rm(SharedConsts.GCOV_DIR + "/*.json", flags='-f')
-        sudo_cli_general.rm(SharedConsts.GCOV_DIR + "/*.info", flags='-f')'''
+        sudo_cli_general.rm(SharedConsts.GCOV_DIR + "/*.info", flags='-f')
 
 
 def extract_c_coverage_for_sonic(dest, engines, engine, cli_obj):
@@ -250,10 +251,12 @@ def create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_p
     timestamp = int(time.time())
 
     for scr_file in NvosConsts.NVOS_SOURCE_FILES:
-        lcov_file = scr_file.replace("/", "-")
-        lcov_file_name = f'{lcov_file}-{timestamp}.info'
+        info_file_string = scr_file.replace("/", "-")
+        lcov_file_name = f'{info_file_string}-{timestamp}.info'
         lcov_file = f'{SharedConsts.GCOV_DIR}/{lcov_file_name}'
-        sudo_cli_general.lcovr(flags=f'-extract {combined_coverage_file} "*/{scr_file}.cpp" --output-file {lcov_file}')
+        sudo_cli_general.lcovr(flags=f'-extract {combined_coverage_file} "*/{scr_file}.cpp" '
+                                     f'--output-file {lcov_file}')
+
         engine.copy_file(source_file=lcov_file,
                          dest_file=os.path.join(c_dest, lcov_file_name),
                          file_system=os.path.dirname(lcov_file),

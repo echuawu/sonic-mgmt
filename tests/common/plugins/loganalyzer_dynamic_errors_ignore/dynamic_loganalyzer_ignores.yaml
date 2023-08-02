@@ -3138,3 +3138,11 @@
       Redmine:
         - 3544158
 
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
