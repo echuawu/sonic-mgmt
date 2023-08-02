@@ -2664,6 +2664,7 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
 
 # NVOS
 - Errors_list:
