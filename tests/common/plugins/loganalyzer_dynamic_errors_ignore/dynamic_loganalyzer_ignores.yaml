@@ -2818,6 +2818,12 @@
         - simx
 
 - Errors_list:
+    - '.* ERR syncd#SDK: :- processBulkOidCreate: bulkCreate api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_PORT'
+  Conditions:
+    - Redmine:
+      - 3563393
+
+- Errors_list:
     - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
   Conditions:
     - Redmine:
