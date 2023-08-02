@@ -508,8 +508,6 @@ class NtpConsts:
     HOSTNAME_SUFFIX = '.lab.mtl.com'
     SERVER2_HOSTNAME = 'l-coreslave' + HOSTNAME_SUFFIX
     SERVER3_IPV4 = '10.7.77.136'
-    AUTH_SERVER_HOSTNAME = 'mtl-vdi-745.wap.labs.mlnx'
-    AUTH_SERVER_IPV4 = '10.228.130.8'
     DUMMY_SERVER1 = 'server1'
     DUMMY_SERVER2 = 'server2'
     DUMMY_SERVER3 = 'server3'
@@ -527,6 +525,7 @@ class NtpConsts:
     NUMBER_OF_ITERATION = 5
     OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
     NTP_MAX_DIFF_TIME = 180  # [sec]
+    NTP_SERVER_FILES = "/auto/sw_system_project/NVOS_INFRA/verification/ntp/*"
 
     INVALID_STATE = 'enable1'
     INVALID_AUTHENTICATION = 'disable1'
