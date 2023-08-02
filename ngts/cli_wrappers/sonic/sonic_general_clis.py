@@ -739,6 +739,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         logger.info(f'Move file {actual_sai_xml_file_name} from /tmp/ to {actual_switch_sai_xml_path}')
         self.engine.run_cmd(f'sudo mv /tmp/{actual_sai_xml_file_name} {actual_switch_sai_xml_path}')
 
+    def update_snmp_conf_file(self):
+        snmp_file = "/usr/share/sonic/templates/snmpd.conf.j2"
+        find_line_number_cmd = f'docker exec -i snmp grep -n  "agentAddress.*protocol(agentip).*161" {snmp_file} | ' \
+            f'head -1 | cut -d ":" -f 1'
+        line_number = int(self.engine.run_cmd(find_line_number_cmd))
+        self.engine.run_cmd('docker exec -i snmp sed -i "' + str(line_number + 1) + 'i {% endif %}" ' + snmp_file)
+        self.engine.run_cmd('docker exec -i snmp sed -i "' + str(line_number) + 'i {% else %}" ' + snmp_file)
+        self.engine.run_cmd('docker exec -i snmp sed -i "' + str(line_number) +
+                            'i agentAddress {{ protocol(agentip) }}:[{{ agentip }}%eth0]:161" ' + snmp_file)
+        self.engine.run_cmd('docker exec -i snmp sed -i "' + str(line_number) +
+                            'i {% if protocol(agentip)==\'udp6\' %}" ' + snmp_file)
+
     def modify_xml(self, filepath, global_flag=False, local_flags=False):
         doc = ET.parse(filepath)
         root_node = doc.getroot()

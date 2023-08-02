@@ -308,6 +308,15 @@ class SonicInstallationSteps:
 
         # Community only steps
         if is_community(sonic_topo):
+            # TODO: this is WA for issue #3559089, need to Remove it once we have fix from community
+            from infra.tools.redmine.redmine_api import is_redmine_issue_active
+            if is_redmine_issue_active([3559089]):
+                cli = setup_info['duts'][0]['cli_obj']
+                try:
+                    cli.update_snmp_conf_file()
+                except Exception:
+                    logger.error(f"Update snmp conf file failed")
+
             if is_dualtor_topo(sonic_topo) and 'dualtor-aa' not in sonic_topo:
                 config_y_cable_simulator(ansible_path=ansible_path, setup_name=setup_name, sonic_topo=sonic_topo)
                 for dut in setup_info['duts']:
