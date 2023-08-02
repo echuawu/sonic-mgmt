@@ -152,20 +152,15 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
-    with allure.step('Change system profile to breakout-mode enabled'):
-        with allure.step("Change adaptive-routing-groups to possible value"):
-            system.profile.action_profile_change(params='adaptive-routing enabled breakout-mode enabled')
-
-        with allure.step('Verify changed values'):
-            system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
-                .get_returned_value()
-            values_to_verify = [SystemConsts.PROFILE_STATE_ENABLED, 1792,
-                                SystemConsts.PROFILE_STATE_ENABLED, SystemConsts.PROFILE_STATE_DISABLED,
-                                SystemConsts.DEFAULT_NUM_SWIDS]
-            ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                            values_to_verify,
-                                                            system_profile_output).verify_result()
-            logging.info("All expected values were found")
+    with allure.step('Verify breakout values'):
+        system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
+            .get_returned_value()
+        values_to_verify = [SystemConsts.PROFILE_STATE_ENABLED, 1792, SystemConsts.PROFILE_STATE_ENABLED,
+                            SystemConsts.PROFILE_STATE_DISABLED, SystemConsts.DEFAULT_NUM_SWIDS]
+        ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
+                                                        values_to_verify,
+                                                        system_profile_output).verify_result()
+           logging.info("All expected values were found")
 
     with allure.step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()

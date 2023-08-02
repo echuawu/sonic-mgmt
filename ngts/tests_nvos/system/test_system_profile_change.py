@@ -10,7 +10,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from ngts.nvos_constants.constants_nvos import ImageConsts, NvosConst
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.constants.constants import InfraConst
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
