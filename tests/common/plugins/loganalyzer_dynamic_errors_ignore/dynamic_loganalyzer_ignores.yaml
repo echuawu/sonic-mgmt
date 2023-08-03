@@ -552,6 +552,13 @@
       - 2619129
 
 - Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- get_dispatch_attribs_handler: Failed Get #\d+, EGRESS_ACL, key:PORT \[OID:.*\].*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- get_dispatch_attribs_handler: Failed Get #\d+, INGRESS_ACL, key:PORT \[OID:.*\].*'
+  Conditions:
+    - Redmine:
+      - 3565127
+
+- Errors_list:
     - '.*ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Could not infer system information from.*'
   Conditions:
     - Affected_test_cases:
