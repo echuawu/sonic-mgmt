@@ -96,7 +96,13 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version,
                              fw_pkg_path=fw_pkg_path, cli_type=dut['cli_obj'])
 
         logger.info("Wait until background process done")
-        wait_until_background_procs_done(threads_dict)
+        try:
+            wait_until_background_procs_done(threads_dict)
+        except AssertionError:
+            # Give it another try if the background processes in the pre-installation steps fail
+            pre_installation_steps(
+                sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict)
+            wait_until_background_procs_done(threads_dict)
         logger.info("background processes are done")
 
         post_installation_steps(topology_obj=topology_obj, sonic_topo=sonic_topo,
