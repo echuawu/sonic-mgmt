@@ -2,7 +2,6 @@
 import allure
 import logging
 import os
-import re
 import time
 import pytest
 import json
