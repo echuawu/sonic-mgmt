@@ -217,6 +217,7 @@ qos/test_pfc_pause.py
 qos/test_qos_masic.py
 qos/test_qos_sai.py
 qos/test_tunnel_qos_remap.py
+qos/test_qos_sai_dual_tor.py
 radv/test_radv_ipv6_ra.py
 radv/test_radv_restart.py
 read_mac/test_read_mac_metadata.py
