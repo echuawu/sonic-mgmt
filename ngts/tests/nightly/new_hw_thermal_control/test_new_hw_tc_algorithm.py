@@ -206,20 +206,25 @@ class TestNewTc:
         """
         This tests is to check tc_config is linked to the correct file
         """
+        # For some platforms, tc_config is linked to the file with the specific hwsku name
+        # The below map includes these info
+        special_hwsku_to_tc_config_map = {"ACS-MSN4410": "msn4700",
+                                          "ACS-MSN2410": "msn2700"}
+
         with allure.step("Get tc_config link and sku info"):
             tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
-            reg_sku = '.*tc_config_(?P<sku>.*).json'
-            sku_res = re.search(reg_sku, tc_config_link)
-            if sku_res:
-                sku = sku_res.groupdict()['sku']
-            else:
-                assert False, f" Does not find sku name in {tc_config_link}"
 
-        with allure.step("Check tc_config is linked to correct file"):
-            if platform_params.hwsku == "ACS-MSN4410":
-                # For ACS-MSN4410, the tc_config is linked to /etc/hw-management-thermal/tc_config_msn4700.json
-                assert "msn4700" in tc_config_link, f"tc_config is linked to wrong file for ACS-MSN4410. " \
-                    f"tc_config link:{tc_config_link}, platform sku: {platform_params.sku}"
+            hwsku = platform_params.hwsku
+            reg_hwsku = r'(ACS|Mellanox)-(?P<hwsku>\w+).*'
+            sku_res = re.search(reg_hwsku, hwsku)
+            if sku_res:
+                expected_hwsku_in_tc_config_file = sku_res.groupdict()['hwsku']
             else:
-                assert sku.upper() in platform_params.hwsku.upper(), \
-                    f"tc_config is linked to wrong file. tc_config link:{tc_config_link}, platform sku: {platform_params.sku}"
+                assert False, f" Does not find sku name in {platform_params.hwsku}"
+            expected_hwsku_in_tc_config_file = special_hwsku_to_tc_config_map.get(hwsku,
+                                                                                  expected_hwsku_in_tc_config_file)
+
+        with allure.step(f"Check {expected_hwsku_in_tc_config_file} is in {tc_config_link}"):
+            assert expected_hwsku_in_tc_config_file.lower() in tc_config_link.lower(), \
+                f"tc_config is linked to wrong file. tc_config link:{tc_config_link}, " \
+                f"platform sku: {platform_params.hwsku}"
