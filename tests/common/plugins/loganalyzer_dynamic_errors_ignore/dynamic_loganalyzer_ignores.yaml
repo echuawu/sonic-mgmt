@@ -2528,30 +2528,12 @@
         - 3521394
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[EMAD_TRANSACTION.ERR\] ACCESS_REG TIMEOUT: timeout_usec=\d+, tid=0x.*, reg=0x.*, state=\d+, dev_id=\d, access_cmd=\d+'
-    - '.* ERR syncd#SDK: \[EMAD.ERR\] emad-send failed on register 0x.*, iteration \d+, status=\d+'
-    - '.* ERR syncd#SDK: \[REG_BULK.ERR\] sx_reg_layer_sxd_reg_call - Error at access reg call reg_id 0x.*, error: TIMEOUT'
-    - '.* ERR syncd#SDK: \[REG_BULK.ERR\] __reg_bulk_post_completion_cb Error got in completion data sxd_status \[12\]-\[TIMEOUT\].'
-    - '.* ERR syncd#SDK: \[MGMT_LIB.ERR\] PDDR get failed \(TIMEOUT\).*'
-    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR]\ SX_HEALTH_FATAL: cause_string = \[timeout in FW response\], cause_id = \[\d+\].*'
-    - '.* ERR kernel: .* SXD_HEALTH_FATAL:On device 1 cause =''EMAD completion timeout'' \[id = \d+\]- Stopping further device monitoring!.*'
-    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_switch_generate_dump: Error generating extended sdk dump, sx status: Resource is in use.*'
-    - '.* ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause timeout in FW response.*'
+    - '.*ERR kernel: .* sx_core: SDK health event, device:.*'
   Conditions:
     - Affected_test_cases:
-      - tests/show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit
+        - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       Redmine:
-        - 3527983
-      Platform:
-        - 5600
-
-- Errors_list:
-    - '.* ERR kernel: .* pstore: crypto_comp_decompress failed, ret = -22!.*'
-  Conditions:
-    - Redmine:
-        - 3527217
-      Platform:
-        - x86_64-mlnx_msn2010-r0
+        - 3565916
 
 # NVOS
 - Errors_list:
