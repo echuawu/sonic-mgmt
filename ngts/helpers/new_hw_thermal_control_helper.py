@@ -634,11 +634,15 @@ def get_sensor_temperature_file_name(sensor_type, platform_params):
     if 'start_index' in SENSOR_DATA[sensor_type]:
         if sensor_type == "module":
             sensor_index = random.choice(SENSOR_DATA[sensor_type]["index supporting sensor"])
-        elif sensor_type == "voltmon" and platform_params.hwsku == 'ACS-MSN2100':
-            msn2100_voltmon_index_list = ["1", "2", "6"]
-            # For ACS-MSN2100, the voltmon numbering has gaps.
-            # it is an old issue and ACS-MSN2100 is very old sku, Hardware will not fix it.
-            sensor_index = random.choice(msn2100_voltmon_index_list)
+        elif sensor_type == "voltmon":
+            # For ACS-MSN2100 and ACS-MSN4600, the voltmon numbering has gaps.
+            # it is by design, Hardware will not fix it.
+            hwsku_voltmon_index_map = {'ACS-MSN2100': [1, 2, 6],
+                                       'ACS-MSN4600': [1, 2, 3, 5, 7]}
+            default_voltmon_index_list = [str(index) for index in range(SENSOR_DATA[sensor_type]["start_index"],
+                                                                        SENSOR_DATA[sensor_type]["total_number"] + 1)]
+            voltmon_index_list = hwsku_voltmon_index_map.get(platform_params.hwsku, default_voltmon_index_list)
+            sensor_index = random.choice(voltmon_index_list)
         else:
             start_index = SENSOR_DATA[sensor_type]["start_index"]
             sensor_index = random.randint(start_index, SENSOR_DATA[sensor_type]["total_number"])
