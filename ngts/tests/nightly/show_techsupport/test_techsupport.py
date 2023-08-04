@@ -16,6 +16,7 @@ FILES_DIR = os.path.join(BASE_DIR, 'files')
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SDK_DUMP_DIR = '/var/log/mellanox/sdk-dumps'
 FW_EVENTS_DICT = {"FW_HEALTH_EVENT": 1, "PLL_LOCK_EVENT": 6}
+HEALTH_CHECK_INJECT_FILE_PATH = '/proc/mlx_sx/sx_core'
 
 
 @pytest.mark.disable_loganalyzer
@@ -95,6 +96,60 @@ def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, logan
 
     with allure.step('Reload switch'):
         cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
+
+
+@allure.title('Tests that health check event dump contains all the expected dumps when health check event occurs')
+def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, cli_objects):
+    duthost = engines.dut
+    pre_stuck_dumps = duthost.run_cmd('ls -t {}/*.tar | wc -l'.format(SDK_DUMP_DIR))
+    if "No such file or directory" in pre_stuck_dumps:
+        pre_stuck_dumps = '0'
+
+    try:
+        with allure.step('Verify Health-Check: Trigger SYSFS failure appears in syslog'):
+            for dut in loganalyzer:
+                loganalyzer[dut].expect_regex.extend(["Health-Check: Trigger SYSFS failure"])
+                ignoreRegex = [
+                    r"mlnx_switch_health_event_handle: Health event happened, severity fatal, cause HW catastrophic "
+                    r"event",
+                    r"on_switch_shutdown_request: Syncd stopped"
+                ]
+                loganalyzer[dut].ignore_regex.extend(ignoreRegex)
+
+        with allure.step('Generate health check trigger event'):
+            duthost.run_cmd(f'sudo echo health_check_trigger sysfs > {HEALTH_CHECK_INJECT_FILE_PATH}')
+
+        with allure.step('Get health_check_running_counter after trigger event'):
+            health_check_counter_after_event_triggered = int(get_health_check_running_counter(duthost))
+
+        with allure.step('Wait for health check dump to be created'):
+            retry_call(
+                verify_sdkdump_created,
+                fargs=[duthost, pre_stuck_dumps],
+                tries=30,
+                delay=10,
+                logger=logger,
+            )
+
+        with allure.step('Get health_check_running_counter after dumps generated'):
+            health_check_counter_after_dump_generated = int(get_health_check_running_counter(duthost))
+
+        with allure.step('Get health_check_running_counter after dump generated'):
+            assert (health_check_counter_after_dump_generated < health_check_counter_after_event_triggered,
+                    "Health check counter was not restarted")
+
+        with allure.step('Validate that the health check dump contain all of the SDK extended dump files'):
+            check_all_dumps_file_exsits(duthost)
+
+        with allure.step("Verify basic container is up before orchagent core dump generated"):
+            cli_objects.dut.general.verify_dockers_are_up()
+
+    except Exception as err:
+        raise err
+
+    finally:
+        with allure.step("Verify basic container is up after restoring from health event"):
+            cli_objects.dut.general.verify_dockers_are_up()
 
 
 def cp_sdk_event_trigger_script_to_dut_syncd(engine):
@@ -188,3 +243,8 @@ def check_all_dumps_file_exsits(engine):
     # Check FW core dump:
     # This should be uncommented when FW stuck event level would change to critical
     # assert 'ir_core_dump_' in output, 'Missing FW core dump'
+
+
+def get_health_check_running_counter(engine):
+    health_check_counter_file_path = "/sys/module/sx_core/health_check_running_counter"
+    return engine.run_cmd(f"sudo cat {health_check_counter_file_path}")
