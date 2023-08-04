@@ -1,4 +1,4 @@
-from test_qos_sai import *
+from .test_qos_sai import *
 
 
 class TestQosSaiDualTor(TestQosSai):
