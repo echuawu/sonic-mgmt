@@ -417,20 +417,55 @@ def image_uninstall_test(release_name, uninstall_force=""):
         cleanup_test(system, original_images, original_image_partition, [fetched_image], uninstall_force)
 
 
-@pytest.mark.banner
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.image
 def test_system_image_install_reject_with_smallcase_n(engines):
     """
-    Check the image install cmd by rejecting the prompt.
+    Check the image install cmd by rejecting the prompt with 'n'
     Validate that install image command will be aborted when the prompt is rejected.
     1. Extract original image name
-    2. Attempt image install command, reject the prompt
+    2. Attempt image install command, reject the prompt with 'n'
     3. Check the image is the original one
     """
     system = System()
     prompt_response = 'n'
+    test_system_image_install_reject_with_prompt(engines, system, prompt_response)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.image
+def test_system_image_install_reject_with_uppercase_n(engines):
+    """
+    Check the image install cmd by rejecting the prompt with 'N'
+    Validate that install image command will be aborted when the prompt is rejected.
+    1. Extract original image name
+    2. Attempt image install command, reject the prompt with 'N'
+    3. Check the image is the original one
+    """
+    system = System()
+    prompt_response = 'N'
+    test_system_image_install_reject_with_prompt(engines, system, prompt_response)
+
+
+@pytest.mark.system
+@pytest.mark.simx
+@pytest.mark.image
+def test_system_image_install_reject_with_random_char(engines):
+    """
+    Check the image install cmd by rejecting the prompt with random character
+    Validate that install image command will be aborted when the prompt is rejected.
+    1. Extract original image name
+    2. Attempt image install command, reject the prompt with random character
+    3. Check the image is the original one
+    """
+    system = System()
+    prompt_response = 't'
+    test_system_image_install_reject_with_prompt(engines, system, prompt_response)
+
+
+def test_system_image_install_reject_with_prompt(engines, system, prompt_response):
 
     try:
         with allure.step("Create SSH Engine to login to the switch"):
@@ -441,7 +476,8 @@ def test_system_image_install_reject_with_smallcase_n(engines):
             assert respond == 0, "SSH Connection to switch failed"
             child.sendline(engines.dut.password)
             respond = child.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
-            assert respond == 0, "Password prompt did not come up"
+            output = child.after.decode('utf-8')
+            assert respond == 0, "Password prompt did not come up {out}".format(out=output)
 
         with allure.step("Extract Image name before attempting installing new image"):
             logging.info("Extract Image name before attempting installing new image")
@@ -450,12 +486,29 @@ def test_system_image_install_reject_with_smallcase_n(engines):
 
         with allure.step("Attempt install image and reject the prompt"):
             logging.info("Attempt install image and reject the prompt")
+            # Since the install is to be aborted, using a dummy image name nvos.bin
             child.sendline('nv action install system image files nvos.bin')
             respond = child.expect('.*continue.*')
             assert respond == 0, "Install image confirmation prompt did not come up"
             child.sendline(prompt_response)
             respond = child.expect('.*abort.*')
             assert respond == 0, "Image install abort message did not appear"
+
+        with allure.step("Verify install command was executed successfully"):
+            logging.info("Verify install command was executed successfully")
+            # extract last command execution status
+            child.sendline('nv show action 1')
+            respond = child.expect('.*detail.*')
+            assert respond == 0, "Install image confirmation prompt did not come up"
+            output1 = child.after.decode('utf-8')
+            output2 = output1.split("\n")
+            for line in output2:
+                if "detail" in line:
+                    assert "Image install aborted by user" in line, "Image install command failed"
+                if "https_status" in line:
+                    assert "200" in line, "Image install command failed"
+                if "state" in line:
+                    assert "action_success" in line, "Image install command failed"
 
         with allure.step("Verify image is unchanged"):
             logging.info("Verify image is unchanged")
