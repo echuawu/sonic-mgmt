@@ -93,7 +93,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                                                      setup_name=platform_params.setup_name,
                                                      platform_params=platform_params,
                                                      deploy_type='onie', reboot_after_install=reboot_after_install,
-                                                     disable_ztp=True)
+                                                     disable_ztp=True, configure_dns=True)
                 base_sonic_branch = get_sonic_branch(topology_obj)
 
             with allure.step('Check that APP Extension supported on base version'):
