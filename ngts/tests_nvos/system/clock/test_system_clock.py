@@ -1,4 +1,5 @@
 import logging
+import random
 from datetime import datetime
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -263,8 +264,8 @@ def test_set_system_invalid_timezone_ntp_on_error_flow(test_api, engines, system
 
     # try to change random existing timezones from timezone.yaml and set them
     with allure.step("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity"):
-        random_timezones = RandomizationTool.select_random_values(list_of_values=valid_timezones,
-                                                                  number_of_values_to_select=3).get_returned_value()
+        random_timezones = random.sample(valid_timezones, 3)
+        logging.info(f'Picked random timezones: {random_timezones}')
         bad_timezones = list(map(lambda s: ClockTools.alternate_capital_lower(s), random_timezones))
 
     for bad_timezone in bad_timezones:
@@ -383,7 +384,7 @@ def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, nt
         elif bad_datetime == '':
             errs = ClockConsts.ERR_EMPTY_PARAM
         elif len(bad_datetime.split(' ')) == 1:
-            if ClockTools.is_valid_system_date(bad_datetime, check_range=False):
+            if ClockTools.is_valid_system_date(bad_datetime):
                 errs = ClockConsts.ERR_EMPTY_PARAM
             else:
                 errs = [ClockConsts.ERR_INVALID_DATE.format(bad_datetime)]

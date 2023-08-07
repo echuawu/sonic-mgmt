@@ -128,6 +128,7 @@ class ActionType:
     UPLOAD = '@upload'
     RESET = '@reset'
     CHANGE = '@change'
+    CLEAR = '@clear'
 
 
 class ReadFromDataBase:
@@ -210,25 +211,22 @@ class SystemConsts:
 
     HOSTNAME_DEFAULT_VALUE = 'nvos'
     PRE_LOGIN_MESSAGE_DEFAULT_VALUE = "NVOS switch"
-    POST_LOGIN_MESSAGE_DEFAULT_VALUE = "\\n \u2588\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2557   " \
+    POST_LOGIN_MESSAGE_DEFAULT_VALUE = "\n \u2588\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2557   " \
                                        "\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 " \
-                                       "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\\n " \
-                                       "\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551\u2588\u2588\u2551   " \
-                                       "\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557" \
-                                       "\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\\n \u2588\u2588\u2554\u2588" \
-                                       "\u2588\u2557 \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588" \
-                                       "\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588" \
-                                       "\u2557\\n \u2588\u2588\u2551\u255a\u2588\u2588\u2557\u2588\u2588\u2551\u255a" \
-                                       "\u2588\u2588\u2557 \u2588\u2588\u2554\u255d\u2588\u2588\u2551   \u2588\u2588" \
-                                       "\u2551\u255a\u2550\u2550\u2550\u2550\u2588\u2588\u2551\\n \u2588\u2588\u2551 " \
-                                       "\u255a\u2588\u2588\u2588\u2588\u2551" \
-                                       " \u255a\u2588\u2588\u2588\u2588\u2554\u255d " \
-                                       "\u255a\u2588\u2588\u2588\u2588\u2588" \
-                                       "\u2588\u2554\u255d\u2588\u2588\u2588\u2588" \
-                                       "\u2588\u2588\u2588\u2551\\n \u255a" \
-                                       "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d" \
-                                       "  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u255d" \
-                                       " \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\\n\\n"
+                                       "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\n \u2588\u2588\u2588\u2588" \
+                                       "\u2557  \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588" \
+                                       "\u2554\u2550\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550" \
+                                       "\u2550\u2550\u255d\n \u2588\u2588\u2554\u2588\u2588\u2557 \u2588\u2588" \
+                                       "\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551   " \
+                                       "\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\n " \
+                                       "\u2588\u2588\u2551\u255a\u2588\u2588\u2557\u2588\u2588\u2551\u255a\u2588" \
+                                       "\u2588\u2557 \u2588\u2588\u2554\u255d\u2588\u2588\u2551   \u2588\u2588\u2551" \
+                                       "\u255a\u2550\u2550\u2550\u2550\u2588\u2588\u2551\n \u2588\u2588\u2551 \u255a" \
+                                       "\u2588\u2588\u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2588\u2554\u255d " \
+                                       "\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588" \
+                                       "\u2588\u2588\u2588\u2588\u2551\n \u255a\u2550\u255d  \u255a\u2550\u2550" \
+                                       "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550" \
+                                       "\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n"
     POST_LOGOUT_MESSAGE_DEFAULT_VALUE = ""
     ACTIONS_GENERATE_SINCE = 'since'
 
@@ -341,6 +339,7 @@ class ConfigConsts:
 
 class PlatformConsts:
     PLATFORM_FW = "firmware"
+    FM_PATH = "/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/"
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"
@@ -510,8 +509,6 @@ class NtpConsts:
     HOSTNAME_SUFFIX = '.lab.mtl.com'
     SERVER2_HOSTNAME = 'l-coreslave' + HOSTNAME_SUFFIX
     SERVER3_IPV4 = '10.7.77.136'
-    AUTH_SERVER_HOSTNAME = 'mtl-vdi-745.wap.labs.mlnx'
-    AUTH_SERVER_IPV4 = '10.228.130.8'
     DUMMY_SERVER1 = 'server1'
     DUMMY_SERVER2 = 'server2'
     DUMMY_SERVER3 = 'server3'
@@ -529,6 +526,7 @@ class NtpConsts:
     NUMBER_OF_ITERATION = 5
     OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
     NTP_MAX_DIFF_TIME = 180  # [sec]
+    NTP_SERVER_FILES = "/auto/sw_system_project/NVOS_INFRA/verification/ntp/*"
 
     INVALID_STATE = 'enable1'
     INVALID_AUTHENTICATION = 'disable1'
@@ -810,6 +808,10 @@ class StatsConsts:
     DISK_FAIL_CNT_MAX = 0
     DISK_TOTAL_LBA_RW_MIN = 10000
     DISK_TOTAL_LBA_RW_MAX = 4294967295
+    VOLTAGE_GENERAL_MIN = 0
+    VOLTAGE_GENERAL_MAX = 16
+    VOLTAGE_PSU_MIN = 0
+    VOLTAGE_PSU_MAX = 300
 
     GENERATE = 'generate'
     DELETE = 'delete'

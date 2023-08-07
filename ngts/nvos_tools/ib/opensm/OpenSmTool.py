@@ -1,4 +1,3 @@
-import allure
 import pytest
 import time
 import logging
@@ -7,6 +6,8 @@ from ngts.nvos_constants.constants_nvos import IbConsts
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.tools.test_utils import allure_utils as allure
+from retry import retry
 
 logger = logging.getLogger()
 
@@ -29,7 +30,7 @@ class OpenSmTool:
             if "applied" not in output:
                 return ResultObj(False, "Failed to start openSM")
 
-            time.sleep(7)
+            _wait_until_sm_is_running(ib)
             res = OpenSmTool.verify_open_sm_is_running()
             return ResultObj(res, "Failed to start openSM")
 
@@ -64,3 +65,9 @@ class OpenSmTool:
             else:
                 logging.info("OpenSM is disabled")
                 return False
+
+
+@retry(Exception, tries=25, delay=4)
+def _wait_until_sm_is_running(ib):
+    sm_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
+    assert sm_dict[IbConsts.IS_RUNNING] == IbConsts.IS_RUNNING_YES

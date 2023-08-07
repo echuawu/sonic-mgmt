@@ -1,4 +1,23 @@
 ########################## NVOS IGNORE START ##########################
+tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_failthrough:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3501518"
+    conditions:
+      - https://redmine.mellanox.com/issues/3501518
+
+tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection:
+  skip:
+    reason: "Testcase skipped due to RM issues: https://redmine.mellanox.com/issues/3557998 and https://redmine.mellanox.com/issues/3519743"
+    conditions:
+      - https://redmine.mellanox.com/issues/3557998
+      - https://redmine.mellanox.com/issues/3519743
+
+tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_ssh_and_openapi_counting:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3530587"
+    conditions:
+      - https://redmine.mellanox.com/issues/3530587
+
 tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_apply_new_password_and_expiration_settings_together:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3408710"
@@ -37,10 +56,6 @@ tests_nvos/system/test_system_profile_change.py::test_system_profile_change_upgr
   skip:
     reason: "Not implemented command"
 
-tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotation_max_number:
-  skip:
-    reason: "Not implemented command"
-
 tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_link_diagnostics_basic:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3383943"
@@ -61,29 +76,17 @@ tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication_openapi
   skip:
     reason: "Testcase skipped till ntp server will be available"
 
-tests_nvos/system/test_system_health.py::test_ignore_health_issue:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3462130"
-    conditions:
-      - https://redmine.mellanox.com/issues/3462130
-
 tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3462130"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
     conditions:
-      - https://redmine.mellanox.com/issues/3462130
+      - https://redmine.mellanox.com/issues/3549081
 
 tests_nvos/system/test_system_health.py::test_reboot_test:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3409698"
     conditions:
       - https://redmine.mellanox.com/issues/3409698
-
-tests_nvos/system/test_system_snmp.py::test_system_snmp_functional:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3466894"
-    conditions:
-      - https://redmine.mellanox.com/issues/3466894
 
 tests_nvos/system/test_system_health.py::
   skip:
@@ -104,14 +107,6 @@ tests_nvos/system/test_system_factory_reset.py:
     conditions:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3484447
-
-tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_dhcp_hostname:
-  skip:
-    reason: "Testcase skipped due to serial engine issue"
-
-tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_ip_address:
-  skip:
-    reason: "Testcase skipped due to serial engine issue"
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow:
   skip:
@@ -149,21 +144,15 @@ tests_nvos/system/clock/test_system_clock.py::test_set_unset_timezone_ntp_off:
     conditions:
       - https://redmine.mellanox.com/issues/3507024
 
-tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3526265"
-    conditions:
-      - https://redmine.mellanox.com/issues/3526265
-
 tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_description:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3527752"
     conditions:
       - https://redmine.mellanox.com/issues/3527752
 
-tests_nvos/system/test_system_image::test_system_image_rename:
+tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3529578"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
     conditions:
       - https://redmine.mellanox.com/issues/3529578
 
@@ -171,5 +160,108 @@ tests_nvos/system/test_system_documents.py::test_show_document_files:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3529640"
     conditions:
-      - https://redmine.mellanox.com/issues/3529640
+      - https://redmine.mellanox.com/issues/3549081
+
+tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
+    conditions:
+      - https://redmine.mellanox.com/issues/3549081
+
+tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
+    conditions:
+      - https://redmine.mellanox.com/issues/3549081
+
+tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled_sm_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3537022"
+    conditions:
+      - https://redmine.mellanox.com/issues/3537022
+
+tests_nvos/interfaces/test_port_split.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3545600"
+    conditions:
+      - https://redmine.mellanox.com/issues/3545600
+
+tests_nvos/system/test_system_health.py::test_show_system_health:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
+    conditions:
+      - https://redmine.mellanox.com/issues/3549081
+
+tests_nvos/system/test_system_health.py::test_system_health_files:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
+    conditions:
+      - https://redmine.mellanox.com/issues/3549081
+
+tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
+    conditions:
+      - https://redmine.mellanox.com/issues/3549081
+
+tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_crash:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3554789"
+    conditions:
+      - https://redmine.mellanox.com/issues/3554789
+
+tests_nvos/system/test_system_message.py::test_set_system_message_pre_login_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_show_system.py::test_system_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_show_system.py::test_system_show_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_factory_reset_for_system_message:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_set_system_message_post_login_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_set_system_message_post_logout_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_factory_reset_for_system_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/system/test_system_message.py::test_system_reload_for_system_message_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
+    conditions:
+      - https://redmine.mellanox.com/issues/3555202
+
+tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3546936"
+    conditions:
+      - https://redmine.mellanox.com/issues/3546936
+
 ########################## NVOS IGNORE END ##########################

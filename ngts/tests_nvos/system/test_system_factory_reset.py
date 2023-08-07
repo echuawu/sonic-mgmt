@@ -526,7 +526,7 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
                     errors += "\nsonic.target probably was not stopped"
 
     with allure.step("Verify new DB was created"):
-        if param != KEEP_ONLY_FILES:
+        if param not in [KEEP_ALL_CONFIG, KEEP_ONLY_FILES]:
             output = engine.run_cmd("stat /etc/sonic/config_db.json | grep Birth")
             if output and "No such file or directory" not in output:
                 file_date_time = _create_date_time_obj(output)
@@ -545,18 +545,22 @@ def _verify_cleanup_done(engine, current_time, system, username, param=''):
             if output and "No such file or directory" not in output:
                 errors += "\ntech-support files were not deleted"
 
-    if is_redmine_issue_active([3532683]):
-        with allure.step("Verify stats internal files were deleted"):
-            if param != KEEP_ONLY_FILES:
-                output = engine.run_cmd("ls /var/stats")
-                if output and "No such file or directory" not in output:
-                    errors += "\nstats internal files were not deleted"
+    with allure.step("Verify old stats internal files were deleted"):
+        if param != KEEP_ONLY_FILES:
+            output = engine.run_cmd("ls /var/stats")
+            if output and "No such file or directory" not in output:
+                stats_files = list(output.split())
+                for stat_file in stats_files:
+                    output = engine.run_cmd(f"stat /var/stats/{stat_file} | grep Birth")
+                    file_date_time = _create_date_time_obj(output)
+                    if current_time >= file_date_time:
+                        errors += "\nold stats internal files were not deleted"
 
-        with allure.step("Verify stats external files were deleted"):
-            if param != KEEP_ONLY_FILES:
-                output = engine.run_cmd("ls /host/stats")
-                if output and "No such file or directory" not in output:
-                    errors += "\nstats external files were not deleted"
+    with allure.step("Verify stats external files were deleted"):
+        if param != KEEP_ONLY_FILES:
+            output = engine.run_cmd("ls /host/stats")
+            if output and "No such file or directory" not in output:
+                errors += "\nstats external files were not deleted"
 
     with allure.step("Verify /etc/sonic content was cleared"):
         if param != KEEP_ONLY_FILES:

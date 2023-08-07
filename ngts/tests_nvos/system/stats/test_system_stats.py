@@ -1,4 +1,5 @@
 import pytest
+import logging
 import time
 import csv
 import os
@@ -14,6 +15,8 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
+
+logger = logging.getLogger()
 
 
 @pytest.mark.system
@@ -574,7 +577,6 @@ def test_system_stats_log(engines, devices, test_api):
 
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
-    engine = engines.dut
     category_list = devices.dut.CATEGORY_LIST
 
     try:
@@ -601,11 +603,11 @@ def test_system_stats_log(engines, devices, test_api):
             ValidationTool.verify_expected_output(show_output, log_msg).verify_result()
 
         with allure.step("Validate stats files in tech support file"):
-            stats_files = list(engine.run_cmd("ls /var/stats").split())
-            validate_stats_files_exist_in_techsupport(system, engine, stats_files)
+            stats_files = list(engines.dut.run_cmd("ls /var/stats").split())
+            validate_stats_files_exist_in_techsupport(system, engines.dut, stats_files)
 
     finally:
-        set_system_stats_to_default(engine, system)
+        set_system_stats_to_default(engines.dut, system)
 
 
 @pytest.mark.system
@@ -625,7 +627,6 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
 
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
-    engine = engines.dut
     player_engine = engines['sonic_mgmt']
     category_list = devices.dut.CATEGORY_LIST
 
@@ -635,7 +636,7 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
                              apply=True).verify_result()
 
         with allure.step("Clear all internal files"):
-            engine.run_cmd("sudo rm -f /var/stats/*")
+            engines.dut.run_cmd("sudo rm -f /var/stats/*")
 
         with allure.step("Replace all category internal files with a max sized files"):
             for category in category_list:
@@ -646,16 +647,16 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
                                                     dest_folder=StatsConsts.INTERNAL_PATH,
                                                     dest_ip=engines.dut.ip,
                                                     local_file_path=file_path)
-                engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+                engines.dut.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
 
         with allure.step("Validate stats files in tech support file"):
-            stats_files = list(engine.run_cmd("ls /var/stats").split())
-            validate_stats_files_exist_in_techsupport(system, engine, stats_files)
+            stats_files = list(engines.dut.run_cmd("ls /var/stats").split())
+            validate_stats_files_exist_in_techsupport(system, engines.dut, stats_files)
 
     finally:
         with allure.step("Clear all internal files and set to all default"):
-            engine.run_cmd("sudo rm -f /var/stats/*")
-            set_system_stats_to_default(engine, system)
+            engines.dut.run_cmd("sudo rm -f /var/stats/*")
+            set_system_stats_to_default(engines.dut, system)
 
 
 @pytest.mark.system
@@ -840,28 +841,28 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}'.format(file_path))
 
-        # with allure.step("Replace internal file with file without header"):
-        #     file_name = 'power.csv'
-        #     file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
-        #     player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-        #                                         dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
-        #                                         dest_folder=StatsConsts.INTERNAL_PATH,
-        #                                         dest_ip=engines.dut.ip,
-        #                                         local_file_path=file_path)
-        #     engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
-        #
-        # with allure.step("Restart process..."):
-        #     engine.run_cmd("sudo systemctl restart stats-reportd")
-        #
-        # with allure.step("Wait 15 seconds..."):
-        #     time.sleep(StatsConsts.SLEEP_15_SECONDS)
-        #
-        # with allure.step("Validate creating new category file when header is corrupted"):
-        #     validate_number_of_lines_in_external_file(engines, system, 'power', StatsConsts.FUN_HEADER_NUM_OF_LINES,
-        #                                               StatsConsts.POWER_HEADER_NUM_OF_LINES + 3)
-        #
-        # with allure.step("Delete uploaded file"):
-        #     engine.run_cmd(cmd='rm -f {}'.format(file_path))
+        with allure.step("Replace internal file with file without header"):
+            file_name = 'power.csv'
+            file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
+            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                                dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                dest_folder=StatsConsts.INTERNAL_PATH,
+                                                dest_ip=engines.dut.ip,
+                                                local_file_path=file_path)
+            engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+
+        with allure.step("Restart process..."):
+            engine.run_cmd("sudo systemctl restart stats-reportd")
+
+        with allure.step("Wait 15 seconds..."):
+            time.sleep(StatsConsts.SLEEP_15_SECONDS)
+
+        with allure.step("Validate creating new category file when header is corrupted"):
+            validate_number_of_lines_in_external_file(engines, system, 'power', StatsConsts.FUN_HEADER_NUM_OF_LINES,
+                                                      StatsConsts.POWER_HEADER_NUM_OF_LINES + 3)
+
+        with allure.step("Delete uploaded file"):
+            engine.run_cmd(cmd='rm -f {}'.format(file_path))
 
         with allure.step("Replace internal file with a huge file"):
             file_name = 'temperature.csv'
@@ -1192,6 +1193,26 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
                 assert StatsConsts.PWR_PSU_CUR_MIN <= int(row[4]) <= StatsConsts.PWR_PSU_CUR_MAX,\
                     f"Power {col_names[4]} not in range ({row[4]}) in sample #{num_of_samples}"
                 prev_sample_time = sample_time
+        elif name == 'voltage':
+            for row in reader:
+                num_of_samples += 1
+                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                                                StatsConsts.TIMESTAMP_FORMAT)
+                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+                time_low_thresh = expected_time - timedelta(seconds=5)
+                time_high_thresh = expected_time + timedelta(seconds=5)
+                assert time_low_thresh < sample_time < time_high_thresh,\
+                    f"Voltage timestamp {sample_time} is too far from expected {expected_time}"
+                for col in range(1, num_of_columns - 2):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.VOLTAGE_GENERAL_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_GENERAL_MAX,\
+                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                for col in range(num_of_columns - 1, num_of_columns):
+                    if row[col] != 'N/A':
+                        assert StatsConsts.VOLTAGE_PSU_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_PSU_MAX,\
+                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+
+                prev_sample_time = sample_time
 
 
 def validate_external_file_timestamps(file_name, clear_time):
@@ -1242,7 +1263,8 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     """
     generate techsupport and validate stats files exist in the stats dir
     """
-    tech_support_folder = system.techsupport.action_generate()
+    tech_support_folder = system.techsupport.action_generate(engine=engine)
+    logger.info("The techsupport file name is : " + tech_support_folder)
     techsupport_files_list = system.techsupport.get_techsupport_stats_files_names(engine, tech_support_folder)
     for stat_file in stats_files:
         assert "{}.gz".format(stat_file) in techsupport_files_list, \

@@ -280,6 +280,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             for i in range(2):
                 logger.info("Sending one arrow down")
                 serial_engine.run_cmd("\x1b[B", expected_value='.*', send_without_enter=True)
+                time.sleep(0.3)
 
             if "MLNX_" in topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', ''):
                 serial_engine.run_cmd('\r', 'Due to security constraints, this option will uninstall your current OS',
@@ -288,6 +289,33 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
         logger.info("Pressing Enter to enter ONIE menu")
         self.wait_for_onie_prompt(serial_engine)
+
+        logger.info("Send 'onie-stop'")
+        self.send_onie_stop(serial_engine)
+
+    def send_onie_stop(self, serial_engine):
+        logger.info('Send: "\\r"')
+        output, respond = serial_engine.run_cmd('\r', ['login:', 'ONIE:/ #'], timeout=5, send_without_enter=True)
+        logger.info(f'index: {respond} ; output:\n{output}')
+        if respond == 0:
+            logger.info('System is secured. Login to ONIE with credentials')
+            logger.info(f'Send line: "{DefaultConnectionValues.ONIE_USERNAME}"')
+            output, respond = serial_engine.run_cmd(DefaultConnectionValues.ONIE_USERNAME, '[Pp]assword:', timeout=10)
+            logger.info(output)
+            logger.info(f'Send line: "{DefaultConnectionValues.ONIE_PASSWORD}"')
+            output, respond = serial_engine.run_cmd(DefaultConnectionValues.ONIE_PASSWORD, 'ONIE:~ #', timeout=20)
+            logger.info(output)
+
+        logger.info('Send line: "onie-stop"')
+        output, respond = serial_engine.run_cmd('onie-stop', 'done.', timeout=10)
+        logger.info(output)
+
+        time.sleep(5)
+        logger.info('Send new line')
+        output, respond = serial_engine.run_cmd('\r', '#', timeout=10, send_without_enter=True)
+        logger.info(output)
+
+        logger.info('Send onie stop done')
 
     def prepare_for_installation(self, topology_obj):
         '''

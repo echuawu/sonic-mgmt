@@ -67,6 +67,35 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params[action_type])
 
     @staticmethod
+    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
+        logging.info("Running file action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
+        action_type = '@' + action_str
+        params = \
+            {
+                ActionType.DELETE:
+                    {
+                        "state": "start"
+                    },
+                ActionType.INSTALL:
+                    {
+                        "state": "start",
+                        "parameters": {"force": op_param}
+                    },
+                ActionType.RENAME:
+                    {
+                        "state": "start",
+                        "parameters": {"new-name": op_param}
+                    },
+                ActionType.UPLOAD:
+                    {
+                        "state": "start",
+                        "parameters": {"remote-url": op_param}
+                    }
+            }
+        return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params[action_type])
+
+    @staticmethod
     def action_general(engine, action_str, resource_path):
         logging.info("Running action: '{action_type}' on dut using OpenApi, resource: '{rsrc}'".
                      format(action_type=action_str, rsrc=resource_path))
@@ -172,3 +201,16 @@ class OpenApiSystemCli(OpenApiBaseCli):
     def show_file(engine, file='', exit_cmd=''):
         # TODO not supported yet
         return ""
+
+    @staticmethod
+    def action_clear(engine, resource_path, params_dict=None):
+        logging.info("Running action: 'clear' on dut using OpenApi, resource: {rsrc}".format(rsrc=resource_path))
+
+        params = \
+            {
+                "state": "start",
+                "parameters": params_dict
+            }
+
+        return OpenApiCommandHelper.execute_action(ActionType.CLEAR, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)

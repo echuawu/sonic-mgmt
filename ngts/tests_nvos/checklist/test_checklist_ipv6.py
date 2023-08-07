@@ -42,7 +42,7 @@ def test_checklist_ipv6(engines):
             _send_open_api_request(ipv6_add, engines.dut.username, engines.dut.password)
 
     except BaseException as ex:
-        logging.info("Something failed")
+        assert str(ex)
 
 
 def ping_switch(ipv6_add):
@@ -84,7 +84,7 @@ def _check_ssh_connection(ipv6_add, username, password):
 
 def _send_open_api_request(ipv6_add, username, password):
     try:
-        url = "curl -gkvu {user_name}:{password} https://[{ipv6_add}]/nvue_v1/system/version".format(
+        url = "curl -gkvu --user {user_name}:{password} --request GET https://[{ipv6_add}]/nvue_v1/system/version".format(
             user_name=username, password=password, ipv6_add=ipv6_add)
         logging.info("url: " + url)
         process = subprocess.Popen(url.split(), stdout=subprocess.PIPE)
@@ -94,4 +94,4 @@ def _send_open_api_request(ipv6_add, username, password):
         assert "build-by" in str(output) and "build-date" in str(output), "API request failed using ipv6 address"
     except BaseException as ex:
         logging.error(str(ex))
-        #assert "API request failed using ipv6 address"
+        assert "API request failed using ipv6 address"

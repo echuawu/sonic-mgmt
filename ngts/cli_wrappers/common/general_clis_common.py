@@ -127,6 +127,9 @@ class GeneralCliCommon(GeneralCliInterface):
     def gcovr(self, paths='', flags=''):
         return self.engine.run_cmd(f'gcovr {flags} {paths}', validate=True)
 
+    def lcovr(self, flags=''):
+        return self.engine.run_cmd(f'lcov {flags}', validate=True)
+
     def get_time(self):
         output = self.engine.run_cmd('date +"%T"', validate=True)
         return output

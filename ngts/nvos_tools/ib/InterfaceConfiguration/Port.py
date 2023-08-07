@@ -9,6 +9,7 @@ from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfa
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 import allure
+from retry import retry
 
 logger = logging.getLogger()
 
@@ -158,3 +159,13 @@ class Port(BaseComponent):
             return Port.api_obj[TestToolkit.tested_api].show_interface(engine=dut_engine,
                                                                        port_name=port_names,
                                                                        output_format=output_format)
+
+    @staticmethod
+    @retry(Exception, tries=15, delay=5)
+    def wait_for_port_state(port_obj, expected_state):
+        with allure.step("Waiting for port {} state {}".format(port_obj.name, expected_state)):
+            output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+                port_obj.interface.link.show()).get_returned_value()
+            current_state = output_dictionary[IbInterfaceConsts.LINK_STATE]
+            assert current_state == expected_state, "Current state {} is not {} as expected".format(current_state,
+                                                                                                    expected_state)

@@ -246,10 +246,10 @@ def test_rotate_debug_log_files(engines):
             with allure.step("Delete {} file".format(log_file)):
                 File(system.debug_log.files, log_file).action_delete()
 
-                with allure.step("Verify {} was deleted".format(log_file)):
-                    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.debug_log.files.show()) \
-                        .get_returned_value()
-                    assert log_file not in output_dictionary.keys(), log_file + " was not actually deleted"
+        with allure.step("Verify all debug-log files were deleted".format(log_file)):
+            output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.debug_log.files.show()) \
+                .get_returned_value()
+            assert len(output_dictionary) == 0, "We have log files after delete all"
 
 
 @pytest.mark.system
@@ -535,7 +535,7 @@ def test_debug_log_files_set_unset_log_rotation_max_number(engines):
     with allure.step("Create System object"):
         system = System(None)
 
-    with allure.step("Create System object"):
+    with allure.step("Write to debug log file"):
         system.debug_log.write_to_debug_log()
 
     _log_files_set_unset_log_rotation_max_number(engines, system.debug_log)
@@ -562,12 +562,13 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         logging.info("Rotate log 5 times to check functionality of max-number")
         for i in range(0, 5):
             system_log_obj.rotate_logs()
+            system_log_obj.write_to_debug_log()
 
         logging.info("Check we have 5 log files")
         show_output = system_log_obj.files.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         assert len(output_dictionary.keys()) >= 6
-        assert list(output_dictionary.keys())[-1] == 'syslog.5.gz'
+        assert list(output_dictionary.keys())[-1] == 'debug.5.gz'
 
     with allure.step("Validate set max-number 1"):
         logging.info("Validate set max-number 1")
@@ -579,12 +580,13 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
 
         logging.info("Rotate log 1 time to check functionality of max-number")
         system_log_obj.rotate_logs()
+        system_log_obj.write_to_debug_log()
 
         logging.info("Check we have 1 log files")
         show_output = system_log_obj.files.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         assert len(output_dictionary.keys()) == 2
-        assert list(output_dictionary.keys())[-1] == 'syslog.1'
+        assert list(output_dictionary.keys())[-1] == 'debug.1'
 
     with allure.step("Validate unset log rotation"):
         logging.info("Validate unset log rotation")

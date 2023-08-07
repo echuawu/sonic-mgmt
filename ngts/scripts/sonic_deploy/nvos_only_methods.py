@@ -5,7 +5,7 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 import shutil
 import os
 from ngts.constants.constants import LinuxConsts
-from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
@@ -43,11 +43,16 @@ class NvosInstallationSteps:
 
         with allure.step('Configure timezone'):
             try:
-                logger.info("Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-                ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
+                logger.info("Configuring same time zone for dut and local engine to {}"
+                            .format(LinuxConsts.JERUSALEM_TIMEZONE))
+                logger.info('Set timezone using NVUE')
+                System().set(ClockConsts.TIMEZONE, LinuxConsts.JERUSALEM_TIMEZONE, apply=True, dut_engine=dut_engine)\
+                    .verify_result()
                 with allure.step('Save configuration'):
+                    logger.info('Save configuration')
                     NvueGeneralCli.save_config(dut_engine)
                 with allure.step('Set timezone using timedatectl command'):
+                    logger.info('Set timezone using linux command')
                     os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
             except BaseException as ex:
                 logger.warning('Failed to configure timezone')
@@ -83,4 +88,4 @@ class NvosInstallationSteps:
             cli.deploy_image(topology_obj=topology_obj, image_path=image_url, apply_base_config=apply_base_config,
                              setup_name=setup_name, platform_params=platform_params,
                              deploy_type=deploy_type, reboot_after_install=reboot_after_install,
-                             fw_pkg_path=fw_pkg_path)
+                             fw_pkg_path=fw_pkg_path, set_timezone=None)

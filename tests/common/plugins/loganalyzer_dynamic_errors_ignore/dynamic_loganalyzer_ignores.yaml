@@ -2568,7 +2568,7 @@
         - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_protocol
         - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_protocol_openapi
 
-# NVOS
+# NVOS - ignore log info message for not a bug
 - Errors_list:
     - '.* INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
   Conditions:
@@ -2578,6 +2578,9 @@
         - tests_nvos/ib/test_unset_ib.py
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up_openapi
+        - tests_nvos/interfaces/test_ib_interface_counters.py
+        - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
+        - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state
 
 # NVOS
 - Errors_list:
@@ -2585,6 +2588,13 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed_invalid
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify ipoib interface configuration.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled_sm
 
 # NVOS Errors which should be ignored in tests which doing reset service
 - Errors_list:
@@ -2602,16 +2612,16 @@
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
 
-# NVOS
-- Errors_list:
-    - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
-    - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
-    - '.* ERR auditd\[\d+\]: auditd queue full reporting limit reached \- ending dropped event.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
-    - Redmine:
-        - 3482718
+## NVOS - commented the ignore for debug
+#- Errors_list:
+#    - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
+#    - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
+#    - '.* ERR auditd\[\d+\]: auditd queue full reporting limit reached \- ending dropped event.*'
+#  Conditions:
+#    - Affected_test_cases:
+#        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+#    - Redmine:
+#        - 3482718
 
 # NVOS
 - Errors_list:
@@ -2622,13 +2632,6 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_priority_and_fallback_functionality
     - Redmine:
         - 3480907
-
-# NVOS
-- Errors_list:
-    - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
 
 # NVOS
 - Errors_list:
@@ -2666,6 +2669,13 @@
 
 # NVOS
 - Errors_list:
+    - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
+
+# NVOS
+- Errors_list:
     - '.* ERR nslcd\[\d+\]: .* no available LDAP server found: .*'
   Conditions:
     - Affected_test_cases:
@@ -2674,6 +2684,17 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
+
+# NVOS
+- Errors_list:
+    - '.*ERR nslcd\[.*\]: \[.*\] client supplied argument 1 bytes too large'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_remote_counting
+      Redmine:
+        - 3544347
 
 # NVOS : Errors which should be ignored in tests which doing reboot/reload
 - Errors_list:
@@ -2705,7 +2726,7 @@
       Redmine:
         - 3494774
 
-# NVOS : Errors - Bug 3474336 related
+# NVOS : Errors - Bug 3558065 related
 - Errors_list:
     - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
     - '.* ERR health-statsd#health_history: Disk check: is not Status ok.*'
@@ -2719,8 +2740,9 @@
         - tests_nvos/system/test_show_system.py::test_system
         - tests_nvos/system/test_show_system.py::test_system_openapi
         - tests_nvos/system/test_show_system.py::test_show_system_cpu_openapi
+        - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_dhcp_hostname
       Redmine:
-        - 3474336
+        - 3558065
 
 # NVOS
 - Errors_list:
@@ -2932,17 +2954,6 @@
     - Redmine:
         - 3493347
 
-# NVOS
-- Errors_list:
-    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests_nvos/general/traffic/test_basic_traffic.py
-      - tests_nvos/interfaces/test_ib_interface_counters.py
-      - tests_nvos/interfaces/test_port_split.py
-      Redmine:
-        - 3498811
-
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
     - '.*ERR kernel: \[.*\] SX_BULK_CNTR: operation TLV is missing in buffer.*'
@@ -2974,6 +2985,16 @@
       - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file
       - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
       - tests_nvos/system/test_system_health.py::test_system_health_files
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: Invalid fan speed data for.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_ignore_health_issue
 
 # NVOS - snmp error flows
 - Errors_list:
@@ -3022,16 +3043,6 @@
       - tests_nvos/interfaces/test_port_split.py::test_split_port_n_times
       Redmine:
         - 3498811
-
-# NVOS - FW Health issue
-- Errors_list:
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW fatal cause: HW cause id = \[.*\], cause_reg = \[.*\], cause_offset = \[.*\]'
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW health event device:\[\d+\] FW cause:\[\d+,FW FATAL CAUSE EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[.*\], long_process:\[\d+\],command_type:\[CMD-IFC\], IRISC:\[\d+\], method:\[.*\]'
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] FW SOS device:\[\d+\] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+\]\)'
-    - '.*ERR syncd-ibv0#SDK: \[HOST_INTERFACE\.ERR\] SX_HEALTH_FATAL Detected with cause : FW health issue \[id = \d+\]'
-  Conditions:
-    - Redmine:
-      - 3498997
 
 # NVOS - log issue
 - Errors_list:
@@ -3090,7 +3101,7 @@
       - tests_nvos/system/test_system_reboot.py::test_reboot_command_force
       - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
       Redmine:
-        - 3532697
+        - 3532765
 
 # NVOS
 - Errors_list:
@@ -3106,4 +3117,153 @@
       - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
       - tests_nvos/general/config_commands/est_show_diff_history.py::test_diff_history_revision_ids
       Redmine:
-        - 3531453
+        - 3372506
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: monit: service is not ready.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      Redmine:
+        - 3564414
+
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: cmd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b''''*'
+    - '.*ERR hostcfgd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b''''*'
+    - '.*ERR hostcfgd: \[''chage'', ''-W'', ''15'', ''.*''\] - failed: return code - 1, output:#012b'''''
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_functionality
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_warning_functionality
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_functionality
+      Redmine:
+        - 3531935
+
+# NVOS
+- Errors_list:
+    - '.*ERROR: main.py:225 Could not add API nos.funits.cue_platform_v1.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command
+      - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_immediate
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_force
+      - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+      Redmine:
+        - 3539462
+
+# NVOS
+- Errors_list:
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU1\/FAN: is missing.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU1: is missing or not available.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU\d\/FAN: speed is out of range.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: FAN\d\/\d: speed is out of range.*'
+    - '.*gorilla-152 ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*gorilla-152 ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*gorilla-152 ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*gorilla-152 ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*nvos ERR health-statsd#health_history: PSU1\/FAN: is missing.*'
+    - '.*nvos ERR health-statsd#health_history: PSU1: is missing or not available.*'
+  Conditions:
+    - Redmine:
+      - 3541063
+
+# Marlin known issue
+- Errors_list:
+    - '.*ERR health-statsd#health_history: Fan: Failed to get fan information.*'
+    - '.*ERR health-statsd#health_history: PSU: Failed to get information.*'
+    - '.*ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.*Could not get info about psus.*'
+    - '.*Could not get info about fans.*'
+    - '.*Could not get info about sensors.*'
+    - '.*ERR systemd\[1\]: Failed to start Platform monitor container.*'
+    - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
+  Conditions:
+    - Redmine:
+        - 3540710
+    - Platform:
+        - mqm9520
+
+# NVOS Marlin
+- Errors_list:
+    - ".*Fail to register core bus.*"
+    - ".*Could not start transaction.*"
+    - ".*command handler 'sdq_max_diff_clear' already exists.*"
+    - ".*command handler 'qos_counters_clear' already exists.*"
+  Conditions:
+    - Redmine:
+        - 3540016
+    - Platform:
+        - mqm9520
+
+# NVOS
+- Errors_list:
+    - ".*Failed to fetch file: (.*, 'Could not resolve host: hostname').*"
+  Conditions:
+    - Redmine:
+      - 3532915
+
+# NVOS
+- Errors_list:
+    - ".*ERR healthd: system_serviceSet changed size during iteration.*"
+  Conditions:
+    - Redmine:
+      - 3544171
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: memory_check: is not Status ok.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/config_commands/test_show_diff_history.py
+      - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+      - tests_nvos/system/test_show_system.py::test_system
+      - tests_nvos/system/test_show_system.py::test_system_openapi
+      - tests_nvos/config_commands/test_show_diff_history.py::test_show_diff_histor
+      - tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_apply_assume
+      Redmine:
+        - 3558065
+
+# NVOS
+- Errors_list:
+    - '.*was not found in \/var\/log.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_ib_split_port_no_breakout_profile
+      - tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_crash
+      - tests_nvos/system/test_system_profile_change.py::test_system_profile_changes_stress
+      - tests_nvos/system/test_system_profile_change.py::test_system_profile_change_breakout_mode
+      - tests_nvos/system/test_system_profile_change.py::test_system_profile_adaptive_routing
+      Redmine:
+        - 3549505
+
+# NVOS
+- Errors_list:
+    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
+        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_folder_name
+      Redmine:
+        - 3544158
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
