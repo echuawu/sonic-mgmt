@@ -64,7 +64,7 @@ class SecureBootHelper:
         return player
 
     def get_vmiluz_file_path(self):
-        output = self.engines.dut.run_cmd('ls {}'.format(SecureBootConsts.VMILUNZ_DIR))
+        output = self.serial_engine.run_cmd_and_get_output('ls {}'.format(SecureBootConsts.VMILUNZ_DIR))
         path = re.findall(SecureBootConsts.VMILUNZ_REGEX, output)[0]
         return SecureBootConsts.VMILUNZ_DIR + path
 
@@ -85,9 +85,7 @@ class SonicSecureBootHelper(SecureBootHelper):
         _, respond = self.serial_engine.run_cmd('\r', ["/home/admin#",
                                                        "Please press Enter to activate this console",
                                                        DefaultConnectionValues.LOGIN_REGEX,
-                                                       DefaultConnectionValues.DEFAULT_PROMPTS[0],
-                                                       "Malformed binary after Attribute Certificate Table"],
-                                                timeout=SonicSecureBootConsts.ONIE_TIMEOUT)
+                                                       DefaultConnectionValues.DEFAULT_PROMPTS[0]])
         if respond == 0:
             logger.info("It is in sonic")
             return True
