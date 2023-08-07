@@ -154,6 +154,9 @@ def extract_python_coverage_for_nvos(dest, engines, engine, cli_obj):
     with allure.step("Collect python coverage"):
         collect_python_coverage(cli_obj, engine, dest, coverage_file)
 
+    with allure.step("Delete 'raw' files from host"):
+        engines.dut.run_cmd('rm -f /var/lib/python/coverage/raw.*')
+
     with allure.step("Check capacity"):
         check_used_capacity(engine)
 
@@ -186,26 +189,32 @@ def collect_python_coverage(cli_obj, engine, dest, coverage_file):
     coverage_xml_filename_prefix = f'coverage-{hostname}'
 
     with allure.step('Create coverage xml report for the host'):
-        host_coverage_xml_file = os.path.join(coverage_dir, f'{coverage_xml_filename_prefix}-{timestamp}.xml')
-        create_coverage_xml(cli_obj.general, coverage_file, host_coverage_xml_file)
-        check_used_capacity(engine)
+        try:
+            host_coverage_xml_file = os.path.join(coverage_dir, f'{coverage_xml_filename_prefix}-{timestamp}.xml')
+            create_coverage_xml(cli_obj.general, coverage_file, host_coverage_xml_file)
+            check_used_capacity(engine)
+        except Exception as ex:
+            logger.info("Coverage collection for host has failed: " + str(ex))
 
     with allure.step("Get a list of running containers"):
         containers = cli_obj.general.get_running_containers_names()
         logger.info(f'Running Docker containers: {containers}')
 
     for container in containers:
-        with allure.step(f'Create coverage xml report for {container} container'):
-            docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
-            container_coverage_xml_file = os.path.join(coverage_dir,
-                                                       f'{coverage_xml_filename_prefix}-{timestamp}-{container}.xml')
-            create_coverage_xml(GeneralCliCommon(docker_exec_engine), coverage_file, container_coverage_xml_file)
-            coverage_xml_files = system_helpers.list_files(docker_exec_engine, coverage_dir,
-                                                           pattern=coverage_xml_filename_prefix)
-            logger.info(f'Coverage xml files in {container} container: {coverage_xml_files}')
-            for file in coverage_xml_files:
-                cli_obj.general.copy_from_docker(container, file, file)
-                cli_obj.general.remove_from_docker(container, file)
+        try:
+            with allure.step(f'Create coverage xml report for {container} container'):
+                docker_exec_engine = system_helpers.PrefixEngine(engine, f'docker exec {container}')
+                container_coverage_xml_file = os.path.join(coverage_dir,
+                                                           f'{coverage_xml_filename_prefix}-{timestamp}-{container}.xml')
+                create_coverage_xml(GeneralCliCommon(docker_exec_engine), coverage_file, container_coverage_xml_file)
+                coverage_xml_files = system_helpers.list_files(docker_exec_engine, coverage_dir,
+                                                               pattern=coverage_xml_filename_prefix)
+                logger.info(f'Coverage xml files in {container} container: {coverage_xml_files}')
+                for file in coverage_xml_files:
+                    cli_obj.general.copy_from_docker(container, file, file)
+                    cli_obj.general.remove_from_docker(container, file)
+        except Exception as ex:
+            logger.info(f"Coverage collection for {container} has failed: " + str(ex))
 
     with allure.step(f'Copy coverage xml reports from the system to destination directory'):
         coverage_xml_files = system_helpers.list_files(engine, coverage_dir, pattern=coverage_xml_filename_prefix)
